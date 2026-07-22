@@ -47,9 +47,9 @@
                 </div>
             </header>
 
-            <main class="relative flex-1 overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white">
-                <div class="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full bg-primary-200/40 blur-3xl"></div>
-                <div class="pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full bg-primary-100/50 blur-3xl"></div>
+            <main class="relative flex-1 overflow-hidden bg-gray-50">
+                <div class="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full bg-primary-100/60 blur-3xl"></div>
+                <div class="pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full bg-primary-50 blur-3xl"></div>
 
                 <div class="relative mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 lg:py-16">
                     <div>{{ $left }}</div>
