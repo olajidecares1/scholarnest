@@ -5,6 +5,7 @@
     'placeholder' => 'Enter your email address',
     'autocomplete' => 'username',
     'autofocus' => false,
+    'value' => null,
 ])
 
 <div>
@@ -21,7 +22,7 @@
             :name="$name"
             type="email"
             class="pl-10"
-            :value="old($name)"
+            :value="$value ?? old($name)"
             required
             :autofocus="$autofocus"
             :autocomplete="$autocomplete"

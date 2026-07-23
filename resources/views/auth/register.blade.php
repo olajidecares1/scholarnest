@@ -21,7 +21,7 @@
         <x-auth-panel-illustration />
     </x-slot:left>
 
-    <div class="mx-auto w-full max-w-md rounded-[5px] border border-gray-200 bg-white p-6 shadow-2xl shadow-primary-900/10 ring-1 ring-black/5 sm:p-8 lg:rounded-[10px]">
+    <x-auth-card>
         <h2 class="text-xl font-bold text-gray-900">Create Your School Account</h2>
         <p class="mt-1 text-sm text-gray-600">Choose your preferred method to get started</p>
 
@@ -112,5 +112,5 @@
         </form>
 
         <x-auth-security-note />
-    </div>
+    </x-auth-card>
 </x-auth-layout>
