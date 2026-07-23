@@ -13,6 +13,10 @@
 
         <title>{{ $title ?? config('app.name', 'EduNest') }}</title>
 
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
@@ -23,13 +27,11 @@
             <header class="border-b border-gray-200 bg-white">
                 <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
                     <a href="{{ url('/') }}" class="flex items-center gap-2">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-[5px] bg-primary-500 text-white shadow-md shadow-primary-500/30 lg:rounded-[10px]">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 3L2 8L12 13L22 8L12 3Z" fill="currentColor" />
-                                <path d="M6 10.5V16C6 16 8 19 12 19C16 19 18 16 18 16V10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M22 8V14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                            </svg>
-                        </span>
+                        <img
+                            src="{{ asset('images/logo-icon-dark.png') }}"
+                            alt="EduNest"
+                            class="h-9 w-9 shrink-0 rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
+                        >
                         <span class="text-lg font-bold text-gray-900">Edu<span class="text-primary-500">Nest</span></span>
                     </a>
 
