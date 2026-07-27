@@ -48,11 +48,13 @@ test('every super admin section is reachable', function () {
         'super-admin.subscriptions.index',
         'super-admin.payments.index',
         'super-admin.users.index',
+        'super-admin.roles.index',
         'super-admin.reports.index',
         'super-admin.analytics.index',
         'super-admin.communications.index',
         'super-admin.support-tickets.index',
         'super-admin.cms.index',
+        'super-admin.themes.index',
         'super-admin.settings.index',
         'super-admin.audit-logs.index',
     ];

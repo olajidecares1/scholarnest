@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\SuperAdmin;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SuperAdmin\StoreUserRequest;
+use App\Models\School;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -28,6 +32,29 @@ class UserController extends Controller
         return view('super-admin.users.index', [
             'users' => $users,
         ]);
+    }
+
+    public function create(): View
+    {
+        return view('super-admin.users.create', [
+            'schools' => School::orderBy('name')->get(['id', 'name']),
+        ]);
+    }
+
+    public function store(StoreUserRequest $request): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => UserRole::SchoolAdmin,
+            'school_id' => $validated['school_id'],
+        ]);
+
+        return redirect()->route('super-admin.users.index')
+            ->with('status', "{$user->name} has been added as a school admin.");
     }
 
     public function activate(User $user): RedirectResponse

@@ -67,6 +67,8 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('schools')->name('schools.')->group(function () {
             Route::get('/', [SchoolController::class, 'index'])->name('index');
+            Route::get('create', [SchoolController::class, 'create'])->name('create');
+            Route::post('/', [SchoolController::class, 'store'])->name('store');
             Route::get('{school}', [SchoolController::class, 'show'])->name('show');
             Route::post('{school}/activate', [SchoolController::class, 'activate'])->name('activate');
             Route::post('{school}/deactivate', [SchoolController::class, 'deactivate'])->name('deactivate');
@@ -85,15 +87,19 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [SuperAdminUserController::class, 'index'])->name('index');
+            Route::get('create', [SuperAdminUserController::class, 'create'])->name('create');
+            Route::post('/', [SuperAdminUserController::class, 'store'])->name('store');
             Route::post('{user}/activate', [SuperAdminUserController::class, 'activate'])->name('activate');
             Route::post('{user}/deactivate', [SuperAdminUserController::class, 'deactivate'])->name('deactivate');
         });
 
+        Route::get('roles', [ComingSoonController::class, 'show'])->name('roles.index');
         Route::get('reports', [ComingSoonController::class, 'show'])->name('reports.index');
         Route::get('analytics', [ComingSoonController::class, 'show'])->name('analytics.index');
         Route::get('communications', [ComingSoonController::class, 'show'])->name('communications.index');
         Route::get('support-tickets', [ComingSoonController::class, 'show'])->name('support-tickets.index');
         Route::get('cms', [ComingSoonController::class, 'show'])->name('cms.index');
+        Route::get('themes', [ComingSoonController::class, 'show'])->name('themes.index');
         Route::get('settings', [ComingSoonController::class, 'show'])->name('settings.index');
         Route::get('audit-logs', [ComingSoonController::class, 'show'])->name('audit-logs.index');
     });

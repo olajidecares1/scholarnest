@@ -12,6 +12,16 @@ class ComingSoonController extends Controller
      * @var array<string, array{title: string, description: string, features: list<string>}>
      */
     private const SECTIONS = [
+        'roles' => [
+            'title' => 'Roles & Permissions',
+            'description' => 'Define admin roles and control access to platform features.',
+            'features' => [
+                'Custom role creation with granular permissions',
+                'Assign roles to Super Admin team members',
+                'Permission groups by feature area',
+                'Activity restrictions per role',
+            ],
+        ],
         'reports' => [
             'title' => 'Reports',
             'description' => 'Review community misconduct submissions and platform reports.',
@@ -60,6 +70,16 @@ class ComingSoonController extends Controller
                 'Testimonials, FAQ, services, and team pages',
                 'About, Privacy, and Terms pages',
                 'Social media links',
+            ],
+        ],
+        'themes' => [
+            'title' => 'Themes',
+            'description' => 'Customize the platform and school portal appearance.',
+            'features' => [
+                'Color palette and branding presets',
+                'Per-school theme overrides',
+                'Logo and favicon manager',
+                'Live theme preview',
             ],
         ],
         'settings' => [

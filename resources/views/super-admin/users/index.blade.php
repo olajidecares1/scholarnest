@@ -6,6 +6,18 @@
             </div>
         @endif
 
+        <div class="flex justify-end">
+            <a
+                href="{{ route('super-admin.users.create') }}"
+                class="flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]"
+            >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                Add Admin
+            </a>
+        </div>
+
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <form method="GET" action="{{ route('super-admin.users.index') }}" class="flex flex-wrap items-center gap-3 p-4">
                 <div class="relative flex-1 min-w-[200px]">

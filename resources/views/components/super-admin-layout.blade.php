@@ -41,14 +41,12 @@
             :class="{ 'translate-x-0': sidebarOpen }"
         >
             <div class="flex items-center gap-2 px-5 py-5">
-                <img
-                    src="{{ asset('images/logo-icon-dark.png') }}"
-                    alt="EduNest"
-                    class="h-9 w-9 shrink-0 rounded-[5px] bg-white/10 lg:rounded-[10px]"
-                >
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[5px] bg-white p-1.5 shadow-sm lg:rounded-[10px]">
+                    <img src="{{ asset('images/logo-mark.png') }}" alt="EduNest" class="h-full w-full object-contain">
+                </span>
                 <div>
                     <p class="text-lg font-bold leading-tight">EduNest</p>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-100">Super Admin Portal</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-100">Super Admin</p>
                 </div>
             </div>
 
@@ -82,60 +80,17 @@
                     Schools
                 </a>
 
-                <div x-data="{ open: {{ request()->routeIs('super-admin.subscriptions.*') ? 'true' : 'false' }} }">
-                    <button
-                        type="button"
-                        @click="open = !open"
-                        class="flex min-h-[44px] w-full items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('super-admin.subscriptions.*') ? 'bg-white/20 text-white shadow-sm' : 'text-primary-50 hover:bg-white/10 hover:text-white' }}"
-                    >
-                        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.75" />
-                            <path d="M3 10h18" stroke="currentColor" stroke-width="1.75" />
-                        </svg>
-                        <span class="flex-1 text-left">Subscriptions</span>
-                        <svg class="h-4 w-4 shrink-0 transition-transform" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-transition style="display: none;" class="mt-1 space-y-1 pl-8">
-                        <a href="{{ route('super-admin.subscriptions.index') }}" class="flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm {{ request()->routeIs('super-admin.subscriptions.index') && request('tab', 'pending') === 'pending' ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}">
-                            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
-                                <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            Pending Approvals
-                        </a>
-                        <a href="{{ route('super-admin.subscriptions.index', ['tab' => 'active']) }}" class="flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm {{ request('tab') === 'active' ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}">
-                            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
-                                <path d="M8.5 12.5l2.5 2.5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            Active Subscriptions
-                        </a>
-                        <a href="{{ route('super-admin.subscriptions.index', ['tab' => 'expired']) }}" class="flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm {{ request('tab') === 'expired' ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}">
-                            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
-                                <path d="M9.5 9.5l5 5M14.5 9.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            Expired Subscriptions
-                        </a>
-                        <a href="{{ route('super-admin.subscriptions.index', ['tab' => 'all']) }}" class="flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm {{ request('tab') === 'all' ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}">
-                            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            </svg>
-                            All Subscriptions
-                        </a>
-                    </div>
-                </div>
-
                 @foreach ([
+                    ['route' => 'super-admin.subscriptions.index', 'label' => 'Subscriptions', 'icon' => 'M3 5h18M3 5a2 2 0 00-2 2v6a2 2 0 002 2h18a2 2 0 002-2V7a2 2 0 00-2-2M3 5h18'],
                     ['route' => 'super-admin.payments.index', 'label' => 'Payments', 'icon' => 'M4 7h16M4 7a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2M4 7l1.7-3.4A2 2 0 017.5 2.5h9a2 2 0 011.8 1.1L20 7M8 15h.01M12 15h4'],
                     ['route' => 'super-admin.users.index', 'label' => 'Users', 'icon' => 'M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'],
+                    ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions', 'icon' => 'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z'],
                     ['route' => 'super-admin.reports.index', 'label' => 'Reports', 'icon' => 'M9 17v-6M15 17v-2M12 17v-9M4 21h16a1 1 0 001-1V4a1 1 0 00-1-1H4a1 1 0 00-1 1v16a1 1 0 001 1z'],
                     ['route' => 'super-admin.analytics.index', 'label' => 'Analytics', 'icon' => 'M4 20V10M10 20V4M16 20v-7M20 20v-3'],
                     ['route' => 'super-admin.communications.index', 'label' => 'Communications', 'icon' => 'M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z'],
                     ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets', 'icon' => 'M9 12h6M9 16h6M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z'],
                     ['route' => 'super-admin.cms.index', 'label' => 'CMS', 'icon' => 'M4 6h16M4 12h16M4 18h7'],
+                    ['route' => 'super-admin.themes.index', 'label' => 'Themes', 'icon' => 'M12 3a9 9 0 109 9c0-.5-.05-1-.14-1.45a3.5 3.5 0 01-4.85-4.4A9 9 0 0012 3zM7.5 10.5h.01M9.5 7.5h.01M14.5 7.5h.01'],
                     ['route' => 'super-admin.settings.index', 'label' => 'System Settings', 'icon' => 'M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z'],
                     ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12h6M9 16h6'],
                 ] as $item)
@@ -152,13 +107,13 @@
             </nav>
 
             <div class="m-3 rounded-[5px] bg-white/10 p-4 text-center lg:rounded-[10px]">
-                <p class="text-sm font-semibold">Need Help?</p>
-                <p class="mt-1 text-xs text-primary-50">Our support team is here to help you anytime.</p>
+                <p class="text-sm font-semibold">Super Administrator</p>
+                <p class="mt-1 text-xs text-primary-50">You have full access to all platform features.</p>
                 <a
-                    href="#"
+                    href="{{ route('super-admin.settings.index') }}"
                     class="mt-3 inline-flex w-full items-center justify-center rounded-[5px] bg-white px-3 py-2 text-xs font-semibold text-primary-700 lg:rounded-[10px]"
                 >
-                    Contact Support
+                    System Settings
                 </a>
             </div>
 
