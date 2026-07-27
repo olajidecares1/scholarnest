@@ -31,7 +31,7 @@
         ></div>
 
         <aside
-            class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col bg-primary-600 text-white transition-transform duration-200 lg:translate-x-0"
+            class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col bg-primary-800 text-white shadow-xl transition-transform duration-200 lg:translate-x-0"
             :class="{ 'translate-x-0': sidebarOpen }"
         >
             <div class="flex items-center gap-2 px-5 py-5">
@@ -49,7 +49,7 @@
             <nav class="mt-4 flex-1 space-y-1 overflow-y-auto px-3">
                 <a
                     href="{{ route('dashboard') }}"
-                    class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('dashboard') ? 'bg-white/15 text-white' : 'text-primary-100 hover:bg-white/10 hover:text-white' }}"
+                    class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('dashboard') ? 'bg-white/20 text-white shadow-sm' : 'text-primary-50 hover:bg-white/10 hover:text-white' }}"
                 >
                     <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
@@ -60,7 +60,7 @@
 
                 <a
                     href="{{ route('subscriptions.choose-plan') }}"
-                    class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('subscriptions.*') ? 'bg-white/15 text-white' : 'text-primary-100 hover:bg-white/10 hover:text-white' }}"
+                    class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('subscriptions.*') ? 'bg-white/20 text-white shadow-sm' : 'text-primary-50 hover:bg-white/10 hover:text-white' }}"
                 >
                     <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.75" />
@@ -72,16 +72,16 @@
 
             <div class="m-3 rounded-[5px] bg-white/10 p-4 text-center lg:rounded-[10px]">
                 <p class="text-sm font-semibold">Need Help?</p>
-                <p class="mt-1 text-xs text-primary-100">Our support team is here to help you anytime.</p>
+                <p class="mt-1 text-xs text-primary-50">Our support team is here to help you anytime.</p>
                 <a
                     href="#"
-                    class="mt-3 inline-flex w-full items-center justify-center rounded-[5px] bg-white px-3 py-2 text-xs font-semibold text-primary-600 lg:rounded-[10px]"
+                    class="mt-3 inline-flex w-full items-center justify-center rounded-[5px] bg-white px-3 py-2 text-xs font-semibold text-primary-700 lg:rounded-[10px]"
                 >
                     Contact Support
                 </a>
             </div>
 
-            <p class="px-5 pb-5 text-xs text-primary-200">&copy; {{ now()->year }} EduNest. All rights reserved.</p>
+            <p class="px-5 pb-5 text-xs text-primary-100">&copy; {{ now()->year }} EduNest. All rights reserved.</p>
         </aside>
 
         <div class="lg:pl-64">
