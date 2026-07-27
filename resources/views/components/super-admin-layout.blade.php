@@ -41,7 +41,7 @@
             :class="{ 'translate-x-0': sidebarOpen }"
         >
             <div class="flex items-center gap-2 px-5 py-5">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[5px] bg-white p-1.5 shadow-sm lg:rounded-[10px]">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[5px] bg-white p-1.5 shadow-sm transition-transform duration-300 ease-out hover:scale-105 hover:rotate-3 lg:rounded-[10px]">
                     <img src="{{ asset('images/logo-mark.png') }}" alt="EduNest" class="h-full w-full object-contain">
                 </span>
                 <div>
@@ -52,53 +52,107 @@
 
             <nav class="mt-2 flex-1 space-y-1 px-3 pb-4">
                 @php
-                    $navLink = fn (string $route, string $label, string $icon, ?string $routePattern = null) => [
-                        'route' => $route, 'label' => $label, 'icon' => $icon, 'pattern' => $routePattern ?? $route,
-                    ];
+                    $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out lg:rounded-[10px] '
+                        .($isActive
+                            ? 'bg-white/20 text-white shadow-sm'
+                            : 'text-primary-50 hover:translate-x-1 hover:bg-white/10 hover:text-white');
+                    $navIconClasses = 'h-5 w-5 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110';
                 @endphp
 
-                <a
-                    href="{{ route('super-admin.dashboard') }}"
-                    class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('super-admin.dashboard') ? 'bg-white/20 text-white shadow-sm' : 'text-primary-50 hover:bg-white/10 hover:text-white' }}"
-                >
-                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M6 10v9a1 1 0 001 1h3v-6h4v6h3a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                <a href="{{ route('super-admin.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('super-admin.dashboard')) }}">
+                    <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 11.5L12 4l9 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M5.5 10v8.5a1.5 1.5 0 001.5 1.5h3v-5.5a2 2 0 012-2h0a2 2 0 012 2V20h3a1.5 1.5 0 001.5-1.5V10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="12" cy="8.2" r="0.9" fill="currentColor" />
                     </svg>
                     Dashboard
                 </a>
 
-                <a
-                    href="{{ route('super-admin.schools.index') }}"
-                    class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('super-admin.schools.*') ? 'bg-white/20 text-white shadow-sm' : 'text-primary-50 hover:bg-white/10 hover:text-white' }}"
-                >
-                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 21h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        <path d="M5 21V10M19 21V10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        <path d="M3 10l9-6 9 6" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+                <a href="{{ route('super-admin.schools.index') }}" class="{{ $navLinkClasses(request()->routeIs('super-admin.schools.*')) }}">
+                    <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3l8 3.6v2L12 12 4 8.6v-2L12 3z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+                        <path d="M4 8.6V16l8 4 8-4V8.6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M12 12v8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
                     </svg>
                     Schools
                 </a>
 
-                @foreach ([
-                    ['route' => 'super-admin.subscriptions.index', 'label' => 'Subscriptions', 'icon' => 'M3 5h18M3 5a2 2 0 00-2 2v6a2 2 0 002 2h18a2 2 0 002-2V7a2 2 0 00-2-2M3 5h18'],
-                    ['route' => 'super-admin.payments.index', 'label' => 'Payments', 'icon' => 'M4 7h16M4 7a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2M4 7l1.7-3.4A2 2 0 017.5 2.5h9a2 2 0 011.8 1.1L20 7M8 15h.01M12 15h4'],
-                    ['route' => 'super-admin.users.index', 'label' => 'Users', 'icon' => 'M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'],
-                    ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions', 'icon' => 'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z'],
-                    ['route' => 'super-admin.reports.index', 'label' => 'Reports', 'icon' => 'M9 17v-6M15 17v-2M12 17v-9M4 21h16a1 1 0 001-1V4a1 1 0 00-1-1H4a1 1 0 00-1 1v16a1 1 0 001 1z'],
-                    ['route' => 'super-admin.analytics.index', 'label' => 'Analytics', 'icon' => 'M4 20V10M10 20V4M16 20v-7M20 20v-3'],
-                    ['route' => 'super-admin.communications.index', 'label' => 'Communications', 'icon' => 'M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z'],
-                    ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets', 'icon' => 'M9 12h6M9 16h6M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z'],
-                    ['route' => 'super-admin.cms.index', 'label' => 'CMS', 'icon' => 'M4 6h16M4 12h16M4 18h7'],
-                    ['route' => 'super-admin.themes.index', 'label' => 'Themes', 'icon' => 'M12 3a9 9 0 109 9c0-.5-.05-1-.14-1.45a3.5 3.5 0 01-4.85-4.4A9 9 0 0012 3zM7.5 10.5h.01M9.5 7.5h.01M14.5 7.5h.01'],
-                    ['route' => 'super-admin.settings.index', 'label' => 'System Settings', 'icon' => 'M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z'],
-                    ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12h6M9 16h6'],
-                ] as $item)
-                    <a
-                        href="{{ route($item['route']) }}"
-                        class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs(str($item['route'])->beforeLast('.').'.*') ? 'bg-white/20 text-white shadow-sm' : 'text-primary-50 hover:bg-white/10 hover:text-white' }}"
+                <div x-data="{ open: {{ request()->routeIs('super-admin.subscriptions.*') ? 'true' : 'false' }} }">
+                    <button
+                        type="button"
+                        @click="open = !open"
+                        class="{{ $navLinkClasses(request()->routeIs('super-admin.subscriptions.*')) }} w-full"
                     >
-                        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" stroke="currentColor" stroke-width="1.75" />
+                            <path d="M3.5 9.5h17" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                            <path d="M7 13.5l2.2 2.2L14 11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span class="flex-1 text-left">Subscriptions</span>
+                        <svg
+                            class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out"
+                            :class="{ 'rotate-180': open }"
+                            viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div
+                        x-show="open"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        style="display: none;"
+                        class="mt-1 space-y-1 pl-8"
+                    >
+                        @foreach ([
+                            ['tab' => 'pending', 'label' => 'Pending Approvals', 'icon' => 'M12 7v5l3.2 1.9', 'extra' => '<circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.6" />'],
+                            ['tab' => 'active', 'label' => 'Active Subscriptions', 'icon' => 'M8 12.3l2.6 2.6L16.3 9', 'extra' => '<circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.6" />'],
+                            ['tab' => 'expired', 'label' => 'Expired Subscriptions', 'icon' => 'M9 9l6 6M15 9l-6 6', 'extra' => '<circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.6" />'],
+                            ['tab' => 'all', 'label' => 'All Subscriptions', 'icon' => 'M5 7h14M5 12h14M5 17h9', 'extra' => ''],
+                        ] as $sub)
+                            @php
+                                $isActive = $sub['tab'] === 'pending'
+                                    ? request()->routeIs('super-admin.subscriptions.index') && request('tab', 'pending') === 'pending'
+                                    : request('tab') === $sub['tab'];
+                            @endphp
+                            <a
+                                href="{{ route('super-admin.subscriptions.index', $sub['tab'] === 'pending' ? [] : ['tab' => $sub['tab']]) }}"
+                                class="group flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ $isActive ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
+                            >
+                                <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    {!! $sub['extra'] !!}
+                                    <path d="{{ $sub['icon'] }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                {{ $sub['label'] }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                @foreach ([
+                    ['route' => 'super-admin.payments.index', 'label' => 'Payments', 'icon' => 'M12 4v2.2M12 17.8V20M8.5 8.5c0-1.4 1.6-2.5 3.5-2.5s3.5 1.1 3.5 2.3c0 3.2-7 1.4-7 4.7 0 1.3 1.6 2.3 3.5 2.3s3.5-1.1 3.5-2.5', 'circle' => true],
+                    ['route' => 'super-admin.users.index', 'label' => 'Users', 'icon' => 'M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7', 'circle' => false, 'extra' => '<circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />'],
+                    ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions', 'icon' => 'M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z', 'extra' => '<path d="M9.2 12l1.9 1.9L15 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
+                    ['route' => 'super-admin.reports.index', 'label' => 'Reports', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                    ['route' => 'super-admin.analytics.index', 'label' => 'Analytics', 'icon' => 'M4 19.5h16', 'extra' => '<path d="M6.5 19.5v-5.5M11 19.5V8M15.5 19.5v-8.7M20 19.5V5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />'],
+                    ['route' => 'super-admin.communications.index', 'label' => 'Communications', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
+                    ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets', 'icon' => 'M4.5 8.5a2 2 0 012-2h11a2 2 0 012 2v7a2 2 0 01-2 2h-11a2 2 0 01-2-2v-7z', 'extra' => '<path d="M4.5 9.5l7.1 4.6a1 1 0 001.1 0l6.8-4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
+                    ['route' => 'super-admin.cms.index', 'label' => 'CMS', 'icon' => 'M4.5 6a1.5 1.5 0 011.5-1.5h6l2 2h5.5A1.5 1.5 0 0121 8v9.5A1.5 1.5 0 0119.5 19h-15A1.5 1.5 0 013 17.5v-11z', 'extra' => ''],
+                    ['route' => 'super-admin.themes.index', 'label' => 'Themes', 'icon' => 'M12 3a9 9 0 109 9', 'extra' => '<circle cx="7.8" cy="10.5" r="1.1" fill="currentColor" /><circle cx="10.5" cy="6.8" r="1.1" fill="currentColor" /><circle cx="15.2" cy="7.3" r="1.1" fill="currentColor" /><circle cx="17.2" cy="12.5" r="1.1" fill="currentColor" />'],
+                    ['route' => 'super-admin.settings.index', 'label' => 'System Settings', 'icon' => 'M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z', 'extra' => '<circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" />'],
+                    ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs', 'icon' => 'M7 3.5h7l4 4v13a.5.5 0 01-.5.5h-11a.5.5 0 01-.5-.5v-16a.5.5 0 01.5-.5z', 'extra' => '<path d="M14 3.5V7.5h4M9 12.5h6M9 15.5h6M9 9.5h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                ] as $item)
+                    @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
+                    <a href="{{ route($item['route']) }}" class="{{ $navLinkClasses($isActive) }}">
+                        <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            @if (! empty($item['circle']))
+                                <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.6" />
+                            @endif
+                            {!! $item['extra'] ?? '' !!}
                             <path d="{{ $item['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         {{ $item['label'] }}
@@ -106,12 +160,12 @@
                 @endforeach
             </nav>
 
-            <div class="m-3 rounded-[5px] bg-white/10 p-4 text-center lg:rounded-[10px]">
+            <div class="m-3 rounded-[5px] bg-white/10 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15] lg:rounded-[10px]">
                 <p class="text-sm font-semibold">Super Administrator</p>
                 <p class="mt-1 text-xs text-primary-50">You have full access to all platform features.</p>
                 <a
                     href="{{ route('super-admin.settings.index') }}"
-                    class="mt-3 inline-flex w-full items-center justify-center rounded-[5px] bg-white px-3 py-2 text-xs font-semibold text-primary-700 lg:rounded-[10px]"
+                    class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[5px] bg-white px-3 py-2 text-xs font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]"
                 >
                     System Settings
                 </a>
@@ -130,7 +184,7 @@
                 <button
                     type="button"
                     @click="sidebarOpen = true"
-                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
                 >
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -183,7 +237,7 @@
                         @click.outside="open = false"
                         placeholder="Search schools, users, payments..."
                         autocomplete="off"
-                        class="w-64 rounded-[5px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 lg:rounded-[10px]"
+                        class="w-64 rounded-[5px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 transition-all duration-300 ease-out focus:border-primary-500 focus:bg-white focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 lg:rounded-[10px]"
                     >
 
                     <div
@@ -241,7 +295,7 @@
                         document.documentElement.classList.toggle('dark');
                         localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
                     "
-                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]"
+                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]"
                 >
                     <svg class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -253,19 +307,24 @@
                 </button>
 
                 <div class="relative" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                             <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                         </svg>
                         @if ($unreadCount > 0)
-                            <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
+                            <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
                         @endif
                     </button>
 
                     <div
                         x-show="open"
-                        x-transition
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
                         style="display: none;"
                         class="absolute right-0 z-30 mt-2 w-80 rounded-[5px] border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
                     >
@@ -283,7 +342,7 @@
                             @forelse ($notifications as $notification)
                                 <a
                                     href="{{ route('notifications.read', $notification) }}"
-                                    class="flex items-start gap-2 border-b border-gray-50 px-4 py-3 text-left hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700"
+                                    class="flex items-start gap-2 border-b border-gray-50 px-4 py-3 text-left transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700"
                                 >
                                     @if (is_null($notification->read_at))
                                         <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-500"></span>
@@ -305,16 +364,17 @@
 
                 <a
                     href="{{ route('super-admin.communications.index') }}"
-                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]"
+                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]"
                 >
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                        <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                        <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                     </svg>
                 </a>
 
                 <div class="relative" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="flex items-center gap-2">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="group flex items-center gap-2 rounded-[5px] px-1.5 py-1 transition-colors duration-300 hover:bg-gray-100 dark:hover:bg-gray-800 lg:rounded-[10px]">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700 transition-transform duration-300 ease-out group-hover:scale-105">
                             {{ Str::of(auth()->user()->name)->substr(0, 1)->upper() }}
                         </span>
                         <span class="hidden text-left sm:block">
@@ -325,14 +385,19 @@
 
                     <div
                         x-show="open"
-                        x-transition
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
                         style="display: none;"
                         class="absolute right-0 mt-2 w-48 rounded-[5px] border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
                     >
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">Edit Profile</a>
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">Edit Profile</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">Log Out</button>
+                            <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">Log Out</button>
                         </form>
                     </div>
                 </div>

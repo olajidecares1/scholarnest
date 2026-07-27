@@ -50,7 +50,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($payments as $payment)
-                            <tr>
+                            <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3 font-semibold text-gray-900 dark:text-white">{{ $payment->subscription->school->name }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $payment->reference }}</td>
                                 <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">&#8358;{{ number_format($payment->amount, 2) }}</td>

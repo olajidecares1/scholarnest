@@ -16,22 +16,22 @@
         @endif
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-amber-600 dark:text-amber-400">Pending Approvals</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['pending']) }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Schools awaiting approval</p>
             </div>
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-primary-600 dark:text-primary-400">Auto-Activate Eligible</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['autoActivate']) }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Returning schools, fast-track review</p>
             </div>
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-green-600 dark:text-green-400">Active Subscriptions</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['active']) }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Currently active schools</p>
             </div>
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-purple-600 dark:text-purple-400">Expiring Soon (30 Days)</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['expiringSoon']) }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Subscriptions expiring soon</p>
@@ -44,7 +44,7 @@
                     @foreach ($tabs as $key => $label)
                         <a
                             href="{{ route('super-admin.subscriptions.index', ['tab' => $key]) }}"
-                            class="rounded-t-[5px] border-b-2 px-4 py-3 text-sm font-semibold {{ $tab === $key ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}"
+                            class="rounded-t-[5px] border-b-2 px-4 py-3 text-sm font-semibold transition-colors duration-200 {{ $tab === $key ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}"
                         >
                             {{ $label }}
                         </a>
@@ -53,7 +53,7 @@
 
                 <a
                     href="{{ route('super-admin.subscriptions.export', request()->query()) }}"
-                    class="mb-2 flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]"
+                    class="mb-2 flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md lg:rounded-[10px]"
                 >
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3M12 4v12m0-12l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -180,7 +180,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($subscriptions as $subscription)
-                            <tr>
+                            <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3">
                                     @if ($subscription->status->value === 'pending_verification')
                                         <input

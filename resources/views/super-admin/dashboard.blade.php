@@ -9,7 +9,7 @@
                 ['key' => 'ytdRevenue', 'isCurrency' => true, 'badge' => 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400', 'stroke' => '#6366f1', 'icon' => 'M4 20V10M10 20V4M16 20v-7M20 20v-3'],
             ] as $card)
                 @php $data = $statCards[$card['key']]; @endphp
-                <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+                <div class="group rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary-200 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-800 lg:rounded-[10px]">
                     <div class="flex items-start justify-between">
                         <div class="min-w-0">
                             <p class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">{{ $data['label'] }}</p>
@@ -17,7 +17,7 @@
                                 {{ $card['isCurrency'] ? '₦'.number_format($data['total']) : number_format($data['total']) }}
                             </p>
                         </div>
-                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full {{ $card['badge'] }}">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-6 {{ $card['badge'] }}">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="{{ $card['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
@@ -45,7 +45,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:col-span-2 lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:col-span-2 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Revenue Overview</h2>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Verified payments by month, {{ now()->year }}</p>
                 <div
@@ -65,7 +65,7 @@
                 ></div>
             </div>
 
-            <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Recent Notifications</h2>
                 </div>
@@ -73,7 +73,7 @@
                     @forelse ($notifications as $notification)
                         <a
                             href="{{ route('notifications.read', $notification) }}"
-                            class="flex items-start gap-2 border-b border-gray-50 px-5 py-3 text-left hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700"
+                            class="flex items-start gap-2 border-b border-gray-50 px-5 py-3 text-left transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700"
                         >
                             @if (is_null($notification->read_at))
                                 <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-500"></span>
@@ -94,7 +94,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Subscription Overview</h2>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Active subscriptions by plan</p>
                 @if (empty($subscriptionOverview))
@@ -115,7 +115,7 @@
                 @endif
             </div>
 
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Schools by Status</h2>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Where every school currently stands</p>
                 <div
@@ -146,7 +146,7 @@
             ] as $alert)
                 <a
                     href="{{ route('super-admin.subscriptions.index', ['tab' => $loop->last ? 'expired' : 'active']) }}"
-                    class="rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm transition hover:border-primary-300 dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
+                    class="rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary-300 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
                 >
                     <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $alert['label'] }}</p>
                     <p class="mt-1 text-2xl font-extrabold {{ $alert['color'] }}">{{ number_format($alert['value']) }}</p>
@@ -154,10 +154,12 @@
             @endforeach
         </div>
 
-        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Recent Schools</h2>
-                <a href="{{ route('super-admin.schools.index') }}" class="text-sm font-semibold text-primary-500 hover:text-primary-600">View all &rarr;</a>
+                <a href="{{ route('super-admin.schools.index') }}" class="group text-sm font-semibold text-primary-500 transition-colors duration-200 hover:text-primary-600">
+                    View all <span class="inline-block transition-transform duration-300 ease-out group-hover:translate-x-1">&rarr;</span>
+                </a>
             </div>
 
             @if (empty($recentSchools))
@@ -176,7 +178,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach ($recentSchools as $school)
-                                <tr>
+                                <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                     <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">{{ $school['name'] }}</td>
                                     <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $school['plan'] }}</td>
                                     <td class="px-5 py-3">
@@ -208,24 +210,25 @@
             @endif
         </div>
 
-        <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+        <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Quick Actions</h2>
             <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 @foreach ([
-                    ['route' => 'super-admin.schools.create', 'label' => 'Add School', 'icon' => 'M12 5v14M5 12h14'],
-                    ['route' => 'super-admin.users.create', 'label' => 'Add Admin', 'icon' => 'M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6'],
-                    ['route' => 'super-admin.subscriptions.index', 'label' => 'Manage Subscriptions', 'icon' => 'M3 5h18M3 5a2 2 0 00-2 2v6a2 2 0 002 2h18a2 2 0 002-2V7a2 2 0 00-2-2'],
-                    ['route' => 'super-admin.payments.index', 'label' => 'Payments', 'icon' => 'M4 7h16M4 7a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2M4 7l1.7-3.4A2 2 0 017.5 2.5h9a2 2 0 011.8 1.1L20 7'],
-                    ['route' => 'super-admin.communications.index', 'label' => 'Send Message', 'icon' => 'M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z'],
-                    ['route' => 'super-admin.reports.index', 'label' => 'Generate Report', 'icon' => 'M9 17v-6M15 17v-2M12 17v-9M4 21h16a1 1 0 001-1V4a1 1 0 00-1-1H4a1 1 0 00-1 1v16a1 1 0 001 1z'],
-                    ['route' => 'super-admin.settings.index', 'label' => 'System Settings', 'icon' => 'M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z'],
+                    ['route' => 'super-admin.schools.create', 'label' => 'Add School', 'icon' => 'M12 4.5v15M4.5 12h15', 'extra' => ''],
+                    ['route' => 'super-admin.users.create', 'label' => 'Add Admin', 'icon' => 'M4.5 19.5c.6-2.6 2.7-4.5 5.5-4.5s4.9 1.9 5.5 4.5', 'extra' => '<circle cx="10" cy="8.5" r="3" stroke="currentColor" stroke-width="1.75" /><path d="M18 9v5M20.5 11.5h-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />'],
+                    ['route' => 'super-admin.subscriptions.index', 'label' => 'Subscriptions', 'icon' => 'M7 13.5l2.2 2.2L14 11', 'extra' => '<rect x="3.5" y="5.5" width="17" height="13" rx="2.5" stroke="currentColor" stroke-width="1.75" /><path d="M3.5 9.5h17" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />'],
+                    ['route' => 'super-admin.payments.index', 'label' => 'Payments', 'icon' => 'M12 4v2.2M12 17.8V20M8.5 8.5c0-1.4 1.6-2.5 3.5-2.5s3.5 1.1 3.5 2.3c0 3.2-7 1.4-7 4.7 0 1.3 1.6 2.3 3.5 2.3s3.5-1.1 3.5-2.5', 'extra' => '<circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.6" />'],
+                    ['route' => 'super-admin.communications.index', 'label' => 'Send Message', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
+                    ['route' => 'super-admin.reports.index', 'label' => 'Generate Report', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                    ['route' => 'super-admin.settings.index', 'label' => 'System Settings', 'icon' => 'M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z', 'extra' => '<circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" />'],
                 ] as $action)
                     <a
                         href="{{ route($action['route']) }}"
-                        class="flex flex-col items-center gap-2 rounded-[5px] border border-gray-200 p-4 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-gray-700 dark:hover:bg-gray-700/50 lg:rounded-[10px]"
+                        class="group flex flex-col items-center gap-2 rounded-[5px] border border-gray-200 p-4 text-center transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary-300 hover:bg-primary-50 hover:shadow-md dark:border-gray-700 dark:hover:bg-gray-700/50 lg:rounded-[10px]"
                     >
-                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-6 dark:bg-primary-900/30 dark:text-primary-400">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                {!! $action['extra'] !!}
                                 <path d="{{ $action['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </span>
