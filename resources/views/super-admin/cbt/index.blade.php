@@ -6,6 +6,13 @@
             </div>
         @endif
 
+        <div class="flex justify-end">
+            <a href="{{ route('super-admin.cbt.uploads.index') }}" class="flex items-center gap-2 rounded-[5px] border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400 lg:rounded-[10px]">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12M7 9l5-5 5 5M5 20h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                Import from Document
+            </a>
+        </div>
+
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-primary-600 dark:text-primary-400">Exam Bodies</p>

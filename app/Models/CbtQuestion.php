@@ -22,10 +22,25 @@ class CbtQuestion extends Model
      */
     protected $fillable = [
         'cbt_exam_id',
+        'cbt_document_upload_id',
         'question_text',
         'image_path',
         'sort_order',
+        'needs_review',
+        'review_notes',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'needs_review' => 'boolean',
+        ];
+    }
 
     /**
      * @return BelongsTo<CbtExam, $this>
@@ -33,6 +48,14 @@ class CbtQuestion extends Model
     public function exam(): BelongsTo
     {
         return $this->belongsTo(CbtExam::class, 'cbt_exam_id');
+    }
+
+    /**
+     * @return BelongsTo<CbtDocumentUpload, $this>
+     */
+    public function documentUpload(): BelongsTo
+    {
+        return $this->belongsTo(CbtDocumentUpload::class, 'cbt_document_upload_id');
     }
 
     /**

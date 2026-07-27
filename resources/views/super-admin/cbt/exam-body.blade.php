@@ -113,7 +113,7 @@
         <div x-show="addExamOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="addExamOpen = false" class="w-full max-w-md rounded-[5px] bg-white p-6 dark:bg-gray-800 lg:rounded-[10px]">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Exam</h3>
-                <form method="POST" action="{{ route('super-admin.cbt.exams.store', $examBody) }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('super-admin.cbt.exams.store', $examBody) }}" class="mt-4 space-y-4" x-data="{ duration: 60, customDuration: false }">
                     @csrf
                     <div>
                         <label for="cbt-exam-subject" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Subject</label>
@@ -129,7 +129,41 @@
                         </select>
                     </div>
                     <x-text-field name="year" label="Year" type="number" icon="M4 20V10M10 20V4M16 20v-7M20 20v-3" helper="Between 1999 and {{ now()->year }}." min="1999" :max="now()->year" value="{{ now()->year }}" required />
-                    <x-text-field name="duration_minutes" label="Duration (minutes)" type="number" icon="M12 7v5l3.2 1.9" helper="How long candidates get to complete the exam." min="5" max="300" value="60" required />
+
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Duration</label>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="preset in [60, 70, 80, 90, 100]" :key="preset">
+                                <button
+                                    type="button"
+                                    @click="duration = preset; customDuration = false"
+                                    :class="(!customDuration && duration === preset) ? 'border-primary-500 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-900/30 dark:text-primary-400' : 'border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700'"
+                                    class="rounded-[8px] border px-3 py-2 text-sm font-semibold transition-colors duration-150"
+                                >
+                                    <span x-text="preset"></span> min
+                                </button>
+                            </template>
+                            <button
+                                type="button"
+                                @click="customDuration = true"
+                                :class="customDuration ? 'border-primary-500 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-900/30 dark:text-primary-400' : 'border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700'"
+                                class="rounded-[8px] border px-3 py-2 text-sm font-semibold transition-colors duration-150"
+                            >
+                                Custom
+                            </button>
+                        </div>
+                        <input
+                            x-show="customDuration"
+                            type="number"
+                            x-model.number="duration"
+                            min="5"
+                            max="300"
+                            placeholder="Minutes"
+                            class="mt-2 w-full rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                        >
+                        <input type="hidden" name="duration_minutes" :value="duration">
+                    </div>
+
                     <x-text-field name="pass_mark" label="Pass Mark (%)" type="number" icon="M8 12.3l2.6 2.6L16.3 9" min="0" max="100" value="50" required />
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="addExamOpen = false" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>

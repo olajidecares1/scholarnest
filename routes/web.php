@@ -12,6 +12,7 @@ use App\Http\Controllers\Subscriptions\PaymentMethodController;
 use App\Http\Controllers\Subscriptions\ReviewController;
 use App\Http\Controllers\SuperAdmin\AnalyticsController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
+use App\Http\Controllers\SuperAdmin\CbtDocumentUploadController;
 use App\Http\Controllers\SuperAdmin\CbtExamBodyController;
 use App\Http\Controllers\SuperAdmin\CbtExamController;
 use App\Http\Controllers\SuperAdmin\CbtQuestionController;
@@ -206,6 +207,14 @@ Route::middleware('auth')->group(function () {
                 Route::post(R::uri('super-admin.cbt.questions.store').'/{exam}', [CbtQuestionController::class, 'store'])->name('store');
                 Route::put(R::uri('super-admin.cbt.questions.update').'/{question}', [CbtQuestionController::class, 'update'])->name('update');
                 Route::delete(R::uri('super-admin.cbt.questions.destroy').'/{question}', [CbtQuestionController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::name('uploads.')->group(function () {
+                Route::get(R::uri('super-admin.cbt.uploads.index'), [CbtDocumentUploadController::class, 'index'])->name('index');
+                Route::post(R::uri('super-admin.cbt.uploads.store'), [CbtDocumentUploadController::class, 'store'])->name('store');
+                Route::get(R::uri('super-admin.cbt.uploads.show').'/{upload}', [CbtDocumentUploadController::class, 'show'])->name('show');
+                Route::put(R::uri('super-admin.cbt.uploads.mapping').'/{upload}', [CbtDocumentUploadController::class, 'confirmMapping'])->name('mapping');
+                Route::delete(R::uri('super-admin.cbt.uploads.destroy').'/{upload}', [CbtDocumentUploadController::class, 'destroy'])->name('destroy');
             });
         });
 
