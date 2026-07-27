@@ -5,6 +5,11 @@
     'simple' => false,
 ])
 
+@php
+    $platformSettings = \App\Models\Setting::current();
+    $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-icon-dark.png');
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -17,11 +22,15 @@
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
         <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+        @if ($platformSettings->favicon_path)
+            <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($platformSettings->favicon_path) }}">
+        @endif
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>{!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}</style>
     </head>
     <body class="min-h-screen bg-white font-sans text-gray-900 antialiased">
         <div class="flex min-h-screen flex-col">
@@ -29,8 +38,8 @@
                 <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
                     <a href="{{ url('/') }}" class="flex items-center gap-2">
                         <img
-                            src="{{ asset('images/logo-icon-dark.png') }}"
-                            alt="EduNest"
+                            src="{{ $logoUrl }}"
+                            alt="{{ config('app.name', 'EduNest') }}"
                             class="h-9 w-9 shrink-0 rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
                         >
                         <span class="text-lg font-bold text-gray-900">Edu<span class="text-primary-500">Nest</span></span>

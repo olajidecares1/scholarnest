@@ -3,6 +3,11 @@
     'pageSubtitle' => null,
 ])
 
+@php
+    $platformSettings = \App\Models\Setting::current();
+    $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-mark.png');
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -15,6 +20,9 @@
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
         <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+        @if ($platformSettings->favicon_path)
+            <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($platformSettings->favicon_path) }}">
+        @endif
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
@@ -26,6 +34,7 @@
         </script>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>{!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}</style>
     </head>
     <body class="bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100" x-data="{ sidebarOpen: false }">
         <div
@@ -42,7 +51,7 @@
         >
             <div class="flex items-center gap-2 px-5 py-5">
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[5px] bg-white p-1.5 shadow-sm transition-transform duration-300 ease-out hover:scale-105 hover:rotate-3 lg:rounded-[10px]">
-                    <img src="{{ asset('images/logo-mark.png') }}" alt="EduNest" class="h-full w-full object-contain">
+                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'EduNest') }}" class="h-full w-full object-contain">
                 </span>
                 <div>
                     <p class="text-lg font-bold leading-tight">EduNest</p>

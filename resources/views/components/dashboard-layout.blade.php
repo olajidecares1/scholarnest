@@ -3,6 +3,11 @@
     'pageSubtitle' => null,
 ])
 
+@php
+    $platformSettings = \App\Models\Setting::current();
+    $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-icon-dark.png');
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -15,11 +20,15 @@
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
         <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+        @if ($platformSettings->favicon_path)
+            <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($platformSettings->favicon_path) }}">
+        @endif
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>{!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}</style>
     </head>
     <body class="bg-gray-50 font-sans text-gray-900 antialiased" x-data="{ sidebarOpen: false }">
         <div
@@ -36,8 +45,8 @@
         >
             <div class="flex items-center gap-2 px-5 py-5">
                 <img
-                    src="{{ asset('images/logo-icon-dark.png') }}"
-                    alt="EduNest"
+                    src="{{ $logoUrl }}"
+                    alt="{{ config('app.name', 'EduNest') }}"
                     class="h-9 w-9 shrink-0 rounded-[5px] bg-white/10 lg:rounded-[10px]"
                 >
                 <div>

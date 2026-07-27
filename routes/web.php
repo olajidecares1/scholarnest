@@ -13,7 +13,6 @@ use App\Http\Controllers\Subscriptions\ReviewController;
 use App\Http\Controllers\SuperAdmin\AnalyticsController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
 use App\Http\Controllers\SuperAdmin\CmsController;
-use App\Http\Controllers\SuperAdmin\ComingSoonController;
 use App\Http\Controllers\SuperAdmin\CommunicationController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
@@ -24,6 +23,7 @@ use App\Http\Controllers\SuperAdmin\SearchController;
 use App\Http\Controllers\SuperAdmin\SettingsController;
 use App\Http\Controllers\SuperAdmin\SubscriptionApprovalController;
 use App\Http\Controllers\SuperAdmin\SupportTicketController as SuperAdminSupportTicketController;
+use App\Http\Controllers\SuperAdmin\ThemeController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
 use App\Http\Controllers\SupportTicketController;
 use Illuminate\Support\Facades\Route;
@@ -168,7 +168,12 @@ Route::middleware('auth')->group(function () {
             Route::put('team-members/{teamMember}', [CmsController::class, 'updateTeamMember'])->name('team-members.update');
             Route::delete('team-members/{teamMember}', [CmsController::class, 'destroyTeamMember'])->name('team-members.destroy');
         });
-        Route::get('themes', [ComingSoonController::class, 'show'])->name('themes.index')->middleware('permission:manage_themes');
+        Route::prefix('themes')->name('themes.')->middleware('permission:manage_themes')->group(function () {
+            Route::get('/', [ThemeController::class, 'edit'])->name('index');
+            Route::put('/', [ThemeController::class, 'update'])->name('update');
+            Route::post('logo', [ThemeController::class, 'updateLogo'])->name('logo.update');
+            Route::post('favicon', [ThemeController::class, 'updateFavicon'])->name('favicon.update');
+        });
 
         Route::get('settings', [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage_settings');

@@ -22,6 +22,9 @@ class Setting extends Model
         'notification_from_email',
         'maintenance_mode',
         'maintenance_message',
+        'theme_preset',
+        'logo_path',
+        'favicon_path',
     ];
 
     /**
