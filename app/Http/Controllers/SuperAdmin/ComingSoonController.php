@@ -12,16 +12,6 @@ class ComingSoonController extends Controller
      * @var array<string, array{title: string, description: string, features: list<string>}>
      */
     private const SECTIONS = [
-        'cms' => [
-            'title' => 'CMS',
-            'description' => 'Manage platform-wide content: pages, blog, testimonials, and more.',
-            'features' => [
-                'Blog posts and hero slider',
-                'Testimonials, FAQ, services, and team pages',
-                'About, Privacy, and Terms pages',
-                'Social media links',
-            ],
-        ],
         'themes' => [
             'title' => 'Themes',
             'description' => 'Customize the platform and school portal appearance.',

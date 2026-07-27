@@ -12,6 +12,7 @@ use App\Http\Controllers\Subscriptions\PaymentMethodController;
 use App\Http\Controllers\Subscriptions\ReviewController;
 use App\Http\Controllers\SuperAdmin\AnalyticsController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
+use App\Http\Controllers\SuperAdmin\CmsController;
 use App\Http\Controllers\SuperAdmin\ComingSoonController;
 use App\Http\Controllers\SuperAdmin\CommunicationController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
@@ -144,7 +145,29 @@ Route::middleware('auth')->group(function () {
             Route::post('{ticket}/reply', [SuperAdminSupportTicketController::class, 'reply'])->name('reply');
             Route::put('{ticket}', [SuperAdminSupportTicketController::class, 'update'])->name('update');
         });
-        Route::get('cms', [ComingSoonController::class, 'show'])->name('cms.index')->middleware('permission:manage_cms');
+        Route::prefix('cms')->name('cms.')->middleware('permission:manage_cms')->group(function () {
+            Route::get('/', [CmsController::class, 'index'])->name('index');
+
+            Route::post('pages', [CmsController::class, 'storePage'])->name('pages.store');
+            Route::put('pages/{page}', [CmsController::class, 'updatePage'])->name('pages.update');
+            Route::delete('pages/{page}', [CmsController::class, 'destroyPage'])->name('pages.destroy');
+
+            Route::post('blog-posts', [CmsController::class, 'storeBlogPost'])->name('blog-posts.store');
+            Route::put('blog-posts/{blogPost}', [CmsController::class, 'updateBlogPost'])->name('blog-posts.update');
+            Route::delete('blog-posts/{blogPost}', [CmsController::class, 'destroyBlogPost'])->name('blog-posts.destroy');
+
+            Route::post('testimonials', [CmsController::class, 'storeTestimonial'])->name('testimonials.store');
+            Route::put('testimonials/{testimonial}', [CmsController::class, 'updateTestimonial'])->name('testimonials.update');
+            Route::delete('testimonials/{testimonial}', [CmsController::class, 'destroyTestimonial'])->name('testimonials.destroy');
+
+            Route::post('faq-items', [CmsController::class, 'storeFaqItem'])->name('faq-items.store');
+            Route::put('faq-items/{faqItem}', [CmsController::class, 'updateFaqItem'])->name('faq-items.update');
+            Route::delete('faq-items/{faqItem}', [CmsController::class, 'destroyFaqItem'])->name('faq-items.destroy');
+
+            Route::post('team-members', [CmsController::class, 'storeTeamMember'])->name('team-members.store');
+            Route::put('team-members/{teamMember}', [CmsController::class, 'updateTeamMember'])->name('team-members.update');
+            Route::delete('team-members/{teamMember}', [CmsController::class, 'destroyTeamMember'])->name('team-members.destroy');
+        });
         Route::get('themes', [ComingSoonController::class, 'show'])->name('themes.index')->middleware('permission:manage_themes');
 
         Route::get('settings', [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
