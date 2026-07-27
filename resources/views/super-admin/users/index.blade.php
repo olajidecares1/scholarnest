@@ -36,11 +36,13 @@
                     >
                 </div>
 
-                <select name="role" class="rounded-[5px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]">
-                    <option value="">All Roles</option>
-                    <option value="school_admin" @selected(request('role') === 'school_admin')>School Admin</option>
-                    <option value="super_admin" @selected(request('role') === 'super_admin')>Super Admin</option>
-                </select>
+                <div class="w-full sm:w-48">
+                    <x-select-field
+                        name="role"
+                        :options="['' => 'All Roles', 'school_admin' => 'School Admin', 'super_admin' => 'Super Admin']"
+                        :selected="request('role')"
+                    />
+                </div>
 
                 <button type="submit" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[10px]">
                     Filter

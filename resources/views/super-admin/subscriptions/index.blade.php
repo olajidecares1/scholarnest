@@ -81,25 +81,38 @@
                     >
                 </div>
 
-                <select name="plan_id" class="rounded-[5px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]">
-                    <option value="">All Plans</option>
-                    @foreach ($plans as $plan)
-                        <option value="{{ $plan->id }}" @selected(request('plan_id') == $plan->id)>{{ $plan->name }}</option>
-                    @endforeach
-                </select>
+                <div class="w-full sm:w-40">
+                    <x-select-field
+                        name="plan_id"
+                        :options="collect(['' => 'All Plans'])->union($plans->pluck('name', 'id'))"
+                        :selected="request('plan_id')"
+                    />
+                </div>
 
-                <select name="billing_cycle" class="rounded-[5px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]">
-                    <option value="">All Billing Cycles</option>
-                    <option value="monthly" @selected(request('billing_cycle') === 'monthly')>Monthly</option>
-                    <option value="per_term" @selected(request('billing_cycle') === 'per_term')>Per Term</option>
-                    <option value="per_student_per_term" @selected(request('billing_cycle') === 'per_student_per_term')>Per Student / Per Term</option>
-                </select>
+                <div class="w-full sm:w-48">
+                    <x-select-field
+                        name="billing_cycle"
+                        :options="[
+                            '' => 'All Billing Cycles',
+                            'monthly' => 'Monthly',
+                            'per_term' => 'Per Term',
+                            'per_student_per_term' => 'Per Student / Per Term',
+                        ]"
+                        :selected="request('billing_cycle')"
+                    />
+                </div>
 
-                <select name="payment_method" class="rounded-[5px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]">
-                    <option value="">All Payment Methods</option>
-                    <option value="bank_transfer" @selected(request('payment_method') === 'bank_transfer')>Bank Transfer</option>
-                    <option value="paystack" @selected(request('payment_method') === 'paystack')>Paystack</option>
-                </select>
+                <div class="w-full sm:w-48">
+                    <x-select-field
+                        name="payment_method"
+                        :options="[
+                            '' => 'All Payment Methods',
+                            'bank_transfer' => 'Bank Transfer',
+                            'paystack' => 'Paystack',
+                        ]"
+                        :selected="request('payment_method')"
+                    />
+                </div>
 
                 <button
                     type="submit"
@@ -143,12 +156,14 @@
             <div x-show="rejectingBulk" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
                 <div @click.outside="rejectingBulk = false" class="w-full max-w-md rounded-[5px] bg-white p-5 dark:bg-gray-800 lg:rounded-[10px]">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Reject <span x-text="selectedIds.length"></span> selected subscription(s)?</h3>
-                    <textarea
-                        x-model="bulkReason"
-                        rows="3"
-                        placeholder="Reason (optional, sent to each school)"
-                        class="mt-3 w-full rounded-[5px] border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                    ></textarea>
+                    <div class="mt-3">
+                        <x-textarea-field
+                            name="bulk_reason_display"
+                            x-model="bulkReason"
+                            rows="3"
+                            placeholder="Reason (optional, sent to each school)"
+                        />
+                    </div>
                     <div class="mt-3 flex justify-end gap-2">
                         <button type="button" @click="rejectingBulk = false" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
                         <button type="button" @click="$refs.bulkRejectForm.submit()" class="rounded-[5px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 lg:rounded-[10px]">Reject Subscriptions</button>
@@ -256,12 +271,11 @@
                                                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Reject subscription for {{ $subscription->school->name }}?</h3>
                                                     <form method="POST" action="{{ route('super-admin.subscriptions.reject', $subscription) }}" class="mt-3">
                                                         @csrf
-                                                        <textarea
+                                                        <x-textarea-field
                                                             name="reason"
                                                             rows="3"
                                                             placeholder="Reason (optional, sent to the school)"
-                                                            class="w-full rounded-[5px] border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                                                        ></textarea>
+                                                        />
                                                         <div class="mt-3 flex justify-end gap-2">
                                                             <button type="button" @click="rejecting = false" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
                                                             <button type="submit" class="rounded-[5px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 lg:rounded-[10px]">Reject Subscription</button>

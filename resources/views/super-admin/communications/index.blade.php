@@ -42,24 +42,29 @@
                 <form method="POST" action="{{ route('super-admin.communications.store') }}" class="mt-4 space-y-4">
                     @csrf
 
-                    <div>
-                        <x-input-label for="title" value="Title" />
-                        <x-text-input id="title" name="title" type="text" class="mt-1" :value="old('title')" required autofocus placeholder="e.g. Scheduled Maintenance Notice" />
-                        <x-input-error :messages="$errors->get('title')" class="mt-2" />
-                    </div>
+                    <x-text-field
+                        id="title"
+                        name="title"
+                        label="Title"
+                        icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                        helper="A short headline for this announcement."
+                        :value="old('title')"
+                        required
+                        autofocus
+                        placeholder="e.g. Scheduled Maintenance Notice"
+                    />
 
-                    <div>
-                        <x-input-label for="body" value="Message" />
-                        <textarea
-                            id="body"
-                            name="body"
-                            rows="5"
-                            required
-                            placeholder="Write your announcement..."
-                            class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-3 pl-4 pr-4 text-base text-gray-900 shadow-sm transition-colors duration-150 placeholder:text-gray-400 hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                        >{{ old('body') }}</textarea>
-                        <x-input-error :messages="$errors->get('body')" class="mt-2" />
-                    </div>
+                    <x-textarea-field
+                        id="body"
+                        name="body"
+                        label="Message"
+                        icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                        helper="This will be emailed and shown in-app to every school admin."
+                        rows="5"
+                        required
+                        placeholder="Write your announcement..."
+                        :value="old('body')"
+                    />
 
                     <button
                         type="submit"
