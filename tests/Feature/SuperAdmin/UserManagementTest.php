@@ -49,11 +49,11 @@ test('a deactivated user cannot log in', function () {
     $user = User::factory()->create(['is_active' => false]);
 
     $response = $this->post('/login', [
-        'email' => $user->email,
+        'login' => $user->email,
         'password' => 'password',
     ]);
 
-    $response->assertSessionHasErrors('email');
+    $response->assertSessionHasErrors('login');
     $this->assertGuest();
 });
 

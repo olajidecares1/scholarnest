@@ -92,39 +92,35 @@
         role="combobox"
         aria-haspopup="listbox"
         :aria-expanded="open.toString()"
-        class="group relative flex w-full items-center rounded-[5px] border-2 bg-white text-left transition-all duration-200 ease-out focus:outline-none lg:rounded-[10px] dark:bg-gray-800
+        class="group relative flex w-full items-center rounded-[8px] border bg-white text-left shadow-sm transition-all duration-200 ease-out focus:outline-none lg:rounded-[10px] dark:bg-gray-800
             {{ $hasError
-                ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500'
-                : 'border-gray-300 hover:border-gray-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:hover:border-gray-500' }}"
+                ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_4px_rgba(239,68,68,0.1)] dark:border-red-500'
+                : 'border-gray-200 hover:border-gray-300 focus:border-primary-500 focus:shadow-[0_0_0_4px_rgba(24,119,242,0.1)] dark:border-gray-700 dark:hover:border-gray-600' }}"
     >
-        @if ($label)
-            <span
-                class="pointer-events-none absolute -top-2.5 left-3 z-10 flex items-center gap-1 bg-white px-1.5 text-xs font-semibold uppercase tracking-wide transition-colors duration-200 dark:bg-gray-800
-                    {{ $hasError
-                        ? 'text-red-600 dark:text-red-400'
-                        : 'text-gray-500 group-focus:text-primary-600 dark:text-gray-400' }}"
-            >
-                <span class="h-2 w-px bg-current opacity-40"></span>
-                {{ $label }}{{ $required ? ' *' : '' }}
-                <span class="h-2 w-px bg-current opacity-40"></span>
-            </span>
-        @endif
-
         @if ($icon)
-            <span class="flex h-11 w-11 shrink-0 items-center justify-center text-gray-400 group-focus:text-primary-500">
+            <span class="flex h-[52px] w-11 shrink-0 items-center justify-center text-gray-400 group-focus:text-primary-500">
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="{{ $icon }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </span>
         @endif
 
-        <span
-            class="min-w-0 flex-1 truncate py-3 text-base {{ $icon ? 'pl-0' : 'pl-4' }}"
-            x-text="selectedLabel"
-            :class="value ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'"
-        ></span>
+        <span class="min-w-0 flex-1 {{ $icon ? 'pl-0' : 'pl-4' }} pr-2">
+            @if ($label)
+                <span
+                    class="block text-[11px] font-bold uppercase tracking-wide {{ $hasError ? 'text-red-500' : 'text-gray-500 dark:text-gray-400' }}"
+                >
+                    {{ $label }}{{ $required ? ' *' : '' }}
+                </span>
+            @endif
+            <span
+                class="block truncate {{ $label ? 'pb-0.5 pt-0.5 text-[15px]' : 'py-3.5 text-[15px]' }} font-medium"
+                x-text="selectedLabel"
+                :class="value ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'"
+            ></span>
+        </span>
 
-        <span class="flex h-11 w-11 shrink-0 items-center justify-center text-gray-400 transition-transform duration-300 ease-out" :class="{ 'rotate-180': open }">
+        <span class="flex h-[52px] w-11 shrink-0 items-center justify-center text-gray-400 transition-transform duration-300 ease-out" :class="{ 'rotate-180': open }">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
             </svg>

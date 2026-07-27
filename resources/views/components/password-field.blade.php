@@ -19,6 +19,7 @@
         :helper="$helper"
         :required="$required"
         :autocomplete="$autocomplete"
+        :has-trailing="true"
         {{ $attributes }}
     >
         <x-slot:trailing>

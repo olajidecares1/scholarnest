@@ -81,6 +81,7 @@ class RoleController extends Controller
         $member = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'username' => User::generateUniqueUsernameFromEmail($validated['email']),
             'password' => Hash::make($validated['password']),
             'role' => UserRole::SuperAdmin,
             'admin_role_id' => $validated['admin_role_id'] ?? null,

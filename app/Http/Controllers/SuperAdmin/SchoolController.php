@@ -52,6 +52,7 @@ class SchoolController extends Controller
             User::create([
                 'name' => $validated['admin_name'],
                 'email' => $validated['admin_email'],
+                'username' => User::generateUniqueUsernameFromEmail($validated['admin_email']),
                 'password' => Hash::make($validated['password']),
                 'role' => UserRole::SchoolAdmin,
                 'school_id' => $school->id,

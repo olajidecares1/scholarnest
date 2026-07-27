@@ -39,6 +39,7 @@ class RegisteredUserController extends Controller
             return User::create([
                 'name' => $validated['school_name'],
                 'email' => $validated['email'],
+                'username' => User::generateUniqueUsernameFromEmail($validated['email']),
                 'password' => Hash::make($validated['password']),
                 'role' => UserRole::SchoolAdmin,
                 'school_id' => $school->id,

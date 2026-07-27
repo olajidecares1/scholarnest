@@ -46,11 +46,11 @@ test('a school admin belonging to a deactivated school cannot log in', function 
     $user = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
     $response = $this->post('/login', [
-        'email' => $user->email,
+        'login' => $user->email,
         'password' => 'password',
     ]);
 
-    $response->assertSessionHasErrors('email');
+    $response->assertSessionHasErrors('login');
     $this->assertGuest();
 });
 

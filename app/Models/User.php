@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -23,6 +24,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
         'role',
         'school_id',
@@ -57,6 +59,20 @@ class User extends Authenticatable
         }
 
         return in_array($permission, $this->adminRole?->permissions ?? [], true);
+    }
+
+    public static function generateUniqueUsernameFromEmail(string $email): string
+    {
+        $base = Str::slug(Str::before($email, '@'), '_') ?: 'user';
+        $username = $base;
+        $suffix = 1;
+
+        while (self::where('username', $username)->exists()) {
+            $username = $base.$suffix;
+            $suffix++;
+        }
+
+        return $username;
     }
 
     /**

@@ -8,11 +8,23 @@ test('login screen can be rendered', function () {
     $response->assertStatus(200);
 });
 
-test('users can authenticate using the login screen', function () {
+test('users can authenticate using their email on the login screen', function () {
     $user = User::factory()->create();
 
     $response = $this->post('/login', [
-        'email' => $user->email,
+        'login' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect(route('dashboard', absolute: false));
+});
+
+test('users can authenticate using their username on the login screen', function () {
+    $user = User::factory()->create(['username' => 'jane_doe']);
+
+    $response = $this->post('/login', [
+        'login' => 'jane_doe',
         'password' => 'password',
     ]);
 
@@ -24,7 +36,7 @@ test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
 
     $this->post('/login', [
-        'email' => $user->email,
+        'login' => $user->email,
         'password' => 'wrong-password',
     ]);
 
@@ -45,16 +57,16 @@ test('login is throttled after five failed attempts', function () {
 
     for ($i = 0; $i < 5; $i++) {
         $this->post('/login', [
-            'email' => $user->email,
+            'login' => $user->email,
             'password' => 'wrong-password',
         ]);
     }
 
     $response = $this->post('/login', [
-        'email' => $user->email,
+        'login' => $user->email,
         'password' => 'password',
     ]);
 
-    $response->assertSessionHasErrors('email');
+    $response->assertSessionHasErrors('login');
     $this->assertGuest();
 });

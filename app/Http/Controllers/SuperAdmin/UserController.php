@@ -49,6 +49,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'username' => User::generateUniqueUsernameFromEmail($validated['email']),
             'password' => Hash::make($validated['password']),
             'role' => UserRole::SchoolAdmin,
             'school_id' => $validated['school_id'],

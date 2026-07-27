@@ -40,7 +40,18 @@
         <form method="POST" action="{{ route('login') }}" class="space-y-5">
             @csrf
 
-            <x-auth-email-input autofocus />
+            <x-text-field
+                id="login"
+                name="login"
+                label="Email or Username"
+                icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                helper="Sign in with either your email address or your username."
+                :value="old('login')"
+                required
+                autofocus
+                autocomplete="username"
+                error-bag="default"
+            />
 
             <x-auth-password-input
                 id="password"
