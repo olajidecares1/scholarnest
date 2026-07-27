@@ -4,80 +4,63 @@
             <form method="POST" action="{{ route('super-admin.users.store') }}" class="space-y-5">
                 @csrf
 
-                <div>
-                    <x-input-label for="school_id" value="School" />
-                    <select
-                        id="school_id"
-                        name="school_id"
-                        required
-                        class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-3 pl-4 pr-4 text-base text-gray-900 shadow-sm transition-colors duration-150 hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                    >
-                        <option value="" disabled selected>Select a school</option>
-                        @foreach ($schools as $school)
-                            <option value="{{ $school->id }}" @selected(old('school_id') == $school->id)>{{ $school->name }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('school_id')" class="mt-2" />
-                </div>
+                <x-select-field
+                    id="school_id"
+                    name="school_id"
+                    label="School"
+                    icon="M4 21h16 M5 21V10M19 21V10 M3 10l9-6 9 6 M8 10v11M12 10v11M16 10v11"
+                    helper="Which school will this admin manage?"
+                    :options="$schools->pluck('name', 'id')"
+                    :selected="old('school_id')"
+                    placeholder="Select a school"
+                    required
+                />
 
-                <div>
-                    <x-input-label for="name" value="Admin Full Name" />
-                    <x-text-input
-                        id="name"
-                        name="name"
-                        type="text"
-                        class="mt-1"
-                        :value="old('name')"
-                        required
-                        autofocus
-                        autocomplete="name"
-                        placeholder="e.g. Jane Doe"
-                    />
-                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                </div>
+                <x-text-field
+                    id="name"
+                    name="name"
+                    label="Admin Full Name"
+                    icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                    helper="The person who will manage this school's account."
+                    :value="old('name')"
+                    required
+                    autofocus
+                    autocomplete="name"
+                    placeholder="e.g. Jane Doe"
+                />
 
-                <div>
-                    <x-input-label for="email" value="Admin Email" />
-                    <x-text-input
-                        id="email"
-                        name="email"
-                        type="email"
-                        class="mt-1"
-                        :value="old('email')"
-                        required
-                        autocomplete="email"
-                        placeholder="admin@school.com"
-                    />
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                </div>
+                <x-text-field
+                    id="email"
+                    name="email"
+                    label="Admin Email"
+                    type="email"
+                    icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7"
+                    helper="Used to sign in and receive account notifications."
+                    :value="old('email')"
+                    required
+                    autocomplete="email"
+                    placeholder="admin@school.com"
+                />
 
-                <div>
-                    <x-input-label for="password" value="Temporary Password" />
-                    <x-text-input
-                        id="password"
-                        name="password"
-                        type="password"
-                        class="mt-1"
-                        required
-                        autocomplete="new-password"
-                        placeholder="Set an initial password"
-                    />
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                </div>
+                <x-password-field
+                    id="password"
+                    name="password"
+                    label="Temporary Password"
+                    helper="Share this with the admin securely; they can change it after signing in."
+                    required
+                    autocomplete="new-password"
+                    placeholder="Set an initial password"
+                />
 
-                <div>
-                    <x-input-label for="password_confirmation" value="Confirm Password" />
-                    <x-text-input
-                        id="password_confirmation"
-                        name="password_confirmation"
-                        type="password"
-                        class="mt-1"
-                        required
-                        autocomplete="new-password"
-                        placeholder="Confirm the password"
-                    />
-                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                </div>
+                <x-password-field
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    label="Confirm Password"
+                    helper="Re-enter the password exactly as above."
+                    required
+                    autocomplete="new-password"
+                    placeholder="Confirm the password"
+                />
 
                 <div class="flex items-center gap-3 pt-2">
                     <button

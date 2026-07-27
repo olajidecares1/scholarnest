@@ -4,44 +4,61 @@
             <form method="POST" action="{{ route('super-admin.roles.team.store') }}" class="space-y-5">
                 @csrf
 
-                <div>
-                    <x-input-label for="name" value="Full Name" />
-                    <x-text-input id="name" name="name" type="text" class="mt-1" :value="old('name')" required autofocus autocomplete="name" placeholder="e.g. Jane Doe" />
-                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                </div>
+                <x-text-field
+                    id="name"
+                    name="name"
+                    label="Full Name"
+                    icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                    helper="The person you're granting Super Admin access to."
+                    :value="old('name')"
+                    required
+                    autofocus
+                    autocomplete="name"
+                    placeholder="e.g. Jane Doe"
+                />
 
-                <div>
-                    <x-input-label for="email" value="Email" />
-                    <x-text-input id="email" name="email" type="email" class="mt-1" :value="old('email')" required autocomplete="email" placeholder="admin@edunest.com" />
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                </div>
+                <x-text-field
+                    id="email"
+                    name="email"
+                    label="Email"
+                    type="email"
+                    icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7"
+                    helper="Used to sign in and receive account notifications."
+                    :value="old('email')"
+                    required
+                    autocomplete="email"
+                    placeholder="admin@edunest.com"
+                />
 
-                <div>
-                    <x-input-label for="admin_role_id" value="Role" />
-                    <select
-                        id="admin_role_id"
-                        name="admin_role_id"
-                        class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-3 pl-4 pr-4 text-base text-gray-900 shadow-sm transition-colors duration-150 hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                    >
-                        <option value="">Full Access (no restrictions)</option>
-                        @foreach ($roles as $role)
-                            <option value="{{ $role->id }}" @selected(old('admin_role_id') == $role->id)>{{ $role->name }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('admin_role_id')" class="mt-2" />
-                </div>
+                <x-select-field
+                    id="admin_role_id"
+                    name="admin_role_id"
+                    label="Role"
+                    icon="M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+                    helper="Restricts what this team member can access. Leave as Full Access for none."
+                    :options="collect(['' => 'Full Access (no restrictions)'])->union($roles->pluck('name', 'id'))"
+                    :selected="old('admin_role_id')"
+                />
 
-                <div>
-                    <x-input-label for="password" value="Temporary Password" />
-                    <x-text-input id="password" name="password" type="password" class="mt-1" required autocomplete="new-password" placeholder="Set an initial password" />
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                </div>
+                <x-password-field
+                    id="password"
+                    name="password"
+                    label="Temporary Password"
+                    helper="Share this with them securely; they can change it after signing in."
+                    required
+                    autocomplete="new-password"
+                    placeholder="Set an initial password"
+                />
 
-                <div>
-                    <x-input-label for="password_confirmation" value="Confirm Password" />
-                    <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1" required autocomplete="new-password" placeholder="Confirm the password" />
-                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                </div>
+                <x-password-field
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    label="Confirm Password"
+                    helper="Re-enter the password exactly as above."
+                    required
+                    autocomplete="new-password"
+                    placeholder="Confirm the password"
+                />
 
                 <div class="flex items-center gap-3 pt-2">
                     <button

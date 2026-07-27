@@ -4,79 +4,63 @@
             <form method="POST" action="{{ route('super-admin.schools.store') }}" class="space-y-5">
                 @csrf
 
-                <div>
-                    <x-input-label for="school_name" value="School Name" />
-                    <x-text-input
-                        id="school_name"
-                        name="school_name"
-                        type="text"
-                        class="mt-1"
-                        :value="old('school_name')"
-                        required
-                        autofocus
-                        autocomplete="organization"
-                        placeholder="e.g. Bright Future Academy"
-                    />
-                    <x-input-error :messages="$errors->get('school_name')" class="mt-2" />
-                </div>
+                <x-text-field
+                    id="school_name"
+                    name="school_name"
+                    label="School Name"
+                    icon="M4 21h16 M5 21V10M19 21V10 M3 10l9-6 9 6 M8 10v11M12 10v11M16 10v11"
+                    helper="The official name schools and admins will see across the platform."
+                    :value="old('school_name')"
+                    required
+                    autofocus
+                    autocomplete="organization"
+                    placeholder="e.g. Bright Future Academy"
+                />
 
-                <div>
-                    <x-input-label for="admin_name" value="Admin Full Name" />
-                    <x-text-input
-                        id="admin_name"
-                        name="admin_name"
-                        type="text"
-                        class="mt-1"
-                        :value="old('admin_name')"
-                        required
-                        autocomplete="name"
-                        placeholder="e.g. Jane Doe"
-                    />
-                    <x-input-error :messages="$errors->get('admin_name')" class="mt-2" />
-                </div>
+                <x-text-field
+                    id="admin_name"
+                    name="admin_name"
+                    label="Admin Full Name"
+                    icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                    helper="The person who will manage this school's account."
+                    :value="old('admin_name')"
+                    required
+                    autocomplete="name"
+                    placeholder="e.g. Jane Doe"
+                />
 
-                <div>
-                    <x-input-label for="admin_email" value="Admin Email" />
-                    <x-text-input
-                        id="admin_email"
-                        name="admin_email"
-                        type="email"
-                        class="mt-1"
-                        :value="old('admin_email')"
-                        required
-                        autocomplete="email"
-                        placeholder="admin@school.com"
-                    />
-                    <x-input-error :messages="$errors->get('admin_email')" class="mt-2" />
-                </div>
+                <x-text-field
+                    id="admin_email"
+                    name="admin_email"
+                    label="Admin Email"
+                    type="email"
+                    icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7"
+                    helper="Used to sign in and receive account notifications."
+                    :value="old('admin_email')"
+                    required
+                    autocomplete="email"
+                    placeholder="admin@school.com"
+                />
 
-                <div>
-                    <x-input-label for="password" value="Temporary Password" />
-                    <x-text-input
-                        id="password"
-                        name="password"
-                        type="password"
-                        class="mt-1"
-                        required
-                        autocomplete="new-password"
-                        placeholder="Set an initial password"
-                    />
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                </div>
+                <x-password-field
+                    id="password"
+                    name="password"
+                    label="Temporary Password"
+                    helper="Share this with the admin securely; they can change it after signing in."
+                    required
+                    autocomplete="new-password"
+                    placeholder="Set an initial password"
+                />
 
-                <div>
-                    <x-input-label for="password_confirmation" value="Confirm Password" />
-                    <x-text-input
-                        id="password_confirmation"
-                        name="password_confirmation"
-                        type="password"
-                        class="mt-1"
-                        required
-                        autocomplete="new-password"
-                        placeholder="Confirm the password"
-                    />
-                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                </div>
+                <x-password-field
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    label="Confirm Password"
+                    helper="Re-enter the password exactly as above."
+                    required
+                    autocomplete="new-password"
+                    placeholder="Confirm the password"
+                />
 
                 <div class="flex items-center gap-3 pt-2">
                     <button

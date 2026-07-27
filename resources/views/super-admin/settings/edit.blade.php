@@ -13,40 +13,60 @@
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">General</h2>
                 <div class="mt-4 space-y-5">
-                    <div>
-                        <x-input-label for="site_name" value="Site Name" />
-                        <x-text-input id="site_name" name="site_name" type="text" class="mt-1" :value="old('site_name', $settings->site_name)" required />
-                        <x-input-error :messages="$errors->get('site_name')" class="mt-2" />
-                    </div>
+                    <x-text-field
+                        id="site_name"
+                        name="site_name"
+                        label="Site Name"
+                        icon="M4 21h16 M5 21V10M19 21V10 M3 10l9-6 9 6 M8 10v11M12 10v11M16 10v11"
+                        helper="Shown in page titles and platform emails."
+                        :value="old('site_name', $settings->site_name)"
+                        required
+                    />
 
-                    <div>
-                        <x-input-label for="support_email" value="Support Email" />
-                        <x-text-input id="support_email" name="support_email" type="email" class="mt-1" :value="old('support_email', $settings->support_email)" />
-                        <x-input-error :messages="$errors->get('support_email')" class="mt-2" />
-                    </div>
+                    <x-text-field
+                        id="support_email"
+                        name="support_email"
+                        label="Support Email"
+                        type="email"
+                        icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7"
+                        helper="Where schools can reach the EduNest team."
+                        :value="old('support_email', $settings->support_email)"
+                    />
 
-                    <div>
-                        <x-input-label for="support_phone" value="Support Phone" />
-                        <x-text-input id="support_phone" name="support_phone" type="text" class="mt-1" :value="old('support_phone', $settings->support_phone)" />
-                        <x-input-error :messages="$errors->get('support_phone')" class="mt-2" />
-                    </div>
+                    <x-text-field
+                        id="support_phone"
+                        name="support_phone"
+                        label="Support Phone"
+                        type="tel"
+                        icon="M6.5 3.5h3l1.5 4-2 1.5a11 11 0 005 5l1.5-2 4 1.5v3a1.5 1.5 0 01-1.6 1.5A16.5 16.5 0 015 5.1a1.5 1.5 0 011.5-1.6z"
+                        helper="Optional phone number displayed to schools."
+                        :value="old('support_phone', $settings->support_phone)"
+                    />
                 </div>
             </div>
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Notification Email</h2>
                 <div class="mt-4 space-y-5">
-                    <div>
-                        <x-input-label for="notification_from_name" value="From Name" />
-                        <x-text-input id="notification_from_name" name="notification_from_name" type="text" class="mt-1" :value="old('notification_from_name', $settings->notification_from_name)" required />
-                        <x-input-error :messages="$errors->get('notification_from_name')" class="mt-2" />
-                    </div>
+                    <x-text-field
+                        id="notification_from_name"
+                        name="notification_from_name"
+                        label="From Name"
+                        icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                        helper="The sender name recipients see on platform emails."
+                        :value="old('notification_from_name', $settings->notification_from_name)"
+                        required
+                    />
 
-                    <div>
-                        <x-input-label for="notification_from_email" value="From Email" />
-                        <x-text-input id="notification_from_email" name="notification_from_email" type="email" class="mt-1" :value="old('notification_from_email', $settings->notification_from_email)" />
-                        <x-input-error :messages="$errors->get('notification_from_email')" class="mt-2" />
-                    </div>
+                    <x-text-field
+                        id="notification_from_email"
+                        name="notification_from_email"
+                        label="From Email"
+                        type="email"
+                        icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7"
+                        helper="The reply-to address for outgoing notifications."
+                        :value="old('notification_from_email', $settings->notification_from_email)"
+                    />
                 </div>
             </div>
 
@@ -70,15 +90,16 @@
                 </div>
 
                 <div class="mt-4">
-                    <x-input-label for="maintenance_message" value="Maintenance Message" />
-                    <textarea
+                    <x-textarea-field
                         id="maintenance_message"
                         name="maintenance_message"
+                        label="Maintenance Message"
+                        icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                        helper="Shown to visitors while maintenance mode is on."
                         rows="3"
                         placeholder="EduNest is currently undergoing scheduled maintenance. Please check back shortly."
-                        class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-3 pl-4 pr-4 text-base text-gray-900 shadow-sm transition-colors duration-150 placeholder:text-gray-400 hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                    >{{ old('maintenance_message', $settings->maintenance_message) }}</textarea>
-                    <x-input-error :messages="$errors->get('maintenance_message')" class="mt-2" />
+                        :value="old('maintenance_message', $settings->maintenance_message)"
+                    />
                 </div>
             </div>
 
