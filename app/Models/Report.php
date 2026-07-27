@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ReportStatus;
+use App\Support\HasUuidRouteKey;
 use Database\Factories\ReportFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 class Report extends Model
 {
     /** @use HasFactory<ReportFactory> */
-    use HasFactory;
+    use HasFactory, HasUuidRouteKey;
 
     /**
      * The attributes that are mass assignable.

@@ -190,14 +190,14 @@
                             <div class="mt-3 flex flex-wrap gap-1.5">
                                 <button
                                     type="button"
-                                    @click="renaming = { id: {{ $item->id }}, name: @js($item->name) }"
+                                    @click="renaming = { id: @js($item->uuid), name: @js($item->name) }"
                                     class="rounded-[5px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[6px]"
                                 >
                                     Rename
                                 </button>
                                 <button
                                     type="button"
-                                    @click="replacing = { id: {{ $item->id }}, name: @js($item->name) }"
+                                    @click="replacing = { id: @js($item->uuid), name: @js($item->name) }"
                                     class="rounded-[5px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[6px]"
                                 >
                                     Replace

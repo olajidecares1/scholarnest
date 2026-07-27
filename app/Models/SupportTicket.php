@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Support\HasUuidRouteKey;
 use Database\Factories\SupportTicketFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class SupportTicket extends Model
 {
     /** @use HasFactory<SupportTicketFactory> */
-    use HasFactory;
+    use HasFactory, HasUuidRouteKey;
 
     /**
      * The attributes that are mass assignable.

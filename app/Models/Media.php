@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\MediaType;
+use App\Support\HasUuidRouteKey;
 use Database\Factories\MediaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 class Media extends Model
 {
     /** @use HasFactory<MediaFactory> */
-    use HasFactory;
+    use HasFactory, HasUuidRouteKey;
 
     /**
      * The attributes that are mass assignable.

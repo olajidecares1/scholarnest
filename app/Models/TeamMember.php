@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\HasUuidRouteKey;
 use Database\Factories\TeamMemberFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class TeamMember extends Model
 {
     /** @use HasFactory<TeamMemberFactory> */
-    use HasFactory;
+    use HasFactory, HasUuidRouteKey;
 
     /**
      * The attributes that are mass assignable.

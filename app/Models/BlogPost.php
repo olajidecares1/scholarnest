@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\HasUuidRouteKey;
 use Database\Factories\BlogPostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Support\Str;
 class BlogPost extends Model
 {
     /** @use HasFactory<BlogPostFactory> */
-    use HasFactory;
+    use HasFactory, HasUuidRouteKey;
 
     /**
      * The attributes that are mass assignable.

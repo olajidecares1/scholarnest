@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\HasUuidRouteKey;
 use Database\Factories\AdminRoleFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Support\Str;
 class AdminRole extends Model
 {
     /** @use HasFactory<AdminRoleFactory> */
-    use HasFactory;
+    use HasFactory, HasUuidRouteKey;
 
     /**
      * @var array<string, string>
