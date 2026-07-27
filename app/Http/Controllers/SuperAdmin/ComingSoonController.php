@@ -12,16 +12,6 @@ class ComingSoonController extends Controller
      * @var array<string, array{title: string, description: string, features: list<string>}>
      */
     private const SECTIONS = [
-        'reports' => [
-            'title' => 'Reports',
-            'description' => 'Review community misconduct submissions and platform reports.',
-            'features' => [
-                'Misconduct report review queue',
-                'Incident reference number tracking',
-                'Media attachment review (photos & video)',
-                'Status workflow: new, reviewing, resolved',
-            ],
-        ],
         'analytics' => [
             'title' => 'Analytics',
             'description' => 'Monitor visitor traffic and platform-wide analytics.',

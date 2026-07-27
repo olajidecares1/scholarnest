@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Subscriptions\BillingDetailsController;
 use App\Http\Controllers\Subscriptions\ChoosePlanController;
 use App\Http\Controllers\Subscriptions\ConfirmationController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\SuperAdmin\ComingSoonController;
 use App\Http\Controllers\SuperAdmin\CommunicationController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
+use App\Http\Controllers\SuperAdmin\ReportController as SuperAdminReportController;
 use App\Http\Controllers\SuperAdmin\RoleController;
 use App\Http\Controllers\SuperAdmin\SchoolController;
 use App\Http\Controllers\SuperAdmin\SearchController;
@@ -27,6 +29,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::middleware('throttle:5,1')->group(function () {
+    Route::get('report-misconduct', [ReportController::class, 'create'])->name('reports.create');
+    Route::post('report-misconduct', [ReportController::class, 'store'])->name('reports.store');
+});
+Route::get('report-misconduct/confirmation', [ReportController::class, 'confirmation'])->name('reports.confirmation');
 
 Route::get('/dashboard', function () {
     if (auth()->user()->role === UserRole::SuperAdmin) {
@@ -118,7 +126,12 @@ Route::middleware('auth')->group(function () {
             Route::delete('{role}', [RoleController::class, 'destroy'])->name('destroy');
         });
 
-        Route::get('reports', [ComingSoonController::class, 'show'])->name('reports.index')->middleware('permission:manage_reports');
+        Route::prefix('reports')->name('reports.')->middleware('permission:manage_reports')->group(function () {
+            Route::get('/', [SuperAdminReportController::class, 'index'])->name('index');
+            Route::get('{report}', [SuperAdminReportController::class, 'show'])->name('show');
+            Route::put('{report}', [SuperAdminReportController::class, 'update'])->name('update');
+            Route::get('{report}/media', [SuperAdminReportController::class, 'downloadMedia'])->name('media');
+        });
         Route::get('analytics', [ComingSoonController::class, 'show'])->name('analytics.index')->middleware('permission:manage_analytics');
         Route::prefix('communications')->name('communications.')->middleware('permission:manage_communications')->group(function () {
             Route::get('/', [CommunicationController::class, 'index'])->name('index');
