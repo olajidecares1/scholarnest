@@ -37,16 +37,17 @@
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <form method="POST" action="{{ route('super-admin.support-tickets.reply', $ticket) }}" class="space-y-3">
                     @csrf
-                    <x-input-label for="message" value="Reply to School" />
-                    <textarea
+                    <x-textarea-field
                         id="message"
                         name="message"
+                        label="Reply to School"
+                        icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                        helper="The school will be notified by email and in-app."
                         rows="4"
                         required
                         placeholder="Type your reply..."
-                        class="w-full rounded-[5px] border border-gray-300 bg-white py-3 pl-4 pr-4 text-base text-gray-900 shadow-sm transition-colors duration-150 placeholder:text-gray-400 hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                    >{{ old('message') }}</textarea>
-                    <x-input-error :messages="$errors->get('message')" class="mt-2" />
+                        :value="old('message')"
+                    />
                     <button
                         type="submit"
                         class="flex items-center justify-center gap-2 rounded-[5px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg lg:rounded-[10px]"
@@ -64,32 +65,25 @@
                     @csrf
                     @method('PUT')
 
-                    <div>
-                        <x-input-label for="status" value="Status" />
-                        <select
-                            id="status"
-                            name="status"
-                            class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 pl-3 pr-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                        >
-                            @foreach (\App\Enums\TicketStatus::cases() as $status)
-                                <option value="{{ $status->value }}" @selected($ticket->status === $status)>{{ $status->label() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <x-select-field
+                        id="status"
+                        name="status"
+                        label="Status"
+                        icon="M7 13.5l2.2 2.2L14 11"
+                        helper="Where this ticket stands right now."
+                        :options="collect(\App\Enums\TicketStatus::cases())->mapWithKeys(fn ($status) => [$status->value => $status->label()])"
+                        :selected="$ticket->status->value"
+                    />
 
-                    <div>
-                        <x-input-label for="assigned_to" value="Assigned To" />
-                        <select
-                            id="assigned_to"
-                            name="assigned_to"
-                            class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 pl-3 pr-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                        >
-                            <option value="">Unassigned</option>
-                            @foreach ($superAdmins as $admin)
-                                <option value="{{ $admin->id }}" @selected($ticket->assigned_to === $admin->id)>{{ $admin->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <x-select-field
+                        id="assigned_to"
+                        name="assigned_to"
+                        label="Assigned To"
+                        icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                        helper="Who on the team is handling this ticket."
+                        :options="collect(['' => 'Unassigned'])->union($superAdmins->pluck('name', 'id'))"
+                        :selected="(string) $ticket->assigned_to"
+                    />
 
                     <button
                         type="submit"

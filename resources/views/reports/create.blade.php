@@ -27,41 +27,48 @@
         <form method="POST" action="{{ route('reports.store') }}" enctype="multipart/form-data" class="mt-6 space-y-5">
             @csrf
 
-            <div>
-                <x-input-label for="school_id" value="School (optional)" />
-                <select
-                    id="school_id"
-                    name="school_id"
-                    class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-3 pl-4 pr-4 text-base text-gray-900 shadow-sm transition-colors duration-150 hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 lg:rounded-[10px]"
-                >
-                    <option value="">Not sure / not applicable</option>
-                    @foreach ($schools as $school)
-                        <option value="{{ $school->id }}" @selected(old('school_id') == $school->id)>{{ $school->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <x-select-field
+                id="school_id"
+                name="school_id"
+                label="School (optional)"
+                icon="M4 21h16 M5 21V10M19 21V10 M3 10l9-6 9 6 M8 10v11M12 10v11M16 10v11"
+                helper="Leave blank if you're not sure which school this concerns."
+                :options="collect(['' => 'Not sure / not applicable'])->union($schools->pluck('name', 'id'))"
+                :selected="old('school_id')"
+            />
 
-            <div>
-                <x-input-label for="reporter_name" value="Your Name (optional)" />
-                <x-text-input id="reporter_name" name="reporter_name" type="text" class="mt-1" :value="old('reporter_name')" placeholder="Leave blank to stay anonymous" />
-            </div>
+            <x-text-field
+                id="reporter_name"
+                name="reporter_name"
+                label="Your Name (optional)"
+                icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                helper="Leave blank to submit this report anonymously."
+                :value="old('reporter_name')"
+                placeholder="Leave blank to stay anonymous"
+            />
 
-            <div>
-                <x-input-label for="reporter_email" value="Your Email (optional)" />
-                <x-text-input id="reporter_email" name="reporter_email" type="email" class="mt-1" :value="old('reporter_email')" placeholder="So we can follow up, if needed" />
-            </div>
+            <x-text-field
+                id="reporter_email"
+                name="reporter_email"
+                label="Your Email (optional)"
+                type="email"
+                icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7"
+                helper="Only used if we need to follow up on your report."
+                :value="old('reporter_email')"
+                placeholder="So we can follow up, if needed"
+            />
 
-            <div>
-                <x-input-label for="description" value="What happened?" />
-                <textarea
-                    id="description"
-                    name="description"
-                    rows="5"
-                    required
-                    placeholder="Describe the concern in as much detail as you can..."
-                    class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-3 pl-4 pr-4 text-base text-gray-900 shadow-sm transition-colors duration-150 placeholder:text-gray-400 hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 lg:rounded-[10px]"
-                >{{ old('description') }}</textarea>
-            </div>
+            <x-textarea-field
+                id="description"
+                name="description"
+                label="What happened?"
+                icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                helper="Share as much detail as you can: what happened, when, and who was involved."
+                rows="5"
+                required
+                placeholder="Describe the concern in as much detail as you can..."
+                :value="old('description')"
+            />
 
             <div>
                 <x-input-label for="media" value="Photo or Video Evidence (optional)" />

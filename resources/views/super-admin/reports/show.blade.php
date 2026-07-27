@@ -71,29 +71,26 @@
                     @csrf
                     @method('PUT')
 
-                    <div>
-                        <x-input-label for="status" value="Status" />
-                        <select
-                            id="status"
-                            name="status"
-                            class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 pl-3 pr-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                        >
-                            @foreach (\App\Enums\ReportStatus::cases() as $status)
-                                <option value="{{ $status->value }}" @selected($report->status === $status)>{{ $status->label() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <x-select-field
+                        id="status"
+                        name="status"
+                        label="Status"
+                        icon="M7 13.5l2.2 2.2L14 11"
+                        helper="Where this report stands in your review process."
+                        :options="collect(\App\Enums\ReportStatus::cases())->mapWithKeys(fn ($status) => [$status->value => $status->label()])"
+                        :selected="$report->status->value"
+                    />
 
-                    <div>
-                        <x-input-label for="resolution_notes" value="Resolution Notes" />
-                        <textarea
-                            id="resolution_notes"
-                            name="resolution_notes"
-                            rows="4"
-                            placeholder="Internal notes about how this was handled..."
-                            class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 pl-3 pr-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]"
-                        >{{ old('resolution_notes', $report->resolution_notes) }}</textarea>
-                    </div>
+                    <x-textarea-field
+                        id="resolution_notes"
+                        name="resolution_notes"
+                        label="Resolution Notes"
+                        icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                        helper="Internal notes only — not shared with the reporter."
+                        rows="4"
+                        placeholder="Internal notes about how this was handled..."
+                        :value="old('resolution_notes', $report->resolution_notes)"
+                    />
 
                     <button
                         type="submit"
