@@ -65,4 +65,12 @@ class School extends Model
             ->whereIn('status', [SubscriptionStatus::Active, SubscriptionStatus::PendingVerification, SubscriptionStatus::PendingPayment])
             ->latestOfMany();
     }
+
+    /**
+     * @return HasMany<SupportTicket, $this>
+     */
+    public function supportTickets(): HasMany
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
 }

@@ -42,16 +42,6 @@ class ComingSoonController extends Controller
                 'Email notification templates',
             ],
         ],
-        'support-tickets' => [
-            'title' => 'Support Tickets',
-            'description' => 'Track and resolve support requests from schools.',
-            'features' => [
-                'Ticket queue with priority levels',
-                'Assign tickets to team members',
-                'Status tracking (open, in progress, resolved)',
-                'Response time monitoring',
-            ],
-        ],
         'cms' => [
             'title' => 'CMS',
             'description' => 'Manage platform-wide content: pages, blog, testimonials, and more.',

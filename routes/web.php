@@ -18,7 +18,9 @@ use App\Http\Controllers\SuperAdmin\SchoolController;
 use App\Http\Controllers\SuperAdmin\SearchController;
 use App\Http\Controllers\SuperAdmin\SettingsController;
 use App\Http\Controllers\SuperAdmin\SubscriptionApprovalController;
+use App\Http\Controllers\SuperAdmin\SupportTicketController as SuperAdminSupportTicketController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
+use App\Http\Controllers\SupportTicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -56,6 +58,14 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('confirmation/{subscription}', [ConfirmationController::class, 'show'])->name('confirmation');
+    });
+
+    Route::middleware('school_admin')->prefix('support-tickets')->name('support-tickets.')->group(function () {
+        Route::get('/', [SupportTicketController::class, 'index'])->name('index');
+        Route::get('create', [SupportTicketController::class, 'create'])->name('create');
+        Route::post('/', [SupportTicketController::class, 'store'])->name('store');
+        Route::get('{ticket}', [SupportTicketController::class, 'show'])->name('show');
+        Route::post('{ticket}/reply', [SupportTicketController::class, 'reply'])->name('reply');
     });
 
     Route::prefix('notifications')->name('notifications.')->group(function () {
@@ -110,7 +120,12 @@ Route::middleware('auth')->group(function () {
         Route::get('reports', [ComingSoonController::class, 'show'])->name('reports.index')->middleware('permission:manage_reports');
         Route::get('analytics', [ComingSoonController::class, 'show'])->name('analytics.index')->middleware('permission:manage_analytics');
         Route::get('communications', [ComingSoonController::class, 'show'])->name('communications.index')->middleware('permission:manage_communications');
-        Route::get('support-tickets', [ComingSoonController::class, 'show'])->name('support-tickets.index')->middleware('permission:manage_support_tickets');
+        Route::prefix('support-tickets')->name('support-tickets.')->middleware('permission:manage_support_tickets')->group(function () {
+            Route::get('/', [SuperAdminSupportTicketController::class, 'index'])->name('index');
+            Route::get('{ticket}', [SuperAdminSupportTicketController::class, 'show'])->name('show');
+            Route::post('{ticket}/reply', [SuperAdminSupportTicketController::class, 'reply'])->name('reply');
+            Route::put('{ticket}', [SuperAdminSupportTicketController::class, 'update'])->name('update');
+        });
         Route::get('cms', [ComingSoonController::class, 'show'])->name('cms.index')->middleware('permission:manage_cms');
         Route::get('themes', [ComingSoonController::class, 'show'])->name('themes.index')->middleware('permission:manage_themes');
 
