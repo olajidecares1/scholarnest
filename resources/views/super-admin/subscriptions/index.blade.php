@@ -1,0 +1,216 @@
+@php
+    $tabs = [
+        'pending' => 'Pending Approvals',
+        'active' => 'Active Subscriptions',
+        'expired' => 'Expired Subscriptions',
+        'all' => 'All Subscriptions',
+    ];
+@endphp
+
+<x-super-admin-layout page-title="Subscription Approvals" page-subtitle="Review and manage schools subscription requests." :pending-approvals-count="$stats['pending']">
+    <div class="space-y-6">
+        @if (session('status'))
+            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 lg:rounded-[10px]">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+                <p class="text-sm font-medium text-amber-600">Pending Approvals</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ number_format($stats['pending']) }}</p>
+                <p class="text-xs text-gray-500">Schools awaiting approval</p>
+            </div>
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+                <p class="text-sm font-medium text-primary-600">Auto-Activate Eligible</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ number_format($stats['autoActivate']) }}</p>
+                <p class="text-xs text-gray-500">Returning schools, fast-track review</p>
+            </div>
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+                <p class="text-sm font-medium text-green-600">Active Subscriptions</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ number_format($stats['active']) }}</p>
+                <p class="text-xs text-gray-500">Currently active schools</p>
+            </div>
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+                <p class="text-sm font-medium text-purple-600">Expiring Soon (30 Days)</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ number_format($stats['expiringSoon']) }}</p>
+                <p class="text-xs text-gray-500">Subscriptions expiring soon</p>
+            </div>
+        </div>
+
+        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm lg:rounded-[10px]">
+            <div class="flex flex-wrap gap-1 border-b border-gray-100 px-4 pt-2">
+                @foreach ($tabs as $key => $label)
+                    <a
+                        href="{{ route('super-admin.subscriptions.index', ['tab' => $key]) }}"
+                        class="rounded-t-[5px] border-b-2 px-4 py-3 text-sm font-semibold {{ $tab === $key ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700' }}"
+                    >
+                        {{ $label }}
+                    </a>
+                @endforeach
+            </div>
+
+            <form method="GET" action="{{ route('super-admin.subscriptions.index') }}" class="flex flex-wrap items-center gap-3 p-4">
+                <input type="hidden" name="tab" value="{{ $tab }}">
+
+                <div class="relative flex-1 min-w-[200px]">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
+                            <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="Search schools..."
+                        class="w-full rounded-[5px] border-gray-300 py-2 pl-9 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 lg:rounded-[10px]"
+                    >
+                </div>
+
+                <select name="plan_id" class="rounded-[5px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 lg:rounded-[10px]">
+                    <option value="">All Plans</option>
+                    @foreach ($plans as $plan)
+                        <option value="{{ $plan->id }}" @selected(request('plan_id') == $plan->id)>{{ $plan->name }}</option>
+                    @endforeach
+                </select>
+
+                <select name="billing_cycle" class="rounded-[5px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 lg:rounded-[10px]">
+                    <option value="">All Billing Cycles</option>
+                    <option value="monthly" @selected(request('billing_cycle') === 'monthly')>Monthly</option>
+                    <option value="per_term" @selected(request('billing_cycle') === 'per_term')>Per Term</option>
+                    <option value="per_student_per_term" @selected(request('billing_cycle') === 'per_student_per_term')>Per Student / Per Term</option>
+                </select>
+
+                <select name="payment_method" class="rounded-[5px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 lg:rounded-[10px]">
+                    <option value="">All Payment Methods</option>
+                    <option value="bank_transfer" @selected(request('payment_method') === 'bank_transfer')>Bank Transfer</option>
+                    <option value="paystack" @selected(request('payment_method') === 'paystack')>Paystack</option>
+                </select>
+
+                <button
+                    type="submit"
+                    class="flex items-center gap-2 rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 lg:rounded-[10px]"
+                >
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                    </svg>
+                    Filter
+                </button>
+            </form>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                        <tr>
+                            <th class="px-5 py-3 font-semibold">School</th>
+                            <th class="px-5 py-3 font-semibold">Plan &amp; Billing</th>
+                            <th class="px-5 py-3 font-semibold">Amount</th>
+                            <th class="px-5 py-3 font-semibold">Payment Method</th>
+                            <th class="px-5 py-3 font-semibold">Requested On</th>
+                            <th class="px-5 py-3 font-semibold">Status</th>
+                            <th class="px-5 py-3 font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse ($subscriptions as $subscription)
+                            <tr>
+                                <td class="px-5 py-3">
+                                    <p class="font-semibold text-gray-900">{{ $subscription->school->name }}</p>
+                                    @if ($autoActivateEligibleIds->contains($subscription->id))
+                                        <span class="mt-0.5 inline-block rounded-full bg-primary-50 px-2 py-0.5 text-[10px] font-semibold uppercase text-primary-600">Auto-Activate Eligible</span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3">
+                                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">{{ $subscription->plan->name }}</span>
+                                    <p class="mt-1 text-xs text-gray-500">{{ $subscription->billing_cycle->label() }}</p>
+                                </td>
+                                <td class="px-5 py-3 font-medium text-gray-900">&#8358;{{ number_format($subscription->amount, 2) }}</td>
+                                <td class="px-5 py-3 text-gray-600">{{ $subscription->latestPayment?->method?->label() ?? '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600">{{ $subscription->created_at->format('M j, Y') }}</td>
+                                <td class="px-5 py-3">
+                                    @php
+                                        $statusColors = [
+                                            'pending_verification' => 'bg-amber-100 text-amber-700',
+                                            'active' => 'bg-green-100 text-green-700',
+                                            'rejected' => 'bg-red-100 text-red-700',
+                                            'expired' => 'bg-gray-200 text-gray-600',
+                                            'pending_payment' => 'bg-gray-100 text-gray-500',
+                                        ];
+                                    @endphp
+                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $statusColors[$subscription->status->value] ?? 'bg-gray-100 text-gray-600' }}">
+                                        {{ $subscription->status->label() }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3">
+                                    <div class="flex items-center gap-2" x-data="{ open: false, rejecting: false }">
+                                        <a
+                                            href="{{ route('subscriptions.confirmation', $subscription) }}"
+                                            class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 lg:rounded-[10px]"
+                                        >
+                                            View
+                                        </a>
+
+                                        @if ($subscription->status->value === 'pending_verification')
+                                            <div class="relative">
+                                                <button type="button" @click="open = !open" @click.outside="open = false" class="flex h-8 w-8 items-center justify-center rounded-[5px] border border-gray-300 text-gray-500 hover:bg-gray-50 lg:rounded-[10px]">
+                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <circle cx="12" cy="5" r="1.5" fill="currentColor" />
+                                                        <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                                                        <circle cx="12" cy="19" r="1.5" fill="currentColor" />
+                                                    </svg>
+                                                </button>
+
+                                                <div x-show="open" x-transition style="display: none;" class="absolute right-0 z-10 mt-1 w-56 rounded-[5px] border border-gray-200 bg-white py-1 shadow-lg lg:rounded-[10px]">
+                                                    <form method="POST" action="{{ route('super-admin.subscriptions.approve', $subscription) }}">
+                                                        @csrf
+                                                        <button type="submit" class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-green-700 hover:bg-green-50">
+                                                            Approve &amp; Activate
+                                                        </button>
+                                                    </form>
+                                                    <button type="button" @click="rejecting = true; open = false" class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700 hover:bg-red-50">
+                                                        Reject
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div x-show="rejecting" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
+                                                <div @click.outside="rejecting = false" class="w-full max-w-md rounded-[5px] bg-white p-5 lg:rounded-[10px]">
+                                                    <h3 class="text-sm font-bold text-gray-900">Reject subscription for {{ $subscription->school->name }}?</h3>
+                                                    <form method="POST" action="{{ route('super-admin.subscriptions.reject', $subscription) }}" class="mt-3">
+                                                        @csrf
+                                                        <textarea
+                                                            name="reason"
+                                                            rows="3"
+                                                            placeholder="Reason (optional, sent to the school)"
+                                                            class="w-full rounded-[5px] border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 lg:rounded-[10px]"
+                                                        ></textarea>
+                                                        <div class="mt-3 flex justify-end gap-2">
+                                                            <button type="button" @click="rejecting = false" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 lg:rounded-[10px]">Cancel</button>
+                                                            <button type="submit" class="rounded-[5px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 lg:rounded-[10px]">Reject Subscription</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-5 py-10 text-center text-sm text-gray-500">No subscriptions found for this view.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if ($subscriptions->hasPages())
+                <div class="border-t border-gray-100 px-5 py-4">
+                    {{ $subscriptions->links() }}
+                </div>
+            @endif
+        </div>
+    </div>
+</x-super-admin-layout>

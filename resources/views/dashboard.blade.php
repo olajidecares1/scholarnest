@@ -1,6 +1,6 @@
 @php
     $school = auth()->user()->school;
-    $subscription = $school->activeSubscription();
+    $subscription = $school->activeSubscription;
 @endphp
 
 <x-dashboard-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.auth()->user()->name.'.'">

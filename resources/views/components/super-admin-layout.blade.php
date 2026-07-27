@@ -1,0 +1,214 @@
+@props([
+    'pageTitle' => 'Dashboard',
+    'pageSubtitle' => null,
+])
+
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        <title>{{ $pageTitle }} - {{ config('app.name', 'EduNest') }} Super Admin</title>
+
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="bg-gray-50 font-sans text-gray-900 antialiased" x-data="{ sidebarOpen: false }">
+        <div
+            x-show="sidebarOpen"
+            x-transition.opacity
+            @click="sidebarOpen = false"
+            class="fixed inset-0 z-30 bg-gray-900/50 lg:hidden"
+            style="display: none;"
+        ></div>
+
+        <aside
+            class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col overflow-y-auto bg-primary-600 text-white transition-transform duration-200 lg:translate-x-0"
+            :class="{ 'translate-x-0': sidebarOpen }"
+        >
+            <div class="flex items-center gap-2 px-5 py-5">
+                <img
+                    src="{{ asset('images/logo-icon-dark.png') }}"
+                    alt="EduNest"
+                    class="h-9 w-9 shrink-0 rounded-[5px] bg-white/10 lg:rounded-[10px]"
+                >
+                <div>
+                    <p class="text-lg font-bold leading-tight">EduNest</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-100">Super Admin Portal</p>
+                </div>
+            </div>
+
+            <nav class="mt-2 flex-1 space-y-1 px-3 pb-4">
+                @php
+                    $navLink = fn (string $route, string $label, string $icon, ?string $routePattern = null) => [
+                        'route' => $route, 'label' => $label, 'icon' => $icon, 'pattern' => $routePattern ?? $route,
+                    ];
+                @endphp
+
+                <a
+                    href="{{ route('super-admin.dashboard') }}"
+                    class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('super-admin.dashboard') ? 'bg-white/15 text-white' : 'text-primary-100 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6 10v9a1 1 0 001 1h3v-6h4v6h3a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Dashboard
+                </a>
+
+                <a
+                    href="{{ route('super-admin.schools.index') }}"
+                    class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('super-admin.schools.*') ? 'bg-white/15 text-white' : 'text-primary-100 hover:bg-white/10 hover:text-white' }}"
+                >
+                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 21h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                        <path d="M5 21V10M19 21V10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                        <path d="M3 10l9-6 9 6" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+                    </svg>
+                    Schools
+                </a>
+
+                <div x-data="{ open: {{ request()->routeIs('super-admin.subscriptions.*') ? 'true' : 'false' }} }">
+                    <button
+                        type="button"
+                        @click="open = !open"
+                        class="flex min-h-[44px] w-full items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs('super-admin.subscriptions.*') ? 'bg-white/15 text-white' : 'text-primary-100 hover:bg-white/10 hover:text-white' }}"
+                    >
+                        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.75" />
+                            <path d="M3 10h18" stroke="currentColor" stroke-width="1.75" />
+                        </svg>
+                        <span class="flex-1 text-left">Subscriptions</span>
+                        <svg class="h-4 w-4 shrink-0 transition-transform" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-transition style="display: none;" class="mt-1 space-y-1 pl-11">
+                        <a href="{{ route('super-admin.subscriptions.index') }}" class="block rounded-[5px] px-3 py-2 text-sm {{ request()->routeIs('super-admin.subscriptions.index') && request('tab', 'pending') === 'pending' ? 'font-semibold text-white' : 'text-primary-100 hover:text-white' }}">Pending Approvals</a>
+                        <a href="{{ route('super-admin.subscriptions.index', ['tab' => 'active']) }}" class="block rounded-[5px] px-3 py-2 text-sm {{ request('tab') === 'active' ? 'font-semibold text-white' : 'text-primary-100 hover:text-white' }}">Active Subscriptions</a>
+                        <a href="{{ route('super-admin.subscriptions.index', ['tab' => 'expired']) }}" class="block rounded-[5px] px-3 py-2 text-sm {{ request('tab') === 'expired' ? 'font-semibold text-white' : 'text-primary-100 hover:text-white' }}">Expired Subscriptions</a>
+                        <a href="{{ route('super-admin.subscriptions.index', ['tab' => 'all']) }}" class="block rounded-[5px] px-3 py-2 text-sm {{ request('tab') === 'all' ? 'font-semibold text-white' : 'text-primary-100 hover:text-white' }}">All Subscriptions</a>
+                    </div>
+                </div>
+
+                @foreach ([
+                    ['route' => 'super-admin.payments.index', 'label' => 'Payments', 'icon' => 'M4 7h16M4 7a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2M4 7l1.7-3.4A2 2 0 017.5 2.5h9a2 2 0 011.8 1.1L20 7M8 15h.01M12 15h4'],
+                    ['route' => 'super-admin.users.index', 'label' => 'Users', 'icon' => 'M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'],
+                    ['route' => 'super-admin.reports.index', 'label' => 'Reports', 'icon' => 'M9 17v-6M15 17v-2M12 17v-9M4 21h16a1 1 0 001-1V4a1 1 0 00-1-1H4a1 1 0 00-1 1v16a1 1 0 001 1z'],
+                    ['route' => 'super-admin.analytics.index', 'label' => 'Analytics', 'icon' => 'M4 20V10M10 20V4M16 20v-7M20 20v-3'],
+                    ['route' => 'super-admin.communications.index', 'label' => 'Communications', 'icon' => 'M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z'],
+                    ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets', 'icon' => 'M9 12h6M9 16h6M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z'],
+                    ['route' => 'super-admin.cms.index', 'label' => 'CMS', 'icon' => 'M4 6h16M4 12h16M4 18h7'],
+                    ['route' => 'super-admin.settings.index', 'label' => 'System Settings', 'icon' => 'M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z'],
+                    ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12h6M9 16h6'],
+                ] as $item)
+                    <a
+                        href="{{ route($item['route']) }}"
+                        class="flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition lg:rounded-[10px] {{ request()->routeIs(str($item['route'])->beforeLast('.').'.*') ? 'bg-white/15 text-white' : 'text-primary-100 hover:bg-white/10 hover:text-white' }}"
+                    >
+                        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="{{ $item['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        {{ $item['label'] }}
+                    </a>
+                @endforeach
+            </nav>
+
+            <div class="m-3 rounded-[5px] bg-white/10 p-4 text-center lg:rounded-[10px]">
+                <p class="text-sm font-semibold">Need Help?</p>
+                <p class="mt-1 text-xs text-primary-100">Our support team is here to help you anytime.</p>
+                <a
+                    href="#"
+                    class="mt-3 inline-flex w-full items-center justify-center rounded-[5px] bg-white px-3 py-2 text-xs font-semibold text-primary-600 lg:rounded-[10px]"
+                >
+                    Contact Support
+                </a>
+            </div>
+
+            <p class="px-5 pb-5 text-xs text-primary-200">&copy; {{ now()->year }} EduNest. All rights reserved.</p>
+        </aside>
+
+        <div class="lg:pl-64">
+            <header class="sticky top-0 z-20 flex items-center gap-4 border-b border-gray-200 bg-white/90 px-4 py-3 backdrop-blur sm:px-6">
+                <button
+                    type="button"
+                    @click="sidebarOpen = true"
+                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 lg:hidden"
+                >
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                    </svg>
+                </button>
+
+                <div class="min-w-0 flex-1">
+                    <h1 class="truncate text-lg font-bold text-gray-900">{{ $pageTitle }}</h1>
+                    @if ($pageSubtitle)
+                        <p class="truncate text-sm text-gray-500">{{ $pageSubtitle }}</p>
+                    @endif
+                </div>
+
+                <div class="relative hidden md:block">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
+                            <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                    <input
+                        type="text"
+                        disabled
+                        placeholder="Search schools, plans, payments..."
+                        class="w-64 rounded-[5px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-500 placeholder:text-gray-400 lg:rounded-[10px]"
+                    >
+                </div>
+
+                <button type="button" class="relative flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 lg:rounded-[10px]">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                        <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                    @if (($pendingApprovalsCount ?? 0) > 0)
+                        <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($pendingApprovalsCount, 99) }}</span>
+                    @endif
+                </button>
+
+                <div class="relative" x-data="{ open: false }">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="flex items-center gap-2">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
+                            {{ Str::of(auth()->user()->name)->substr(0, 1)->upper() }}
+                        </span>
+                        <span class="hidden text-left sm:block">
+                            <span class="block text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</span>
+                            <span class="block text-xs text-gray-500">{{ auth()->user()->role->label() }}</span>
+                        </span>
+                    </button>
+
+                    <div
+                        x-show="open"
+                        x-transition
+                        style="display: none;"
+                        class="absolute right-0 mt-2 w-48 rounded-[5px] border border-gray-200 bg-white py-1 shadow-lg lg:rounded-[10px]"
+                    >
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Profile</a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">Log Out</button>
+                        </form>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-4 sm:p-6 lg:p-8">
+                {{ $slot }}
+            </main>
+        </div>
+    </body>
+</html>
