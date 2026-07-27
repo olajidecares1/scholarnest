@@ -25,3 +25,24 @@ test('analytics totals only count views within the last 30 days', function () {
 
     $response->assertViewHas('totalViews30Days', 3);
 });
+
+test('top pages are grouped and labelled by route name, not the opaque url', function () {
+    PageView::factory()->count(3)->create([
+        'route_name' => 'login',
+        'path' => '/'.str_repeat('a', 128),
+        'viewed_at' => now(),
+    ]);
+    PageView::factory()->count(1)->create([
+        'route_name' => 'register',
+        'path' => '/'.str_repeat('b', 128),
+        'viewed_at' => now(),
+    ]);
+
+    $response = $this->actingAs($this->superAdmin)->get(route('super-admin.analytics.index'));
+
+    $topPages = $response->viewData('topPages');
+
+    expect($topPages->first()->label())->toBe('Login');
+    expect($topPages->first()->views)->toBe(3);
+    $response->assertDontSee(str_repeat('a', 128));
+});

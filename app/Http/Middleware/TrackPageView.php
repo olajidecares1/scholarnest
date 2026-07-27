@@ -10,9 +10,13 @@ use Symfony\Component\HttpFoundation\Response;
 class TrackPageView
 {
     /**
+     * Route-name prefixes to exclude from public traffic analytics.
+     * Route names stay stable even though every URI is an opaque token,
+     * so this - not the URL - is what exclusion has to key off of.
+     *
      * @var list<string>
      */
-    private const EXCLUDED_PREFIXES = ['super-admin', 'notifications', 'up'];
+    private const EXCLUDED_ROUTE_NAME_PREFIXES = ['super-admin.', 'notifications.'];
 
     /**
      * Handle an incoming request.
@@ -26,6 +30,7 @@ class TrackPageView
         if ($this->shouldTrack($request, $response)) {
             PageView::create([
                 'path' => '/'.ltrim($request->path(), '/'),
+                'route_name' => $request->route()?->getName(),
                 'referrer_host' => $this->refererHost($request),
                 'traffic_source' => $this->trafficSource($request),
                 'device_type' => $this->deviceType((string) $request->userAgent()),
@@ -47,8 +52,18 @@ class TrackPageView
             return false;
         }
 
-        foreach (self::EXCLUDED_PREFIXES as $prefix) {
-            if ($request->is($prefix) || $request->is($prefix.'/*')) {
+        if ($request->is('up')) {
+            return false;
+        }
+
+        $routeName = $request->route()?->getName();
+
+        if ($routeName === null) {
+            return true;
+        }
+
+        foreach (self::EXCLUDED_ROUTE_NAME_PREFIXES as $prefix) {
+            if (str_starts_with($routeName, $prefix)) {
                 return false;
             }
         }

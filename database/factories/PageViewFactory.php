@@ -17,8 +17,11 @@ class PageViewFactory extends Factory
      */
     public function definition(): array
     {
+        $routeName = fake()->randomElement(['dashboard', 'login', 'register', 'reports.create']);
+
         return [
-            'path' => fake()->randomElement(['/', '/login', '/register', '/report-misconduct']),
+            'path' => '/'.fake()->regexify('[0-9a-f]{128}'),
+            'route_name' => $routeName,
             'referrer_host' => null,
             'traffic_source' => fake()->randomElement(['direct', 'search', 'social', 'referral']),
             'device_type' => fake()->randomElement(['desktop', 'mobile', 'tablet']),

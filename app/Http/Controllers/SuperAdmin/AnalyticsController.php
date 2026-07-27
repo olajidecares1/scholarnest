@@ -20,8 +20,8 @@ class AnalyticsController extends Controller
             'trafficSources' => $this->breakdown('traffic_source', ['direct', 'search', 'social', 'referral'], $now),
             'devices' => $this->breakdown('device_type', ['desktop', 'mobile', 'tablet'], $now),
             'topPages' => PageView::where('viewed_at', '>=', $now->copy()->subDays(30))
-                ->selectRaw('path, count(*) as views')
-                ->groupBy('path')
+                ->selectRaw('COALESCE(route_name, path) as page_key, MAX(path) as path, MAX(route_name) as route_name, count(*) as views')
+                ->groupBy('page_key')
                 ->orderByDesc('views')
                 ->limit(10)
                 ->get(),

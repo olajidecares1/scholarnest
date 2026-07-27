@@ -77,14 +77,14 @@
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
-                            <th class="px-5 py-3 font-semibold">Path</th>
+                            <th class="px-5 py-3 font-semibold">Page</th>
                             <th class="px-5 py-3 font-semibold">Views</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($topPages as $page)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                <td class="px-5 py-3 font-mono text-xs text-gray-700 dark:text-gray-300">{{ $page->path }}</td>
+                                <td class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300">{{ $page->label() }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ number_format($page->views) }}</td>
                             </tr>
                         @empty
