@@ -64,14 +64,23 @@
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.pages.update', ['page' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.pages.store') }}'" class="mt-4 space-y-4">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
-                        <div>
-                            <x-input-label value="Title" />
-                            <x-text-input name="title" type="text" class="mt-1" x-model="editing ? editing.title : ''" required />
-                        </div>
-                        <div>
-                            <x-input-label value="Body" />
-                            <textarea name="body" rows="6" required class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]" x-text="editing ? editing.body : ''"></textarea>
-                        </div>
+                        <x-text-field
+                            name="title"
+                            label="Title"
+                            icon="M4 21h16 M5 21V10M19 21V10 M3 10l9-6 9 6 M8 10v11M12 10v11M16 10v11"
+                            helper="Shown as the page heading and in navigation."
+                            x-model="editing ? editing.title : ''"
+                            required
+                        />
+                        <x-textarea-field
+                            name="body"
+                            label="Body"
+                            icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                            helper="The full page content."
+                            rows="6"
+                            required
+                            x-text="editing ? editing.body : ''"
+                        />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
                             <input type="checkbox" name="is_published" value="1" x-bind:checked="editing ? editing.is_published : true" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
                             Published
@@ -130,18 +139,30 @@
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.blog-posts.update', ['blogPost' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.blog-posts.store') }}'" class="mt-4 space-y-4">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
-                        <div>
-                            <x-input-label value="Title" />
-                            <x-text-input name="title" type="text" class="mt-1" x-model="editing ? editing.title : ''" required />
-                        </div>
-                        <div>
-                            <x-input-label value="Excerpt" />
-                            <x-text-input name="excerpt" type="text" class="mt-1" x-model="editing ? editing.excerpt : ''" />
-                        </div>
-                        <div>
-                            <x-input-label value="Body" />
-                            <textarea name="body" rows="6" required class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]" x-text="editing ? editing.body : ''"></textarea>
-                        </div>
+                        <x-text-field
+                            name="title"
+                            label="Title"
+                            icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                            helper="The headline shown on the blog listing."
+                            x-model="editing ? editing.title : ''"
+                            required
+                        />
+                        <x-text-field
+                            name="excerpt"
+                            label="Excerpt"
+                            icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                            helper="A short teaser shown in previews and search results."
+                            x-model="editing ? editing.excerpt : ''"
+                        />
+                        <x-textarea-field
+                            name="body"
+                            label="Body"
+                            icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                            helper="The full article content."
+                            rows="6"
+                            required
+                            x-text="editing ? editing.body : ''"
+                        />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
                             <input type="checkbox" name="is_published" value="1" x-bind:checked="editing ? editing.is_published : false" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
                             Published
@@ -200,22 +221,38 @@
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.testimonials.update', ['testimonial' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.testimonials.store') }}'" class="mt-4 space-y-4">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
-                        <div>
-                            <x-input-label value="Name" />
-                            <x-text-input name="name" type="text" class="mt-1" x-model="editing ? editing.name : ''" required />
-                        </div>
-                        <div>
-                            <x-input-label value="Role" />
-                            <x-text-input name="role" type="text" class="mt-1" x-model="editing ? editing.role : ''" />
-                        </div>
-                        <div>
-                            <x-input-label value="Quote" />
-                            <textarea name="quote" rows="4" required class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]" x-text="editing ? editing.quote : ''"></textarea>
-                        </div>
-                        <div>
-                            <x-input-label value="Sort Order" />
-                            <x-text-input name="sort_order" type="number" class="mt-1" x-model="editing ? editing.sort_order : 0" />
-                        </div>
+                        <x-text-field
+                            name="name"
+                            label="Name"
+                            icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                            helper="Who is this testimonial from?"
+                            x-model="editing ? editing.name : ''"
+                            required
+                        />
+                        <x-text-field
+                            name="role"
+                            label="Role"
+                            icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                            helper="Their title or school, e.g. Principal, Bright Future Academy."
+                            x-model="editing ? editing.role : ''"
+                        />
+                        <x-textarea-field
+                            name="quote"
+                            label="Quote"
+                            icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                            helper="What they said about EduNest."
+                            rows="4"
+                            required
+                            x-text="editing ? editing.quote : ''"
+                        />
+                        <x-text-field
+                            name="sort_order"
+                            label="Sort Order"
+                            type="number"
+                            icon="M4 20V10M10 20V4M16 20v-7M20 20v-3"
+                            helper="Lower numbers appear first."
+                            x-model="editing ? editing.sort_order : 0"
+                        />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
                             <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
                             Active
@@ -273,18 +310,31 @@
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.faq-items.update', ['faqItem' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.faq-items.store') }}'" class="mt-4 space-y-4">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
-                        <div>
-                            <x-input-label value="Question" />
-                            <x-text-input name="question" type="text" class="mt-1" x-model="editing ? editing.question : ''" required />
-                        </div>
-                        <div>
-                            <x-input-label value="Answer" />
-                            <textarea name="answer" rows="4" required class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]" x-text="editing ? editing.answer : ''"></textarea>
-                        </div>
-                        <div>
-                            <x-input-label value="Sort Order" />
-                            <x-text-input name="sort_order" type="number" class="mt-1" x-model="editing ? editing.sort_order : 0" />
-                        </div>
+                        <x-text-field
+                            name="question"
+                            label="Question"
+                            icon="M9.5 9a2.5 2.5 0 115 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"
+                            helper="The question as it will appear to visitors."
+                            x-model="editing ? editing.question : ''"
+                            required
+                        />
+                        <x-textarea-field
+                            name="answer"
+                            label="Answer"
+                            icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                            helper="A clear, concise answer to the question above."
+                            rows="4"
+                            required
+                            x-text="editing ? editing.answer : ''"
+                        />
+                        <x-text-field
+                            name="sort_order"
+                            label="Sort Order"
+                            type="number"
+                            icon="M4 20V10M10 20V4M16 20v-7M20 20v-3"
+                            helper="Lower numbers appear first."
+                            x-model="editing ? editing.sort_order : 0"
+                        />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
                             <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
                             Active
@@ -343,22 +393,37 @@
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.team-members.update', ['teamMember' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.team-members.store') }}'" class="mt-4 space-y-4">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
-                        <div>
-                            <x-input-label value="Name" />
-                            <x-text-input name="name" type="text" class="mt-1" x-model="editing ? editing.name : ''" required />
-                        </div>
-                        <div>
-                            <x-input-label value="Role" />
-                            <x-text-input name="role" type="text" class="mt-1" x-model="editing ? editing.role : ''" />
-                        </div>
-                        <div>
-                            <x-input-label value="Bio" />
-                            <textarea name="bio" rows="3" class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 dark:border-gray-600 dark:bg-gray-700 dark:text-white lg:rounded-[10px]" x-text="editing ? editing.bio : ''"></textarea>
-                        </div>
-                        <div>
-                            <x-input-label value="Sort Order" />
-                            <x-text-input name="sort_order" type="number" class="mt-1" x-model="editing ? editing.sort_order : 0" />
-                        </div>
+                        <x-text-field
+                            name="name"
+                            label="Name"
+                            icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                            helper="The team member's full name."
+                            x-model="editing ? editing.name : ''"
+                            required
+                        />
+                        <x-text-field
+                            name="role"
+                            label="Role"
+                            icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
+                            helper="Their title, e.g. Head of Customer Success."
+                            x-model="editing ? editing.role : ''"
+                        />
+                        <x-textarea-field
+                            name="bio"
+                            label="Bio"
+                            icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
+                            helper="A short introduction shown on the team page."
+                            rows="3"
+                            x-text="editing ? editing.bio : ''"
+                        />
+                        <x-text-field
+                            name="sort_order"
+                            label="Sort Order"
+                            type="number"
+                            icon="M4 20V10M10 20V4M16 20v-7M20 20v-3"
+                            helper="Lower numbers appear first."
+                            x-model="editing ? editing.sort_order : 0"
+                        />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
                             <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
                             Active
