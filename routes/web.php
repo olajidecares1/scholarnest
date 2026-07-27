@@ -11,6 +11,7 @@ use App\Http\Controllers\Subscriptions\PaymentMethodController;
 use App\Http\Controllers\Subscriptions\ReviewController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
 use App\Http\Controllers\SuperAdmin\ComingSoonController;
+use App\Http\Controllers\SuperAdmin\CommunicationController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
 use App\Http\Controllers\SuperAdmin\RoleController;
@@ -119,7 +120,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('reports', [ComingSoonController::class, 'show'])->name('reports.index')->middleware('permission:manage_reports');
         Route::get('analytics', [ComingSoonController::class, 'show'])->name('analytics.index')->middleware('permission:manage_analytics');
-        Route::get('communications', [ComingSoonController::class, 'show'])->name('communications.index')->middleware('permission:manage_communications');
+        Route::prefix('communications')->name('communications.')->middleware('permission:manage_communications')->group(function () {
+            Route::get('/', [CommunicationController::class, 'index'])->name('index');
+            Route::post('/', [CommunicationController::class, 'store'])->name('store');
+        });
         Route::prefix('support-tickets')->name('support-tickets.')->middleware('permission:manage_support_tickets')->group(function () {
             Route::get('/', [SuperAdminSupportTicketController::class, 'index'])->name('index');
             Route::get('{ticket}', [SuperAdminSupportTicketController::class, 'show'])->name('show');

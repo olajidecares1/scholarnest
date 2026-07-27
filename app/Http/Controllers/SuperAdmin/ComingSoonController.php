@@ -32,16 +32,6 @@ class ComingSoonController extends Controller
                 'Search, social, and referral traffic',
             ],
         ],
-        'communications' => [
-            'title' => 'Communications',
-            'description' => 'Manage inbound contact messages and outbound announcements.',
-            'features' => [
-                'Contact School message inbox',
-                'Newsletter subscriber management',
-                'Platform-wide announcements',
-                'Email notification templates',
-            ],
-        ],
         'cms' => [
             'title' => 'CMS',
             'description' => 'Manage platform-wide content: pages, blog, testimonials, and more.',
