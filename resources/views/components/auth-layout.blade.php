@@ -3,6 +3,7 @@
     'authLinkLabel' => null,
     'authLinkRoute' => null,
     'simple' => false,
+    'background' => null,
 ])
 
 @php
@@ -60,6 +61,17 @@
             </header>
 
             <main class="relative flex-1 overflow-hidden bg-gray-50">
+                @if ($background)
+                    <div class="pointer-events-none absolute inset-0">
+                        @if ($background->type->value === 'video')
+                            <video src="{{ $background->url() }}" autoplay muted loop playsinline class="h-full w-full object-cover"></video>
+                        @else
+                            <img src="{{ $background->url() }}" alt="" class="h-full w-full object-cover">
+                        @endif
+                        <div class="absolute inset-0 bg-white/75"></div>
+                    </div>
+                @endif
+
                 <div class="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full bg-primary-100/60 blur-3xl"></div>
                 <div class="pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full bg-primary-50 blur-3xl"></div>
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Setting extends Model
 {
@@ -25,6 +26,8 @@ class Setting extends Model
         'theme_preset',
         'logo_path',
         'favicon_path',
+        'login_background_media_id',
+        'register_background_media_id',
     ];
 
     /**
@@ -42,5 +45,21 @@ class Setting extends Model
     public static function current(): self
     {
         return self::query()->firstOrCreate([], ['site_name' => config('app.name', 'EduNest')]);
+    }
+
+    /**
+     * @return BelongsTo<Media, $this>
+     */
+    public function loginBackgroundMedia(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'login_background_media_id');
+    }
+
+    /**
+     * @return BelongsTo<Media, $this>
+     */
+    public function registerBackgroundMedia(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'register_background_media_id');
     }
 }

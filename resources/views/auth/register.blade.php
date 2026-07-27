@@ -3,6 +3,7 @@
     auth-question="Already have an account?"
     auth-link-label="Sign In"
     :auth-link-route="route('login')"
+    :background="$background"
 >
     <x-slot:left>
         <span class="inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary-700">

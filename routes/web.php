@@ -15,6 +15,7 @@ use App\Http\Controllers\SuperAdmin\AuditLogController;
 use App\Http\Controllers\SuperAdmin\CmsController;
 use App\Http\Controllers\SuperAdmin\CommunicationController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
+use App\Http\Controllers\SuperAdmin\MediaController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
 use App\Http\Controllers\SuperAdmin\ReportController as SuperAdminReportController;
 use App\Http\Controllers\SuperAdmin\RoleController;
@@ -173,6 +174,15 @@ Route::middleware('auth')->group(function () {
             Route::put('/', [ThemeController::class, 'update'])->name('update');
             Route::post('logo', [ThemeController::class, 'updateLogo'])->name('logo.update');
             Route::post('favicon', [ThemeController::class, 'updateFavicon'])->name('favicon.update');
+        });
+
+        Route::prefix('media')->name('media.')->middleware('permission:manage_media')->group(function () {
+            Route::get('/', [MediaController::class, 'index'])->name('index');
+            Route::post('/', [MediaController::class, 'store'])->name('store');
+            Route::put('backgrounds', [MediaController::class, 'updateBackgrounds'])->name('backgrounds.update');
+            Route::put('{media}', [MediaController::class, 'update'])->name('update');
+            Route::post('{media}/replace', [MediaController::class, 'replace'])->name('replace');
+            Route::delete('{media}', [MediaController::class, 'destroy'])->name('destroy');
         });
 
         Route::get('settings', [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
