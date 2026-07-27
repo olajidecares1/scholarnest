@@ -12,6 +12,7 @@ use App\Http\Controllers\Subscriptions\ReviewController;
 use App\Http\Controllers\SuperAdmin\ComingSoonController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
+use App\Http\Controllers\SuperAdmin\RoleController;
 use App\Http\Controllers\SuperAdmin\SchoolController;
 use App\Http\Controllers\SuperAdmin\SearchController;
 use App\Http\Controllers\SuperAdmin\SettingsController;
@@ -66,7 +67,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('search', [SearchController::class, 'search'])->name('search');
 
-        Route::prefix('schools')->name('schools.')->group(function () {
+        Route::prefix('schools')->name('schools.')->middleware('permission:manage_schools')->group(function () {
             Route::get('/', [SchoolController::class, 'index'])->name('index');
             Route::get('create', [SchoolController::class, 'create'])->name('create');
             Route::post('/', [SchoolController::class, 'store'])->name('store');
@@ -75,7 +76,7 @@ Route::middleware('auth')->group(function () {
             Route::post('{school}/deactivate', [SchoolController::class, 'deactivate'])->name('deactivate');
         });
 
-        Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+        Route::prefix('subscriptions')->name('subscriptions.')->middleware('permission:manage_subscriptions')->group(function () {
             Route::get('/', [SubscriptionApprovalController::class, 'index'])->name('index');
             Route::get('export', [SubscriptionApprovalController::class, 'export'])->name('export');
             Route::post('bulk-approve', [SubscriptionApprovalController::class, 'bulkApprove'])->name('bulk-approve');
@@ -84,9 +85,9 @@ Route::middleware('auth')->group(function () {
             Route::post('{subscription}/reject', [SubscriptionApprovalController::class, 'reject'])->name('reject');
         });
 
-        Route::get('payments', [SuperAdminPaymentController::class, 'index'])->name('payments.index');
+        Route::get('payments', [SuperAdminPaymentController::class, 'index'])->name('payments.index')->middleware('permission:manage_payments');
 
-        Route::prefix('users')->name('users.')->group(function () {
+        Route::prefix('users')->name('users.')->middleware('permission:manage_users')->group(function () {
             Route::get('/', [SuperAdminUserController::class, 'index'])->name('index');
             Route::get('create', [SuperAdminUserController::class, 'create'])->name('create');
             Route::post('/', [SuperAdminUserController::class, 'store'])->name('store');
@@ -94,18 +95,28 @@ Route::middleware('auth')->group(function () {
             Route::post('{user}/deactivate', [SuperAdminUserController::class, 'deactivate'])->name('deactivate');
         });
 
-        Route::get('roles', [ComingSoonController::class, 'show'])->name('roles.index');
-        Route::get('reports', [ComingSoonController::class, 'show'])->name('reports.index');
-        Route::get('analytics', [ComingSoonController::class, 'show'])->name('analytics.index');
-        Route::get('communications', [ComingSoonController::class, 'show'])->name('communications.index');
-        Route::get('support-tickets', [ComingSoonController::class, 'show'])->name('support-tickets.index');
-        Route::get('cms', [ComingSoonController::class, 'show'])->name('cms.index');
-        Route::get('themes', [ComingSoonController::class, 'show'])->name('themes.index');
+        Route::prefix('roles')->name('roles.')->middleware('permission:manage_roles')->group(function () {
+            Route::get('/', [RoleController::class, 'index'])->name('index');
+            Route::get('create', [RoleController::class, 'create'])->name('create');
+            Route::post('/', [RoleController::class, 'store'])->name('store');
+            Route::get('team/create', [RoleController::class, 'createTeamMember'])->name('team.create');
+            Route::post('team', [RoleController::class, 'storeTeamMember'])->name('team.store');
+            Route::get('{role}/edit', [RoleController::class, 'edit'])->name('edit');
+            Route::put('{role}', [RoleController::class, 'update'])->name('update');
+            Route::delete('{role}', [RoleController::class, 'destroy'])->name('destroy');
+        });
 
-        Route::get('settings', [SettingsController::class, 'edit'])->name('settings.index');
-        Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('reports', [ComingSoonController::class, 'show'])->name('reports.index')->middleware('permission:manage_reports');
+        Route::get('analytics', [ComingSoonController::class, 'show'])->name('analytics.index')->middleware('permission:manage_analytics');
+        Route::get('communications', [ComingSoonController::class, 'show'])->name('communications.index')->middleware('permission:manage_communications');
+        Route::get('support-tickets', [ComingSoonController::class, 'show'])->name('support-tickets.index')->middleware('permission:manage_support_tickets');
+        Route::get('cms', [ComingSoonController::class, 'show'])->name('cms.index')->middleware('permission:manage_cms');
+        Route::get('themes', [ComingSoonController::class, 'show'])->name('themes.index')->middleware('permission:manage_themes');
 
-        Route::get('audit-logs', [ComingSoonController::class, 'show'])->name('audit-logs.index');
+        Route::get('settings', [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
+        Route::put('settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage_settings');
+
+        Route::get('audit-logs', [ComingSoonController::class, 'show'])->name('audit-logs.index')->middleware('permission:manage_audit_logs');
     });
 });
 

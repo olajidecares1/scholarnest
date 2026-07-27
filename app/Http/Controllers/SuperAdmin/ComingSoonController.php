@@ -12,16 +12,6 @@ class ComingSoonController extends Controller
      * @var array<string, array{title: string, description: string, features: list<string>}>
      */
     private const SECTIONS = [
-        'roles' => [
-            'title' => 'Roles & Permissions',
-            'description' => 'Define admin roles and control access to platform features.',
-            'features' => [
-                'Custom role creation with granular permissions',
-                'Assign roles to Super Admin team members',
-                'Permission groups by feature area',
-                'Activity restrictions per role',
-            ],
-        ],
         'reports' => [
             'title' => 'Reports',
             'description' => 'Review community misconduct submissions and platform reports.',

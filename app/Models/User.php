@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'role',
         'school_id',
+        'admin_role_id',
         'is_active',
     ];
 
@@ -35,6 +36,27 @@ class User extends Authenticatable
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
+    }
+
+    /**
+     * @return BelongsTo<AdminRole, $this>
+     */
+    public function adminRole(): BelongsTo
+    {
+        return $this->belongsTo(AdminRole::class);
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->role !== UserRole::SuperAdmin) {
+            return false;
+        }
+
+        if ($this->admin_role_id === null) {
+            return true;
+        }
+
+        return in_array($permission, $this->adminRole?->permissions ?? [], true);
     }
 
     /**
