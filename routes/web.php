@@ -10,6 +10,7 @@ use App\Http\Controllers\Subscriptions\ConfirmationController;
 use App\Http\Controllers\Subscriptions\ContactSalesController;
 use App\Http\Controllers\Subscriptions\PaymentMethodController;
 use App\Http\Controllers\Subscriptions\ReviewController;
+use App\Http\Controllers\SuperAdmin\AnalyticsController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
 use App\Http\Controllers\SuperAdmin\ComingSoonController;
 use App\Http\Controllers\SuperAdmin\CommunicationController;
@@ -132,7 +133,7 @@ Route::middleware('auth')->group(function () {
             Route::put('{report}', [SuperAdminReportController::class, 'update'])->name('update');
             Route::get('{report}/media', [SuperAdminReportController::class, 'downloadMedia'])->name('media');
         });
-        Route::get('analytics', [ComingSoonController::class, 'show'])->name('analytics.index')->middleware('permission:manage_analytics');
+        Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index')->middleware('permission:manage_analytics');
         Route::prefix('communications')->name('communications.')->middleware('permission:manage_communications')->group(function () {
             Route::get('/', [CommunicationController::class, 'index'])->name('index');
             Route::post('/', [CommunicationController::class, 'store'])->name('store');

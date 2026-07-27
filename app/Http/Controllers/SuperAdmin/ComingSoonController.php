@@ -12,16 +12,6 @@ class ComingSoonController extends Controller
      * @var array<string, array{title: string, description: string, features: list<string>}>
      */
     private const SECTIONS = [
-        'analytics' => [
-            'title' => 'Analytics',
-            'description' => 'Monitor visitor traffic and platform-wide analytics.',
-            'features' => [
-                'Visitor timeline and traffic sources',
-                'Geographic and device breakdowns',
-                'Per-school website analytics',
-                'Search, social, and referral traffic',
-            ],
-        ],
         'cms' => [
             'title' => 'CMS',
             'description' => 'Manage platform-wide content: pages, blog, testimonials, and more.',

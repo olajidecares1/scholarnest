@@ -4,6 +4,7 @@ use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureHasPermission;
 use App\Http\Middleware\EnsureUserIsSchoolAdmin;
 use App\Http\Middleware\EnsureUserIsSuperAdmin;
+use App\Http\Middleware\TrackPageView;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             CheckMaintenanceMode::class,
+            TrackPageView::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
