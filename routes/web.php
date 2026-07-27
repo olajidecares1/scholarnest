@@ -14,6 +14,7 @@ use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardCo
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
 use App\Http\Controllers\SuperAdmin\SchoolController;
 use App\Http\Controllers\SuperAdmin\SearchController;
+use App\Http\Controllers\SuperAdmin\SettingsController;
 use App\Http\Controllers\SuperAdmin\SubscriptionApprovalController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
 use Illuminate\Support\Facades\Route;
@@ -100,7 +101,10 @@ Route::middleware('auth')->group(function () {
         Route::get('support-tickets', [ComingSoonController::class, 'show'])->name('support-tickets.index');
         Route::get('cms', [ComingSoonController::class, 'show'])->name('cms.index');
         Route::get('themes', [ComingSoonController::class, 'show'])->name('themes.index');
-        Route::get('settings', [ComingSoonController::class, 'show'])->name('settings.index');
+
+        Route::get('settings', [SettingsController::class, 'edit'])->name('settings.index');
+        Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+
         Route::get('audit-logs', [ComingSoonController::class, 'show'])->name('audit-logs.index');
     });
 });

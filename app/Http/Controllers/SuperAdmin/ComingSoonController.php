@@ -82,16 +82,6 @@ class ComingSoonController extends Controller
                 'Live theme preview',
             ],
         ],
-        'settings' => [
-            'title' => 'System Settings',
-            'description' => 'Configure platform-wide settings, branding, and maintenance mode.',
-            'features' => [
-                'General platform settings',
-                'Theme and branding manager',
-                'Maintenance mode toggle',
-                'Email and notification configuration',
-            ],
-        ],
         'audit-logs' => [
             'title' => 'Audit Logs',
             'description' => 'Review login history, activity trails, and suspicious activity.',
