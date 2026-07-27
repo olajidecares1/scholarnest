@@ -30,7 +30,7 @@ use App\Http\Controllers\SupportTicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
 
 Route::middleware('throttle:5,1')->group(function () {
