@@ -30,6 +30,7 @@ class AdminRole extends Model
         'manage_cms' => 'Manage CMS',
         'manage_themes' => 'Manage Themes',
         'manage_media' => 'Manage Media Library',
+        'manage_cbt' => 'Manage CBT / Past Questions',
         'manage_settings' => 'Manage System Settings',
         'manage_audit_logs' => 'View Audit Logs',
     ];

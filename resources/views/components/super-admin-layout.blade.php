@@ -6,6 +6,8 @@
 @php
     $platformSettings = \App\Models\Setting::current();
     $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-mark.png');
+    $canManageCbt = auth()->user()->hasPermission('manage_cbt');
+    $cbtExamBodies = $canManageCbt ? \App\Models\CbtExamBody::orderBy('name')->get() : collect();
 @endphp
 
 <!DOCTYPE html>
@@ -141,6 +143,63 @@
                         @endforeach
                     </div>
                 </div>
+
+                @if ($canManageCbt)
+                    <div x-data="{ open: {{ request()->routeIs('super-admin.cbt.*') ? 'true' : 'false' }} }">
+                        <button
+                            type="button"
+                            @click="open = !open"
+                            class="{{ $navLinkClasses(request()->routeIs('super-admin.cbt.*')) }} w-full"
+                        >
+                            <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="4" y="4.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.75" />
+                                <path d="M8 9.5h8M8 13h5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                <path d="M8.5 16.3l1.3 1.3L12.3 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="flex-1 text-left">CBT</span>
+                            <svg
+                                class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out"
+                                :class="{ 'rotate-180': open }"
+                                viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                        <div
+                            x-show="open"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            style="display: none;"
+                            class="mt-1 space-y-1 pl-8"
+                        >
+                            @foreach ($cbtExamBodies as $examBody)
+                                <a
+                                    href="{{ route('super-admin.cbt.exam-bodies.show', $examBody) }}"
+                                    class="group flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->route('examBody')?->is($examBody) ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
+                                >
+                                    <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 8l7-3.5L19 8l-7 3.5L5 8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                        <path d="M8 10v4.5c0 1 1.8 2 4 2s4-1 4-2V10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                    </svg>
+                                    {{ $examBody->name }} CBT
+                                </a>
+                            @endforeach
+                            <a
+                                href="{{ route('super-admin.cbt.index') }}"
+                                class="group flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->routeIs('super-admin.cbt.index') ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
+                            >
+                                <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                </svg>
+                                All Exam Bodies
+                            </a>
+                        </div>
+                    </div>
+                @endif
 
                 @foreach ([
                     ['route' => 'super-admin.payments.index', 'label' => 'Payments', 'icon' => 'M12 4v2.2M12 17.8V20M8.5 8.5c0-1.4 1.6-2.5 3.5-2.5s3.5 1.1 3.5 2.3c0 3.2-7 1.4-7 4.7 0 1.3 1.6 2.3 3.5 2.3s3.5-1.1 3.5-2.5', 'circle' => true],

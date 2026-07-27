@@ -12,6 +12,10 @@ use App\Http\Controllers\Subscriptions\PaymentMethodController;
 use App\Http\Controllers\Subscriptions\ReviewController;
 use App\Http\Controllers\SuperAdmin\AnalyticsController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
+use App\Http\Controllers\SuperAdmin\CbtExamBodyController;
+use App\Http\Controllers\SuperAdmin\CbtExamController;
+use App\Http\Controllers\SuperAdmin\CbtQuestionController;
+use App\Http\Controllers\SuperAdmin\CbtSubjectController;
 use App\Http\Controllers\SuperAdmin\CmsController;
 use App\Http\Controllers\SuperAdmin\CommunicationController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
@@ -173,6 +177,36 @@ Route::middleware('auth')->group(function () {
             Route::post(R::uri('super-admin.cms.team-members.store'), [CmsController::class, 'storeTeamMember'])->name('team-members.store');
             Route::put(R::uri('super-admin.cms.team-members.update').'/{teamMember}', [CmsController::class, 'updateTeamMember'])->name('team-members.update');
             Route::delete(R::uri('super-admin.cms.team-members.destroy').'/{teamMember}', [CmsController::class, 'destroyTeamMember'])->name('team-members.destroy');
+        });
+
+        Route::name('cbt.')->middleware('permission:manage_cbt')->group(function () {
+            Route::get(R::uri('super-admin.cbt.index'), [CbtExamBodyController::class, 'index'])->name('index');
+
+            Route::name('exam-bodies.')->group(function () {
+                Route::post(R::uri('super-admin.cbt.exam-bodies.store'), [CbtExamBodyController::class, 'store'])->name('store');
+                Route::get(R::uri('super-admin.cbt.exam-bodies.show').'/{examBody}', [CbtExamBodyController::class, 'show'])->name('show');
+                Route::put(R::uri('super-admin.cbt.exam-bodies.update').'/{examBody}', [CbtExamBodyController::class, 'update'])->name('update');
+                Route::put(R::uri('super-admin.cbt.exam-bodies.subjects').'/{examBody}', [CbtExamBodyController::class, 'updateSubjects'])->name('subjects.update');
+                Route::delete(R::uri('super-admin.cbt.exam-bodies.destroy').'/{examBody}', [CbtExamBodyController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::name('subjects.')->group(function () {
+                Route::post(R::uri('super-admin.cbt.subjects.store'), [CbtSubjectController::class, 'store'])->name('store');
+                Route::put(R::uri('super-admin.cbt.subjects.update').'/{subject}', [CbtSubjectController::class, 'update'])->name('update');
+                Route::delete(R::uri('super-admin.cbt.subjects.destroy').'/{subject}', [CbtSubjectController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::name('exams.')->group(function () {
+                Route::post(R::uri('super-admin.cbt.exams.store').'/{examBody}', [CbtExamController::class, 'store'])->name('store');
+                Route::get(R::uri('super-admin.cbt.exams.show').'/{exam}', [CbtExamController::class, 'show'])->name('show');
+                Route::delete(R::uri('super-admin.cbt.exams.destroy').'/{exam}', [CbtExamController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::name('questions.')->group(function () {
+                Route::post(R::uri('super-admin.cbt.questions.store').'/{exam}', [CbtQuestionController::class, 'store'])->name('store');
+                Route::put(R::uri('super-admin.cbt.questions.update').'/{question}', [CbtQuestionController::class, 'update'])->name('update');
+                Route::delete(R::uri('super-admin.cbt.questions.destroy').'/{question}', [CbtQuestionController::class, 'destroy'])->name('destroy');
+            });
         });
 
         Route::name('themes.')->middleware('permission:manage_themes')->group(function () {
