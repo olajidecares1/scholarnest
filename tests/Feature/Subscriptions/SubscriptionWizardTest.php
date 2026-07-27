@@ -9,8 +9,10 @@ use App\Models\Plan;
 use App\Models\School;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Notifications\NewSubscriptionSubmittedNotification;
 use Database\Seeders\PlanSeeder;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -162,4 +164,36 @@ test('a school cannot view another schools subscription confirmation', function 
     $this->actingAs($owner)
         ->get(route('subscriptions.confirmation', $subscription))
         ->assertStatus(200);
+});
+
+test('submitting a subscription notifies all super admins', function () {
+    Notification::fake();
+
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+    $user = schoolAdmin();
+    $plan = Plan::where('key', PlanKey::Basic)->firstOrFail();
+
+    $this->actingAs($user)->post(route('subscriptions.choose-plan.store'), [
+        'plan_id' => $plan->id,
+        'students_count' => 100,
+    ])->assertRedirect(route('subscriptions.billing-details'));
+
+    $this->actingAs($user)->post(route('subscriptions.billing-details.store'), [
+        'billing_contact_name' => 'Jane Doe',
+        'billing_email' => 'billing@greenfield.example',
+        'billing_phone' => '08012345678',
+        'billing_address' => '1 School Road',
+    ])->assertRedirect(route('subscriptions.payment-method'));
+
+    $this->actingAs($user)->post(route('subscriptions.payment-method.store'), [
+        'payment_method' => 'bank_transfer',
+        'receipt' => UploadedFile::fake()->image('receipt.jpg'),
+    ])->assertRedirect(route('subscriptions.review'));
+
+    $this->actingAs($user)->post(route('subscriptions.review.store'))
+        ->assertRedirect();
+
+    expect(Subscription::count())->toBe(1);
+
+    Notification::assertSentTo($superAdmin, NewSubscriptionSubmittedNotification::class);
 });

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Subscriptions\BillingDetailsController;
 use App\Http\Controllers\Subscriptions\ChoosePlanController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\SuperAdmin\ComingSoonController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
 use App\Http\Controllers\SuperAdmin\SchoolController;
+use App\Http\Controllers\SuperAdmin\SearchController;
 use App\Http\Controllers\SuperAdmin\SubscriptionApprovalController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
 use Illuminate\Support\Facades\Route;
@@ -53,17 +55,28 @@ Route::middleware('auth')->group(function () {
         Route::get('confirmation/{subscription}', [ConfirmationController::class, 'show'])->name('confirmation');
     });
 
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('{notification}/read', [NotificationController::class, 'read'])->name('read');
+        Route::post('read-all', [NotificationController::class, 'readAll'])->name('read-all');
+    });
+
     Route::middleware('super_admin')->prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('search', [SearchController::class, 'search'])->name('search');
+
         Route::prefix('schools')->name('schools.')->group(function () {
             Route::get('/', [SchoolController::class, 'index'])->name('index');
+            Route::get('{school}', [SchoolController::class, 'show'])->name('show');
             Route::post('{school}/activate', [SchoolController::class, 'activate'])->name('activate');
             Route::post('{school}/deactivate', [SchoolController::class, 'deactivate'])->name('deactivate');
         });
 
         Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
             Route::get('/', [SubscriptionApprovalController::class, 'index'])->name('index');
+            Route::get('export', [SubscriptionApprovalController::class, 'export'])->name('export');
+            Route::post('bulk-approve', [SubscriptionApprovalController::class, 'bulkApprove'])->name('bulk-approve');
+            Route::post('bulk-reject', [SubscriptionApprovalController::class, 'bulkReject'])->name('bulk-reject');
             Route::post('{subscription}/approve', [SubscriptionApprovalController::class, 'approve'])->name('approve');
             Route::post('{subscription}/reject', [SubscriptionApprovalController::class, 'reject'])->name('reject');
         });

@@ -18,7 +18,7 @@ class SubscriptionRejectedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -36,5 +36,17 @@ class SubscriptionRejectedNotification extends Notification
         return $message
             ->line('Please review your payment details and submit a new subscription request, or contact support if you believe this is a mistake.')
             ->action('Contact Support', route('dashboard'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'title' => 'Subscription Rejected',
+            'body' => 'Your '.$this->subscription->plan->name.' subscription payment could not be verified.',
+            'url' => route('dashboard'),
+        ];
     }
 }

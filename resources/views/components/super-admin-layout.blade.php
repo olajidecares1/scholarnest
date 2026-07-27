@@ -19,9 +19,15 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
+        <script>
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        </script>
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-gray-50 font-sans text-gray-900 antialiased" x-data="{ sidebarOpen: false }">
+    <body class="bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100" x-data="{ sidebarOpen: false }">
         <div
             x-show="sidebarOpen"
             x-transition.opacity
@@ -137,11 +143,16 @@
         </aside>
 
         <div class="lg:pl-64">
-            <header class="sticky top-0 z-20 flex items-center gap-4 border-b border-gray-200 bg-white/90 px-4 py-3 backdrop-blur sm:px-6">
+            @php
+                $notifications = auth()->user()->notifications()->latest()->take(8)->get();
+                $unreadCount = auth()->user()->unreadNotifications()->count();
+            @endphp
+
+            <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-gray-200 bg-white/90 px-4 py-3 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 sm:px-6">
                 <button
                     type="button"
                     @click="sidebarOpen = true"
-                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 lg:hidden"
+                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
                 >
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -149,13 +160,37 @@
                 </button>
 
                 <div class="min-w-0 flex-1">
-                    <h1 class="truncate text-lg font-bold text-gray-900">{{ $pageTitle }}</h1>
+                    <h1 class="truncate text-lg font-bold text-gray-900 dark:text-white">{{ $pageTitle }}</h1>
                     @if ($pageSubtitle)
-                        <p class="truncate text-sm text-gray-500">{{ $pageSubtitle }}</p>
+                        <p class="truncate text-sm text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</p>
                     @endif
                 </div>
 
-                <div class="relative hidden md:block">
+                <p
+                    x-data="{ time: '' }"
+                    x-init="
+                        const tick = () => time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                        tick();
+                        setInterval(tick, 1000 * 30);
+                    "
+                    x-text="time"
+                    class="hidden shrink-0 text-sm font-medium tabular-nums text-gray-500 dark:text-gray-400 lg:block"
+                ></p>
+
+                <div class="relative hidden md:block" x-data="{
+                    open: false,
+                    query: '',
+                    loading: false,
+                    results: { schools: [], users: [], subscriptions: [] },
+                    async search() {
+                        if (this.query.length < 2) { this.results = { schools: [], users: [], subscriptions: [] }; this.open = false; return; }
+                        this.loading = true;
+                        const res = await fetch('{{ route('super-admin.search') }}?q=' + encodeURIComponent(this.query));
+                        this.results = await res.json();
+                        this.loading = false;
+                        this.open = true;
+                    },
+                }">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
@@ -164,21 +199,140 @@
                     </span>
                     <input
                         type="text"
-                        disabled
-                        placeholder="Search schools, plans, payments..."
-                        class="w-64 rounded-[5px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-500 placeholder:text-gray-400 lg:rounded-[10px]"
+                        x-model="query"
+                        @input.debounce.300ms="search()"
+                        @focus="if (query.length >= 2) open = true"
+                        @click.outside="open = false"
+                        placeholder="Search schools, users, payments..."
+                        autocomplete="off"
+                        class="w-64 rounded-[5px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 lg:rounded-[10px]"
                     >
+
+                    <div
+                        x-show="open"
+                        x-transition
+                        style="display: none;"
+                        class="absolute right-0 z-30 mt-2 w-80 rounded-[5px] border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
+                    >
+                        <template x-if="!loading && results.schools.length === 0 && results.users.length === 0 && results.subscriptions.length === 0">
+                            <p class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No results found.</p>
+                        </template>
+
+                        <template x-if="results.schools.length > 0">
+                            <div class="px-2 pb-2">
+                                <p class="px-2 py-1 text-xs font-bold uppercase text-gray-400">Schools</p>
+                                <template x-for="item in results.schools" :key="item.url">
+                                    <a :href="item.url" class="block rounded-[5px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <span class="font-medium text-gray-900 dark:text-white" x-text="item.title"></span>
+                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></span>
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template x-if="results.users.length > 0">
+                            <div class="px-2 pb-2">
+                                <p class="px-2 py-1 text-xs font-bold uppercase text-gray-400">Users</p>
+                                <template x-for="item in results.users" :key="item.url">
+                                    <a :href="item.url" class="block rounded-[5px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <span class="font-medium text-gray-900 dark:text-white" x-text="item.title"></span>
+                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></span>
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template x-if="results.subscriptions.length > 0">
+                            <div class="px-2">
+                                <p class="px-2 py-1 text-xs font-bold uppercase text-gray-400">Subscriptions</p>
+                                <template x-for="item in results.subscriptions" :key="item.url">
+                                    <a :href="item.url" class="block rounded-[5px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <span class="font-medium text-gray-900 dark:text-white" x-text="item.title"></span>
+                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></span>
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
                 </div>
 
-                <button type="button" class="relative flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 lg:rounded-[10px]">
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                        <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <button
+                    type="button"
+                    x-data
+                    @click="
+                        document.documentElement.classList.toggle('dark');
+                        localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+                    "
+                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]"
+                >
+                    <svg class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75" />
                     </svg>
-                    @if (($pendingApprovalsCount ?? 0) > 0)
-                        <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($pendingApprovalsCount, 99) }}</span>
-                    @endif
+                    <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+                    </svg>
                 </button>
+
+                <div class="relative" x-data="{ open: false }">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                            <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        </svg>
+                        @if ($unreadCount > 0)
+                            <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
+                        @endif
+                    </button>
+
+                    <div
+                        x-show="open"
+                        x-transition
+                        style="display: none;"
+                        class="absolute right-0 z-30 mt-2 w-80 rounded-[5px] border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
+                    >
+                        <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                            <p class="text-sm font-bold text-gray-900 dark:text-white">Notifications</p>
+                            @if ($unreadCount > 0)
+                                <form method="POST" action="{{ route('notifications.read-all') }}">
+                                    @csrf
+                                    <button type="submit" class="text-xs font-semibold text-primary-500 hover:text-primary-600">Mark all read</button>
+                                </form>
+                            @endif
+                        </div>
+
+                        <div class="max-h-80 overflow-y-auto">
+                            @forelse ($notifications as $notification)
+                                <a
+                                    href="{{ route('notifications.read', $notification) }}"
+                                    class="flex items-start gap-2 border-b border-gray-50 px-4 py-3 text-left hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700"
+                                >
+                                    @if (is_null($notification->read_at))
+                                        <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-500"></span>
+                                    @else
+                                        <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-transparent"></span>
+                                    @endif
+                                    <span>
+                                        <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{ $notification->data['title'] ?? 'Notification' }}</span>
+                                        <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</span>
+                                        <span class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
+                                    </span>
+                                </a>
+                            @empty
+                                <p class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                <a
+                    href="{{ route('super-admin.communications.index') }}"
+                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]"
+                >
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                    </svg>
+                </a>
 
                 <div class="relative" x-data="{ open: false }">
                     <button type="button" @click="open = !open" @click.outside="open = false" class="flex items-center gap-2">
@@ -186,8 +340,8 @@
                             {{ Str::of(auth()->user()->name)->substr(0, 1)->upper() }}
                         </span>
                         <span class="hidden text-left sm:block">
-                            <span class="block text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</span>
-                            <span class="block text-xs text-gray-500">{{ auth()->user()->role->label() }}</span>
+                            <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{ auth()->user()->name }}</span>
+                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{ auth()->user()->role->label() }}</span>
                         </span>
                     </button>
 
@@ -195,18 +349,18 @@
                         x-show="open"
                         x-transition
                         style="display: none;"
-                        class="absolute right-0 mt-2 w-48 rounded-[5px] border border-gray-200 bg-white py-1 shadow-lg lg:rounded-[10px]"
+                        class="absolute right-0 mt-2 w-48 rounded-[5px] border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
                     >
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Profile</a>
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">Edit Profile</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">Log Out</button>
+                            <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">Log Out</button>
                         </form>
                     </div>
                 </div>
             </header>
 
-            <main class="p-4 sm:p-6 lg:p-8">
+            <main class="p-4 sm:p-6 lg:p-8 dark:bg-gray-900">
                 {{ $slot }}
             </main>
         </div>

@@ -29,6 +29,15 @@ class SchoolController extends Controller
         ]);
     }
 
+    public function show(School $school): View
+    {
+        $school->load(['users', 'subscriptions' => fn ($query) => $query->with('plan')->latest()]);
+
+        return view('super-admin.schools.show', [
+            'school' => $school,
+        ]);
+    }
+
     public function activate(School $school): RedirectResponse
     {
         $school->update(['is_active' => true, 'deactivated_at' => null]);

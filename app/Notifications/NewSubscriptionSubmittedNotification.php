@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SubscriptionApprovedNotification extends Notification
+class NewSubscriptionSubmittedNotification extends Notification
 {
     use Queueable;
 
@@ -24,11 +24,11 @@ class SubscriptionApprovedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your EduNest Subscription Is Active')
+            ->subject('New Subscription Awaiting Approval')
             ->greeting('Hello '.$notifiable->name.',')
-            ->line('Great news! Your payment has been verified and your '.$this->subscription->plan->name.' subscription is now active.')
+            ->line($this->subscription->school->name.' submitted a '.$this->subscription->plan->name.' subscription for review.')
             ->line('Reference: '.$this->subscription->reference)
-            ->action('Go to Dashboard', route('dashboard'));
+            ->action('Review Now', route('super-admin.subscriptions.index'));
     }
 
     /**
@@ -37,9 +37,9 @@ class SubscriptionApprovedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => 'Subscription Activated',
-            'body' => 'Your '.$this->subscription->plan->name.' subscription is now active.',
-            'url' => route('dashboard'),
+            'title' => 'New Subscription Pending Approval',
+            'body' => $this->subscription->school->name.' submitted a '.$this->subscription->plan->name.' subscription.',
+            'url' => route('super-admin.subscriptions.index'),
         ];
     }
 }

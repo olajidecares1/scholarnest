@@ -6,20 +6,109 @@ use App\Enums\BillingCycle;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SuperAdmin\BulkSubscriptionRequest;
 use App\Http\Requests\SuperAdmin\RejectSubscriptionRequest;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Notifications\SubscriptionApprovedNotification;
 use App\Notifications\SubscriptionRejectedNotification;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SubscriptionApprovalController extends Controller
 {
     public function index(Request $request): View
+    {
+        $subscriptions = $this->filteredQuery($request)->paginate(7)->withQueryString();
+
+        $autoActivateEligibleIds = $this->autoActivateEligibleQuery()->pluck('id');
+
+        return view('super-admin.subscriptions.index', [
+            'subscriptions' => $subscriptions,
+            'tab' => $request->query('tab', 'pending'),
+            'plans' => Plan::orderBy('sort_order')->get(),
+            'autoActivateEligibleIds' => $autoActivateEligibleIds,
+            'stats' => [
+                'pending' => Subscription::where('status', SubscriptionStatus::PendingVerification)->count(),
+                'autoActivate' => $autoActivateEligibleIds->count(),
+                'active' => Subscription::where('status', SubscriptionStatus::Active)->count(),
+                'expiringSoon' => Subscription::where('status', SubscriptionStatus::Active)
+                    ->whereNotNull('ends_at')
+                    ->whereBetween('ends_at', [now(), now()->addDays(30)])
+                    ->count(),
+            ],
+        ]);
+    }
+
+    public function approve(Subscription $subscription): RedirectResponse
+    {
+        $this->activate($subscription);
+
+        return back()->with('status', "Subscription for {$subscription->school->name} has been approved and activated.");
+    }
+
+    public function reject(RejectSubscriptionRequest $request, Subscription $subscription): RedirectResponse
+    {
+        $this->rejectOne($subscription, $request->validated('reason'));
+
+        return back()->with('status', "Subscription for {$subscription->school->name} has been rejected.");
+    }
+
+    public function bulkApprove(BulkSubscriptionRequest $request): RedirectResponse
+    {
+        $subscriptions = Subscription::whereIn('id', $request->validated('subscription_ids'))
+            ->where('status', SubscriptionStatus::PendingVerification)
+            ->get();
+
+        $subscriptions->each(fn (Subscription $subscription) => $this->activate($subscription));
+
+        return back()->with('status', "{$subscriptions->count()} subscription(s) approved and activated.");
+    }
+
+    public function bulkReject(BulkSubscriptionRequest $request): RedirectResponse
+    {
+        $subscriptions = Subscription::whereIn('id', $request->validated('subscription_ids'))
+            ->where('status', SubscriptionStatus::PendingVerification)
+            ->get();
+
+        $subscriptions->each(fn (Subscription $subscription) => $this->rejectOne($subscription, $request->validated('reason')));
+
+        return back()->with('status', "{$subscriptions->count()} subscription(s) rejected.");
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $subscriptions = $this->filteredQuery($request)->get();
+
+        $filename = 'subscriptions-'.now()->format('Y-m-d-His').'.csv';
+
+        return response()->streamDownload(function () use ($subscriptions) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['School', 'Plan', 'Billing Cycle', 'Amount', 'Payment Method', 'Status', 'Reference', 'Requested On']);
+
+            foreach ($subscriptions as $subscription) {
+                fputcsv($handle, [
+                    $subscription->school->name,
+                    $subscription->plan->name,
+                    $subscription->billing_cycle->label(),
+                    $subscription->amount,
+                    $subscription->latestPayment?->method?->label() ?? '—',
+                    $subscription->status->label(),
+                    $subscription->reference,
+                    $subscription->created_at->format('Y-m-d H:i'),
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, ['Content-Type' => 'text/csv']);
+    }
+
+    private function filteredQuery(Request $request): Builder
     {
         $tab = $request->query('tab', 'pending');
 
@@ -52,30 +141,16 @@ class SubscriptionApprovalController extends Controller
             $query->where('status', $status);
         }
 
-        $subscriptions = $query->latest()->paginate(7)->withQueryString();
-
-        $autoActivateEligibleIds = Subscription::where('status', SubscriptionStatus::PendingVerification)
-            ->whereHas('school.subscriptions', fn ($q) => $q->where('status', SubscriptionStatus::Active))
-            ->pluck('id');
-
-        return view('super-admin.subscriptions.index', [
-            'subscriptions' => $subscriptions,
-            'tab' => $tab,
-            'plans' => Plan::orderBy('sort_order')->get(),
-            'autoActivateEligibleIds' => $autoActivateEligibleIds,
-            'stats' => [
-                'pending' => Subscription::where('status', SubscriptionStatus::PendingVerification)->count(),
-                'autoActivate' => $autoActivateEligibleIds->count(),
-                'active' => Subscription::where('status', SubscriptionStatus::Active)->count(),
-                'expiringSoon' => Subscription::where('status', SubscriptionStatus::Active)
-                    ->whereNotNull('ends_at')
-                    ->whereBetween('ends_at', [now(), now()->addDays(30)])
-                    ->count(),
-            ],
-        ]);
+        return $query->latest();
     }
 
-    public function approve(Subscription $subscription): RedirectResponse
+    private function autoActivateEligibleQuery(): Builder
+    {
+        return Subscription::where('status', SubscriptionStatus::PendingVerification)
+            ->whereHas('school.subscriptions', fn ($q) => $q->where('status', SubscriptionStatus::Active));
+    }
+
+    private function activate(Subscription $subscription): void
     {
         DB::transaction(function () use ($subscription) {
             $subscription->update([
@@ -94,14 +169,10 @@ class SubscriptionApprovalController extends Controller
         $subscription->school->users()->each(
             fn ($user) => $user->notify(new SubscriptionApprovedNotification($subscription))
         );
-
-        return back()->with('status', "Subscription for {$subscription->school->name} has been approved and activated.");
     }
 
-    public function reject(RejectSubscriptionRequest $request, Subscription $subscription): RedirectResponse
+    private function rejectOne(Subscription $subscription, ?string $reason): void
     {
-        $reason = $request->validated('reason');
-
         DB::transaction(function () use ($subscription, $reason) {
             $subscription->update(['status' => SubscriptionStatus::Rejected]);
 
@@ -116,8 +187,6 @@ class SubscriptionApprovalController extends Controller
         $subscription->school->users()->each(
             fn ($user) => $user->notify(new SubscriptionRejectedNotification($subscription, $reason))
         );
-
-        return back()->with('status', "Subscription for {$subscription->school->name} has been rejected.");
     }
 
     private function calculateEndDate(BillingCycle $billingCycle): Carbon

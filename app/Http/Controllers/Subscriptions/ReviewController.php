@@ -6,10 +6,13 @@ use App\Enums\BillingCycle;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\User;
+use App\Notifications\NewSubscriptionSubmittedNotification;
 use App\Services\SubscriptionWizardService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,6 +54,7 @@ class ReviewController extends Controller
         }
 
         $school = auth()->user()->school;
+        $this->wizard->reference($school);
         $data = $this->wizard->data();
 
         $subscription = DB::transaction(function () use ($school, $data) {
@@ -80,6 +84,10 @@ class ReviewController extends Controller
         });
 
         $this->wizard->clear();
+
+        User::where('role', UserRole::SuperAdmin)->each(
+            fn (User $superAdmin) => $superAdmin->notify(new NewSubscriptionSubmittedNotification($subscription))
+        );
 
         return redirect()->route('subscriptions.confirmation', $subscription);
     }
