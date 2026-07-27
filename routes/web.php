@@ -27,6 +27,7 @@ use App\Http\Controllers\SuperAdmin\SupportTicketController as SuperAdminSupport
 use App\Http\Controllers\SuperAdmin\ThemeController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
 use App\Http\Controllers\SupportTicketController;
+use App\Support\SecureRoute as R;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,12 +35,12 @@ Route::get('/', function () {
 });
 
 Route::middleware('throttle:5,1')->group(function () {
-    Route::get('report-misconduct', [ReportController::class, 'create'])->name('reports.create');
-    Route::post('report-misconduct', [ReportController::class, 'store'])->name('reports.store');
+    Route::get(R::uri('reports.create'), [ReportController::class, 'create'])->name('reports.create');
+    Route::post(R::uri('reports.create'), [ReportController::class, 'store'])->name('reports.store');
 });
-Route::get('report-misconduct/confirmation', [ReportController::class, 'confirmation'])->name('reports.confirmation');
+Route::get(R::uri('reports.confirmation'), [ReportController::class, 'confirmation'])->name('reports.confirmation');
 
-Route::get('/dashboard', function () {
+Route::get(R::uri('dashboard'), function () {
     if (auth()->user()->role === UserRole::SuperAdmin) {
         return redirect()->route('super-admin.dashboard');
     }
@@ -48,147 +49,152 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get(R::uri('profile.edit'), [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch(R::uri('profile.edit'), [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete(R::uri('profile.edit'), [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+    Route::name('subscriptions.')->group(function () {
         Route::middleware('school_admin')->group(function () {
-            Route::get('choose-plan', [ChoosePlanController::class, 'create'])->name('choose-plan');
-            Route::post('choose-plan', [ChoosePlanController::class, 'store'])->name('choose-plan.store');
+            Route::get(R::uri('subscriptions.choose-plan'), [ChoosePlanController::class, 'create'])->name('choose-plan');
+            Route::post(R::uri('subscriptions.choose-plan'), [ChoosePlanController::class, 'store'])->name('choose-plan.store');
 
-            Route::get('billing-details', [BillingDetailsController::class, 'create'])->name('billing-details');
-            Route::post('billing-details', [BillingDetailsController::class, 'store'])->name('billing-details.store');
+            Route::get(R::uri('subscriptions.billing-details'), [BillingDetailsController::class, 'create'])->name('billing-details');
+            Route::post(R::uri('subscriptions.billing-details'), [BillingDetailsController::class, 'store'])->name('billing-details.store');
 
-            Route::get('payment-method', [PaymentMethodController::class, 'create'])->name('payment-method');
-            Route::post('payment-method', [PaymentMethodController::class, 'store'])->name('payment-method.store');
+            Route::get(R::uri('subscriptions.payment-method'), [PaymentMethodController::class, 'create'])->name('payment-method');
+            Route::post(R::uri('subscriptions.payment-method'), [PaymentMethodController::class, 'store'])->name('payment-method.store');
 
-            Route::get('review', [ReviewController::class, 'create'])->name('review');
-            Route::post('review', [ReviewController::class, 'store'])->name('review.store');
+            Route::get(R::uri('subscriptions.review'), [ReviewController::class, 'create'])->name('review');
+            Route::post(R::uri('subscriptions.review'), [ReviewController::class, 'store'])->name('review.store');
 
-            Route::get('contact-sales', [ContactSalesController::class, 'show'])->name('contact-sales');
+            Route::get(R::uri('subscriptions.contact-sales'), [ContactSalesController::class, 'show'])->name('contact-sales');
         });
 
-        Route::get('confirmation/{subscription}', [ConfirmationController::class, 'show'])->name('confirmation');
+        Route::get(R::uri('subscriptions.confirmation').'/{subscription}', [ConfirmationController::class, 'show'])->name('confirmation');
     });
 
-    Route::middleware('school_admin')->prefix('support-tickets')->name('support-tickets.')->group(function () {
-        Route::get('/', [SupportTicketController::class, 'index'])->name('index');
-        Route::get('create', [SupportTicketController::class, 'create'])->name('create');
-        Route::post('/', [SupportTicketController::class, 'store'])->name('store');
-        Route::get('{ticket}', [SupportTicketController::class, 'show'])->name('show');
-        Route::post('{ticket}/reply', [SupportTicketController::class, 'reply'])->name('reply');
+    Route::middleware('school_admin')->name('support-tickets.')->group(function () {
+        Route::get(R::uri('support-tickets.index'), [SupportTicketController::class, 'index'])->name('index');
+        Route::get(R::uri('support-tickets.create'), [SupportTicketController::class, 'create'])->name('create');
+        Route::post(R::uri('support-tickets.index'), [SupportTicketController::class, 'store'])->name('store');
+        Route::get(R::uri('support-tickets.show').'/{ticket}', [SupportTicketController::class, 'show'])->name('show');
+        Route::post(R::uri('support-tickets.reply').'/{ticket}', [SupportTicketController::class, 'reply'])->name('reply');
     });
 
-    Route::prefix('notifications')->name('notifications.')->group(function () {
-        Route::get('{notification}/read', [NotificationController::class, 'read'])->name('read');
-        Route::post('read-all', [NotificationController::class, 'readAll'])->name('read-all');
+    Route::name('notifications.')->group(function () {
+        Route::get(R::uri('notifications.read').'/{notification}', [NotificationController::class, 'read'])->name('read');
+        Route::post(R::uri('notifications.read-all'), [NotificationController::class, 'readAll'])->name('read-all');
     });
 
-    Route::middleware('super_admin')->prefix('super-admin')->name('super-admin.')->group(function () {
-        Route::get('dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
+    Route::middleware('super_admin')->name('super-admin.')->group(function () {
+        Route::get(R::uri('super-admin.dashboard'), [SuperAdminDashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('search', [SearchController::class, 'search'])->name('search');
+        Route::get(R::uri('super-admin.search'), [SearchController::class, 'search'])->name('search');
 
-        Route::prefix('schools')->name('schools.')->middleware('permission:manage_schools')->group(function () {
-            Route::get('/', [SchoolController::class, 'index'])->name('index');
-            Route::get('create', [SchoolController::class, 'create'])->name('create');
-            Route::post('/', [SchoolController::class, 'store'])->name('store');
-            Route::get('{school}', [SchoolController::class, 'show'])->name('show');
-            Route::post('{school}/activate', [SchoolController::class, 'activate'])->name('activate');
-            Route::post('{school}/deactivate', [SchoolController::class, 'deactivate'])->name('deactivate');
+        Route::name('schools.')->middleware('permission:manage_schools')->group(function () {
+            Route::get(R::uri('super-admin.schools.index'), [SchoolController::class, 'index'])->name('index');
+            Route::get(R::uri('super-admin.schools.create'), [SchoolController::class, 'create'])->name('create');
+            Route::post(R::uri('super-admin.schools.index'), [SchoolController::class, 'store'])->name('store');
+            Route::get(R::uri('super-admin.schools.show').'/{school}', [SchoolController::class, 'show'])->name('show');
+            Route::post(R::uri('super-admin.schools.activate').'/{school}', [SchoolController::class, 'activate'])->name('activate');
+            Route::post(R::uri('super-admin.schools.deactivate').'/{school}', [SchoolController::class, 'deactivate'])->name('deactivate');
         });
 
-        Route::prefix('subscriptions')->name('subscriptions.')->middleware('permission:manage_subscriptions')->group(function () {
-            Route::get('/', [SubscriptionApprovalController::class, 'index'])->name('index');
-            Route::get('export', [SubscriptionApprovalController::class, 'export'])->name('export');
-            Route::post('bulk-approve', [SubscriptionApprovalController::class, 'bulkApprove'])->name('bulk-approve');
-            Route::post('bulk-reject', [SubscriptionApprovalController::class, 'bulkReject'])->name('bulk-reject');
-            Route::post('{subscription}/approve', [SubscriptionApprovalController::class, 'approve'])->name('approve');
-            Route::post('{subscription}/reject', [SubscriptionApprovalController::class, 'reject'])->name('reject');
+        Route::name('subscriptions.')->middleware('permission:manage_subscriptions')->group(function () {
+            Route::get(R::uri('super-admin.subscriptions.index'), [SubscriptionApprovalController::class, 'index'])->name('index');
+            Route::get(R::uri('super-admin.subscriptions.export'), [SubscriptionApprovalController::class, 'export'])->name('export');
+            Route::post(R::uri('super-admin.subscriptions.bulk-approve'), [SubscriptionApprovalController::class, 'bulkApprove'])->name('bulk-approve');
+            Route::post(R::uri('super-admin.subscriptions.bulk-reject'), [SubscriptionApprovalController::class, 'bulkReject'])->name('bulk-reject');
+            Route::post(R::uri('super-admin.subscriptions.approve').'/{subscription}', [SubscriptionApprovalController::class, 'approve'])->name('approve');
+            Route::post(R::uri('super-admin.subscriptions.reject').'/{subscription}', [SubscriptionApprovalController::class, 'reject'])->name('reject');
         });
 
-        Route::get('payments', [SuperAdminPaymentController::class, 'index'])->name('payments.index')->middleware('permission:manage_payments');
+        Route::get(R::uri('super-admin.payments.index'), [SuperAdminPaymentController::class, 'index'])->name('payments.index')->middleware('permission:manage_payments');
 
-        Route::prefix('users')->name('users.')->middleware('permission:manage_users')->group(function () {
-            Route::get('/', [SuperAdminUserController::class, 'index'])->name('index');
-            Route::get('create', [SuperAdminUserController::class, 'create'])->name('create');
-            Route::post('/', [SuperAdminUserController::class, 'store'])->name('store');
-            Route::post('{user}/activate', [SuperAdminUserController::class, 'activate'])->name('activate');
-            Route::post('{user}/deactivate', [SuperAdminUserController::class, 'deactivate'])->name('deactivate');
+        Route::name('users.')->middleware('permission:manage_users')->group(function () {
+            Route::get(R::uri('super-admin.users.index'), [SuperAdminUserController::class, 'index'])->name('index');
+            Route::get(R::uri('super-admin.users.create'), [SuperAdminUserController::class, 'create'])->name('create');
+            Route::post(R::uri('super-admin.users.index'), [SuperAdminUserController::class, 'store'])->name('store');
+            Route::post(R::uri('super-admin.users.activate').'/{user}', [SuperAdminUserController::class, 'activate'])->name('activate');
+            Route::post(R::uri('super-admin.users.deactivate').'/{user}', [SuperAdminUserController::class, 'deactivate'])->name('deactivate');
         });
 
-        Route::prefix('roles')->name('roles.')->middleware('permission:manage_roles')->group(function () {
-            Route::get('/', [RoleController::class, 'index'])->name('index');
-            Route::get('create', [RoleController::class, 'create'])->name('create');
-            Route::post('/', [RoleController::class, 'store'])->name('store');
-            Route::get('team/create', [RoleController::class, 'createTeamMember'])->name('team.create');
-            Route::post('team', [RoleController::class, 'storeTeamMember'])->name('team.store');
-            Route::get('{role}/edit', [RoleController::class, 'edit'])->name('edit');
-            Route::put('{role}', [RoleController::class, 'update'])->name('update');
-            Route::delete('{role}', [RoleController::class, 'destroy'])->name('destroy');
+        Route::name('roles.')->middleware('permission:manage_roles')->group(function () {
+            Route::get(R::uri('super-admin.roles.index'), [RoleController::class, 'index'])->name('index');
+            Route::get(R::uri('super-admin.roles.create'), [RoleController::class, 'create'])->name('create');
+            Route::post(R::uri('super-admin.roles.index'), [RoleController::class, 'store'])->name('store');
+            Route::get(R::uri('super-admin.roles.team.create'), [RoleController::class, 'createTeamMember'])->name('team.create');
+            Route::post(R::uri('super-admin.roles.team.store'), [RoleController::class, 'storeTeamMember'])->name('team.store');
+            Route::get(R::uri('super-admin.roles.edit').'/{role}', [RoleController::class, 'edit'])->name('edit');
+            Route::put(R::uri('super-admin.roles.update').'/{role}', [RoleController::class, 'update'])->name('update');
+            Route::delete(R::uri('super-admin.roles.destroy').'/{role}', [RoleController::class, 'destroy'])->name('destroy');
         });
 
-        Route::prefix('reports')->name('reports.')->middleware('permission:manage_reports')->group(function () {
-            Route::get('/', [SuperAdminReportController::class, 'index'])->name('index');
-            Route::get('{report}', [SuperAdminReportController::class, 'show'])->name('show');
-            Route::put('{report}', [SuperAdminReportController::class, 'update'])->name('update');
-            Route::get('{report}/media', [SuperAdminReportController::class, 'downloadMedia'])->name('media');
-        });
-        Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index')->middleware('permission:manage_analytics');
-        Route::prefix('communications')->name('communications.')->middleware('permission:manage_communications')->group(function () {
-            Route::get('/', [CommunicationController::class, 'index'])->name('index');
-            Route::post('/', [CommunicationController::class, 'store'])->name('store');
-        });
-        Route::prefix('support-tickets')->name('support-tickets.')->middleware('permission:manage_support_tickets')->group(function () {
-            Route::get('/', [SuperAdminSupportTicketController::class, 'index'])->name('index');
-            Route::get('{ticket}', [SuperAdminSupportTicketController::class, 'show'])->name('show');
-            Route::post('{ticket}/reply', [SuperAdminSupportTicketController::class, 'reply'])->name('reply');
-            Route::put('{ticket}', [SuperAdminSupportTicketController::class, 'update'])->name('update');
-        });
-        Route::prefix('cms')->name('cms.')->middleware('permission:manage_cms')->group(function () {
-            Route::get('/', [CmsController::class, 'index'])->name('index');
-
-            Route::post('pages', [CmsController::class, 'storePage'])->name('pages.store');
-            Route::put('pages/{page}', [CmsController::class, 'updatePage'])->name('pages.update');
-            Route::delete('pages/{page}', [CmsController::class, 'destroyPage'])->name('pages.destroy');
-
-            Route::post('blog-posts', [CmsController::class, 'storeBlogPost'])->name('blog-posts.store');
-            Route::put('blog-posts/{blogPost}', [CmsController::class, 'updateBlogPost'])->name('blog-posts.update');
-            Route::delete('blog-posts/{blogPost}', [CmsController::class, 'destroyBlogPost'])->name('blog-posts.destroy');
-
-            Route::post('testimonials', [CmsController::class, 'storeTestimonial'])->name('testimonials.store');
-            Route::put('testimonials/{testimonial}', [CmsController::class, 'updateTestimonial'])->name('testimonials.update');
-            Route::delete('testimonials/{testimonial}', [CmsController::class, 'destroyTestimonial'])->name('testimonials.destroy');
-
-            Route::post('faq-items', [CmsController::class, 'storeFaqItem'])->name('faq-items.store');
-            Route::put('faq-items/{faqItem}', [CmsController::class, 'updateFaqItem'])->name('faq-items.update');
-            Route::delete('faq-items/{faqItem}', [CmsController::class, 'destroyFaqItem'])->name('faq-items.destroy');
-
-            Route::post('team-members', [CmsController::class, 'storeTeamMember'])->name('team-members.store');
-            Route::put('team-members/{teamMember}', [CmsController::class, 'updateTeamMember'])->name('team-members.update');
-            Route::delete('team-members/{teamMember}', [CmsController::class, 'destroyTeamMember'])->name('team-members.destroy');
-        });
-        Route::prefix('themes')->name('themes.')->middleware('permission:manage_themes')->group(function () {
-            Route::get('/', [ThemeController::class, 'edit'])->name('index');
-            Route::put('/', [ThemeController::class, 'update'])->name('update');
-            Route::post('logo', [ThemeController::class, 'updateLogo'])->name('logo.update');
-            Route::post('favicon', [ThemeController::class, 'updateFavicon'])->name('favicon.update');
+        Route::name('reports.')->middleware('permission:manage_reports')->group(function () {
+            Route::get(R::uri('super-admin.reports.index'), [SuperAdminReportController::class, 'index'])->name('index');
+            Route::get(R::uri('super-admin.reports.show').'/{report}', [SuperAdminReportController::class, 'show'])->name('show');
+            Route::put(R::uri('super-admin.reports.update').'/{report}', [SuperAdminReportController::class, 'update'])->name('update');
+            Route::get(R::uri('super-admin.reports.media').'/{report}', [SuperAdminReportController::class, 'downloadMedia'])->name('media');
         });
 
-        Route::prefix('media')->name('media.')->middleware('permission:manage_media')->group(function () {
-            Route::get('/', [MediaController::class, 'index'])->name('index');
-            Route::post('/', [MediaController::class, 'store'])->name('store');
-            Route::put('backgrounds', [MediaController::class, 'updateBackgrounds'])->name('backgrounds.update');
-            Route::put('{media}', [MediaController::class, 'update'])->name('update');
-            Route::post('{media}/replace', [MediaController::class, 'replace'])->name('replace');
-            Route::delete('{media}', [MediaController::class, 'destroy'])->name('destroy');
+        Route::get(R::uri('super-admin.analytics.index'), [AnalyticsController::class, 'index'])->name('analytics.index')->middleware('permission:manage_analytics');
+
+        Route::name('communications.')->middleware('permission:manage_communications')->group(function () {
+            Route::get(R::uri('super-admin.communications.index'), [CommunicationController::class, 'index'])->name('index');
+            Route::post(R::uri('super-admin.communications.index'), [CommunicationController::class, 'store'])->name('store');
         });
 
-        Route::get('settings', [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
-        Route::put('settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage_settings');
+        Route::name('support-tickets.')->middleware('permission:manage_support_tickets')->group(function () {
+            Route::get(R::uri('super-admin.support-tickets.index'), [SuperAdminSupportTicketController::class, 'index'])->name('index');
+            Route::get(R::uri('super-admin.support-tickets.show').'/{ticket}', [SuperAdminSupportTicketController::class, 'show'])->name('show');
+            Route::post(R::uri('super-admin.support-tickets.reply').'/{ticket}', [SuperAdminSupportTicketController::class, 'reply'])->name('reply');
+            Route::put(R::uri('super-admin.support-tickets.update').'/{ticket}', [SuperAdminSupportTicketController::class, 'update'])->name('update');
+        });
 
-        Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index')->middleware('permission:manage_audit_logs');
+        Route::name('cms.')->middleware('permission:manage_cms')->group(function () {
+            Route::get(R::uri('super-admin.cms.index'), [CmsController::class, 'index'])->name('index');
+
+            Route::post(R::uri('super-admin.cms.pages.store'), [CmsController::class, 'storePage'])->name('pages.store');
+            Route::put(R::uri('super-admin.cms.pages.update').'/{page}', [CmsController::class, 'updatePage'])->name('pages.update');
+            Route::delete(R::uri('super-admin.cms.pages.destroy').'/{page}', [CmsController::class, 'destroyPage'])->name('pages.destroy');
+
+            Route::post(R::uri('super-admin.cms.blog-posts.store'), [CmsController::class, 'storeBlogPost'])->name('blog-posts.store');
+            Route::put(R::uri('super-admin.cms.blog-posts.update').'/{blogPost}', [CmsController::class, 'updateBlogPost'])->name('blog-posts.update');
+            Route::delete(R::uri('super-admin.cms.blog-posts.destroy').'/{blogPost}', [CmsController::class, 'destroyBlogPost'])->name('blog-posts.destroy');
+
+            Route::post(R::uri('super-admin.cms.testimonials.store'), [CmsController::class, 'storeTestimonial'])->name('testimonials.store');
+            Route::put(R::uri('super-admin.cms.testimonials.update').'/{testimonial}', [CmsController::class, 'updateTestimonial'])->name('testimonials.update');
+            Route::delete(R::uri('super-admin.cms.testimonials.destroy').'/{testimonial}', [CmsController::class, 'destroyTestimonial'])->name('testimonials.destroy');
+
+            Route::post(R::uri('super-admin.cms.faq-items.store'), [CmsController::class, 'storeFaqItem'])->name('faq-items.store');
+            Route::put(R::uri('super-admin.cms.faq-items.update').'/{faqItem}', [CmsController::class, 'updateFaqItem'])->name('faq-items.update');
+            Route::delete(R::uri('super-admin.cms.faq-items.destroy').'/{faqItem}', [CmsController::class, 'destroyFaqItem'])->name('faq-items.destroy');
+
+            Route::post(R::uri('super-admin.cms.team-members.store'), [CmsController::class, 'storeTeamMember'])->name('team-members.store');
+            Route::put(R::uri('super-admin.cms.team-members.update').'/{teamMember}', [CmsController::class, 'updateTeamMember'])->name('team-members.update');
+            Route::delete(R::uri('super-admin.cms.team-members.destroy').'/{teamMember}', [CmsController::class, 'destroyTeamMember'])->name('team-members.destroy');
+        });
+
+        Route::name('themes.')->middleware('permission:manage_themes')->group(function () {
+            Route::get(R::uri('super-admin.themes.index'), [ThemeController::class, 'edit'])->name('index');
+            Route::put(R::uri('super-admin.themes.index'), [ThemeController::class, 'update'])->name('update');
+            Route::post(R::uri('super-admin.themes.logo.update'), [ThemeController::class, 'updateLogo'])->name('logo.update');
+            Route::post(R::uri('super-admin.themes.favicon.update'), [ThemeController::class, 'updateFavicon'])->name('favicon.update');
+        });
+
+        Route::name('media.')->middleware('permission:manage_media')->group(function () {
+            Route::get(R::uri('super-admin.media.index'), [MediaController::class, 'index'])->name('index');
+            Route::post(R::uri('super-admin.media.index'), [MediaController::class, 'store'])->name('store');
+            Route::put(R::uri('super-admin.media.backgrounds.update'), [MediaController::class, 'updateBackgrounds'])->name('backgrounds.update');
+            Route::put(R::uri('super-admin.media.update').'/{media}', [MediaController::class, 'update'])->name('update');
+            Route::post(R::uri('super-admin.media.replace').'/{media}', [MediaController::class, 'replace'])->name('replace');
+            Route::delete(R::uri('super-admin.media.destroy').'/{media}', [MediaController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::get(R::uri('super-admin.settings.index'), [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
+        Route::put(R::uri('super-admin.settings.index'), [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage_settings');
+
+        Route::get(R::uri('super-admin.audit-logs.index'), [AuditLogController::class, 'index'])->name('audit-logs.index')->middleware('permission:manage_audit_logs');
     });
 });
 

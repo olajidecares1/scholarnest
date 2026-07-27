@@ -5,13 +5,13 @@ use App\Models\School;
 use App\Models\User;
 
 test('registration screen can be rendered', function () {
-    $response = $this->get('/register');
+    $response = $this->get(route('register'));
 
     $response->assertStatus(200);
 });
 
 test('new schools can register', function () {
-    $response = $this->post('/register', [
+    $response = $this->post(route('register'), [
         'school_name' => 'Greenfield Academy',
         'email' => 'admin@greenfield.example',
         'password' => 'password',
@@ -31,7 +31,7 @@ test('new schools can register', function () {
 });
 
 test('registration requires acceptance of terms', function () {
-    $response = $this->post('/register', [
+    $response = $this->post(route('register'), [
         'school_name' => 'Greenfield Academy',
         'email' => 'admin@greenfield.example',
         'password' => 'password',

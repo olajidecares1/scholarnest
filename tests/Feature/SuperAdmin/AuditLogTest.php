@@ -12,7 +12,7 @@ beforeEach(function () {
 test('a successful login is recorded in the audit log', function () {
     $user = User::factory()->create();
 
-    $this->post('/login', [
+    $this->post(route('login'), [
         'login' => $user->email,
         'password' => 'password',
     ]);
@@ -23,7 +23,7 @@ test('a successful login is recorded in the audit log', function () {
 test('a failed login attempt is recorded in the audit log', function () {
     $user = User::factory()->create();
 
-    $this->post('/login', [
+    $this->post(route('login'), [
         'login' => $user->email,
         'password' => 'wrong-password',
     ]);

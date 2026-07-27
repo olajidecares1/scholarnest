@@ -45,7 +45,7 @@ test('a school admin belonging to a deactivated school cannot log in', function 
     $school = School::factory()->create(['is_active' => false]);
     $user = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
-    $response = $this->post('/login', [
+    $response = $this->post(route('login'), [
         'login' => $user->email,
         'password' => 'password',
     ]);

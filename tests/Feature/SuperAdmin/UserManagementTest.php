@@ -48,7 +48,7 @@ test('super admin cannot deactivate their own account', function () {
 test('a deactivated user cannot log in', function () {
     $user = User::factory()->create(['is_active' => false]);
 
-    $response = $this->post('/login', [
+    $response = $this->post(route('login'), [
         'login' => $user->email,
         'password' => 'password',
     ]);
