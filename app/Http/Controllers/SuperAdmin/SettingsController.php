@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\UpdateSettingsRequest;
+use App\Models\AuditLog;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -22,7 +23,10 @@ class SettingsController extends Controller
         $validated = $request->validated();
         $validated['maintenance_mode'] = $request->boolean('maintenance_mode');
 
-        Setting::current()->update($validated);
+        $settings = Setting::current();
+        $settings->update($validated);
+
+        AuditLog::record('settings.updated', 'Updated system settings.', $settings);
 
         return back()->with('status', 'Settings updated successfully.');
     }

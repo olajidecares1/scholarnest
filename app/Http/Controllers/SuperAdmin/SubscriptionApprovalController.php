@@ -8,6 +8,7 @@ use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\BulkSubscriptionRequest;
 use App\Http\Requests\SuperAdmin\RejectSubscriptionRequest;
+use App\Models\AuditLog;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Notifications\SubscriptionApprovedNotification;
@@ -169,6 +170,8 @@ class SubscriptionApprovalController extends Controller
         $subscription->school->users()->each(
             fn ($user) => $user->notify(new SubscriptionApprovedNotification($subscription))
         );
+
+        AuditLog::record('subscription.approved', "Approved subscription for {$subscription->school->name}.", $subscription);
     }
 
     private function rejectOne(Subscription $subscription, ?string $reason): void
@@ -187,6 +190,8 @@ class SubscriptionApprovalController extends Controller
         $subscription->school->users()->each(
             fn ($user) => $user->notify(new SubscriptionRejectedNotification($subscription, $reason))
         );
+
+        AuditLog::record('subscription.rejected', "Rejected subscription for {$subscription->school->name}.", $subscription);
     }
 
     private function calculateEndDate(BillingCycle $billingCycle): Carbon

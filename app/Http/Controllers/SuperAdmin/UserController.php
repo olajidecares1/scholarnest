@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\StoreUserRequest;
+use App\Models\AuditLog;
 use App\Models\School;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -53,6 +54,8 @@ class UserController extends Controller
             'school_id' => $validated['school_id'],
         ]);
 
+        AuditLog::record('user.created', "Added school admin {$user->name}.", $user);
+
         return redirect()->route('super-admin.users.index')
             ->with('status', "{$user->name} has been added as a school admin.");
     }
@@ -60,6 +63,8 @@ class UserController extends Controller
     public function activate(User $user): RedirectResponse
     {
         $user->update(['is_active' => true]);
+
+        AuditLog::record('user.activated', "Activated user {$user->name}.", $user);
 
         return back()->with('status', "{$user->name} has been activated.");
     }
@@ -69,6 +74,8 @@ class UserController extends Controller
         abort_if($user->id === auth()->id(), 403, 'You cannot deactivate your own account.');
 
         $user->update(['is_active' => false]);
+
+        AuditLog::record('user.deactivated', "Deactivated user {$user->name}.", $user);
 
         return back()->with('status', "{$user->name} has been deactivated.");
     }

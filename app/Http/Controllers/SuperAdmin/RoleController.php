@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\StoreAdminRoleRequest;
 use App\Http\Requests\SuperAdmin\StoreTeamMemberRequest;
 use App\Models\AdminRole;
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
@@ -31,7 +32,9 @@ class RoleController extends Controller
 
     public function store(StoreAdminRoleRequest $request): RedirectResponse
     {
-        AdminRole::create($request->validated());
+        $role = AdminRole::create($request->validated());
+
+        AuditLog::record('role.created', "Created role {$role->name}.", $role);
 
         return redirect()->route('super-admin.roles.index')->with('status', 'Role created successfully.');
     }
@@ -48,13 +51,18 @@ class RoleController extends Controller
     {
         $role->update($request->validated());
 
+        AuditLog::record('role.updated', "Updated role {$role->name}.", $role);
+
         return redirect()->route('super-admin.roles.index')->with('status', 'Role updated successfully.');
     }
 
     public function destroy(AdminRole $role): RedirectResponse
     {
+        $roleName = $role->name;
         $role->users()->update(['admin_role_id' => null]);
         $role->delete();
+
+        AuditLog::record('role.deleted', "Deleted role {$roleName}.");
 
         return back()->with('status', 'Role deleted. Any team members using it now have full access.');
     }
@@ -70,13 +78,15 @@ class RoleController extends Controller
     {
         $validated = $request->validated();
 
-        User::create([
+        $member = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => UserRole::SuperAdmin,
             'admin_role_id' => $validated['admin_role_id'] ?? null,
         ]);
+
+        AuditLog::record('team.added', "Added Super Admin team member {$member->name}.", $member);
 
         return redirect()->route('super-admin.roles.index')->with('status', 'Team member added successfully.');
     }

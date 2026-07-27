@@ -9,6 +9,7 @@ use App\Http\Controllers\Subscriptions\ConfirmationController;
 use App\Http\Controllers\Subscriptions\ContactSalesController;
 use App\Http\Controllers\Subscriptions\PaymentMethodController;
 use App\Http\Controllers\Subscriptions\ReviewController;
+use App\Http\Controllers\SuperAdmin\AuditLogController;
 use App\Http\Controllers\SuperAdmin\ComingSoonController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
@@ -116,7 +117,7 @@ Route::middleware('auth')->group(function () {
         Route::get('settings', [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage_settings');
 
-        Route::get('audit-logs', [ComingSoonController::class, 'show'])->name('audit-logs.index')->middleware('permission:manage_audit_logs');
+        Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index')->middleware('permission:manage_audit_logs');
     });
 });
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\StoreSchoolRequest;
+use App\Models\AuditLog;
 use App\Models\School;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -59,6 +60,8 @@ class SchoolController extends Controller
             return $school;
         });
 
+        AuditLog::record('school.created', "Added school {$school->name}.", $school);
+
         return redirect()->route('super-admin.schools.show', $school)
             ->with('status', "{$school->name} has been added with an admin account.");
     }
@@ -76,12 +79,16 @@ class SchoolController extends Controller
     {
         $school->update(['is_active' => true, 'deactivated_at' => null]);
 
+        AuditLog::record('school.activated', "Activated school {$school->name}.", $school);
+
         return back()->with('status', "{$school->name} has been activated.");
     }
 
     public function deactivate(School $school): RedirectResponse
     {
         $school->update(['is_active' => false, 'deactivated_at' => now()]);
+
+        AuditLog::record('school.deactivated', "Deactivated school {$school->name}.", $school);
 
         return back()->with('status', "{$school->name} has been deactivated.");
     }

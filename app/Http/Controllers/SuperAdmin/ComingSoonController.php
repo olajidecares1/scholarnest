@@ -72,16 +72,6 @@ class ComingSoonController extends Controller
                 'Live theme preview',
             ],
         ],
-        'audit-logs' => [
-            'title' => 'Audit Logs',
-            'description' => 'Review login history, activity trails, and suspicious activity.',
-            'features' => [
-                'Login and authentication history',
-                'Admin activity trail',
-                'Application error logs',
-                'Suspicious activity alerts',
-            ],
-        ],
     ];
 
     public function show(Request $request): View
