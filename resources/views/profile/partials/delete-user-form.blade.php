@@ -28,17 +28,14 @@
             </p>
 
             <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
-
-                <x-text-input
+                <x-password-field
                     id="password"
                     name="password"
-                    type="password"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}"
+                    label="Password"
+                    helper="Confirm your password to permanently delete your account."
+                    placeholder="Enter your password"
+                    error-bag="userDeletion"
                 />
-
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
             </div>
 
             <div class="mt-6 flex justify-end">

@@ -22,3 +22,12 @@
     --color-primary-800: #0e4593;
     --color-primary-900: #0a336d;
 }
+
+.edn-wheel {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.edn-wheel::-webkit-scrollbar {
+    display: none;
+}

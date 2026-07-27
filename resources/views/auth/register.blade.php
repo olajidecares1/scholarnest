@@ -38,31 +38,17 @@
         <form method="POST" action="{{ route('register') }}" class="space-y-5">
             @csrf
 
-            <div>
-                <x-input-label for="school_name" value="School Name" />
-                <div class="relative mt-1">
-                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-primary-500">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 21h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            <path d="M5 21V10M19 21V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            <path d="M3 10l9-6 9 6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                            <path d="M8 10v11M12 10v11M16 10v11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                        </svg>
-                    </span>
-                    <x-text-input
-                        id="school_name"
-                        name="school_name"
-                        type="text"
-                        class="pl-10"
-                        :value="old('school_name')"
-                        required
-                        autofocus
-                        autocomplete="organization"
-                        placeholder="Enter your school name"
-                    />
-                </div>
-                <x-input-error :messages="$errors->get('school_name')" class="mt-2" />
-            </div>
+            <x-text-field
+                id="school_name"
+                name="school_name"
+                label="School Name"
+                icon="M4 21h16 M5 21V10M19 21V10 M3 10l9-6 9 6 M8 10v11M12 10v11M16 10v11"
+                helper="The official name of your school, as it should appear across EduNest."
+                required
+                autofocus
+                autocomplete="organization"
+                placeholder="Enter your school name"
+            />
 
             <x-auth-email-input />
 
@@ -71,6 +57,7 @@
                 name="password"
                 label="Password"
                 placeholder="Create a strong password"
+                helper="At least 8 characters, with a mix of letters and numbers."
                 autocomplete="new-password"
             />
 
@@ -79,6 +66,7 @@
                 name="password_confirmation"
                 label="Confirm Password"
                 placeholder="Confirm your password"
+                helper="Re-enter the password exactly as above."
                 autocomplete="new-password"
             />
 
