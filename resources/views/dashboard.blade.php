@@ -2,6 +2,8 @@
     $school = auth()->user()->school;
     $subscription = $school->activeSubscription;
     $recentAnnouncements = \App\Models\Announcement::latest()->take(3)->get();
+    $totalStudents = $school->students()->count();
+    $activeStudents = $school->students()->where('is_active', true)->count();
 @endphp
 
 <x-dashboard-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.auth()->user()->name.'! Here\'s what\'s happening.'">
@@ -38,8 +40,21 @@
 
             {{-- Stat cards --}}
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <a href="{{ route('students.index') }}" class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-500">Total Students</p>
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />
+                                <path d="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="mt-3 text-3xl font-extrabold text-gray-900">{{ number_format($totalStudents) }}</p>
+                    <p class="mt-1 text-xs font-medium text-gray-500">{{ number_format($activeStudents) }} active</p>
+                </a>
+
                 @foreach ([
-                    ['label' => 'Total Students', 'iconBg' => 'bg-purple-100 text-purple-600', 'icon' => 'M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7', 'extra' => '<circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />'],
                     ['label' => 'Total Staff', 'iconBg' => 'bg-blue-100 text-blue-600', 'icon' => 'M5 6.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0119 6.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 17.5v-11z', 'extra' => '<circle cx="12" cy="10.5" r="2.25" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 16c.7-1.8 2-2.5 3.5-2.5s2.8.7 3.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                     ['label' => 'Total Classes', 'iconBg' => 'bg-green-100 text-green-600', 'icon' => 'M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z', 'extra' => '<path d="M6.5 11v4c0 1.4 2.5 2.75 5.5 2.75s5.5-1.35 5.5-2.75v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                     ['label' => 'Outstanding Fees', 'iconBg' => 'bg-orange-100 text-orange-600', 'icon' => 'M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z', 'extra' => '<path d="M4 7.5l2.5-3h11l2.5 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />'],

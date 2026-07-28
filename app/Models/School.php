@@ -74,4 +74,12 @@ class School extends Model
     {
         return $this->hasMany(SupportTicket::class);
     }
+
+    /**
+     * @return HasMany<Student, $this>
+     */
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class);
+    }
 }
