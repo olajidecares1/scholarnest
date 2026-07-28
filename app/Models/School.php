@@ -114,4 +114,12 @@ class School extends Model
     {
         return $this->hasMany(AttendanceRecord::class);
     }
+
+    /**
+     * @return HasMany<Examination, $this>
+     */
+    public function examinations(): HasMany
+    {
+        return $this->hasMany(Examination::class);
+    }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\SchoolAdmin\AcademicController;
 use App\Http\Controllers\SchoolAdmin\AttendanceController;
 use App\Http\Controllers\SchoolAdmin\ComingSoonController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
+use App\Http\Controllers\SchoolAdmin\ExaminationController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
 use App\Http\Controllers\Subscriptions\BillingDetailsController;
@@ -134,7 +135,26 @@ Route::middleware('auth')->group(function () {
             Route::post(R::uri('attendance.index'), [AttendanceController::class, 'store'])->name('store');
             Route::get(R::uri('attendance.history'), [AttendanceController::class, 'history'])->name('history');
         });
-        Route::get(R::uri('examinations.index'), [ComingSoonController::class, 'show'])->name('examinations.index');
+        Route::name('examinations.')->group(function () {
+            Route::get(R::uri('examinations.index'), [ExaminationController::class, 'index'])->name('index');
+            Route::post(R::uri('examinations.index'), [ExaminationController::class, 'store'])->name('store');
+            Route::get(R::uri('examinations.show').'/{examination}', [ExaminationController::class, 'show'])->name('show');
+            Route::put(R::uri('examinations.update').'/{examination}', [ExaminationController::class, 'update'])->name('update');
+            Route::delete(R::uri('examinations.destroy').'/{examination}', [ExaminationController::class, 'destroy'])->name('destroy');
+
+            Route::name('subjects.')->group(function () {
+                Route::post(R::uri('examinations.subjects.store').'/{examination}', [ExaminationController::class, 'storeSubject'])->name('store');
+                Route::delete(R::uri('examinations.subjects.destroy').'/{subject}', [ExaminationController::class, 'destroySubject'])->name('destroy');
+            });
+
+            Route::get(R::uri('examinations.scores').'/{subject}', [ExaminationController::class, 'scores'])->name('scores');
+            Route::post(R::uri('examinations.scores.store').'/{subject}', [ExaminationController::class, 'storeScores'])->name('scores.store');
+
+            Route::name('report-cards.')->group(function () {
+                Route::get(R::uri('examinations.report-cards').'/{examination}', [ExaminationController::class, 'reportCards'])->name('index');
+                Route::get(R::uri('examinations.report-cards.show').'/{examination}/{student}', [ExaminationController::class, 'reportCard'])->name('show');
+            });
+        });
         Route::get(R::uri('assignments.index'), [ComingSoonController::class, 'show'])->name('assignments.index');
         Route::get(R::uri('events.index'), [ComingSoonController::class, 'show'])->name('events.index');
         Route::get(R::uri('library.index'), [ComingSoonController::class, 'show'])->name('library.index');
