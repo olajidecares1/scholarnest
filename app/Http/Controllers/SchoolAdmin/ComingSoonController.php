@@ -14,7 +14,6 @@ class ComingSoonController extends Controller
      * @var array<string, array{label: string, description: string}>
      */
     private const MODULES = [
-        'events.index' => ['label' => 'Events', 'description' => 'Plan and publish a school calendar of events.'],
         'library.index' => ['label' => 'Library', 'description' => 'Track your library catalog and book loans.'],
         'finance.index' => ['label' => 'Finance', 'description' => 'Manage student fees, invoices, and payment records.'],
         'website.index' => ['label' => 'Website', 'description' => 'Build your school\'s public website, hero slider, and gallery.'],

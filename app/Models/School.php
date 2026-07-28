@@ -130,4 +130,12 @@ class School extends Model
     {
         return $this->hasMany(Assignment::class);
     }
+
+    /**
+     * @return HasMany<SchoolEvent, $this>
+     */
+    public function events(): HasMany
+    {
+        return $this->hasMany(SchoolEvent::class);
+    }
 }

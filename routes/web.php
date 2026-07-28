@@ -9,6 +9,7 @@ use App\Http\Controllers\SchoolAdmin\AssignmentController;
 use App\Http\Controllers\SchoolAdmin\AttendanceController;
 use App\Http\Controllers\SchoolAdmin\ComingSoonController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
+use App\Http\Controllers\SchoolAdmin\EventController;
 use App\Http\Controllers\SchoolAdmin\ExaminationController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
@@ -164,7 +165,12 @@ Route::middleware('auth')->group(function () {
             Route::delete(R::uri('assignments.destroy').'/{assignment}', [AssignmentController::class, 'destroy'])->name('destroy');
             Route::post(R::uri('assignments.submissions.store').'/{assignment}', [AssignmentController::class, 'storeSubmissions'])->name('submissions.store');
         });
-        Route::get(R::uri('events.index'), [ComingSoonController::class, 'show'])->name('events.index');
+        Route::name('events.')->group(function () {
+            Route::get(R::uri('events.index'), [EventController::class, 'index'])->name('index');
+            Route::post(R::uri('events.index'), [EventController::class, 'store'])->name('store');
+            Route::put(R::uri('events.update').'/{event}', [EventController::class, 'update'])->name('update');
+            Route::delete(R::uri('events.destroy').'/{event}', [EventController::class, 'destroy'])->name('destroy');
+        });
         Route::get(R::uri('library.index'), [ComingSoonController::class, 'show'])->name('library.index');
         Route::get(R::uri('finance.index'), [ComingSoonController::class, 'show'])->name('finance.index');
         Route::get(R::uri('website.index'), [ComingSoonController::class, 'show'])->name('website.index');

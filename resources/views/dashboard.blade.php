@@ -25,6 +25,8 @@
             'percent' => $total > 0 ? (int) round($dayRecords->filter(fn ($record) => $record->status->isPresentForStats())->count() / $total * 100) : 0,
         ];
     });
+
+    $upcomingEvents = $school->events()->where('starts_at', '>=', now())->orderBy('starts_at')->take(4)->get();
 @endphp
 
 <x-dashboard-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.auth()->user()->name.'! Here\'s what\'s happening.'">
@@ -194,13 +196,30 @@
                         <h2 class="text-sm font-bold text-gray-900">Upcoming Events</h2>
                         <a href="{{ route('events.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a>
                     </div>
-                    <div class="mt-6 flex flex-col items-center justify-center py-6 text-center">
-                        <svg class="h-8 w-8 text-gray-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                        </svg>
-                        <p class="mt-2 text-sm font-medium text-gray-400">Your school calendar is coming soon</p>
-                    </div>
+                    @if ($upcomingEvents->isNotEmpty())
+                        <div class="mt-4 space-y-4">
+                            @foreach ($upcomingEvents as $event)
+                                <div class="flex items-start gap-3">
+                                    <span class="mt-0.5 flex h-8 w-8 shrink-0 flex-col items-center justify-center rounded-[5px] bg-purple-50 text-purple-600 lg:rounded-[8px]">
+                                        <span class="text-[10px] font-bold leading-none">{{ $event->starts_at->format('M') }}</span>
+                                        <span class="text-xs font-extrabold leading-none">{{ $event->starts_at->format('j') }}</span>
+                                    </span>
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-semibold text-gray-900">{{ $event->title }}</p>
+                                        <p class="mt-0.5 text-xs text-gray-500">{{ $event->starts_at->format('g:ia') }}@if ($event->location) &middot; {{ $event->location }} @endif</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="mt-6 flex flex-col items-center justify-center py-6 text-center">
+                            <svg class="h-8 w-8 text-gray-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                            </svg>
+                            <p class="mt-2 text-sm font-medium text-gray-400">No upcoming events on the calendar.</p>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
