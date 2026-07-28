@@ -79,7 +79,6 @@ test('a school admin can view the communications page with real announcements', 
 
 test('unbuilt modules show a coming soon page instead of a 404', function () {
     foreach ([
-        'assignments.index' => 'Assignments',
         'events.index' => 'Events',
         'library.index' => 'Library',
         'finance.index' => 'Finance',

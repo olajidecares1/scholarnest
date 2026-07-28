@@ -5,6 +5,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolAdmin\AcademicController;
+use App\Http\Controllers\SchoolAdmin\AssignmentController;
 use App\Http\Controllers\SchoolAdmin\AttendanceController;
 use App\Http\Controllers\SchoolAdmin\ComingSoonController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
@@ -155,7 +156,14 @@ Route::middleware('auth')->group(function () {
                 Route::get(R::uri('examinations.report-cards.show').'/{examination}/{student}', [ExaminationController::class, 'reportCard'])->name('show');
             });
         });
-        Route::get(R::uri('assignments.index'), [ComingSoonController::class, 'show'])->name('assignments.index');
+        Route::name('assignments.')->group(function () {
+            Route::get(R::uri('assignments.index'), [AssignmentController::class, 'index'])->name('index');
+            Route::post(R::uri('assignments.index'), [AssignmentController::class, 'store'])->name('store');
+            Route::get(R::uri('assignments.show').'/{assignment}', [AssignmentController::class, 'show'])->name('show');
+            Route::put(R::uri('assignments.update').'/{assignment}', [AssignmentController::class, 'update'])->name('update');
+            Route::delete(R::uri('assignments.destroy').'/{assignment}', [AssignmentController::class, 'destroy'])->name('destroy');
+            Route::post(R::uri('assignments.submissions.store').'/{assignment}', [AssignmentController::class, 'storeSubmissions'])->name('submissions.store');
+        });
         Route::get(R::uri('events.index'), [ComingSoonController::class, 'show'])->name('events.index');
         Route::get(R::uri('library.index'), [ComingSoonController::class, 'show'])->name('library.index');
         Route::get(R::uri('finance.index'), [ComingSoonController::class, 'show'])->name('finance.index');

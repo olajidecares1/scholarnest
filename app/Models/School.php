@@ -122,4 +122,12 @@ class School extends Model
     {
         return $this->hasMany(Examination::class);
     }
+
+    /**
+     * @return HasMany<Assignment, $this>
+     */
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(Assignment::class);
+    }
 }
