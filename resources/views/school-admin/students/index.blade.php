@@ -29,15 +29,21 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search by name or admission number..."
-                        class="w-64 rounded-[5px] border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 lg:rounded-[8px]"
+                        class="w-64 rounded-[2px] border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
                     >
-                    <select name="class" class="rounded-[5px] border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 lg:rounded-[8px]" onchange="this.form.submit()">
+                    <select name="class" class="rounded-[2px] border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10" onchange="this.form.submit()">
                         <option value="">All Classes</option>
-                        @foreach ($classes as $className)
-                            <option value="{{ $className }}" @selected(request('class') === $className)>{{ $className }}</option>
+                        @foreach ($academicLevels as $level)
+                            @if ($level->classes->isNotEmpty())
+                                <optgroup label="{{ $level->name }}">
+                                    @foreach ($level->classes as $class)
+                                        <option value="{{ $class->name }}" @selected(request('class') === $class->name)>{{ $class->name }}</option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         @endforeach
                     </select>
-                    <button type="submit" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 lg:rounded-[8px]">Filter</button>
+                    <button type="submit" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50">Filter</button>
                     @if (request('search') || request('class'))
                         <a href="{{ route('students.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
                     @endif
@@ -46,7 +52,7 @@
                 <button
                     type="button"
                     @click="editing = null; open = true"
-                    class="flex items-center gap-2 rounded-[5px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md lg:rounded-[10px]"
+                    class="flex items-center gap-2 rounded-[2px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Student
@@ -109,19 +115,19 @@
                                                 'admission_date' => $student->admission_date?->format('Y-m-d'),
                                                 'notes' => $student->notes,
                                             ]); open = true"
-                                            class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 lg:rounded-[8px]"
+                                            class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50"
                                         >
                                             Edit
                                         </button>
                                         <form method="POST" action="{{ route('students.toggle-active', $student) }}">
                                             @csrf @method('POST')
-                                            <button type="submit" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 lg:rounded-[8px]">
+                                            <button type="submit" class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50">
                                                 {{ $student->is_active ? 'Deactivate' : 'Activate' }}
                                             </button>
                                         </form>
                                         <form method="POST" action="{{ route('students.destroy', $student) }}" onsubmit="return confirm('Remove {{ $student->fullName() }}? This cannot be undone.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[5px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 lg:rounded-[8px]">Delete</button>
+                                            <button type="submit" class="rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -150,7 +156,7 @@
 
         {{-- Add/Edit Student modal --}}
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-            <div @click.outside="open = false" class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[5px] bg-white p-6 lg:rounded-[10px]">
+            <div @click.outside="open = false" class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[2px] bg-white p-6">
                 <h3 class="text-sm font-bold text-gray-900" x-text="editing ? 'Edit Student' : 'Add Student'"></h3>
                 <form
                     method="POST"
@@ -165,7 +171,7 @@
                         <x-text-field name="admission_number" label="Admission Number" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" x-model="editing ? editing.admission_number : ''" required />
                         <div>
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Gender</label>
-                            <select name="gender" required x-model="editing ? editing.gender : 'male'" class="w-full rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10">
+                            <select name="gender" required x-model="editing ? editing.gender : 'male'" class="w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10">
                                 @foreach ($genderOptions as $gender)
                                     <option value="{{ $gender->value }}">{{ $gender->label() }}</option>
                                 @endforeach
@@ -180,11 +186,26 @@
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <x-text-field name="date_of_birth" label="Date of Birth" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" x-model="editing ? editing.date_of_birth : ''" />
-                        <x-text-field name="class_name" label="Class" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" helper="e.g. JSS 1, SS 2" x-model="editing ? editing.class_name : ''" />
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Class</label>
+                            <select name="class_name" x-model="editing ? editing.class_name : ''" class="w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10">
+                                <option value="">No class assigned</option>
+                                @foreach ($academicLevels as $level)
+                                    @if ($level->classes->isNotEmpty())
+                                        <optgroup label="{{ $level->name }}">
+                                            @foreach ($level->classes as $class)
+                                                <option value="{{ $class->name }}">{{ $class->name }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Manage classes from the Academics section.</p>
+                        </div>
                     </div>
 
                     <div>
-                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[5px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[5px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 lg:rounded-[10px]">
+                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[2px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[2px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700">
                         <p class="mt-1 text-xs text-gray-500">Photo (optional). Leave blank to keep the existing one when editing.</p>
                     </div>
 
@@ -204,8 +225,8 @@
                     <x-textarea-field name="notes" label="Notes" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="2" x-text="editing ? editing.notes : ''" />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 lg:rounded-[10px]">Cancel</button>
-                        <button type="submit" class="rounded-[5px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 lg:rounded-[10px]">Save Student</button>
+                        <button type="button" @click="open = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700">Cancel</button>
+                        <button type="submit" class="rounded-[2px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Student</button>
                     </div>
                 </form>
             </div>

@@ -38,7 +38,7 @@ class StudentController extends Controller
 
         return view('school-admin.students.index', [
             'students' => $students,
-            'classes' => $school->students()->whereNotNull('class_name')->distinct()->orderBy('class_name')->pluck('class_name'),
+            'academicLevels' => $school->academicLevels()->with('classes')->get(),
             'totalCount' => $school->students()->count(),
             'activeCount' => $school->students()->where('is_active', true)->count(),
         ]);

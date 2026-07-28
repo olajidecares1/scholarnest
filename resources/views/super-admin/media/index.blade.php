@@ -51,7 +51,7 @@
                         <button
                             type="button"
                             @click="loginId = null"
-                            class="relative flex aspect-video items-center justify-center rounded-[5px] border-2 text-[10px] font-semibold text-gray-400 transition-all duration-150 lg:rounded-[8px]"
+                            class="relative flex aspect-video items-center justify-center rounded-[2px] border-2 text-[10px] font-semibold text-gray-400 transition-all duration-150"
                             :class="loginId === null ? 'border-primary-500 text-primary-600' : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'"
                         >
                             None
@@ -60,7 +60,7 @@
                             <button
                                 type="button"
                                 @click="loginId = parseInt(item.id)"
-                                class="group relative aspect-video overflow-hidden rounded-[5px] border-2 transition-all duration-150 lg:rounded-[8px]"
+                                class="group relative aspect-video overflow-hidden rounded-[2px] border-2 transition-all duration-150"
                                 :class="loginId === parseInt(item.id) ? 'border-primary-500' : 'border-transparent hover:border-gray-300'"
                             >
                                 <img x-show="item.type === 'image'" :src="item.url" class="h-full w-full object-cover" :alt="item.name">
@@ -79,7 +79,7 @@
                         <button
                             type="button"
                             @click="registerId = null"
-                            class="relative flex aspect-video items-center justify-center rounded-[5px] border-2 text-[10px] font-semibold text-gray-400 transition-all duration-150 lg:rounded-[8px]"
+                            class="relative flex aspect-video items-center justify-center rounded-[2px] border-2 text-[10px] font-semibold text-gray-400 transition-all duration-150"
                             :class="registerId === null ? 'border-primary-500 text-primary-600' : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'"
                         >
                             None
@@ -88,7 +88,7 @@
                             <button
                                 type="button"
                                 @click="registerId = parseInt(item.id)"
-                                class="group relative aspect-video overflow-hidden rounded-[5px] border-2 transition-all duration-150 lg:rounded-[8px]"
+                                class="group relative aspect-video overflow-hidden rounded-[2px] border-2 transition-all duration-150"
                                 :class="registerId === parseInt(item.id) ? 'border-primary-500' : 'border-transparent hover:border-gray-300'"
                             >
                                 <img x-show="item.type === 'image'" :src="item.url" class="h-full w-full object-cover" :alt="item.name">
@@ -146,7 +146,7 @@
                 <input type="hidden" name="register_background_media_id" :value="registerId">
                 <button
                     type="submit"
-                    class="flex items-center justify-center gap-2 rounded-[5px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg lg:rounded-[10px]"
+                    class="flex items-center justify-center gap-2 rounded-[2px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
                 >
                     Save Backgrounds
                 </button>
@@ -157,12 +157,12 @@
         <div x-data="{ uploadOpen: false, renaming: null, replacing: null }">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex gap-1">
-                    <a href="{{ route('super-admin.media.index') }}" class="rounded-[5px] px-3 py-1.5 text-sm font-semibold {{ ! request('type') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400' }} lg:rounded-[8px]">All</a>
-                    <a href="{{ route('super-admin.media.index', ['type' => 'image']) }}" class="rounded-[5px] px-3 py-1.5 text-sm font-semibold {{ request('type') === 'image' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400' }} lg:rounded-[8px]">Images</a>
-                    <a href="{{ route('super-admin.media.index', ['type' => 'video']) }}" class="rounded-[5px] px-3 py-1.5 text-sm font-semibold {{ request('type') === 'video' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400' }} lg:rounded-[8px]">Videos</a>
+                    <a href="{{ route('super-admin.media.index') }}" class="rounded-[2px] px-3 py-1.5 text-sm font-semibold {{ ! request('type') ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400' }}">All</a>
+                    <a href="{{ route('super-admin.media.index', ['type' => 'image']) }}" class="rounded-[2px] px-3 py-1.5 text-sm font-semibold {{ request('type') === 'image' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400' }}">Images</a>
+                    <a href="{{ route('super-admin.media.index', ['type' => 'video']) }}" class="rounded-[2px] px-3 py-1.5 text-sm font-semibold {{ request('type') === 'video' ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400' }}">Videos</a>
                 </div>
 
-                <button type="button" @click="uploadOpen = true" class="flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md lg:rounded-[10px]">
+                <button type="button" @click="uploadOpen = true" class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16V4m0 0L7 9m5-5l5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></svg>
                     Upload Media
                 </button>
@@ -191,21 +191,21 @@
                                 <button
                                     type="button"
                                     @click="renaming = { id: @js($item->uuid), name: @js($item->name) }"
-                                    class="rounded-[5px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[6px]"
+                                    class="rounded-[2px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
                                     Rename
                                 </button>
                                 <button
                                     type="button"
                                     @click="replacing = { id: @js($item->uuid), name: @js($item->name) }"
-                                    class="rounded-[5px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[6px]"
+                                    class="rounded-[2px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
                                     Replace
                                 </button>
                                 <form method="POST" action="{{ route('super-admin.media.destroy', $item) }}" onsubmit="return confirm('Delete {{ $item->name }}? This cannot be undone.');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="rounded-[5px] border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 lg:rounded-[6px]">Delete</button>
+                                    <button type="submit" class="rounded-[2px] border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                 </form>
                             </div>
                         </div>
@@ -223,7 +223,7 @@
 
             {{-- Upload modal --}}
             <div x-show="uploadOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-                <div @click.outside="uploadOpen = false" class="w-full max-w-md rounded-[5px] bg-white p-6 dark:bg-gray-800 lg:rounded-[10px]">
+                <div @click.outside="uploadOpen = false" class="w-full max-w-md rounded-[2px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Upload Media</h3>
                     <form method="POST" action="{{ route('super-admin.media.store') }}" enctype="multipart/form-data" class="mt-4 space-y-4">
                         @csrf
@@ -235,14 +235,14 @@
                                 type="file"
                                 required
                                 accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.webm"
-                                class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[5px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 lg:rounded-[10px]"
+                                class="mt-1 w-full rounded-[2px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[2px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                             >
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, WEBP, MP4, MOV, or WEBM. Max 50MB. Images are automatically optimized.</p>
                         </div>
                         <x-text-field name="name" label="Display Name (optional)" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Leave blank to use the original filename." />
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="uploadOpen = false" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
-                            <button type="submit" class="rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]">Upload</button>
+                            <button type="button" @click="uploadOpen = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Upload</button>
                         </div>
                     </form>
                 </div>
@@ -250,15 +250,15 @@
 
             {{-- Rename modal --}}
             <div x-show="renaming" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-                <div @click.outside="renaming = null" class="w-full max-w-md rounded-[5px] bg-white p-6 dark:bg-gray-800 lg:rounded-[10px]">
+                <div @click.outside="renaming = null" class="w-full max-w-md rounded-[2px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Rename Media</h3>
                     <form method="POST" :action="renaming ? '{{ route('super-admin.media.update', ['media' => '__ID__']) }}'.replace('__ID__', renaming.id) : '#'" class="mt-4 space-y-4">
                         @csrf
                         @method('PUT')
                         <x-text-field name="name" label="Display Name" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Shown throughout the Media Library." x-model="renaming ? renaming.name : ''" required />
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="renaming = null" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
-                            <button type="submit" class="rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]">Save</button>
+                            <button type="button" @click="renaming = null" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                         </div>
                     </form>
                 </div>
@@ -266,7 +266,7 @@
 
             {{-- Replace modal --}}
             <div x-show="replacing" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-                <div @click.outside="replacing = null" class="w-full max-w-md rounded-[5px] bg-white p-6 dark:bg-gray-800 lg:rounded-[10px]">
+                <div @click.outside="replacing = null" class="w-full max-w-md rounded-[2px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Replace File</h3>
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" x-text="replacing ? 'Uploading a new file for \"' + replacing.name + '\" keeps it selected anywhere it is already in use.' : ''"></p>
                     <form method="POST" :action="replacing ? '{{ route('super-admin.media.replace', ['media' => '__ID__']) }}'.replace('__ID__', replacing.id) : '#'" enctype="multipart/form-data" class="mt-4 space-y-4">
@@ -276,11 +276,11 @@
                             type="file"
                             required
                             accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.webm"
-                            class="w-full rounded-[5px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[5px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 lg:rounded-[10px]"
+                            class="w-full rounded-[2px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[2px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                         >
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="replacing = null" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
-                            <button type="submit" class="rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]">Replace</button>
+                            <button type="button" @click="replacing = null" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Replace</button>
                         </div>
                     </form>
                 </div>

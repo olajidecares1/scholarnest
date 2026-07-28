@@ -82,4 +82,20 @@ class School extends Model
     {
         return $this->hasMany(Student::class);
     }
+
+    /**
+     * @return HasMany<AcademicLevel, $this>
+     */
+    public function academicLevels(): HasMany
+    {
+        return $this->hasMany(AcademicLevel::class)->orderBy('sort_order');
+    }
+
+    /**
+     * @return HasMany<SchoolClass, $this>
+     */
+    public function schoolClasses(): HasMany
+    {
+        return $this->hasMany(SchoolClass::class)->orderBy('sort_order');
+    }
 }

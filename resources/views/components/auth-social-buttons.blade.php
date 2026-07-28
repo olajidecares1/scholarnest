@@ -8,7 +8,7 @@
             type="button"
             disabled
             title="Coming soon"
-            class="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-[5px] border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm lg:rounded-[10px]"
+            class="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-[2px] border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm"
         >
             @if ($provider['icon'] === 'google')
                 <svg class="h-4 w-4" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">

@@ -12,7 +12,7 @@
             <p class="mt-1 text-sm text-gray-600">This module is on our roadmap and isn&rsquo;t available yet.</p>
             <a
                 href="{{ route('dashboard') }}"
-                class="mt-6 inline-flex items-center gap-2 rounded-[5px] bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg lg:rounded-[10px]"
+                class="mt-6 inline-flex items-center gap-2 rounded-[2px] bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
             >
                 Back to Dashboard
             </a>

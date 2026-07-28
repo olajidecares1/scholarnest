@@ -67,13 +67,13 @@
                 <div class="rounded-[5px] border border-gray-200 p-4 lg:rounded-[10px]">
                     <p class="text-sm font-bold text-gray-900">Need Help?</p>
                     <p class="mt-2 text-xs text-gray-600">If you have any questions, our support team is here to help you.</p>
-                    <a href="#" class="mt-3 inline-block rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 lg:rounded-[10px]">Contact Support</a>
+                    <a href="#" class="mt-3 inline-block rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700">Contact Support</a>
                 </div>
             </div>
 
             <a
                 href="{{ route('dashboard') }}"
-                class="mt-8 inline-flex items-center gap-2 rounded-[5px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 lg:rounded-[10px]"
+                class="mt-8 inline-flex items-center gap-2 rounded-[2px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
             >
                 Back to Dashboard
             </a>

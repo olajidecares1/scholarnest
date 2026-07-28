@@ -39,7 +39,7 @@
                         type="file"
                         accept=".pdf,.doc,.docx"
                         required
-                        class="mt-1 w-full rounded-[5px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[5px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 lg:rounded-[10px]"
+                        class="mt-1 w-full rounded-[2px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[2px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                     >
                     <x-input-error :messages="$errors->get('file')" class="mt-2" />
                 </div>
@@ -50,7 +50,7 @@
                         <select
                             id="cbt-upload-exam-body"
                             name="cbt_exam_body_id"
-                            class="w-full rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            class="w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         >
                             <option value="">Let AI detect it</option>
                             @foreach ($examBodies as $examBody)
@@ -63,7 +63,7 @@
                         <select
                             id="cbt-upload-subject"
                             name="cbt_subject_id"
-                            class="w-full rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            class="w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         >
                             <option value="">Let AI detect it</option>
                             @foreach ($subjects as $subject)
@@ -73,7 +73,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md lg:rounded-[10px]">
+                <button type="submit" class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12M7 9l5-5 5 5M5 20h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
                     Upload & Extract
                 </button>
@@ -117,10 +117,10 @@
                                 <td class="px-6 py-3 text-gray-500 dark:text-gray-400">{{ $upload->created_at->diffForHumans() }}</td>
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('super-admin.cbt.uploads.show', $upload) }}" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[8px]">Review</a>
+                                        <a href="{{ route('super-admin.cbt.uploads.show', $upload) }}" class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Review</a>
                                         <form method="POST" action="{{ route('super-admin.cbt.uploads.destroy', $upload) }}" onsubmit="return confirm('Delete this upload? Extracted questions remain in the question bank.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[5px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 lg:rounded-[8px]">Delete</button>
+                                            <button type="submit" class="rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>

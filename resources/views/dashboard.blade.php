@@ -20,7 +20,7 @@
                 <p class="mt-1 text-sm text-gray-600">Choose a plan to unlock EduNest for {{ $school->name }}.</p>
                 <a
                     href="{{ route('subscriptions.choose-plan') }}"
-                    class="mt-4 inline-flex items-center gap-2 rounded-[5px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg lg:rounded-[10px]"
+                    class="mt-4 inline-flex items-center gap-2 rounded-[2px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                 >
                     Choose a Plan
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,7 +83,7 @@
                             <h2 class="text-sm font-bold text-gray-900">Student Attendance Overview</h2>
                             <p class="mt-0.5 text-xs text-gray-500">Available once attendance tracking launches</p>
                         </div>
-                        <span class="rounded-[5px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-400 lg:rounded-[8px]">This Month</span>
+                        <span class="rounded-[2px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-400">This Month</span>
                     </div>
 
                     <div class="mt-4 flex h-48 items-center justify-center rounded-[5px] bg-gray-50 lg:rounded-[10px]">
@@ -152,7 +152,7 @@
                 <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
                         <h2 class="text-sm font-bold text-gray-900">Fee Collection Overview</h2>
-                        <span class="rounded-[5px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-400 lg:rounded-[8px]">This Term</span>
+                        <span class="rounded-[2px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-400">This Term</span>
                     </div>
                     <div class="mt-6 flex flex-col items-center justify-center py-6 text-center">
                         <span class="flex h-24 w-24 items-center justify-center rounded-full border-8 border-gray-100">

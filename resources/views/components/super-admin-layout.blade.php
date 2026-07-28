@@ -52,7 +52,7 @@
             :class="{ 'translate-x-0': sidebarOpen }"
         >
             <div class="flex items-center gap-2 px-5 py-5">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[5px] bg-white p-1.5 shadow-sm transition-transform duration-300 ease-out hover:scale-105 hover:rotate-3 lg:rounded-[10px]">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[2px] bg-white p-1.5 shadow-sm transition-transform duration-300 ease-out hover:scale-105 hover:rotate-3">
                     <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'EduNest') }}" class="h-full w-full object-contain">
                 </span>
                 <div>
@@ -63,7 +63,7 @@
 
             <nav class="mt-2 flex-1 space-y-1 px-3 pb-4">
                 @php
-                    $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[44px] items-center gap-3 rounded-[5px] px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out lg:rounded-[10px] '
+                    $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[44px] items-center gap-3 rounded-[2px] px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out '
                         .($isActive
                             ? 'bg-white/20 text-white shadow-sm'
                             : 'text-primary-50 hover:translate-x-1 hover:bg-white/10 hover:text-white');
@@ -132,7 +132,7 @@
                             @endphp
                             <a
                                 href="{{ route('super-admin.subscriptions.index', $sub['tab'] === 'pending' ? [] : ['tab' => $sub['tab']]) }}"
-                                class="group flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ $isActive ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
+                                class="group flex items-center gap-2 rounded-[2px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ $isActive ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
                             >
                                 <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     {!! $sub['extra'] !!}
@@ -179,7 +179,7 @@
                             @foreach ($cbtExamBodies as $examBody)
                                 <a
                                     href="{{ route('super-admin.cbt.exam-bodies.show', $examBody) }}"
-                                    class="group flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->route('examBody')?->is($examBody) ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
+                                    class="group flex items-center gap-2 rounded-[2px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->route('examBody')?->is($examBody) ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
                                 >
                                     <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M5 8l7-3.5L19 8l-7 3.5L5 8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
@@ -190,7 +190,7 @@
                             @endforeach
                             <a
                                 href="{{ route('super-admin.cbt.index') }}"
-                                class="group flex items-center gap-2 rounded-[5px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->routeIs('super-admin.cbt.index') ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
+                                class="group flex items-center gap-2 rounded-[2px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->routeIs('super-admin.cbt.index') ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
                             >
                                 <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
@@ -229,12 +229,12 @@
                 @endforeach
             </nav>
 
-            <div class="m-3 rounded-[5px] bg-white/10 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15] lg:rounded-[10px]">
+            <div class="m-3 rounded-[2px] bg-white/10 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
                 <p class="text-sm font-semibold">Super Administrator</p>
                 <p class="mt-1 text-xs text-primary-50">You have full access to all platform features.</p>
                 <a
                     href="{{ route('super-admin.settings.index') }}"
-                    class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[5px] bg-white px-3 py-2 text-xs font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]"
+                    class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[2px] bg-white px-3 py-2 text-xs font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
                 >
                     System Settings
                 </a>
@@ -253,7 +253,7 @@
                 <button
                     type="button"
                     @click="sidebarOpen = true"
-                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+                    class="flex h-10 w-10 items-center justify-center rounded-[2px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
                 >
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -306,14 +306,14 @@
                         @click.outside="open = false"
                         placeholder="Search schools, users, payments..."
                         autocomplete="off"
-                        class="w-64 rounded-[5px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 transition-all duration-300 ease-out focus:border-primary-500 focus:bg-white focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 lg:rounded-[10px]"
+                        class="w-64 rounded-[2px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 transition-all duration-300 ease-out focus:border-primary-500 focus:bg-white focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500"
                     >
 
                     <div
                         x-show="open"
                         x-transition
                         style="display: none;"
-                        class="absolute right-0 z-30 mt-2 w-80 rounded-[5px] border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
+                        class="absolute right-0 z-30 mt-2 w-80 rounded-[2px] border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800"
                     >
                         <template x-if="!loading && results.schools.length === 0 && results.users.length === 0 && results.subscriptions.length === 0">
                             <p class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No results found.</p>
@@ -323,7 +323,7 @@
                             <div class="px-2 pb-2">
                                 <p class="px-2 py-1 text-xs font-bold uppercase text-gray-400">Schools</p>
                                 <template x-for="item in results.schools" :key="item.url">
-                                    <a :href="item.url" class="block rounded-[5px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <a :href="item.url" class="block rounded-[2px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <span class="font-medium text-gray-900 dark:text-white" x-text="item.title"></span>
                                         <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></span>
                                     </a>
@@ -335,7 +335,7 @@
                             <div class="px-2 pb-2">
                                 <p class="px-2 py-1 text-xs font-bold uppercase text-gray-400">Users</p>
                                 <template x-for="item in results.users" :key="item.url">
-                                    <a :href="item.url" class="block rounded-[5px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <a :href="item.url" class="block rounded-[2px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <span class="font-medium text-gray-900 dark:text-white" x-text="item.title"></span>
                                         <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></span>
                                     </a>
@@ -347,7 +347,7 @@
                             <div class="px-2">
                                 <p class="px-2 py-1 text-xs font-bold uppercase text-gray-400">Subscriptions</p>
                                 <template x-for="item in results.subscriptions" :key="item.url">
-                                    <a :href="item.url" class="block rounded-[5px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <a :href="item.url" class="block rounded-[2px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <span class="font-medium text-gray-900 dark:text-white" x-text="item.title"></span>
                                         <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></span>
                                     </a>
@@ -364,7 +364,7 @@
                         document.documentElement.classList.toggle('dark');
                         localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
                     "
-                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]"
+                    class="flex h-10 w-10 items-center justify-center rounded-[2px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800"
                 >
                     <svg class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -376,7 +376,7 @@
                 </button>
 
                 <div class="relative" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[2px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                             <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -395,7 +395,7 @@
                         x-transition:leave-start="opacity-100"
                         x-transition:leave-end="opacity-0"
                         style="display: none;"
-                        class="absolute right-0 z-30 mt-2 w-80 rounded-[5px] border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
+                        class="absolute right-0 z-30 mt-2 w-80 rounded-[2px] border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
                     >
                         <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
                             <p class="text-sm font-bold text-gray-900 dark:text-white">Notifications</p>
@@ -433,7 +433,7 @@
 
                 <a
                     href="{{ route('super-admin.communications.index') }}"
-                    class="flex h-10 w-10 items-center justify-center rounded-[5px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:rounded-[10px]"
+                    class="flex h-10 w-10 items-center justify-center rounded-[2px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800"
                 >
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
@@ -442,7 +442,7 @@
                 </a>
 
                 <div class="relative" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="group flex items-center gap-2 rounded-[5px] px-1.5 py-1 transition-colors duration-300 hover:bg-gray-100 dark:hover:bg-gray-800 lg:rounded-[10px]">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="group flex items-center gap-2 rounded-[2px] px-1.5 py-1 transition-colors duration-300 hover:bg-gray-100 dark:hover:bg-gray-800">
                         <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700 transition-transform duration-300 ease-out group-hover:scale-105">
                             {{ Str::of(auth()->user()->name)->substr(0, 1)->upper() }}
                         </span>
@@ -461,7 +461,7 @@
                         x-transition:leave-start="opacity-100"
                         x-transition:leave-end="opacity-0"
                         style="display: none;"
-                        class="absolute right-0 mt-2 w-48 rounded-[5px] border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
+                        class="absolute right-0 mt-2 w-48 rounded-[2px] border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
                     >
                         <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">Edit Profile</a>
                         <form method="POST" action="{{ route('logout') }}">

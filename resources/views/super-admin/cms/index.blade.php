@@ -22,7 +22,7 @@
         {{-- Pages --}}
         <div x-show="tab === 'pages'" x-data="{ open: false, editing: null }" style="display: none;">
             <div class="flex justify-end">
-                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md lg:rounded-[10px]">
+                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Page
                 </button>
@@ -43,10 +43,10 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($page->uuid), title: @js($page->title), body: @js($page->body), is_published: {{ $page->is_published ? 'true' : 'false' }} }; open = true" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[10px]">Edit</button>
+                                        <button type="button" @click="editing = { id: @js($page->uuid), title: @js($page->title), body: @js($page->body), is_published: {{ $page->is_published ? 'true' : 'false' }} }; open = true" class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
                                         <form method="POST" action="{{ route('super-admin.cms.pages.destroy', $page) }}" onsubmit="return confirm('Delete this page?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[5px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 lg:rounded-[10px]">Delete</button>
+                                            <button type="submit" class="rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -59,7 +59,7 @@
             </div>
 
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-                <div @click.outside="open = false" class="w-full max-w-lg rounded-[5px] bg-white p-6 dark:bg-gray-800 lg:rounded-[10px]">
+                <div @click.outside="open = false" class="w-full max-w-lg rounded-[2px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Page' : 'Add Page'"></h3>
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.pages.update', ['page' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.pages.store') }}'" class="mt-4 space-y-4">
                         @csrf
@@ -86,8 +86,8 @@
                             Published
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
-                            <button type="submit" class="rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]">Save</button>
+                            <button type="button" @click="open = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                         </div>
                     </form>
                 </div>
@@ -97,7 +97,7 @@
         {{-- Blog Posts --}}
         <div x-show="tab === 'blog'" x-data="{ open: false, editing: null }" style="display: none;">
             <div class="flex justify-end">
-                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md lg:rounded-[10px]">
+                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Blog Post
                 </button>
@@ -118,10 +118,10 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($post->uuid), title: @js($post->title), excerpt: @js($post->excerpt), body: @js($post->body), is_published: {{ $post->is_published ? 'true' : 'false' }} }; open = true" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[10px]">Edit</button>
+                                        <button type="button" @click="editing = { id: @js($post->uuid), title: @js($post->title), excerpt: @js($post->excerpt), body: @js($post->body), is_published: {{ $post->is_published ? 'true' : 'false' }} }; open = true" class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
                                         <form method="POST" action="{{ route('super-admin.cms.blog-posts.destroy', $post) }}" onsubmit="return confirm('Delete this blog post?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[5px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 lg:rounded-[10px]">Delete</button>
+                                            <button type="submit" class="rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -134,7 +134,7 @@
             </div>
 
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-                <div @click.outside="open = false" class="w-full max-w-lg rounded-[5px] bg-white p-6 dark:bg-gray-800 lg:rounded-[10px]">
+                <div @click.outside="open = false" class="w-full max-w-lg rounded-[2px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Blog Post' : 'Add Blog Post'"></h3>
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.blog-posts.update', ['blogPost' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.blog-posts.store') }}'" class="mt-4 space-y-4">
                         @csrf
@@ -168,8 +168,8 @@
                             Published
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
-                            <button type="submit" class="rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]">Save</button>
+                            <button type="button" @click="open = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                         </div>
                     </form>
                 </div>
@@ -179,7 +179,7 @@
         {{-- Testimonials --}}
         <div x-show="tab === 'testimonials'" x-data="{ open: false, editing: null }" style="display: none;">
             <div class="flex justify-end">
-                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md lg:rounded-[10px]">
+                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Testimonial
                 </button>
@@ -200,10 +200,10 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($testimonial->uuid), name: @js($testimonial->name), role: @js($testimonial->role), quote: @js($testimonial->quote), sort_order: {{ $testimonial->sort_order }}, is_active: {{ $testimonial->is_active ? 'true' : 'false' }} }; open = true" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[10px]">Edit</button>
+                                        <button type="button" @click="editing = { id: @js($testimonial->uuid), name: @js($testimonial->name), role: @js($testimonial->role), quote: @js($testimonial->quote), sort_order: {{ $testimonial->sort_order }}, is_active: {{ $testimonial->is_active ? 'true' : 'false' }} }; open = true" class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
                                         <form method="POST" action="{{ route('super-admin.cms.testimonials.destroy', $testimonial) }}" onsubmit="return confirm('Delete this testimonial?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[5px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 lg:rounded-[10px]">Delete</button>
+                                            <button type="submit" class="rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -216,7 +216,7 @@
             </div>
 
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-                <div @click.outside="open = false" class="w-full max-w-lg rounded-[5px] bg-white p-6 dark:bg-gray-800 lg:rounded-[10px]">
+                <div @click.outside="open = false" class="w-full max-w-lg rounded-[2px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Testimonial' : 'Add Testimonial'"></h3>
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.testimonials.update', ['testimonial' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.testimonials.store') }}'" class="mt-4 space-y-4">
                         @csrf
@@ -258,8 +258,8 @@
                             Active
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
-                            <button type="submit" class="rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]">Save</button>
+                            <button type="button" @click="open = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                         </div>
                     </form>
                 </div>
@@ -269,7 +269,7 @@
         {{-- FAQ --}}
         <div x-show="tab === 'faq'" x-data="{ open: false, editing: null }" style="display: none;">
             <div class="flex justify-end">
-                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md lg:rounded-[10px]">
+                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add FAQ Item
                 </button>
@@ -289,10 +289,10 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($faqItem->uuid), question: @js($faqItem->question), answer: @js($faqItem->answer), sort_order: {{ $faqItem->sort_order }}, is_active: {{ $faqItem->is_active ? 'true' : 'false' }} }; open = true" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[10px]">Edit</button>
+                                        <button type="button" @click="editing = { id: @js($faqItem->uuid), question: @js($faqItem->question), answer: @js($faqItem->answer), sort_order: {{ $faqItem->sort_order }}, is_active: {{ $faqItem->is_active ? 'true' : 'false' }} }; open = true" class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
                                         <form method="POST" action="{{ route('super-admin.cms.faq-items.destroy', $faqItem) }}" onsubmit="return confirm('Delete this FAQ item?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[5px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 lg:rounded-[10px]">Delete</button>
+                                            <button type="submit" class="rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -305,7 +305,7 @@
             </div>
 
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-                <div @click.outside="open = false" class="w-full max-w-lg rounded-[5px] bg-white p-6 dark:bg-gray-800 lg:rounded-[10px]">
+                <div @click.outside="open = false" class="w-full max-w-lg rounded-[2px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit FAQ Item' : 'Add FAQ Item'"></h3>
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.faq-items.update', ['faqItem' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.faq-items.store') }}'" class="mt-4 space-y-4">
                         @csrf
@@ -340,8 +340,8 @@
                             Active
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
-                            <button type="submit" class="rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]">Save</button>
+                            <button type="button" @click="open = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                         </div>
                     </form>
                 </div>
@@ -351,7 +351,7 @@
         {{-- Team --}}
         <div x-show="tab === 'team'" x-data="{ open: false, editing: null }" style="display: none;">
             <div class="flex justify-end">
-                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md lg:rounded-[10px]">
+                <button type="button" @click="editing = null; open = true" class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Team Member
                 </button>
@@ -372,10 +372,10 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($member->uuid), name: @js($member->name), role: @js($member->role), bio: @js($member->bio), sort_order: {{ $member->sort_order }}, is_active: {{ $member->is_active ? 'true' : 'false' }} }; open = true" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[10px]">Edit</button>
+                                        <button type="button" @click="editing = { id: @js($member->uuid), name: @js($member->name), role: @js($member->role), bio: @js($member->bio), sort_order: {{ $member->sort_order }}, is_active: {{ $member->is_active ? 'true' : 'false' }} }; open = true" class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
                                         <form method="POST" action="{{ route('super-admin.cms.team-members.destroy', $member) }}" onsubmit="return confirm('Delete this team member?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[5px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 lg:rounded-[10px]">Delete</button>
+                                            <button type="submit" class="rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -388,7 +388,7 @@
             </div>
 
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-                <div @click.outside="open = false" class="w-full max-w-lg rounded-[5px] bg-white p-6 dark:bg-gray-800 lg:rounded-[10px]">
+                <div @click.outside="open = false" class="w-full max-w-lg rounded-[2px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Team Member' : 'Add Team Member'"></h3>
                     <form method="POST" :action="editing ? '{{ route('super-admin.cms.team-members.update', ['teamMember' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.team-members.store') }}'" class="mt-4 space-y-4">
                         @csrf
@@ -429,8 +429,8 @@
                             Active
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="rounded-[5px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 lg:rounded-[10px]">Cancel</button>
-                            <button type="submit" class="rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600 lg:rounded-[10px]">Save</button>
+                            <button type="button" @click="open = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                         </div>
                     </form>
                 </div>

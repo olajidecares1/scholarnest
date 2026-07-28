@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SchoolAdmin\AcademicController;
 use App\Http\Controllers\SchoolAdmin\ComingSoonController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
@@ -102,7 +103,23 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get(R::uri('staff.index'), [ComingSoonController::class, 'show'])->name('staff.index');
-        Route::get(R::uri('academics.index'), [ComingSoonController::class, 'show'])->name('academics.index');
+
+        Route::name('academics.')->group(function () {
+            Route::get(R::uri('academics.index'), [AcademicController::class, 'index'])->name('index');
+
+            Route::name('levels.')->group(function () {
+                Route::post(R::uri('academics.levels.store'), [AcademicController::class, 'storeLevel'])->name('store');
+                Route::put(R::uri('academics.levels.update').'/{level}', [AcademicController::class, 'updateLevel'])->name('update');
+                Route::delete(R::uri('academics.levels.destroy').'/{level}', [AcademicController::class, 'destroyLevel'])->name('destroy');
+            });
+
+            Route::name('classes.')->group(function () {
+                Route::post(R::uri('academics.classes.store').'/{level}', [AcademicController::class, 'storeClass'])->name('store');
+                Route::put(R::uri('academics.classes.update').'/{class}', [AcademicController::class, 'updateClass'])->name('update');
+                Route::delete(R::uri('academics.classes.destroy').'/{class}', [AcademicController::class, 'destroyClass'])->name('destroy');
+            });
+        });
+
         Route::get(R::uri('attendance.index'), [ComingSoonController::class, 'show'])->name('attendance.index');
         Route::get(R::uri('examinations.index'), [ComingSoonController::class, 'show'])->name('examinations.index');
         Route::get(R::uri('assignments.index'), [ComingSoonController::class, 'show'])->name('assignments.index');

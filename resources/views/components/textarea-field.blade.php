@@ -20,7 +20,7 @@
 
 <div>
     <div
-        class="relative rounded-[8px] border bg-white shadow-sm transition-all duration-200 ease-out lg:rounded-[10px] dark:bg-gray-800
+        class="relative rounded-[2px] border bg-white shadow-sm transition-all duration-200 ease-out dark:bg-gray-800
             {{ $hasError
                 ? 'border-red-400 has-[:focus]:border-red-500 has-[:focus]:shadow-[0_0_0_4px_rgba(239,68,68,0.1)] dark:border-red-500'
                 : 'border-gray-200 hover:border-gray-300 has-[:focus]:border-primary-500 has-[:focus]:shadow-[0_0_0_4px_rgba(24,119,242,0.1)] dark:border-gray-700 dark:hover:border-gray-600' }}"

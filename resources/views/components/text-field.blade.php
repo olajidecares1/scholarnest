@@ -41,7 +41,7 @@
             @if ($max !== null) max="{{ $max }}" @endif
             @if ($step !== null) step="{{ $step }}" @endif
             {{ $attributes->except('id')->merge([
-                'class' => 'peer block h-11 w-full min-w-0 rounded-[8px] border bg-white text-[13.5px] font-medium text-gray-900 placeholder-transparent shadow-sm transition-all duration-200 ease-out focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60 dark:bg-gray-800 dark:text-white '
+                'class' => 'peer block h-11 w-full min-w-0 rounded-[2px] border bg-white text-[13.5px] font-medium text-gray-900 placeholder-transparent shadow-sm transition-all duration-200 ease-out focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60 dark:bg-gray-800 dark:text-white '
                     . ($icon ? 'pl-9 ' : 'pl-3 ')
                     . ($hasTrailing ? 'pr-9 ' : 'pr-3 ')
                     . ($hasError

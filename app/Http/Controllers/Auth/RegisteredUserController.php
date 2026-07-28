@@ -8,6 +8,7 @@ use App\Http\Requests\Auth\RegisterSchoolRequest;
 use App\Models\School;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\DefaultAcademicStructure;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,8 @@ class RegisteredUserController extends Controller
             $school = School::create([
                 'name' => $validated['school_name'],
             ]);
+
+            DefaultAcademicStructure::seedFor($school);
 
             return User::create([
                 'name' => $validated['school_name'],

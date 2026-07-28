@@ -8,6 +8,7 @@ use App\Http\Requests\SuperAdmin\StoreSchoolRequest;
 use App\Models\AuditLog;
 use App\Models\School;
 use App\Models\User;
+use App\Services\DefaultAcademicStructure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -48,6 +49,8 @@ class SchoolController extends Controller
             $school = School::create([
                 'name' => $validated['school_name'],
             ]);
+
+            DefaultAcademicStructure::seedFor($school);
 
             User::create([
                 'name' => $validated['admin_name'],

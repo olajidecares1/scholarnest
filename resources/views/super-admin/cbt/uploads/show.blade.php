@@ -51,7 +51,7 @@
                     @method('PUT')
                     <div>
                         <label for="mapping-exam-body" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Exam Body</label>
-                        <select id="mapping-exam-body" name="cbt_exam_body_id" required class="w-full rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        <select id="mapping-exam-body" name="cbt_exam_body_id" required class="w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                             <option value="">Select&hellip;</option>
                             @foreach ($examBodies as $examBody)
                                 <option value="{{ $examBody->id }}">{{ $examBody->name }}</option>
@@ -60,7 +60,7 @@
                     </div>
                     <div>
                         <label for="mapping-subject" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Subject</label>
-                        <select id="mapping-subject" name="cbt_subject_id" required class="w-full rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        <select id="mapping-subject" name="cbt_subject_id" required class="w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                             <option value="">Select&hellip;</option>
                             @foreach ($subjects as $subject)
                                 <option value="{{ $subject->id }}">{{ $subject->name }}</option>
@@ -68,7 +68,7 @@
                         </select>
                     </div>
                     <div class="sm:col-span-2">
-                        <button type="submit" class="rounded-[5px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md lg:rounded-[10px]">Import Questions</button>
+                        <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">Import Questions</button>
                     </div>
                 </form>
             </div>
@@ -108,7 +108,7 @@
                     <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                         <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                             <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $exam->title() }}</h2>
-                            <a href="{{ route('super-admin.cbt.exams.show', $exam) }}" class="rounded-[5px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 lg:rounded-[8px]">Manage Full Question Bank</a>
+                            <a href="{{ route('super-admin.cbt.exams.show', $exam) }}" class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage Full Question Bank</a>
                         </div>
                         <div class="divide-y divide-gray-100 p-6 dark:divide-gray-700">
                             @foreach ($examQuestions as $question)
