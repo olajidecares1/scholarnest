@@ -24,7 +24,7 @@
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     @foreach ($presets as $key => $preset)
                         <label
-                            class="flex cursor-pointer items-center gap-3 rounded-[2px] border-2 p-3 transition-all duration-200"
+                            class="flex cursor-pointer items-center gap-3 rounded-[8px] border-2 p-3 transition-all duration-200"
                             :class="selected === '{{ $key }}' ? 'border-primary-500 shadow-sm' : 'border-gray-200 dark:border-gray-700'"
                         >
                             <input type="radio" name="theme_preset" value="{{ $key }}" x-model="selected" class="sr-only">
@@ -45,7 +45,7 @@
                         </span>
                         <button
                             type="button"
-                            class="rounded-[2px] px-4 py-2 text-sm font-bold text-white shadow-md"
+                            class="rounded-[8px] px-4 py-2 text-sm font-bold text-white shadow-md"
                             :style="{ backgroundColor: colors[selected] }"
                         >
                             Sample Button
@@ -55,7 +55,7 @@
 
                 <button
                     type="submit"
-                    class="flex items-center justify-center gap-2 rounded-[2px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
+                    class="flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
                 >
                     Save Theme
                 </button>
@@ -82,9 +82,9 @@
                         name="logo"
                         accept=".png,.jpg,.jpeg,.svg"
                         required
-                        class="flex-1 rounded-[2px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[2px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="flex-1 rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                     >
-                    <button type="submit" class="rounded-[2px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">Upload</button>
+                    <button type="submit" class="rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">Upload</button>
                 </form>
             </div>
         </div>
@@ -109,9 +109,9 @@
                         name="favicon"
                         accept=".png,.ico"
                         required
-                        class="flex-1 rounded-[2px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[2px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="flex-1 rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                     >
-                    <button type="submit" class="rounded-[2px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">Upload</button>
+                    <button type="submit" class="rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">Upload</button>
                 </form>
             </div>
         </div>

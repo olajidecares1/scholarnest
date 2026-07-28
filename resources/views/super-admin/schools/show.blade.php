@@ -22,12 +22,12 @@
             @if ($school->is_active)
                 <form method="POST" action="{{ route('super-admin.schools.deactivate', $school) }}" onsubmit="return confirm('Deactivate {{ $school->name }}? Their admins will lose access immediately.');">
                     @csrf
-                    <button type="submit" class="rounded-[2px] border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Deactivate School</button>
+                    <button type="submit" class="rounded-[8px] border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Deactivate School</button>
                 </form>
             @else
                 <form method="POST" action="{{ route('super-admin.schools.activate', $school) }}">
                     @csrf
-                    <button type="submit" class="rounded-[2px] border border-green-300 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Activate School</button>
+                    <button type="submit" class="rounded-[8px] border border-green-300 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Activate School</button>
                 </form>
             @endif
         </div>

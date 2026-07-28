@@ -31,7 +31,7 @@
                             <h3 class="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $category->label() }}</h3>
                             <div class="mt-2 flex flex-wrap gap-3">
                                 @foreach ($categorySubjects as $subject)
-                                    <label class="flex items-center gap-2 rounded-[2px] border border-gray-200 px-3 py-1.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
+                                    <label class="flex items-center gap-2 rounded-[8px] border border-gray-200 px-3 py-1.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
                                         <input
                                             type="checkbox"
                                             name="subjects[]"
@@ -47,7 +47,7 @@
                     @endif
                 @endforeach
 
-                <button type="submit" class="mt-5 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">Save Subjects</button>
+                <button type="submit" class="mt-5 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">Save Subjects</button>
             </form>
         </div>
 
@@ -62,7 +62,7 @@
                     type="button"
                     @click="addExamOpen = true"
                     @if ($examBody->subjects->isEmpty()) disabled title="Assign at least one subject first" @endif
-                    class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                    class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 >
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Exam
@@ -91,10 +91,10 @@
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $exam->questions_count }}</td>
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('super-admin.cbt.exams.show', $exam) }}" class="rounded-[2px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage Questions</a>
+                                        <a href="{{ route('super-admin.cbt.exams.show', $exam) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage Questions</a>
                                         <form method="POST" action="{{ route('super-admin.cbt.exams.destroy', $exam) }}" onsubmit="return confirm('Delete this exam and all its questions?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -111,23 +111,16 @@
 
         {{-- Add Exam modal --}}
         <div x-show="addExamOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-            <div @click.outside="addExamOpen = false" class="w-full max-w-md rounded-[2px] bg-white p-6 dark:bg-gray-800">
+            <div @click.outside="addExamOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Exam</h3>
                 <form method="POST" action="{{ route('super-admin.cbt.exams.store', $examBody) }}" class="mt-4 space-y-4" x-data="{ duration: 60, customDuration: false }">
                     @csrf
-                    <div>
-                        <label for="cbt-exam-subject" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Subject</label>
-                        <select
-                            id="cbt-exam-subject"
-                            name="cbt_subject_id"
-                            required
-                            class="w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        >
-                            @foreach ($examBody->subjects as $subject)
-                                <option value="{{ $subject->id }}">{{ $subject->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <x-select-field
+                        name="cbt_subject_id"
+                        label="Subject"
+                        required
+                        :options="$examBody->subjects->pluck('name', 'id')->all()"
+                    />
                     <x-text-field name="year" label="Year" type="number" icon="M4 20V10M10 20V4M16 20v-7M20 20v-3" helper="Between 1999 and {{ now()->year }}." min="1999" :max="now()->year" value="{{ now()->year }}" required />
 
                     <div>
@@ -138,7 +131,7 @@
                                     type="button"
                                     @click="duration = preset; customDuration = false"
                                     :class="(!customDuration && duration === preset) ? 'border-primary-500 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-900/30 dark:text-primary-400' : 'border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700'"
-                                    class="rounded-[2px] border px-3 py-2 text-sm font-semibold transition-colors duration-150"
+                                    class="rounded-[8px] border px-3 py-2 text-sm font-semibold transition-colors duration-150"
                                 >
                                     <span x-text="preset"></span> min
                                 </button>
@@ -147,7 +140,7 @@
                                 type="button"
                                 @click="customDuration = true"
                                 :class="customDuration ? 'border-primary-500 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-900/30 dark:text-primary-400' : 'border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700'"
-                                class="rounded-[2px] border px-3 py-2 text-sm font-semibold transition-colors duration-150"
+                                class="rounded-[8px] border px-3 py-2 text-sm font-semibold transition-colors duration-150"
                             >
                                 Custom
                             </button>
@@ -159,15 +152,15 @@
                             min="5"
                             max="300"
                             placeholder="Minutes"
-                            class="mt-2 w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            class="mt-2 w-full rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         >
                         <input type="hidden" name="duration_minutes" :value="duration">
                     </div>
 
                     <x-text-field name="pass_mark" label="Pass Mark (%)" type="number" icon="M8 12.3l2.6 2.6L16.3 9" min="0" max="100" value="50" required />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="addExamOpen = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Create Exam</button>
+                        <button type="button" @click="addExamOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Create Exam</button>
                     </div>
                 </form>
             </div>

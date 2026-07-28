@@ -49,7 +49,7 @@
             :class="{ 'translate-x-0': sidebarOpen }"
         >
             <div class="flex items-center gap-2.5 px-5 py-5">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[2px] bg-white p-1.5 shadow-sm transition-transform duration-300 ease-out hover:scale-105 hover:rotate-3">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-white p-1.5 shadow-sm transition-transform duration-300 ease-out hover:scale-105 hover:rotate-3">
                     <img src="{{ $logoUrl }}" alt="{{ $school->name }}" class="h-full w-full object-contain">
                 </span>
                 <div class="min-w-0">
@@ -60,7 +60,7 @@
 
             <nav class="mt-2 flex-1 space-y-1 overflow-y-auto px-3 pb-4">
                 @php
-                    $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[44px] items-center gap-3 rounded-[2px] px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out '
+                    $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[44px] items-center gap-3 rounded-[8px] px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out '
                         .($isActive
                             ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                             : 'text-slate-300 hover:translate-x-1 hover:bg-white/5 hover:text-white');
@@ -121,7 +121,7 @@
                                         @foreach ($level->classes as $class)
                                             <a
                                                 href="{{ route('students.index', ['class' => $class->name]) }}"
-                                                class="group flex items-center gap-2 rounded-[2px] px-3 py-1.5 text-sm text-slate-300 transition-all duration-300 ease-out hover:translate-x-1 hover:text-white {{ request()->routeIs('students.*') && request('class') === $class->name ? 'font-semibold text-white' : '' }}"
+                                                class="group flex items-center gap-2 rounded-[8px] px-3 py-1.5 text-sm text-slate-300 transition-all duration-300 ease-out hover:translate-x-1 hover:text-white {{ request()->routeIs('students.*') && request('class') === $class->name ? 'font-semibold text-white' : '' }}"
                                             >
                                                 {{ $class->name }}
                                             </a>
@@ -135,7 +135,7 @@
 
                         <a
                             href="{{ route('academics.index') }}"
-                            class="group flex items-center gap-2 rounded-[2px] px-3 py-1.5 text-sm font-semibold text-blue-300 transition-all duration-300 ease-out hover:translate-x-1 hover:text-white"
+                            class="group flex items-center gap-2 rounded-[8px] px-3 py-1.5 text-sm font-semibold text-blue-300 transition-all duration-300 ease-out hover:translate-x-1 hover:text-white"
                         >
                             <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /></svg>
                             Manage Levels & Classes
@@ -174,7 +174,7 @@
             </nav>
 
             <div class="m-3 space-y-3">
-                <div class="rounded-[2px] bg-white/10 p-4 transition-colors duration-300 hover:bg-white/[0.15]">
+                <div class="rounded-[8px] bg-white/10 p-4 transition-colors duration-300 hover:bg-white/[0.15]">
                     <div class="flex items-center justify-between">
                         <p class="flex items-center gap-1.5 text-sm font-semibold">
                             <svg class="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8l3.5 2.5L12 5l5.5 5.5L21 8l-1.5 10h-15L3 8z" /></svg>
@@ -202,18 +202,18 @@
                     @endif
                     <a
                         href="{{ route('subscriptions.choose-plan') }}"
-                        class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[2px] bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                        class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                     >
                         {{ $subscription ? 'Upgrade Plan' : 'Choose a Plan' }}
                     </a>
                 </div>
 
-                <div class="rounded-[2px] bg-white/10 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
+                <div class="rounded-[8px] bg-white/10 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
                     <p class="text-sm font-semibold">Need Help?</p>
                     <p class="mt-1 text-xs text-slate-300">Contact our support team.</p>
                     <a
                         href="{{ route('support-tickets.create') }}"
-                        class="mt-3 inline-flex w-full items-center justify-center rounded-[2px] bg-white px-3 py-2 text-xs font-semibold text-[#111a35] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
+                        class="mt-3 inline-flex w-full items-center justify-center rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-[#111a35] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
                     >
                         Contact Support
                     </a>
@@ -233,7 +233,7 @@
                 <button
                     type="button"
                     @click="sidebarOpen = true"
-                    class="flex h-10 w-10 items-center justify-center rounded-[2px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 lg:hidden"
+                    class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 lg:hidden"
                 >
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -258,13 +258,13 @@
                         type="text"
                         disabled
                         placeholder="Search students, staff, payments, events..."
-                        class="w-64 rounded-[2px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-500 placeholder:text-gray-400"
+                        class="w-64 rounded-[8px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-500 placeholder:text-gray-400"
                     >
                 </div>
 
                 <a
                     href="{{ route('support-tickets.index') }}"
-                    class="relative flex h-10 w-10 items-center justify-center rounded-[2px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600"
+                    class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600"
                     title="Support Tickets"
                 >
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -276,7 +276,7 @@
                 </a>
 
                 <div class="relative" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[2px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                             <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -295,7 +295,7 @@
                         x-transition:leave-start="opacity-100"
                         x-transition:leave-end="opacity-0"
                         style="display: none;"
-                        class="absolute right-0 z-30 mt-2 w-80 rounded-[2px] border border-gray-200 bg-white shadow-lg"
+                        class="absolute right-0 z-30 mt-2 w-80 rounded-[8px] border border-gray-200 bg-white shadow-lg"
                     >
                         <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3">
                             <p class="text-sm font-bold text-gray-900">Notifications</p>
@@ -349,7 +349,7 @@
                         x-show="open"
                         x-transition
                         style="display: none;"
-                        class="absolute right-0 mt-2 w-48 rounded-[2px] border border-gray-200 bg-white py-1 shadow-lg"
+                        class="absolute right-0 mt-2 w-48 rounded-[8px] border border-gray-200 bg-white py-1 shadow-lg"
                     >
                         <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Profile</a>
                         <form method="POST" action="{{ route('logout') }}">

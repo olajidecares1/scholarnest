@@ -24,7 +24,7 @@
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 @foreach ($plans as $plan)
                     <label
-                        class="relative flex cursor-pointer flex-col rounded-[2px] border-2 bg-white p-6 shadow-sm transition"
+                        class="relative flex cursor-pointer flex-col rounded-[8px] border-2 bg-white p-6 shadow-sm transition"
                         :class="planId === {{ $plan->id }} ? 'border-primary-500 ring-2 ring-primary-100' : 'border-gray-200 hover:border-gray-300'"
                     >
                         @if ($plan->is_popular)
@@ -76,7 +76,7 @@
                                         name="students_count"
                                         x-model.number="studentsCount"
                                         min="1"
-                                        class="mt-1 w-full rounded-[2px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                        class="mt-1 w-full rounded-[8px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                     >
                                     <p class="mt-1 text-xs text-gray-500">
                                         Estimated total:
@@ -84,9 +84,9 @@
                                     </p>
                                 </div>
                             @else
-                                <div x-show="planId === {{ $plan->id }}" x-cloak class="mb-3 flex rounded-[2px] bg-white p-1 text-xs font-semibold">
-                                    <button type="button" @click="billingCycle = 'monthly'" :class="billingCycle === 'monthly' ? 'bg-primary-500 text-white' : 'text-gray-500'" class="flex-1 rounded-[2px] px-3 py-1.5">Monthly</button>
-                                    <button type="button" @click="billingCycle = 'per_term'" :class="billingCycle === 'per_term' ? 'bg-primary-500 text-white' : 'text-gray-500'" class="flex-1 rounded-[2px] px-3 py-1.5">Per Term</button>
+                                <div x-show="planId === {{ $plan->id }}" x-cloak class="mb-3 flex rounded-[8px] bg-white p-1 text-xs font-semibold">
+                                    <button type="button" @click="billingCycle = 'monthly'" :class="billingCycle === 'monthly' ? 'bg-primary-500 text-white' : 'text-gray-500'" class="flex-1 rounded-[8px] px-3 py-1.5">Monthly</button>
+                                    <button type="button" @click="billingCycle = 'per_term'" :class="billingCycle === 'per_term' ? 'bg-primary-500 text-white' : 'text-gray-500'" class="flex-1 rounded-[8px] px-3 py-1.5">Per Term</button>
                                 </div>
                                 <input type="hidden" name="billing_cycle" :value="planId === {{ $plan->id }} ? billingCycle : ''">
 
@@ -117,7 +117,7 @@
                         </ul>
 
                         <div
-                            class="mt-6 w-full rounded-[2px] border-2 px-4 py-2.5 text-center text-sm font-semibold transition"
+                            class="mt-6 w-full rounded-[8px] border-2 px-4 py-2.5 text-center text-sm font-semibold transition"
                             :class="planId === {{ $plan->id }} ? 'border-primary-500 bg-primary-500 text-white' : 'border-gray-200 text-gray-700'"
                         >
                             <span x-show="planId !== {{ $plan->id }}">Choose {{ $plan->name }}</span>
@@ -132,7 +132,7 @@
                     type="submit"
                     :disabled="!planId"
                     :class="planId ? 'bg-primary-500 hover:bg-primary-600' : 'cursor-not-allowed bg-gray-300'"
-                    class="flex items-center gap-2 rounded-[2px] px-6 py-3 text-sm font-bold text-white shadow-md transition"
+                    class="flex items-center gap-2 rounded-[8px] px-6 py-3 text-sm font-bold text-white shadow-md transition"
                 >
                     Continue
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

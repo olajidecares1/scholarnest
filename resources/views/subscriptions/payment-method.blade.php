@@ -10,7 +10,7 @@
                 @csrf
 
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <label class="flex cursor-pointer items-start gap-3 rounded-[2px] border-2 border-primary-500 bg-primary-50 p-4">
+                    <label class="flex cursor-pointer items-start gap-3 rounded-[8px] border-2 border-primary-500 bg-primary-50 p-4">
                         <input type="radio" name="payment_method" value="bank_transfer" x-model="method" class="mt-1">
                         <span>
                             <span class="flex items-center gap-2 text-sm font-semibold text-gray-900">
@@ -23,7 +23,7 @@
                         </span>
                     </label>
 
-                    <label class="flex cursor-not-allowed items-start gap-3 rounded-[2px] border border-gray-200 bg-gray-50 p-4 opacity-60">
+                    <label class="flex cursor-not-allowed items-start gap-3 rounded-[8px] border border-gray-200 bg-gray-50 p-4 opacity-60">
                         <input type="radio" disabled class="mt-1">
                         <span>
                             <span class="flex items-center gap-2 text-sm font-semibold text-gray-500">
@@ -67,7 +67,7 @@
 
                     <label
                         for="receipt"
-                        class="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-[2px] border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-center hover:border-primary-400"
+                        class="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-[8px] border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-center hover:border-primary-400"
                         x-data="{ fileName: null }"
                     >
                         <svg class="h-8 w-8 text-primary-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -97,7 +97,7 @@
 
                     <button
                         type="submit"
-                        class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
+                        class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
                     >
                         Submit Receipt
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

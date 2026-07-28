@@ -41,12 +41,12 @@
             @if ($max !== null) max="{{ $max }}" @endif
             @if ($step !== null) step="{{ $step }}" @endif
             {{ $attributes->except('id')->merge([
-                'class' => 'peer block h-11 w-full min-w-0 rounded-[2px] border bg-white text-[13.5px] font-medium text-gray-900 placeholder-transparent shadow-sm transition-all duration-200 ease-out focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60 dark:bg-gray-800 dark:text-white '
+                'class' => 'peer block h-11 w-full min-w-0 rounded-[8px] border bg-white text-[13.5px] font-medium text-gray-900 placeholder-transparent shadow-sm transition-all duration-200 ease-out focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60 dark:bg-gray-800 dark:text-white '
                     . ($icon ? 'pl-9 ' : 'pl-3 ')
                     . ($hasTrailing ? 'pr-9 ' : 'pr-3 ')
                     . ($hasError
-                        ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500'
-                        : 'border-gray-300 hover:border-gray-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:hover:border-gray-500'),
+                        ? 'border-red-400 focus:border-red-500 focus:ring-[3px] focus:ring-red-500/15 dark:border-red-500'
+                        : 'border-gray-300 hover:border-gray-400 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-500/15 dark:border-gray-600 dark:hover:border-gray-500'),
             ]) }}
         >
 

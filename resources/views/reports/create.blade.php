@@ -77,14 +77,14 @@
                     name="media"
                     type="file"
                     accept=".jpg,.jpeg,.png,.mp4,.mov"
-                    class="mt-1 w-full rounded-[2px] border border-gray-300 bg-white py-2.5 pl-3 pr-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[2px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700"
+                    class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 pl-3 pr-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700"
                 >
                 <p class="mt-1 text-xs text-gray-500">JPG, PNG, MP4, or MOV. Max 10MB.</p>
             </div>
 
             <button
                 type="submit"
-                class="flex w-full items-center justify-center gap-2 rounded-[2px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
                 Submit Report
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

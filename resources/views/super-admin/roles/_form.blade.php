@@ -19,7 +19,7 @@
     <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Choose which sections this role can access.</p>
     <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
         @foreach ($permissions as $key => $label)
-            <label class="flex items-center gap-2 rounded-[2px] border border-gray-200 px-3 py-2 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
+            <label class="flex items-center gap-2 rounded-[8px] border border-gray-200 px-3 py-2 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
                 <input
                     type="checkbox"
                     name="permissions[]"

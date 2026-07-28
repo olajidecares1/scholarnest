@@ -8,6 +8,7 @@
     'placeholder' => 'Select an option',
     'required' => false,
     'errorBag' => 'default',
+    'model' => null,
 ])
 
 @php
@@ -19,6 +20,8 @@
 @endphp
 
 <div
+    x-modelable="value"
+    @if ($model) x-model="{{ $model }}" @endif
     x-data="{
         open: false,
         value: @js((string) $resolvedValue),
@@ -30,9 +33,13 @@
             const match = this.options.find(o => o.value === this.value);
             return match ? match.label : @js($placeholder);
         },
-        init() {
+        syncHighlighted() {
             const idx = this.options.findIndex(o => o.value === this.value);
             this.highlightedIndex = idx >= 0 ? idx : 0;
+        },
+        init() {
+            this.syncHighlighted();
+            this.$watch('value', () => this.syncHighlighted());
         },
         openPicker() {
             if (this.options.length === 0) return;
@@ -92,10 +99,10 @@
         role="combobox"
         aria-haspopup="listbox"
         :aria-expanded="open.toString()"
-        class="group relative flex w-full items-center rounded-[2px] border bg-white text-left shadow-sm transition-all duration-200 ease-out focus:outline-none dark:bg-gray-800
+        class="group relative flex w-full items-center rounded-[8px] border bg-white text-left shadow-sm transition-all duration-200 ease-out focus:outline-none dark:bg-gray-800
             {{ $hasError
-                ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_4px_rgba(239,68,68,0.1)] dark:border-red-500'
-                : 'border-gray-200 hover:border-gray-300 focus:border-primary-500 focus:shadow-[0_0_0_4px_rgba(24,119,242,0.1)] dark:border-gray-700 dark:hover:border-gray-600' }}"
+                ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)] dark:border-red-500'
+                : 'border-gray-200 hover:border-gray-300 focus:border-primary-500 focus:shadow-[0_0_0_3px_rgba(24,119,242,0.12)] dark:border-gray-700 dark:hover:border-gray-600' }}"
     >
         @if ($icon)
             <span class="flex h-[52px] w-11 shrink-0 items-center justify-center text-gray-400 group-focus:text-primary-500">
@@ -150,11 +157,11 @@
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
         style="display: none;"
-        class="absolute left-0 right-0 z-30 mt-2 overflow-hidden rounded-[2px] border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800"
+        class="absolute left-0 right-0 z-30 mt-2 overflow-hidden rounded-[8px] border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800"
     >
         <div class="flex items-center justify-between border-b border-gray-100 px-3 py-2 dark:border-gray-700">
-            <button type="button" @click="closePicker()" class="rounded-[2px] px-2 py-1 text-xs font-semibold text-gray-500 transition-colors duration-150 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">Cancel</button>
-            <button type="button" @click="selectIndex(highlightedIndex, true)" class="rounded-[2px] px-2 py-1 text-xs font-bold text-primary-600 transition-colors duration-150 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/30">Done</button>
+            <button type="button" @click="closePicker()" class="rounded-[8px] px-2 py-1 text-xs font-semibold text-gray-500 transition-colors duration-150 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">Cancel</button>
+            <button type="button" @click="selectIndex(highlightedIndex, true)" class="rounded-[8px] px-2 py-1 text-xs font-bold text-primary-600 transition-colors duration-150 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/30">Done</button>
         </div>
 
         <div class="relative" style="height: 220px;">

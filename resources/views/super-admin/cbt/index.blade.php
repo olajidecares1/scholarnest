@@ -7,7 +7,7 @@
         @endif
 
         <div class="flex justify-end">
-            <a href="{{ route('super-admin.cbt.uploads.index') }}" class="flex items-center gap-2 rounded-[2px] border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+            <a href="{{ route('super-admin.cbt.uploads.index') }}" class="flex items-center gap-2 rounded-[8px] border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12M7 9l5-5 5 5M5 20h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 Import from Document
             </a>
@@ -36,7 +36,7 @@
         {{-- Exam Bodies tab --}}
         <div x-show="tab === 'exam-bodies'">
             <div class="flex justify-end">
-                <button type="button" @click="editingExamBody = null; addExamBodyOpen = true" class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
+                <button type="button" @click="editingExamBody = null; addExamBodyOpen = true" class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Exam Body
                 </button>
@@ -61,10 +61,10 @@
                             <span>{{ $examBody->questions_count }} questions</span>
                         </div>
                         <div class="mt-4 flex items-center gap-2">
-                            <a href="{{ route('super-admin.cbt.exam-bodies.show', $examBody) }}" class="flex-1 rounded-[2px] bg-primary-50 px-3 py-2 text-center text-xs font-semibold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400">Manage</a>
+                            <a href="{{ route('super-admin.cbt.exam-bodies.show', $examBody) }}" class="flex-1 rounded-[8px] bg-primary-50 px-3 py-2 text-center text-xs font-semibold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400">Manage</a>
                             <form method="POST" action="{{ route('super-admin.cbt.exam-bodies.destroy', $examBody) }}" onsubmit="return confirm('Delete {{ $examBody->name }}? This removes all its subjects, exams, and questions.');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="rounded-[2px] border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                             </form>
                         </div>
                     </div>
@@ -79,7 +79,7 @@
         {{-- Subjects tab --}}
         <div x-show="tab === 'subjects'" style="display: none;">
             <div class="flex justify-end">
-                <button type="button" @click="editingSubject = { name: '', category: 'general' }; addSubjectOpen = true" class="flex items-center gap-2 rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
+                <button type="button" @click="editingSubject = { name: '', category: 'general' }; addSubjectOpen = true" class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Subject
                 </button>
@@ -113,7 +113,7 @@
 
         {{-- Add/Edit Exam Body modal --}}
         <div x-show="addExamBodyOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-            <div @click.outside="addExamBodyOpen = false" class="w-full max-w-md rounded-[2px] bg-white p-6 dark:bg-gray-800">
+            <div @click.outside="addExamBodyOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editingExamBody ? 'Edit Exam Body' : 'Add Exam Body'"></h3>
                 <form method="POST" :action="editingExamBody ? '{{ route('super-admin.cbt.exam-bodies.update', ['examBody' => '__ID__']) }}'.replace('__ID__', editingExamBody.uuid) : '{{ route('super-admin.cbt.exam-bodies.store') }}'" class="mt-4 space-y-4">
                     @csrf
@@ -122,8 +122,8 @@
                     <x-text-field name="code" label="Short Code" icon="M7 8h10M7 12h10M7 16h6" helper="A short unique code shown in the sidebar, e.g. WAEC." x-model="editingExamBody ? editingExamBody.code : ''" required />
                     <x-textarea-field name="description" label="Description" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Optional context shown to other admins." rows="3" x-text="editingExamBody ? editingExamBody.description : ''" />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="addExamBodyOpen = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                        <button type="button" @click="addExamBodyOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                     </div>
                 </form>
             </div>
@@ -131,29 +131,22 @@
 
         {{-- Add/Edit Subject modal --}}
         <div x-show="addSubjectOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-            <div @click.outside="addSubjectOpen = false" class="w-full max-w-md rounded-[2px] bg-white p-6 dark:bg-gray-800">
+            <div @click.outside="addSubjectOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editingSubject ? 'Edit Subject' : 'Add Subject'"></h3>
                 <form method="POST" :action="editingSubject ? '{{ route('super-admin.cbt.subjects.update', ['subject' => '__ID__']) }}'.replace('__ID__', editingSubject.uuid) : '{{ route('super-admin.cbt.subjects.store') }}'" class="mt-4 space-y-4">
                     @csrf
                     <template x-if="editingSubject"><input type="hidden" name="_method" value="PUT"></template>
                     <x-text-field name="name" label="Subject Name" icon="M4 21h16 M5 21V10M19 21V10 M3 10l9-6 9 6 M8 10v11M12 10v11M16 10v11" x-model="editingSubject ? editingSubject.name : ''" required />
-                    <div>
-                        <label for="cbt-subject-category" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Category</label>
-                        <select
-                            id="cbt-subject-category"
-                            name="category"
-                            x-model="editingSubject.category"
-                            required
-                            class="w-full rounded-[2px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        >
-                            @foreach (\App\Enums\CbtSubjectCategory::cases() as $case)
-                                <option value="{{ $case->value }}">{{ $case->label() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <x-select-field
+                        name="category"
+                        label="Category"
+                        required
+                        model="editingSubject.category"
+                        :options="collect(\App\Enums\CbtSubjectCategory::cases())->mapWithKeys(fn ($c) => [$c->value => $c->label()])->all()"
+                    />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="addSubjectOpen = false" class="rounded-[2px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                        <button type="button" @click="addSubjectOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                     </div>
                 </form>
             </div>

@@ -51,7 +51,7 @@
                             <span class="hidden sm:inline">{{ $authQuestion }}</span>
                             <a
                                 href="{{ $authLinkRoute }}"
-                                class="rounded-[2px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
+                                class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
                             >
                                 {{ $authLinkLabel }}
                             </a>
