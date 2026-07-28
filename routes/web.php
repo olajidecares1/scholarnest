@@ -11,6 +11,7 @@ use App\Http\Controllers\SchoolAdmin\ComingSoonController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
 use App\Http\Controllers\SchoolAdmin\EventController;
 use App\Http\Controllers\SchoolAdmin\ExaminationController;
+use App\Http\Controllers\SchoolAdmin\LibraryController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
 use App\Http\Controllers\Subscriptions\BillingDetailsController;
@@ -171,7 +172,18 @@ Route::middleware('auth')->group(function () {
             Route::put(R::uri('events.update').'/{event}', [EventController::class, 'update'])->name('update');
             Route::delete(R::uri('events.destroy').'/{event}', [EventController::class, 'destroy'])->name('destroy');
         });
-        Route::get(R::uri('library.index'), [ComingSoonController::class, 'show'])->name('library.index');
+        Route::name('library.')->group(function () {
+            Route::get(R::uri('library.index'), [LibraryController::class, 'index'])->name('index');
+            Route::post(R::uri('library.index'), [LibraryController::class, 'store'])->name('store');
+            Route::put(R::uri('library.update').'/{book}', [LibraryController::class, 'update'])->name('update');
+            Route::delete(R::uri('library.destroy').'/{book}', [LibraryController::class, 'destroy'])->name('destroy');
+
+            Route::name('loans.')->group(function () {
+                Route::get(R::uri('library.loans.index'), [LibraryController::class, 'loans'])->name('index');
+                Route::post(R::uri('library.loans.store'), [LibraryController::class, 'storeLoan'])->name('store');
+                Route::post(R::uri('library.loans.return').'/{loan}', [LibraryController::class, 'returnLoan'])->name('return');
+            });
+        });
         Route::get(R::uri('finance.index'), [ComingSoonController::class, 'show'])->name('finance.index');
         Route::get(R::uri('website.index'), [ComingSoonController::class, 'show'])->name('website.index');
         Route::get(R::uri('settings.index'), [ComingSoonController::class, 'show'])->name('settings.index');
