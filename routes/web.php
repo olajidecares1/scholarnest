@@ -5,6 +5,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolAdmin\AcademicController;
+use App\Http\Controllers\SchoolAdmin\AttendanceController;
 use App\Http\Controllers\SchoolAdmin\ComingSoonController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
@@ -128,7 +129,11 @@ Route::middleware('auth')->group(function () {
             });
         });
 
-        Route::get(R::uri('attendance.index'), [ComingSoonController::class, 'show'])->name('attendance.index');
+        Route::name('attendance.')->group(function () {
+            Route::get(R::uri('attendance.index'), [AttendanceController::class, 'index'])->name('index');
+            Route::post(R::uri('attendance.index'), [AttendanceController::class, 'store'])->name('store');
+            Route::get(R::uri('attendance.history'), [AttendanceController::class, 'history'])->name('history');
+        });
         Route::get(R::uri('examinations.index'), [ComingSoonController::class, 'show'])->name('examinations.index');
         Route::get(R::uri('assignments.index'), [ComingSoonController::class, 'show'])->name('assignments.index');
         Route::get(R::uri('events.index'), [ComingSoonController::class, 'show'])->name('events.index');

@@ -6,6 +6,25 @@
     $activeStudents = $school->students()->where('is_active', true)->count();
     $totalStaff = $school->staff()->count();
     $activeStaff = $school->staff()->where('is_active', true)->count();
+
+    $monthRecords = $school->attendanceRecords()->whereDate('date', '>=', now()->startOfMonth())->get();
+    $attendanceTotal = $monthRecords->count();
+    $attendancePresent = $monthRecords->where('status', \App\Enums\AttendanceStatus::Present)->count();
+    $attendanceAbsent = $monthRecords->where('status', \App\Enums\AttendanceStatus::Absent)->count();
+    $attendanceLate = $monthRecords->where('status', \App\Enums\AttendanceStatus::Late)->count();
+    $attendanceAverage = $attendanceTotal > 0 ? (int) round($monthRecords->filter(fn ($record) => $record->status->isPresentForStats())->count() / $attendanceTotal * 100) : null;
+
+    $last7Records = $school->attendanceRecords()->whereDate('date', '>=', today()->subDays(6))->get()->groupBy(fn ($record) => $record->date->toDateString());
+    $attendanceTrend = collect(range(6, 0))->map(function ($daysAgo) use ($last7Records) {
+        $day = today()->subDays($daysAgo);
+        $dayRecords = $last7Records->get($day->toDateString(), collect());
+        $total = $dayRecords->count();
+
+        return [
+            'label' => $day->format('D'),
+            'percent' => $total > 0 ? (int) round($dayRecords->filter(fn ($record) => $record->status->isPresentForStats())->count() / $total * 100) : 0,
+        ];
+    });
 @endphp
 
 <x-dashboard-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.auth()->user()->name.'! Here\'s what\'s happening.'">
@@ -93,34 +112,53 @@
 
             {{-- Attendance overview + Announcements --}}
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2 lg:rounded-[10px]">
+                <a href="{{ route('attendance.index') }}" class="block rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 ease-out hover:shadow-md lg:col-span-2 lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-sm font-bold text-gray-900">Student Attendance Overview</h2>
-                            <p class="mt-0.5 text-xs text-gray-500">Available once attendance tracking launches</p>
+                            <p class="mt-0.5 text-xs text-gray-500">Daily attendance across the last 7 days</p>
                         </div>
-                        <span class="rounded-[8px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-400">This Month</span>
+                        <span class="rounded-[8px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500">This Month</span>
                     </div>
 
-                    <div class="mt-4 flex h-48 items-center justify-center rounded-[5px] bg-gray-50 lg:rounded-[10px]">
-                        <div class="text-center">
-                            <svg class="mx-auto h-8 w-8 text-gray-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 19.5h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                                <path d="M6.5 19.5v-5.5M11 19.5V8M15.5 19.5v-8.7M20 19.5V5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
-                            </svg>
-                            <p class="mt-2 text-sm font-medium text-gray-400">Attendance tracking is coming soon</p>
+                    @if ($attendanceTotal > 0)
+                        <div class="mt-4 flex h-48 items-end justify-between gap-2 rounded-[5px] bg-gray-50 p-4 lg:rounded-[10px]">
+                            @foreach ($attendanceTrend as $day)
+                                <div class="flex flex-1 flex-col items-center gap-1.5">
+                                    <span class="text-[11px] font-semibold text-gray-500">{{ $day['percent'] }}%</span>
+                                    <div class="flex h-28 w-full items-end rounded-[6px] bg-gray-200">
+                                        <div class="w-full rounded-[6px] bg-blue-500" style="height: {{ max($day['percent'], 4) }}%"></div>
+                                    </div>
+                                    <span class="text-[11px] font-medium text-gray-500">{{ $day['label'] }}</span>
+                                </div>
+                            @endforeach
                         </div>
-                    </div>
+                    @else
+                        <div class="mt-4 flex h-48 items-center justify-center rounded-[5px] bg-gray-50 lg:rounded-[10px]">
+                            <div class="text-center">
+                                <svg class="mx-auto h-8 w-8 text-gray-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 19.5h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                                    <path d="M6.5 19.5v-5.5M11 19.5V8M15.5 19.5v-8.7M20 19.5V5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
+                                </svg>
+                                <p class="mt-2 text-sm font-medium text-gray-400">No attendance has been recorded yet this month.</p>
+                            </div>
+                        </div>
+                    @endif
 
                     <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        @foreach (['Average Attendance', 'Present', 'Absent', 'Late'] as $label)
+                        @foreach ([
+                            ['label' => 'Average Attendance', 'value' => $attendanceAverage !== null ? $attendanceAverage.'%' : '—'],
+                            ['label' => 'Present', 'value' => number_format($attendancePresent)],
+                            ['label' => 'Absent', 'value' => number_format($attendanceAbsent)],
+                            ['label' => 'Late', 'value' => number_format($attendanceLate)],
+                        ] as $stat)
                             <div class="rounded-[5px] border border-gray-100 p-3 text-center lg:rounded-[8px]">
-                                <p class="text-xl font-extrabold text-gray-300">&mdash;</p>
-                                <p class="mt-0.5 text-xs text-gray-500">{{ $label }}</p>
+                                <p class="text-xl font-extrabold text-gray-900">{{ $stat['value'] }}</p>
+                                <p class="mt-0.5 text-xs text-gray-500">{{ $stat['label'] }}</p>
                             </div>
                         @endforeach
                     </div>
-                </div>
+                </a>
 
                 <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
