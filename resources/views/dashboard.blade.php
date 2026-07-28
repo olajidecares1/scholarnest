@@ -27,6 +27,12 @@
     });
 
     $upcomingEvents = $school->events()->where('starts_at', '>=', now())->orderBy('starts_at')->take(4)->get();
+
+    $termInvoices = $school->invoices()->with('payments')->get();
+    $totalExpected = (float) $termInvoices->sum('amount');
+    $totalCollected = $termInvoices->sum(fn ($invoice) => $invoice->amountPaid());
+    $totalOutstanding = $termInvoices->sum(fn ($invoice) => max($invoice->balance(), 0));
+    $collectionPercent = $totalExpected > 0 ? (int) round($totalCollected / $totalExpected * 100) : null;
 @endphp
 
 <x-dashboard-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.auth()->user()->name.'! Here\'s what\'s happening.'">
@@ -92,24 +98,34 @@
                     <p class="mt-1 text-xs font-medium text-gray-500">{{ number_format($activeStaff) }} active</p>
                 </a>
 
-                @foreach ([
-                    ['label' => 'Total Classes', 'iconBg' => 'bg-green-100 text-green-600', 'icon' => 'M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z', 'extra' => '<path d="M6.5 11v4c0 1.4 2.5 2.75 5.5 2.75s5.5-1.35 5.5-2.75v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                    ['label' => 'Outstanding Fees', 'iconBg' => 'bg-orange-100 text-orange-600', 'icon' => 'M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z', 'extra' => '<path d="M4 7.5l2.5-3h11l2.5 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />'],
-                ] as $stat)
-                    <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]">
-                        <div class="flex items-center justify-between">
-                            <p class="text-sm font-medium text-gray-500">{{ $stat['label'] }}</p>
-                            <span class="flex h-10 w-10 items-center justify-center rounded-full {{ $stat['iconBg'] }}">
-                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    {!! $stat['extra'] !!}
-                                    <path d="{{ $stat['icon'] }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </span>
-                        </div>
-                        <p class="mt-3 text-3xl font-extrabold text-gray-300">&mdash;</p>
-                        <p class="mt-1 text-xs font-medium text-gray-400">Launching soon</p>
+                <a href="{{ route('academics.index') }}" class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-500">Total Classes</p>
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6.5 11v4c0 1.4 2.5 2.75 5.5 2.75s5.5-1.35 5.5-2.75v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                <path d="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
                     </div>
-                @endforeach
+                    <p class="mt-3 text-3xl font-extrabold text-gray-900">{{ number_format($school->schoolClasses()->count()) }}</p>
+                    <p class="mt-1 text-xs font-medium text-gray-500">across {{ number_format($school->academicLevels()->count()) }} levels</p>
+                </a>
+
+                <a href="{{ route('finance.invoices.index') }}" class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-500">Outstanding Fees</p>
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 7.5l2.5-3h11l2.5 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="mt-3 text-3xl font-extrabold text-gray-900">&#8358;{{ number_format($totalOutstanding, 0) }}</p>
+                    <p class="mt-1 text-xs font-medium text-gray-500">{{ $collectionPercent !== null ? $collectionPercent.'% collected' : 'No invoices yet' }}</p>
+                </a>
             </div>
 
             {{-- Attendance overview + Announcements --}}
@@ -222,21 +238,33 @@
                     @endif
                 </div>
 
-                <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
+                <a href="{{ route('finance.invoices.index') }}" class="block rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 ease-out hover:shadow-md lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
                         <h2 class="text-sm font-bold text-gray-900">Fee Collection Overview</h2>
-                        <span class="rounded-[8px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-400">This Term</span>
+                        <span class="rounded-[8px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500">This Term</span>
                     </div>
-                    <div class="mt-6 flex flex-col items-center justify-center py-6 text-center">
-                        <span class="flex h-24 w-24 items-center justify-center rounded-full border-8 border-gray-100">
-                            <svg class="h-8 w-8 text-gray-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                <circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />
-                            </svg>
-                        </span>
-                        <p class="mt-3 text-sm font-medium text-gray-400">Fee tracking is coming soon</p>
-                    </div>
-                </div>
+                    @if ($collectionPercent !== null)
+                        <div class="mt-6 flex flex-col items-center justify-center py-2 text-center">
+                            <span
+                                class="flex h-24 w-24 items-center justify-center rounded-full"
+                                style="background: conic-gradient(rgb(37 99 235) {{ $collectionPercent * 3.6 }}deg, rgb(229 231 235) 0deg);"
+                            >
+                                <span class="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-white text-lg font-extrabold text-gray-900">{{ $collectionPercent }}%</span>
+                            </span>
+                            <p class="mt-3 text-sm font-medium text-gray-500">&#8358;{{ number_format($totalCollected, 0) }} of &#8358;{{ number_format($totalExpected, 0) }} collected</p>
+                        </div>
+                    @else
+                        <div class="mt-6 flex flex-col items-center justify-center py-6 text-center">
+                            <span class="flex h-24 w-24 items-center justify-center rounded-full border-8 border-gray-100">
+                                <svg class="h-8 w-8 text-gray-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                    <circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />
+                                </svg>
+                            </span>
+                            <p class="mt-3 text-sm font-medium text-gray-400">No invoices have been created yet.</p>
+                        </div>
+                    @endif
+                </a>
             </div>
         </div>
     @endif

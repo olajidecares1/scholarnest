@@ -146,4 +146,20 @@ class School extends Model
     {
         return $this->hasMany(Book::class);
     }
+
+    /**
+     * @return HasMany<FeeStructure, $this>
+     */
+    public function feeStructures(): HasMany
+    {
+        return $this->hasMany(FeeStructure::class);
+    }
+
+    /**
+     * @return HasMany<Invoice, $this>
+     */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\SchoolAdmin\ComingSoonController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
 use App\Http\Controllers\SchoolAdmin\EventController;
 use App\Http\Controllers\SchoolAdmin\ExaminationController;
+use App\Http\Controllers\SchoolAdmin\FinanceController;
 use App\Http\Controllers\SchoolAdmin\LibraryController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
@@ -184,7 +185,19 @@ Route::middleware('auth')->group(function () {
                 Route::post(R::uri('library.loans.return').'/{loan}', [LibraryController::class, 'returnLoan'])->name('return');
             });
         });
-        Route::get(R::uri('finance.index'), [ComingSoonController::class, 'show'])->name('finance.index');
+        Route::name('finance.')->group(function () {
+            Route::get(R::uri('finance.index'), [FinanceController::class, 'index'])->name('index');
+            Route::post(R::uri('finance.index'), [FinanceController::class, 'storeStructure'])->name('store');
+            Route::delete(R::uri('finance.destroy').'/{structure}', [FinanceController::class, 'destroyStructure'])->name('destroy');
+            Route::post(R::uri('finance.generate').'/{structure}', [FinanceController::class, 'generateInvoices'])->name('generate');
+
+            Route::name('invoices.')->group(function () {
+                Route::get(R::uri('finance.invoices.index'), [FinanceController::class, 'invoices'])->name('index');
+                Route::post(R::uri('finance.invoices.store'), [FinanceController::class, 'storeInvoice'])->name('store');
+                Route::delete(R::uri('finance.invoices.destroy').'/{invoice}', [FinanceController::class, 'destroyInvoice'])->name('destroy');
+                Route::post(R::uri('finance.invoices.payments.store').'/{invoice}', [FinanceController::class, 'storePayment'])->name('payments.store');
+            });
+        });
         Route::get(R::uri('website.index'), [ComingSoonController::class, 'show'])->name('website.index');
         Route::get(R::uri('settings.index'), [ComingSoonController::class, 'show'])->name('settings.index');
     });
