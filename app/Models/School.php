@@ -98,4 +98,12 @@ class School extends Model
     {
         return $this->hasMany(SchoolClass::class)->orderBy('sort_order');
     }
+
+    /**
+     * @return HasMany<Staff, $this>
+     */
+    public function staff(): HasMany
+    {
+        return $this->hasMany(Staff::class);
+    }
 }

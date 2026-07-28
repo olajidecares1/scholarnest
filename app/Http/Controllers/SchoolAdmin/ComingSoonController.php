@@ -14,7 +14,6 @@ class ComingSoonController extends Controller
      * @var array<string, array{label: string, description: string}>
      */
     private const MODULES = [
-        'staff.index' => ['label' => 'Staff', 'description' => 'Manage teacher and staff accounts, roles, and records.'],
         'attendance.index' => ['label' => 'Attendance', 'description' => 'Take and track daily student attendance.'],
         'examinations.index' => ['label' => 'Examinations', 'description' => 'Manage exams, grading, and report cards.'],
         'assignments.index' => ['label' => 'Assignments', 'description' => 'Set and track student assignments and homework.'],

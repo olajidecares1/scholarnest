@@ -7,6 +7,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolAdmin\AcademicController;
 use App\Http\Controllers\SchoolAdmin\ComingSoonController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
+use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
 use App\Http\Controllers\Subscriptions\BillingDetailsController;
 use App\Http\Controllers\Subscriptions\ChoosePlanController;
@@ -102,7 +103,14 @@ Route::middleware('auth')->group(function () {
             Route::post(R::uri('students.toggle-active').'/{student}', [StudentController::class, 'toggleActive'])->name('toggle-active');
         });
 
-        Route::get(R::uri('staff.index'), [ComingSoonController::class, 'show'])->name('staff.index');
+        Route::name('staff.')->group(function () {
+            Route::get(R::uri('staff.index'), [StaffController::class, 'index'])->name('index');
+            Route::post(R::uri('staff.index'), [StaffController::class, 'store'])->name('store');
+            Route::get(R::uri('staff.show').'/{member}', [StaffController::class, 'show'])->name('show');
+            Route::put(R::uri('staff.update').'/{member}', [StaffController::class, 'update'])->name('update');
+            Route::delete(R::uri('staff.destroy').'/{member}', [StaffController::class, 'destroy'])->name('destroy');
+            Route::post(R::uri('staff.toggle-active').'/{member}', [StaffController::class, 'toggleActive'])->name('toggle-active');
+        });
 
         Route::name('academics.')->group(function () {
             Route::get(R::uri('academics.index'), [AcademicController::class, 'index'])->name('index');
