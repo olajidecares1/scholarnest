@@ -4,6 +4,8 @@ use App\Enums\UserRole;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SchoolAdmin\ComingSoonController;
+use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
 use App\Http\Controllers\Subscriptions\BillingDetailsController;
 use App\Http\Controllers\Subscriptions\ChoosePlanController;
 use App\Http\Controllers\Subscriptions\ConfirmationController;
@@ -84,6 +86,22 @@ Route::middleware('auth')->group(function () {
         Route::post(R::uri('support-tickets.index'), [SupportTicketController::class, 'store'])->name('store');
         Route::get(R::uri('support-tickets.show').'/{ticket}', [SupportTicketController::class, 'show'])->name('show');
         Route::post(R::uri('support-tickets.reply').'/{ticket}', [SupportTicketController::class, 'reply'])->name('reply');
+    });
+
+    Route::middleware('school_admin')->group(function () {
+        Route::get(R::uri('communications.index'), [SchoolCommunicationController::class, 'index'])->name('communications.index');
+
+        Route::get(R::uri('students.index'), [ComingSoonController::class, 'show'])->name('students.index');
+        Route::get(R::uri('staff.index'), [ComingSoonController::class, 'show'])->name('staff.index');
+        Route::get(R::uri('academics.index'), [ComingSoonController::class, 'show'])->name('academics.index');
+        Route::get(R::uri('attendance.index'), [ComingSoonController::class, 'show'])->name('attendance.index');
+        Route::get(R::uri('examinations.index'), [ComingSoonController::class, 'show'])->name('examinations.index');
+        Route::get(R::uri('assignments.index'), [ComingSoonController::class, 'show'])->name('assignments.index');
+        Route::get(R::uri('events.index'), [ComingSoonController::class, 'show'])->name('events.index');
+        Route::get(R::uri('library.index'), [ComingSoonController::class, 'show'])->name('library.index');
+        Route::get(R::uri('finance.index'), [ComingSoonController::class, 'show'])->name('finance.index');
+        Route::get(R::uri('website.index'), [ComingSoonController::class, 'show'])->name('website.index');
+        Route::get(R::uri('settings.index'), [ComingSoonController::class, 'show'])->name('settings.index');
     });
 
     Route::name('notifications.')->group(function () {
