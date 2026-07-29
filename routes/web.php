@@ -8,6 +8,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolAdmin\AcademicController;
 use App\Http\Controllers\SchoolAdmin\AssignmentController;
 use App\Http\Controllers\SchoolAdmin\AttendanceController;
+use App\Http\Controllers\SchoolAdmin\CbtPracticeController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
 use App\Http\Controllers\SchoolAdmin\EventController;
 use App\Http\Controllers\SchoolAdmin\ExaminationController;
@@ -139,6 +140,11 @@ Route::middleware('auth')->group(function () {
                 Route::put(R::uri('academics.classes.update').'/{class}', [AcademicController::class, 'updateClass'])->name('update');
                 Route::delete(R::uri('academics.classes.destroy').'/{class}', [AcademicController::class, 'destroyClass'])->name('destroy');
             });
+        });
+
+        Route::name('cbt-practice.')->group(function () {
+            Route::get(R::uri('cbt-practice.index'), [CbtPracticeController::class, 'index'])->name('index');
+            Route::get(R::uri('cbt-practice.show').'/{examBody}', [CbtPracticeController::class, 'show'])->name('show');
         });
 
         Route::name('attendance.')->group(function () {
