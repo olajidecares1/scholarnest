@@ -15,15 +15,24 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-purple-600">Titles</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-purple-600">Titles</p>
+                    <x-stat-tooltip text="Number of distinct book titles in your catalog." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($totalTitles) }}</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-blue-600">Total Copies</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-blue-600">Total Copies</p>
+                    <x-stat-tooltip text="Combined physical copies across every title, whether on the shelf or on loan." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($totalCopies) }}</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-orange-600">Copies on Loan</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-orange-600">Copies on Loan</p>
+                    <x-stat-tooltip text="Copies currently checked out and not yet returned." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($onLoanCount) }}</p>
             </div>
         </div>

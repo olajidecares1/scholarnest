@@ -26,7 +26,10 @@
                     </p>
                 </div>
                 <div class="text-right">
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Average</p>
+                    <div class="flex items-center justify-end gap-1">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Average</p>
+                        <x-stat-tooltip text="Average percentage across every subject this student has been graded on for this examination." position="bottom" />
+                    </div>
                     <p class="text-2xl font-extrabold text-gray-900 dark:text-white">{{ $average !== null ? $average.'%' : '—' }}</p>
                 </div>
             </div>

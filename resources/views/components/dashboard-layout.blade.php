@@ -342,106 +342,108 @@
                     </svg>
                 </a>
 
-                <a
-                    href="{{ route('support-tickets.index') }}"
-                    class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-800"
-                    title="Support Tickets"
-                >
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    @if ($openTicketsCount > 0)
-                        <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">{{ min($openTicketsCount, 99) }}</span>
-                    @endif
-                </a>
-
-                <button
-                    type="button"
-                    x-data="{ dark: document.documentElement.classList.contains('dark') }"
-                    @click="
-                        dark = !dark;
-                        document.documentElement.classList.toggle('dark', dark);
-                        localStorage.theme = dark ? 'dark' : 'light';
-                    "
-                    :class="dark ? 'bg-blue-600' : 'bg-gray-200'"
-                    class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out dark:bg-gray-700"
-                    role="switch"
-                    :aria-checked="dark.toString()"
-                    title="Toggle dark mode"
-                >
-                    <span class="sr-only">Toggle dark mode</span>
-                    <span
-                        :class="dark ? 'translate-x-6' : 'translate-x-1'"
-                        class="inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md ring-0 transition-transform duration-300 ease-in-out"
+                <div class="flex items-center gap-0.5 rounded-[8px] border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-900">
+                    <a
+                        href="{{ route('support-tickets.index') }}"
+                        class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm dark:text-gray-400 dark:hover:bg-gray-800"
+                        title="Support Tickets"
                     >
-                        <svg x-show="!dark" class="h-3 w-3 text-amber-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75" />
-                        </svg>
-                        <svg x-show="dark" style="display: none;" class="h-3 w-3 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
-                        </svg>
-                    </span>
-                </button>
-
-                <div class="relative" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-800">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                            <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                            <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        @if ($unreadCount > 0)
-                            <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
+                        @if ($openTicketsCount > 0)
+                            <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">{{ min($openTicketsCount, 99) }}</span>
                         @endif
-                    </button>
+                    </a>
 
-                    <div
-                        x-show="open"
-                        x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 -translate-y-1"
-                        x-transition:enter-end="opacity-100 translate-y-0"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100"
-                        x-transition:leave-end="opacity-0"
-                        style="display: none;"
-                        class="absolute right-0 z-30 mt-2 w-80 rounded-[8px] border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
-                    >
-                        <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
-                            <p class="text-sm font-bold text-gray-900 dark:text-white">Notifications</p>
+                    <div class="relative" x-data="{ open: false }">
+                        <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm dark:text-gray-400 dark:hover:bg-gray-800">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
                             @if ($unreadCount > 0)
-                                <form method="POST" action="{{ route('notifications.read-all') }}">
-                                    @csrf
-                                    <button type="submit" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Mark all read</button>
-                                </form>
+                                <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
                             @endif
-                        </div>
+                        </button>
 
-                        <div class="max-h-80 overflow-y-auto">
-                            @forelse ($notifications as $notification)
-                                <a
-                                    href="{{ route('notifications.read', $notification) }}"
-                                    class="flex items-start gap-2 border-b border-gray-50 px-4 py-3 text-left transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700"
-                                >
-                                    @if (is_null($notification->read_at))
-                                        <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500"></span>
-                                    @else
-                                        <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-transparent"></span>
-                                    @endif
-                                    <span>
-                                        <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</span>
-                                        <span class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
-                                    </span>
-                                </a>
-                            @empty
-                                <p class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
-                            @endforelse
+                        <div
+                            x-show="open"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            style="display: none;"
+                            class="absolute right-0 z-30 mt-2 w-80 rounded-[8px] border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                        >
+                            <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">Notifications</p>
+                                @if ($unreadCount > 0)
+                                    <form method="POST" action="{{ route('notifications.read-all') }}">
+                                        @csrf
+                                        <button type="submit" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Mark all read</button>
+                                    </form>
+                                @endif
+                            </div>
+
+                            <div class="max-h-80 overflow-y-auto">
+                                @forelse ($notifications as $notification)
+                                    <a
+                                        href="{{ route('notifications.read', $notification) }}"
+                                        class="flex items-start gap-2 border-b border-gray-50 px-4 py-3 text-left transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700"
+                                    >
+                                        @if (is_null($notification->read_at))
+                                            <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500"></span>
+                                        @else
+                                            <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-transparent"></span>
+                                        @endif
+                                        <span>
+                                            <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{ $notification->data['title'] ?? 'Notification' }}</span>
+                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</span>
+                                            <span class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
+                                        </span>
+                                    </a>
+                                @empty
+                                    <p class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
+
+                    <button
+                        type="button"
+                        x-data="{ dark: document.documentElement.classList.contains('dark') }"
+                        @click="
+                            dark = !dark;
+                            document.documentElement.classList.toggle('dark', dark);
+                            localStorage.theme = dark ? 'dark' : 'light';
+                        "
+                        :class="dark ? 'bg-blue-600' : 'bg-gray-300'"
+                        class="relative ml-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out dark:bg-gray-600"
+                        role="switch"
+                        :aria-checked="dark.toString()"
+                        title="Toggle dark mode"
+                    >
+                        <span class="sr-only">Toggle dark mode</span>
+                        <span
+                            :class="dark ? 'translate-x-5' : 'translate-x-0.5'"
+                            class="inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md ring-0 transition-transform duration-300 ease-in-out"
+                        >
+                            <svg x-show="!dark" class="h-3 w-3 text-amber-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75" />
+                            </svg>
+                            <svg x-show="dark" style="display: none;" class="h-3 w-3 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </button>
                 </div>
 
-                <span class="relative hidden h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-blue-50 dark:border-gray-700 sm:flex">
-                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-blue-700">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
+                <span class="relative ml-2 hidden h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-blue-50 dark:border-gray-700 sm:flex">
+                    <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-blue-700">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
                     @if ($school->logoUrl())
                         <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="relative h-full w-full rounded-full object-cover" onerror="this.style.display='none'">
                     @else

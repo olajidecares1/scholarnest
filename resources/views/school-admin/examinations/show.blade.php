@@ -18,11 +18,17 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-purple-600 dark:text-purple-400">Students in {{ $examination->class_name }}</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-purple-600 dark:text-purple-400">Students in {{ $examination->class_name }}</p>
+                    <x-stat-tooltip text="Active students in this examination's class — the pool eligible to have scores entered." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($studentCount) }}</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-blue-600 dark:text-blue-400">Subjects</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400">Subjects</p>
+                    <x-stat-tooltip text="Number of subjects added to this examination so far." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ $subjects->count() }}</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">

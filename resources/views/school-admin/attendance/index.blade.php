@@ -21,15 +21,24 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-purple-600">Students Listed</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-purple-600">Students Listed</p>
+                    <x-stat-tooltip text="Active students in the class you've filtered to (or all classes if none selected)." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($students->count()) }}</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-blue-600">Marked for {{ $date->format('M j') }}</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-blue-600">Marked for {{ $date->format('M j') }}</p>
+                    <x-stat-tooltip text="How many of the students listed already have an attendance record saved for this date." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($markedCount) }}</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-green-600">Present / Late</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-green-600">Present / Late</p>
+                    <x-stat-tooltip text="Students marked Present or Late for this date out of those already marked." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($presentCount) }}</p>
             </div>
         </div>

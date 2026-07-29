@@ -12,11 +12,17 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-purple-600">Total Students</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-purple-600">Total Students</p>
+                    <x-stat-tooltip text="Every student on record at your school, including inactive ones." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($totalCount) }}</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-green-600">Active Students</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-green-600">Active Students</p>
+                    <x-stat-tooltip text="Students currently marked active — inactive students are excluded from attendance, exams, and class lists." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($activeCount) }}</p>
             </div>
         </div>

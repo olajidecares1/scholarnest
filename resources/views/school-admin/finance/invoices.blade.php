@@ -28,7 +28,10 @@
         </div>
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-            <p class="text-sm font-medium text-orange-600">Total Outstanding</p>
+            <div class="flex items-center gap-1">
+                <p class="text-sm font-medium text-orange-600">Total Outstanding</p>
+                <x-stat-tooltip text="Sum of every invoice's unpaid balance across all students, regardless of the filter above." />
+            </div>
             <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">&#8358;{{ number_format($totalOutstanding, 2) }}</p>
         </div>
 

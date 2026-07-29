@@ -13,11 +13,17 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-purple-600">Total Staff</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-purple-600">Total Staff</p>
+                    <x-stat-tooltip text="Every staff member on record, including teachers and non-teaching staff, active or not." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($totalCount) }}</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <p class="text-sm font-medium text-green-600">Active Staff</p>
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium text-green-600">Active Staff</p>
+                    <x-stat-tooltip text="Staff currently marked active on their record." />
+                </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($activeCount) }}</p>
             </div>
         </div>
