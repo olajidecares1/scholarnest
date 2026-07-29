@@ -8,12 +8,12 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolAdmin\AcademicController;
 use App\Http\Controllers\SchoolAdmin\AssignmentController;
 use App\Http\Controllers\SchoolAdmin\AttendanceController;
-use App\Http\Controllers\SchoolAdmin\ComingSoonController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
 use App\Http\Controllers\SchoolAdmin\EventController;
 use App\Http\Controllers\SchoolAdmin\ExaminationController;
 use App\Http\Controllers\SchoolAdmin\FinanceController;
 use App\Http\Controllers\SchoolAdmin\LibraryController;
+use App\Http\Controllers\SchoolAdmin\SettingsController as SchoolSettingsController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
 use App\Http\Controllers\SchoolAdmin\WebsiteController;
@@ -210,7 +210,8 @@ Route::middleware('auth')->group(function () {
             Route::post(R::uri('website.gallery.store'), [WebsiteController::class, 'storeGalleryImage'])->name('gallery.store');
             Route::delete(R::uri('website.gallery.destroy').'/{image}', [WebsiteController::class, 'destroyGalleryImage'])->name('gallery.destroy');
         });
-        Route::get(R::uri('settings.index'), [ComingSoonController::class, 'show'])->name('settings.index');
+        Route::get(R::uri('settings.index'), [SchoolSettingsController::class, 'edit'])->name('settings.index');
+        Route::put(R::uri('settings.update'), [SchoolSettingsController::class, 'update'])->name('settings.update');
     });
 
     Route::name('notifications.')->group(function () {

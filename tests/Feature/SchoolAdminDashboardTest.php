@@ -77,17 +77,6 @@ test('a school admin can view the communications page with real announcements', 
         ->assertSee('The annual science fair will hold on June 5.');
 });
 
-test('unbuilt modules show a coming soon page instead of a 404', function () {
-    foreach ([
-        'settings.index' => 'Settings',
-    ] as $routeName => $label) {
-        $this->actingAs($this->admin)
-            ->get(route($routeName))
-            ->assertStatus(200)
-            ->assertSee("{$label} is coming soon");
-    }
-});
-
 test('a super admin cannot access school-admin-only dashboard routes', function () {
     $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
 

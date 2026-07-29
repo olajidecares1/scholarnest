@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class School extends Model
@@ -22,6 +23,9 @@ class School extends Model
     protected $fillable = [
         'name',
         'slug',
+        'logo_path',
+        'timezone',
+        'current_session',
         'billing_contact_name',
         'billing_email',
         'billing_phone',
@@ -60,6 +64,11 @@ class School extends Model
             'is_active' => 'boolean',
             'deactivated_at' => 'datetime',
         ];
+    }
+
+    public function logoUrl(): ?string
+    {
+        return $this->logo_path ? Storage::disk('public')->url($this->logo_path) : null;
     }
 
     /**
