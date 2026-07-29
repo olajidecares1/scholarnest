@@ -1,14 +1,14 @@
 <x-dashboard-layout page-title="Settings" page-subtitle="Manage your school's profile, branding, and preferences.">
     <div class="space-y-6">
         @if (session('status'))
-            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 lg:rounded-[10px]">
+            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
             </div>
         @endif
 
-        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
-            <h2 class="text-sm font-bold text-gray-900">School Profile</h2>
-            <p class="mt-0.5 text-xs text-gray-500">This information is used across your dashboard and public website.</p>
+        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <h2 class="text-sm font-bold text-gray-900 dark:text-white">School Profile</h2>
+            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">This information is used across your dashboard and public website.</p>
 
             <form method="POST" action="{{ route('settings.update') }}" enctype="multipart/form-data" class="mt-4 space-y-4">
                 @csrf
@@ -16,13 +16,13 @@
 
                 <div class="flex items-center gap-4">
                     @if ($school->logoUrl())
-                        <img src="{{ $school->logoUrl() }}" class="h-16 w-16 rounded-[8px] border border-gray-200 object-cover">
+                        <img src="{{ $school->logoUrl() }}" class="h-16 w-16 rounded-[8px] border border-gray-200 object-cover dark:border-gray-700">
                     @else
-                        <span class="flex h-16 w-16 items-center justify-center rounded-[8px] border border-dashed border-gray-300 text-xs font-semibold text-gray-400">No logo</span>
+                        <span class="flex h-16 w-16 items-center justify-center rounded-[8px] border border-dashed border-gray-300 text-xs font-semibold text-gray-400 dark:border-gray-600 dark:text-gray-500">No logo</span>
                     @endif
                     <div class="flex-1">
-                        <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700">
-                        <p class="mt-1 text-xs text-gray-500">School logo (optional). Leave blank to keep the existing one.</p>
+                        <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">School logo (optional). Leave blank to keep the existing one.</p>
                     </div>
                 </div>
 

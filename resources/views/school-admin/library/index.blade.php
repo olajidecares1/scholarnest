@@ -1,47 +1,47 @@
 <x-dashboard-layout page-title="Library" page-subtitle="Manage your school's book catalog.">
     <div class="space-y-6" x-data="{ open: false, editing: null }">
         @if (session('status'))
-            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 lg:rounded-[10px]">
+            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
             </div>
         @endif
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex gap-2 rounded-[8px] border border-gray-200 bg-white p-1">
+            <div class="flex gap-2 rounded-[8px] border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
                 <span class="rounded-[6px] bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white">Catalog</span>
-                <a href="{{ route('library.loans.index') }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50">Loans</a>
+                <a href="{{ route('library.loans.index') }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Loans</a>
             </div>
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-purple-600">Titles</p>
-                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ number_format($totalTitles) }}</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($totalTitles) }}</p>
             </div>
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-blue-600">Total Copies</p>
-                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ number_format($totalCopies) }}</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($totalCopies) }}</p>
             </div>
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-orange-600">Copies on Loan</p>
-                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ number_format($onLoanCount) }}</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($onLoanCount) }}</p>
             </div>
         </div>
 
-        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm lg:rounded-[10px]">
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6">
+        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6 dark:border-gray-700">
                 <form method="GET" class="flex flex-wrap items-end gap-2">
                     <input
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search title, author, ISBN..."
-                        class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15"
+                        class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                     >
                     <div class="w-40">
                         <x-select-field name="category" placeholder="All Categories" :selected="request('category')" :options="['' => 'All Categories'] + $categories->mapWithKeys(fn ($c) => [$c => $c])->all()" />
                     </div>
-                    <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50">Search</button>
+                    <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
                     @if (request('search') || request('category'))
                         <a href="{{ route('library.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
                     @endif
@@ -59,7 +59,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                    <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
                             <th class="px-6 py-3 font-semibold">Title</th>
                             <th class="px-6 py-3 font-semibold">Author</th>
@@ -68,14 +68,14 @@
                             <th class="px-6 py-3 font-semibold">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($books as $book)
-                            <tr class="transition-colors duration-200 hover:bg-gray-50">
-                                <td class="px-6 py-3 font-semibold text-gray-900">{{ $book->title }}</td>
-                                <td class="px-6 py-3 text-gray-600">{{ $book->author ?? '—' }}</td>
-                                <td class="px-6 py-3 text-gray-600">{{ $book->category ?? '—' }}</td>
+                            <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $book->title }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $book->author ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $book->category ?? '—' }}</td>
                                 <td class="px-6 py-3">
-                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $book->copies_available > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $book->copies_available > 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' }}">
                                         {{ $book->copies_available }} / {{ $book->copies_total }}
                                     </span>
                                 </td>
@@ -91,20 +91,20 @@
                                                 'category' => $book->category,
                                                 'copies_total' => $book->copies_total,
                                             ]); open = true"
-                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50"
+                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             Edit
                                         </button>
                                         <form method="POST" action="{{ route('library.destroy', $book) }}" onsubmit="return confirm('Remove {{ $book->title }}?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50">Delete</button>
+                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">No books yet. Click "Add Book" to start your catalog.</td>
+                                <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No books yet. Click "Add Book" to start your catalog.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -112,7 +112,7 @@
             </div>
 
             @if ($books->hasPages())
-                <div class="border-t border-gray-100 p-4">
+                <div class="border-t border-gray-100 p-4 dark:border-gray-700">
                     {{ $books->links() }}
                 </div>
             @endif
@@ -120,8 +120,8 @@
 
         {{-- Add/Edit Book modal --}}
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-            <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6">
-                <h3 class="text-sm font-bold text-gray-900" x-text="editing ? 'Edit Book' : 'Add Book'"></h3>
+            <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Book' : 'Add Book'"></h3>
                 <form
                     method="POST"
                     :action="editing ? '{{ route('library.update', ['book' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('library.store') }}'"
@@ -143,7 +143,7 @@
                     </div>
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700">Cancel</button>
+                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
                         <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Book</button>
                     </div>
                 </form>

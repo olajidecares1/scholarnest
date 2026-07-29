@@ -5,37 +5,37 @@
 <x-dashboard-layout page-title="Website" page-subtitle="Build your school's public website.">
     <div class="space-y-6" x-data="{ galleryOpen: false }">
         @if (session('status'))
-            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 lg:rounded-[10px]">
+            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
             </div>
         @endif
 
-        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
+        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <div class="flex items-center gap-2">
-                        <h2 class="text-sm font-bold text-gray-900">Publication Status</h2>
-                        <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $website->is_published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600' }}">
+                        <h2 class="text-sm font-bold text-gray-900 dark:text-white">Publication Status</h2>
+                        <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $website->is_published ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
                             {{ $website->is_published ? 'Live' : 'Unpublished' }}
                         </span>
                     </div>
                     @if ($website->is_published)
                         <a href="{{ $publicUrl }}" target="_blank" class="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700">{{ $publicUrl }}</a>
                     @else
-                        <p class="mt-1 text-xs text-gray-500">Publish to make your website visible at {{ $publicUrl }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Publish to make your website visible at {{ $publicUrl }}</p>
                     @endif
                 </div>
                 <form method="POST" action="{{ route('website.publish') }}">
                     @csrf
-                    <button type="submit" class="rounded-[8px] {{ $website->is_published ? 'border border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-blue-600 text-white hover:bg-blue-700' }} px-4 py-2 text-sm font-semibold transition-all duration-200">
+                    <button type="submit" class="rounded-[8px] {{ $website->is_published ? 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700' : 'bg-blue-600 text-white hover:bg-blue-700' }} px-4 py-2 text-sm font-semibold transition-all duration-200">
                         {{ $website->is_published ? 'Unpublish' : 'Publish Website' }}
                     </button>
                 </form>
             </div>
         </div>
 
-        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
-            <h2 class="text-sm font-bold text-gray-900">Website Content</h2>
+        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <h2 class="text-sm font-bold text-gray-900 dark:text-white">Website Content</h2>
             <form method="POST" action="{{ route('website.update') }}" enctype="multipart/form-data" class="mt-4 space-y-4">
                 @csrf
                 @method('PUT')
@@ -46,8 +46,8 @@
                 </div>
 
                 <div>
-                    <input type="file" name="hero_image" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700">
-                    <p class="mt-1 text-xs text-gray-500">Hero banner image (optional). Leave blank to keep the existing one.</p>
+                    <input type="file" name="hero_image" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400">
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Hero banner image (optional). Leave blank to keep the existing one.</p>
                     @if ($website->heroImageUrl())
                         <img src="{{ $website->heroImageUrl() }}" class="mt-2 h-24 w-full max-w-sm rounded-[8px] object-cover">
                     @endif
@@ -73,11 +73,11 @@
             </form>
         </div>
 
-        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm lg:rounded-[10px]">
-            <div class="flex items-center justify-between border-b border-gray-100 p-6">
+        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
-                    <h2 class="text-sm font-bold text-gray-900">Gallery</h2>
-                    <p class="mt-0.5 text-xs text-gray-500">Photos shown on your public website.</p>
+                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">Gallery</h2>
+                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Photos shown on your public website.</p>
                 </div>
                 <button
                     type="button"
@@ -91,14 +91,14 @@
 
             <div class="p-6">
                 @if ($galleryImages->isEmpty())
-                    <p class="py-6 text-center text-sm text-gray-500">No gallery images yet. Click "Add Image" to upload one.</p>
+                    <p class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">No gallery images yet. Click "Add Image" to upload one.</p>
                 @else
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                         @foreach ($galleryImages as $image)
-                            <div class="group relative overflow-hidden rounded-[8px] border border-gray-200">
+                            <div class="group relative overflow-hidden rounded-[8px] border border-gray-200 dark:border-gray-700">
                                 <img src="{{ $image->imageUrl() }}" class="h-32 w-full object-cover">
                                 @if ($image->caption)
-                                    <p class="truncate bg-gray-50 px-2 py-1 text-xs text-gray-600">{{ $image->caption }}</p>
+                                    <p class="truncate bg-gray-50 px-2 py-1 text-xs text-gray-600 dark:bg-gray-700/50 dark:text-gray-300">{{ $image->caption }}</p>
                                 @endif
                                 <form method="POST" action="{{ route('website.gallery.destroy', $image) }}" onsubmit="return confirm('Remove this image?');" class="absolute right-1.5 top-1.5">
                                     @csrf @method('DELETE')
@@ -115,16 +115,16 @@
 
         {{-- Add Gallery Image modal --}}
         <div x-show="galleryOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-            <div @click.outside="galleryOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6">
-                <h3 class="text-sm font-bold text-gray-900">Add Gallery Image</h3>
+            <div @click.outside="galleryOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Gallery Image</h3>
                 <form method="POST" action="{{ route('website.gallery.store') }}" enctype="multipart/form-data" class="mt-4 space-y-4">
                     @csrf
                     <div>
-                        <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" required class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700">
+                        <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" required class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400">
                     </div>
                     <x-text-field name="caption" label="Caption" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Optional." />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="galleryOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700">Cancel</button>
+                        <button type="button" @click="galleryOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
                         <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Upload</button>
                     </div>
                 </form>

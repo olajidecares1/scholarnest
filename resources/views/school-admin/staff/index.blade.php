@@ -6,31 +6,31 @@
 <x-dashboard-layout page-title="Staff" page-subtitle="Manage your school's staff records.">
     <div class="space-y-6" x-data="{ open: false, editing: null }">
         @if (session('status'))
-            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 lg:rounded-[10px]">
+            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
             </div>
         @endif
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-purple-600">Total Staff</p>
-                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ number_format($totalCount) }}</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($totalCount) }}</p>
             </div>
-            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-green-600">Active Staff</p>
-                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ number_format($activeCount) }}</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($activeCount) }}</p>
             </div>
         </div>
 
-        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm lg:rounded-[10px]">
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6">
+        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6 dark:border-gray-700">
                 <form method="GET" class="flex flex-wrap items-end gap-2">
                     <input
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search by name or staff number..."
-                        class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15"
+                        class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                     >
                     <div
                         class="w-48"
@@ -44,7 +44,7 @@
                             :options="['' => 'All Roles'] + collect($roleOptions)->mapWithKeys(fn ($r) => [$r->value => $r->label()])->all()"
                         />
                     </div>
-                    <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50">Search</button>
+                    <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
                     @if (request('search') || request('role'))
                         <a href="{{ route('staff.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
                     @endif
@@ -62,7 +62,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                    <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
                             <th class="px-6 py-3 font-semibold">Staff</th>
                             <th class="px-6 py-3 font-semibold">Staff No.</th>
@@ -72,26 +72,26 @@
                             <th class="px-6 py-3 font-semibold">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($staff as $member)
-                            <tr class="transition-colors duration-200 hover:bg-gray-50">
+                            <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-6 py-3">
                                     <a href="{{ route('staff.show', $member) }}" class="flex items-center gap-3">
                                         @if ($member->photoUrl())
                                             <img src="{{ $member->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
                                         @else
-                                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+                                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                                                 {{ Str::of($member->first_name)->substr(0, 1)->upper() }}{{ Str::of($member->last_name)->substr(0, 1)->upper() }}
                                             </span>
                                         @endif
-                                        <span class="font-semibold text-gray-900 hover:text-blue-600">{{ $member->fullName() }}</span>
+                                        <span class="font-semibold text-gray-900 hover:text-blue-600 dark:text-white">{{ $member->fullName() }}</span>
                                     </a>
                                 </td>
-                                <td class="px-6 py-3 font-mono text-xs text-gray-600">{{ $member->staff_number }}</td>
-                                <td class="px-6 py-3 text-gray-600">{{ $member->role->label() }}</td>
-                                <td class="px-6 py-3 text-gray-600">{{ $member->department ?? '—' }}</td>
+                                <td class="px-6 py-3 font-mono text-xs text-gray-600 dark:text-gray-300">{{ $member->staff_number }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $member->role->label() }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $member->department ?? '—' }}</td>
                                 <td class="px-6 py-3">
-                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $member->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600' }}">
+                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $member->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
                                         {{ $member->is_active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
@@ -117,26 +117,26 @@
                                                 'email' => $member->email,
                                                 'notes' => $member->notes,
                                             ]); open = true"
-                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50"
+                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             Edit
                                         </button>
                                         <form method="POST" action="{{ route('staff.toggle-active', $member) }}">
                                             @csrf @method('POST')
-                                            <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50">
+                                            <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                                                 {{ $member->is_active ? 'Deactivate' : 'Activate' }}
                                             </button>
                                         </form>
                                         <form method="POST" action="{{ route('staff.destroy', $member) }}" onsubmit="return confirm('Remove {{ $member->fullName() }}? This cannot be undone.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50">Delete</button>
+                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500">
+                                <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                                     @if (request('search') || request('role'))
                                         No staff match your filters.
                                     @else
@@ -150,7 +150,7 @@
             </div>
 
             @if ($staff->hasPages())
-                <div class="border-t border-gray-100 p-4">
+                <div class="border-t border-gray-100 p-4 dark:border-gray-700">
                     {{ $staff->links() }}
                 </div>
             @endif
@@ -158,8 +158,8 @@
 
         {{-- Add/Edit Staff modal --}}
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
-            <div @click.outside="open = false" class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[8px] bg-white p-6">
-                <h3 class="text-sm font-bold text-gray-900" x-text="editing ? 'Edit Staff Member' : 'Add Staff Member'"></h3>
+            <div @click.outside="open = false" class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[8px] bg-white p-6 dark:bg-gray-800">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Staff Member' : 'Add Staff Member'"></h3>
                 <form
                     method="POST"
                     :action="editing ? '{{ route('staff.update', ['member' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('staff.store') }}'"
@@ -204,8 +204,8 @@
                     <x-text-field name="qualification" label="Qualification" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" x-model="editing ? editing.qualification : ''" helper="E.g. B.Sc, B.Ed, M.Sc, NCE." />
 
                     <div>
-                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700">
-                        <p class="mt-1 text-xs text-gray-500">Photo (optional). Leave blank to keep the existing one when editing.</p>
+                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Photo (optional). Leave blank to keep the existing one when editing.</p>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -220,7 +220,7 @@
                     <x-textarea-field name="notes" label="Notes" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="2" x-text="editing ? editing.notes : ''" />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700">Cancel</button>
+                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
                         <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Staff Member</button>
                     </div>
                 </form>
