@@ -32,6 +32,12 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
+        <script>
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        </script>
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>{!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}</style>
         <style>
@@ -54,7 +60,7 @@
             }
         </style>
     </head>
-    <body class="bg-gray-50 font-sans text-gray-900 antialiased" x-data="{ sidebarOpen: false }">
+    <body class="bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100" x-data="{ sidebarOpen: false }">
         <div
             x-show="sidebarOpen"
             x-transition.opacity
@@ -299,11 +305,11 @@
                 $unreadCount = auth()->user()->unreadNotifications()->count();
             @endphp
 
-            <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-gray-200 bg-white/90 px-4 py-3 backdrop-blur print:hidden sm:px-6">
+            <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-gray-200 bg-white/90 px-4 py-3 backdrop-blur print:hidden dark:border-gray-800 dark:bg-gray-900/90 sm:px-6">
                 <button
                     type="button"
                     @click="sidebarOpen = true"
-                    class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 lg:hidden"
+                    class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
                 >
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -311,14 +317,14 @@
                 </button>
 
                 <div class="min-w-0 flex-1">
-                    <h1 class="truncate text-lg font-bold text-gray-900">{{ $pageTitle }}</h1>
+                    <h1 class="truncate text-lg font-bold text-gray-900 dark:text-white">{{ $pageTitle }}</h1>
                     @if ($pageSubtitle)
-                        <p class="truncate text-sm text-gray-500">{{ $pageSubtitle }}</p>
+                        <p class="truncate text-sm text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</p>
                     @endif
                 </div>
 
                 <form method="GET" action="{{ route('students.index') }}" class="relative hidden md:block">
-                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-gray-500">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
                             <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -328,14 +334,14 @@
                         type="text"
                         name="search"
                         placeholder="Search students, staff, classes..."
-                        class="w-64 rounded-[8px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 transition-colors duration-200 placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:outline-none"
+                        class="w-64 rounded-[8px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 transition-colors duration-200 placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:bg-gray-800"
                     >
                 </form>
 
                 <a
                     href="{{ $school->website?->is_published ? route('public.school-website', $school) : route('website.index') }}"
                     target="{{ $school->website?->is_published ? '_blank' : '_self' }}"
-                    class="hidden items-center gap-1.5 rounded-[8px] border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-600 transition-all duration-200 hover:border-blue-300 hover:text-blue-600 sm:flex"
+                    class="hidden items-center gap-1.5 rounded-[8px] border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-600 transition-all duration-200 hover:border-blue-300 hover:text-blue-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-blue-700 sm:flex"
                 >
                     School Website
                     <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -345,7 +351,7 @@
 
                 <a
                     href="{{ route('support-tickets.index') }}"
-                    class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600"
+                    class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-800"
                     title="Support Tickets"
                 >
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -357,7 +363,7 @@
                 </a>
 
                 <div class="relative" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-800">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                             <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -376,10 +382,10 @@
                         x-transition:leave-start="opacity-100"
                         x-transition:leave-end="opacity-0"
                         style="display: none;"
-                        class="absolute right-0 z-30 mt-2 w-80 rounded-[8px] border border-gray-200 bg-white shadow-lg"
+                        class="absolute right-0 z-30 mt-2 w-80 rounded-[8px] border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
                     >
-                        <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-                            <p class="text-sm font-bold text-gray-900">Notifications</p>
+                        <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                            <p class="text-sm font-bold text-gray-900 dark:text-white">Notifications</p>
                             @if ($unreadCount > 0)
                                 <form method="POST" action="{{ route('notifications.read-all') }}">
                                     @csrf
@@ -392,7 +398,7 @@
                             @forelse ($notifications as $notification)
                                 <a
                                     href="{{ route('notifications.read', $notification) }}"
-                                    class="flex items-start gap-2 border-b border-gray-50 px-4 py-3 text-left transition-colors duration-200 hover:bg-gray-50"
+                                    class="flex items-start gap-2 border-b border-gray-50 px-4 py-3 text-left transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700"
                                 >
                                     @if (is_null($notification->read_at))
                                         <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500"></span>
@@ -400,19 +406,19 @@
                                         <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-transparent"></span>
                                     @endif
                                     <span>
-                                        <span class="block text-sm font-semibold text-gray-900">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                        <span class="block text-xs text-gray-500">{{ $notification->data['body'] ?? '' }}</span>
+                                        <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{ $notification->data['title'] ?? 'Notification' }}</span>
+                                        <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</span>
                                         <span class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
                                     </span>
                                 </a>
                             @empty
-                                <p class="px-4 py-6 text-center text-sm text-gray-500">No notifications yet.</p>
+                                <p class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
                             @endforelse
                         </div>
                     </div>
                 </div>
 
-                <span class="relative hidden h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-blue-50 sm:flex">
+                <span class="relative hidden h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-blue-50 dark:border-gray-700 sm:flex">
                     <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-blue-700">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
                     @if ($school->logoUrl())
                         <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="relative h-full w-full rounded-full object-cover" onerror="this.style.display='none'">
@@ -421,36 +427,27 @@
                     @endif
                 </span>
 
-                <div class="relative" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="flex items-center gap-2">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
-                            {{ Str::of(auth()->user()->name)->substr(0, 1)->upper() }}
-                        </span>
-                        <span class="hidden text-left sm:block">
-                            <span class="block text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</span>
-                            <span class="block text-xs text-gray-500">{{ auth()->user()->role->label() }}</span>
-                        </span>
-                        <svg class="hidden h-4 w-4 text-gray-400 sm:block" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
-
-                    <div
-                        x-show="open"
-                        x-transition
-                        style="display: none;"
-                        class="absolute right-0 mt-2 w-48 rounded-[8px] border border-gray-200 bg-white py-1 shadow-lg"
-                    >
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Profile</a>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">Log Out</button>
-                        </form>
-                    </div>
-                </div>
+                <button
+                    type="button"
+                    x-data
+                    @click="
+                        document.documentElement.classList.toggle('dark');
+                        localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+                    "
+                    class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-800"
+                    title="Toggle dark mode"
+                >
+                    <svg class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75" />
+                    </svg>
+                    <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+                    </svg>
+                </button>
             </header>
 
-            <main class="p-4 sm:p-6 lg:p-8">
+            <main class="p-4 sm:p-6 lg:p-8 dark:bg-gray-900">
                 {{ $slot }}
             </main>
         </div>
