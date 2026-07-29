@@ -45,20 +45,36 @@
         ></div>
 
         <aside
-            class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col overflow-y-auto bg-[#111a35] text-white shadow-xl transition-transform duration-200 lg:translate-x-0"
+            class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col overflow-y-auto bg-[#111a35] text-white shadow-xl transition-transform duration-200 print:hidden lg:translate-x-0"
             :class="{ 'translate-x-0': sidebarOpen }"
         >
-            <div class="flex items-center gap-2.5 px-5 py-5">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-white p-1.5 shadow-sm transition-transform duration-300 ease-out hover:scale-105 hover:rotate-3">
-                    <img src="{{ $logoUrl }}" alt="{{ $school->name }}" class="h-full w-full object-contain">
+            <div class="flex items-center gap-2 px-5 py-4">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-white p-1 shadow-sm">
+                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'EduNest') }}" class="h-full w-full object-contain">
                 </span>
-                <div class="min-w-0">
-                    <p class="truncate text-sm font-bold leading-tight">{{ $school->name }}</p>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-blue-300">School Admin Portal</p>
+                <p class="text-lg font-extrabold leading-none">{{ config('app.name', 'EduNest') }}</p>
+            </div>
+
+            <div class="mx-3 mb-3 rounded-[8px] bg-white/10 p-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white p-1 shadow-sm">
+                        @if ($school->logoUrl())
+                            <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="h-full w-full rounded-full object-cover">
+                        @else
+                            <img src="{{ $logoUrl }}" alt="{{ $school->name }}" class="h-full w-full object-contain">
+                        @endif
+                    </span>
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-bold leading-tight">{{ $school->name }}</p>
+                        <a href="{{ route('settings.index') }}" class="mt-0.5 flex items-center gap-1 text-xs font-medium text-slate-300 transition-colors duration-200 hover:text-white">
+                            <span class="truncate">Session: {{ $school->current_session ?? 'Not set' }}</span>
+                            <svg class="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <nav class="mt-2 flex-1 space-y-1 overflow-y-auto px-3 pb-4">
+            <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
                 @php
                     $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[44px] items-center gap-3 rounded-[8px] px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out '
                         .($isActive
@@ -70,7 +86,7 @@
                 @foreach ([
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'M4 11.5L12 4l8 7.5', 'extra' => '<path d="M6 10v9a1 1 0 001 1h3v-6h4v6h3a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'students.index', 'label' => 'Students', 'icon' => 'M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7', 'extra' => '<circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />'],
-                    ['route' => 'staff.index', 'label' => 'Staff', 'icon' => 'M5 6.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0119 6.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 17.5v-11z', 'extra' => '<circle cx="12" cy="10.5" r="2.25" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 16c.7-1.8 2-2.5 3.5-2.5s2.8.7 3.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
+                    ['route' => 'staff.index', 'label' => 'Teachers & Staff', 'icon' => 'M5 6.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0119 6.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 17.5v-11z', 'extra' => '<circle cx="12" cy="10.5" r="2.25" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 16c.7-1.8 2-2.5 3.5-2.5s2.8.7 3.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                 ] as $item)
                     @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
                     <a href="{{ route($item['route']) }}" class="{{ $navLinkClasses($isActive) }}">
@@ -147,9 +163,12 @@
                     ['route' => 'attendance.index', 'label' => 'Attendance', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'examinations.index', 'label' => 'Examinations', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                     ['route' => 'assignments.index', 'label' => 'Assignments', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M9 11.5h6M9 14.5h6M9 17.5h3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
+                    ['route' => 'cbt-practice.index', 'label' => 'CBT Practice', 'icon' => 'M4.5 5.5h15a1 1 0 011 1V16a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M9.5 19.5h5M12 17v2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M8 12.5l2.3 2.3L15.5 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'events.index', 'label' => 'Events', 'icon' => 'M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                    ['route' => 'communications.index', 'label' => 'Communications', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
+                    ['route' => 'communications.index', 'label' => 'Communication', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                     ['route' => 'library.index', 'label' => 'Library', 'icon' => 'M3.5 6.2S5.5 5 8.5 5s5 1.2 5 1.2v12S11.5 17 8.5 17s-5 1.2-5 1.2v-12z', 'extra' => '<path d="M13.5 6.2S15.5 5 18.5 5s2 1.2 2 1.2v12s0 1.2-2 1.2-5 1.2-5 1.2v-12z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />'],
+                    ['route' => 'transport.index', 'label' => 'Transport', 'icon' => 'M4 16V8.5a1 1 0 011-1h1.5l1.5-3h8l1.5 3H19a1 1 0 011 1V16a1 1 0 01-1 1h-1', 'extra' => '<path d="M6 17a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17 17a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM7.5 17h8M4 12.5h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                    ['route' => 'hostels.index', 'label' => 'Hostel', 'icon' => 'M4 20V10.5L12 4l8 6.5V20', 'extra' => '<path d="M9 20v-6h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'finance.index', 'label' => 'Finance', 'icon' => 'M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z', 'extra' => '<path d="M4 7.5l2.5-3h11l2.5 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />'],
                     ['route' => 'website.index', 'label' => 'Website', 'icon' => 'M12 3a9 9 0 100 18 9 9 0 000-18z', 'extra' => '<path d="M3 12h18M12 3c2.2 2.4 2.2 15.6 0 18M12 3c-2.2 2.4-2.2 15.6 0 18" stroke="currentColor" stroke-width="1.5" />'],
                 ] as $item)
@@ -220,16 +239,45 @@
                 </div>
             </div>
 
-            <p class="px-5 pb-5 text-xs text-slate-400">&copy; {{ now()->year }} {{ config('app.name', 'EduNest') }}. All rights reserved.</p>
+            <div class="relative border-t border-white/10 px-3 py-3" x-data="{ open: false }">
+                <button type="button" @click="open = !open" @click.outside="open = false" class="flex w-full items-center gap-2.5 rounded-[8px] px-2 py-2 text-left transition-colors duration-200 hover:bg-white/5">
+                    <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500 text-sm font-bold text-white">
+                        {{ Str::of(auth()->user()->name)->substr(0, 1)->upper() }}
+                        <span class="absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#111a35] bg-green-400"></span>
+                    </span>
+                    <span class="min-w-0 flex-1">
+                        <span class="block truncate text-sm font-semibold text-white">{{ auth()->user()->name }}</span>
+                        <span class="block truncate text-xs text-slate-400">{{ auth()->user()->role->label() }}</span>
+                    </span>
+                    <svg class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-300 ease-out" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+
+                <div
+                    x-show="open"
+                    x-transition
+                    style="display: none;"
+                    class="absolute bottom-full left-3 right-3 z-30 mb-2 rounded-[8px] border border-gray-200 bg-white py-1 shadow-lg"
+                >
+                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Profile</a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">Log Out</button>
+                    </form>
+                </div>
+            </div>
+
+            <p class="px-5 pb-4 text-xs text-slate-400">&copy; {{ now()->year }} {{ config('app.name', 'EduNest') }}. All rights reserved.</p>
         </aside>
 
-        <div class="lg:pl-64">
+        <div class="print:pl-0 lg:pl-64">
             @php
                 $notifications = auth()->user()->notifications()->latest()->take(8)->get();
                 $unreadCount = auth()->user()->unreadNotifications()->count();
             @endphp
 
-            <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-gray-200 bg-white/90 px-4 py-3 backdrop-blur sm:px-6">
+            <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-gray-200 bg-white/90 px-4 py-3 backdrop-blur print:hidden sm:px-6">
                 <button
                     type="button"
                     @click="sidebarOpen = true"
@@ -247,7 +295,7 @@
                     @endif
                 </div>
 
-                <div class="relative hidden md:block">
+                <form method="GET" action="{{ route('students.index') }}" class="relative hidden md:block">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
@@ -256,11 +304,22 @@
                     </span>
                     <input
                         type="text"
-                        disabled
-                        placeholder="Search students, staff, payments, events..."
-                        class="w-64 rounded-[8px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-500 placeholder:text-gray-400"
+                        name="search"
+                        placeholder="Search students, staff, classes..."
+                        class="w-64 rounded-[8px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 transition-colors duration-200 placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:outline-none"
                     >
-                </div>
+                </form>
+
+                <a
+                    href="{{ $school->website?->is_published ? route('public.school-website', $school) : route('website.index') }}"
+                    target="{{ $school->website?->is_published ? '_blank' : '_self' }}"
+                    class="hidden items-center gap-1.5 rounded-[8px] border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-600 transition-all duration-200 hover:border-blue-300 hover:text-blue-600 sm:flex"
+                >
+                    School Website
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 17L17 7M17 7H9M17 7v8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </a>
 
                 <a
                     href="{{ route('support-tickets.index') }}"
@@ -330,6 +389,14 @@
                         </div>
                     </div>
                 </div>
+
+                <span class="hidden h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-white p-0.5 sm:flex">
+                    @if ($school->logoUrl())
+                        <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="h-full w-full rounded-full object-cover">
+                    @else
+                        <img src="{{ $logoUrl }}" alt="{{ $school->name }}" class="h-full w-full object-contain">
+                    @endif
+                </span>
 
                 <div class="relative" x-data="{ open: false }">
                     <button type="button" @click="open = !open" @click.outside="open = false" class="flex items-center gap-2">

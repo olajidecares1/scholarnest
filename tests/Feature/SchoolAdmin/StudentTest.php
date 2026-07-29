@@ -207,6 +207,5 @@ test('the dashboard shows the real total students count', function () {
 
     $response = $this->actingAs($this->admin)->get(route('dashboard'));
 
-    $response->assertSee('3 active');
     $response->assertSeeInOrder(['Total Students', '4']);
 });

@@ -112,7 +112,7 @@ test('an invoice with payments cannot be deleted', function () {
     expect(Invoice::find($invoice->id))->not->toBeNull();
 });
 
-test('the dashboard shows outstanding fees and collection percentage', function () {
+test('the dashboard shows outstanding fees', function () {
     Subscription::factory()->create(['school_id' => $this->school->id, 'status' => SubscriptionStatus::Active]);
     $student = Student::factory()->create(['school_id' => $this->school->id]);
     $invoice = Invoice::factory()->create(['school_id' => $this->school->id, 'student_id' => $student->id, 'amount' => 10000]);
@@ -120,6 +120,6 @@ test('the dashboard shows outstanding fees and collection percentage', function 
 
     $this->actingAs($this->admin)
         ->get(route('dashboard'))
-        ->assertSee('25%')
+        ->assertSee('Outstanding Fees')
         ->assertSee('7,500');
 });

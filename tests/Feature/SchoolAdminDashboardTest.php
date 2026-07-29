@@ -33,13 +33,16 @@ test('a school admin with an active subscription sees the full dashboard', funct
         ->get(route('dashboard'))
         ->assertStatus(200)
         ->assertSee('Total Students')
-        ->assertSee('Total Staff')
-        ->assertSee('Total Classes')
+        ->assertSee('Teachers & Staff')
+        ->assertSee('Term Average Score')
         ->assertSee('Outstanding Fees')
-        ->assertSee('Student Attendance Overview')
+        ->assertSee('Attendance Overview')
+        ->assertSee('Recent Notifications')
+        ->assertSee('Students Performance')
         ->assertSee('Recent Announcements')
         ->assertSee('Upcoming Events')
-        ->assertSee('Fee Collection Overview')
+        ->assertSee('Recent Activities')
+        ->assertSee('Quick Actions')
         ->assertSee($this->school->name);
 });
 
@@ -60,8 +63,8 @@ test('the sidebar lists every module and links to a real route', function () {
 
     foreach ([
         'students.index', 'staff.index', 'academics.index', 'attendance.index',
-        'examinations.index', 'assignments.index', 'events.index', 'communications.index',
-        'library.index', 'finance.index', 'website.index', 'settings.index',
+        'examinations.index', 'assignments.index', 'cbt-practice.index', 'events.index', 'communications.index',
+        'library.index', 'transport.index', 'hostels.index', 'finance.index', 'website.index', 'settings.index',
     ] as $routeName) {
         $response->assertSee(route($routeName), false);
     }

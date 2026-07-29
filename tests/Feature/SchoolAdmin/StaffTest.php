@@ -214,6 +214,5 @@ test('the dashboard shows the real total staff count', function () {
 
     $response = $this->actingAs($this->admin)->get(route('dashboard'));
 
-    $response->assertSee('3 active');
-    $response->assertSeeInOrder(['Total Staff', '4']);
+    $response->assertSeeInOrder(['Teachers & Staff', '4']);
 });

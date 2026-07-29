@@ -10,11 +10,13 @@ use App\Http\Controllers\SchoolAdmin\AssignmentController;
 use App\Http\Controllers\SchoolAdmin\AttendanceController;
 use App\Http\Controllers\SchoolAdmin\CbtPracticeController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
+use App\Http\Controllers\SchoolAdmin\DashboardController as SchoolAdminDashboardController;
 use App\Http\Controllers\SchoolAdmin\EventController;
 use App\Http\Controllers\SchoolAdmin\ExaminationController;
 use App\Http\Controllers\SchoolAdmin\FinanceController;
 use App\Http\Controllers\SchoolAdmin\HostelController;
 use App\Http\Controllers\SchoolAdmin\LibraryController;
+use App\Http\Controllers\SchoolAdmin\SchoolReportController;
 use App\Http\Controllers\SchoolAdmin\SettingsController as SchoolSettingsController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
@@ -49,6 +51,7 @@ use App\Http\Controllers\SuperAdmin\ThemeController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
 use App\Http\Controllers\SupportTicketController;
 use App\Support\SecureRoute as R;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -64,12 +67,12 @@ Route::middleware('throttle:5,1')->group(function () {
 });
 Route::get(R::uri('reports.confirmation'), [ReportController::class, 'confirmation'])->name('reports.confirmation');
 
-Route::get(R::uri('dashboard'), function () {
+Route::get(R::uri('dashboard'), function (Request $request) {
     if (auth()->user()->role === UserRole::SuperAdmin) {
         return redirect()->route('super-admin.dashboard');
     }
 
-    return view('dashboard');
+    return app(SchoolAdminDashboardController::class)->index($request);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -254,6 +257,8 @@ Route::middleware('auth')->group(function () {
         });
         Route::get(R::uri('settings.index'), [SchoolSettingsController::class, 'edit'])->name('settings.index');
         Route::put(R::uri('settings.update'), [SchoolSettingsController::class, 'update'])->name('settings.update');
+
+        Route::get(R::uri('reports.summary'), [SchoolReportController::class, 'summary'])->name('reports.summary');
     });
 
     Route::name('notifications.')->group(function () {

@@ -1,41 +1,4 @@
-@php
-    $school = auth()->user()->school;
-    $subscription = $school->activeSubscription;
-    $recentAnnouncements = \App\Models\Announcement::latest()->take(3)->get();
-    $totalStudents = $school->students()->count();
-    $activeStudents = $school->students()->where('is_active', true)->count();
-    $totalStaff = $school->staff()->count();
-    $activeStaff = $school->staff()->where('is_active', true)->count();
-
-    $monthRecords = $school->attendanceRecords()->whereDate('date', '>=', now()->startOfMonth())->get();
-    $attendanceTotal = $monthRecords->count();
-    $attendancePresent = $monthRecords->where('status', \App\Enums\AttendanceStatus::Present)->count();
-    $attendanceAbsent = $monthRecords->where('status', \App\Enums\AttendanceStatus::Absent)->count();
-    $attendanceLate = $monthRecords->where('status', \App\Enums\AttendanceStatus::Late)->count();
-    $attendanceAverage = $attendanceTotal > 0 ? (int) round($monthRecords->filter(fn ($record) => $record->status->isPresentForStats())->count() / $attendanceTotal * 100) : null;
-
-    $last7Records = $school->attendanceRecords()->whereDate('date', '>=', today()->subDays(6))->get()->groupBy(fn ($record) => $record->date->toDateString());
-    $attendanceTrend = collect(range(6, 0))->map(function ($daysAgo) use ($last7Records) {
-        $day = today()->subDays($daysAgo);
-        $dayRecords = $last7Records->get($day->toDateString(), collect());
-        $total = $dayRecords->count();
-
-        return [
-            'label' => $day->format('D'),
-            'percent' => $total > 0 ? (int) round($dayRecords->filter(fn ($record) => $record->status->isPresentForStats())->count() / $total * 100) : 0,
-        ];
-    });
-
-    $upcomingEvents = $school->events()->where('starts_at', '>=', now())->orderBy('starts_at')->take(4)->get();
-
-    $termInvoices = $school->invoices()->with('payments')->get();
-    $totalExpected = (float) $termInvoices->sum('amount');
-    $totalCollected = $termInvoices->sum(fn ($invoice) => $invoice->amountPaid());
-    $totalOutstanding = $termInvoices->sum(fn ($invoice) => max($invoice->balance(), 0));
-    $collectionPercent = $totalExpected > 0 ? (int) round($totalCollected / $totalExpected * 100) : null;
-@endphp
-
-<x-dashboard-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.auth()->user()->name.'! Here\'s what\'s happening.'">
+<x-dashboard-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.auth()->user()->name.'! Here\'s what\'s happening at '.$school->name.' today.'">
     @if (! $subscription)
         <div class="mx-auto max-w-4xl">
             <div class="rounded-[5px] border border-blue-200 bg-blue-50 p-6 text-center lg:rounded-[10px]">
@@ -68,162 +31,168 @@
             @endif
 
             {{-- Stat cards --}}
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <a href="{{ route('students.index') }}" class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-medium text-gray-500">Total Students</p>
-                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-600">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />
-                                <path d="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </span>
-                    </div>
-                    <p class="mt-3 text-3xl font-extrabold text-gray-900">{{ number_format($totalStudents) }}</p>
-                    <p class="mt-1 text-xs font-medium text-gray-500">{{ number_format($activeStudents) }} active</p>
-                </a>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                @foreach ([
+                    ['key' => 'students', 'route' => 'students.index', 'badge' => 'bg-purple-50 text-purple-600', 'stroke' => '#8b5cf6', 'icon' => 'M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7', 'extra' => '<circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />'],
+                    ['key' => 'staff', 'route' => 'staff.index', 'badge' => 'bg-blue-50 text-blue-600', 'stroke' => '#1877f2', 'icon' => 'M5 6.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0119 6.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 17.5v-11z', 'extra' => '<circle cx="12" cy="10.5" r="2.25" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 16c.7-1.8 2-2.5 3.5-2.5s2.8.7 3.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
+                    ['key' => 'attendance', 'route' => 'attendance.index', 'badge' => 'bg-green-50 text-green-600', 'stroke' => '#22c55e', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />'],
+                    ['key' => 'termAverage', 'route' => 'examinations.index', 'badge' => 'bg-amber-50 text-amber-600', 'stroke' => '#f59e0b', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                    ['key' => 'outstandingFees', 'route' => 'finance.invoices.index', 'badge' => 'bg-red-50 text-red-600', 'stroke' => '#ef4444', 'icon' => 'M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z', 'extra' => '<circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />'],
+                ] as $card)
+                    @php $data = $statCards[$card['key']]; @endphp
+                    <a
+                        href="{{ route($card['route']) }}"
+                        class="group rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg lg:rounded-[10px]"
+                    >
+                        <div class="flex items-start justify-between">
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-medium text-gray-500">{{ $data['label'] }}</p>
+                                <p class="mt-2 text-2xl font-extrabold text-gray-900">
+                                    @if (! empty($data['isCurrency']))
+                                        &#8358;{{ number_format($data['total']) }}
+                                    @elseif (! empty($data['isPercent']))
+                                        {{ number_format($data['total'], 1) }}%
+                                    @else
+                                        {{ number_format($data['total']) }}
+                                    @endif
+                                </p>
+                            </div>
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-6 {{ $card['badge'] }}">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    {!! $card['extra'] !!}
+                                    <path d="{{ $card['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </span>
+                        </div>
 
-                <a href="{{ route('staff.index') }}" class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-medium text-gray-500">Total Staff</p>
-                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="10.5" r="2.25" stroke="currentColor" stroke-width="1.6" />
-                                <path d="M8.5 16c.7-1.8 2-2.5 3.5-2.5s2.8.7 3.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                                <path d="M5 6.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0119 6.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 17.5v-11z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </span>
-                    </div>
-                    <p class="mt-3 text-3xl font-extrabold text-gray-900">{{ number_format($totalStaff) }}</p>
-                    <p class="mt-1 text-xs font-medium text-gray-500">{{ number_format($activeStaff) }} active</p>
-                </a>
+                        <p class="mt-1 text-xs font-semibold {{ $data['deltaPercent'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $data['deltaPercent'] >= 0 ? '▲' : '▼' }} {{ number_format(abs($data['deltaPercent']), 1) }}{{ ! empty($data['isPercent']) ? ' pts' : '%' }}
+                            <span class="font-normal text-gray-400">vs {{ $card['key'] === 'attendance' ? 'last week' : 'prior period' }}</span>
+                        </p>
 
-                <a href="{{ route('academics.index') }}" class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-medium text-gray-500">Total Classes</p>
-                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6.5 11v4c0 1.4 2.5 2.75 5.5 2.75s5.5-1.35 5.5-2.75v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                                <path d="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </span>
-                    </div>
-                    <p class="mt-3 text-3xl font-extrabold text-gray-900">{{ number_format($school->schoolClasses()->count()) }}</p>
-                    <p class="mt-1 text-xs font-medium text-gray-500">across {{ number_format($school->academicLevels()->count()) }} levels</p>
-                </a>
-
-                <a href="{{ route('finance.invoices.index') }}" class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md lg:rounded-[10px]">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-medium text-gray-500">Outstanding Fees</p>
-                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-orange-600">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 7.5l2.5-3h11l2.5 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                <circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />
-                                <path d="M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </span>
-                    </div>
-                    <p class="mt-3 text-3xl font-extrabold text-gray-900">&#8358;{{ number_format($totalOutstanding, 0) }}</p>
-                    <p class="mt-1 text-xs font-medium text-gray-500">{{ $collectionPercent !== null ? $collectionPercent.'% collected' : 'No invoices yet' }}</p>
-                </a>
+                        <div
+                            class="mt-2 h-10"
+                            x-data
+                            x-init="new ApexCharts($el, {
+                                chart: { type: 'line', height: 40, sparkline: { enabled: true } },
+                                series: [{ data: @js($data['sparkline']) }],
+                                stroke: { curve: 'smooth', width: 2 },
+                                colors: ['{{ $card['stroke'] }}'],
+                                tooltip: { enabled: false },
+                            }).render()"
+                        ></div>
+                    </a>
+                @endforeach
             </div>
 
-            {{-- Attendance overview + Announcements --}}
+            {{-- Attendance overview + Notifications --}}
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <a href="{{ route('attendance.index') }}" class="block rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 ease-out hover:shadow-md lg:col-span-2 lg:rounded-[10px]">
+                <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:col-span-2 lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-sm font-bold text-gray-900">Student Attendance Overview</h2>
-                            <p class="mt-0.5 text-xs text-gray-500">Daily attendance across the last 7 days</p>
+                            <h2 class="text-sm font-bold text-gray-900">Attendance Overview</h2>
+                            <p class="text-xs text-gray-500">Daily attendance so far this week</p>
                         </div>
-                        <span class="rounded-[8px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500">This Month</span>
+                        <span class="rounded-[8px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500">This Week</span>
                     </div>
 
-                    @if ($attendanceTotal > 0)
-                        <div class="mt-4 flex h-48 items-end justify-between gap-2 rounded-[5px] bg-gray-50 p-4 lg:rounded-[10px]">
-                            @foreach ($attendanceTrend as $day)
-                                <div class="flex flex-1 flex-col items-center gap-1.5">
-                                    <span class="text-[11px] font-semibold text-gray-500">{{ $day['percent'] }}%</span>
-                                    <div class="flex h-28 w-full items-end rounded-[6px] bg-gray-200">
-                                        <div class="w-full rounded-[6px] bg-blue-500" style="height: {{ max($day['percent'], 4) }}%"></div>
-                                    </div>
-                                    <span class="text-[11px] font-medium text-gray-500">{{ $day['label'] }}</span>
-                                </div>
-                            @endforeach
-                        </div>
+                    @if (array_sum($attendanceOverview['percentages']) > 0)
+                        <div
+                            class="mt-3"
+                            x-data
+                            x-init="new ApexCharts($el, {
+                                chart: { type: 'line', height: 260, toolbar: { show: false } },
+                                series: [{ name: 'Attendance', data: @js($attendanceOverview['percentages']) }],
+                                xaxis: { categories: @js($attendanceOverview['days']) },
+                                stroke: { curve: 'smooth', width: 3 },
+                                colors: ['#1877f2'],
+                                dataLabels: { enabled: false },
+                                yaxis: { min: 0, max: 100, labels: { formatter: (val) => Math.round(val) + '%' } },
+                                tooltip: { y: { formatter: (val) => Math.round(val) + '%' } },
+                                grid: { borderColor: 'rgba(148, 163, 184, 0.2)' },
+                                fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05 } },
+                            }).render()"
+                        ></div>
                     @else
-                        <div class="mt-4 flex h-48 items-center justify-center rounded-[5px] bg-gray-50 lg:rounded-[10px]">
-                            <div class="text-center">
-                                <svg class="mx-auto h-8 w-8 text-gray-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M4 19.5h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                                    <path d="M6.5 19.5v-5.5M11 19.5V8M15.5 19.5v-8.7M20 19.5V5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
-                                </svg>
-                                <p class="mt-2 text-sm font-medium text-gray-400">No attendance has been recorded yet this month.</p>
-                            </div>
+                        <div class="mt-4 flex h-56 items-center justify-center rounded-[5px] bg-gray-50 lg:rounded-[10px]">
+                            <p class="text-sm font-medium text-gray-400">No attendance has been recorded yet this week.</p>
                         </div>
                     @endif
+                </div>
 
-                    <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        @foreach ([
-                            ['label' => 'Average Attendance', 'value' => $attendanceAverage !== null ? $attendanceAverage.'%' : '—'],
-                            ['label' => 'Present', 'value' => number_format($attendancePresent)],
-                            ['label' => 'Absent', 'value' => number_format($attendanceAbsent)],
-                            ['label' => 'Late', 'value' => number_format($attendanceLate)],
-                        ] as $stat)
-                            <div class="rounded-[5px] border border-gray-100 p-3 text-center lg:rounded-[8px]">
-                                <p class="text-xl font-extrabold text-gray-900">{{ $stat['value'] }}</p>
-                                <p class="mt-0.5 text-xs text-gray-500">{{ $stat['label'] }}</p>
-                            </div>
-                        @endforeach
+                <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm lg:rounded-[10px]">
+                    <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+                        <h2 class="text-sm font-bold text-gray-900">Recent Notifications</h2>
                     </div>
-                </a>
-
-                <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-sm font-bold text-gray-900">Recent Announcements</h2>
-                        <a href="{{ route('communications.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a>
-                    </div>
-
-                    <div class="mt-4 space-y-4">
-                        @forelse ($recentAnnouncements as $announcement)
-                            <div class="flex items-start gap-3">
-                                <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[5px] bg-blue-50 text-blue-600 lg:rounded-[8px]">
-                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                    <div class="max-h-80 overflow-y-auto">
+                        @forelse ($notifications as $notification)
+                            <a
+                                href="{{ route('notifications.read', $notification) }}"
+                                class="flex items-start gap-2 border-b border-gray-50 px-5 py-3 text-left transition-colors duration-200 hover:bg-gray-50"
+                            >
+                                <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full {{ is_null($notification->read_at) ? 'bg-blue-500' : 'bg-transparent' }}"></span>
+                                <span class="min-w-0">
+                                    <span class="block truncate text-sm font-semibold text-gray-900">{{ $notification->data['title'] ?? 'Notification' }}</span>
+                                    <span class="block truncate text-xs text-gray-500">{{ $notification->data['body'] ?? '' }}</span>
+                                    <span class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
                                 </span>
-                                <div class="min-w-0">
-                                    <p class="text-sm font-semibold text-gray-900">{{ $announcement->title }}</p>
-                                    <p class="mt-0.5 line-clamp-2 text-xs text-gray-500">{{ $announcement->body }}</p>
-                                    <p class="mt-1 text-xs text-gray-400">{{ $announcement->created_at->format('M j, Y') }}</p>
-                                </div>
-                            </div>
+                            </a>
                         @empty
-                            <p class="py-6 text-center text-sm text-gray-500">No announcements yet.</p>
+                            <p class="px-5 py-6 text-center text-sm text-gray-500">No notifications yet.</p>
                         @endforelse
                     </div>
                 </div>
             </div>
 
-            {{-- Events + Fee collection --}}
+            {{-- Performance donut + Upcoming Events --}}
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
+                <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+                    <h2 class="text-sm font-bold text-gray-900">Students Performance</h2>
+                    <p class="text-xs text-gray-500">Average exam score per student, this term</p>
+
+                    @if ($performanceBreakdown['total'] > 0)
+                        <div
+                            class="mt-3"
+                            x-data
+                            x-init="new ApexCharts($el, {
+                                chart: { type: 'donut', height: 260 },
+                                labels: ['Excellent (80-100%)', 'Very Good (60-79%)', 'Average (40-59%)', 'Below Average (<40%)'],
+                                series: @js([
+                                    $performanceBreakdown['excellent'],
+                                    $performanceBreakdown['veryGood'],
+                                    $performanceBreakdown['average'],
+                                    $performanceBreakdown['belowAverage'],
+                                ]),
+                                colors: ['#22c55e', '#1877f2', '#f59e0b', '#ef4444'],
+                                legend: { position: 'bottom', fontSize: '12px' },
+                                plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Students', color: '#111827' } } } } },
+                            }).render()"
+                        ></div>
+                    @else
+                        <div class="mt-4 flex h-56 flex-col items-center justify-center rounded-[5px] bg-gray-50 text-center lg:rounded-[10px]">
+                            <p class="text-sm font-medium text-gray-400">No exam scores recorded yet this term.</p>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
                         <h2 class="text-sm font-bold text-gray-900">Upcoming Events</h2>
-                        <a href="{{ route('events.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a>
+                        <a href="{{ route('events.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View Calendar</a>
                     </div>
                     @if ($upcomingEvents->isNotEmpty())
                         <div class="mt-4 space-y-4">
                             @foreach ($upcomingEvents as $event)
                                 <div class="flex items-start gap-3">
-                                    <span class="mt-0.5 flex h-8 w-8 shrink-0 flex-col items-center justify-center rounded-[5px] bg-purple-50 text-purple-600 lg:rounded-[8px]">
+                                    <span class="mt-0.5 flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-[8px] bg-purple-50 text-purple-600">
                                         <span class="text-[10px] font-bold leading-none">{{ $event->starts_at->format('M') }}</span>
-                                        <span class="text-xs font-extrabold leading-none">{{ $event->starts_at->format('j') }}</span>
+                                        <span class="text-sm font-extrabold leading-none">{{ $event->starts_at->format('j') }}</span>
                                     </span>
-                                    <div class="min-w-0">
+                                    <div class="min-w-0 flex-1">
                                         <p class="text-sm font-semibold text-gray-900">{{ $event->title }}</p>
-                                        <p class="mt-0.5 text-xs text-gray-500">{{ $event->starts_at->format('g:ia') }}@if ($event->location) &middot; {{ $event->location }} @endif</p>
+                                        <p class="mt-0.5 text-xs text-gray-500">{{ $event->starts_at->format('M j, Y') }}@if (! $event->is_all_day) &middot; {{ $event->starts_at->format('g:ia') }} @endif</p>
                                     </div>
+                                    <span class="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">{{ $event->audience->label() }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -237,34 +206,89 @@
                         </div>
                     @endif
                 </div>
+            </div>
 
-                <a href="{{ route('finance.invoices.index') }}" class="block rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 ease-out hover:shadow-md lg:rounded-[10px]">
+            {{-- Recent Announcements + Recent Activities --}}
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-sm font-bold text-gray-900">Fee Collection Overview</h2>
-                        <span class="rounded-[8px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500">This Term</span>
+                        <h2 class="text-sm font-bold text-gray-900">Recent Announcements</h2>
+                        <a href="{{ route('communications.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a>
                     </div>
-                    @if ($collectionPercent !== null)
-                        <div class="mt-6 flex flex-col items-center justify-center py-2 text-center">
-                            <span
-                                class="flex h-24 w-24 items-center justify-center rounded-full"
-                                style="background: conic-gradient(rgb(37 99 235) {{ $collectionPercent * 3.6 }}deg, rgb(229 231 235) 0deg);"
-                            >
-                                <span class="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-white text-lg font-extrabold text-gray-900">{{ $collectionPercent }}%</span>
-                            </span>
-                            <p class="mt-3 text-sm font-medium text-gray-500">&#8358;{{ number_format($totalCollected, 0) }} of &#8358;{{ number_format($totalExpected, 0) }} collected</p>
-                        </div>
-                    @else
-                        <div class="mt-6 flex flex-col items-center justify-center py-6 text-center">
-                            <span class="flex h-24 w-24 items-center justify-center rounded-full border-8 border-gray-100">
-                                <svg class="h-8 w-8 text-gray-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                    <circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />
+                    <div class="mt-4 space-y-4">
+                        @forelse ($recentAnnouncements as $announcement)
+                            <div class="flex items-start gap-3">
+                                <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-blue-50 text-blue-600">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900">{{ $announcement->title }}</p>
+                                    <p class="mt-0.5 line-clamp-2 text-xs text-gray-500">{{ $announcement->body }}</p>
+                                    <p class="mt-1 text-xs text-gray-400">{{ $announcement->created_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="py-6 text-center text-sm text-gray-500">No announcements yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+                    <h2 class="text-sm font-bold text-gray-900">Recent Activities</h2>
+                    <div class="mt-4 space-y-4">
+                        @forelse ($recentActivities as $activity)
+                            <div class="flex items-start gap-3">
+                                <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full {{ $activity['color'] }}">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        @if ($activity['icon'] === 'student')
+                                            <circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" /><path d="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                        @elseif ($activity['icon'] === 'payment')
+                                            <path d="M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />
+                                        @else
+                                            <path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /><path d="M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                        @endif
+                                    </svg>
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="text-sm text-gray-800">{{ $activity['description'] }}</p>
+                                    <p class="mt-0.5 text-xs text-gray-400">{{ $activity['timestamp']->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="py-6 text-center text-sm text-gray-500">No recent activity yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            {{-- Quick Actions --}}
+            <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
+                <h2 class="text-sm font-bold text-gray-900">Quick Actions</h2>
+                <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                    @foreach ([
+                        ['route' => 'students.index', 'label' => 'Add Student', 'icon' => 'M12 4.5v15M4.5 12h15'],
+                        ['route' => 'staff.index', 'label' => 'Add Teacher', 'icon' => 'M4.5 19.5c.6-2.6 2.7-4.5 5.5-4.5s4.9 1.9 5.5 4.5', 'extra' => '<circle cx="10" cy="8.5" r="3" stroke="currentColor" stroke-width="1.75" /><path d="M18 9v5M20.5 11.5h-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />'],
+                        ['route' => 'attendance.index', 'label' => 'Mark Attendance', 'icon' => 'M9 12.5l2 2 4-4.2', 'extra' => '<rect x="4.5" y="4.5" width="15" height="15" rx="2" stroke="currentColor" stroke-width="1.6" />'],
+                        ['route' => 'examinations.index', 'label' => 'Create Exam', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                        ['route' => 'communications.index', 'label' => 'Send Notice', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
+                        ['route' => 'reports.summary', 'label' => 'Generate Report', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                    ] as $action)
+                        <a
+                            href="{{ route($action['route']) }}"
+                            class="group flex flex-col items-center gap-2 rounded-[8px] border border-gray-200 p-4 text-center transition-all duration-300 ease-out hover:-translate-y-1 hover:border-blue-300 hover:bg-blue-50 hover:shadow-md"
+                        >
+                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-6">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    {!! $action['extra'] ?? '' !!}
+                                    <path d="{{ $action['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </span>
-                            <p class="mt-3 text-sm font-medium text-gray-400">No invoices have been created yet.</p>
-                        </div>
-                    @endif
-                </a>
+                            <span class="text-xs font-semibold text-gray-700">{{ $action['label'] }}</span>
+                        </a>
+                    @endforeach
+                </div>
             </div>
         </div>
     @endif

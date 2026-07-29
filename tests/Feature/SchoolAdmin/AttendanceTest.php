@@ -97,13 +97,13 @@ test('a school admin only sees attendance history from their own school', functi
         ->assertDontSee('Tunde Bello');
 });
 
-test('the dashboard shows real attendance stats for the current month', function () {
+test('the dashboard shows real attendance stats for this week', function () {
     Subscription::factory()->create(['school_id' => $this->school->id, 'status' => SubscriptionStatus::Active]);
     $student = Student::factory()->create(['school_id' => $this->school->id]);
     AttendanceRecord::factory()->create(['school_id' => $this->school->id, 'student_id' => $student->id, 'date' => today(), 'status' => AttendanceStatus::Present]);
 
     $this->actingAs($this->admin)
         ->get(route('dashboard'))
-        ->assertSee('100%')
-        ->assertSee('Average Attendance');
+        ->assertSee('100.0%')
+        ->assertSee('Attendance (This Week)');
 });
