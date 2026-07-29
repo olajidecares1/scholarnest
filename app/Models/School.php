@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class School extends Model
 {
@@ -20,6 +21,7 @@ class School extends Model
      */
     protected $fillable = [
         'name',
+        'slug',
         'billing_contact_name',
         'billing_email',
         'billing_phone',
@@ -27,6 +29,25 @@ class School extends Model
         'is_active',
         'deactivated_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $school) {
+            if ($school->slug) {
+                return;
+            }
+
+            $base = Str::slug($school->name);
+            $slug = $base;
+            $suffix = 1;
+
+            while (static::where('slug', $slug)->exists()) {
+                $slug = "{$base}-".++$suffix;
+            }
+
+            $school->slug = $slug;
+        });
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -161,5 +182,21 @@ class School extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * @return HasOne<SchoolWebsite, $this>
+     */
+    public function website(): HasOne
+    {
+        return $this->hasOne(SchoolWebsite::class);
+    }
+
+    /**
+     * @return HasMany<SchoolGalleryImage, $this>
+     */
+    public function galleryImages(): HasMany
+    {
+        return $this->hasMany(SchoolGalleryImage::class)->orderBy('sort_order');
     }
 }

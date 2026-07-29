@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicSchoolWebsiteController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolAdmin\AcademicController;
 use App\Http\Controllers\SchoolAdmin\AssignmentController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\SchoolAdmin\FinanceController;
 use App\Http\Controllers\SchoolAdmin\LibraryController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
+use App\Http\Controllers\SchoolAdmin\WebsiteController;
 use App\Http\Controllers\Subscriptions\BillingDetailsController;
 use App\Http\Controllers\Subscriptions\ChoosePlanController;
 use App\Http\Controllers\Subscriptions\ConfirmationController;
@@ -49,6 +51,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
+
+// Public, human-readable by design: schools share this link outside the platform.
+Route::get('/schools/{school:slug}', [PublicSchoolWebsiteController::class, 'show'])->name('public.school-website');
 
 Route::middleware('throttle:5,1')->group(function () {
     Route::get(R::uri('reports.create'), [ReportController::class, 'create'])->name('reports.create');
@@ -198,7 +203,13 @@ Route::middleware('auth')->group(function () {
                 Route::post(R::uri('finance.invoices.payments.store').'/{invoice}', [FinanceController::class, 'storePayment'])->name('payments.store');
             });
         });
-        Route::get(R::uri('website.index'), [ComingSoonController::class, 'show'])->name('website.index');
+        Route::name('website.')->group(function () {
+            Route::get(R::uri('website.index'), [WebsiteController::class, 'edit'])->name('index');
+            Route::put(R::uri('website.update'), [WebsiteController::class, 'update'])->name('update');
+            Route::post(R::uri('website.publish'), [WebsiteController::class, 'togglePublish'])->name('publish');
+            Route::post(R::uri('website.gallery.store'), [WebsiteController::class, 'storeGalleryImage'])->name('gallery.store');
+            Route::delete(R::uri('website.gallery.destroy').'/{image}', [WebsiteController::class, 'destroyGalleryImage'])->name('gallery.destroy');
+        });
         Route::get(R::uri('settings.index'), [ComingSoonController::class, 'show'])->name('settings.index');
     });
 

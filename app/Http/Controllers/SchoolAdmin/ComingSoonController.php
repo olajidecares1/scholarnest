@@ -14,7 +14,6 @@ class ComingSoonController extends Controller
      * @var array<string, array{label: string, description: string}>
      */
     private const MODULES = [
-        'website.index' => ['label' => 'Website', 'description' => 'Build your school\'s public website, hero slider, and gallery.'],
         'settings.index' => ['label' => 'Settings', 'description' => 'Manage your school\'s profile, branding, and preferences.'],
     ];
 
