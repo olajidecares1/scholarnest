@@ -34,6 +34,25 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>{!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}</style>
+        <style>
+            .edn-sidebar-scroll {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+            }
+            .edn-sidebar-scroll::-webkit-scrollbar {
+                width: 6px;
+            }
+            .edn-sidebar-scroll::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .edn-sidebar-scroll::-webkit-scrollbar-thumb {
+                background-color: rgba(255, 255, 255, 0.18);
+                border-radius: 9999px;
+            }
+            .edn-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(255, 255, 255, 0.32);
+            }
+        </style>
     </head>
     <body class="bg-gray-50 font-sans text-gray-900 antialiased" x-data="{ sidebarOpen: false }">
         <div
@@ -45,23 +64,25 @@
         ></div>
 
         <aside
-            class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col overflow-y-auto bg-[#111a35] text-white shadow-xl transition-transform duration-200 print:hidden lg:translate-x-0"
+            class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col bg-[#111a35] text-white shadow-xl transition-transform duration-200 print:hidden lg:translate-x-0"
             :class="{ 'translate-x-0': sidebarOpen }"
         >
-            <div class="flex items-center gap-2 px-5 py-4">
+            <div class="flex shrink-0 items-center gap-2 px-5 py-4">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-white p-1 shadow-sm">
                     <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'EduNest') }}" class="h-full w-full object-contain">
                 </span>
                 <p class="text-lg font-extrabold leading-none">{{ config('app.name', 'EduNest') }}</p>
             </div>
 
+            <div class="edn-sidebar-scroll flex-1 overflow-y-auto">
             <div class="mx-3 mb-3 rounded-[8px] bg-white/10 p-3">
                 <div class="flex items-center gap-2.5">
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white p-1 shadow-sm">
+                    <span class="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-500">
+                        <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
                         @if ($school->logoUrl())
-                            <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="h-full w-full rounded-full object-cover">
+                            <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="relative h-full w-full rounded-full bg-white object-cover" onerror="this.style.display='none'">
                         @else
-                            <img src="{{ $logoUrl }}" alt="{{ $school->name }}" class="h-full w-full object-contain">
+                            <img src="{{ $logoUrl }}" alt="{{ $school->name }}" class="relative h-full w-full rounded-full bg-white object-contain p-1.5" onerror="this.style.display='none'">
                         @endif
                     </span>
                     <div class="min-w-0 flex-1">
@@ -74,7 +95,7 @@
                 </div>
             </div>
 
-            <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
+            <nav class="space-y-1 px-3 pb-4">
                 @php
                     $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[44px] items-center gap-3 rounded-[8px] px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out '
                         .($isActive
@@ -269,6 +290,7 @@
             </div>
 
             <p class="px-5 pb-4 text-xs text-slate-400">&copy; {{ now()->year }} {{ config('app.name', 'EduNest') }}. All rights reserved.</p>
+            </div>
         </aside>
 
         <div class="print:pl-0 lg:pl-64">
@@ -390,11 +412,12 @@
                     </div>
                 </div>
 
-                <span class="hidden h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-white p-0.5 sm:flex">
+                <span class="relative hidden h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-blue-50 sm:flex">
+                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-blue-700">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
                     @if ($school->logoUrl())
-                        <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="h-full w-full rounded-full object-cover">
+                        <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="relative h-full w-full rounded-full object-cover" onerror="this.style.display='none'">
                     @else
-                        <img src="{{ $logoUrl }}" alt="{{ $school->name }}" class="h-full w-full object-contain">
+                        <img src="{{ $logoUrl }}" alt="{{ $school->name }}" class="relative h-full w-full bg-white object-contain p-1" onerror="this.style.display='none'">
                     @endif
                 </span>
 
