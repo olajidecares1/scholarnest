@@ -33,11 +33,11 @@
             {{-- Stat cards --}}
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 @foreach ([
-                    ['key' => 'students', 'route' => 'students.index', 'badge' => 'bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400', 'stroke' => '#8b5cf6', 'icon' => 'M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7', 'extra' => '<circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />'],
-                    ['key' => 'staff', 'route' => 'staff.index', 'badge' => 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', 'stroke' => '#1877f2', 'icon' => 'M5 6.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0119 6.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 17.5v-11z', 'extra' => '<circle cx="12" cy="10.5" r="2.25" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 16c.7-1.8 2-2.5 3.5-2.5s2.8.7 3.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                    ['key' => 'attendance', 'route' => 'attendance.index', 'badge' => 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400', 'stroke' => '#22c55e', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />'],
-                    ['key' => 'termAverage', 'route' => 'examinations.index', 'badge' => 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', 'stroke' => '#f59e0b', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
-                    ['key' => 'outstandingFees', 'route' => 'finance.invoices.index', 'badge' => 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400', 'stroke' => '#ef4444', 'icon' => 'M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z', 'extra' => '<circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />'],
+                    ['key' => 'students', 'route' => 'students.index', 'badge' => 'bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400', 'stroke' => '#8b5cf6', 'icon' => 'M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7', 'extra' => '<circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />', 'tooltip' => 'Total number of students enrolled at your school, including inactive records.'],
+                    ['key' => 'staff', 'route' => 'staff.index', 'badge' => 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', 'stroke' => '#1877f2', 'icon' => 'M5 6.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0119 6.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 17.5v-11z', 'extra' => '<circle cx="12" cy="10.5" r="2.25" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 16c.7-1.8 2-2.5 3.5-2.5s2.8.7 3.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />', 'tooltip' => 'Total number of teaching and non-teaching staff registered at your school.'],
+                    ['key' => 'attendance', 'route' => 'attendance.index', 'badge' => 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400', 'stroke' => '#22c55e', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />', 'tooltip' => 'Share of attendance records marked Present or Late so far this week, across all classes.'],
+                    ['key' => 'termAverage', 'route' => 'examinations.index', 'badge' => 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', 'stroke' => '#f59e0b', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />', 'tooltip' => 'Average percentage score across every graded subject in this term\'s examinations.'],
+                    ['key' => 'outstandingFees', 'route' => 'finance.invoices.index', 'badge' => 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400', 'stroke' => '#ef4444', 'icon' => 'M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z', 'extra' => '<circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />', 'tooltip' => 'Total unpaid balance across every invoice — the amount still owed by students.'],
                 ] as $card)
                     @php $data = $statCards[$card['key']]; @endphp
                     <a
@@ -46,7 +46,19 @@
                     >
                         <div class="flex items-start justify-between">
                             <div class="min-w-0">
-                                <p class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">{{ $data['label'] }}</p>
+                                <div class="flex items-center gap-1">
+                                    <p class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">{{ $data['label'] }}</p>
+                                    <span class="group/tip relative hidden shrink-0 sm:inline-flex">
+                                        <svg class="h-3.5 w-3.5 text-gray-300 transition-colors duration-150 hover:text-gray-400 dark:text-gray-600 dark:hover:text-gray-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
+                                            <path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                                        </svg>
+                                        <span class="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-48 -translate-x-1/2 rounded-[8px] bg-gray-900 px-3 py-2 text-xs font-medium normal-case leading-snug text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover/tip:opacity-100 dark:bg-gray-700">
+                                            {{ $card['tooltip'] }}
+                                            <span class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></span>
+                                        </span>
+                                    </span>
+                                </div>
                                 <p class="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white">
                                     @if (! empty($data['isCurrency']))
                                         &#8358;{{ number_format($data['total']) }}
@@ -89,9 +101,21 @@
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:col-span-2 lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-sm font-bold text-gray-900 dark:text-white">Attendance Overview</h2>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Daily attendance so far this week</p>
+                        <div class="flex items-center gap-1.5">
+                            <div>
+                                <h2 class="text-sm font-bold text-gray-900 dark:text-white">Attendance Overview</h2>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Daily attendance so far this week</p>
+                            </div>
+                            <span class="group/tip relative inline-flex shrink-0">
+                                <svg class="h-3.5 w-3.5 text-gray-300 transition-colors duration-150 hover:text-gray-400 dark:text-gray-600 dark:hover:text-gray-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
+                                    <path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                                </svg>
+                                <span class="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-52 -translate-x-1/2 rounded-[8px] bg-gray-900 px-3 py-2 text-xs font-medium normal-case leading-snug text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover/tip:opacity-100 dark:bg-gray-700">
+                                    A student counts as present for a day if they're marked Present or Late on at least one attendance record.
+                                    <span class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></span>
+                                </span>
+                            </span>
                         </div>
                         <span class="rounded-[8px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400">This Week</span>
                     </div>
@@ -147,7 +171,19 @@
             {{-- Performance donut + Upcoming Events --}}
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">Students Performance</h2>
+                    <div class="flex items-center gap-1.5">
+                        <h2 class="text-sm font-bold text-gray-900 dark:text-white">Students Performance</h2>
+                        <span class="group/tip relative inline-flex shrink-0">
+                            <svg class="h-3.5 w-3.5 text-gray-300 transition-colors duration-150 hover:text-gray-400 dark:text-gray-600 dark:hover:text-gray-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                            </svg>
+                            <span class="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-52 -translate-x-1/2 rounded-[8px] bg-gray-900 px-3 py-2 text-xs font-medium normal-case leading-snug text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover/tip:opacity-100 dark:bg-gray-700">
+                                Each student's average score across all graded subjects this term, grouped into four performance bands.
+                                <span class="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></span>
+                            </span>
+                        </span>
+                    </div>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Average exam score per student, this term</p>
 
                     @if ($performanceBreakdown['total'] > 0)

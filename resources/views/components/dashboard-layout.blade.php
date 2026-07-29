@@ -73,15 +73,8 @@
             class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col bg-[#111a35] text-white shadow-xl transition-transform duration-200 print:hidden lg:translate-x-0"
             :class="{ 'translate-x-0': sidebarOpen }"
         >
-            <div class="flex shrink-0 items-center gap-2 px-5 py-4">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-white p-1 shadow-sm">
-                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'EduNest') }}" class="h-full w-full object-contain">
-                </span>
-                <p class="text-lg font-extrabold leading-none">{{ config('app.name', 'EduNest') }}</p>
-            </div>
-
             <div class="edn-sidebar-scroll flex-1 overflow-y-auto">
-            <div class="mx-3 mb-3 rounded-[8px] bg-white/10 p-3">
+            <div class="mx-3 mb-3 mt-4 rounded-[8px] bg-white/10 p-3">
                 <div class="flex items-center gap-2.5">
                     <span class="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-500">
                         <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
@@ -362,6 +355,35 @@
                     @endif
                 </a>
 
+                <button
+                    type="button"
+                    x-data="{ dark: document.documentElement.classList.contains('dark') }"
+                    @click="
+                        dark = !dark;
+                        document.documentElement.classList.toggle('dark', dark);
+                        localStorage.theme = dark ? 'dark' : 'light';
+                    "
+                    :class="dark ? 'bg-blue-600' : 'bg-gray-200'"
+                    class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out dark:bg-gray-700"
+                    role="switch"
+                    :aria-checked="dark.toString()"
+                    title="Toggle dark mode"
+                >
+                    <span class="sr-only">Toggle dark mode</span>
+                    <span
+                        :class="dark ? 'translate-x-6' : 'translate-x-1'"
+                        class="inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md ring-0 transition-transform duration-300 ease-in-out"
+                    >
+                        <svg x-show="!dark" class="h-3 w-3 text-amber-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75" />
+                        </svg>
+                        <svg x-show="dark" style="display: none;" class="h-3 w-3 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                </button>
+
                 <div class="relative" x-data="{ open: false }">
                     <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-800">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -426,25 +448,6 @@
                         <img src="{{ $logoUrl }}" alt="{{ $school->name }}" class="relative h-full w-full bg-white object-contain p-1" onerror="this.style.display='none'">
                     @endif
                 </span>
-
-                <button
-                    type="button"
-                    x-data
-                    @click="
-                        document.documentElement.classList.toggle('dark');
-                        localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-                    "
-                    class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-gray-800"
-                    title="Toggle dark mode"
-                >
-                    <svg class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75" />
-                    </svg>
-                    <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
-                    </svg>
-                </button>
             </header>
 
             <main class="p-4 sm:p-6 lg:p-8 dark:bg-gray-900">
