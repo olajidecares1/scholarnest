@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 
 class Student extends Model
@@ -70,6 +71,22 @@ class Student extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * @return HasOne<TransportAssignment, $this>
+     */
+    public function transportAssignment(): HasOne
+    {
+        return $this->hasOne(TransportAssignment::class);
+    }
+
+    /**
+     * @return HasOne<HostelAllocation, $this>
+     */
+    public function hostelAllocation(): HasOne
+    {
+        return $this->hasOne(HostelAllocation::class);
     }
 
     public function fullName(): string

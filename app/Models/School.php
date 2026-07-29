@@ -208,4 +208,28 @@ class School extends Model
     {
         return $this->hasMany(SchoolGalleryImage::class)->orderBy('sort_order');
     }
+
+    /**
+     * @return HasMany<TransportVehicle, $this>
+     */
+    public function transportVehicles(): HasMany
+    {
+        return $this->hasMany(TransportVehicle::class);
+    }
+
+    /**
+     * @return HasMany<TransportRoute, $this>
+     */
+    public function transportRoutes(): HasMany
+    {
+        return $this->hasMany(TransportRoute::class);
+    }
+
+    /**
+     * @return HasMany<Hostel, $this>
+     */
+    public function hostels(): HasMany
+    {
+        return $this->hasMany(Hostel::class);
+    }
 }

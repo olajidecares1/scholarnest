@@ -12,10 +12,12 @@ use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicat
 use App\Http\Controllers\SchoolAdmin\EventController;
 use App\Http\Controllers\SchoolAdmin\ExaminationController;
 use App\Http\Controllers\SchoolAdmin\FinanceController;
+use App\Http\Controllers\SchoolAdmin\HostelController;
 use App\Http\Controllers\SchoolAdmin\LibraryController;
 use App\Http\Controllers\SchoolAdmin\SettingsController as SchoolSettingsController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
+use App\Http\Controllers\SchoolAdmin\TransportController;
 use App\Http\Controllers\SchoolAdmin\WebsiteController;
 use App\Http\Controllers\Subscriptions\BillingDetailsController;
 use App\Http\Controllers\Subscriptions\ChoosePlanController;
@@ -190,6 +192,40 @@ Route::middleware('auth')->group(function () {
                 Route::post(R::uri('library.loans.return').'/{loan}', [LibraryController::class, 'returnLoan'])->name('return');
             });
         });
+
+        Route::name('transport.')->group(function () {
+            Route::get(R::uri('transport.index'), [TransportController::class, 'index'])->name('index');
+            Route::post(R::uri('transport.index'), [TransportController::class, 'store'])->name('store');
+            Route::put(R::uri('transport.update').'/{vehicle}', [TransportController::class, 'update'])->name('update');
+            Route::delete(R::uri('transport.destroy').'/{vehicle}', [TransportController::class, 'destroy'])->name('destroy');
+
+            Route::name('routes.')->group(function () {
+                Route::get(R::uri('transport.routes.index'), [TransportController::class, 'routes'])->name('index');
+                Route::post(R::uri('transport.routes.store'), [TransportController::class, 'storeRoute'])->name('store');
+                Route::put(R::uri('transport.routes.update').'/{route}', [TransportController::class, 'updateRoute'])->name('update');
+                Route::delete(R::uri('transport.routes.destroy').'/{route}', [TransportController::class, 'destroyRoute'])->name('destroy');
+                Route::get(R::uri('transport.routes.students').'/{route}', [TransportController::class, 'students'])->name('students');
+                Route::post(R::uri('transport.routes.students.store').'/{route}', [TransportController::class, 'storeAssignment'])->name('students.store');
+                Route::delete(R::uri('transport.assignments.destroy').'/{assignment}', [TransportController::class, 'destroyAssignment'])->name('assignments.destroy');
+            });
+        });
+
+        Route::name('hostels.')->group(function () {
+            Route::get(R::uri('hostels.index'), [HostelController::class, 'index'])->name('index');
+            Route::post(R::uri('hostels.index'), [HostelController::class, 'store'])->name('store');
+            Route::put(R::uri('hostels.update').'/{hostel}', [HostelController::class, 'update'])->name('update');
+            Route::delete(R::uri('hostels.destroy').'/{hostel}', [HostelController::class, 'destroy'])->name('destroy');
+
+            Route::get(R::uri('hostels.rooms').'/{hostel}', [HostelController::class, 'rooms'])->name('rooms');
+            Route::post(R::uri('hostels.rooms.store').'/{hostel}', [HostelController::class, 'storeRoom'])->name('rooms.store');
+            Route::put(R::uri('hostels.rooms.update').'/{room}', [HostelController::class, 'updateRoom'])->name('rooms.update');
+            Route::delete(R::uri('hostels.rooms.destroy').'/{room}', [HostelController::class, 'destroyRoom'])->name('rooms.destroy');
+
+            Route::get(R::uri('hostels.students').'/{room}', [HostelController::class, 'students'])->name('students');
+            Route::post(R::uri('hostels.students.store').'/{room}', [HostelController::class, 'storeAllocation'])->name('students.store');
+            Route::delete(R::uri('hostels.allocations.destroy').'/{allocation}', [HostelController::class, 'destroyAllocation'])->name('allocations.destroy');
+        });
+
         Route::name('finance.')->group(function () {
             Route::get(R::uri('finance.index'), [FinanceController::class, 'index'])->name('index');
             Route::post(R::uri('finance.index'), [FinanceController::class, 'storeStructure'])->name('store');
