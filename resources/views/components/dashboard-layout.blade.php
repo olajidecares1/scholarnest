@@ -96,7 +96,7 @@
 
             <nav class="space-y-1 px-3 pb-4">
                 @php
-                    $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[44px] items-center gap-3 rounded-[8px] px-3 py-2.5 text-sm font-medium transition-all duration-300 ease-out '
+                    $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[42px] items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-all duration-300 ease-out active:scale-[0.97] '
                         .($isActive
                             ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                             : 'text-slate-300 hover:translate-x-1 hover:bg-white/5 hover:text-white');
@@ -141,24 +141,27 @@
                     <div
                         x-show="open"
                         x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 -translate-y-1"
-                        x-transition:enter-end="opacity-100 translate-y-0"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100"
-                        x-transition:leave-end="opacity-0"
+                        x-transition:enter-start="opacity-0 -translate-y-1.5 scale-[0.97]"
+                        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                        x-transition:leave-end="opacity-0 -translate-y-1.5 scale-[0.97]"
                         style="display: none;"
-                        class="mt-1 space-y-2 pl-8"
+                        class="mt-1 origin-top space-y-2 pl-8"
                     >
                         @forelse ($academicLevels as $level)
                             @if ($level->classes->isNotEmpty())
                                 <div>
-                                    <p class="px-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ $level->name }}</p>
-                                    <div class="mt-1 space-y-1">
+                                    <p class="px-3 text-[10.5px] font-bold uppercase tracking-wide text-slate-400">{{ $level->name }}</p>
+                                    <div class="mt-1 space-y-0.5">
                                         @foreach ($level->classes as $class)
                                             <a
                                                 href="{{ route('students.index', ['class' => $class->name]) }}"
-                                                class="group flex items-center gap-2 rounded-[8px] px-3 py-1.5 text-sm text-slate-300 transition-all duration-300 ease-out hover:translate-x-1 hover:text-white {{ request()->routeIs('students.*') && request('class') === $class->name ? 'font-semibold text-white' : '' }}"
+                                                class="group flex items-center gap-2 rounded-[6px] px-3 py-1.5 text-xs text-slate-300 transition-all duration-200 ease-out hover:translate-x-1 hover:bg-white/5 hover:text-white active:scale-[0.97] {{ request()->routeIs('students.*') && request('class') === $class->name ? 'font-semibold text-white' : '' }}"
                                             >
+                                                <svg class="h-3.5 w-3.5 shrink-0 text-slate-500 transition-colors duration-200 group-hover:text-blue-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M4 5.7c2.3-1.1 5.4-1.1 8 0M12 5.7c2.6-1.1 5.7-1.1 8 0v12.6c-2.3-1.1-5.4-1.1-8 0M12 5.7v12.6M4 5.7v12.6c2.3-1.1 5.4-1.1 8 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
                                                 {{ $class->name }}
                                             </a>
                                         @endforeach
@@ -171,9 +174,9 @@
 
                         <a
                             href="{{ route('academics.index') }}"
-                            class="group flex items-center gap-2 rounded-[8px] px-3 py-1.5 text-sm font-semibold text-blue-300 transition-all duration-300 ease-out hover:translate-x-1 hover:text-white"
+                            class="group flex items-center gap-2 rounded-[6px] px-3 py-1.5 text-xs font-semibold text-blue-300 transition-all duration-200 ease-out hover:translate-x-1 hover:text-white active:scale-[0.97]"
                         >
-                            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /></svg>
+                            <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /></svg>
                             Manage Levels & Classes
                         </a>
                     </div>
@@ -241,7 +244,7 @@
                     @endif
                     <a
                         href="{{ route('subscriptions.choose-plan') }}"
-                        class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                        class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:scale-[0.97]"
                     >
                         {{ $subscription ? 'Upgrade Plan' : 'Choose a Plan' }}
                     </a>
@@ -252,7 +255,7 @@
                     <p class="mt-1 text-xs text-slate-300">Contact our support team.</p>
                     <a
                         href="{{ route('support-tickets.create') }}"
-                        class="mt-3 inline-flex w-full items-center justify-center rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-[#111a35] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
+                        class="mt-3 inline-flex w-full items-center justify-center rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-[#111a35] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]"
                     >
                         Contact Support
                     </a>
@@ -260,7 +263,7 @@
             </div>
 
             <div class="relative border-t border-white/10 px-3 py-3" x-data="{ open: false }">
-                <button type="button" @click="open = !open" @click.outside="open = false" class="flex w-full items-center gap-2.5 rounded-[8px] px-2 py-2 text-left transition-colors duration-200 hover:bg-white/5">
+                <button type="button" @click="open = !open" @click.outside="open = false" class="flex w-full items-center gap-2.5 rounded-[8px] px-2 py-2 text-left transition-all duration-200 hover:bg-white/5 active:scale-[0.98]">
                     <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500 text-sm font-bold text-white">
                         {{ Str::of(auth()->user()->name)->substr(0, 1)->upper() }}
                         <span class="absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#111a35] bg-green-400"></span>
@@ -310,9 +313,9 @@
                 </button>
 
                 <div class="min-w-0 flex-1">
-                    <h1 class="truncate text-lg font-bold text-gray-900 dark:text-white">{{ $pageTitle }}</h1>
+                    <h1 class="truncate text-base font-bold text-gray-900 dark:text-white">{{ $pageTitle }}</h1>
                     @if ($pageSubtitle)
-                        <p class="truncate text-sm text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</p>
+                        <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</p>
                     @endif
                 </div>
 
@@ -342,10 +345,10 @@
                     </svg>
                 </a>
 
-                <div class="flex items-center gap-0.5 rounded-[8px] border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-900">
+                <div class="flex items-center gap-2.5 rounded-[8px] border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-900">
                     <a
                         href="{{ route('support-tickets.index') }}"
-                        class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm dark:text-gray-400 dark:hover:bg-gray-800"
+                        class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800"
                         title="Support Tickets"
                     >
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -357,7 +360,7 @@
                     </a>
 
                     <div class="relative" x-data="{ open: false }">
-                        <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm dark:text-gray-400 dark:hover:bg-gray-800">
+                        <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                                 <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -421,7 +424,7 @@
                             localStorage.theme = dark ? 'dark' : 'light';
                         "
                         :class="dark ? 'bg-blue-600' : 'bg-gray-300'"
-                        class="relative ml-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out dark:bg-gray-600"
+                        class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out active:scale-95 dark:bg-gray-600"
                         role="switch"
                         :aria-checked="dark.toString()"
                         title="Toggle dark mode"
