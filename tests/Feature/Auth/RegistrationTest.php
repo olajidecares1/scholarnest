@@ -14,8 +14,8 @@ test('new schools can register', function () {
     $response = $this->post(route('register'), [
         'school_name' => 'Greenfield Academy',
         'email' => 'admin@greenfield.example',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
         'terms' => '1',
     ]);
 
@@ -34,8 +34,8 @@ test('registration requires acceptance of terms', function () {
     $response = $this->post(route('register'), [
         'school_name' => 'Greenfield Academy',
         'email' => 'admin@greenfield.example',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
     ]);
 
     $response->assertSessionHasErrors('terms');

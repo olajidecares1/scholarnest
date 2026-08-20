@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ClassStream;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\SchoolClassFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,8 +23,21 @@ class SchoolClass extends Model
         'school_id',
         'academic_level_id',
         'name',
+        'stream',
         'sort_order',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'stream' => ClassStream::class,
+        ];
+    }
 
     /**
      * @return BelongsTo<School, $this>

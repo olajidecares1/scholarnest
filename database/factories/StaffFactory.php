@@ -7,12 +7,18 @@ use App\Enums\StaffRole;
 use App\Models\School;
 use App\Models\Staff;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @extends Factory<Staff>
  */
 class StaffFactory extends Factory
 {
+    /**
+     * The current password being used by the factory.
+     */
+    protected static ?string $password;
+
     /**
      * Define the model's default state.
      *
@@ -33,6 +39,7 @@ class StaffFactory extends Factory
             'employment_date' => fake()->dateTimeBetween('-10 years', 'now'),
             'emergency_contact_name' => fake()->name(),
             'emergency_contact_phone' => fake()->phoneNumber(),
+            'password' => static::$password ??= Hash::make('password'),
             'is_active' => true,
         ];
     }

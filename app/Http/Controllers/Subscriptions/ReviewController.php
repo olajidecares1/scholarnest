@@ -8,6 +8,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
@@ -84,6 +85,8 @@ class ReviewController extends Controller
         });
 
         $this->wizard->clear();
+
+        AuditLog::record('subscription.submitted', "Submitted a {$subscription->plan->name} subscription for review.", $subscription);
 
         User::where('role', UserRole::SuperAdmin)->each(
             fn (User $superAdmin) => $superAdmin->notify(new NewSubscriptionSubmittedNotification($subscription))

@@ -30,6 +30,12 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <!-- Forced empty so a developer's local .env (set for real subdomain
+             testing via "php artisan serve") can never leak into the test
+             suite and redirect/404 requests that tests don't expect - tests
+             that specifically exercise subdomain behavior set this via
+             config() themselves instead. -->
+        <env name="TENANT_BASE_DOMAIN" value=""/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

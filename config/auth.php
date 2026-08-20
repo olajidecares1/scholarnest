@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Guardian;
+use App\Models\Staff;
+use App\Models\Student;
 use App\Models\User;
 
 return [
@@ -42,6 +45,21 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'student' => [
+            'driver' => 'session',
+            'provider' => 'students',
+        ],
+
+        'guardian' => [
+            'driver' => 'session',
+            'provider' => 'guardians',
+        ],
+
+        'staff' => [
+            'driver' => 'session',
+            'provider' => 'staff',
+        ],
     ],
 
     /*
@@ -71,6 +89,21 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        'students' => [
+            'driver' => 'eloquent',
+            'model' => Student::class,
+        ],
+
+        'guardians' => [
+            'driver' => 'eloquent',
+            'model' => Guardian::class,
+        ],
+
+        'staff' => [
+            'driver' => 'eloquent',
+            'model' => Staff::class,
+        ],
     ],
 
     /*
@@ -96,6 +129,27 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'students' => [
+            'provider' => 'students',
+            'table' => 'password_reset_tokens_students',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'guardians' => [
+            'provider' => 'guardians',
+            'table' => 'password_reset_tokens_guardians',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'staff' => [
+            'provider' => 'staff',
+            'table' => 'password_reset_tokens_staff',
             'expire' => 60,
             'throttle' => 60,
         ],

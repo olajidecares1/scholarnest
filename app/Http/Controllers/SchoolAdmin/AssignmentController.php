@@ -6,6 +6,7 @@ use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Student;
+use App\Notifications\NewAssignmentPosted;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -37,6 +38,12 @@ class AssignmentController extends Controller
         $validated = $request->validate($this->rules());
 
         $assignment = $school->assignments()->create($validated);
+
+        Student::where('school_id', $school->id)
+            ->where('class_name', $assignment->class_name)
+            ->where('is_active', true)
+            ->get()
+            ->each(fn (Student $student) => $student->notify(new NewAssignmentPosted($assignment)));
 
         return redirect()->route('assignments.show', $assignment)->with('status', "{$assignment->title} was created.");
     }

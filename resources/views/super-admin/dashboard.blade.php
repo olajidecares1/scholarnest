@@ -1,5 +1,13 @@
 <x-super-admin-layout page-title="Dashboard" page-subtitle="Platform overview and recent activity.">
     <div class="space-y-6">
+        <x-welcome-banner
+            :photo-url="auth()->user()->photoUrl()"
+            :initials="Str::of(auth()->user()->name)->substr(0, 1)->upper()"
+            :name="auth()->user()->name"
+            role-label="Super Administrator"
+            subtitle="Here's the platform at a glance."
+        />
+
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             @foreach ([
                 ['key' => 'schools', 'isCurrency' => false, 'badge' => 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400', 'stroke' => '#1877f2', 'icon' => 'M4 21h16M5 21V10M19 21V10M3 10l9-6 9 6M8 10v11M12 10v11M16 10v11'],
@@ -212,7 +220,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Quick Actions</h2>
-            <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <div class="mt-3 grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-4">
                 @foreach ([
                     ['route' => 'super-admin.schools.create', 'label' => 'Add School', 'icon' => 'M12 4.5v15M4.5 12h15', 'extra' => ''],
                     ['route' => 'super-admin.users.create', 'label' => 'Add Admin', 'icon' => 'M4.5 19.5c.6-2.6 2.7-4.5 5.5-4.5s4.9 1.9 5.5 4.5', 'extra' => '<circle cx="10" cy="8.5" r="3" stroke="currentColor" stroke-width="1.75" /><path d="M18 9v5M20.5 11.5h-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />'],

@@ -22,6 +22,7 @@ class AcademicLevel extends Model
     protected $fillable = [
         'school_id',
         'name',
+        'code',
         'sort_order',
     ];
 

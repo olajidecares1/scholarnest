@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AcademicStage;
 use App\Models\CbtExamBody;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,6 +22,7 @@ class CbtExamBodyFactory extends Factory
             'name' => fake()->unique()->company(),
             'code' => fake()->unique()->lexify('???'),
             'description' => fake()->sentence(),
+            'academic_stages' => [AcademicStage::SeniorSecondary->value],
         ];
     }
 }

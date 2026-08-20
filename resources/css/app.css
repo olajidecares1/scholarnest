@@ -31,3 +31,222 @@
 .edn-wheel::-webkit-scrollbar {
     display: none;
 }
+
+/* Public site navbar: premium entrance + hover micro-interactions. */
+@keyframes edn-fade-slide-down {
+    from {
+        opacity: 0;
+        transform: translateY(-14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.edn-enter {
+    opacity: 0;
+    animation: edn-fade-slide-down 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.edn-nav-link {
+    position: relative;
+    /* Bouncy overshoot easing on the transform gives the hover a springy "bounce"
+       feel without ever touching the `animation` property — swapping `animation`
+       on :hover would cancel the entrance animation's forwards-fill and reset
+       this element back to its base opacity: 0, making it vanish on hover. */
+    isolation: isolate;
+    overflow: hidden;
+    transition:
+        color 0.25s ease-out,
+        transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.edn-nav-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--color-primary-500) 10%, transparent);
+    opacity: 0;
+    transform: scale(0.85);
+    transition:
+        opacity 0.3s ease-out,
+        transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.edn-nav-link::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 0;
+    height: 2px;
+    border-radius: 9999px;
+    background: currentColor;
+    transform: translateX(-50%);
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.edn-nav-link:hover::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.edn-nav-link:hover::after,
+.edn-nav-link.is-active::after {
+    width: calc(100% - 20px);
+}
+
+.edn-nav-link:hover {
+    transform: translateY(-2px);
+}
+
+/* Hero section: slide-in-from-right entrance + slow ambient zoom on slides. */
+@keyframes edn-slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(48px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes edn-kenburns {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.08);
+    }
+}
+
+.edn-enter-right {
+    opacity: 0;
+    animation: edn-slide-in-right 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.edn-kenburns {
+    animation: edn-kenburns 16s ease-in-out infinite alternate;
+}
+
+/* Website visual builder: canvas positioning context + drag/resize handles. */
+[data-canvas] {
+    position: relative;
+    overflow: hidden;
+}
+
+.edn-hero-editable-el {
+    cursor: move;
+    touch-action: none;
+}
+
+/* Preview mode: render the canvas exactly like the live site, chrome-free. */
+.edn-preview-mode .edn-resize-handle {
+    display: none !important;
+}
+
+.edn-preview-mode .edn-hero-editable-el.is-selected {
+    outline: none !important;
+}
+
+.edn-preview-mode [data-canvas] {
+    border-style: solid !important;
+    border-color: transparent !important;
+}
+
+.edn-hero-editable-el.is-selected {
+    outline: 2px solid var(--color-primary-600);
+    outline-offset: 2px;
+}
+
+.edn-resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    border: 1.5px solid var(--color-primary-600);
+    border-radius: 2px;
+    z-index: 20;
+    touch-action: none;
+}
+
+.edn-resize-handle[data-handle='nw'] {
+    top: -5px;
+    left: -5px;
+    cursor: nwse-resize;
+}
+
+.edn-resize-handle[data-handle='n'] {
+    top: -5px;
+    left: calc(50% - 5px);
+    cursor: ns-resize;
+}
+
+.edn-resize-handle[data-handle='ne'] {
+    top: -5px;
+    right: -5px;
+    cursor: nesw-resize;
+}
+
+.edn-resize-handle[data-handle='w'] {
+    top: calc(50% - 5px);
+    left: -5px;
+    cursor: ew-resize;
+}
+
+.edn-resize-handle[data-handle='e'] {
+    top: calc(50% - 5px);
+    right: -5px;
+    cursor: ew-resize;
+}
+
+.edn-resize-handle[data-handle='sw'] {
+    bottom: -5px;
+    left: -5px;
+    cursor: nesw-resize;
+}
+
+.edn-resize-handle[data-handle='s'] {
+    bottom: -5px;
+    left: calc(50% - 5px);
+    cursor: ns-resize;
+}
+
+.edn-resize-handle[data-handle='se'] {
+    bottom: -5px;
+    right: -5px;
+    cursor: nwse-resize;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .edn-enter {
+        animation: none;
+        opacity: 1;
+    }
+
+    .edn-nav-link {
+        transition: color 0.2s ease-out;
+    }
+
+    .edn-nav-link:hover {
+        transform: none;
+    }
+
+    .edn-nav-link::before {
+        transition: opacity 0.2s ease-out;
+        transform: none;
+    }
+
+    .edn-enter-right {
+        animation: none;
+        opacity: 1;
+    }
+
+    .edn-kenburns {
+        animation: none;
+    }
+}

@@ -36,7 +36,7 @@
         {{-- Exam Bodies tab --}}
         <div x-show="tab === 'exam-bodies'">
             <div class="flex justify-end">
-                <button type="button" @click="editingExamBody = null; addExamBodyOpen = true" class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
+                <button type="button" @click="editingExamBody = { name: '', code: '', description: '', academic_stages: [] }; addExamBodyOpen = true" class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Exam Body
                 </button>
@@ -47,13 +47,20 @@
                     <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                         <div class="flex items-start justify-between gap-2">
                             <span class="inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">{{ $examBody->code }}</span>
-                            <button type="button" @click="editingExamBody = { uuid: @js($examBody->uuid), name: @js($examBody->name), code: @js($examBody->code), description: @js($examBody->description) }; addExamBodyOpen = true" class="text-gray-400 transition-colors duration-150 hover:text-primary-600">
+                            <button type="button" @click="editingExamBody = { uuid: @js($examBody->uuid), name: @js($examBody->name), code: @js($examBody->code), description: @js($examBody->description), academic_stages: @js($examBody->academic_stages ?? []) }; addExamBodyOpen = true" class="text-gray-400 transition-colors duration-150 hover:text-primary-600">
                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20l4.3-.7L19 8.6a1.5 1.5 0 000-2.1l-1.5-1.5a1.5 1.5 0 00-2.1 0L4.7 15.7 4 20z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
                             </button>
                         </div>
                         <h3 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">{{ $examBody->name }}</h3>
                         @if ($examBody->description)
                             <p class="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $examBody->description }}</p>
+                        @endif
+                        @if (! empty($examBody->academic_stages))
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                @foreach ($examBody->academic_stages as $stage)
+                                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ \App\Enums\AcademicStage::from($stage)->label() }}</span>
+                                @endforeach
+                            </div>
                         @endif
                         <div class="mt-4 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                             <span>{{ $examBody->subjects_count }} subjects</span>
@@ -114,13 +121,33 @@
         {{-- Add/Edit Exam Body modal --}}
         <div x-show="addExamBodyOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="addExamBodyOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
-                <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editingExamBody ? 'Edit Exam Body' : 'Add Exam Body'"></h3>
-                <form method="POST" :action="editingExamBody ? '{{ route('super-admin.cbt.exam-bodies.update', ['examBody' => '__ID__']) }}'.replace('__ID__', editingExamBody.uuid) : '{{ route('super-admin.cbt.exam-bodies.store') }}'" class="mt-4 space-y-4">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editingExamBody?.uuid ? 'Edit Exam Body' : 'Add Exam Body'"></h3>
+                <form method="POST" :action="editingExamBody?.uuid ? '{{ route('super-admin.cbt.exam-bodies.update', ['examBody' => '__ID__']) }}'.replace('__ID__', editingExamBody.uuid) : '{{ route('super-admin.cbt.exam-bodies.store') }}'" class="mt-4 space-y-4">
                     @csrf
-                    <template x-if="editingExamBody"><input type="hidden" name="_method" value="PUT"></template>
-                    <x-text-field name="name" label="Name" icon="M12 3l8 3.6v2L12 12 4 8.6v-2L12 3z" helper="e.g. West African Examinations Council." x-model="editingExamBody ? editingExamBody.name : ''" required />
-                    <x-text-field name="code" label="Short Code" icon="M7 8h10M7 12h10M7 16h6" helper="A short unique code shown in the sidebar, e.g. WAEC." x-model="editingExamBody ? editingExamBody.code : ''" required />
-                    <x-textarea-field name="description" label="Description" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Optional context shown to other admins." rows="3" x-text="editingExamBody ? editingExamBody.description : ''" />
+                    <template x-if="editingExamBody?.uuid"><input type="hidden" name="_method" value="PUT"></template>
+                    <x-text-field name="name" label="Name" icon="M12 3l8 3.6v2L12 12 4 8.6v-2L12 3z" helper="e.g. West African Examinations Council." x-model="editingExamBody.name" required />
+                    <x-text-field name="code" label="Short Code" icon="M7 8h10M7 12h10M7 16h6" helper="A short unique code shown in the sidebar, e.g. WAEC." x-model="editingExamBody.code" required />
+                    <x-textarea-field name="description" label="Description" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Optional context shown to other admins." rows="3" x-model="editingExamBody.description" />
+
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Academic Stages</label>
+                        <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">Which student levels can see this exam body in their portal.</p>
+                        <div class="flex flex-wrap gap-3">
+                            @foreach (\App\Enums\AcademicStage::cases() as $stage)
+                                <label class="flex items-center gap-2 rounded-[8px] border border-gray-200 px-3 py-1.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
+                                    <input
+                                        type="checkbox"
+                                        name="academic_stages[]"
+                                        value="{{ $stage->value }}"
+                                        x-model="editingExamBody.academic_stages"
+                                        class="rounded border-gray-300 text-primary-500 focus:ring-primary-500"
+                                    >
+                                    {{ $stage->label() }}
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="addExamBodyOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
                         <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>

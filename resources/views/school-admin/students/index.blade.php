@@ -3,14 +3,42 @@
 @endphp
 
 <x-dashboard-layout page-title="Students" page-subtitle="Manage your school's student records.">
-    <div class="space-y-6" x-data="{ open: false, editing: null }">
+    <div class="space-y-6" x-data="{
+        open: false,
+        editing: null,
+        newClassName: '',
+        schoolCode: @js($school->school_code),
+        currentSession: @js($school->current_session),
+        nextAdmissionSequence: @js($school->next_admission_sequence),
+        levelCodesByClassName: @js($levelCodesByClassName),
+        nextAdmissionNumberPreview(className) {
+            if (! this.schoolCode) {
+                return '';
+            }
+
+            const levelCode = this.levelCodesByClassName[className] || 'GEN';
+            const sequence = String(this.nextAdmissionSequence).padStart(3, '0');
+
+            return `${this.schoolCode}-${this.currentSession || 'NOSESSION'}-${levelCode}-${sequence}`;
+        },
+    }">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
             </div>
         @endif
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        @if ($errors->any())
+            <div class="rounded-[5px] bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
+                <ul class="list-inside list-disc space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 {{ $studentSlotLimit !== null ? 'lg:grid-cols-3' : '' }}">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <div class="flex items-center gap-1">
                     <p class="text-sm font-medium text-purple-600">Total Students</p>
@@ -25,6 +53,18 @@
                 </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($activeCount) }}</p>
             </div>
+            @if ($studentSlotLimit !== null)
+                <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+                    <div class="flex items-center gap-1">
+                        <p class="text-sm font-medium text-amber-600">Student Slots Used</p>
+                        <x-stat-tooltip text="Your Basic plan is billed per student, per term — you can admit up to the number of slots you've paid for." />
+                    </div>
+                    <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($activeCount) }} / {{ number_format($studentSlotLimit) }}</p>
+                    @if (\Illuminate\Support\Facades\Route::has('subscription-top-up.create'))
+                        <a href="{{ route('subscription-top-up.create') }}" class="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700">Need more slots? &rarr;</a>
+                    @endif
+                </div>
+            @endif
         </div>
 
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
@@ -34,6 +74,7 @@
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
+                        @input.debounce.500ms="$event.target.form.submit()"
                         placeholder="Search by name or admission number..."
                         class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                     >
@@ -57,7 +98,7 @@
 
                 <button
                     type="button"
-                    @click="editing = null; open = true"
+                    @click="editing = null; newClassName = ''; open = true"
                     class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
@@ -112,6 +153,7 @@
                                                 'gender' => $student->gender->value,
                                                 'date_of_birth' => $student->date_of_birth?->format('Y-m-d'),
                                                 'class_name' => $student->class_name,
+                                                'house' => $student->house,
                                                 'guardian_name' => $student->guardian_name,
                                                 'guardian_phone' => $student->guardian_phone,
                                                 'guardian_email' => $student->guardian_email,
@@ -174,7 +216,17 @@
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <x-text-field name="admission_number" label="Admission Number" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" x-model="editing ? editing.admission_number : ''" required />
+                        @if ($school->auto_generate_admission_numbers)
+                            <div>
+                                <input type="text" readonly tabindex="-1"
+                                    x-bind:value="editing ? editing.admission_number : nextAdmissionNumberPreview(newClassName)"
+                                    class="block h-11 w-full min-w-0 rounded-[8px] border border-gray-300 bg-gray-50 px-3 text-[13.5px] font-medium text-gray-500 shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-400">
+                                <input type="hidden" name="admission_number" x-bind:value="editing ? editing.admission_number : nextAdmissionNumberPreview(newClassName)">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Admission Number &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</p>
+                            </div>
+                        @else
+                            <x-text-field name="admission_number" label="Admission Number" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" x-model="editing ? editing.admission_number : ''" required />
+                        @endif
                         <x-select-field
                             name="gender"
                             label="Gender"
@@ -189,16 +241,17 @@
                         <x-text-field name="last_name" label="Last Name" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" x-model="editing ? editing.last_name : ''" required />
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <x-text-field name="date_of_birth" label="Date of Birth" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" x-model="editing ? editing.date_of_birth : ''" />
                         <x-select-field
                             name="class_name"
                             label="Class"
-                            model="editing ? editing.class_name : ''"
+                            model="editing ? editing.class_name : newClassName"
                             placeholder="No class assigned"
                             helper="Manage classes from the Academics section."
                             :options="['' => 'No class assigned'] + $academicLevels->flatMap->classes->pluck('name', 'name')->all()"
                         />
+                        <x-text-field name="house" label="House" icon="M4 10.5L12 4l8 6.5V19a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1v-8.5z" x-model="editing ? editing.house : ''" placeholder="e.g. Blue House" />
                     </div>
 
                     <div>

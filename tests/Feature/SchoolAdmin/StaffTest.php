@@ -2,18 +2,18 @@
 
 use App\Enums\Gender;
 use App\Enums\StaffRole;
-use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Models\School;
 use App\Models\Staff;
-use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->school = School::factory()->create();
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+    activateSchool($this->school);
 });
 
 test('a school admin can view their staff list', function () {
@@ -204,11 +204,30 @@ test('staff can be filtered by role', function () {
         ->assertDontSee('Tunde Bello');
 });
 
+test('a school admin can set a staff member\'s portal password', function () {
+    $member = Staff::factory()->create(['school_id' => $this->school->id, 'password' => null]);
+
+    $this->actingAs($this->admin)
+        ->put(route('staff.update-password', $member), [
+            'password' => 'NewPortal@123',
+        ])
+        ->assertRedirect();
+
+    $this->assertTrue(Hash::check('NewPortal@123', $member->fresh()->password));
+});
+
+test('a school admin cannot set a portal password for another school\'s staff member', function () {
+    $otherSchool = School::factory()->create();
+    $member = Staff::factory()->create(['school_id' => $otherSchool->id]);
+
+    $this->actingAs($this->admin)
+        ->put(route('staff.update-password', $member), [
+            'password' => 'NewPortal@123',
+        ])
+        ->assertForbidden();
+});
+
 test('the dashboard shows the real total staff count', function () {
-    Subscription::factory()->create([
-        'school_id' => $this->school->id,
-        'status' => SubscriptionStatus::Active,
-    ]);
     Staff::factory()->count(3)->create(['school_id' => $this->school->id, 'is_active' => true]);
     Staff::factory()->create(['school_id' => $this->school->id, 'is_active' => false]);
 

@@ -5,14 +5,18 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Enums\BillingCycle;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
+use App\Enums\SubscriptionTopUpStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\BulkSubscriptionRequest;
 use App\Http\Requests\SuperAdmin\RejectSubscriptionRequest;
 use App\Models\AuditLog;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\SubscriptionTopUp;
 use App\Notifications\SubscriptionApprovedNotification;
 use App\Notifications\SubscriptionRejectedNotification;
+use App\Notifications\SubscriptionTopUpApprovedNotification;
+use App\Notifications\SubscriptionTopUpRejectedNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,13 +29,17 @@ class SubscriptionApprovalController extends Controller
 {
     public function index(Request $request): View
     {
-        $subscriptions = $this->filteredQuery($request)->paginate(7)->withQueryString();
+        $tab = $request->query('tab', 'pending');
+
+        $subscriptions = $tab === 'top-ups' ? null : $this->filteredQuery($request)->paginate(7)->withQueryString();
+        $topUps = $tab === 'top-ups' ? $this->filteredTopUpQuery($request)->paginate(7)->withQueryString() : null;
 
         $autoActivateEligibleIds = $this->autoActivateEligibleQuery()->pluck('id');
 
         return view('super-admin.subscriptions.index', [
             'subscriptions' => $subscriptions,
-            'tab' => $request->query('tab', 'pending'),
+            'topUps' => $topUps,
+            'tab' => $tab,
             'plans' => Plan::orderBy('sort_order')->get(),
             'autoActivateEligibleIds' => $autoActivateEligibleIds,
             'stats' => [
@@ -42,6 +50,7 @@ class SubscriptionApprovalController extends Controller
                     ->whereNotNull('ends_at')
                     ->whereBetween('ends_at', [now(), now()->addDays(30)])
                     ->count(),
+                'pendingTopUps' => SubscriptionTopUp::where('status', SubscriptionTopUpStatus::PendingVerification)->count(),
             ],
         ]);
     }
@@ -80,6 +89,20 @@ class SubscriptionApprovalController extends Controller
         $subscriptions->each(fn (Subscription $subscription) => $this->rejectOne($subscription, $request->validated('reason')));
 
         return back()->with('status', "{$subscriptions->count()} subscription(s) rejected.");
+    }
+
+    public function approveTopUp(SubscriptionTopUp $topUp): RedirectResponse
+    {
+        $this->activateTopUp($topUp);
+
+        return back()->with('status', "Top-up for {$topUp->subscription->school->name} has been approved and applied.");
+    }
+
+    public function rejectTopUp(RejectSubscriptionRequest $request, SubscriptionTopUp $topUp): RedirectResponse
+    {
+        $this->rejectTopUpOne($topUp, $request->validated('reason'));
+
+        return back()->with('status', "Top-up for {$topUp->subscription->school->name} has been rejected.");
     }
 
     public function export(Request $request): StreamedResponse
@@ -145,6 +168,23 @@ class SubscriptionApprovalController extends Controller
         return $query->latest();
     }
 
+    private function filteredTopUpQuery(Request $request): Builder
+    {
+        $query = SubscriptionTopUp::query()->with(['subscription.school', 'subscription.plan']);
+
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        } else {
+            $query->where('status', SubscriptionTopUpStatus::PendingVerification);
+        }
+
+        if ($search = $request->query('search')) {
+            $query->whereHas('subscription.school', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+        }
+
+        return $query->latest();
+    }
+
     private function autoActivateEligibleQuery(): Builder
     {
         return Subscription::where('status', SubscriptionStatus::PendingVerification)
@@ -192,6 +232,46 @@ class SubscriptionApprovalController extends Controller
         );
 
         AuditLog::record('subscription.rejected', "Rejected subscription for {$subscription->school->name}.", $subscription);
+    }
+
+    private function activateTopUp(SubscriptionTopUp $topUp): void
+    {
+        DB::transaction(function () use ($topUp) {
+            $subscription = $topUp->subscription;
+
+            $subscription->update([
+                'students_count' => $subscription->students_count + $topUp->additional_students_count,
+                'amount' => $subscription->amount + $topUp->additional_amount,
+            ]);
+
+            $topUp->update([
+                'status' => SubscriptionTopUpStatus::Approved,
+                'verified_by' => auth()->id(),
+                'verified_at' => now(),
+            ]);
+        });
+
+        $topUp->subscription->school->users()->each(
+            fn ($user) => $user->notify(new SubscriptionTopUpApprovedNotification($topUp))
+        );
+
+        AuditLog::record('subscription.topup.approved', "Approved a {$topUp->additional_students_count}-student top-up for {$topUp->subscription->school->name}.", $topUp);
+    }
+
+    private function rejectTopUpOne(SubscriptionTopUp $topUp, ?string $reason): void
+    {
+        $topUp->update([
+            'status' => SubscriptionTopUpStatus::Rejected,
+            'verified_by' => auth()->id(),
+            'verified_at' => now(),
+            'notes' => $reason,
+        ]);
+
+        $topUp->subscription->school->users()->each(
+            fn ($user) => $user->notify(new SubscriptionTopUpRejectedNotification($topUp, $reason))
+        );
+
+        AuditLog::record('subscription.topup.rejected', "Rejected a {$topUp->additional_students_count}-student top-up for {$topUp->subscription->school->name}.", $topUp);
     }
 
     private function calculateEndDate(BillingCycle $billingCycle): Carbon

@@ -10,6 +10,7 @@ use App\Models\User;
 beforeEach(function () {
     $this->school = School::factory()->create();
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+    activateSchool($this->school);
 });
 
 test('a school admin can create an assignment', function () {
@@ -26,6 +27,24 @@ test('a school admin can create an assignment', function () {
     $assignment = Assignment::where('title', 'Algebra Worksheet')->firstOrFail();
     expect($assignment->school_id)->toBe($this->school->id);
     expect($assignment->max_score)->toBe(20);
+});
+
+test('creating an assignment notifies active students in that class only', function () {
+    $inClass = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => true]);
+    $inactiveInClass = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => false]);
+    $otherClass = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 2', 'is_active' => true]);
+
+    $this->actingAs($this->admin)->post(route('assignments.store'), [
+        'class_name' => 'JSS 1',
+        'subject' => 'Mathematics',
+        'title' => 'Algebra Worksheet',
+        'due_date' => now()->addWeek()->toDateString(),
+        'max_score' => 20,
+    ]);
+
+    expect($inClass->fresh()->unreadNotifications()->count())->toBe(1);
+    expect($inactiveInClass->fresh()->unreadNotifications()->count())->toBe(0);
+    expect($otherClass->fresh()->unreadNotifications()->count())->toBe(0);
 });
 
 test('a school admin only sees assignments from their own school', function () {

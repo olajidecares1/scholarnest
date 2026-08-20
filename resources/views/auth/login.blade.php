@@ -72,8 +72,8 @@
                     Remember me
                 </label>
 
-                @if (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" class="text-sm font-semibold text-primary-500 hover:text-primary-600">
+                @if (Route::has('admin.password-reset.request'))
+                    <a href="{{ route('admin.password-reset.request') }}" class="text-sm font-semibold text-primary-500 hover:text-primary-600">
                         Forgot password?
                     </a>
                 @endif

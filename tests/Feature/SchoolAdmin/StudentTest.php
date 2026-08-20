@@ -1,11 +1,9 @@
 <?php
 
 use App\Enums\Gender;
-use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Models\School;
 use App\Models\Student;
-use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 beforeEach(function () {
     $this->school = School::factory()->create();
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+    activateSchool($this->school);
 });
 
 test('a school admin can view their students list', function () {
@@ -52,6 +51,23 @@ test('a school admin can add a student', function () {
     expect($student->school_id)->toBe($this->school->id);
     expect($student->fullName())->toBe('Chinedu Eze');
     expect($student->is_active)->toBeTrue();
+});
+
+test('a school admin can set a student\'s house', function () {
+    $student = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1']);
+
+    $this->actingAs($this->admin)
+        ->put(route('students.update', $student), [
+            'admission_number' => $student->admission_number,
+            'first_name' => $student->first_name,
+            'last_name' => $student->last_name,
+            'gender' => $student->gender->value,
+            'class_name' => $student->class_name,
+            'house' => 'Blue House',
+        ])
+        ->assertRedirect();
+
+    expect($student->fresh()->house)->toBe('Blue House');
 });
 
 test('admission numbers must be unique within a school', function () {
@@ -198,14 +214,10 @@ test('students can be filtered by class', function () {
 });
 
 test('the dashboard shows the real total students count', function () {
-    Subscription::factory()->create([
-        'school_id' => $this->school->id,
-        'status' => SubscriptionStatus::Active,
-    ]);
     Student::factory()->count(3)->create(['school_id' => $this->school->id, 'is_active' => true]);
     Student::factory()->create(['school_id' => $this->school->id, 'is_active' => false]);
 
-    $response = $this->actingAs($this->admin)->get(route('dashboard'));
+    $response = $this->actingAs($this->admin)->get(route('overview.index'));
 
     $response->assertSeeInOrder(['Total Students', '4']);
 });

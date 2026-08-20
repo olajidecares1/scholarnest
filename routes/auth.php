@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AdminPasswordResetController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -34,6 +35,26 @@ Route::middleware('guest')->group(function () {
 
     Route::post(R::uri('password.store'), [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    // The School Admin (web-guard) forgot-password flow: link + 6-digit
+    // code. Deliberately has no Student/Staff/Guardian equivalent - see
+    // App\Http\Controllers\Auth\AdminPasswordResetController's docblock.
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::get(R::uri('admin.password-reset.request'), [AdminPasswordResetController::class, 'create'])
+            ->name('admin.password-reset.request');
+
+        Route::post(R::uri('admin.password-reset.request'), [AdminPasswordResetController::class, 'store'])
+            ->name('admin.password-reset.send');
+
+        Route::get(R::uri('admin.password-reset.show').'/{token}', [AdminPasswordResetController::class, 'show'])
+            ->name('admin.password-reset.show');
+
+        Route::post(R::uri('admin.password-reset.show').'/{token}/verify-code', [AdminPasswordResetController::class, 'verifyCode'])
+            ->name('admin.password-reset.verify-code');
+
+        Route::post(R::uri('admin.password-reset.show').'/{token}/complete', [AdminPasswordResetController::class, 'complete'])
+            ->name('admin.password-reset.complete');
+    });
 });
 
 Route::middleware('auth')->group(function () {

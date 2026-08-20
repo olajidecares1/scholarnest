@@ -22,7 +22,7 @@ test('a school admin without a subscription sees the choose-a-plan prompt', func
         ->assertSee(route('subscriptions.choose-plan'), false);
 });
 
-test('a school admin with an active subscription sees the full dashboard', function () {
+test('a school admin with an active subscription sees the module grid dashboard', function () {
     Subscription::factory()->create([
         'school_id' => $this->school->id,
         'status' => SubscriptionStatus::Active,
@@ -31,6 +31,23 @@ test('a school admin with an active subscription sees the full dashboard', funct
 
     $this->actingAs($this->admin)
         ->get(route('dashboard'))
+        ->assertStatus(200)
+        ->assertSee('Students')
+        ->assertSee('Teachers & Staff')
+        ->assertSee('Overview')
+        ->assertSee('Reports')
+        ->assertSee($this->school->name);
+});
+
+test('a school admin with an active subscription sees the full analytics overview', function () {
+    Subscription::factory()->create([
+        'school_id' => $this->school->id,
+        'status' => SubscriptionStatus::Active,
+        'ends_at' => now()->addMonths(3),
+    ]);
+
+    $this->actingAs($this->admin)
+        ->get(route('overview.index'))
         ->assertStatus(200)
         ->assertSee('Total Students')
         ->assertSee('Teachers & Staff')
@@ -46,12 +63,12 @@ test('a school admin with an active subscription sees the full dashboard', funct
         ->assertSee($this->school->name);
 });
 
-test('recent announcements on the dashboard show real data', function () {
+test('recent announcements on the overview page show real data', function () {
     Subscription::factory()->create(['school_id' => $this->school->id, 'status' => SubscriptionStatus::Active]);
     Announcement::factory()->create(['title' => 'Mid-Term Break', 'body' => 'School will be closed from May 20 to May 24.']);
 
     $this->actingAs($this->admin)
-        ->get(route('dashboard'))
+        ->get(route('overview.index'))
         ->assertSee('Mid-Term Break')
         ->assertSee('School will be closed from May 20 to May 24.');
 });
@@ -71,6 +88,7 @@ test('the sidebar lists every module and links to a real route', function () {
 });
 
 test('a school admin can view the communications page with real announcements', function () {
+    activateSchool($this->school);
     Announcement::factory()->create(['title' => 'Science Fair 2025', 'body' => 'The annual science fair will hold on June 5.']);
 
     $this->actingAs($this->admin)

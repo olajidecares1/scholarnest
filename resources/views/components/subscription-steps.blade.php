@@ -15,17 +15,17 @@
         @foreach ($steps as $number => $step)
             <li
                 @class([
-                    'flex flex-1 items-center',
-                    "after:mx-2 after:mt-4 after:h-0.5 after:flex-1 after:content-[''] sm:after:mx-4" => $number !== count($steps),
-                    'after:bg-primary-500' => $number < $current,
+                    'flex min-w-0 flex-1 items-center',
+                    "after:mx-1.5 after:mt-4 after:h-0.5 after:min-w-4 after:flex-1 after:content-[''] sm:after:mx-3" => $number !== count($steps),
+                    'after:bg-green-500' => $number < $current,
                     'after:bg-gray-200' => $number >= $current,
                 ])
             >
-                <div class="flex flex-col items-center text-center sm:flex-row sm:text-left">
+                <div class="flex min-w-0 flex-col items-center text-center">
                     <span
                         @class([
                             'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold sm:h-10 sm:w-10',
-                            'bg-primary-500 text-white' => $number < $current,
+                            'bg-green-500 text-white' => $number < $current,
                             'bg-primary-600 text-white ring-4 ring-primary-100' => $number === $current,
                             'bg-gray-100 text-gray-400' => $number > $current,
                         ])
@@ -38,15 +38,15 @@
                             {{ $number }}
                         @endif
                     </span>
-                    <div class="mt-1 sm:ml-3 sm:mt-0">
+                    <div class="mt-1.5 min-w-0">
                         <p @class([
-                            'text-xs font-semibold sm:text-sm',
+                            'truncate text-[11px] font-bold leading-tight sm:text-xs',
                             'text-gray-900' => $number <= $current,
                             'text-gray-400' => $number > $current,
                         ])>
                             {{ $step['label'] }}
                         </p>
-                        <p class="hidden text-xs text-gray-500 sm:block">
+                        <p class="mt-0.5 text-[10px] font-semibold leading-tight text-gray-600">
                             @if ($number < $current)
                                 Completed
                             @elseif ($number === $current)

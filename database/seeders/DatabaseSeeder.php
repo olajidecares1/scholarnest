@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(PlanSeeder::class);
         $this->call(CbtSeeder::class);
+        $this->call(SubjectSeeder::class);
 
         // User::factory(10)->create();
 

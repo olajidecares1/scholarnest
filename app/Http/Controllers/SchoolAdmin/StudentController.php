@@ -4,19 +4,27 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\Gender;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
+use App\Models\Guardian;
 use App\Models\Student;
+use App\Services\IdentifierGenerator;
 use App\Services\ImageOptimizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class StudentController extends Controller
 {
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(
+        private readonly ImageOptimizer $optimizer,
+        private readonly IdentifierGenerator $identifiers,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -36,18 +44,37 @@ class StudentController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        $academicLevels = $school->academicLevels()->with('classes')->get();
+
         return view('school-admin.students.index', [
+            'school' => $school,
             'students' => $students,
-            'academicLevels' => $school->academicLevels()->with('classes')->get(),
+            'academicLevels' => $academicLevels,
             'totalCount' => $school->students()->count(),
             'activeCount' => $school->students()->where('is_active', true)->count(),
+            'studentSlotLimit' => $school->studentSlotLimit(),
+            'levelCodesByClassName' => $academicLevels->flatMap(
+                fn ($level) => $level->classes->mapWithKeys(fn ($class) => [$class->name => $level->code ?: 'GEN'])
+            ),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $school = $request->user()->school;
-        $validated = $request->validate($this->rules($school->id));
+        $validated = $request->validate($this->rules($school->id, null, $school->auto_generate_admission_numbers));
+
+        $limit = $school->studentSlotLimit();
+
+        if ($limit !== null && $school->students()->where('is_active', true)->count() >= $limit) {
+            return back()->withErrors([
+                'admission_number' => "Student subscription limit reached. Your current subscription allows {$limit} students. Please make an additional payment or upgrade your subscription to admit more students.",
+            ])->withInput();
+        }
+
+        if ($school->auto_generate_admission_numbers) {
+            $validated['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $validated['class_name'] ?? null);
+        }
 
         $student = $school->students()->create([
             ...Arr::except($validated, 'photo'),
@@ -69,8 +96,16 @@ class StudentController extends Controller
     public function update(Request $request, Student $student): RedirectResponse
     {
         $this->authorizeStudent($student);
+        $autoGenerate = $student->school->auto_generate_admission_numbers;
 
-        $validated = $request->validate($this->rules($student->school_id, $student->id));
+        $validated = $request->validate($this->rules($student->school_id, $student->id, $autoGenerate));
+
+        if ($autoGenerate) {
+            // The admission number is locked once auto-generation is on -
+            // any value submitted for it (the field is disabled in the
+            // form, but never trust client input for this) is ignored.
+            unset($validated['admission_number']);
+        }
 
         $student->update([
             ...Arr::except($validated, 'photo'),
@@ -103,14 +138,77 @@ class StudentController extends Controller
         return back()->with('status', $student->is_active ? "{$student->fullName()} is now active." : "{$student->fullName()} was deactivated.");
     }
 
+    public function updatePassword(Request $request, Student $student): RedirectResponse
+    {
+        $this->authorizeStudent($student);
+
+        $validated = $request->validate([
+            'password' => ['required', 'string', Password::defaults()],
+        ]);
+
+        $student->update(['password' => Hash::make($validated['password']), 'must_change_password' => true]);
+
+        AuditLog::record('password.reset', "Portal password reset for student {$student->fullName()}.", $student);
+
+        return back()->with('status', "Portal password set for {$student->fullName()}.");
+    }
+
+    public function storeGuardian(Request $request, Student $student): RedirectResponse
+    {
+        $this->authorizeStudent($student);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'email' => ['required', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'relationship' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $guardian = Guardian::firstOrCreate(
+            ['school_id' => $student->school_id, 'email' => $validated['email']],
+            ['name' => $validated['name'], 'phone' => $validated['phone'] ?? null],
+        );
+
+        $guardian->students()->syncWithoutDetaching([
+            $student->id => ['relationship' => $validated['relationship'] ?? null],
+        ]);
+
+        return back()->with('status', "{$guardian->name} was linked as a guardian for {$student->fullName()}.");
+    }
+
+    public function updateGuardianPassword(Request $request, Guardian $guardian): RedirectResponse
+    {
+        abort_unless($guardian->school_id === auth()->user()->school_id, 403);
+
+        $validated = $request->validate([
+            'password' => ['required', 'string', Password::defaults()],
+        ]);
+
+        $guardian->update(['password' => Hash::make($validated['password']), 'must_change_password' => true]);
+
+        AuditLog::record('password.reset', "Portal password reset for guardian {$guardian->name}.", $guardian);
+
+        return back()->with('status', "Portal password set for {$guardian->name}.");
+    }
+
+    public function destroyGuardian(Student $student, Guardian $guardian): RedirectResponse
+    {
+        $this->authorizeStudent($student);
+        abort_unless($guardian->school_id === auth()->user()->school_id, 403);
+
+        $guardian->students()->detach($student->id);
+
+        return back()->with('status', "{$guardian->name} was unlinked from {$student->fullName()}.");
+    }
+
     /**
      * @return array<string, mixed>
      */
-    private function rules(int $schoolId, ?int $ignoreId = null): array
+    private function rules(int $schoolId, ?int $ignoreId = null, bool $autoGenerateAdmissionNumber = false): array
     {
         return [
             'admission_number' => [
-                'required', 'string', 'max:50',
+                $autoGenerateAdmissionNumber ? 'nullable' : 'required', 'string', 'max:50',
                 Rule::unique('students', 'admission_number')->where('school_id', $schoolId)->ignore($ignoreId),
             ],
             'first_name' => ['required', 'string', 'max:100'],
@@ -118,6 +216,7 @@ class StudentController extends Controller
             'gender' => ['required', Rule::enum(Gender::class)],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
             'class_name' => ['nullable', 'string', 'max:50'],
+            'house' => ['nullable', 'string', 'max:100'],
             'guardian_name' => ['nullable', 'string', 'max:150'],
             'guardian_phone' => ['nullable', 'string', 'max:30'],
             'guardian_email' => ['nullable', 'email', 'max:255'],

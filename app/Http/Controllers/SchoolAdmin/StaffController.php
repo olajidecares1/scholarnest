@@ -5,19 +5,26 @@ namespace App\Http\Controllers\SchoolAdmin;
 use App\Enums\Gender;
 use App\Enums\StaffRole;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Staff;
+use App\Services\IdentifierGenerator;
 use App\Services\ImageOptimizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class StaffController extends Controller
 {
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(
+        private readonly ImageOptimizer $optimizer,
+        private readonly IdentifierGenerator $identifiers,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -38,6 +45,7 @@ class StaffController extends Controller
             ->withQueryString();
 
         return view('school-admin.staff.index', [
+            'school' => $school,
             'staff' => $staff,
             'totalCount' => $school->staff()->count(),
             'activeCount' => $school->staff()->where('is_active', true)->count(),
@@ -47,7 +55,22 @@ class StaffController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $school = $request->user()->school;
-        $validated = $request->validate($this->rules($school->id));
+        $validated = $request->validate($this->rules($school->id, null, $school->auto_generate_staff_ids));
+
+        if ($school->auto_generate_staff_ids) {
+            $validated['staff_number'] = $this->identifiers->nextStaffId($school);
+        }
+
+        if (StaffRole::from($validated['role']) === StaffRole::Teacher) {
+            $limit = $school->teacherAccountLimit();
+            $activeTeacherCount = $school->staff()->where('role', StaffRole::Teacher)->where('is_active', true)->count();
+
+            if ($limit !== null && $activeTeacherCount >= $limit) {
+                return back()->withErrors([
+                    'role' => "You have reached the maximum of {$limit} teacher accounts available on the Basic Plan. Please upgrade your subscription to add more teachers.",
+                ])->withInput();
+            }
+        }
 
         $member = $school->staff()->create([
             ...Arr::except($validated, 'photo'),
@@ -69,8 +92,16 @@ class StaffController extends Controller
     public function update(Request $request, Staff $member): RedirectResponse
     {
         $this->authorizeStaff($member);
+        $autoGenerate = $member->school->auto_generate_staff_ids;
 
-        $validated = $request->validate($this->rules($member->school_id, $member->id));
+        $validated = $request->validate($this->rules($member->school_id, $member->id, $autoGenerate));
+
+        if ($autoGenerate) {
+            // The staff ID is locked once auto-generation is on - any value
+            // submitted for it (the field is disabled in the form, but
+            // never trust client input for this) is ignored.
+            unset($validated['staff_number']);
+        }
 
         $member->update([
             ...Arr::except($validated, 'photo'),
@@ -103,14 +134,29 @@ class StaffController extends Controller
         return back()->with('status', $member->is_active ? "{$member->fullName()} is now active." : "{$member->fullName()} was deactivated.");
     }
 
+    public function updatePassword(Request $request, Staff $member): RedirectResponse
+    {
+        $this->authorizeStaff($member);
+
+        $validated = $request->validate([
+            'password' => ['required', 'string', Password::defaults()],
+        ]);
+
+        $member->update(['password' => Hash::make($validated['password']), 'must_change_password' => true]);
+
+        AuditLog::record('password.reset', "Portal password reset for staff member {$member->fullName()}.", $member);
+
+        return back()->with('status', "Portal password set for {$member->fullName()}.");
+    }
+
     /**
      * @return array<string, mixed>
      */
-    private function rules(int $schoolId, ?int $ignoreId = null): array
+    private function rules(int $schoolId, ?int $ignoreId = null, bool $autoGenerateStaffId = false): array
     {
         return [
             'staff_number' => [
-                'required', 'string', 'max:50',
+                $autoGenerateStaffId ? 'nullable' : 'required', 'string', 'max:50',
                 Rule::unique('staff', 'staff_number')->where('school_id', $schoolId)->ignore($ignoreId),
             ],
             'first_name' => ['required', 'string', 'max:100'],

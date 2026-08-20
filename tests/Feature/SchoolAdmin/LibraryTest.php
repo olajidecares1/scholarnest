@@ -10,6 +10,7 @@ use App\Models\User;
 beforeEach(function () {
     $this->school = School::factory()->create();
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+    activateSchool($this->school);
 });
 
 test('a school admin can add a book', function () {

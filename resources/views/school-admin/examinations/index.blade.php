@@ -1,9 +1,11 @@
 @php
     $classOptions = $academicLevels->flatMap->classes->pluck('name', 'name')->all();
+    $sessionSelectOptions = collect($sessionOptions)->mapWithKeys(fn ($session) => [$session => $session])->all();
+    $blankExamForm = ['uuid' => '', 'name' => '', 'class_name' => '', 'term' => '', 'session' => '', 'exam_date' => ''];
 @endphp
 
 <x-dashboard-layout page-title="Examinations" page-subtitle="Manage exams, scores, and report cards.">
-    <div class="space-y-6" x-data="{ open: false }">
+    <div class="space-y-6" x-data="{ open: false, form: @js($blankExamForm) }">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
@@ -27,7 +29,7 @@
 
                 <button
                     type="button"
-                    @click="open = true"
+                    @click="form = @js($blankExamForm); open = true"
                     class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
@@ -63,6 +65,20 @@
                                     <div class="flex items-center gap-2">
                                         <a href="{{ route('examinations.show', $examination) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage</a>
                                         <a href="{{ route('examinations.report-cards.index', $examination) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Report Cards</a>
+                                        <button
+                                            type="button"
+                                            @click="form = @js([
+                                                'uuid' => $examination->uuid,
+                                                'name' => $examination->name,
+                                                'class_name' => $examination->class_name,
+                                                'term' => $examination->term->value,
+                                                'session' => $examination->session,
+                                                'exam_date' => $examination->exam_date?->format('Y-m-d'),
+                                            ]); open = true"
+                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        >
+                                            Edit
+                                        </button>
                                         <form method="POST" action="{{ route('examinations.destroy', $examination) }}" onsubmit="return confirm('Delete {{ $examination->name }}? All subjects and scores will be removed.');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
@@ -86,27 +102,33 @@
             @endif
         </div>
 
-        {{-- New Examination modal --}}
+        {{-- New/Edit Examination modal --}}
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
-                <h3 class="text-sm font-bold text-gray-900 dark:text-white">New Examination</h3>
-                <form method="POST" action="{{ route('examinations.store') }}" class="mt-4 space-y-4">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="form.uuid ? 'Edit Examination' : 'New Examination'"></h3>
+                <form
+                    method="POST"
+                    :action="form.uuid ? '{{ route('examinations.update', ['examination' => '__ID__']) }}'.replace('__ID__', form.uuid) : '{{ route('examinations.store') }}'"
+                    class="mt-4 space-y-4"
+                >
                     @csrf
-                    <x-text-field name="name" label="Examination Name" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" placeholder="e.g. First Term Examination" required />
+                    <template x-if="form.uuid"><input type="hidden" name="_method" value="PUT"></template>
+
+                    <x-text-field name="name" label="Examination Name" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" placeholder="e.g. First Term Examination" x-model="form.name" required />
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <x-select-field name="class_name" label="Class" required :options="$classOptions" />
-                        <x-select-field name="term" label="Term" required :options="collect($termOptions)->mapWithKeys(fn ($t) => [$t->value => $t->label()])->all()" />
+                        <x-select-field name="class_name" label="Class" required :options="$classOptions" :model="'form.class_name'" />
+                        <x-select-field name="term" label="Term" required :options="collect($termOptions)->mapWithKeys(fn ($t) => [$t->value => $t->label()])->all()" :model="'form.term'" />
                     </div>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <x-text-field name="session" label="Session" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" placeholder="e.g. 2025/2026" required />
-                        <x-text-field name="exam_date" label="Exam Date" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" />
+                        <x-select-field name="session" label="Academic Session" required :options="$sessionSelectOptions" :model="'form.session'" />
+                        <x-text-field name="exam_date" label="Exam Date" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" x-model="form.exam_date" />
                     </div>
 
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Create Examination</button>
+                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" x-text="form.uuid ? 'Save Changes' : 'Create Examination'"></button>
                     </div>
                 </form>
             </div>

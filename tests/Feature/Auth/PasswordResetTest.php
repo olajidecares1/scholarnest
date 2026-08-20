@@ -48,8 +48,8 @@ test('password can be reset with valid token', function () {
         $response = $this->post(route('password.store'), [
             'token' => $notification->token,
             'email' => $user->email,
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
         ]);
 
         $response
@@ -71,8 +71,8 @@ test('a security alert is sent after a successful password reset', function () {
         $this->post(route('password.store'), [
             'token' => $notification->token,
             'email' => $user->email,
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
         ]);
 
         return true;

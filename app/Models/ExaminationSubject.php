@@ -40,4 +40,20 @@ class ExaminationSubject extends Model
     {
         return $this->hasMany(ExaminationScore::class);
     }
+
+    /**
+     * The Test component's max score, derived from this subject's overall
+     * max_score rather than stored separately - keeps the mandatory 40/60
+     * Test/Exam split consistent even for legacy subjects whose max_score
+     * isn't exactly 100, without touching any already-saved scores.
+     */
+    public function testMaxScore(): int
+    {
+        return (int) round($this->max_score * 0.4);
+    }
+
+    public function examMaxScore(): int
+    {
+        return $this->max_score - $this->testMaxScore();
+    }
 }

@@ -1,18 +1,17 @@
 <?php
 
 use App\Enums\FeePaymentMethod;
-use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Models\FeeStructure;
 use App\Models\Invoice;
 use App\Models\School;
 use App\Models\Student;
-use App\Models\Subscription;
 use App\Models\User;
 
 beforeEach(function () {
     $this->school = School::factory()->create();
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+    activateSchool($this->school);
 });
 
 test('a school admin can create a fee structure', function () {
@@ -113,13 +112,12 @@ test('an invoice with payments cannot be deleted', function () {
 });
 
 test('the dashboard shows outstanding fees', function () {
-    Subscription::factory()->create(['school_id' => $this->school->id, 'status' => SubscriptionStatus::Active]);
     $student = Student::factory()->create(['school_id' => $this->school->id]);
     $invoice = Invoice::factory()->create(['school_id' => $this->school->id, 'student_id' => $student->id, 'amount' => 10000]);
     $invoice->payments()->create(['amount' => 2500, 'paid_at' => now(), 'method' => FeePaymentMethod::Cash]);
 
     $this->actingAs($this->admin)
-        ->get(route('dashboard'))
+        ->get(route('overview.index'))
         ->assertSee('Outstanding Fees')
         ->assertSee('7,500');
 });

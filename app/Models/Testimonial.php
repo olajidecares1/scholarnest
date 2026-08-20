@@ -6,6 +6,7 @@ use App\Support\HasUuidRouteKey;
 use Database\Factories\TestimonialFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Testimonial extends Model
 {
@@ -18,12 +19,21 @@ class Testimonial extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'school_id',
         'name',
         'role',
         'quote',
         'is_active',
         'sort_order',
     ];
+
+    /**
+     * @return BelongsTo<School, $this>
+     */
+    public function school(): BelongsTo
+    {
+        return $this->belongsTo(School::class);
+    }
 
     /**
      * Get the attributes that should be cast.

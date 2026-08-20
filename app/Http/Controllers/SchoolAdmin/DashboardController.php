@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\AttendanceRecord;
@@ -10,6 +11,7 @@ use App\Models\FeePayment;
 use App\Models\Invoice;
 use App\Models\School;
 use App\Models\Student;
+use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -19,17 +21,44 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         $school = $request->user()->school;
-        $subscription = $school->activeSubscription;
+        [$accountState, $subscription] = $this->resolveAccountState($school);
 
-        if (! $subscription) {
-            return view('dashboard', ['school' => $school, 'subscription' => null]);
+        if ($accountState !== 'active') {
+            return view('dashboard', [
+                'school' => $school,
+                'subscription' => $subscription,
+                'accountState' => $accountState,
+            ]);
         }
+
+        return view('dashboard', [
+            'school' => $school,
+            'subscription' => $subscription,
+            'accountState' => 'active',
+            'moduleCounts' => [
+                'students' => $school->students()->count(),
+                'staff' => $school->staff()->count(),
+                'outstandingFees' => '₦'.number_format((float) $school->invoices()->with('payments')->get()->sum(fn ($invoice) => max($invoice->balance(), 0))),
+                'attendanceToday' => (int) round($this->attendancePercent($school, CarbonImmutable::now()->startOfDay(), CarbonImmutable::now()->endOfDay())),
+            ],
+        ]);
+    }
+
+    public function overview(Request $request): View
+    {
+        $school = $request->user()->school;
+
+        if (! $school->hasActiveSubscription()) {
+            return view('school-admin.overview.index', ['school' => $school, 'subscription' => null]);
+        }
+
+        $subscription = $school->activeSubscription;
 
         $now = CarbonImmutable::now();
         $weekStart = $now->startOfWeek();
         $weekEnd = $now->endOfWeek();
 
-        return view('dashboard', [
+        return view('school-admin.overview.index', [
             'school' => $school,
             'subscription' => $subscription,
             'statCards' => [
@@ -58,6 +87,36 @@ class DashboardController extends Controller
             'totalClasses' => $school->schoolClasses()->count(),
             'totalAcademicLevels' => $school->academicLevels()->count(),
         ]);
+    }
+
+    /**
+     * Resolves which of the dashboard's account-state banners to show.
+     * activeSubscription() alone can't drive this: it's scoped to
+     * Active/PendingVerification/PendingPayment, so a Rejected or Expired
+     * subscription would look identical to "never subscribed" through it -
+     * the school's actual latest subscription (any status) is needed to
+     * tell those cases apart and explain what happened.
+     *
+     * @return array{0: 'suspended'|'no_subscription'|'pending'|'rejected'|'expired'|'active', 1: ?Subscription}
+     */
+    private function resolveAccountState(School $school): array
+    {
+        if (! $school->is_active) {
+            return ['suspended', $school->subscriptions()->with(['plan', 'latestPayment'])->latest()->first()];
+        }
+
+        $subscription = $school->subscriptions()->with(['plan', 'latestPayment'])->latest()->first();
+
+        if (! $subscription) {
+            return ['no_subscription', null];
+        }
+
+        return match ($subscription->status) {
+            SubscriptionStatus::Active => ['active', $subscription],
+            SubscriptionStatus::PendingVerification, SubscriptionStatus::PendingPayment => ['pending', $subscription],
+            SubscriptionStatus::Rejected => ['rejected', $subscription],
+            SubscriptionStatus::Expired => ['expired', $subscription],
+        };
     }
 
     /**

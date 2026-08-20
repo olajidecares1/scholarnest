@@ -26,6 +26,7 @@ class AttendanceRecord extends Model
         'date',
         'status',
         'marked_by',
+        'marked_by_staff_id',
         'notes',
     ];
 
@@ -64,5 +65,13 @@ class AttendanceRecord extends Model
     public function markedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'marked_by');
+    }
+
+    /**
+     * @return BelongsTo<Staff, $this>
+     */
+    public function markedByStaff(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'marked_by_staff_id');
     }
 }

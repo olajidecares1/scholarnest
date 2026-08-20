@@ -5,17 +5,23 @@ namespace App\Models;
 use App\Enums\Gender;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\StudentFactory;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
-class Student extends Model
+class Student extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     /** @use HasFactory<StudentFactory> */
-    use HasFactory, HasUuidRouteKey;
+    use Authenticatable, CanResetPassword, HasFactory, HasUuidRouteKey, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -37,9 +43,23 @@ class Student extends Model
         'phone',
         'email',
         'photo_path',
+        'blood_group',
+        'house',
         'admission_date',
         'is_active',
         'notes',
+        'password',
+        'must_change_password',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     /**
@@ -54,6 +74,9 @@ class Student extends Model
             'date_of_birth' => 'date',
             'admission_date' => 'date',
             'is_active' => 'boolean',
+            'password' => 'hashed',
+            'must_change_password' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -89,6 +112,62 @@ class Student extends Model
         return $this->hasOne(HostelAllocation::class);
     }
 
+    /**
+     * @return HasMany<AttendanceRecord, $this>
+     */
+    public function attendanceRecords(): HasMany
+    {
+        return $this->hasMany(AttendanceRecord::class);
+    }
+
+    /**
+     * @return HasMany<AssignmentSubmission, $this>
+     */
+    public function assignmentSubmissions(): HasMany
+    {
+        return $this->hasMany(AssignmentSubmission::class);
+    }
+
+    /**
+     * @return HasMany<ExaminationScore, $this>
+     */
+    public function examinationScores(): HasMany
+    {
+        return $this->hasMany(ExaminationScore::class);
+    }
+
+    /**
+     * @return HasMany<BookLoan, $this>
+     */
+    public function bookLoans(): HasMany
+    {
+        return $this->hasMany(BookLoan::class);
+    }
+
+    /**
+     * @return HasMany<CbtAttempt, $this>
+     */
+    public function cbtAttempts(): HasMany
+    {
+        return $this->hasMany(CbtAttempt::class);
+    }
+
+    /**
+     * @return BelongsToMany<CoCurricularActivity, $this>
+     */
+    public function coCurricularActivities(): BelongsToMany
+    {
+        return $this->belongsToMany(CoCurricularActivity::class, 'co_curricular_activity_student')->withPivot('joined_at');
+    }
+
+    /**
+     * @return BelongsToMany<Guardian, $this>
+     */
+    public function guardians(): BelongsToMany
+    {
+        return $this->belongsToMany(Guardian::class, 'guardian_student')->withPivot('relationship');
+    }
+
     public function fullName(): string
     {
         return "{$this->first_name} {$this->last_name}";
@@ -97,6 +176,19 @@ class Student extends Model
     public function photoUrl(): ?string
     {
         return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
+    }
+
+    /**
+     * Absolute local filesystem path to the photo, for use only in dompdf
+     * views - dompdf's `enable_remote` option is off, so it can never fetch
+     * photoUrl()'s http(s) URL, but it can read local files within its
+     * configured chroot directly.
+     */
+    public function photoAbsolutePath(): ?string
+    {
+        return $this->photo_path && Storage::disk('public')->exists($this->photo_path)
+            ? Storage::disk('public')->path($this->photo_path)
+            : null;
     }
 
     public function age(): ?int

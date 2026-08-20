@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AcademicStage;
 use App\Enums\CbtSubjectCategory;
 use App\Models\CbtExamBody;
 use App\Models\CbtSubject;
@@ -103,6 +104,17 @@ class CbtSeeder extends Seeder
             'Business Studies', 'Home Economics', 'French', 'Computer Studies', 'Physical and Health Education',
             'Cultural and Creative Arts', 'History', 'Hausa', 'Igbo', 'Yoruba',
         ],
+        'NABTEB' => [
+            'English Language', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Agricultural Science',
+            'Computer Studies', 'Government', 'Economics', 'Commerce', 'Financial Accounting', 'Office Practice',
+            'Insurance', 'Store Management', 'Marketing', 'Civic Education',
+        ],
+        'JWAEC' => [
+            'English Studies', 'Mathematics', 'Basic Science', 'Basic Technology', 'Social Studies',
+            'Civic Education', 'Christian Religious Studies', 'Islamic Religious Studies', 'Agricultural Science',
+            'Business Studies', 'Home Economics', 'French', 'Computer Studies', 'Physical and Health Education',
+            'Cultural and Creative Arts', 'History', 'Hausa', 'Igbo', 'Yoruba',
+        ],
     ];
 
     /**
@@ -113,6 +125,22 @@ class CbtSeeder extends Seeder
         'NECO' => 'National Examinations Council - conducts the SSCE, an alternative senior secondary certificate exam.',
         'JAMB' => 'Joint Admissions and Matriculation Board - conducts the UTME for tertiary institution admission.',
         'BECE' => 'Basic Education Certificate Examination - taken by JSS3 students to complete basic education.',
+        'NABTEB' => 'National Business and Technical Examinations Board - conducts NBC/NTC exams for senior secondary technical/business students.',
+        'JWAEC' => 'Junior WAEC - the West African Examinations Council\'s exam for junior secondary students.',
+    ];
+
+    /**
+     * Which academic stage(s) can see each exam body in the student portal.
+     *
+     * @var array<string, list<string>>
+     */
+    private const EXAM_BODY_STAGES = [
+        'WAEC' => [AcademicStage::SeniorSecondary->value],
+        'NECO' => [AcademicStage::SeniorSecondary->value],
+        'JAMB' => [AcademicStage::SeniorSecondary->value],
+        'BECE' => [AcademicStage::JuniorSecondary->value],
+        'NABTEB' => [AcademicStage::SeniorSecondary->value],
+        'JWAEC' => [AcademicStage::JuniorSecondary->value],
     ];
 
     /**
@@ -134,7 +162,7 @@ class CbtSeeder extends Seeder
         foreach (self::EXAM_BODIES as $code => $description) {
             $examBody = CbtExamBody::updateOrCreate(
                 ['code' => $code],
-                ['name' => $code, 'description' => $description]
+                ['name' => $code, 'description' => $description, 'academic_stages' => self::EXAM_BODY_STAGES[$code]]
             );
 
             $subjectIds = collect(self::EXAM_BODY_SUBJECTS[$code])

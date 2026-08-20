@@ -2,6 +2,19 @@
     $statusOptions = \App\Enums\AttendanceStatus::cases();
     $markedCount = $existing->count();
     $presentCount = $existing->filter(fn ($record) => $record->status->isPresentForStats())->count();
+
+    // Written out as complete, literal peer-checked:* strings (not built via
+    // concatenation) so Tailwind's v4 content scanner - which only generates
+    // CSS for class names it finds as contiguous text in scanned source
+    // files - actually picks these up. A "peer-checked:" prefix combined
+    // with a PHP-computed suffix at render time produces no such literal
+    // anywhere, so no CSS would ever be generated for it.
+    $statusSelectedClasses = [
+        \App\Enums\AttendanceStatus::Present->value => 'peer-checked:bg-green-500 peer-checked:shadow-green-500/30',
+        \App\Enums\AttendanceStatus::Absent->value => 'peer-checked:bg-red-500 peer-checked:shadow-red-500/30',
+        \App\Enums\AttendanceStatus::Late->value => 'peer-checked:bg-amber-500 peer-checked:shadow-amber-500/30',
+        \App\Enums\AttendanceStatus::Excused->value => 'peer-checked:bg-blue-500 peer-checked:shadow-blue-500/30',
+    ];
 @endphp
 
 <x-dashboard-layout page-title="Attendance" page-subtitle="Take and review daily student attendance.">
@@ -104,7 +117,7 @@
                                             @foreach ($statusOptions as $status)
                                                 <label class="cursor-pointer">
                                                     <input type="radio" name="records[{{ $student->id }}]" value="{{ $status->value }}" class="peer sr-only" @checked($current === $status)>
-                                                    <span class="block rounded-[6px] border border-gray-300 px-2 py-1.5 text-center text-xs font-semibold text-gray-500 transition-colors duration-150 peer-checked:border-transparent peer-checked:{{ $status->badgeClasses() }} dark:border-gray-600 dark:text-gray-400">
+                                                    <span class="block rounded-[6px] border border-gray-300 bg-white px-2 py-1.5 text-center text-xs font-semibold text-gray-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm active:scale-95 peer-checked:border-transparent peer-checked:text-white peer-checked:shadow-md dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 {{ $statusSelectedClasses[$status->value] }}">
                                                         {{ $status->label() }}
                                                     </span>
                                                 </label>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AcademicStage;
 use App\Enums\CbtSubjectCategory;
 use App\Enums\UserRole;
 use App\Models\AdminRole;
@@ -8,6 +9,7 @@ use App\Models\CbtExamBody;
 use App\Models\CbtQuestion;
 use App\Models\CbtSubject;
 use App\Models\User;
+use Database\Seeders\CbtSeeder;
 
 beforeEach(function () {
     $this->superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
@@ -27,12 +29,14 @@ test('super admin can create an exam body', function () {
         'name' => 'West African Examinations Council',
         'code' => 'WAEC',
         'description' => 'Conducts the WASSCE.',
+        'academic_stages' => [AcademicStage::SeniorSecondary->value],
     ]);
 
     $response->assertRedirect();
 
     $examBody = CbtExamBody::where('code', 'WAEC')->firstOrFail();
     expect($examBody->name)->toBe('West African Examinations Council');
+    expect($examBody->academic_stages)->toBe([AcademicStage::SeniorSecondary->value]);
 });
 
 test('exam body codes must be unique', function () {
@@ -42,8 +46,29 @@ test('exam body codes must be unique', function () {
         ->post(route('super-admin.cbt.exam-bodies.store'), [
             'name' => 'Duplicate',
             'code' => 'WAEC',
+            'academic_stages' => [AcademicStage::SeniorSecondary->value],
         ])
         ->assertSessionHasErrors('code');
+});
+
+test('an exam body must have at least one academic stage', function () {
+    $this->actingAs($this->superAdmin)
+        ->post(route('super-admin.cbt.exam-bodies.store'), [
+            'name' => 'No Stage Body',
+            'code' => 'NSB',
+            'academic_stages' => [],
+        ])
+        ->assertSessionHasErrors('academic_stages');
+});
+
+test('an exam body rejects an invalid academic stage value', function () {
+    $this->actingAs($this->superAdmin)
+        ->post(route('super-admin.cbt.exam-bodies.store'), [
+            'name' => 'Bad Stage Body',
+            'code' => 'BSB',
+            'academic_stages' => ['not-a-real-stage'],
+        ])
+        ->assertSessionHasErrors('academic_stages.0');
 });
 
 test('super admin can update and delete an exam body', function () {
@@ -53,10 +78,12 @@ test('super admin can update and delete an exam body', function () {
         ->put(route('super-admin.cbt.exam-bodies.update', $examBody), [
             'name' => 'New Name',
             'code' => $examBody->code,
+            'academic_stages' => [AcademicStage::JuniorSecondary->value],
         ])
         ->assertRedirect();
 
     expect($examBody->fresh()->name)->toBe('New Name');
+    expect($examBody->fresh()->academic_stages)->toBe([AcademicStage::JuniorSecondary->value]);
 
     $this->actingAs($this->superAdmin)
         ->delete(route('super-admin.cbt.exam-bodies.destroy', $examBody))
@@ -145,6 +172,21 @@ test('an exam body cannot have two exams for the same subject and year', functio
         ->assertSessionHasErrors('year');
 });
 
+test('super admin can update an existing exam\'s duration and pass mark', function () {
+    $exam = CbtExam::factory()->create(['duration_minutes' => 60, 'pass_mark' => 50]);
+
+    $this->actingAs($this->superAdmin)
+        ->put(route('super-admin.cbt.exams.update', $exam), [
+            'duration_minutes' => 90,
+            'pass_mark' => 40,
+        ])
+        ->assertRedirect();
+
+    $exam->refresh();
+    expect($exam->duration_minutes)->toBe(90);
+    expect($exam->pass_mark)->toBe(40);
+});
+
 test('super admin can view and delete an exam', function () {
     $exam = CbtExam::factory()->create();
 
@@ -222,6 +264,22 @@ test('super admin can delete a question', function () {
         ->assertRedirect();
 
     expect(CbtQuestion::find($question->id))->toBeNull();
+});
+
+test('the cbt seeder creates NABTEB and Junior WAEC with the correct academic stages', function () {
+    (new CbtSeeder)->run();
+
+    $nabteb = CbtExamBody::where('code', 'NABTEB')->firstOrFail();
+    expect($nabteb->academic_stages)->toBe([AcademicStage::SeniorSecondary->value]);
+
+    $juniorWaec = CbtExamBody::where('code', 'JWAEC')->firstOrFail();
+    expect($juniorWaec->academic_stages)->toBe([AcademicStage::JuniorSecondary->value]);
+
+    $waec = CbtExamBody::where('code', 'WAEC')->firstOrFail();
+    expect($waec->academic_stages)->toBe([AcademicStage::SeniorSecondary->value]);
+
+    $bece = CbtExamBody::where('code', 'BECE')->firstOrFail();
+    expect($bece->academic_stages)->toBe([AcademicStage::JuniorSecondary->value]);
 });
 
 test('a team member without manage_cbt permission is forbidden from the cbt module', function () {

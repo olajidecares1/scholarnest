@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SuperAdmin;
 
+use App\Enums\AcademicStage;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\CbtExamBody;
@@ -9,6 +10,7 @@ use App\Models\CbtQuestion;
 use App\Models\CbtSubject;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class CbtExamBodyController extends Controller
@@ -32,6 +34,8 @@ class CbtExamBodyController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:20', 'alpha_dash', 'unique:cbt_exam_bodies,code'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'academic_stages' => ['required', 'array', 'min:1'],
+            'academic_stages.*' => ['string', Rule::enum(AcademicStage::class)],
         ]);
 
         $examBody = CbtExamBody::create($validated);
@@ -47,6 +51,8 @@ class CbtExamBodyController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:20', 'alpha_dash', 'unique:cbt_exam_bodies,code,'.$examBody->id],
             'description' => ['nullable', 'string', 'max:1000'],
+            'academic_stages' => ['required', 'array', 'min:1'],
+            'academic_stages.*' => ['string', Rule::enum(AcademicStage::class)],
         ]);
 
         $examBody->update($validated);

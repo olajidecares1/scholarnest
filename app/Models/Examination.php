@@ -57,4 +57,12 @@ class Examination extends Model
     {
         return $this->hasMany(ExaminationSubject::class);
     }
+
+    /**
+     * @return HasMany<ResultCheckingPin, $this>
+     */
+    public function resultCheckingPins(): HasMany
+    {
+        return $this->hasMany(ResultCheckingPin::class);
+    }
 }

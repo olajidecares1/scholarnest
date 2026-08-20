@@ -6,12 +6,18 @@ use App\Enums\Gender;
 use App\Models\School;
 use App\Models\Student;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @extends Factory<Student>
  */
 class StudentFactory extends Factory
 {
+    /**
+     * The current password being used by the factory.
+     */
+    protected static ?string $password;
+
     /**
      * Define the model's default state.
      *
@@ -32,6 +38,7 @@ class StudentFactory extends Factory
             'guardian_email' => fake()->safeEmail(),
             'admission_date' => fake()->dateTimeBetween('-3 years', 'now'),
             'is_active' => true,
+            'password' => static::$password ??= Hash::make('password'),
         ];
     }
 }

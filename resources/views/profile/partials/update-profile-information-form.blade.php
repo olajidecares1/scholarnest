@@ -13,9 +13,18 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
         @csrf
         @method('patch')
+
+        <div class="flex items-center gap-4">
+            @if ($user->photoUrl())
+                <img src="{{ $user->photoUrl() }}" class="h-16 w-16 rounded-full object-cover">
+            @else
+                <span class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-xl font-bold text-primary-700">{{ Str::of($user->name)->substr(0, 1)->upper() }}</span>
+            @endif
+            <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="text-sm text-gray-600 file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700">
+        </div>
 
         <x-text-field
             id="name"

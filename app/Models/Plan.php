@@ -22,6 +22,7 @@ class Plan extends Model
         'tagline',
         'currency',
         'price_per_student_per_term',
+        'max_teachers',
         'price_monthly',
         'price_per_term',
         'has_custom_pricing',
@@ -40,6 +41,7 @@ class Plan extends Model
         return [
             'key' => PlanKey::class,
             'price_per_student_per_term' => 'decimal:2',
+            'max_teachers' => 'integer',
             'price_monthly' => 'decimal:2',
             'price_per_term' => 'decimal:2',
             'has_custom_pricing' => 'boolean',

@@ -3,7 +3,7 @@
 @endphp
 
 <x-super-admin-layout :page-title="$examBody->name" :page-subtitle="'Manage subjects and exams for ' . $examBody->name . '.'">
-    <div class="space-y-6" x-data="{ addExamOpen: false }">
+    <div class="space-y-6" x-data="{ addExamOpen: false, editingExam: null }">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
@@ -92,6 +92,13 @@
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">
                                         <a href="{{ route('super-admin.cbt.exams.show', $exam) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage Questions</a>
+                                        <button
+                                            type="button"
+                                            @click="editingExam = { uuid: @js($exam->uuid), title: @js($exam->title()), duration_minutes: @js($exam->duration_minutes), pass_mark: @js($exam->pass_mark) }"
+                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        >
+                                            Edit
+                                        </button>
                                         <form method="POST" action="{{ route('super-admin.cbt.exams.destroy', $exam) }}" onsubmit="return confirm('Delete this exam and all its questions?');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
@@ -163,6 +170,28 @@
                         <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Create Exam</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        {{-- Edit Exam modal (duration/pass mark only) --}}
+        <div x-show="editingExam" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
+            <div @click.outside="editingExam = null" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editingExam ? `Edit ${editingExam.title}` : ''"></h3>
+                <template x-if="editingExam">
+                    <form
+                        method="POST"
+                        :action="'{{ route('super-admin.cbt.exams.update', ['exam' => '__ID__']) }}'.replace('__ID__', editingExam.uuid)"
+                        class="mt-4 space-y-4"
+                    >
+                        @csrf @method('PUT')
+                        <x-text-field name="duration_minutes" label="Duration (minutes)" type="number" icon="M12 21a9 9 0 100-18 9 9 0 000 18z" min="5" max="300" x-model.number="editingExam.duration_minutes" required />
+                        <x-text-field name="pass_mark" label="Pass Mark (%)" type="number" icon="M8 12.3l2.6 2.6L16.3 9" min="0" max="100" x-model.number="editingExam.pass_mark" required />
+                        <div class="flex justify-end gap-2">
+                            <button type="button" @click="editingExam = null" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save Changes</button>
+                        </div>
+                    </form>
+                </template>
             </div>
         </div>
     </div>

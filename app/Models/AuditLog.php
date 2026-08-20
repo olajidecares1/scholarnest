@@ -46,13 +46,22 @@ class AuditLog extends Model
         return $this->morphTo();
     }
 
-    public static function record(string $action, string $description, ?Model $subject = null): self
+    /**
+     * $actorName is for callers acting on behalf of a non-"web"-guard actor
+     * (student/staff/guardian) - user_id is a foreign key into the "users"
+     * table (School Admin/Super Admin accounts) only, so a Auth::user()
+     * lookup is meaningless (and, worse, a same-numbered id from another
+     * guard's table would misattribute the log) outside that guard. Passing
+     * $actorName bypasses the Auth::user() derivation entirely and records
+     * a human-readable actor with no user_id, rather than guessing.
+     */
+    public static function record(string $action, string $description, ?Model $subject = null, ?string $actorName = null): self
     {
-        $user = Auth::user();
+        $user = $actorName === null ? Auth::user() : null;
 
         return self::create([
             'user_id' => $user?->id,
-            'user_name' => $user?->name ?? 'System',
+            'user_name' => $actorName ?? $user?->name ?? 'System',
             'action' => $action,
             'description' => $description,
             'subject_type' => $subject?->getMorphClass(),

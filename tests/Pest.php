@@ -1,5 +1,10 @@
 <?php
 
+use App\Enums\PlanKey;
+use App\Enums\SubscriptionStatus;
+use App\Models\Plan;
+use App\Models\School;
+use App\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +49,26 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Gives a school an Active subscription so it passes the school_activated
+ * gate - most School Admin feature tests only care about the feature under
+ * test, not the activation workflow itself, so they need this as a fixture
+ * rather than re-deriving it per test.
+ */
+function activateSchool(School $school, PlanKey $plan = PlanKey::Standard): School
 {
-    // ..
+    // Plan::factory() burns one of Faker's only 3 unique PlanKey slots even
+    // when "key" is overridden afterwards - checking for an existing row
+    // first avoids exhausting that pool in a test that activates several
+    // schools.
+    $planModel = Plan::where('key', $plan)->first()
+        ?? Plan::factory()->create(['key' => $plan]);
+
+    Subscription::factory()->create([
+        'school_id' => $school->id,
+        'plan_id' => $planModel->id,
+        'status' => SubscriptionStatus::Active,
+    ]);
+
+    return $school;
 }

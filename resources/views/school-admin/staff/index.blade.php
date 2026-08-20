@@ -4,10 +4,32 @@
 @endphp
 
 <x-dashboard-layout page-title="Staff" page-subtitle="Manage your school's staff records.">
-    <div class="space-y-6" x-data="{ open: false, editing: null }">
+    <div class="space-y-6" x-data="{
+        open: false,
+        editing: null,
+        schoolCode: @js($school->school_code),
+        nextStaffSequence: @js($school->next_staff_sequence),
+        nextStaffIdPreview() {
+            if (! this.schoolCode) {
+                return '';
+            }
+
+            return `${this.schoolCode}-STAFF-${String(this.nextStaffSequence).padStart(3, '0')}`;
+        },
+    }">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="rounded-[5px] bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
+                <ul class="list-inside list-disc space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 
@@ -35,6 +57,7 @@
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
+                        @input.debounce.500ms="$event.target.form.submit()"
                         placeholder="Search by name or staff number..."
                         class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                     >
@@ -103,6 +126,11 @@
                                 </td>
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">
+                                        @if ($member->role === \App\Enums\StaffRole::Teacher)
+                                            <a href="{{ route('teacher-assignments.index', ['teacher' => $member->uuid]) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                                                Assignments
+                                            </a>
+                                        @endif
                                         <button
                                             type="button"
                                             @click="editing = @js([
@@ -176,7 +204,17 @@
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <x-text-field name="staff_number" label="Staff Number" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" x-model="editing ? editing.staff_number : ''" required />
+                        @if ($school->auto_generate_staff_ids)
+                            <div>
+                                <input type="text" readonly tabindex="-1"
+                                    x-bind:value="editing ? editing.staff_number : nextStaffIdPreview()"
+                                    class="block h-11 w-full min-w-0 rounded-[8px] border border-gray-300 bg-gray-50 px-3 text-[13.5px] font-medium text-gray-500 shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-400">
+                                <input type="hidden" name="staff_number" x-bind:value="editing ? editing.staff_number : nextStaffIdPreview()">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Staff ID &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</p>
+                            </div>
+                        @else
+                            <x-text-field name="staff_number" label="Staff Number" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" x-model="editing ? editing.staff_number : ''" required />
+                        @endif
                         <x-select-field
                             name="gender"
                             label="Gender"

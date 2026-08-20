@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 beforeEach(function () {
     $this->school = School::factory()->create(['name' => 'Bright Future Academy']);
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+    activateSchool($this->school);
 });
 
 test('a school admin can view the settings page', function () {
@@ -44,6 +45,20 @@ test('a school admin can upload a school logo', function () {
     $this->school->refresh();
     expect($this->school->logo_path)->not->toBeNull();
     Storage::disk('public')->assertExists($this->school->logo_path);
+});
+
+test('a school admin can upload a school favicon', function () {
+    Storage::fake('public');
+
+    $this->actingAs($this->admin)->put(route('settings.update'), [
+        'name' => $this->school->name,
+        'timezone' => 'Africa/Lagos',
+        'favicon' => UploadedFile::fake()->image('favicon.png', 32, 32),
+    ]);
+
+    $this->school->refresh();
+    expect($this->school->favicon_path)->not->toBeNull();
+    Storage::disk('public')->assertExists($this->school->favicon_path);
 });
 
 test('an invalid timezone is rejected', function () {

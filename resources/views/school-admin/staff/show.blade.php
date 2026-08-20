@@ -63,5 +63,30 @@
                 @endif
             </div>
         </div>
+
+        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Staff Portal Access</h3>
+                <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $member->password ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
+                    {{ $member->password ? 'Access Enabled' : 'No Password Set' }}
+                </span>
+            </div>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Login: {{ $member->staff_number }} (or their email, if set)
+                @if ($member->last_login_at)
+                    &middot; Last logged in {{ $member->last_login_at->diffForHumans() }}
+                @else
+                    &middot; Has never logged in
+                @endif
+            </p>
+            <form method="POST" action="{{ route('staff.update-password', $member) }}" class="mt-4 flex flex-wrap items-end gap-3">
+                @csrf
+                @method('PUT')
+                <div class="w-64">
+                    <x-text-field name="password" label="Set Portal Password" type="password" icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM8 11V7a4 4 0 118 0v4" helper="At least 6 characters." required />
+                </div>
+                <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">{{ $member->password ? 'Reset Password' : 'Enable Portal Access' }}</button>
+            </form>
+        </div>
     </div>
 </x-dashboard-layout>

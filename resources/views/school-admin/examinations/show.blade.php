@@ -58,7 +58,7 @@
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
                             <th class="px-6 py-3 font-semibold">Subject</th>
-                            <th class="px-6 py-3 font-semibold">Max Score</th>
+                            <th class="px-6 py-3 font-semibold">Test / Exam</th>
                             <th class="px-6 py-3 font-semibold">Scores Entered</th>
                             <th class="px-6 py-3 font-semibold">Actions</th>
                         </tr>
@@ -67,7 +67,7 @@
                         @forelse ($subjects as $subject)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $subject->name }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $subject->max_score }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $subject->testMaxScore() }} / {{ $subject->examMaxScore() }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $subject->scores_count }} / {{ $studentCount }}</td>
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">
@@ -95,8 +95,18 @@
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Subject</h3>
                 <form method="POST" action="{{ route('examinations.subjects.store', $examination) }}" class="mt-4 space-y-4">
                     @csrf
-                    <x-text-field name="name" label="Subject Name" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" placeholder="e.g. Mathematics" required />
-                    <x-text-field name="max_score" label="Max Score" type="number" icon="M8 12.3l2.6 2.6L16.3 9" value="100" min="1" max="1000" required />
+                    @php $remainingOffered = $offeredSubjects->diff($subjects->pluck('name')); @endphp
+                    @if ($remainingOffered->isNotEmpty())
+                        <x-select-field
+                            name="name"
+                            label="Subject Name"
+                            required
+                            :options="$remainingOffered->mapWithKeys(fn ($s) => [$s => $s])->all()"
+                        />
+                    @else
+                        <x-text-field name="name" label="Subject Name" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" placeholder="e.g. Mathematics" required />
+                    @endif
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Scored as Test /40 + Exam /60, out of 100 total.</p>
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
                         <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Add Subject</button>

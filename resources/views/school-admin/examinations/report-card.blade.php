@@ -55,7 +55,14 @@
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $subject->name }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">
-                                    @if ($score) {{ rtrim(rtrim($score->score, '0'), '.') }} / {{ $subject->max_score }} @else — @endif
+                                    @if ($score)
+                                        {{ rtrim(rtrim($score->score, '0'), '.') }} / {{ $subject->max_score }}
+                                        @if ($score->test_score !== null && $score->exam_score !== null)
+                                            <span class="text-xs text-gray-400">(T{{ rtrim(rtrim($score->test_score, '0'), '.') }}+E{{ rtrim(rtrim($score->exam_score, '0'), '.') }})</span>
+                                        @endif
+                                    @else
+                                        —
+                                    @endif
                                 </td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $score ? $score->percentage().'%' : '—' }}</td>
                                 <td class="px-6 py-3">

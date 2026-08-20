@@ -24,7 +24,20 @@ class CbtExamBody extends Model
         'name',
         'code',
         'description',
+        'academic_stages',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'academic_stages' => 'array',
+        ];
+    }
 
     /**
      * @return BelongsToMany<CbtSubject, $this>
@@ -48,5 +61,13 @@ class CbtExamBody extends Model
     public function questions(): HasManyThrough
     {
         return $this->hasManyThrough(CbtQuestion::class, CbtExam::class);
+    }
+
+    /**
+     * @return HasMany<CbtExamBodyClassGrant, $this>
+     */
+    public function classGrants(): HasMany
+    {
+        return $this->hasMany(CbtExamBodyClassGrant::class);
     }
 }

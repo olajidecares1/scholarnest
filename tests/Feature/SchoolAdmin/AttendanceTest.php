@@ -1,17 +1,16 @@
 <?php
 
 use App\Enums\AttendanceStatus;
-use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Models\AttendanceRecord;
 use App\Models\School;
 use App\Models\Student;
-use App\Models\Subscription;
 use App\Models\User;
 
 beforeEach(function () {
     $this->school = School::factory()->create();
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+    activateSchool($this->school);
 });
 
 test('a school admin can view the take attendance page with their active students', function () {
@@ -98,12 +97,11 @@ test('a school admin only sees attendance history from their own school', functi
 });
 
 test('the dashboard shows real attendance stats for this week', function () {
-    Subscription::factory()->create(['school_id' => $this->school->id, 'status' => SubscriptionStatus::Active]);
     $student = Student::factory()->create(['school_id' => $this->school->id]);
     AttendanceRecord::factory()->create(['school_id' => $this->school->id, 'student_id' => $student->id, 'date' => today(), 'status' => AttendanceStatus::Present]);
 
     $this->actingAs($this->admin)
-        ->get(route('dashboard'))
+        ->get(route('overview.index'))
         ->assertSee('100.0%')
         ->assertSee('Attendance (This Week)');
 });

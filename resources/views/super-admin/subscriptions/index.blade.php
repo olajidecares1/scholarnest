@@ -4,6 +4,7 @@
         'active' => 'Active Subscriptions',
         'expired' => 'Expired Subscriptions',
         'all' => 'All Subscriptions',
+        'top-ups' => 'Top-Up Requests'.($stats['pendingTopUps'] > 0 ? " ({$stats['pendingTopUps']})" : ''),
     ];
 @endphp
 
@@ -51,15 +52,17 @@
                     @endforeach
                 </div>
 
-                <a
-                    href="{{ route('super-admin.subscriptions.export', request()->query()) }}"
-                    class="mb-2 flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
-                >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3M12 4v12m0-12l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    Export
-                </a>
+                @if ($tab !== 'top-ups')
+                    <a
+                        href="{{ route('super-admin.subscriptions.export', request()->query()) }}"
+                        class="mb-2 flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
+                    >
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3M12 4v12m0-12l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Export
+                    </a>
+                @endif
             </div>
 
             <form method="GET" action="{{ route('super-admin.subscriptions.index') }}" class="flex flex-wrap items-center gap-3 p-4">
@@ -171,6 +174,86 @@
                 </div>
             </div>
 
+            @if ($tab === 'top-ups')
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
+                            <tr>
+                                <th class="px-5 py-3 font-semibold">School</th>
+                                <th class="px-5 py-3 font-semibold">Additional Slots</th>
+                                <th class="px-5 py-3 font-semibold">Additional Amount</th>
+                                <th class="px-5 py-3 font-semibold">Requested On</th>
+                                <th class="px-5 py-3 font-semibold">Status</th>
+                                <th class="px-5 py-3 font-semibold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            @forelse ($topUps as $topUp)
+                                <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50" x-data="{ rejecting: false }">
+                                    <td class="px-5 py-3">
+                                        <p class="font-semibold text-gray-900 dark:text-white">{{ $topUp->subscription->school->name }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $topUp->subscription->plan->name }} &middot; {{ $topUp->reference }}</p>
+                                    </td>
+                                    <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">+{{ number_format($topUp->additional_students_count) }}</td>
+                                    <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">&#8358;{{ number_format($topUp->additional_amount, 2) }}</td>
+                                    <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $topUp->created_at->format('M j, Y') }}</td>
+                                    <td class="px-5 py-3">
+                                        @php
+                                            $topUpStatusColors = [
+                                                'pending_verification' => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                                                'approved' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                                                'rejected' => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                                            ];
+                                        @endphp
+                                        <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $topUpStatusColors[$topUp->status->value] ?? 'bg-gray-100 text-gray-600' }}">
+                                            {{ $topUp->status->label() }}
+                                        </span>
+                                    </td>
+                                    <td class="px-5 py-3">
+                                        @if ($topUp->status->value === 'pending_verification')
+                                            <div class="flex items-center gap-2">
+                                                <form method="POST" action="{{ route('super-admin.subscriptions.top-ups.approve', $topUp) }}">
+                                                    @csrf
+                                                    <button type="submit" class="rounded-[8px] bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700">Approve</button>
+                                                </form>
+                                                <button type="button" @click="rejecting = true" class="rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject</button>
+                                            </div>
+
+                                            <div x-show="rejecting" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
+                                                <div @click.outside="rejecting = false" class="w-full max-w-md rounded-[8px] bg-white p-5 dark:bg-gray-800">
+                                                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Reject top-up for {{ $topUp->subscription->school->name }}?</h3>
+                                                    <form method="POST" action="{{ route('super-admin.subscriptions.top-ups.reject', $topUp) }}" class="mt-3">
+                                                        @csrf
+                                                        <x-textarea-field
+                                                            name="reason"
+                                                            rows="3"
+                                                            placeholder="Reason (optional, sent to the school)"
+                                                        />
+                                                        <div class="mt-3 flex justify-end gap-2">
+                                                            <button type="button" @click="rejecting = false" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                                                            <button type="submit" class="rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Top-Up</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No top-up requests found for this view.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                @if ($topUps->hasPages())
+                    <div class="border-t border-gray-100 px-5 py-4 dark:border-gray-700">
+                        {{ $topUps->links() }}
+                    </div>
+                @endif
+            @else
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
@@ -300,6 +383,7 @@
                 <div class="border-t border-gray-100 px-5 py-4 dark:border-gray-700">
                     {{ $subscriptions->links() }}
                 </div>
+            @endif
             @endif
         </div>
     </div>

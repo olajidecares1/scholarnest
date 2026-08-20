@@ -1,16 +1,15 @@
 <?php
 
 use App\Enums\EventAudience;
-use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Models\School;
 use App\Models\SchoolEvent;
-use App\Models\Subscription;
 use App\Models\User;
 
 beforeEach(function () {
     $this->school = School::factory()->create();
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+    activateSchool($this->school);
 });
 
 test('a school admin can create an event', function () {
@@ -90,10 +89,9 @@ test('a school admin can delete an event', function () {
 });
 
 test('the dashboard shows upcoming events', function () {
-    Subscription::factory()->create(['school_id' => $this->school->id, 'status' => SubscriptionStatus::Active]);
     SchoolEvent::factory()->create(['school_id' => $this->school->id, 'title' => 'Prize Giving Day', 'starts_at' => now()->addDays(2)]);
 
     $this->actingAs($this->admin)
-        ->get(route('dashboard'))
+        ->get(route('overview.index'))
         ->assertSee('Prize Giving Day');
 });

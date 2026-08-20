@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\ExaminationSubject;
 use App\Models\Student;
+use App\Services\ExaminationResultCalculator;
+use App\Support\AcademicSession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -30,6 +32,7 @@ class ExaminationController extends Controller
             'examinations' => $examinations,
             'academicLevels' => $school->academicLevels()->with('classes')->get(),
             'termOptions' => ExamTerm::cases(),
+            'sessionOptions' => AcademicSession::options(),
         ]);
     }
 
@@ -37,13 +40,7 @@ class ExaminationController extends Controller
     {
         $school = $request->user()->school;
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'class_name' => ['required', 'string', 'max:50'],
-            'term' => ['required', Rule::enum(ExamTerm::class)],
-            'session' => ['required', 'string', 'max:20'],
-            'exam_date' => ['nullable', 'date'],
-        ]);
+        $validated = $request->validate($this->examinationRules());
 
         $examination = $school->examinations()->create($validated);
 
@@ -58,6 +55,7 @@ class ExaminationController extends Controller
             'examination' => $examination,
             'subjects' => $examination->subjects()->withCount('scores')->get(),
             'studentCount' => Student::where('school_id', $examination->school_id)->where('class_name', $examination->class_name)->where('is_active', true)->count(),
+            'offeredSubjects' => $examination->school->offeredSubjectsFor($examination->class_name),
         ]);
     }
 
@@ -65,13 +63,7 @@ class ExaminationController extends Controller
     {
         $this->authorizeExamination($examination);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'class_name' => ['required', 'string', 'max:50'],
-            'term' => ['required', Rule::enum(ExamTerm::class)],
-            'session' => ['required', 'string', 'max:20'],
-            'exam_date' => ['nullable', 'date'],
-        ]);
+        $validated = $request->validate($this->examinationRules());
 
         $examination->update($validated);
 
@@ -97,10 +89,9 @@ class ExaminationController extends Controller
                 'required', 'string', 'max:100',
                 Rule::unique('examination_subjects', 'name')->where('examination_id', $examination->id),
             ],
-            'max_score' => ['required', 'integer', 'min:1', 'max:1000'],
         ]);
 
-        $examination->subjects()->create($validated);
+        $examination->subjects()->create([...$validated, 'max_score' => 100]);
 
         return back()->with('status', "{$validated['name']} was added to {$examination->name}.");
     }
@@ -134,6 +125,7 @@ class ExaminationController extends Controller
             'subject' => $subject,
             'students' => $students,
             'existing' => $existing,
+            'school' => $examination->school,
         ]);
     }
 
@@ -141,25 +133,40 @@ class ExaminationController extends Controller
     {
         $this->authorizeSubject($subject);
 
+        $school = $subject->examination->school;
+
         $validated = $request->validate([
-            'scores' => ['required', 'array'],
-            'scores.*' => ['nullable', 'numeric', 'min:0', 'max:'.$subject->max_score],
+            'test_scores' => ['required', 'array'],
+            'test_scores.*' => ['nullable', 'numeric', 'min:0', 'max:'.$subject->testMaxScore()],
+            'exam_scores' => ['required', 'array'],
+            'exam_scores.*' => ['nullable', 'numeric', 'min:0', 'max:'.$subject->examMaxScore()],
+            'grade_overrides' => ['nullable', 'array'],
+            'grade_overrides.*' => ['nullable', 'string', 'max:3'],
         ]);
 
+        $studentIds = array_unique([...array_keys($validated['test_scores']), ...array_keys($validated['exam_scores'])]);
         $students = Student::where('school_id', $subject->examination->school_id)
-            ->whereIn('id', array_keys($validated['scores']))
+            ->whereIn('id', $studentIds)
             ->get()
             ->keyBy('id');
 
         $saved = 0;
-        foreach ($validated['scores'] as $studentId => $score) {
-            if ($score === null || $score === '' || ! $students->has($studentId)) {
+        foreach ($studentIds as $studentId) {
+            $testScore = $validated['test_scores'][$studentId] ?? null;
+            $examScore = $validated['exam_scores'][$studentId] ?? null;
+
+            if (($testScore === null && $examScore === null) || ! $students->has($studentId)) {
                 continue;
             }
 
             $subject->scores()->updateOrCreate(
                 ['student_id' => $studentId],
-                ['score' => $score],
+                [
+                    'test_score' => $testScore,
+                    'exam_score' => $examScore,
+                    'score' => (float) $testScore + (float) $examScore,
+                    'grade_override' => $school->automatic_grading ? null : ($validated['grade_overrides'][$studentId] ?? null),
+                ],
             );
             $saved++;
         }
@@ -171,41 +178,10 @@ class ExaminationController extends Controller
     {
         $this->authorizeExamination($examination);
 
-        $students = Student::where('school_id', $examination->school_id)
-            ->where('class_name', $examination->class_name)
-            ->where('is_active', true)
-            ->orderBy('last_name')
-            ->get();
-
-        $subjects = $examination->subjects;
-
-        $summaries = $students->map(function ($student) use ($subjects) {
-            $scores = $subjects->map(fn ($subject) => $subject->scores->firstWhere('student_id', $student->id))->filter();
-            $percentages = $scores->map(fn ($score) => $score->percentage());
-
-            return [
-                'student' => $student,
-                'subjectsGraded' => $scores->count(),
-                'average' => $percentages->isNotEmpty() ? round($percentages->avg(), 1) : null,
-            ];
-        })->sortByDesc(fn ($summary) => $summary['average'] ?? -1)->values();
-
-        $rank = 0;
-        $lastAverage = null;
-        $summaries = $summaries->map(function ($summary) use (&$rank, &$lastAverage) {
-            if ($summary['average'] !== null && $summary['average'] !== $lastAverage) {
-                $rank++;
-                $lastAverage = $summary['average'];
-            }
-            $summary['position'] = $summary['average'] !== null ? $rank : null;
-
-            return $summary;
-        });
-
         return view('school-admin.examinations.report-cards', [
             'examination' => $examination,
-            'summaries' => $summaries,
-            'subjectCount' => $subjects->count(),
+            'summaries' => ExaminationResultCalculator::summariesFor($examination),
+            'subjectCount' => $examination->subjects->count(),
         ]);
     }
 
@@ -221,6 +197,20 @@ class ExaminationController extends Controller
             'student' => $student,
             'subjects' => $subjects,
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function examinationRules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:150'],
+            'class_name' => ['required', 'string', 'max:50'],
+            'term' => ['required', Rule::enum(ExamTerm::class)],
+            'session' => ['required', Rule::in(AcademicSession::options())],
+            'exam_date' => ['nullable', 'date'],
+        ];
     }
 
     private function authorizeExamination(Examination $examination): void

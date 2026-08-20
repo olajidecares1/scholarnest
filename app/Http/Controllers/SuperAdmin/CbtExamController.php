@@ -39,6 +39,20 @@ class CbtExamController extends Controller
         return redirect()->route('super-admin.cbt.exam-bodies.show', $examBody)->with('status', "\"{$exam->title()}\" created successfully.");
     }
 
+    public function update(Request $request, CbtExam $exam): RedirectResponse
+    {
+        $validated = $request->validate([
+            'duration_minutes' => ['required', 'integer', 'min:5', 'max:300'],
+            'pass_mark' => ['required', 'integer', 'min:0', 'max:100'],
+        ]);
+
+        $exam->update($validated);
+
+        AuditLog::record('cbt.exam.updated', "Updated CBT exam \"{$exam->title()}\".", $exam);
+
+        return redirect()->route('super-admin.cbt.exam-bodies.show', $exam->examBody)->with('status', "\"{$exam->title()}\" updated successfully.");
+    }
+
     public function show(CbtExam $exam): View
     {
         $exam->load(['examBody', 'subject', 'questions.options']);

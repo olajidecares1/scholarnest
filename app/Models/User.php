@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable
@@ -28,6 +29,7 @@ class User extends Authenticatable
         'username',
         'password',
         'role',
+        'photo_path',
         'school_id',
         'admin_role_id',
         'is_active',
@@ -60,6 +62,11 @@ class User extends Authenticatable
         }
 
         return in_array($permission, $this->adminRole?->permissions ?? [], true);
+    }
+
+    public function photoUrl(): ?string
+    {
+        return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
     }
 
     public static function generateUniqueUsernameFromEmail(string $email): string

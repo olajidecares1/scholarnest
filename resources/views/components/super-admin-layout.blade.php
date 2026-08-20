@@ -8,6 +8,7 @@
     $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-mark.png');
     $canManageCbt = auth()->user()->hasPermission('manage_cbt');
     $cbtExamBodies = $canManageCbt ? \App\Models\CbtExamBody::orderBy('name')->get() : collect();
+    $canManageResultPins = auth()->user()->hasPermission('manage_result_pins');
 @endphp
 
 <!DOCTYPE html>
@@ -87,6 +88,16 @@
                     </svg>
                     Schools
                 </a>
+
+                @if ($canManageResultPins)
+                    <a href="{{ route('super-admin.result-pins.index') }}" class="{{ $navLinkClasses(request()->routeIs('super-admin.result-pins.*')) }}">
+                        <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.5 8.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M13 11l-6.5 6.5M9 17.5l-1.5-1.5M6.5 20L5 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Result PINs
+                    </a>
+                @endif
 
                 <div x-data="{ open: {{ request()->routeIs('super-admin.subscriptions.*') ? 'true' : 'false' }} }">
                     <button
@@ -471,6 +482,36 @@
                     </div>
                 </div>
             </header>
+
+            @php
+                $pageNavItems = collect([
+                    ['route' => 'super-admin.dashboard', 'label' => 'Dashboard'],
+                    ['route' => 'super-admin.schools.index', 'label' => 'Schools'],
+                    ['route' => 'super-admin.subscriptions.index', 'label' => 'Subscriptions'],
+                ])
+                    ->when($canManageCbt, fn ($collection) => $collection->push(['route' => 'super-admin.cbt.index', 'label' => 'CBT']))
+                    ->when($canManageResultPins, fn ($collection) => $collection->push(['route' => 'super-admin.result-pins.index', 'label' => 'Result PINs']))
+                    ->concat([
+                        ['route' => 'super-admin.payments.index', 'label' => 'Payments'],
+                        ['route' => 'super-admin.users.index', 'label' => 'Users'],
+                        ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions'],
+                        ['route' => 'super-admin.reports.index', 'label' => 'Reports'],
+                        ['route' => 'super-admin.analytics.index', 'label' => 'Analytics'],
+                        ['route' => 'super-admin.communications.index', 'label' => 'Communications'],
+                        ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets'],
+                        ['route' => 'super-admin.cms.index', 'label' => 'CMS'],
+                        ['route' => 'super-admin.media.index', 'label' => 'Media'],
+                        ['route' => 'super-admin.themes.index', 'label' => 'Themes'],
+                        ['route' => 'super-admin.settings.index', 'label' => 'System Settings'],
+                        ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs'],
+                    ])
+                    ->filter(fn ($item) => \Illuminate\Support\Facades\Route::has($item['route']))
+                    ->map(fn ($item) => [...$item, 'url' => route($item['route'])])
+                    ->values()
+                    ->all();
+                $pageNav = \App\Support\PageNavigator::resolve($pageNavItems, request()->route()?->getName());
+            @endphp
+            <x-mobile-page-nav :prev="$pageNav['prev']" :next="$pageNav['next']" :current-label="$pageNav['current']" />
 
             <main class="p-4 sm:p-6 lg:p-8 dark:bg-gray-900">
                 {{ $slot }}

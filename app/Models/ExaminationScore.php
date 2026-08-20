@@ -22,7 +22,10 @@ class ExaminationScore extends Model
         'examination_subject_id',
         'student_id',
         'score',
+        'test_score',
+        'exam_score',
         'remark',
+        'grade_override',
     ];
 
     /**
@@ -34,6 +37,8 @@ class ExaminationScore extends Model
     {
         return [
             'score' => 'decimal:2',
+            'test_score' => 'decimal:2',
+            'exam_score' => 'decimal:2',
         ];
     }
 
@@ -62,13 +67,10 @@ class ExaminationScore extends Model
 
     public function grade(): string
     {
-        return match (true) {
-            $this->percentage() >= 70 => 'A',
-            $this->percentage() >= 60 => 'B',
-            $this->percentage() >= 50 => 'C',
-            $this->percentage() >= 45 => 'D',
-            $this->percentage() >= 40 => 'E',
-            default => 'F',
-        };
+        if ($this->grade_override) {
+            return $this->grade_override;
+        }
+
+        return GradeBand::resolve($this->subject->examination->school, $this->percentage());
     }
 }

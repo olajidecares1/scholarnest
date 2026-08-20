@@ -20,7 +20,7 @@ class CmsController extends Controller
         return view('super-admin.cms.index', [
             'pages' => Page::orderBy('title')->get(),
             'blogPosts' => BlogPost::with('author')->latest()->get(),
-            'testimonials' => Testimonial::orderBy('sort_order')->get(),
+            'testimonials' => Testimonial::whereNull('school_id')->orderBy('sort_order')->get(),
             'faqItems' => FaqItem::orderBy('sort_order')->get(),
             'teamMembers' => TeamMember::orderBy('sort_order')->get(),
         ]);
