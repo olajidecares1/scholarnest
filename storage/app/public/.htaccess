@@ -1,0 +1,60 @@
+# =============================================================================
+#  Uploaded files are DATA. Nothing in this directory may ever be executed.
+# =============================================================================
+#
+#  Everything below this folder was uploaded by a user: student photographs,
+#  school logos, gallery images, misconduct-report evidence. Some of those
+#  users are not trustworthy.
+#
+#  Files here are reached by visitors through public/storage, which is a
+#  symlink into this directory. So if a file the web server is willing to
+#  execute ever lands here, an attacker can run their own code on the server
+#  simply by requesting it.
+#
+#  Uploads are already validated and re-encoded before they are stored, and
+#  Laravel's own validation rejects PHP file extensions. This file exists so
+#  that if any of those checks is ever bypassed, missed on a new upload
+#  route, or weakened by a future change, the damage still stops here.
+#
+#  IMPORTANT: this only works on Apache, and only where AllowOverride permits
+#  .htaccess files. On nginx the equivalent rule must be placed in the site
+#  configuration - see docs/DEPLOYMENT.md.
+# =============================================================================
+
+# --- Refuse to serve anything executable ------------------------------------
+# This is the important rule. It does not care which module would have run the
+# file; the request is simply denied.
+<FilesMatch "(?i)\.(php|php[0-9]|phtml|phps|pht|phar|inc|cgi|pl|py|rb|sh|bash|asp|aspx|jsp|htaccess|htpasswd|env|ini|conf|sql)$">
+    Require all denied
+</FilesMatch>
+
+# --- Turn the PHP engine off entirely ---------------------------------------
+# Belt and braces, for mod_php setups. Has no effect under PHP-FPM, which is
+# why the FilesMatch rule above is the one being relied on.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# --- Stop any handler mapping an extension to an interpreter -----------------
+<IfModule mod_mime.c>
+    RemoveHandler .php .php3 .php4 .php5 .php7 .php8 .phtml .phps .pht .phar
+    RemoveHandler .cgi .pl .py .rb .sh .asp .aspx .jsp
+    RemoveType .php .php3 .php4 .php5 .php7 .php8 .phtml .phps .pht .phar
+</IfModule>
+
+# --- No CGI, no server-side includes, no directory listings ------------------
+Options -ExecCGI -Includes -Indexes
+
+# --- Never let the browser second-guess a file's type ------------------------
+# Without this, a browser can decide an image "looks like" HTML and render it,
+# which turns an uploaded picture into a cross-site scripting payload.
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set Content-Security-Policy "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'"
+</IfModule>

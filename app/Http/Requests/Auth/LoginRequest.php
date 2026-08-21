@@ -18,6 +18,24 @@ class LoginRequest extends FormRequest
     private const LOCKOUT_DECAY_SECONDS = 900;
 
     /**
+     * Failed attempts allowed from a single IP address, across every account,
+     * within the same 15-minute window.
+     *
+     * MAX_ATTEMPTS above stops someone guessing many passwords against ONE
+     * account. It does nothing about the opposite attack: trying one common
+     * password against thousands of DIFFERENT accounts. Each of those attempts
+     * uses a different email, so each gets its own counter and none of them
+     * ever reaches 5.
+     *
+     * This second, wider limit closes that gap.
+     *
+     * It is deliberately generous. A whole school often shares one internet
+     * connection, so a single IP can legitimately produce a burst of mistyped
+     * passwords first thing on a Monday morning.
+     */
+    private const MAX_ATTEMPTS_PER_IP = 30;
+
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
@@ -56,6 +74,7 @@ class LoginRequest extends FormRequest
 
         if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey(), self::LOCKOUT_DECAY_SECONDS);
+            RateLimiter::hit($this->ipThrottleKey(), self::LOCKOUT_DECAY_SECONDS);
 
             throw ValidationException::withMessages([
                 'login' => trans('auth.failed'),
@@ -72,23 +91,41 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Only the per-credential counter is cleared. The per-IP counter
+        // deliberately survives a successful sign-in: otherwise an attacker
+        // spraying passwords could reset their own IP counter at will simply
+        // by signing in to an account they legitimately own.
         RateLimiter::clear($this->throttleKey());
     }
 
     /**
      * Ensure the login request is not rate limited.
      *
+     * Two independent limits apply, and tripping either one refuses the
+     * request:
+     *
+     *   - this email address from this IP  (5 failures / 15 min)
+     *   - this IP across all addresses     (30 failures / 15 min)
+     *
      * @throws ValidationException
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), self::MAX_ATTEMPTS)) {
+        $credentialsBlocked = RateLimiter::tooManyAttempts($this->throttleKey(), self::MAX_ATTEMPTS);
+        $ipBlocked = RateLimiter::tooManyAttempts($this->ipThrottleKey(), self::MAX_ATTEMPTS_PER_IP);
+
+        if (! $credentialsBlocked && ! $ipBlocked) {
             return;
         }
 
         event(new Lockout($this));
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        // Report whichever lockout lasts longer, so the message never suggests
+        // trying again sooner than the request would actually be accepted.
+        $seconds = max(
+            $credentialsBlocked ? RateLimiter::availableIn($this->throttleKey()) : 0,
+            $ipBlocked ? RateLimiter::availableIn($this->ipThrottleKey()) : 0,
+        );
 
         throw ValidationException::withMessages([
             'login' => trans('auth.throttle', [
@@ -99,10 +136,21 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * Counts failures for one email address from one IP address.
      */
     public function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->string('login')).'|'.$this->ip());
+    }
+
+    /**
+     * Counts failures from one IP address against any account.
+     *
+     * The 'login-ip|' prefix keeps this in a separate namespace from
+     * throttleKey(), so the two counters can never collide.
+     */
+    public function ipThrottleKey(): string
+    {
+        return 'login-ip|'.$this->ip();
     }
 }

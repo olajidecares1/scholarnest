@@ -27,14 +27,25 @@ Route::middleware('guest')->group(function () {
     Route::get(R::uri('password.request'), [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 
-    Route::post(R::uri('password.request'), [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-
     Route::get(R::uri('password.reset').'/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
-    Route::post(R::uri('password.store'), [NewPasswordController::class, 'store'])
-        ->name('password.store');
+    // Both of these are limited per IP address.
+    //
+    // Laravel's password broker already refuses to send a second link for the
+    // SAME email address within 60 seconds. What it does not stop is one
+    // address requesting links for thousands of DIFFERENT accounts, which
+    // would spray reset emails at a school's users and get EduNest's sending
+    // domain marked as spam.
+    //
+    // The same limit protects password.store from having reset tokens guessed.
+    Route::middleware('throttle:5,1')->group(function () {
+        Route::post(R::uri('password.request'), [PasswordResetLinkController::class, 'store'])
+            ->name('password.email');
+
+        Route::post(R::uri('password.store'), [NewPasswordController::class, 'store'])
+            ->name('password.store');
+    });
 
     // The School Admin (web-guard) forgot-password flow: link + 6-digit
     // code. Deliberately has no Student/Staff/Guardian equivalent - see
