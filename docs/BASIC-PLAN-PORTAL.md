@@ -27,7 +27,7 @@ which asks which school you belong to and forwards you there.
 ## The flow
 
 ```
-  edunest.com/portal/{32-character token}
+  edunest.com/portal{32-character token}
                  |
                  |   "Enter your school name"
                  v
@@ -57,7 +57,7 @@ Three outcomes when a name is submitted:
 The 32-character token in the URL comes from `BASIC_PORTAL_TOKEN` in `.env`.
 
 ```
-edunest.com/portal/6219db402a20f65b63358972bd5274cd
+edunest.com/portal6219db402a20f65b63358972bd5274cd
 ```
 
 **It is not a password.** Every Basic school shares it, and it identifies
@@ -91,7 +91,7 @@ The three portals share no route, controller or view.
 
 | | Basic | Standard / Exclusive |
 | --- | --- | --- |
-| Entry point | `/portal/{token}` | Their own subdomain or domain |
+| Entry point | `/portal{token}` | Their own subdomain or domain |
 | Controller | `Portal\Basic\SchoolFinderController` | `PublicSchoolWebsiteController` |
 | School page | `/{slug}` — portal sign-in choices | `/` on their own host — a full website |
 

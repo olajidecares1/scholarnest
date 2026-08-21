@@ -11,7 +11,7 @@ use App\Models\School;
  * arrives at one shared, token-gated URL, names their school, and is forwarded
  * to that school's own page:
  *
- *     /portal/{32-char token}  ->  "Enter your school name"  ->  /{school-slug}
+ *     /portal{32-char token}  ->  "Enter your school name"  ->  /{school-slug}
  *
  * The policy is documented in docs/BASIC-PLAN-PORTAL.md.
  */
@@ -42,30 +42,38 @@ function nonBasicSchool(string $name, PlanKey $plan): School
 // -----------------------------------------------------------------------------
 
 test('the finder opens with the correct token', function () {
-    $this->get('/portal/'.PORTAL_TOKEN)
+    $this->get('/portal'.PORTAL_TOKEN)
         ->assertOk()
         ->assertSee('Enter your school name');
 });
 
 test('a wrong token is a 404, not a 403', function () {
     // 403 would confirm something real sits here and invite guessing.
-    $this->get('/portal/'.str_repeat('9', 32))->assertNotFound();
+    $this->get('/portal'.str_repeat('9', 32))->assertNotFound();
 });
 
 test('the portal does not exist at all when no token is configured', function () {
     config(['basic_portal.token' => null]);
 
-    $this->get('/portal/'.PORTAL_TOKEN)->assertNotFound();
+    $this->get('/portal'.PORTAL_TOKEN)->assertNotFound();
 });
 
 test('a token of the wrong length does not even match the route', function () {
-    $this->get('/portal/tooshort')->assertNotFound();
+    $this->get('/portaltooshort')->assertNotFound();
+    $this->get('/portal'.str_repeat('a', 31))->assertNotFound();
+    $this->get('/portal'.str_repeat('a', 33))->assertNotFound();
 });
 
 test('the finder route does not swallow its sibling portal paths', function () {
-    // /portal/sign-in must keep working. The 32-character pattern is what
-    // stops {token} matching it.
+    // The token is joined straight onto "portal" with no separator, so these
+    // neighbours are protected by the pattern rather than by a path boundary:
+    // [A-Za-z0-9] cannot span a "/", so it can never reach into "/sign-in".
     $this->get('/portal/sign-in')->assertOk();
+});
+
+test('the bare portal path is not the finder', function () {
+    // 32 characters are required, so "/portal" on its own matches nothing.
+    $this->get('/portal')->assertNotFound();
 });
 
 // -----------------------------------------------------------------------------
@@ -75,7 +83,7 @@ test('the finder route does not swallow its sibling portal paths', function () {
 test('an exact school name redirects to that school', function () {
     $school = basicSchool('Greenfield College');
 
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => 'Greenfield College'])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => 'Greenfield College'])
         ->assertRedirect('/'.$school->slug);
 
     expect($school->slug)->toBe('greenfield-college');
@@ -84,24 +92,24 @@ test('an exact school name redirects to that school', function () {
 test('the name is matched without caring about case or spacing', function () {
     $school = basicSchool('Greenfield College');
 
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => '  gREENFIELD college '])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => '  gREENFIELD college '])
         ->assertRedirect('/'.$school->slug);
 });
 
 test('a school can also be found by its slug or school code', function () {
     $school = basicSchool('Greenfield College');
 
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => $school->slug])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => $school->slug])
         ->assertRedirect('/'.$school->slug);
 
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => $school->school_code])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => $school->school_code])
         ->assertRedirect('/'.$school->slug);
 });
 
 test('a partial name finds the school', function () {
     $school = basicSchool('Greenfield College');
 
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => 'Greenfield'])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => 'Greenfield'])
         ->assertRedirect('/'.$school->slug);
 });
 
@@ -109,7 +117,7 @@ test('several matches are listed to choose from rather than guessed at', functio
     basicSchool('Kings College Lagos');
     basicSchool('Kings College Abuja');
 
-    $response = $this->post('/portal/'.PORTAL_TOKEN, ['school' => 'Kings College']);
+    $response = $this->post('/portal'.PORTAL_TOKEN, ['school' => 'Kings College']);
 
     $response->assertOk()
         ->assertSee('Kings College Lagos')
@@ -122,19 +130,19 @@ test('an exact name wins over schools that merely contain it', function () {
     basicSchool('Kings College Annexe');
 
     // Without tiered matching, the exact school would be buried in a list.
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => 'Kings College'])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => 'Kings College'])
         ->assertRedirect('/'.$exact->slug);
 });
 
 test('an unknown school name is refused without saying why', function () {
-    $response = $this->post('/portal/'.PORTAL_TOKEN, ['school' => 'No Such School']);
+    $response = $this->post('/portal'.PORTAL_TOKEN, ['school' => 'No Such School']);
 
     $response->assertRedirect()->assertSessionHasErrors('school');
     expect(session('errors')->first('school'))->toContain('find a school with that name');
 });
 
 test('the school name is required', function () {
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => ''])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => ''])
         ->assertSessionHasErrors('school');
 });
 
@@ -147,21 +155,21 @@ test('a standard school cannot be found through the basic portal', function () {
 
     // Standard schools have their own subdomain. Surfacing them here would
     // both break the plan separation and leak what a school pays for.
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => 'Royal College'])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => 'Royal College'])
         ->assertSessionHasErrors('school');
 });
 
 test('an exclusive school cannot be found through the basic portal', function () {
     nonBasicSchool('Elite Academy', PlanKey::Exclusive);
 
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => 'Elite Academy'])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => 'Elite Academy'])
         ->assertSessionHasErrors('school');
 });
 
 test('a school with no active subscription cannot be found', function () {
     School::factory()->create(['name' => 'Unpaid Academy']);
 
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => 'Unpaid Academy'])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => 'Unpaid Academy'])
         ->assertSessionHasErrors('school');
 });
 
@@ -243,9 +251,9 @@ test('like wildcards typed into the box are treated as literal text', function (
     basicSchool('Greenfield College');
 
     // Without escaping, "%" would match every school on the platform.
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => '%%'])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => '%%'])
         ->assertSessionHasErrors('school');
 
-    $this->post('/portal/'.PORTAL_TOKEN, ['school' => '__'])
+    $this->post('/portal'.PORTAL_TOKEN, ['school' => '__'])
         ->assertSessionHasErrors('school');
 });
