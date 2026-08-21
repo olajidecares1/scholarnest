@@ -43,6 +43,8 @@ platform work, and the mobile/API layer.
 - [x] Three subscription plans with per-plan feature gating
 - [x] Subscription wizard, top-ups and student slot limits
 - [x] Public school websites with a block-based builder
+- [x] Basic-plan portal: token-gated school finder at /portal/{token}, forwarding
+      to edunest.com/{school-slug} *(added 21 Aug)*
 - [x] Custom domains with verification
 - [x] News, events, gallery, testimonials, facilities, job postings
 - [x] Misconduct reporting with media uploads

@@ -70,23 +70,36 @@ class School extends Model
     {
         static::creating(function (self $school) {
             if (! $school->slug) {
-                $base = Str::slug($school->name);
+                // The slug is also the school's address at the root of the
+                // platform - edunest.com/greenfield-college - so it competes
+                // for names with the application's own top-level paths. A
+                // school that managed to claim "login" or "dashboard" would
+                // be a genuine problem, so those names are skipped here as
+                // well as excluded by the route pattern. See
+                // config/basic_portal.php.
+                $reserved = array_map('strtolower', (array) config('basic_portal.reserved_slugs', []));
+
+                // Falls back to "school" for a name made entirely of
+                // characters Str::slug() strips, which would otherwise
+                // produce an empty slug and an unroutable school.
+                $base = Str::slug($school->name) ?: 'school';
                 $slug = $base;
                 $suffix = 1;
 
-                while (static::where('slug', $slug)->exists()) {
+                while (in_array($slug, $reserved, true) || static::where('slug', $slug)->exists()) {
                     $slug = "{$base}-".++$suffix;
                 }
 
                 $school->slug = $slug;
             }
 
-            // Short, memorable, and unique - unlike the slug (system-
-            // generated, only ever shown in a public marketing URL, and a
-            // Basic-plan school never even gets one of those), this is the
-            // thing a school admin actually types in to disambiguate their
-            // school on the shared /portal login when no custom domain
-            // tells the backend which school they mean.
+            // Short, memorable, and unique - unlike the slug, which is
+            // generated from the name and so is easy to get slightly wrong.
+            // This is the thing a school admin actually types in to
+            // disambiguate their school on the shared /portal login when no
+            // custom domain tells the backend which school they mean, and
+            // what the Basic-plan school finder shows to tell two similarly
+            // named schools apart.
             if (! $school->school_code) {
                 $base = Str::upper(Str::random(6));
                 $code = $base;

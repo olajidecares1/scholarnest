@@ -19,6 +19,8 @@ use App\Http\Controllers\Guardian\TimetableController as GuardianTimetableContro
 use App\Http\Controllers\IdCardVerificationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Portal\AuthenticatedSessionController as PortalAuthenticatedSessionController;
+use App\Http\Controllers\Portal\Basic\SchoolFinderController as BasicSchoolFinderController;
+use App\Http\Controllers\Portal\Basic\SchoolLandingController as BasicSchoolLandingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicSchoolWebsiteController;
 use App\Http\Controllers\ReportController;
@@ -485,6 +487,29 @@ Route::prefix('schools/{school:slug}/portal')->name('portal.')->group(function (
 // for this route.
 Route::get('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'create'])->name('portal.show');
 Route::post('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'store'])->name('portal.attempt');
+
+// Basic-plan portal - the school finder.
+//
+// Basic schools have no public website and no subdomain, so unlike Standard
+// and Exclusive they cannot be reached directly. Everyone arrives here, at one
+// shared token-gated URL, names their school, and is forwarded to it. This
+// flow is entirely separate from the two portals above and shares no route,
+// controller or view with them. See docs/BASIC-PLAN-PORTAL.md.
+//
+// The {token} pattern is pinned to exactly 32 alphanumeric characters so this
+// can never swallow a sibling path: "/portal/sign-in" and "/portal/admin/..."
+// are both too short to match, whatever order the routes are registered in.
+//
+// Throttled because the POST is a lookup against school names, and an
+// unthrottled one would let anyone enumerate EduNest's customer list.
+Route::prefix('portal')
+    ->middleware(['basic_portal_token', 'throttle:20,1'])
+    ->where(['token' => '[A-Za-z0-9]{32}'])
+    ->name('basic-portal.')
+    ->group(function () {
+        Route::get('{token}', [BasicSchoolFinderController::class, 'show'])->name('finder');
+        Route::post('{token}', [BasicSchoolFinderController::class, 'find'])->name('find');
+    });
 
 Route::middleware('throttle:5,1')->group(function () {
     Route::get(R::uri('reports.create'), [ReportController::class, 'create'])->name('reports.create');
@@ -1020,3 +1045,48 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Basic-plan school landing - MUST BE THE LAST ROUTE IN THE APPLICATION
+|--------------------------------------------------------------------------
+|
+| edunest.com/greenfield-college
+|
+| Where the Basic-plan school finder above sends people. A Basic school has no
+| public website, so this is its portal entry point rather than a home page.
+|
+| This route occupies the root namespace, so a school slug competes with every
+| top-level path the application owns. Three things keep that safe:
+|
+|   1. It is registered LAST - after every route in this file AND after the
+|      ones in auth.php, which is required above. Laravel matches the first
+|      route that fits, so a real route always wins. Nothing may be registered
+|      after this block.
+|
+|   2. The pattern excludes reserved words outright (config
+|      basic_portal.reserved_slugs), so /login and /dashboard can never reach
+|      this controller even if the ordering above were ever disturbed.
+|
+|   3. The same reserved list is enforced when a school picks its slug, so the
+|      collision cannot be created in the first place.
+|
+| The slug pattern also requires lowercase letters, digits and hyphens only,
+| which is exactly what Str::slug() produces - so the obfuscated hex URIs used
+| elsewhere in this file cannot be mistaken for a school.
+|
+*/
+Route::get('/{school:slug}', [BasicSchoolLandingController::class, 'show'])
+    ->where('school', sprintf(
+        // The alternation is wrapped in its own group before the "$" so that
+        // the anchor applies to EVERY reserved word rather than only the last
+        // one. Without the group, "(?!news|...|edunest$)" rejects any slug
+        // merely STARTING with a reserved word, which would quietly 404 a
+        // legitimate school called "Newspaper College".
+        '(?!(?:%s)$)[a-z0-9]+(?:-[a-z0-9]+)*',
+        implode('|', array_map(
+            static fn (string $slug): string => preg_quote($slug, '/'),
+            config('basic_portal.reserved_slugs'),
+        )),
+    ))
+    ->name('basic-portal.school');

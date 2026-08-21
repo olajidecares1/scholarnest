@@ -20,6 +20,7 @@ use App\Http\Middleware\LogsOutIdleUsers;
 use App\Http\Middleware\RedirectToCustomDomain;
 use App\Http\Middleware\ResolveTenantFromCustomDomain;
 use App\Http\Middleware\TrackPageView;
+use App\Http\Middleware\ValidateBasicPortalToken;
 use App\Http\Middleware\ValidateSchoolPortalToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -58,6 +59,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'resolve_tenant_domain' => ResolveTenantFromCustomDomain::class,
             'redirect_to_custom_domain' => RedirectToCustomDomain::class,
             'portal_token' => ValidateSchoolPortalToken::class,
+
+            // The 32-character token gating the Basic-plan portal entry point.
+            'basic_portal_token' => ValidateBasicPortalToken::class,
             'auth.session' => AuthenticateSession::class,
         ]);
 
