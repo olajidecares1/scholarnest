@@ -59,6 +59,8 @@ platform work, and the mobile/API layer.
 - [x] Uploads re-encoded through GD, EXIF stripped
 - [x] Script execution blocked in upload directories *(added 21 Aug)*
 - [x] Idle session timeout across all portals
+- [x] Password reset authority: only a School Admin may reset Staff, Student
+      and Guardian passwords, enforced server-side and audited *(added 21 Aug)*
 
 ---
 
@@ -79,7 +81,9 @@ done. Remaining:
 
 Not yet audited, and worth a second pass:
 
-- [ ] The four portal login flows (Student, Staff, Guardian, School Portal)
+- [ ] The four portal login flows (Student, Staff, Guardian, School Portal).
+      Their password-reset restrictions are now audited and enforced - see
+      docs/PASSWORD-RESET-POLICY.md - but the sign-in paths themselves are not.
 - [ ] `PortalSessionBroker` and `ValidateSchoolPortalToken`
 - [ ] Misconduct-report video upload handling
 - [ ] CBT `.docx` import parsing

@@ -85,6 +85,7 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
             'password' => 'hashed',
             'last_login_at' => 'datetime',
             'is_active' => 'boolean',
+            'must_change_password' => 'boolean',
         ];
     }
 

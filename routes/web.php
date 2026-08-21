@@ -238,7 +238,7 @@ Route::prefix('schools/{school:slug}/portal')->name('student.')->group(function 
         Route::post('{token}/login', [StudentAuthenticatedSessionController::class, 'store']);
     });
 
-    Route::middleware(['auth:student', 'student_active'])->group(function () {
+    Route::middleware(['auth:student', 'student_active', 'password_changed:student'])->group(function () {
         Route::post('logout', [StudentAuthenticatedSessionController::class, 'destroy'])->name('logout');
         Route::get('locked', [PortalLockedController::class, 'show'])->name('locked');
 
@@ -332,7 +332,7 @@ Route::prefix('schools/{school:slug}/parent-portal')->name('guardian.')->group(f
         Route::post('{token}/login', [GuardianAuthenticatedSessionController::class, 'store']);
     });
 
-    Route::middleware(['auth:guardian', 'guardian_active'])->group(function () {
+    Route::middleware(['auth:guardian', 'guardian_active', 'password_changed:guardian'])->group(function () {
         Route::post('logout', [GuardianAuthenticatedSessionController::class, 'destroy'])->name('logout');
         Route::get('locked', [GuardianPortalLockedController::class, 'show'])->name('locked');
 
@@ -380,7 +380,7 @@ Route::prefix('schools/{school:slug}/staff-portal')->name('staff.')->group(funct
         Route::post('{token}/login', [StaffAuthenticatedSessionController::class, 'store']);
     });
 
-    Route::middleware(['auth:staff', 'staff_active'])->group(function () {
+    Route::middleware(['auth:staff', 'staff_active', 'password_changed:staff'])->group(function () {
         Route::post('logout', [StaffAuthenticatedSessionController::class, 'destroy'])->name('logout');
         Route::get('locked', [StaffPortalLockedController::class, 'show'])->name('locked');
 

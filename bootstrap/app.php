@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureGuardianIsActive;
 use App\Http\Middleware\EnsureHasPermission;
+use App\Http\Middleware\EnsurePasswordHasBeenChanged;
 use App\Http\Middleware\EnsureSchoolHasCbtAccess;
 use App\Http\Middleware\EnsureSchoolHasCustomDomainAccess;
 use App\Http\Middleware\EnsureSchoolHasIdCardAccess;
@@ -40,6 +41,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'student_active' => EnsureStudentIsActive::class,
             'guardian_active' => EnsureGuardianIsActive::class,
             'staff_active' => EnsureStaffIsActive::class,
+
+            // Takes the guard name as a parameter: password_changed:student.
+            // Forces a Student, Staff or Guardian whose password was reset by
+            // their School Admin to choose their own before they can use the
+            // portal for anything else.
+            'password_changed' => EnsurePasswordHasBeenChanged::class,
+
             'staff_is_teacher' => EnsureStaffIsTeacher::class,
             'portal_access' => EnsureSchoolHasPortalAccess::class,
             'id_card_access' => EnsureSchoolHasIdCardAccess::class,

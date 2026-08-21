@@ -48,6 +48,10 @@
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
             </button>
 
+            {{-- Staff accounts have no self-service password recovery by design.
+                 Only a School Admin may reset a staff password. See
+                 docs/PASSWORD-RESET-POLICY.md. --}}
+            <p class="text-center text-xs text-gray-500">Forgot your password? Please contact your School Admin to reset your account.</p>
             <p class="text-center text-xs text-gray-500">Don't have your login details? Ask your school office for your Staff ID and portal password.</p>
             <p class="text-center text-xs text-gray-500">
                 <a href="{{ $school->publicUrl('portal.index') }}" class="font-semibold text-primary-500 hover:text-primary-600">&larr; Back to Portal</a>
