@@ -194,8 +194,33 @@
                                         <p class="font-semibold text-gray-900 dark:text-white">{{ $topUp->subscription->school->name }}</p>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $topUp->subscription->plan->name }} &middot; {{ $topUp->reference }}</p>
                                     </td>
-                                    <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">+{{ number_format($topUp->additional_students_count) }}</td>
-                                    <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">&#8358;{{ number_format($topUp->additional_amount, 2) }}</td>
+                                    <td class="px-5 py-3">
+                                        {{-- What the school ASKED for. What is actually
+                                             allocated is entered by the Super Admin below. --}}
+                                        <p class="font-medium text-gray-900 dark:text-white">+{{ number_format($topUp->additional_students_count) }} requested</p>
+                                        @if ($topUp->approved_students_count !== null)
+                                            <p class="text-xs font-semibold text-green-700 dark:text-green-400">
+                                                +{{ number_format($topUp->approved_students_count) }} allocated
+                                                ({{ number_format($topUp->previous_students_count) }} &rarr; {{ number_format($topUp->new_students_count) }})
+                                            </p>
+                                        @endif
+                                    </td>
+                                    <td class="px-5 py-3">
+                                        <p class="font-medium text-gray-900 dark:text-white">&#8358;{{ number_format($topUp->additional_amount, 2) }}</p>
+                                        @if ($topUp->price_per_student !== null)
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">&#8358;{{ number_format($topUp->price_per_student, 2) }} per student</p>
+                                        @endif
+                                        @if (filled($topUp->receipt_path))
+                                            <a
+                                                href="{{ route('super-admin.subscriptions.top-ups.receipt', $topUp) }}"
+                                                target="_blank"
+                                                rel="noopener"
+                                                class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                                            >
+                                                <i class="fa-solid fa-receipt"></i> View receipt
+                                            </a>
+                                        @endif
+                                    </td>
                                     <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $topUp->created_at->format('M j, Y') }}</td>
                                     <td class="px-5 py-3">
                                         @php
@@ -211,13 +236,35 @@
                                     </td>
                                     <td class="px-5 py-3">
                                         @if ($topUp->status->value === 'pending_verification')
-                                            <div class="flex items-center gap-2">
-                                                <form method="POST" action="{{ route('super-admin.subscriptions.top-ups.approve', $topUp) }}">
-                                                    @csrf
-                                                    <button type="submit" class="rounded-[8px] bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700">Approve</button>
-                                                </form>
-                                                <button type="button" @click="rejecting = true" class="rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject</button>
-                                            </div>
+                                            {{-- The number allocated is entered here, not
+                                                 taken from the request. Check the receipt
+                                                 against the amount paid, then enter the
+                                                 licences that amount actually covers - it
+                                                 may not be what was asked for. --}}
+                                            <form method="POST" action="{{ route('super-admin.subscriptions.top-ups.approve', $topUp) }}" class="flex flex-wrap items-end gap-2">
+                                                @csrf
+                                                <div>
+                                                    <label for="approved-{{ $topUp->id }}" class="mb-1 block text-[11px] font-semibold text-gray-600 dark:text-gray-300">
+                                                        Licences to allocate
+                                                    </label>
+                                                    <input
+                                                        id="approved-{{ $topUp->id }}"
+                                                        type="number"
+                                                        name="approved_students_count"
+                                                        min="1"
+                                                        max="100000"
+                                                        required
+                                                        placeholder="{{ $topUp->additional_students_count }}"
+                                                        class="h-8 w-28 rounded-[6px] border border-gray-300 px-2 text-xs text-gray-900 shadow-sm focus:border-green-500 focus:outline-none focus:ring-[3px] focus:ring-green-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                                    >
+                                                </div>
+                                                <button type="submit" class="h-8 rounded-[8px] bg-green-600 px-3 text-xs font-semibold text-white hover:bg-green-700">Approve</button>
+                                                <button type="button" @click="rejecting = true" class="h-8 rounded-[8px] bg-red-600 px-3 text-xs font-semibold text-white hover:bg-red-700">Reject</button>
+                                            </form>
+
+                                            @error('approved_students_count')
+                                                <p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>
+                                            @enderror
 
                                             <div x-show="rejecting" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
                                                 <div @click.outside="rejecting = false" class="w-full max-w-md rounded-[8px] bg-white p-5 dark:bg-gray-800">

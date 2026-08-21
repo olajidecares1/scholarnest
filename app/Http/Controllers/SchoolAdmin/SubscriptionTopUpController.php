@@ -43,14 +43,23 @@ class SubscriptionTopUpController extends Controller
         abort_unless($school->hasPlanAccess(PlanKey::Basic), 403, 'Student slot top-ups are only available on the Basic plan.');
 
         $validated = $request->validated();
-        $additionalAmount = (float) $validated['additional_students_count'] * (float) $subscription->plan->price_per_student_per_term;
+
+        // Snapshotted rather than read back off the plan at approval time. The
+        // Super Admin can change the plan price, and doing so must never
+        // retroactively rewrite the arithmetic of a payment already made.
+        $pricePerStudent = (float) $subscription->plan->price_per_student_per_term;
+
+        $additionalAmount = (float) $validated['additional_students_count'] * $pricePerStudent;
         $receipt = $this->receiptUploader->store($school, $request->file('receipt'));
         $reference = strtoupper(Str::slug($school->name, '')).'-TOPUP-'.now()->format('dmy').'-'.strtoupper(Str::random(4));
 
+        // Recorded as a REQUEST only. Nothing here touches the school's
+        // allocation - that happens solely when a Super Admin approves it.
         $topUp = DB::transaction(fn () => SubscriptionTopUp::create([
             'subscription_id' => $subscription->id,
             'additional_students_count' => $validated['additional_students_count'],
             'additional_amount' => $additionalAmount,
+            'price_per_student' => $pricePerStudent,
             'payment_method' => $validated['payment_method'],
             'receipt_path' => $receipt['path'],
             'receipt_original_name' => $receipt['original_name'],

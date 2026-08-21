@@ -121,6 +121,8 @@ use App\Http\Controllers\SuperAdmin\ReportController as SuperAdminReportControll
 use App\Http\Controllers\SuperAdmin\ResultPinController;
 use App\Http\Controllers\SuperAdmin\RoleController;
 use App\Http\Controllers\SuperAdmin\SchoolController;
+use App\Http\Controllers\SuperAdmin\PaymentReceiptController;
+use App\Http\Controllers\SuperAdmin\PlanPricingController;
 use App\Http\Controllers\SuperAdmin\SearchController;
 use App\Http\Controllers\SuperAdmin\SettingsController;
 use App\Http\Controllers\SuperAdmin\SubscriptionApprovalController;
@@ -916,6 +918,11 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::post(R::uri('super-admin.subscriptions.reject').'/{subscription}', [SubscriptionApprovalController::class, 'reject'])->name('reject');
             Route::post(R::uri('super-admin.subscriptions.top-ups.approve').'/{topUp}', [SubscriptionApprovalController::class, 'approveTopUp'])->name('top-ups.approve');
             Route::post(R::uri('super-admin.subscriptions.top-ups.reject').'/{topUp}', [SubscriptionApprovalController::class, 'rejectTopUp'])->name('top-ups.reject');
+
+            // Receipts live on the private disk, so they are streamed through
+            // the application behind this middleware rather than served from
+            // public storage where anyone guessing a filename could read them.
+            Route::get(R::uri('super-admin.subscriptions.top-ups.receipt').'/{topUp}', [PaymentReceiptController::class, 'showTopUpReceipt'])->name('top-ups.receipt');
         });
 
         Route::name('result-pins.')->middleware('permission:manage_result_pins')->group(function () {
@@ -1048,6 +1055,14 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
 
         Route::get(R::uri('super-admin.settings.index'), [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
         Route::put(R::uri('super-admin.settings.index'), [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage_settings');
+
+        // Plan pricing, including the Basic plan's per-student price - the
+        // figure the whole student-licence system multiplies by. Kept out of
+        // the source so it can be changed without a deployment.
+        Route::name('plans.')->middleware('permission:manage_settings')->group(function () {
+            Route::get(R::uri('super-admin.plans.pricing'), [PlanPricingController::class, 'edit'])->name('pricing.edit');
+            Route::put(R::uri('super-admin.plans.pricing').'/{plan}', [PlanPricingController::class, 'update'])->name('pricing.update');
+        });
 
         Route::get(R::uri('super-admin.audit-logs.index'), [AuditLogController::class, 'index'])->name('audit-logs.index')->middleware('permission:manage_audit_logs');
     });

@@ -42,6 +42,9 @@ platform work, and the mobile/API layer.
 ### Platform
 - [x] Three subscription plans with per-plan feature gating
 - [x] Subscription wizard, top-ups and student slot limits
+- [x] Basic-plan student licences: Super Admin sets the allocation, limit
+      enforced under lock on create AND reactivate *(added 21 Aug)*
+- [x] Editable plan pricing (Super Admin) *(added 21 Aug)*
 - [x] Public school websites with a block-based builder
 - [x] Basic-plan portal: token-gated school finder at /{token}, forwarding
       to edunest.com/{school-slug} *(added 21 Aug)*

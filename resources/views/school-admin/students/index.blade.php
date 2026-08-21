@@ -56,16 +56,52 @@
             @if ($studentSlotLimit !== null)
                 <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                     <div class="flex items-center gap-1">
-                        <p class="text-sm font-medium text-amber-600">Student Slots Used</p>
-                        <x-stat-tooltip text="Your Basic plan is billed per student, per term — you can admit up to the number of slots you've paid for." />
+                        <p class="text-sm font-medium {{ $studentSlotsExhausted ? 'text-red-600' : ($studentSlotsRunningLow ? 'text-amber-600' : 'text-green-600') }}">Student Licences</p>
+                        <x-stat-tooltip text="Your Basic plan is billed per student, per term — you can admit up to the number of licences allocated to you after your payment was verified." />
                     </div>
                     <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($activeCount) }} / {{ number_format($studentSlotLimit) }}</p>
+                    <p class="mt-1 text-xs font-semibold {{ $studentSlotsExhausted ? 'text-red-600' : ($studentSlotsRunningLow ? 'text-amber-600' : 'text-gray-500 dark:text-gray-400') }}">
+                        {{ number_format($studentSlotsRemaining) }} remaining
+                    </p>
                     @if (\Illuminate\Support\Facades\Route::has('subscription-top-up.create'))
-                        <a href="{{ route('subscription-top-up.create') }}" class="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700">Need more slots? &rarr;</a>
+                        <a href="{{ route('subscription-top-up.create') }}" class="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700">Need more licences? &rarr;</a>
                     @endif
                 </div>
             @endif
         </div>
+
+        {{-- Shown only once capacity is gone or nearly gone, so it reads as a real
+             prompt rather than permanent furniture the eye learns to skip past. --}}
+        @if ($studentSlotLimit !== null && ($studentSlotsExhausted || $studentSlotsRunningLow))
+            <div class="rounded-[5px] border p-5 lg:rounded-[10px] {{ $studentSlotsExhausted ? 'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20' : 'border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/20' }}">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold {{ $studentSlotsExhausted ? 'text-red-800 dark:text-red-300' : 'text-amber-800 dark:text-amber-300' }}">
+                            {{ $studentSlotsExhausted ? 'Student Limit Reached' : 'Running low on student licences' }}
+                        </p>
+                        <p class="mt-1 text-sm {{ $studentSlotsExhausted ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400' }}">
+                            @if ($studentSlotsExhausted)
+                                You have used all {{ number_format($studentSlotLimit) }} of your student licences
+                                ({{ number_format($activeCount) }} of {{ number_format($studentSlotLimit) }} in use).
+                                To add more students, please make an additional payment and submit your payment receipt for approval.
+                            @else
+                                You have {{ number_format($studentSlotsRemaining) }} of {{ number_format($studentSlotLimit) }} student licences left.
+                                Additional licences need a payment and a receipt to be approved, so it is worth starting before you run out.
+                            @endif
+                        </p>
+                    </div>
+
+                    @if (\Illuminate\Support\Facades\Route::has('subscription-top-up.create'))
+                        <a
+                            href="{{ route('subscription-top-up.create') }}"
+                            class="shrink-0 rounded-[8px] px-4 py-2 text-sm font-semibold text-white shadow-sm {{ $studentSlotsExhausted ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700' }}"
+                        >
+                            Add More Students
+                        </a>
+                    @endif
+                </div>
+            </div>
+        @endif
 
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6 dark:border-gray-700">

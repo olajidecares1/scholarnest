@@ -8,6 +8,7 @@ use App\Enums\SubscriptionStatus;
 use App\Enums\SubscriptionTopUpStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\BulkSubscriptionRequest;
+use App\Http\Requests\Subscriptions\ApproveTopUpRequest;
 use App\Http\Requests\SuperAdmin\RejectSubscriptionRequest;
 use App\Models\AuditLog;
 use App\Models\Plan;
@@ -91,11 +92,29 @@ class SubscriptionApprovalController extends Controller
         return back()->with('status', "{$subscriptions->count()} subscription(s) rejected.");
     }
 
-    public function approveTopUp(SubscriptionTopUp $topUp): RedirectResponse
+    /**
+     * Approve a student-licence top-up, allocating the number of licences the
+     * Super Admin has entered after checking the receipt.
+     *
+     * The figure comes from the request, never from the top-up row. What the
+     * school asked for is a request; what is allocated is a decision, and only
+     * a Super Admin makes it.
+     */
+    public function approveTopUp(ApproveTopUpRequest $request, SubscriptionTopUp $topUp): RedirectResponse
     {
-        $this->activateTopUp($topUp);
+        // Approving twice would add the licences twice. Route model binding
+        // happily re-resolves an already-approved top-up, so a double-click or
+        // a replayed request has to be refused here.
+        abort_unless($topUp->status === SubscriptionTopUpStatus::PendingVerification, 409, 'This top-up has already been reviewed.');
 
-        return back()->with('status', "Top-up for {$topUp->subscription->school->name} has been approved and applied.");
+        $approved = (int) $request->validated('approved_students_count');
+
+        $this->activateTopUp($topUp, $approved, $request->validated('notes'));
+
+        return back()->with(
+            'status',
+            "Allocated {$approved} student licence(s) to {$topUp->subscription->school->name}."
+        );
     }
 
     public function rejectTopUp(RejectSubscriptionRequest $request, SubscriptionTopUp $topUp): RedirectResponse
@@ -234,28 +253,58 @@ class SubscriptionApprovalController extends Controller
         AuditLog::record('subscription.rejected', "Rejected subscription for {$subscription->school->name}.", $subscription);
     }
 
-    private function activateTopUp(SubscriptionTopUp $topUp): void
+    /**
+     * Apply an approved top-up.
+     *
+     * $approvedStudentsCount is the Super Admin's figure and is what the
+     * subscription grows by. The school's requested figure stays on the row as
+     * `additional_students_count` so the two can be compared later.
+     */
+    private function activateTopUp(SubscriptionTopUp $topUp, int $approvedStudentsCount, ?string $notes = null): void
     {
-        DB::transaction(function () use ($topUp) {
-            $subscription = $topUp->subscription;
+        DB::transaction(function () use ($topUp, $approvedStudentsCount, $notes) {
+            // Locked for the duration: two Super Admins approving different
+            // top-ups for the same school at the same moment would otherwise
+            // both read the same starting figure and one increase would vanish.
+            $subscription = $topUp->subscription()->lockForUpdate()->first();
+
+            $previous = (int) $subscription->students_count;
+            $new = $previous + $approvedStudentsCount;
 
             $subscription->update([
-                'students_count' => $subscription->students_count + $topUp->additional_students_count,
+                'students_count' => $new,
                 'amount' => $subscription->amount + $topUp->additional_amount,
             ]);
 
             $topUp->update([
                 'status' => SubscriptionTopUpStatus::Approved,
+                'approved_students_count' => $approvedStudentsCount,
+                'previous_students_count' => $previous,
+                'new_students_count' => $new,
                 'verified_by' => auth()->id(),
                 'verified_at' => now(),
+                'notes' => $notes ?? $topUp->notes,
             ]);
         });
+
+        $topUp->refresh();
 
         $topUp->subscription->school->users()->each(
             fn ($user) => $user->notify(new SubscriptionTopUpApprovedNotification($topUp))
         );
 
-        AuditLog::record('subscription.topup.approved', "Approved a {$topUp->additional_students_count}-student top-up for {$topUp->subscription->school->name}.", $topUp);
+        AuditLog::record(
+            'subscription.topup.approved',
+            sprintf(
+                'Allocated %d student licence(s) to %s (requested %d). Allocation %d -> %d.',
+                $topUp->approved_students_count,
+                $topUp->subscription->school->name,
+                $topUp->additional_students_count,
+                $topUp->previous_students_count,
+                $topUp->new_students_count,
+            ),
+            $topUp,
+        );
     }
 
     private function rejectTopUpOne(SubscriptionTopUp $topUp, ?string $reason): void

@@ -76,8 +76,13 @@ test('approving a top-up increases the subscription\'s student limit in place an
         'additional_amount' => 25000,
     ]);
 
+    // The allocation is now entered by the Super Admin rather than taken from
+    // the school's request, so approving means naming a number. Here it
+    // matches what was asked for, which is the ordinary case.
     $this->actingAs($superAdmin)
-        ->post(route('super-admin.subscriptions.top-ups.approve', $topUp))
+        ->post(route('super-admin.subscriptions.top-ups.approve', $topUp), [
+            'approved_students_count' => 50,
+        ])
         ->assertRedirect();
 
     $subscription->refresh();
@@ -87,6 +92,7 @@ test('approving a top-up increases the subscription\'s student limit in place an
     expect((float) $subscription->amount)->toBe(75000.0);
     expect($topUp->status)->toBe(SubscriptionTopUpStatus::Approved);
     expect($topUp->verified_by)->toBe($superAdmin->id);
+    expect($topUp->approved_students_count)->toBe(50);
 
     Notification::assertSentTo($admin, SubscriptionTopUpApprovedNotification::class);
 });

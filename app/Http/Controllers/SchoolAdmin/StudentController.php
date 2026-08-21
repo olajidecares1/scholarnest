@@ -9,6 +9,7 @@ use App\Models\Guardian;
 use App\Models\Student;
 use App\Services\IdentifierGenerator;
 use App\Services\ImageOptimizer;
+use App\Services\StudentLicenceAllocation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -24,6 +25,7 @@ class StudentController extends Controller
     public function __construct(
         private readonly ImageOptimizer $optimizer,
         private readonly IdentifierGenerator $identifiers,
+        private readonly StudentLicenceAllocation $licences,
     ) {}
 
     public function index(Request $request): View
@@ -52,7 +54,10 @@ class StudentController extends Controller
             'academicLevels' => $academicLevels,
             'totalCount' => $school->students()->count(),
             'activeCount' => $school->students()->where('is_active', true)->count(),
-            'studentSlotLimit' => $school->studentSlotLimit(),
+            'studentSlotLimit' => $this->licences->allocated($school),
+            'studentSlotsRemaining' => $this->licences->remaining($school),
+            'studentSlotsExhausted' => $this->licences->isExhausted($school),
+            'studentSlotsRunningLow' => $this->licences->isRunningLow($school),
             'levelCodesByClassName' => $academicLevels->flatMap(
                 fn ($level) => $level->classes->mapWithKeys(fn ($class) => [$class->name => $level->code ?: 'GEN'])
             ),
@@ -64,22 +69,25 @@ class StudentController extends Controller
         $school = $request->user()->school;
         $validated = $request->validate($this->rules($school->id, null, $school->auto_generate_admission_numbers));
 
-        $limit = $school->studentSlotLimit();
+        // The capacity check and the insert happen together, under a lock. A
+        // check followed by a separate create would let two simultaneous
+        // submissions - a double-click is enough - both pass and both insert.
+        $student = $this->licences->withCapacity($school, function () use ($school, $request, $validated) {
+            if ($school->auto_generate_admission_numbers) {
+                $validated['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $validated['class_name'] ?? null);
+            }
 
-        if ($limit !== null && $school->students()->where('is_active', true)->count() >= $limit) {
+            return $school->students()->create([
+                ...Arr::except($validated, 'photo'),
+                'photo_path' => $this->storePhoto($request),
+            ]);
+        });
+
+        if ($student === null) {
             return back()->withErrors([
-                'admission_number' => "Student subscription limit reached. Your current subscription allows {$limit} students. Please make an additional payment or upgrade your subscription to admit more students.",
+                'admission_number' => $this->licences->limitReachedMessage($school),
             ])->withInput();
         }
-
-        if ($school->auto_generate_admission_numbers) {
-            $validated['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $validated['class_name'] ?? null);
-        }
-
-        $student = $school->students()->create([
-            ...Arr::except($validated, 'photo'),
-            'photo_path' => $this->storePhoto($request),
-        ]);
 
         return back()->with('status', "{$student->fullName()} was added successfully.");
     }
@@ -133,9 +141,33 @@ class StudentController extends Controller
     {
         $this->authorizeStudent($student);
 
-        $student->update(['is_active' => ! $student->is_active]);
+        // Deactivating always works - it releases a licence.
+        if ($student->is_active) {
+            $student->update(['is_active' => false]);
 
-        return back()->with('status', $student->is_active ? "{$student->fullName()} is now active." : "{$student->fullName()} was deactivated.");
+            return back()->with('status', "{$student->fullName()} was deactivated.");
+        }
+
+        // Reactivating consumes a licence, so it must pass the same check as
+        // creating one. Without this, a school at its limit could deactivate a
+        // student, admit a new one, then reactivate the first - ending up over
+        // its allocation with every individual step looking legitimate.
+        $reactivated = $this->licences->withCapacity(
+            $student->school,
+            function () use ($student): bool {
+                $student->update(['is_active' => true]);
+
+                return true;
+            },
+        );
+
+        if ($reactivated === null) {
+            return back()->withErrors([
+                'student' => $this->licences->limitReachedMessage($student->school),
+            ]);
+        }
+
+        return back()->with('status', "{$student->fullName()} is now active.");
     }
 
     public function updatePassword(Request $request, Student $student): RedirectResponse
