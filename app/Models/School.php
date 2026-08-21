@@ -66,6 +66,25 @@ class School extends Model
         'next_staff_sequence' => 1,
     ];
 
+    /**
+     * Would this slug be mistaken for the Basic-plan portal token?
+     *
+     * The portal lives at the root of the site - edunest.com/{32-char token} -
+     * and so do school slugs. The token route is registered first and therefore
+     * wins, which means a school whose slug happened to be 32 unbroken
+     * alphanumeric characters would be permanently unreachable: every request
+     * for it would hit the token check and 404.
+     *
+     * A real school name almost always contains a space, and so a hyphen, which
+     * is enough to avoid this. "Almost always" is not good enough when the
+     * failure mode is a customer whose site simply does not exist, so such
+     * slugs are refused outright and given a numeric suffix instead.
+     */
+    private static function looksLikeAPortalToken(string $slug): bool
+    {
+        return (bool) preg_match('/^[a-z0-9]{32}$/', $slug);
+    }
+
     protected static function booted(): void
     {
         static::creating(function (self $school) {
@@ -86,7 +105,11 @@ class School extends Model
                 $slug = $base;
                 $suffix = 1;
 
-                while (in_array($slug, $reserved, true) || static::where('slug', $slug)->exists()) {
+                while (
+                    in_array($slug, $reserved, true)
+                    || self::looksLikeAPortalToken($slug)
+                    || static::where('slug', $slug)->exists()
+                ) {
                     $slug = "{$base}-".++$suffix;
                 }
 

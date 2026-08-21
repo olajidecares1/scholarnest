@@ -496,14 +496,19 @@ Route::post('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'st
 // flow is entirely separate from the two portals above and shares no route,
 // controller or view with them. See docs/BASIC-PLAN-PORTAL.md.
 //
-// The token is joined straight onto the word "portal" with no separator -
-// edunest.com/portal6219db402a20f65b63358972bd5274cd - so the whole thing
-// reads as one opaque path rather than advertising a token-shaped segment.
+// The token sits alone at the root - edunest.com/6219db402a20f65b63358972bd5274cd
+// - so the address gives away nothing at all about the application's shape.
+// There is no "/portal" segment to notice, and nothing to strip off and probe.
 //
-// Two things stop it colliding with the sibling paths above. The parameter
-// matches ONLY [A-Za-z0-9], so it can never span the "/" in "/portal/sign-in"
-// or "/portal/admin/...", and it is pinned to exactly 32 characters, so a bare
-// "/portal" is too short to match either.
+// ORDER MATTERS. This shares the root namespace with the school-slug route at
+// the very bottom of this file, and a 32-character hex token also satisfies
+// that route's slug pattern. Registering the token first means it always wins,
+// and School::booted() refuses to generate a bare 32-character slug so no real
+// school can ever be hidden behind this.
+//
+// It does not shadow the rest of the application: the parameter matches only
+// [A-Za-z0-9], so it can never span a "/", and the obfuscated R::uri() paths
+// elsewhere in this file are 128 characters, not 32.
 //
 // Throttled because the POST is a lookup against school names, and an
 // unthrottled one would let anyone enumerate EduNest's customer list.
@@ -511,8 +516,8 @@ Route::middleware(['basic_portal_token', 'throttle:20,1'])
     ->where(['token' => '[A-Za-z0-9]{32}'])
     ->name('basic-portal.')
     ->group(function () {
-        Route::get('portal{token}', [BasicSchoolFinderController::class, 'show'])->name('finder');
-        Route::post('portal{token}', [BasicSchoolFinderController::class, 'find'])->name('find');
+        Route::get('{token}', [BasicSchoolFinderController::class, 'show'])->name('finder');
+        Route::post('{token}', [BasicSchoolFinderController::class, 'find'])->name('find');
     });
 
 Route::middleware('throttle:5,1')->group(function () {

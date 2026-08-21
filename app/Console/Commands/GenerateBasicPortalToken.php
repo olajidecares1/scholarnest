@@ -31,7 +31,7 @@ class GenerateBasicPortalToken extends Command
             }
 
             $this->components->info('Basic portal URL:');
-            $this->line('  '.url('/portal'.$configured));
+            $this->line('  '.url('/'.$configured));
 
             return self::SUCCESS;
         }
@@ -49,7 +49,7 @@ class GenerateBasicPortalToken extends Command
         $this->newLine();
         $this->line('  The portal will then be at:');
         $this->newLine();
-        $this->line('    '.url('/portal'.$token));
+        $this->line('    '.url('/'.$token));
         $this->newLine();
 
         if ($configured !== '') {

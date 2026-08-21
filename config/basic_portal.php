@@ -9,7 +9,7 @@
 | they cannot be reached the way Standard and Exclusive schools are. They come
 | in through a single shared entry point instead:
 |
-|     /portal{32-character token}   ->   type your school name
+|     /{32-character token}   ->   type your school name
 |                                    ->   /{school-slug}
 |
 | This flow is deliberately separate from the Standard and Exclusive portals.
