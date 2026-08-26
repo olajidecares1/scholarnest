@@ -8,7 +8,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Class Ranking</h2>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Ranked by average score across {{ $subjectCount }} subject(s).</p>
+                <p class="field-hint mt-0.5">Ranked by average score across {{ $subjectCount }} subject(s).</p>
             </div>
 
             <div class="overflow-x-auto">

@@ -43,6 +43,7 @@ class ReportCardData
                 ->where('type', TeacherAssignmentType::ClassTeacher)
                 ->first(),
             'attendance' => self::attendanceSummaryFor($student, $currentTerm),
+
             'numberInClass' => Student::where('school_id', $examination->school_id)
                 ->where('class_name', $examination->class_name)
                 ->where('is_active', true)
@@ -57,15 +58,30 @@ class ReportCardData
     }
 
     /**
+     * One student's attendance for one term, as it appears on their card.
+     *
+     * Bounded by the term's own dates, so a card for Second Term counts Second
+     * Term and nothing else, and filtered by school as well as by student.
+     *
+     * The school clause is not redundant defensiveness. A student belongs to
+     * one school, so filtering by student ALREADY confines this to that
+     * school's records - but only for as long as that stays true. Stating it
+     * makes "one school's attendance never reaches another school's results"
+     * a property of this query rather than a consequence of an invariant kept
+     * somewhere else.
+     *
      * @return ?array{present: int, absent: int, late: int, excused: int, total: int, percent: ?int}
      */
     private static function attendanceSummaryFor(Student $student, ?AcademicTerm $term): ?array
     {
+        // No term dates recorded, so there is no window to count within. The
+        // card says so rather than guessing at one - see termDatesMissing.
         if (! $term) {
             return null;
         }
 
-        $records = AttendanceRecord::where('student_id', $student->id)
+        $records = AttendanceRecord::where('school_id', $student->school_id)
+            ->where('student_id', $student->id)
             ->whereBetween('date', [$term->starts_on->toDateString(), $term->ends_on->toDateString()])
             ->get();
 

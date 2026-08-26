@@ -13,27 +13,61 @@ use Illuminate\View\View;
 
 class ExaminationController extends Controller
 {
+    /**
+     * Everything this teacher may enter marks against, narrowed by class and
+     * subject.
+     *
+     * The class and subject the teacher picks are checked against what they are
+     * actually assigned rather than trusted: a filter is a convenience for
+     * finding a row, never a way to reach one that was not already theirs.
+     */
     public function index(Request $request, School $school): View
     {
         $staff = $request->user('staff');
-        $assignments = $staff->subjectAssignments();
 
-        $examinations = $school->examinations()
-            ->whereIn('class_name', $assignments->pluck('class_name')->unique())
+        $rows = $school->examinations()
+            ->whereIn('class_name', $staff->scorableClassNames())
             ->with('subjects')
             ->orderByDesc('exam_date')
             ->get()
-            ->flatMap(function (Examination $examination) use ($assignments) {
-                $subjectNames = $assignments->where('class_name', $examination->class_name)->pluck('subject');
+            ->flatMap(fn (Examination $examination) => $examination->subjects
+                ->filter(fn (ExaminationSubject $subject) => $staff->canEnterScoresFor($examination->class_name, $subject->name))
+                ->map(fn (ExaminationSubject $subject) => ['examination' => $examination, 'subject' => $subject]));
 
-                return $examination->subjects
-                    ->filter(fn (ExaminationSubject $subject) => $subjectNames->contains($subject->name))
-                    ->map(fn (ExaminationSubject $subject) => ['examination' => $examination, 'subject' => $subject]);
-            });
+        // The options offered are drawn from the rows themselves, so a teacher
+        // is never shown a class or subject that would return nothing.
+        $classOptions = $rows->pluck('examination.class_name')->unique()->sort()->values();
+        $subjectOptions = $rows->pluck('subject.name')->unique()->sort()->values();
+
+        $selectedClass = $request->string('class_name')->toString();
+        $selectedSubject = $request->string('subject')->toString();
+
+        $examinations = $rows
+            ->when($selectedClass !== '', fn ($rows) => $rows->filter(
+                fn (array $row) => $row['examination']->class_name === $selectedClass
+            ))
+            ->when($selectedSubject !== '', fn ($rows) => $rows->filter(
+                fn (array $row) => $row['subject']->name === $selectedSubject
+            ))
+            ->values();
 
         return view('staff.exams.index', [
             'school' => $school,
             'examinations' => $examinations,
+            'classOptions' => $classOptions,
+            'subjectOptions' => $subjectOptions,
+            'selectedClass' => $selectedClass,
+            'selectedSubject' => $selectedSubject,
+
+            // Whether anything exists before filtering, so a filter that
+            // matches nothing is not mistaken for having no classes at all.
+            'hasRows' => $rows->isNotEmpty(),
+
+            // Told apart so the empty state can say which it is. "No
+            // examinations match your subjects" is misleading when the real
+            // reason is that nobody has assigned the teacher to a class, or
+            // that no examination exists for the term yet.
+            'hasAssignments' => $staff->scorableClassNames()->isNotEmpty(),
         ]);
     }
 
@@ -102,10 +136,12 @@ class ExaminationController extends Controller
     {
         abort_unless($subject->examination_id === $examination->id, 404);
 
-        $staff = $request->user('staff');
-        $isAssigned = $staff->subjectAssignments()
-            ->contains(fn ($assignment) => $assignment['class_name'] === $examination->class_name && $assignment['subject'] === $subject->name);
-
-        abort_unless($isAssigned, 403, 'You are not assigned to teach this subject.');
+        // The same authority the listing filters by, so a subject that is
+        // listed is always one that can actually be opened.
+        abort_unless(
+            $request->user('staff')->canEnterScoresFor($examination->class_name, $subject->name),
+            403,
+            'You are not assigned to enter scores for this subject.',
+        );
     }
 }

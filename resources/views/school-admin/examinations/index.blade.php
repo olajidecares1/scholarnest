@@ -109,7 +109,7 @@
                 <form
                     method="POST"
                     :action="form.uuid ? '{{ route('examinations.update', ['examination' => '__ID__']) }}'.replace('__ID__', form.uuid) : '{{ route('examinations.store') }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="form.uuid"><input type="hidden" name="_method" value="PUT"></template>

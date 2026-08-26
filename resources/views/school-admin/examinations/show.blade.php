@@ -41,7 +41,7 @@
             <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Subjects</h2>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Add subjects, then enter scores for each one.</p>
+                    <p class="field-hint mt-0.5">Add subjects, then enter scores for each one.</p>
                 </div>
                 <button
                     type="button"
@@ -93,7 +93,7 @@
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="open = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Subject</h3>
-                <form method="POST" action="{{ route('examinations.subjects.store', $examination) }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('examinations.subjects.store', $examination) }}" class="mt-4 space-y-2">
                     @csrf
                     @php $remainingOffered = $offeredSubjects->diff($subjects->pluck('name')); @endphp
                     @if ($remainingOffered->isNotEmpty())
@@ -106,7 +106,7 @@
                     @else
                         <x-text-field name="name" label="Subject Name" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" placeholder="e.g. Mathematics" required />
                     @endif
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Scored as Test /40 + Exam /60, out of 100 total.</p>
+                    <p class="field-hint">Scored as Test /40 + Exam /60, out of 100 total.</p>
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
                         <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Add Subject</button>
