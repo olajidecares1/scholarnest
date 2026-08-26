@@ -1,5 +1,5 @@
 <x-dashboard-layout page-title="Parents & Guardians" page-subtitle="Manage guardian accounts and their linked children.">
-    <div class="space-y-6" x-data="{ open: false }">
+    <div class="space-y-6" x-data="{ open: false, loginUsername: '' }">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
@@ -42,7 +42,7 @@
                         value="{{ request('search') }}"
                         @input.debounce.500ms="$event.target.form.submit()"
                         placeholder="Search by name, email or phone..."
-                        class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="w-64"
                     >
                     <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
                     @if (request('search'))
@@ -142,13 +142,18 @@
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="open = false" class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Guardian</h3>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Create the guardian's account here, then link their child/children from the guardian's page.</p>
-                <form method="POST" action="{{ route('guardians.store') }}" class="mt-4 space-y-4">
+                <p class="field-hint mt-1">Create the guardian's account here, then link their child/children from the guardian's page.</p>
+                <form method="POST" action="{{ route('guardians.store') }}" class="mt-4 space-y-2">
                     @csrf
                     <x-text-field name="name" label="Full Name" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" required />
                     <x-text-field name="email" type="email" label="Email" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" required />
-                    <x-text-field name="phone" label="Phone" icon="M5 4.5h3l1.5 4-2 1.5a11 11 0 005 5l1.5-2 4 1.5v3a1 1 0 01-1 1A15 15 0 015 5.5a1 1 0 011-1z" helper="Optional." />
-                    <x-text-field name="password" type="password" label="Portal Password" icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM8 11V7a4 4 0 118 0v4" helper="Optional — leave blank to set it later from the guardian's page." />
+                    <x-text-field name="phone" label="Phone" icon="M5 4.5h3l1.5 4-2 1.5a11 11 0 005 5l1.5-2 4 1.5v3a1 1 0 01-1 1A15 15 0 015 5.5a1 1 0 011-1z" x-model="loginUsername" helper="Also the username this guardian signs in with." />
+                    <x-login-details-fields
+                        username-label="Username (Phone Number)"
+                        username-model="loginUsername"
+                        username-hint="The phone number and password this parent or guardian signs in to the parent portal with."
+                        password-hint="Optional — you can set it later from the guardian's page."
+                    />
 
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>

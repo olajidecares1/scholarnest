@@ -141,6 +141,61 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
             ->values();
     }
 
+    /**
+     * Classes this member is the class teacher of.
+     *
+     * @return Collection<int, string>
+     */
+    public function classTeacherClassNames(): Collection
+    {
+        return $this->assignments()
+            ->where('type', TeacherAssignmentType::ClassTeacher)
+            ->pluck('class_name')
+            ->unique()
+            ->values();
+    }
+
+    /**
+     * Every class whose results this member has any part in entering.
+     *
+     * @return Collection<int, string>
+     */
+    public function scorableClassNames(): Collection
+    {
+        return $this->subjectAssignments()
+            ->pluck('class_name')
+            ->merge($this->classTeacherClassNames())
+            ->unique()
+            ->values();
+    }
+
+    /**
+     * May this member enter scores for this subject in this class?
+     *
+     * Two ways to qualify, and the second is the one that was missing. A
+     * subject teacher may enter the subject they teach. A class teacher may
+     * enter any subject in their own class, because compiling that class's
+     * results is what being its class teacher means - they collect marks from
+     * the subject teachers and enter the sheet.
+     *
+     * Without the class-teacher case, a teacher who taught no individual
+     * subject - the ordinary arrangement in a primary class, and common in a
+     * small secondary school - opened the score page to nothing at all, with
+     * no indication that the cause was an assignment rather than an empty
+     * term.
+     */
+    public function canEnterScoresFor(string $className, string $subject): bool
+    {
+        if ($this->classTeacherClassNames()->contains($className)) {
+            return true;
+        }
+
+        return $this->subjectAssignments()->contains(
+            fn (array $assignment) => $assignment['class_name'] === $className
+                && $assignment['subject'] === $subject
+        );
+    }
+
     public function fullName(): string
     {
         return "{$this->first_name} {$this->last_name}";

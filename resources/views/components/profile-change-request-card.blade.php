@@ -2,14 +2,14 @@
 
 <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Request a Change</h2>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">These details can only be changed by the school office. Submit a request and it will be reviewed.</p>
+    <p class="field-hint mt-1">These details can only be changed by the school office. Submit a request and it will be reviewed.</p>
 
-    <form method="POST" action="{{ $action }}" class="mt-4 space-y-4">
+    <form method="POST" action="{{ $action }}" class="mt-4 space-y-2">
         @csrf
 
         <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-600 dark:text-gray-300">Field</label>
-            <select name="field_key" required class="w-full rounded-[8px] border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+            <label class="field-label mb-1">Field</label>
+            <select name="field_key" required class="w-full">
                 @foreach ($fields as $key => $label)
                     <option value="{{ $key }}">{{ $label }}</option>
                 @endforeach

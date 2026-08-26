@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Guardian;
 use App\Models\Student;
+use App\Services\IdentifierGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +18,10 @@ use Illuminate\View\View;
 
 class GuardianController extends Controller
 {
+    use SetsPortalCredentials;
+
+    public function __construct(private readonly IdentifierGenerator $identifiers) {}
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -53,7 +59,12 @@ class GuardianController extends Controller
             'password' => ['nullable', 'string', Password::defaults()],
         ]);
 
+        // The parent's ID, like every other login identifier, is the system's
+        // to issue. It is generated here rather than typed anywhere.
+        $guardianNumber = $this->identifiers->nextGuardianId($school);
+
         $guardian = $school->guardians()->create([
+            'guardian_number' => $guardianNumber,
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'] ?? null,
@@ -66,7 +77,11 @@ class GuardianController extends Controller
             AuditLog::record('password.set', "Portal password set for guardian {$guardian->name}.", $guardian);
         }
 
-        return back()->with('status', "{$validated['name']} was added successfully.");
+        $this->applyCredentialFields($request, $guardian, 'guardian_number', 'Parent ID');
+
+        return $request->filled('login_password')
+            ? redirect()->route('guardians.show', $guardian)->with('status', "{$validated['name']} was added successfully.")
+            : back()->with('status', "{$validated['name']} was added successfully.");
     }
 
     public function show(Guardian $guardian): View
@@ -76,6 +91,7 @@ class GuardianController extends Controller
         $linkedStudentIds = $guardian->students()->pluck('students.id');
 
         return view('school-admin.guardians.show', [
+            'credentialShare' => $this->credentialShareLink($guardian, 'Parent ID', (string) $guardian->guardian_number),
             'guardian' => $guardian,
             // Only existing, unlinked students of this same school can ever
             // be offered here - the point is to connect an existing student
@@ -98,6 +114,8 @@ class GuardianController extends Controller
         ]);
 
         $guardian->update($validated);
+
+        $this->applyCredentialFields($request, $guardian, 'guardian_number', 'Parent ID');
 
         return back()->with('status', "{$guardian->name} was updated successfully.");
     }
@@ -133,7 +151,7 @@ class GuardianController extends Controller
             'password' => ['required', 'string', Password::defaults()],
         ]);
 
-        $guardian->update(['password' => Hash::make($validated['password']), 'must_change_password' => true]);
+        $guardian->update(['password' => Hash::make($validated['password']), 'must_change_password' => false]);
 
         AuditLog::record('password.reset', "Portal password reset for guardian {$guardian->name}.", $guardian);
 
@@ -176,5 +194,28 @@ class GuardianController extends Controller
     private function authorizeGuardian(Guardian $guardian): void
     {
         abort_unless($guardian->school_id === auth()->user()->school_id, 403);
+    }
+
+    /**
+     * Issue this account its login details: the username it signs in with,
+     * and the password to go with it.
+     *
+     * The School Admin is the authority on both. Users may edit their own
+     * contact details, but never their login identifier and never their
+     * password - see the portal profile controllers.
+     */
+    public function updateCredentials(Request $request, Guardian $guardian): RedirectResponse
+    {
+        $this->authorizeGuardian($guardian);
+
+        $status = $this->saveCredentials(
+            $request,
+            $guardian,
+            'guardian_number',
+            $guardian->name,
+            'Parent ID',
+        );
+
+        return back()->with('status', $status);
     }
 }

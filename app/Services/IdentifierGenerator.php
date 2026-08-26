@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\AcademicStage;
 use App\Models\School;
 use App\Models\SchoolClass;
+use App\Models\Staff;
 use App\Support\AcademicStageDetector;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -66,6 +67,116 @@ class IdentifierGenerator
             $locked->increment('next_staff_sequence');
 
             return sprintf('%s-STAFF-%03d', $locked->school_code, $sequence);
+        });
+    }
+
+    /**
+     * Reserves and returns the next parent/guardian ID, formatted
+     * {school_code}-PARENT-{sequence:03d}.
+     */
+    public function nextGuardianId(School $school): string
+    {
+        $this->assertSchoolCodeConfigured($school);
+
+        return DB::transaction(function () use ($school) {
+            $locked = School::where('id', $school->id)->lockForUpdate()->first();
+            $sequence = $locked->next_guardian_sequence;
+            $locked->increment('next_guardian_sequence');
+
+            return sprintf('%s-PARENT-%03d', $locked->school_code, $sequence);
+        });
+    }
+
+    /**
+     * Close the gap a deleted staff member leaves in the numbering.
+     *
+     * Asked for explicitly: deleting STAFF-001 must make STAFF-002 into
+     * STAFF-001, and so on down the list, so the sequence has no holes in it.
+     *
+     * This renames people's LOGIN IDENTIFIERS, which is worth being clear
+     * about rather than burying:
+     *
+     *   Anyone whose ID moves can no longer sign in with the one they were
+     *   given. Their new ID has to be passed on to them - the staff page
+     *   shows it, and the WhatsApp share is there for exactly this.
+     *
+     *   Anything printed or recorded elsewhere that quotes the old ID - an ID
+     *   card, a payslip reference, a note in a file - now disagrees with the
+     *   system. The audit log records every move so the two can be
+     *   reconciled.
+     *
+     * Done in two passes, because renaming 003 to 002 while a 002 still exists
+     * would collide with the unique index. Everything moves to a temporary
+     * name first, then to its final one. The whole thing is one transaction
+     * with the school row locked, so a concurrent deletion cannot interleave
+     * and produce two people holding one number.
+     *
+     * @return array<string, string> old ID => new ID, for the ones that moved
+     */
+    public function resequenceStaffIds(School $school): array
+    {
+        $this->assertSchoolCodeConfigured($school);
+
+        return DB::transaction(function () use ($school) {
+            $locked = School::where('id', $school->id)->lockForUpdate()->first();
+
+            $prefix = sprintf('%s-STAFF-', $locked->school_code);
+
+            // Only the IDs this system generated. A school that entered its
+            // own numbering has a reason for it, and rewriting it would be
+            // this feature reaching past what it was asked to do.
+            $members = Staff::query()
+                ->where('school_id', $locked->id)
+                ->where('staff_number', 'like', $prefix.'%')
+                ->orderBy('id')
+                ->get(['id', 'staff_number'])
+
+                // Sorted in PHP rather than by the database: extracting the
+                // number out of the string needs a different function on
+                // every driver, and this list is one school's staff.
+                ->sortBy(fn (Staff $member) => (int) substr($member->staff_number, strlen($prefix)))
+                ->values();
+
+            $moves = [];
+            $sequence = 1;
+
+            foreach ($members as $member) {
+                $target = sprintf('%s%03d', $prefix, $sequence);
+
+                if ($member->staff_number !== $target) {
+                    $moves[$member->staff_number] = $target;
+                }
+
+                $sequence++;
+            }
+
+            if ($moves !== []) {
+                // Pass one: out of the way of the unique index.
+                foreach ($members as $member) {
+                    if (isset($moves[$member->staff_number])) {
+                        Staff::where('id', $member->id)->update([
+                            'staff_number' => 'RESEQ-'.$member->id,
+                        ]);
+                    }
+                }
+
+                // Pass two: into place.
+                $sequence = 1;
+
+                foreach ($members as $member) {
+                    Staff::where('id', $member->id)->update([
+                        'staff_number' => sprintf('%s%03d', $prefix, $sequence),
+                    ]);
+
+                    $sequence++;
+                }
+            }
+
+            // The next new hire takes the number after the last one in use,
+            // so the sequence stays closed rather than resuming past the gap.
+            $locked->update(['next_staff_sequence' => $members->count() + 1]);
+
+            return $moves;
         });
     }
 

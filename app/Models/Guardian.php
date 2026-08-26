@@ -27,6 +27,7 @@ class Guardian extends Model implements AuthenticatableContract, CanResetPasswor
      */
     protected $fillable = [
         'school_id',
+        'guardian_number',
         'name',
         'email',
         'phone',

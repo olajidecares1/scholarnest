@@ -6,6 +6,24 @@
     <div class="space-y-6" x-data="{
         open: false,
         editing: null,
+        loginUsernameOverride: null,
+
+        // The Login Details card and the Admission Number field are two views
+        // of one column.
+        get loginUsername() {
+            if (this.loginUsernameOverride !== null) {
+                return this.loginUsernameOverride
+            }
+
+            return this.editing ? this.editing.admission_number : this.nextAdmissionNumberPreview(this.newClassName)
+        },
+        set loginUsername(value) {
+            this.loginUsernameOverride = value
+
+            if (this.editing) {
+                this.editing.admission_number = value
+            }
+        },
         newClassName: '',
         schoolCode: @js($school->school_code),
         currentSession: @js($school->current_session),
@@ -38,7 +56,11 @@
             </div>
         @endif
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 {{ $studentSlotLimit !== null ? 'lg:grid-cols-3' : '' }}">
+        @if ($capacity)
+            <x-student-capacity-card :capacity="$capacity" />
+        @endif
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <div class="flex items-center gap-1">
                     <p class="text-sm font-medium text-purple-600">Total Students</p>
@@ -53,55 +75,7 @@
                 </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($activeCount) }}</p>
             </div>
-            @if ($studentSlotLimit !== null)
-                <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                    <div class="flex items-center gap-1">
-                        <p class="text-sm font-medium {{ $studentSlotsExhausted ? 'text-red-600' : ($studentSlotsRunningLow ? 'text-amber-600' : 'text-green-600') }}">Student Licences</p>
-                        <x-stat-tooltip text="Your Basic plan is billed per student, per term — you can admit up to the number of licences allocated to you after your payment was verified." />
-                    </div>
-                    <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($activeCount) }} / {{ number_format($studentSlotLimit) }}</p>
-                    <p class="mt-1 text-xs font-semibold {{ $studentSlotsExhausted ? 'text-red-600' : ($studentSlotsRunningLow ? 'text-amber-600' : 'text-gray-500 dark:text-gray-400') }}">
-                        {{ number_format($studentSlotsRemaining) }} remaining
-                    </p>
-                    @if (\Illuminate\Support\Facades\Route::has('subscription-top-up.create'))
-                        <a href="{{ route('subscription-top-up.create') }}" class="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700">Need more licences? &rarr;</a>
-                    @endif
-                </div>
-            @endif
         </div>
-
-        {{-- Shown only once capacity is gone or nearly gone, so it reads as a real
-             prompt rather than permanent furniture the eye learns to skip past. --}}
-        @if ($studentSlotLimit !== null && ($studentSlotsExhausted || $studentSlotsRunningLow))
-            <div class="rounded-[5px] border p-5 lg:rounded-[10px] {{ $studentSlotsExhausted ? 'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20' : 'border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/20' }}">
-                <div class="flex flex-wrap items-start justify-between gap-4">
-                    <div class="min-w-0 flex-1">
-                        <p class="text-sm font-bold {{ $studentSlotsExhausted ? 'text-red-800 dark:text-red-300' : 'text-amber-800 dark:text-amber-300' }}">
-                            {{ $studentSlotsExhausted ? 'Student Limit Reached' : 'Running low on student licences' }}
-                        </p>
-                        <p class="mt-1 text-sm {{ $studentSlotsExhausted ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400' }}">
-                            @if ($studentSlotsExhausted)
-                                You have used all {{ number_format($studentSlotLimit) }} of your student licences
-                                ({{ number_format($activeCount) }} of {{ number_format($studentSlotLimit) }} in use).
-                                To add more students, please make an additional payment and submit your payment receipt for approval.
-                            @else
-                                You have {{ number_format($studentSlotsRemaining) }} of {{ number_format($studentSlotLimit) }} student licences left.
-                                Additional licences need a payment and a receipt to be approved, so it is worth starting before you run out.
-                            @endif
-                        </p>
-                    </div>
-
-                    @if (\Illuminate\Support\Facades\Route::has('subscription-top-up.create'))
-                        <a
-                            href="{{ route('subscription-top-up.create') }}"
-                            class="shrink-0 rounded-[8px] px-4 py-2 text-sm font-semibold text-white shadow-sm {{ $studentSlotsExhausted ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700' }}"
-                        >
-                            Add More Students
-                        </a>
-                    @endif
-                </div>
-            </div>
-        @endif
 
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6 dark:border-gray-700">
@@ -112,7 +86,7 @@
                         value="{{ request('search') }}"
                         @input.debounce.500ms="$event.target.form.submit()"
                         placeholder="Search by name or admission number..."
-                        class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="w-64"
                     >
                     <div
                         class="w-48"
@@ -198,7 +172,7 @@
                                                 'email' => $student->email,
                                                 'admission_date' => $student->admission_date?->format('Y-m-d'),
                                                 'notes' => $student->notes,
-                                            ]); open = true"
+                                            ]); loginUsernameOverride = null; open = true"
                                             class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             Edit
@@ -246,7 +220,7 @@
                     method="POST"
                     :action="editing ? '{{ route('students.update', ['student' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('students.store') }}'"
                     enctype="multipart/form-data"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
@@ -256,9 +230,9 @@
                             <div>
                                 <input type="text" readonly tabindex="-1"
                                     x-bind:value="editing ? editing.admission_number : nextAdmissionNumberPreview(newClassName)"
-                                    class="block h-11 w-full min-w-0 rounded-[8px] border border-gray-300 bg-gray-50 px-3 text-[13.5px] font-medium text-gray-500 shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-400">
+                                    class="block w-full min-w-0">
                                 <input type="hidden" name="admission_number" x-bind:value="editing ? editing.admission_number : nextAdmissionNumberPreview(newClassName)">
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Admission Number &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</p>
+                                <p class="field-hint mt-1">Admission Number &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</p>
                             </div>
                         @else
                             <x-text-field name="admission_number" label="Admission Number" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" x-model="editing ? editing.admission_number : ''" required />
@@ -291,8 +265,8 @@
                     </div>
 
                     <div>
-                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400">
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Photo (optional). Leave blank to keep the existing one when editing.</p>
+                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full">
+                        <p class="field-hint mt-1">Photo (optional). Leave blank to keep the existing one when editing.</p>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -309,6 +283,17 @@
 
                     <x-textarea-field name="address" label="Address" icon="M12 21s7-6.1 7-11a7 7 0 10-14 0c0 4.9 7 11 7 11z" rows="2" x-text="editing ? editing.address : ''" />
                     <x-textarea-field name="notes" label="Notes" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="2" x-text="editing ? editing.notes : ''" />
+
+                    {{-- Only where there is a student portal to sign in to.
+                         On Basic there is none, so login details would create
+                         an account nobody could use. --}}
+                    @if ($school->hasPortalAccounts())
+                        <x-login-details-fields
+                            username-label="Username (Admission Number)"
+                            username-model="loginUsername"
+                            username-hint="The Admission Number and password this student signs in to the student portal with."
+                        />
+                    @endif
 
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\Gender;
+use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Guardian;
@@ -22,6 +23,8 @@ use Illuminate\View\View;
 
 class StudentController extends Controller
 {
+    use SetsPortalCredentials;
+
     public function __construct(
         private readonly ImageOptimizer $optimizer,
         private readonly IdentifierGenerator $identifiers,
@@ -54,10 +57,7 @@ class StudentController extends Controller
             'academicLevels' => $academicLevels,
             'totalCount' => $school->students()->count(),
             'activeCount' => $school->students()->where('is_active', true)->count(),
-            'studentSlotLimit' => $this->licences->allocated($school),
-            'studentSlotsRemaining' => $this->licences->remaining($school),
-            'studentSlotsExhausted' => $this->licences->isExhausted($school),
-            'studentSlotsRunningLow' => $this->licences->isRunningLow($school),
+            'capacity' => $this->licences->summary($school),
             'levelCodesByClassName' => $academicLevels->flatMap(
                 fn ($level) => $level->classes->mapWithKeys(fn ($class) => [$class->name => $level->code ?: 'GEN'])
             ),
@@ -89,7 +89,11 @@ class StudentController extends Controller
             ])->withInput();
         }
 
-        return back()->with('status', "{$student->fullName()} was added successfully.");
+        $this->applyCredentialFields($request, $student, 'admission_number', 'Admission Number');
+
+        return $request->filled('login_password')
+            ? redirect()->route('students.show', $student)->with('status', "{$student->fullName()} was added successfully.")
+            : back()->with('status', "{$student->fullName()} was added successfully.");
     }
 
     public function show(Student $student): View
@@ -97,7 +101,12 @@ class StudentController extends Controller
         $this->authorizeStudent($student);
 
         return view('school-admin.students.show', [
+            'credentialShare' => $this->credentialShareLink($student, 'Admission Number', (string) $student->admission_number),
             'student' => $student,
+
+            // The page asks whether this plan has student portal accounts at
+            // all before it offers to create login details for one.
+            'school' => $student->school,
         ]);
     }
 
@@ -120,7 +129,11 @@ class StudentController extends Controller
             'photo_path' => $this->storePhoto($request) ?: $student->photo_path,
         ]);
 
-        return back()->with('status', "{$student->fullName()} was updated successfully.");
+        $this->applyCredentialFields($request, $student, 'admission_number', 'Admission Number');
+
+        return $request->filled('login_password')
+            ? redirect()->route('students.show', $student)->with('status', "{$student->fullName()} was updated successfully.")
+            : back()->with('status', "{$student->fullName()} was updated successfully.");
     }
 
     public function destroy(Student $student): RedirectResponse
@@ -178,7 +191,7 @@ class StudentController extends Controller
             'password' => ['required', 'string', Password::defaults()],
         ]);
 
-        $student->update(['password' => Hash::make($validated['password']), 'must_change_password' => true]);
+        $student->update(['password' => Hash::make($validated['password']), 'must_change_password' => false]);
 
         AuditLog::record('password.reset', "Portal password reset for student {$student->fullName()}.", $student);
 
@@ -216,7 +229,7 @@ class StudentController extends Controller
             'password' => ['required', 'string', Password::defaults()],
         ]);
 
-        $guardian->update(['password' => Hash::make($validated['password']), 'must_change_password' => true]);
+        $guardian->update(['password' => Hash::make($validated['password']), 'must_change_password' => false]);
 
         AuditLog::record('password.reset', "Portal password reset for guardian {$guardian->name}.", $guardian);
 
@@ -278,5 +291,28 @@ class StudentController extends Controller
     private function authorizeStudent(Student $student): void
     {
         abort_unless($student->school_id === auth()->user()->school_id, 403);
+    }
+
+    /**
+     * Issue this account its login details: the username it signs in with,
+     * and the password to go with it.
+     *
+     * The School Admin is the authority on both. Users may edit their own
+     * contact details, but never their login identifier and never their
+     * password - see the portal profile controllers.
+     */
+    public function updateCredentials(Request $request, Student $student): RedirectResponse
+    {
+        $this->authorizeStudent($student);
+
+        $status = $this->saveCredentials(
+            $request,
+            $student,
+            'admission_number',
+            $student->fullName(),
+            'Admission Number',
+        );
+
+        return back()->with('status', $status);
     }
 }

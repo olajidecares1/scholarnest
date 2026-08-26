@@ -50,24 +50,36 @@ test('a school admin can add a staff member', function () {
 
     $response->assertRedirect();
 
-    $member = Staff::where('staff_number', 'STF-0001')->firstOrFail();
+    $member = Staff::where('school_id', $this->school->id)->where('last_name', 'Eze')->firstOrFail();
+
+    // The posted staff_number is ignored: the ID is generated, and the first
+    // hire at a school is 001.
+    expect($member->staff_number)->toBe($this->school->school_code.'-STAFF-001');
     expect($member->school_id)->toBe($this->school->id);
     expect($member->fullName())->toBe('Chinedu Eze');
     expect($member->is_active)->toBeTrue();
 });
 
-test('staff numbers must be unique within a school', function () {
-    Staff::factory()->create(['school_id' => $this->school->id, 'staff_number' => 'STF-0001']);
+test('staff numbers are generated in sequence and cannot be dictated', function () {
+    // A posted staff_number is not refused - it is simply not consulted. The
+    // ID comes from the school's own sequence, so a duplicate is not something
+    // the form is able to create.
+    foreach (['First', 'Second', 'Third'] as $name) {
+        $this->actingAs($this->admin)
+            ->post(route('staff.store'), [
+                'staff_number' => 'STF-0001',
+                'first_name' => $name,
+                'last_name' => 'Staff',
+                'gender' => Gender::Female->value,
+                'role' => StaffRole::Teacher->value,
+            ])
+            ->assertSessionHasNoErrors();
+    }
 
-    $this->actingAs($this->admin)
-        ->post(route('staff.store'), [
-            'staff_number' => 'STF-0001',
-            'first_name' => 'Second',
-            'last_name' => 'Staff',
-            'gender' => Gender::Female->value,
-            'role' => StaffRole::Teacher->value,
-        ])
-        ->assertSessionHasErrors('staff_number');
+    $code = $this->school->school_code;
+
+    expect(Staff::where('school_id', $this->school->id)->orderBy('id')->pluck('staff_number')->all())
+        ->toBe(["{$code}-STAFF-001", "{$code}-STAFF-002", "{$code}-STAFF-003"]);
 });
 
 test('two different schools can reuse the same staff number', function () {
@@ -98,7 +110,7 @@ test('a school admin can upload a staff photo', function () {
         'photo' => UploadedFile::fake()->image('bisi.jpg', 400, 400),
     ]);
 
-    $member = Staff::where('staff_number', 'STF-0002')->firstOrFail();
+    $member = Staff::where('school_id', $this->school->id)->where('last_name', 'Ade')->firstOrFail();
     expect($member->photo_path)->not->toBeNull();
     Storage::disk('public')->assertExists($member->photo_path);
 });

@@ -53,19 +53,28 @@
                 </div>
             </form>
 
-            <form method="POST" action="{{ route('guardians.update-password', $guardian) }}" class="mt-6 flex flex-wrap items-end gap-3 border-t border-gray-100 pt-6 dark:border-gray-700">
-                @csrf @method('PUT')
-                <div class="w-64">
-                    <x-text-field name="password" label="Portal Password" type="password" icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM8 11V7a4 4 0 118 0v4" helper="At least 6 characters." required />
-                </div>
-                <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">{{ $guardian->password ? 'Reset Password' : 'Enable Portal Access' }}</button>
-                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $guardian->password ? 'Portal access is enabled.' : 'No password set — this guardian cannot log in yet.' }}</span>
-            </form>
         </div>
+
+        {{-- The guardian pages are already Standard and Exclusive only - the
+             whole guardians module is plan-gated - so there is nothing further
+             to check here. --}}
+        <x-credential-share-banner />
+
+        <x-login-details-card
+            :share-url="$credentialShare['url']"
+            :share-phone="$credentialShare['phone']"
+            :action="route('guardians.credentials', $guardian)"
+            :username="$guardian->guardian_number"
+            username-label="Parent ID"
+            username-hint="Generated automatically and cannot be edited. This is what a parent or guardian types into the parent portal sign-in."
+            :account-name="$guardian->name"
+            :has-signed-in="$guardian->last_login_at !== null"
+            :last-sign-in="$guardian->last_login_at"
+        />
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h3 class="text-sm font-bold text-gray-900 dark:text-white">Linked Children</h3>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Every child linked here is an existing student record — nothing new is created by linking.</p>
+            <p class="field-hint mt-1">Every child linked here is an existing student record — nothing new is created by linking.</p>
 
             @if ($guardian->students->isNotEmpty())
                 <div class="mt-4 space-y-2">

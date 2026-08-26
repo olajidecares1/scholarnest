@@ -7,6 +7,25 @@
     <div class="space-y-6" x-data="{
         open: false,
         editing: null,
+        loginUsernameOverride: null,
+
+        // The Login Details card and the Staff ID field are two views of one
+        // column, so they read and write the same place rather than each
+        // keeping a copy that can drift.
+        get loginUsername() {
+            if (this.loginUsernameOverride !== null) {
+                return this.loginUsernameOverride
+            }
+
+            return this.editing ? this.editing.staff_number : this.nextStaffIdPreview()
+        },
+        set loginUsername(value) {
+            this.loginUsernameOverride = value
+
+            if (this.editing) {
+                this.editing.staff_number = value
+            }
+        },
         schoolCode: @js($school->school_code),
         nextStaffSequence: @js($school->next_staff_sequence),
         nextStaffIdPreview() {
@@ -59,7 +78,7 @@
                         value="{{ request('search') }}"
                         @input.debounce.500ms="$event.target.form.submit()"
                         placeholder="Search by name or staff number..."
-                        class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="w-64"
                     >
                     <div
                         class="w-48"
@@ -81,7 +100,7 @@
 
                 <button
                     type="button"
-                    @click="editing = null; open = true"
+                    @click="editing = null; loginUsernameOverride = null; open = true"
                     class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
@@ -150,7 +169,7 @@
                                                 'phone' => $member->phone,
                                                 'email' => $member->email,
                                                 'notes' => $member->notes,
-                                            ]); open = true"
+                                            ]); loginUsernameOverride = null; open = true"
                                             class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             Edit
@@ -198,7 +217,7 @@
                     method="POST"
                     :action="editing ? '{{ route('staff.update', ['member' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('staff.store') }}'"
                     enctype="multipart/form-data"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
@@ -208,9 +227,9 @@
                             <div>
                                 <input type="text" readonly tabindex="-1"
                                     x-bind:value="editing ? editing.staff_number : nextStaffIdPreview()"
-                                    class="block h-11 w-full min-w-0 rounded-[8px] border border-gray-300 bg-gray-50 px-3 text-[13.5px] font-medium text-gray-500 shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-400">
+                                    class="block w-full min-w-0">
                                 <input type="hidden" name="staff_number" x-bind:value="editing ? editing.staff_number : nextStaffIdPreview()">
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Staff ID &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</p>
+                                <p class="field-hint mt-1">Staff ID &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</p>
                             </div>
                         @else
                             <x-text-field name="staff_number" label="Staff Number" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" x-model="editing ? editing.staff_number : ''" required />
@@ -248,8 +267,8 @@
                     <x-text-field name="qualification" label="Qualification" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" x-model="editing ? editing.qualification : ''" helper="E.g. B.Sc, B.Ed, M.Sc, NCE." />
 
                     <div>
-                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400">
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Photo (optional). Leave blank to keep the existing one when editing.</p>
+                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full">
+                        <p class="field-hint mt-1">Photo (optional). Leave blank to keep the existing one when editing.</p>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -262,6 +281,14 @@
 
                     <x-textarea-field name="address" label="Address" icon="M12 21s7-6.1 7-11a7 7 0 10-14 0c0 4.9 7 11 7 11z" rows="2" x-text="editing ? editing.address : ''" />
                     <x-textarea-field name="notes" label="Notes" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="2" x-text="editing ? editing.notes : ''" />
+
+                    {{-- Teachers sign in on every plan, so this is never
+                         plan-gated. --}}
+                    <x-login-details-fields
+                        username-label="Username (Staff ID)"
+                        username-model="loginUsername"
+                        username-hint="The Staff ID and password this teacher signs in to the staff portal with."
+                    />
 
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>

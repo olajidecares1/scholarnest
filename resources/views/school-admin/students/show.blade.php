@@ -63,34 +63,41 @@
             </div>
         </div>
 
-        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Student Portal Access</h3>
-                <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $student->password ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
-                    {{ $student->password ? 'Access Enabled' : 'No Password Set' }}
-                </span>
+        {{-- Only where there is a student portal to sign in to. A Basic school
+             has none, so credentials for one would be an account that exists
+             and cannot be used - and a card promising something the plan does
+             not include. Its parents reach results by exam token instead. --}}
+        @if ($school->hasPortalAccounts())
+            <x-credential-share-banner />
+
+        <x-login-details-card
+            :share-url="$credentialShare['url']"
+            :share-phone="$credentialShare['phone']"
+                :action="route('students.credentials', $student)"
+                :username="$student->admission_number"
+                username-label="Admission Number"
+                username-hint="Generated automatically and cannot be edited. This is what a student types into the student portal sign-in."
+                :account-name="$student->fullName()"
+                :has-signed-in="$student->last_login_at !== null"
+                :last-sign-in="$student->last_login_at"
+            />
+        @else
+            <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+                <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+                    <i class="fa-solid fa-key text-gray-400"></i>
+                    Login Details
+                </h3>
+                <p class="field-hint mt-1">
+                    The Basic plan has no student portal, so students do not have sign-in accounts.
+                    Parents reach {{ $student->first_name }}&rsquo;s results with an exam token instead &mdash;
+                    generate one from <a href="{{ route('result-pins.index') }}" class="font-semibold text-primary-600 hover:underline">Generate Exam Token</a>.
+                </p>
             </div>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Login: {{ $student->admission_number }} (or their email, if set)
-                @if ($student->last_login_at)
-                    &middot; Last logged in {{ $student->last_login_at->diffForHumans() }}
-                @else
-                    &middot; Has never logged in
-                @endif
-            </p>
-            <form method="POST" action="{{ route('students.update-password', $student) }}" class="mt-4 flex flex-wrap items-end gap-3">
-                @csrf
-                @method('PUT')
-                <div class="w-64">
-                    <x-text-field name="password" label="Set Portal Password" type="password" icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM8 11V7a4 4 0 118 0v4" helper="At least 6 characters." required />
-                </div>
-                <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">{{ $student->password ? 'Reset Password' : 'Enable Portal Access' }}</button>
-            </form>
-        </div>
+        @endif
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h3 class="text-sm font-bold text-gray-900 dark:text-white">Parent/Guardian Portal Access</h3>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Link a parent or guardian's email to give them read-only access to {{ $student->first_name }}'s portal. Linking an email already used for another child attaches this student to that same guardian account.</p>
+            <p class="field-hint mt-1">Link a parent or guardian's email to give them read-only access to {{ $student->first_name }}'s portal. Linking an email already used for another child attaches this student to that same guardian account.</p>
 
             @if ($student->guardians->isNotEmpty())
                 <div class="mt-4 space-y-3">
@@ -104,7 +111,7 @@
                                             <span class="ml-1 text-xs font-normal text-gray-400">({{ $guardian->pivot->relationship }})</span>
                                         @endif
                                     </p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    <p class="field-hint">
                                         {{ $guardian->email }}
                                         &middot; {{ $guardian->password ? 'Access Enabled' : 'No Password Set' }}
                                         @if ($guardian->last_login_at)

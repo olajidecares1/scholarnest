@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\Gender;
 use App\Enums\StaffRole;
+use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Staff;
@@ -21,6 +22,8 @@ use Illuminate\View\View;
 
 class StaffController extends Controller
 {
+    use SetsPortalCredentials;
+
     public function __construct(
         private readonly ImageOptimizer $optimizer,
         private readonly IdentifierGenerator $identifiers,
@@ -55,11 +58,13 @@ class StaffController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $school = $request->user()->school;
-        $validated = $request->validate($this->rules($school->id, null, $school->auto_generate_staff_ids));
-
-        if ($school->auto_generate_staff_ids) {
-            $validated['staff_number'] = $this->identifiers->nextStaffId($school);
-        }
+        // Always generated, never typed. The Staff ID is what a teacher
+        // signs in with and what the numbering sequence keeps in order, so it
+        // is not the School Admin's to set - and a setting that made it
+        // sometimes theirs would make "cannot be edited" untrue on some
+        // schools and true on others.
+        $validated = $request->validate($this->rules($school->id, null, autoGenerateStaffId: true));
+        $validated['staff_number'] = $this->identifiers->nextStaffId($school);
 
         if (StaffRole::from($validated['role']) === StaffRole::Teacher) {
             $limit = $school->teacherAccountLimit();
@@ -67,7 +72,11 @@ class StaffController extends Controller
 
             if ($limit !== null && $activeTeacherCount >= $limit) {
                 return back()->withErrors([
-                    'role' => "You have reached the maximum of {$limit} teacher accounts available on the Basic Plan. Please upgrade your subscription to add more teachers.",
+                    // No plan caps teachers today - Basic stopped doing so when
+                    // teacher accounts were decoupled from the student licence -
+                    // but the check stays, generic, so reintroducing a cap on any
+                    // plan is a data change rather than a code change.
+                    'role' => "You have reached the maximum of {$limit} teacher accounts available on your current plan. Please upgrade your subscription to add more teachers.",
                 ])->withInput();
             }
         }
@@ -77,7 +86,14 @@ class StaffController extends Controller
             'photo_path' => $this->storePhoto($request),
         ]);
 
-        return back()->with('status', "{$member->fullName()} was added successfully.");
+        $this->applyCredentialFields($request, $member, 'staff_number', 'Staff ID');
+
+        // To their own page when login details were issued, because that is
+        // where the share sits and the password is only offered once. Back to
+        // the list otherwise, which is where the admin was.
+        return $request->filled('login_password')
+            ? redirect()->route('staff.show', $member)->with('status', "{$member->fullName()} was added successfully.")
+            : back()->with('status', "{$member->fullName()} was added successfully.");
     }
 
     public function show(Staff $member): View
@@ -85,6 +101,7 @@ class StaffController extends Controller
         $this->authorizeStaff($member);
 
         return view('school-admin.staff.show', [
+            'credentialShare' => $this->credentialShareLink($member, 'Staff ID', (string) $member->staff_number),
             'member' => $member,
         ]);
     }
@@ -92,23 +109,25 @@ class StaffController extends Controller
     public function update(Request $request, Staff $member): RedirectResponse
     {
         $this->authorizeStaff($member);
-        $autoGenerate = $member->school->auto_generate_staff_ids;
 
-        $validated = $request->validate($this->rules($member->school_id, $member->id, $autoGenerate));
+        $validated = $request->validate($this->rules($member->school_id, $member->id, autoGenerateStaffId: true));
 
-        if ($autoGenerate) {
-            // The staff ID is locked once auto-generation is on - any value
-            // submitted for it (the field is disabled in the form, but
-            // never trust client input for this) is ignored.
-            unset($validated['staff_number']);
-        }
+        // The Staff ID is never editable. The form does not offer it, and any
+        // value that arrives anyway is dropped here rather than trusted - a
+        // field the interface refuses to show but the controller would still
+        // honour is not read-only.
+        unset($validated['staff_number']);
 
         $member->update([
             ...Arr::except($validated, 'photo'),
             'photo_path' => $this->storePhoto($request) ?: $member->photo_path,
         ]);
 
-        return back()->with('status', "{$member->fullName()} was updated successfully.");
+        $this->applyCredentialFields($request, $member, 'staff_number', 'Staff ID');
+
+        return $request->filled('login_password')
+            ? redirect()->route('staff.show', $member)->with('status', "{$member->fullName()} was updated successfully.")
+            : back()->with('status', "{$member->fullName()} was updated successfully.");
     }
 
     public function destroy(Staff $member): RedirectResponse
@@ -120,7 +139,35 @@ class StaffController extends Controller
         }
 
         $name = $member->fullName();
+        $school = $member->school;
         $member->delete();
+
+        // Close the gap the deletion leaves, as the brief asks: removing
+        // STAFF-001 makes STAFF-002 into STAFF-001, and so on down the list.
+        //
+        // This renames other people's login identifiers, so it is reported
+        // rather than done quietly - anyone whose ID moved can no longer sign
+        // in with the one they were given, and has to be told the new one.
+        $moves = $this->identifiers->resequenceStaffIds($school);
+
+        if ($moves !== []) {
+            AuditLog::record(
+                'staff.ids.resequenced',
+                sprintf(
+                    'Renumbered %d Staff ID(s) after deleting %s: %s.',
+                    count($moves),
+                    $name,
+                    collect($moves)->map(fn ($to, $from) => "{$from} → {$to}")->implode(', '),
+                ),
+                $school,
+            );
+
+            return back()->with('status', sprintf(
+                '%s was removed. %d Staff ID(s) moved up to close the gap — the affected staff will need their new ID.',
+                $name,
+                count($moves),
+            ));
+        }
 
         return back()->with('status', "{$name} was removed successfully.");
     }
@@ -142,7 +189,7 @@ class StaffController extends Controller
             'password' => ['required', 'string', Password::defaults()],
         ]);
 
-        $member->update(['password' => Hash::make($validated['password']), 'must_change_password' => true]);
+        $member->update(['password' => Hash::make($validated['password']), 'must_change_password' => false]);
 
         AuditLog::record('password.reset', "Portal password reset for staff member {$member->fullName()}.", $member);
 
@@ -194,5 +241,28 @@ class StaffController extends Controller
     private function authorizeStaff(Staff $member): void
     {
         abort_unless($member->school_id === auth()->user()->school_id, 403);
+    }
+
+    /**
+     * Issue this account its login details: the username it signs in with,
+     * and the password to go with it.
+     *
+     * The School Admin is the authority on both. Users may edit their own
+     * contact details, but never their login identifier and never their
+     * password - see the portal profile controllers.
+     */
+    public function updateCredentials(Request $request, Staff $member): RedirectResponse
+    {
+        $this->authorizeStaff($member);
+
+        $status = $this->saveCredentials(
+            $request,
+            $member,
+            'staff_number',
+            $member->fullName(),
+            'Staff ID',
+        );
+
+        return back()->with('status', $status);
     }
 }
