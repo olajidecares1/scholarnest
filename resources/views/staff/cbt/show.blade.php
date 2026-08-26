@@ -100,7 +100,7 @@
                                 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400' => $test->status === \App\Enums\CbtTestStatus::Archived,
                             ])>{{ $test->status->label() }}</span>
                         </div>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        <p class="field-hint mt-1">
                             {{ $test->subject }} &middot; {{ $test->class_name }} &middot; {{ $test->duration_minutes }} min &middot; Pass mark {{ $test->pass_mark }}%
                             @if ($test->questions->isNotEmpty()) &middot; {{ $test->questions->count() }} question(s) @endif
                         </p>
@@ -125,24 +125,30 @@
                     @csrf
                     <div class="flex flex-wrap items-end gap-3">
                         <div class="w-48">
-                            <label class="text-xs font-semibold text-gray-600 dark:text-gray-300">Available From</label>
-                            <input type="datetime-local" name="available_from" value="{{ optional($test->available_from)->format('Y-m-d\TH:i') }}" class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Available From</label>
+                            <input type="datetime-local" name="available_from" value="{{ optional($test->available_from)->format('Y-m-d\TH:i') }}" class="mt-1 w-full">
                         </div>
                         <div class="w-48">
-                            <label class="text-xs font-semibold text-gray-600 dark:text-gray-300">Closing Date &amp; Time</label>
-                            <input type="datetime-local" name="available_until" value="{{ optional($test->available_until)->format('Y-m-d\TH:i') }}" class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Closing Date &amp; Time</label>
+                            <input type="datetime-local" name="available_until" value="{{ optional($test->available_until)->format('Y-m-d\TH:i') }}" class="mt-1 w-full">
                         </div>
                     </div>
 
                     <div class="mt-3 flex flex-wrap gap-2">
                         <button type="submit" name="status" value="draft" @disabled($test->hasStudentAttempts()) title="{{ $test->hasStudentAttempts() ? 'Students have already started this test.' : '' }}" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Save as Draft</button>
                         <button type="submit" name="status" value="locked" @disabled($test->hasStudentAttempts()) title="{{ $test->hasStudentAttempts() ? 'Students have already started this test.' : '' }}" class="rounded-[8px] border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Lock</button>
-                        <button type="submit" name="status" value="published" class="rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700">Publish</button>
+                        <button type="submit" name="status" value="published" @disabled($publishBlocker) title="{{ $publishBlocker ?? '' }}" class="rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0">Publish</button>
                         <button type="submit" name="status" value="archived" class="rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
                     </div>
                 </form>
-                @if ($test->questions->isEmpty())
-                    <p class="mt-2 text-xs text-amber-600 dark:text-amber-400">Add at least one question before publishing.</p>
+                @if ($publishBlocker)
+                    {{-- Publishing is the moment a test starts producing marks on
+                         students' records, so the reason it is being held back is
+                         worth stating in full rather than leaving the button dead. --}}
+                    <div class="mt-3 flex items-start gap-2.5 rounded-[8px] border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+                        <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0 text-amber-600 dark:text-amber-400"></i>
+                        <p class="text-xs leading-[1.6] text-amber-900 dark:text-amber-300">{{ $publishBlocker }}</p>
+                    </div>
                 @endif
                 @if ($test->hasStudentAttempts())
                     <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled — students have already started this test. You can still archive it.</p>
@@ -152,12 +158,33 @@
             {{-- Document upload panel --}}
             <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Upload a Document to Auto-Extract Questions</h3>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Upload a PDF or Word document of your questions and the system will read it and add the questions below automatically. Review each extracted question before publishing.</p>
-                <form method="POST" action="{{ route('staff.cbt.tests.uploads.store', [$school, $test]) }}" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-center gap-3">
-                    @csrf
-                    <input type="file" name="file" accept=".pdf,.doc,.docx" required class="text-sm text-gray-600 file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:text-gray-300 dark:file:bg-primary-900/30 dark:file:text-primary-400">
-                    <button type="submit" class="rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-700">Upload &amp; Extract</button>
-                </form>
+                <p class="field-hint mt-1">
+                    Upload a PDF or Word document of your questions, up to
+                    {{ \App\Http\Controllers\Staff\Cbt\DocumentUploadController::maxUploadLabel() }}, and the system will read it
+                    and add the questions below automatically. Review each extracted question before publishing.
+                </p>
+
+                @if ($extractionWarning)
+                    {{-- Said before the upload, not after it. Waiting on a document
+                         that cannot be read is the failure this whole change is
+                         about. --}}
+                    <div class="mb-4 flex items-start gap-3 rounded-[8px] border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+                        <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0 text-amber-600 dark:text-amber-400"></i>
+                        <p class="text-xs leading-[1.6] text-amber-900 dark:text-amber-300">{{ $extractionWarning }}</p>
+                    </div>
+                @endif
+
+                <x-upload-progress-form
+                    :action="route('staff.cbt.tests.uploads.store', [$school, $test])"
+                    :max-mb="21"
+                    class="mt-3 space-y-2"
+                >
+                    <div>
+                        <x-input-label for="cbt-test-upload-file" value="Document" />
+                        <input id="cbt-test-upload-file" type="file" name="file" accept=".pdf,.doc,.docx" required class="mt-1 w-full">
+                        <x-input-error :messages="$errors->get('file')" class="mt-2" />
+                    </div>
+                </x-upload-progress-form>
 
                 @if ($test->documentUploads->isNotEmpty())
                     <div class="mt-4 space-y-2">
@@ -167,7 +194,7 @@
                                 <span @class([
                                     'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase',
                                     'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' => $upload->status === \App\Enums\CbtDocumentUploadStatus::Pending,
-                                    'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' => $upload->status === \App\Enums\CbtDocumentUploadStatus::Processing,
+                                    'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' => $upload->status->isInProgress() && $upload->status !== \App\Enums\CbtDocumentUploadStatus::Pending,
                                     'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' => $upload->status === \App\Enums\CbtDocumentUploadStatus::Completed,
                                     'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400' => $upload->status === \App\Enums\CbtDocumentUploadStatus::Failed,
                                 ])>{{ $upload->status->label() }}</span>
@@ -273,7 +300,7 @@
                                 ? '{{ route('staff.cbt.tests.questions.update', [$school, $test, '__ID__']) }}'.replace('__ID__', editing.uuid)
                                 : '{{ route('staff.cbt.tests.questions.store', [$school, $test]) }}'"
                             enctype="multipart/form-data"
-                            class="mt-4 space-y-4"
+                            class="mt-4 space-y-2"
                         >
                             @csrf
                             <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
@@ -288,8 +315,8 @@
                             />
 
                             <div>
-                                <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Optional image/diagram. Leave blank to keep the existing one when editing.</p>
+                                <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" class="w-full">
+                                <p class="field-hint mt-1">Optional image/diagram. Leave blank to keep the existing one when editing.</p>
                             </div>
 
                             <div>
@@ -297,14 +324,14 @@
                                 <div class="space-y-2">
                                     <template x-for="(option, i) in options" :key="i">
                                         <div class="flex items-center gap-2">
-                                            <input type="radio" name="correct_index" :value="i" x-model.number="correctIndex" class="shrink-0 text-primary-500 focus:ring-primary-500">
+                                            <input type="radio" name="correct_index" :value="i" x-model.number="correctIndex" class="shrink-0 text-primary-500">
                                             <input
                                                 type="text"
                                                 :name="'options[' + i + ']'"
                                                 x-model="options[i]"
                                                 required
                                                 :placeholder="'Option ' + String.fromCharCode(65 + i)"
-                                                class="flex-1 rounded-[8px] border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                class="flex-1"
                                             >
                                             <button type="button" @click="removeOption(i)" x-show="options.length > 2" class="shrink-0 rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20">
                                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></svg>
@@ -313,7 +340,7 @@
                                     </template>
                                 </div>
                                 <button type="button" @click="addOption()" x-show="options.length < 5" class="mt-2 text-xs font-semibold text-primary-600 transition-colors duration-150 hover:text-primary-700 dark:text-primary-400">+ Add another option</button>
-                                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Select the radio button next to the correct answer.</p>
+                                <p class="field-hint mt-2">Select the radio button next to the correct answer.</p>
                             </div>
 
                             <div class="flex justify-end gap-2">
@@ -331,7 +358,7 @@
             <div class="flex items-center justify-between rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div>
                     <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $test->title }} &mdash; Student Preview</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">This is exactly what students will see. Nothing here is saved.</p>
+                    <p class="field-hint">This is exactly what students will see. Nothing here is saved.</p>
                 </div>
                 <div class="rounded-[8px] bg-gray-900 px-3 py-1.5 font-mono text-sm font-bold text-white dark:bg-black" x-show="!previewSubmitted">
                     <span x-text="previewMinutes"></span>:<span x-text="previewSecondsPart"></span>
@@ -349,7 +376,7 @@
                             <div class="mt-3 space-y-2">
                                 <template x-for="option in question.options" :key="option.label">
                                     <label class="flex cursor-pointer items-center gap-2 rounded-[8px] border border-gray-200 px-3 py-2 text-sm transition-colors duration-150 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
-                                        <input type="radio" :name="'preview-' + question.uuid" :value="option.label" x-model="previewAnswers[question.uuid]" class="text-primary-500 focus:ring-primary-500">
+                                        <input type="radio" :name="'preview-' + question.uuid" :value="option.label" x-model="previewAnswers[question.uuid]" class="text-primary-500">
                                         <span class="font-bold" x-text="option.label"></span>
                                         <span x-text="option.text"></span>
                                     </label>

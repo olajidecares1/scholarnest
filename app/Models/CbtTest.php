@@ -24,6 +24,7 @@ class CbtTest extends Model
         'school_id',
         'staff_id',
         'title',
+        'instructions',
         'subject',
         'class_name',
         'session',
@@ -121,5 +122,75 @@ class CbtTest extends Model
     public function hasStudentAttempts(): bool
     {
         return $this->attempts()->exists();
+    }
+
+    /**
+     * Questions that a person still has to look at before students see them.
+     *
+     * Extraction flags these: an answer key that named an option the question
+     * did not have, options that came back malformed, a diagram that has to be
+     * attached by hand.
+     *
+     * @return HasMany<CbtTestQuestion, $this>
+     */
+    public function questionsNeedingReview(): HasMany
+    {
+        return $this->questions()->where('needs_review', true);
+    }
+
+    /**
+     * Questions with no correct option stored.
+     *
+     * Separate from needs_review because this is the one that silently corrupts
+     * results: a student answering such a question is marked wrong whatever
+     * they choose, and neither they nor the teacher is told why.
+     *
+     * @return HasMany<CbtTestQuestion, $this>
+     */
+    public function questionsWithoutAnswer(): HasMany
+    {
+        return $this->questions()->whereDoesntHave('options', fn ($query) => $query->where('is_correct', true));
+    }
+
+    /**
+     * Why this test cannot go to students yet, or null when it can.
+     *
+     * Publishing is the moment a test stops being the teacher's draft and
+     * starts producing marks on students' records, so it is the right place to
+     * insist the questions are answerable. The alternative - letting it through
+     * and discovering afterwards that a question could never be answered
+     * correctly - means unpicking results that have already been recorded.
+     */
+    public function publishBlocker(): ?string
+    {
+        if ($this->questions()->count() === 0) {
+            return 'Add at least one question before publishing.';
+        }
+
+        $unanswerable = $this->questionsWithoutAnswer()->count();
+
+        if ($unanswerable > 0) {
+            return sprintf(
+                '%d question(s) have no correct answer marked, so students would be marked wrong no matter what they '
+                    .'choose. Set the correct answer on each before publishing.',
+                $unanswerable,
+            );
+        }
+
+        $needingReview = $this->questionsNeedingReview()->count();
+
+        if ($needingReview > 0) {
+            return sprintf(
+                '%d question(s) still need review. Check each one, then mark it reviewed before publishing.',
+                $needingReview,
+            );
+        }
+
+        return null;
+    }
+
+    public function canBePublished(): bool
+    {
+        return $this->publishBlocker() === null;
     }
 }

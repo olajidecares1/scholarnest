@@ -9,7 +9,7 @@
             @forelse ($exams as $exam)
                 <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $exam->subject->name }} {{ $exam->year }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $exam->questions_count }} questions &middot; {{ $exam->duration_minutes }} mins &middot; Pass mark {{ $exam->pass_mark }}%</p>
+                    <p class="field-hint mt-1">{{ $exam->questions_count }} questions &middot; {{ $exam->duration_minutes }} mins &middot; Pass mark {{ $exam->pass_mark }}%</p>
 
                     <form method="POST" action="{{ route('student.cbt-practice.start', [$school, $exam]) }}" class="mt-4">
                         @csrf

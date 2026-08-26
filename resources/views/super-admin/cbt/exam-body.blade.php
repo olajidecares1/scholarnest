@@ -18,7 +18,7 @@
         {{-- Subjects offered --}}
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Subjects Offered</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Choose which subjects {{ $examBody->name }} offers. Only assigned subjects can have exams created for them below.</p>
+            <p class="field-hint mt-1">Choose which subjects {{ $examBody->name }} offers. Only assigned subjects can have exams created for them below.</p>
 
             <form method="POST" action="{{ route('super-admin.cbt.exam-bodies.subjects.update', $examBody) }}" class="mt-4">
                 @csrf
@@ -37,7 +37,7 @@
                                             name="subjects[]"
                                             value="{{ $subject->id }}"
                                             @checked(in_array($subject->id, $assignedIds, true))
-                                            class="rounded border-gray-300 text-primary-500 focus:ring-primary-500"
+                                            class="text-primary-500"
                                         >
                                         {{ $subject->name }}
                                     </label>
@@ -56,7 +56,7 @@
             <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Exams</h2>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Each exam is one subject for one year. Add questions once an exam is created.</p>
+                    <p class="field-hint mt-1">Each exam is one subject for one year. Add questions once an exam is created.</p>
                 </div>
                 <button
                     type="button"
@@ -120,7 +120,7 @@
         <div x-show="addExamOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="addExamOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Exam</h3>
-                <form method="POST" action="{{ route('super-admin.cbt.exams.store', $examBody) }}" class="mt-4 space-y-4" x-data="{ duration: 60, customDuration: false }">
+                <form method="POST" action="{{ route('super-admin.cbt.exams.store', $examBody) }}" class="mt-4 space-y-2" x-data="{ duration: 60, customDuration: false }">
                     @csrf
                     <x-select-field
                         name="cbt_subject_id"
@@ -131,7 +131,7 @@
                     <x-text-field name="year" label="Year" type="number" icon="M4 20V10M10 20V4M16 20v-7M20 20v-3" helper="Between 1999 and {{ now()->year }}." min="1999" :max="now()->year" value="{{ now()->year }}" required />
 
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Duration</label>
+                        <label class="field-label mb-1">Duration</label>
                         <div class="flex flex-wrap gap-2">
                             <template x-for="preset in [60, 70, 80, 90, 100]" :key="preset">
                                 <button
@@ -159,7 +159,7 @@
                             min="5"
                             max="300"
                             placeholder="Minutes"
-                            class="mt-2 w-full rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            class="mt-2 w-full transition-colors duration-200"
                         >
                         <input type="hidden" name="duration_minutes" :value="duration">
                     </div>
@@ -181,7 +181,7 @@
                     <form
                         method="POST"
                         :action="'{{ route('super-admin.cbt.exams.update', ['exam' => '__ID__']) }}'.replace('__ID__', editingExam.uuid)"
-                        class="mt-4 space-y-4"
+                        class="mt-4 space-y-2"
                     >
                         @csrf @method('PUT')
                         <x-text-field name="duration_minutes" label="Duration (minutes)" type="number" icon="M12 21a9 9 0 100-18 9 9 0 000 18z" min="5" max="300" x-model.number="editingExam.duration_minutes" required />

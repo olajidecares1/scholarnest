@@ -24,4 +24,25 @@ class CbtTestQuestionFactory extends Factory
             'sort_order' => 0,
         ];
     }
+
+    /**
+     * A question a student could actually sit: four options, one of them right.
+     *
+     * The bare factory deliberately makes neither - a question with no options
+     * is a real state extraction can produce, and tests need to be able to
+     * create it. But a test that means "a finished, publishable question" has
+     * to say so, because the publish gate now checks exactly that.
+     */
+    public function answerable(string $correctLabel = 'A'): static
+    {
+        return $this->afterCreating(function (CbtTestQuestion $question) use ($correctLabel): void {
+            foreach (['A', 'B', 'C', 'D'] as $label) {
+                $question->options()->create([
+                    'label' => $label,
+                    'option_text' => fake()->word(),
+                    'is_correct' => $label === strtoupper($correctLabel),
+                ]);
+            }
+        });
+    }
 }

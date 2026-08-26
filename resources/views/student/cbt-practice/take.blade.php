@@ -30,7 +30,7 @@
             <div class="mt-3 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
                 <div class="h-2 rounded-full bg-primary-600 transition-all duration-300 ease-out" :style="`width: ${progressPct}%`"></div>
             </div>
-            <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400"><span x-text="Object.keys(answers).length"></span> of <span x-text="questions.length"></span> answered</p>
+            <p class="field-hint mt-1.5"><span x-text="Object.keys(answers).length"></span> of <span x-text="questions.length"></span> answered</p>
         </div>
 
         {{-- Current question --}}
@@ -52,7 +52,7 @@
                                     :value="option.id"
                                     :checked="answers[question.id] === option.id"
                                     @change="select(question.id, option.id)"
-                                    class="h-4 w-4 shrink-0 border-gray-300 text-primary-600 focus:ring-primary-500"
+                                    class="w-4 shrink-0 text-primary-600"
                                 >
                                 <span><span class="font-semibold" x-text="option.label + '.'"></span> <span x-text="option.text"></span></span>
                             </label>

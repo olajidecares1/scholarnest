@@ -1,5 +1,5 @@
 <x-dashboard-layout page-title="CBT Tests" page-subtitle="Overview of every teacher-created CBT test in your school.">
-    <div class="overflow-hidden rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+    <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
         <table class="w-full text-left text-sm">
             <thead class="border-b border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                 <tr>
@@ -16,7 +16,7 @@
                     <tr>
                         <td class="px-4 py-3">
                             <a href="{{ route('cbt-tests.show', $test) }}" class="font-semibold text-primary-600 hover:text-primary-700">{{ $test->title }}</a>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $test->subject }}</p>
+                            <p class="field-hint">{{ $test->subject }}</p>
                         </td>
                         <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $test->staff->fullName() }}</td>
                         <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $test->class_name }}</td>

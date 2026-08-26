@@ -23,6 +23,7 @@ class CbtExam extends Model
         'cbt_exam_body_id',
         'cbt_subject_id',
         'year',
+        'instructions',
         'duration_minutes',
         'pass_mark',
         'created_by',

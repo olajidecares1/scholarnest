@@ -43,9 +43,13 @@ class CbtQuestionController extends Controller
         DB::transaction(function () use ($validated, $question, $request) {
             $newImage = $this->storeImage($request);
 
+            // Saving the form is the review - it requires a correct answer,
+            // so whatever extraction left unresolved has now been settled.
             $question->update([
                 'question_text' => $validated['question_text'],
                 'image_path' => $newImage ?: $question->image_path,
+                'needs_review' => false,
+                'review_notes' => null,
             ]);
 
             $question->options()->delete();

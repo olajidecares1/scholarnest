@@ -51,12 +51,12 @@
                 @csrf
                 <div class="flex flex-wrap items-end gap-3">
                     <div class="w-48">
-                        <label class="text-xs font-semibold text-gray-600 dark:text-gray-300">Available From</label>
-                        <input type="datetime-local" name="available_from" value="{{ optional($test->available_from)->format('Y-m-d\TH:i') }}" class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                        <label class="field-label">Available From</label>
+                        <input type="datetime-local" name="available_from" value="{{ optional($test->available_from)->format('Y-m-d\TH:i') }}" class="mt-1 w-full">
                     </div>
                     <div class="w-48">
-                        <label class="text-xs font-semibold text-gray-600 dark:text-gray-300">Closing Date &amp; Time</label>
-                        <input type="datetime-local" name="available_until" value="{{ optional($test->available_until)->format('Y-m-d\TH:i') }}" class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                        <label class="field-label">Closing Date &amp; Time</label>
+                        <input type="datetime-local" name="available_until" value="{{ optional($test->available_until)->format('Y-m-d\TH:i') }}" class="mt-1 w-full">
                     </div>
                 </div>
                 <div class="mt-3 flex flex-wrap gap-2">

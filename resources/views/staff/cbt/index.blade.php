@@ -31,7 +31,7 @@
                             'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400' => $test->status === \App\Enums\CbtTestStatus::Archived,
                         ])>{{ $test->status->label() }}</span>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $test->subject }} &middot; {{ $test->class_name }}</p>
+                    <p class="field-hint mt-1">{{ $test->subject }} &middot; {{ $test->class_name }}</p>
                     <p class="mt-3 text-xs text-gray-400">{{ $test->questions_count }} question(s) &middot; {{ $test->duration_minutes }} min</p>
                 </a>
             @empty
@@ -45,7 +45,7 @@
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Create Test</h3>
-                <form method="POST" action="{{ route('staff.cbt.tests.store', $school) }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('staff.cbt.tests.store', $school) }}" class="mt-4 space-y-2">
                     @csrf
                     <x-text-field name="title" label="Title" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" placeholder="e.g. First Term Mathematics Test" required />
                     <x-text-field name="subject" label="Subject" icon="M3.5 6.2S5.5 5 8.5 5s5 1.2 5 1.2v12S11.5 17 8.5 17s-5 1.2-5 1.2v-12z" placeholder="e.g. Mathematics" required />

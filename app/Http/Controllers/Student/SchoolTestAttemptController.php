@@ -81,14 +81,28 @@ class SchoolTestAttemptController extends Controller
         return redirect()->route('student.tests.attempts.show', [$school, $attempt]);
     }
 
+    /**
+     * Mark the attempt and close it.
+     *
+     * Scored by marks rather than by question count, because a paper that says
+     * a question is worth three carries that weight through to the result. Every
+     * question defaults to one mark, so a test whose paper never stated marks
+     * scores exactly as it always did.
+     */
     private function finalize(CbtTestAttempt $attempt, bool $autoSubmitted): void
     {
-        $correctCount = $attempt->answers()->where('is_correct', true)->count();
+        $marksByQuestion = $attempt->test->questions()->pluck('marks', 'id');
+        $totalMarks = (int) $marksByQuestion->sum();
+
+        $earned = $attempt->answers()
+            ->where('is_correct', true)
+            ->pluck('cbt_test_question_id')
+            ->sum(fn ($questionId) => (int) ($marksByQuestion[$questionId] ?? 0));
 
         $attempt->update([
             'submitted_at' => now(),
             'auto_submitted' => $autoSubmitted,
-            'score' => $attempt->total_questions > 0 ? round(($correctCount / $attempt->total_questions) * 100, 1) : 0,
+            'score' => $totalMarks > 0 ? round(($earned / $totalMarks) * 100, 1) : 0,
         ]);
     }
 

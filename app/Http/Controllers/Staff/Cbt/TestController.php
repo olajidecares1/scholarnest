@@ -6,6 +6,7 @@ use App\Enums\CbtTestStatus;
 use App\Http\Controllers\Controller;
 use App\Models\CbtTest;
 use App\Models\School;
+use App\Services\CbtExtractionAvailability;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -38,13 +39,15 @@ class TestController extends Controller
         return redirect()->route('staff.cbt.tests.show', [$school, $test])->with('status', "\"{$test->title}\" was created.");
     }
 
-    public function show(Request $request, School $school, CbtTest $test): View
+    public function show(Request $request, School $school, CbtTest $test, CbtExtractionAvailability $availability): View
     {
         $this->authorizeTest($request, $test);
 
         $test->load(['questions.options', 'documentUploads' => fn ($query) => $query->latest()]);
 
         return view('staff.cbt.show', [
+            'extractionWarning' => $availability->warning(),
+            'publishBlocker' => $test->publishBlocker(),
             'school' => $school,
             'test' => $test,
         ]);
@@ -87,7 +90,9 @@ class TestController extends Controller
         $newStatus = CbtTestStatus::from($validated['status']);
 
         if ($newStatus === CbtTestStatus::Published) {
-            abort_if($test->questions()->count() === 0, 422, 'Add at least one question before publishing.');
+            // 422 rather than a redirect, matching how the lock rule below
+            // reports a state the request cannot have.
+            abort_if((bool) ($blocker = $test->publishBlocker()), 422, (string) $blocker);
         }
 
         if (in_array($newStatus, [CbtTestStatus::Draft, CbtTestStatus::Locked], true) && $test->hasStudentAttempts()) {

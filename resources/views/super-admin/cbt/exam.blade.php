@@ -173,7 +173,7 @@
                             ? '{{ route('super-admin.cbt.questions.update', ['question' => '__ID__']) }}'.replace('__ID__', editing.uuid)
                             : '{{ route('super-admin.cbt.questions.store', $exam) }}'"
                         enctype="multipart/form-data"
-                        class="mt-4 space-y-4"
+                        class="mt-4 space-y-2"
                     >
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
@@ -195,9 +195,9 @@
                                 name="image"
                                 type="file"
                                 accept=".jpg,.jpeg,.png,.webp"
-                                class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                                class="mt-1 w-full"
                             >
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">For diagrams, charts, or images referenced in the question. Leave blank to keep the existing image when editing.</p>
+                            <p class="field-hint mt-1">For diagrams, charts, or images referenced in the question. Leave blank to keep the existing image when editing.</p>
                         </div>
 
                         <div>
@@ -205,14 +205,14 @@
                             <div class="space-y-2">
                                 <template x-for="(option, i) in options" :key="i">
                                     <div class="flex items-center gap-2">
-                                        <input type="radio" name="correct_index" :value="i" x-model.number="correctIndex" class="shrink-0 text-primary-500 focus:ring-primary-500">
+                                        <input type="radio" name="correct_index" :value="i" x-model.number="correctIndex" class="shrink-0 text-primary-500">
                                         <input
                                             type="text"
                                             :name="'options[' + i + ']'"
                                             x-model="options[i]"
                                             required
                                             :placeholder="'Option ' + String.fromCharCode(65 + i)"
-                                            class="flex-1 rounded-[8px] border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                            class="flex-1"
                                         >
                                         <button type="button" @click="removeOption(i)" x-show="options.length > 2" class="shrink-0 rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20">
                                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></svg>
@@ -221,7 +221,7 @@
                                 </template>
                             </div>
                             <button type="button" @click="addOption()" x-show="options.length < 5" class="mt-2 text-xs font-semibold text-primary-600 transition-colors duration-150 hover:text-primary-700 dark:text-primary-400">+ Add another option</button>
-                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Select the radio button next to the correct answer.</p>
+                            <p class="field-hint mt-2">Select the radio button next to the correct answer.</p>
                         </div>
 
                         <div class="flex justify-end gap-2">
@@ -238,7 +238,7 @@
             <div class="flex items-center justify-between rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <div>
                     <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $exam->title() }} &mdash; Preview</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">This is a QA preview for admins. Nothing is saved.</p>
+                    <p class="field-hint">This is a QA preview for admins. Nothing is saved.</p>
                 </div>
                 <div class="rounded-[5px] bg-gray-900 px-3 py-1.5 font-mono text-sm font-bold text-white dark:bg-black lg:rounded-[8px]" x-show="!previewSubmitted">
                     <span x-text="previewMinutes"></span>:<span x-text="previewSecondsPart"></span>
@@ -256,7 +256,7 @@
                             <div class="mt-3 space-y-2">
                                 <template x-for="option in question.options" :key="option.label">
                                     <label class="flex cursor-pointer items-center gap-2 rounded-[8px] border border-gray-200 px-3 py-2 text-sm transition-colors duration-150 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
-                                        <input type="radio" :name="'preview-' + question.uuid" :value="option.label" x-model="previewAnswers[question.uuid]" class="text-primary-500 focus:ring-primary-500">
+                                        <input type="radio" :name="'preview-' + question.uuid" :value="option.label" x-model="previewAnswers[question.uuid]" class="text-primary-500">
                                         <span class="font-bold" x-text="option.label"></span>
                                         <span x-text="option.text"></span>
                                     </label>

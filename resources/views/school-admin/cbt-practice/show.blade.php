@@ -13,7 +13,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Grant Access to a Class</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="field-hint mt-1">
                 Students only see {{ $examBody->name }} automatically if their class matches its academic stage. Grant a specific class access here to override that (e.g. letting a Primary class try a Senior Secondary exam body).
             </p>
 
@@ -45,7 +45,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $examBody->name }} Exams</h2>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $exams->count() }} exam(s) available for students to practice.</p>
+                <p class="field-hint mt-0.5">{{ $exams->count() }} exam(s) available for students to practice.</p>
             </div>
 
             <div class="overflow-x-auto">

@@ -147,7 +147,10 @@ test('publishing requires at least one question', function () {
 
 test('a teacher can lock, then publish, a test that has questions', function () {
     $test = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
-    CbtTestQuestion::factory()->create(['cbt_test_id' => $test->id]);
+
+    // Answerable, because publishing now requires it: a question with no
+    // correct option marks every student wrong whatever they choose.
+    CbtTestQuestion::factory()->answerable()->create(['cbt_test_id' => $test->id]);
 
     $this->actingAs($this->teacher, 'staff')
         ->post(route('staff.cbt.tests.status', [$this->school, $test]), ['status' => 'locked'])

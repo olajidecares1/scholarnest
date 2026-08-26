@@ -122,7 +122,7 @@
         <div x-show="addExamBodyOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="addExamBodyOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editingExamBody?.uuid ? 'Edit Exam Body' : 'Add Exam Body'"></h3>
-                <form method="POST" :action="editingExamBody?.uuid ? '{{ route('super-admin.cbt.exam-bodies.update', ['examBody' => '__ID__']) }}'.replace('__ID__', editingExamBody.uuid) : '{{ route('super-admin.cbt.exam-bodies.store') }}'" class="mt-4 space-y-4">
+                <form method="POST" :action="editingExamBody?.uuid ? '{{ route('super-admin.cbt.exam-bodies.update', ['examBody' => '__ID__']) }}'.replace('__ID__', editingExamBody.uuid) : '{{ route('super-admin.cbt.exam-bodies.store') }}'" class="mt-4 space-y-2">
                     @csrf
                     <template x-if="editingExamBody?.uuid"><input type="hidden" name="_method" value="PUT"></template>
                     <x-text-field name="name" label="Name" icon="M12 3l8 3.6v2L12 12 4 8.6v-2L12 3z" helper="e.g. West African Examinations Council." x-model="editingExamBody.name" required />
@@ -130,7 +130,7 @@
                     <x-textarea-field name="description" label="Description" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Optional context shown to other admins." rows="3" x-model="editingExamBody.description" />
 
                     <div>
-                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Academic Stages</label>
+                        <label class="field-label mb-1">Academic Stages</label>
                         <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">Which student levels can see this exam body in their portal.</p>
                         <div class="flex flex-wrap gap-3">
                             @foreach (\App\Enums\AcademicStage::cases() as $stage)
@@ -140,7 +140,7 @@
                                         name="academic_stages[]"
                                         value="{{ $stage->value }}"
                                         x-model="editingExamBody.academic_stages"
-                                        class="rounded border-gray-300 text-primary-500 focus:ring-primary-500"
+                                        class="text-primary-500"
                                     >
                                     {{ $stage->label() }}
                                 </label>
@@ -160,7 +160,7 @@
         <div x-show="addSubjectOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="addSubjectOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editingSubject ? 'Edit Subject' : 'Add Subject'"></h3>
-                <form method="POST" :action="editingSubject ? '{{ route('super-admin.cbt.subjects.update', ['subject' => '__ID__']) }}'.replace('__ID__', editingSubject.uuid) : '{{ route('super-admin.cbt.subjects.store') }}'" class="mt-4 space-y-4">
+                <form method="POST" :action="editingSubject ? '{{ route('super-admin.cbt.subjects.update', ['subject' => '__ID__']) }}'.replace('__ID__', editingSubject.uuid) : '{{ route('super-admin.cbt.subjects.store') }}'" class="mt-4 space-y-2">
                     @csrf
                     <template x-if="editingSubject"><input type="hidden" name="_method" value="PUT"></template>
                     <x-text-field name="name" label="Subject Name" icon="M4 21h16 M5 21V10M19 21V10 M3 10l9-6 9 6 M8 10v11M12 10v11M16 10v11" x-model="editingSubject ? editingSubject.name : ''" required />

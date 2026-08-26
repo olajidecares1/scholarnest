@@ -24,6 +24,7 @@ class CbtQuestion extends Model
         'cbt_exam_id',
         'cbt_document_upload_id',
         'question_text',
+        'marks',
         'image_path',
         'sort_order',
         'needs_review',
