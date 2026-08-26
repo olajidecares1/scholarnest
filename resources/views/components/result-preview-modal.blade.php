@@ -74,11 +74,11 @@
                     <p class="text-sm text-gray-600 dark:text-gray-300">Choose who should receive this student's complete result and report card.</p>
 
                     <label class="flex items-center gap-2 rounded-[8px] border border-gray-200 p-3 text-sm dark:border-gray-700">
-                        <input type="checkbox" x-model="$store.resultPreview.recipients.student" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                        <input type="checkbox" x-model="$store.resultPreview.recipients.student" class="text-blue-600">
                         Student
                     </label>
                     <label class="flex items-center gap-2 rounded-[8px] border border-gray-200 p-3 text-sm dark:border-gray-700" :class="$store.resultPreview.guardianCount === 0 ? 'opacity-50' : ''">
-                        <input type="checkbox" x-model="$store.resultPreview.recipients.guardians" :disabled="$store.resultPreview.guardianCount === 0" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                        <input type="checkbox" x-model="$store.resultPreview.recipients.guardians" :disabled="$store.resultPreview.guardianCount === 0" class="text-blue-600">
                         <span>
                             Parent / Guardian
                             <span class="block text-xs text-gray-400" x-show="$store.resultPreview.guardianCount === 0">No guardian is linked to this student yet.</span>

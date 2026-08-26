@@ -25,6 +25,8 @@ beforeEach(function () {
 });
 
 test('a guardian can view their linked child\'s report card', function () {
+    enterExamToken($this->guardian, 'guardian', $this->school, $this->student, $this->examination, 'guardian.children.results.unlock', [$this->school, $this->student, $this->examination]);
+
     $this->actingAs($this->guardian, 'guardian')
         ->getJson(route('guardian.children.results.show', [$this->school, $this->student, $this->examination]))
         ->assertOk()
@@ -40,6 +42,8 @@ test('a guardian cannot view a report card for a student who is not their child'
 });
 
 test('a guardian can print and download their child\'s report card', function () {
+    enterExamToken($this->guardian, 'guardian', $this->school, $this->student, $this->examination, 'guardian.children.results.unlock', [$this->school, $this->student, $this->examination]);
+
     $this->actingAs($this->guardian, 'guardian')
         ->get(route('guardian.children.results.print', [$this->school, $this->student, $this->examination]))
         ->assertOk()

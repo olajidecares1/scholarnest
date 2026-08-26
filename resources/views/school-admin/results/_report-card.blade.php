@@ -220,7 +220,16 @@
                             </tbody>
                         </table>
                     @else
-                        <div class="p-1.5 text-[8.5px] text-gray-400">Term dates not set</div>
+                        {{-- Not "no attendance was taken": the register may be
+                             full. Attendance is counted between a term's start
+                             and end dates, and without them there is no window
+                             to count it within - so the card names the fix
+                             rather than leaving a blank that reads as an empty
+                             register. --}}
+                        <div class="p-1.5 text-[8.5px] leading-[1.4] text-gray-400">
+                            Term dates not set
+                            <span class="block">Add this term's start and end dates under Academics &rarr; Terms to show attendance here.</span>
+                        </div>
                     @endif
                 </div>
             </div>

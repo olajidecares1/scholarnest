@@ -7,6 +7,7 @@ use Database\Factories\ResultCheckingPinUsageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ResultCheckingPinUsage extends Model
 {
@@ -24,6 +25,8 @@ class ResultCheckingPinUsage extends Model
         'examination_id',
         'ip_address',
         'used_at',
+        'redeemed_by_type',
+        'redeemed_by_id',
     ];
 
     /**
@@ -60,5 +63,33 @@ class ResultCheckingPinUsage extends Model
     public function examination(): BelongsTo
     {
         return $this->belongsTo(Examination::class);
+    }
+
+    /**
+     * The signed-in guardian or student who redeemed this token, or null when
+     * it was redeemed from the public result page, where nobody is signed in.
+     *
+     * @return MorphTo<Model, $this>
+     */
+    public function redeemedBy(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    /**
+     * How to describe the redeemer on the school's tracking screen.
+     */
+    public function redeemedByLabel(): string
+    {
+        $redeemer = $this->redeemedBy;
+
+        return match (true) {
+            $redeemer instanceof Guardian => $redeemer->name.' (parent/guardian)',
+            $redeemer instanceof Student => $redeemer->fullName().' (student)',
+
+            // Not "unknown": nobody was signed in, because the public result
+            // page does not ask anyone to be. The token was the credential.
+            default => 'Result link (no sign-in)',
+        };
     }
 }

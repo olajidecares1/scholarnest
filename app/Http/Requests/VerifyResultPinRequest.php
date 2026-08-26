@@ -7,43 +7,66 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class VerifyResultPinRequest extends FormRequest
 {
-    private const MAX_ATTEMPTS = 5;
+    /**
+     * Failed attempts allowed from one address, against one school, within the
+     * decay window below.
+     *
+     * The counter is keyed on the ADDRESS, not on the token typed. Keying it
+     * per token would give every wrong guess its own counter and never fire,
+     * which is the opposite of what a limiter on a guessable credential is
+     * for: the attack IS trying many different values, so many different
+     * values is exactly what has to be counted.
+     */
+    private const MAX_ATTEMPTS = 8;
 
     private const LOCKOUT_DECAY_SECONDS = 900;
 
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
+        // The token alone. Nothing else is asked for and nothing else is used:
+        // the student, examination, term and session all come from the token's
+        // own bindings, server-side.
+        //
+        // The admission number this form used to require made things worse
+        // rather than better. A wrong one produced "no student was found with
+        // that admission number", which confirmed to anyone who cared exactly
+        // which admission numbers were real.
         return [
-            'code' => ['required', 'string'],
-            'admission_number' => ['required', 'string'],
+            'code' => ['required', 'string', 'min:8', 'max:64'],
         ];
     }
 
     /**
-     * Ensure the request is not rate limited.
-     *
-     * Mirrors the same school_id-scoped throttle pattern used for portal
-     * logins - a PIN is a credential too, and brute-forcing it should be
-     * exactly as difficult as brute-forcing a password.
-     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'code.required' => 'Please enter the result token your school gave you.',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return ['code' => 'result token'];
+    }
+
+    /**
      * @throws ValidationException
      */
     public function ensureIsNotRateLimited(School $school): void
@@ -75,10 +98,10 @@ class VerifyResultPinRequest extends FormRequest
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * One counter per address, per school.
      */
     public function throttleKey(School $school): string
     {
-        return Str::transliterate(Str::lower($this->string('code')).'|'.$school->id.'|'.$this->ip());
+        return 'result-token|'.$school->id.'|'.$this->ip();
     }
 }

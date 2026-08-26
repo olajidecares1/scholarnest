@@ -18,24 +18,24 @@
         <div class="rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <form method="GET" class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
-                    <label class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Class</label>
-                    <select name="class" onchange="this.form.submit()" class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                    <label class="field-label">Class</label>
+                    <select name="class" onchange="this.form.submit()" class="mt-1 w-full">
                         @foreach ($classOptions as $className)
                             <option value="{{ $className }}" @selected($selectedClass === $className)>{{ $className }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Academic Session</label>
-                    <select name="session" onchange="this.form.submit()" class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                    <label class="field-label">Academic Session</label>
+                    <select name="session" onchange="this.form.submit()" class="mt-1 w-full">
                         @foreach ($sessionOptions as $sessionOption)
                             <option value="{{ $sessionOption }}" @selected($selectedSession === $sessionOption)>{{ $sessionOption }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Term</label>
-                    <select name="term" onchange="this.form.submit()" class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                    <label class="field-label">Term</label>
+                    <select name="term" onchange="this.form.submit()" class="mt-1 w-full">
                         @foreach ($termOptions as $termOption)
                             <option value="{{ $termOption->value }}" @selected($selectedTerm === $termOption)>{{ $termOption->label() }}</option>
                         @endforeach
@@ -50,7 +50,7 @@
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $selectedClass ?? 'This class' }} has no examination for {{ $selectedSession }}, {{ $selectedTerm->label() }}. Create one from the Examinations page first.</p>
             </div>
         @else
-            <div class="overflow-hidden rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[920px] text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">

@@ -27,7 +27,7 @@ class ResultController extends Controller
         $className = ($requestedClass && $classes->contains($requestedClass)) ? $requestedClass : $classes->first();
 
         $termOptions = ExamTerm::cases();
-        $session = $request->filled('session') ? $request->string('session')->toString() : AcademicSession::current();
+        $session = $request->filled('session') ? $request->string('session')->toString() : $school->currentSession();
         $term = $request->filled('term')
             ? (ExamTerm::tryFrom($request->string('term')->toString()) ?? $termOptions[0])
             : $termOptions[0];

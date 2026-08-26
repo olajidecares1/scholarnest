@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers\Guardian;
 
+use App\Http\Controllers\Concerns\UnlocksResultsWithToken;
 use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\School;
 use App\Models\Student;
 use App\Services\ReportCardData;
+use App\Services\ResultAccessPolicy;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResultController extends Controller
 {
+    use UnlocksResultsWithToken;
+
     public function index(Request $request, School $school, Student $student): View
     {
         $this->authorizeChild($request, $student);
@@ -30,6 +35,11 @@ class ResultController extends Controller
             'activeChild' => $student,
             'student' => $student,
             'results' => $results,
+            'unlocked' => $results->mapWithKeys(function ($scores) use ($student) {
+                $examination = $scores->first()->subject->examination;
+
+                return [$examination->id => $this->resultIsUnlocked($student, $examination)];
+            }),
         ]);
     }
 
@@ -84,5 +94,45 @@ class ResultController extends Controller
     {
         abort_unless($examination->school_id === $student->school_id, 403);
         abort_unless($examination->class_name === $student->class_name, 403);
+
+        $this->assertResultIsNotWithheld($student, $examination);
+        $this->assertResultIsUnlocked($student, $examination);
+    }
+
+    /**
+     * Refuse a result the school is withholding over unpaid fees.
+     *
+     * On the server, on every route that can produce the document - the JSON
+     * view, the printable page and the PDF - because the portal's own list
+     * only stops someone who uses the portal. Editing the address is not a way
+     * round a balance.
+     */
+    private function assertResultIsNotWithheld(Student $student, Examination $examination): void
+    {
+        abort_if(
+            app(ResultAccessPolicy::class)->isLocked($student, $examination),
+            403,
+            'This result is on hold until the outstanding school-fee balance is settled.',
+        );
+    }
+
+    /**
+     * Open one child's result for this session, on the strength of its token.
+     */
+    public function unlock(Request $request, School $school, Student $student, Examination $examination): RedirectResponse
+    {
+        $this->authorizeChild($request, $student);
+
+        abort_unless($examination->school_id === $student->school_id, 403);
+        abort_unless($examination->class_name === $student->class_name, 403);
+
+        $this->assertResultIsNotWithheld($student, $examination);
+
+        // Checked against THIS child. A guardian with two children at the
+        // school holds two tokens, and the one for the other child must not
+        // open this one.
+        $this->redeemTokenFor($request, $school, $student, $examination, $request->user('guardian'));
+
+        return back()->with('status', 'Result unlocked. You can now view and download it.');
     }
 }

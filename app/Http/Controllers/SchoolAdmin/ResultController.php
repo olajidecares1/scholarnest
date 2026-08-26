@@ -31,7 +31,7 @@ class ResultController extends Controller
         $termOptions = ExamTerm::cases();
 
         $class = $request->filled('class') ? $request->string('class')->toString() : $defaultClass;
-        $session = $request->filled('session') ? $request->string('session')->toString() : AcademicSession::current();
+        $session = $request->filled('session') ? $request->string('session')->toString() : $school->currentSession();
         $term = $request->filled('term')
             ? (ExamTerm::tryFrom($request->string('term')->toString()) ?? $termOptions[0])
             : $termOptions[0];

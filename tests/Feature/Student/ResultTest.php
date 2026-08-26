@@ -22,6 +22,8 @@ beforeEach(function () {
 });
 
 test('a student can view their own report card', function () {
+    enterExamToken($this->student, 'student', $this->school, $this->student, $this->examination, 'student.results.unlock', [$this->school, $this->examination]);
+
     $this->actingAs($this->student, 'student')
         ->getJson(route('student.results.show', [$this->school, $this->examination]))
         ->assertOk()
@@ -37,6 +39,8 @@ test('a student cannot view a report card for an examination outside their class
 });
 
 test('a student can print and download their own report card', function () {
+    enterExamToken($this->student, 'student', $this->school, $this->student, $this->examination, 'student.results.unlock', [$this->school, $this->examination]);
+
     $this->actingAs($this->student, 'student')
         ->get(route('student.results.print', [$this->school, $this->examination]))
         ->assertOk()

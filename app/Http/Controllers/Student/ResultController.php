@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Http\Controllers\Concerns\UnlocksResultsWithToken;
 use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\School;
+use App\Models\Student;
 use App\Services\ReportCardData;
+use App\Services\ResultAccessPolicy;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResultController extends Controller
 {
+    use UnlocksResultsWithToken;
+
     public function index(Request $request, School $school): View
     {
         $student = $request->user('student');
@@ -28,6 +34,14 @@ class ResultController extends Controller
             'school' => $school,
             'student' => $student,
             'results' => $results,
+
+            // Which results this session has already opened with a token, so
+            // the page draws a button for those and a padlock for the rest.
+            'unlocked' => $results->mapWithKeys(function ($scores) use ($student) {
+                $examination = $scores->first()->subject->examination;
+
+                return [$examination->id => $this->resultIsUnlocked($student, $examination)];
+            }),
         ]);
     }
 
@@ -75,6 +89,47 @@ class ResultController extends Controller
         abort_unless($examination->school_id === $student->school_id, 403);
         abort_unless($examination->class_name === $student->class_name, 403);
 
+        $this->assertResultIsNotWithheld($student, $examination);
+        $this->assertResultIsUnlocked($student, $examination);
+
         return $student;
+    }
+
+    /**
+     * Refuse a result the school is withholding over unpaid fees.
+     *
+     * On the server, on every route that can produce the document - the JSON
+     * view, the printable page and the PDF - because the portal's own list
+     * only stops someone who uses the portal. Editing the address is not a way
+     * round a balance.
+     */
+    private function assertResultIsNotWithheld(Student $student, Examination $examination): void
+    {
+        abort_if(
+            app(ResultAccessPolicy::class)->isLocked($student, $examination),
+            403,
+            'This result is on hold until the outstanding school-fee balance is settled.',
+        );
+    }
+
+    /**
+     * Open one result for this session, on the strength of its exam token.
+     */
+    public function unlock(Request $request, School $school, Examination $examination): RedirectResponse
+    {
+        $student = $request->user('student');
+
+        abort_unless($examination->school_id === $student->school_id, 403);
+        abort_unless($examination->class_name === $student->class_name, 403);
+
+        // Fees first. A token does not buy a result the school is withholding
+        // over money - it decides who may see one, not whether there is one to
+        // see - and checking it the other way round would spend a token on a
+        // result that stays shut anyway.
+        $this->assertResultIsNotWithheld($student, $examination);
+
+        $this->redeemTokenFor($request, $school, $student, $examination, $student);
+
+        return back()->with('status', 'Result unlocked. You can now view and download it.');
     }
 }
