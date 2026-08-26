@@ -16,6 +16,7 @@ test('registering a new school assigns the admin a unique username', function ()
     $this->post(route('register'), [
         'school_name' => 'Greenfield Academy',
         'email' => 'admin@greenfield.test',
+        'phone' => '+234 801 234 5678',
         'password' => 'Password123!',
         'password_confirmation' => 'Password123!',
         'terms' => '1',

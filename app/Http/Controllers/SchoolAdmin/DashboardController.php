@@ -12,12 +12,15 @@ use App\Models\Invoice;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\Subscription;
+use App\Services\StudentLicenceAllocation;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(private readonly StudentLicenceAllocation $licences) {}
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -28,6 +31,7 @@ class DashboardController extends Controller
                 'school' => $school,
                 'subscription' => $subscription,
                 'accountState' => $accountState,
+                'capacity' => null,
             ]);
         }
 
@@ -35,6 +39,13 @@ class DashboardController extends Controller
             'school' => $school,
             'subscription' => $subscription,
             'accountState' => 'active',
+
+            // Null for the flat-fee plans, which are uncapped - the card is
+            // not drawn at all rather than drawn with a meaningless ceiling.
+            // A Basic school only reaches a non-null figure once a Super Admin
+            // has approved its payment, which is what makes this card the
+            // school's confirmation that it is live.
+            'capacity' => $this->licences->summary($school),
             'moduleCounts' => [
                 'students' => $school->students()->count(),
                 'staff' => $school->staff()->count(),
@@ -105,6 +116,17 @@ class DashboardController extends Controller
             return ['suspended', $school->subscriptions()->with(['plan', 'latestPayment'])->latest()->first()];
         }
 
+        // The approved subscription decides, if there is one. Taking simply the
+        // newest row meant a school that submitted a renewal was told it was
+        // "awaiting activation" while the subscription it had already paid for
+        // was still running - the dashboard disagreeing with the access gates
+        // about the very same school.
+        $approved = $school->activeSubscription()->with(['plan', 'latestPayment'])->first();
+
+        if ($approved) {
+            return ['active', $approved];
+        }
+
         $subscription = $school->subscriptions()->with(['plan', 'latestPayment'])->latest()->first();
 
         if (! $subscription) {
@@ -112,6 +134,8 @@ class DashboardController extends Controller
         }
 
         return match ($subscription->status) {
+            // Only reachable if the school was suspended between the check
+            // above and this one; kept so the match stays exhaustive.
             SubscriptionStatus::Active => ['active', $subscription],
             SubscriptionStatus::PendingVerification, SubscriptionStatus::PendingPayment => ['pending', $subscription],
             SubscriptionStatus::Rejected => ['rejected', $subscription],

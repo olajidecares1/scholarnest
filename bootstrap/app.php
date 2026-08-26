@@ -1,15 +1,13 @@
 <?php
 
+use App\Exceptions\FeatureRequiresUpgrade;
 use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureGuardianIsActive;
 use App\Http\Middleware\EnsureHasPermission;
 use App\Http\Middleware\EnsurePasswordHasBeenChanged;
-use App\Http\Middleware\EnsureSchoolHasCbtAccess;
-use App\Http\Middleware\EnsureSchoolHasCustomDomainAccess;
-use App\Http\Middleware\EnsureSchoolHasIdCardAccess;
+use App\Http\Middleware\EnsureSchoolHasFeature;
 use App\Http\Middleware\EnsureSchoolHasPortalAccess;
 use App\Http\Middleware\EnsureSchoolHasResultPinAccess;
-use App\Http\Middleware\EnsureSchoolHasWebsiteAccess;
 use App\Http\Middleware\EnsureSchoolIsActivated;
 use App\Http\Middleware\EnsureStaffIsActive;
 use App\Http\Middleware\EnsureStaffIsTeacher;
@@ -25,7 +23,9 @@ use App\Http\Middleware\ValidateSchoolPortalToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Illuminate\Session\Middleware\AuthenticateSession;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -51,11 +51,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
             'staff_is_teacher' => EnsureStaffIsTeacher::class,
             'portal_access' => EnsureSchoolHasPortalAccess::class,
-            'id_card_access' => EnsureSchoolHasIdCardAccess::class,
-            'cbt_access' => EnsureSchoolHasCbtAccess::class,
             'result_pin_access' => EnsureSchoolHasResultPinAccess::class,
-            'website_access' => EnsureSchoolHasWebsiteAccess::class,
-            'custom_domain_access' => EnsureSchoolHasCustomDomainAccess::class,
+
+            // Every plan restriction, by feature: plan_feature:cbt,
+            // plan_feature:events, and so on. This replaced four separate
+            // middleware classes that each held a copy of the same rule and
+            // refused in their own words - which is how the project ended up
+            // with some premium features gated and others not.
+            'plan_feature' => EnsureSchoolHasFeature::class,
             'resolve_tenant_domain' => ResolveTenantFromCustomDomain::class,
             'redirect_to_custom_domain' => RedirectToCustomDomain::class,
             'portal_token' => ValidateSchoolPortalToken::class,
@@ -72,5 +75,75 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        /*
+         * A stale form should not be a dead end.
+         *
+         * Laravel answers an expired CSRF token with a bare "419 Page Expired"
+         * screen that has no way back to what you were doing. It is easy to
+         * reach without doing anything wrong: leaving a login page open past
+         * the session lifetime, submitting from a tab restored after a
+         * restart, or returning to a page cached from an earlier session.
+         *
+         * The honest response is to send the form back with an explanation,
+         * so the fix is to type the password again rather than to work out
+         * what "419" means. Nothing is loosened by this - the request is still
+         * rejected and never reaches the controller.
+         */
+        /*
+         * Matched on the 419 STATUS rather than on TokenMismatchException.
+         *
+         * Laravel's handler calls prepareException() before it runs these
+         * callbacks, and that turns a TokenMismatchException into a plain
+         * HttpException(419) - so a callback typed against the original class
+         * is never reached. The token mismatch survives as the previous
+         * exception, which is what makes this specific rather than a blanket
+         * rule for every 419.
+         */
+        /*
+         * A plan restriction is a 403, but it is not an error.
+         *
+         * abort(403, 'CBT requires the Standard or Exclusive plan.') rendered
+         * that sentence on an otherwise empty page with no links on it - a
+         * paying customer told they had done something wrong and then left
+         * there. The status stays 403, because the refusal is real and
+         * anything reading the code should see one; what changes is that the
+         * response names the feature, says which plan includes it, and always
+         * offers the way back to the dashboard.
+         */
+        $exceptions->render(function (FeatureRequiresUpgrade $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $exception->getMessage(),
+                    'feature' => $exception->feature->value,
+                    'required_plans' => array_map(fn ($plan) => $plan->value, $exception->feature->requiredPlans()),
+                ], 403);
+            }
+
+            $school = $request->user()?->school ?? auth('staff')->user()?->school;
+
+            return response()->view('errors.plan-restricted', [
+                'feature' => $exception->feature,
+                'currentPlanName' => $school?->activeSubscription?->plan?->name ?? 'Basic Plan',
+            ], 403);
+        });
+
+        $exceptions->render(function (HttpExceptionInterface $exception, Request $request) {
+            if ($exception->getStatusCode() !== 419) {
+                return null;
+            }
+
+            $message = 'Your session expired while this page was open. Please try again.';
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $message], 419);
+            }
+
+            return redirect()->back()
+                // Never the password, and never the dead token itself.
+                ->withInput($request->except(['password', 'password_confirmation', '_token']))
+                // Both keys, because sign-in forms across the app name the
+                // field either "login" or "email"; whichever this form uses
+                // renders the message beside it.
+                ->withErrors(['login' => $message, 'email' => $message]);
+        });
     })->create();

@@ -2,9 +2,15 @@
 
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
+use App\Models\Examination;
 use App\Models\Plan;
 use App\Models\School;
+use App\Models\Student;
 use App\Models\Subscription;
+use App\Models\User;
+use App\Services\ResultTokenIssuer;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -71,4 +77,51 @@ function activateSchool(School $school, PlanKey $plan = PlanKey::Standard): Scho
     ]);
 
     return $school;
+}
+
+/**
+ * Enter the exam token for one portal result.
+ *
+ * A Standard or Exclusive portal keeps a result shut until its token has been
+ * typed in, so any test about what a signed-in student or guardian may DO with
+ * a result has to open it first. That the gate exists at all is asserted in
+ * PortalResultTokenGateTest; everywhere else it is a fixture.
+ *
+ * @param  array<int, mixed>  $routeParams
+ */
+function enterExamToken(
+    Authenticatable $actor,
+    string $guard,
+    School $school,
+    Student $student,
+    Examination $examination,
+    string $unlockRoute,
+    array $routeParams,
+): void {
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
+    $token = app(ResultTokenIssuer::class)->issue($school, $student, $examination, $admin)['plain'];
+
+    test()->actingAs($actor, $guard)
+        ->post(route($unlockRoute, $routeParams), ['token' => $token])
+        ->assertSessionHasNoErrors();
+}
+
+/**
+ * Step one of Basic-plan result checking: name the pupil.
+ *
+ * Checking a result is two steps now - a School ID / Admission Number, then the
+ * token bound to whoever that found. The token post on its own goes nowhere, by
+ * design, so every test that redeems a token does this first.
+ *
+ * The session carries the identification between the two, which is why this
+ * needs no return value: the verify post that follows picks it up.
+ */
+function identifyForResultCheck(School $school, Student $student, bool $viaSchoolLink = false): void
+{
+    test()->post(
+        $viaSchoolLink
+            ? route('school-result.identify', ['school' => $school->result_link_slug])
+            : route('check-result.identify', $school),
+        ['admission_number' => $student->admission_number],
+    );
 }

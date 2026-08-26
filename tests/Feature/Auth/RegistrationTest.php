@@ -14,6 +14,7 @@ test('new schools can register', function () {
     $response = $this->post(route('register'), [
         'school_name' => 'Greenfield Academy',
         'email' => 'admin@greenfield.example',
+        'phone' => '+234 801 234 5678',
         'password' => 'Password123!',
         'password_confirmation' => 'Password123!',
         'terms' => '1',
@@ -25,9 +26,27 @@ test('new schools can register', function () {
     $school = School::where('name', 'Greenfield Academy')->first();
     expect($school)->not->toBeNull();
 
+    // The form asks for an email and a phone number, so both are kept as the
+    // school's billing contact rather than collected and dropped.
+    expect($school->billing_email)->toBe('admin@greenfield.example')
+        ->and($school->billing_phone)->toBe('+234 801 234 5678');
+
     $user = User::where('email', 'admin@greenfield.example')->first();
     expect($user->role)->toBe(UserRole::SchoolAdmin);
     expect($user->school_id)->toBe($school->id);
+});
+
+test('registration requires a phone number', function () {
+    $this->post(route('register'), [
+        'school_name' => 'Greenfield Academy',
+        'email' => 'admin@greenfield.example',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
+        'terms' => '1',
+    ])->assertSessionHasErrors('phone');
+
+    $this->assertGuest();
+    expect(School::where('name', 'Greenfield Academy')->exists())->toBeFalse();
 });
 
 test('registration requires acceptance of terms', function () {

@@ -331,7 +331,13 @@ test('the card back shows the default instructions wording when the template has
 
     $response = $this->actingAs($admin)->getJson(route('id-cards.preview', ['student', $student]));
 
-    expect($response->json('back'))->toContain("This card is the property of {$school->name}.");
+    // Escaped, because the card is HTML and the school's name is the one part
+    // of this sentence the school supplies. Comparing against the raw name
+    // passed only until Faker happened to generate one with an apostrophe in
+    // it - "Erdman, D'Amore and Lind" renders as D&#039;Amore - which made
+    // this test fail on roughly one run in ten for a reason that had nothing
+    // to do with the wording it is here to check.
+    expect($response->json('back'))->toContain('This card is the property of '.e($school->name).'.');
     expect($response->json('back'))->toContain('It must be worn at all times on campus.');
 });
 

@@ -175,11 +175,16 @@ test('a school with no active subscription cannot be found', function () {
 test('a basic school page shows its portal sign-in choices', function () {
     $school = basicSchool('Greenfield College');
 
+    // The two roles Basic actually has - School Admin and Teacher - plus the
+    // result-token route for parents. It used to list Student and Parent
+    // logins too, which on Basic opened straight onto the locked page.
     $this->get('/'.$school->slug)
         ->assertOk()
         ->assertSee('Greenfield College')
-        ->assertSee('Student')
-        ->assertSee('School Admin');
+        ->assertSee('School Admin')
+        ->assertSee('Staff / Teacher')
+        ->assertSee('Check Result')
+        ->assertDontSee('Parent / Guardian');
 });
 
 test('a standard school at the root is sent to its own website instead', function () {

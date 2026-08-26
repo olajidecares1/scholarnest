@@ -2,13 +2,16 @@
 
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
 use App\Models\Plan;
 use App\Models\School;
 use App\Models\Staff;
 use App\Models\Subscription;
 use App\Models\TimetableEntry;
+use App\Models\User;
+use App\Notifications\PortalProfileUpdatedNotification;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
 
 beforeEach(function () {
@@ -131,16 +134,57 @@ test('a staff member cannot request a change to a field outside the protected re
         ->assertSessionHasErrors('field_key');
 });
 
-test('a staff member can change their password with the correct current password', function () {
+test('a staff member cannot change their own password', function () {
+    expect(Route::has('staff.settings.update-password'))->toBeFalse();
+
     $this->actingAs($this->staff, 'staff')
-        ->put(route('staff.settings.update-password', $this->school), [
-            'current_password' => 'password',
-            'password' => 'NewSecure@123',
-            'password_confirmation' => 'NewSecure@123',
+        ->get(route('staff.settings.index', $this->school))
+        ->assertStatus(200)
+        ->assertSee('set by your school office')
+        ->assertDontSee('Change Password');
+});
+
+test('a staff member keeps their own contact details current, and the school hears about it', function () {
+    Notification::fake();
+
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+
+    $this->actingAs($this->staff, 'staff')
+        ->put(route('staff.settings.update-profile', $this->school), [
+            'phone' => '08099998888',
+            'email' => 'new@example.test',
+            'address' => '4 New Road',
         ])
         ->assertRedirect();
 
-    $this->assertTrue(Hash::check('NewSecure@123', $this->staff->fresh()->password));
+    $this->staff->refresh();
+
+    expect($this->staff->phone)->toBe('08099998888')
+        ->and($this->staff->email)->toBe('new@example.test')
+        ->and($this->staff->address)->toBe('4 New Road');
+
+    // The record is the school's, so a change made in a portal cannot happen
+    // silently - a number that moves without the office knowing is a call that
+    // bounces with no explanation.
+    Notification::assertSentTo($admin, PortalProfileUpdatedNotification::class);
+});
+
+test('pressing update without changing anything does not pester the school', function () {
+    Notification::fake();
+
+    User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+
+    $this->actingAs($this->staff, 'staff')
+        ->put(route('staff.settings.update-profile', $this->school), [
+            'phone' => $this->staff->phone,
+            'email' => $this->staff->email,
+            'address' => $this->staff->address,
+            'emergency_contact_name' => $this->staff->emergency_contact_name,
+            'emergency_contact_phone' => $this->staff->emergency_contact_phone,
+        ])
+        ->assertRedirect();
+
+    Notification::assertNothingSent();
 });
 
 test('a staff member can view the help page', function () {

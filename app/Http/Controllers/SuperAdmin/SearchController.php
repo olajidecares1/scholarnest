@@ -45,7 +45,7 @@ class SearchController extends Controller
             ->map(fn (Subscription $subscription) => [
                 'title' => $subscription->reference,
                 'subtitle' => $subscription->school->name,
-                'url' => route('subscriptions.confirmation', $subscription),
+                'url' => route('super-admin.subscriptions.show', $subscription),
             ]);
 
         return response()->json([

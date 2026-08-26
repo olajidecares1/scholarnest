@@ -16,8 +16,6 @@ use App\Models\School;
 use App\Models\Student;
 use App\Models\Subscription;
 use App\Models\TimetableEntry;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 beforeEach(function () {
@@ -101,31 +99,18 @@ test('a student has no route to view fee or invoice data', function () {
     expect(Route::has('student.fees.index'))->toBeFalse();
 });
 
-test('a student can view the settings page and update their contact details', function () {
+test('a student sees their details but cannot edit them', function () {
+    // A student's record is the school's, not theirs. A student who could
+    // change their own email could change where the school's messages go.
     $this->actingAs($this->student, 'student')
         ->get(route('student.settings.index', $this->school))
-        ->assertStatus(200);
+        ->assertStatus(200)
+        ->assertSee($this->student->admission_number)
+        ->assertDontSee('name="phone"', false)
+        ->assertDontSee('name="email"', false);
 
-    $this->actingAs($this->student, 'student')
-        ->put(route('student.settings.update-profile', $this->school), [
-            'phone' => '08012345678',
-        ])
-        ->assertRedirect();
-
-    expect($this->student->fresh()->phone)->toBe('08012345678');
-});
-
-test('a student cannot self-upload a profile photo', function () {
-    $originalPhotoPath = $this->student->photo_path;
-
-    $this->actingAs($this->student, 'student')
-        ->put(route('student.settings.update-profile', $this->school), [
-            'phone' => '08012345678',
-            'photo' => UploadedFile::fake()->image('me.jpg'),
-        ])
-        ->assertRedirect();
-
-    expect($this->student->fresh()->photo_path)->toBe($originalPhotoPath);
+    // And the route behind the form is gone, not merely hidden.
+    expect(Route::has('student.settings.update-profile'))->toBeFalse();
 });
 
 test('a student can view their own id card read-only but has no print or download route', function () {
@@ -170,26 +155,17 @@ test('a student cannot request a change to a field outside the protected registr
         ->assertSessionHasErrors('field_key');
 });
 
-test('a student can change their password with the correct current password', function () {
-    $this->actingAs($this->student, 'student')
-        ->put(route('student.settings.update-password', $this->school), [
-            'current_password' => 'password',
-            'password' => 'NewSecure@123',
-            'password_confirmation' => 'NewSecure@123',
-        ])
-        ->assertRedirect();
+test('a student cannot change their own password', function () {
+    // The School Admin is the sole authority on credentials. A portal that
+    // also offered a self-service change would be a second door into the same
+    // lock, one the school could not see through.
+    expect(Route::has('student.settings.update-password'))->toBeFalse();
 
-    $this->assertTrue(Hash::check('NewSecure@123', $this->student->fresh()->password));
-});
-
-test('changing password with the wrong current password fails', function () {
     $this->actingAs($this->student, 'student')
-        ->put(route('student.settings.update-password', $this->school), [
-            'current_password' => 'wrong-password',
-            'password' => 'NewSecure@123',
-            'password_confirmation' => 'NewSecure@123',
-        ])
-        ->assertSessionHasErrors('current_password');
+        ->get(route('student.settings.index', $this->school))
+        ->assertStatus(200)
+        ->assertSee('set by your school office')
+        ->assertDontSee('Change Password');
 });
 
 test('a student sees subjects derived from their class assignments and exam results', function () {

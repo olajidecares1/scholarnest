@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
@@ -74,7 +75,11 @@ test('recent announcements on the overview page show real data', function () {
 });
 
 test('the sidebar lists every module and links to a real route', function () {
-    Subscription::factory()->create(['school_id' => $this->school->id, 'status' => SubscriptionStatus::Active]);
+    // Pinned to Standard. The sidebar is filtered by plan now, so a Basic
+    // school is SUPPOSED not to see CBT, Events or the Website builder - which
+    // plan sees what belongs to PlanRestrictionPageTest. This one is about the
+    // links being real.
+    activateSchool($this->school, PlanKey::Standard);
 
     $response = $this->actingAs($this->admin)->get(route('dashboard'));
 

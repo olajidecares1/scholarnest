@@ -87,10 +87,17 @@ test('the public website 404s after a school downgrades from standard to basic',
     $this->get(route('public.school-website', $school))->assertNotFound();
 });
 
-test('a school admin on the basic plan still has access to attendance, finance, and library', function () {
+test('a school admin on the basic plan still has access to the academic core', function () {
     $admin = planSchoolAdmin(PlanKey::Basic);
 
+    // What Basic is actually for: running the school's own academics. Finance,
+    // Library and now the Timetable used to be on this list and have moved to
+    // Standard, so the steadier examples of "still included" are the ones the
+    // plan is sold on.
     $this->actingAs($admin)->get(route('attendance.index'))->assertStatus(200);
-    $this->actingAs($admin)->get(route('finance.index'))->assertStatus(200);
-    $this->actingAs($admin)->get(route('library.index'))->assertStatus(200);
+    $this->actingAs($admin)->get(route('examinations.index'))->assertStatus(200);
+    $this->actingAs($admin)->get(route('results.index'))->assertStatus(200);
+    $this->actingAs($admin)->get(route('academics.index'))->assertStatus(200);
+    $this->actingAs($admin)->get(route('staff.index'))->assertStatus(200);
+    $this->actingAs($admin)->get(route('students.index'))->assertStatus(200);
 });

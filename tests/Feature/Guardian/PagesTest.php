@@ -2,6 +2,7 @@
 
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\AttendanceRecord;
@@ -15,8 +16,11 @@ use App\Models\School;
 use App\Models\SchoolNotice;
 use App\Models\Student;
 use App\Models\Subscription;
+use App\Models\User;
+use App\Notifications\PortalProfileUpdatedNotification;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Route;
 
 beforeEach(function () {
     $this->school = School::factory()->create();
@@ -143,6 +147,7 @@ test('a guardian can view the settings page and update their contact details', f
     $this->actingAs($this->guardian, 'guardian')
         ->put(route('guardian.settings.update-profile', $this->school), [
             'name' => 'Updated Name',
+            'email' => $this->guardian->email,
             'phone' => '08012345678',
         ])
         ->assertRedirect();
@@ -156,6 +161,7 @@ test('a guardian cannot self-upload a profile photo', function () {
     $this->actingAs($this->guardian, 'guardian')
         ->put(route('guardian.settings.update-profile', $this->school), [
             'name' => $this->guardian->name,
+            'email' => $this->guardian->email,
             'photo' => UploadedFile::fake()->image('me.jpg'),
         ])
         ->assertRedirect();
@@ -194,16 +200,49 @@ test('a guardian cannot request a change for a student who is not their child', 
         ->assertForbidden();
 });
 
-test('a guardian can change their password with the correct current password', function () {
+test('a guardian cannot change their own password', function () {
+    expect(Route::has('guardian.settings.update-password'))->toBeFalse();
+
     $this->actingAs($this->guardian, 'guardian')
-        ->put(route('guardian.settings.update-password', $this->school), [
-            'current_password' => 'password',
-            'password' => 'NewSecure@123',
-            'password_confirmation' => 'NewSecure@123',
+        ->get(route('guardian.settings.index', $this->school))
+        ->assertStatus(200)
+        ->assertSee('set by your school office')
+        ->assertDontSee('Change Password');
+});
+
+test('a guardian updating their details notifies the school', function () {
+    Notification::fake();
+
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+
+    $this->actingAs($this->guardian, 'guardian')
+        ->put(route('guardian.settings.update-profile', $this->school), [
+            'name' => 'Ngozi Adeyemi',
+            'phone' => '08077776666',
+            'email' => 'ngozi@example.test',
         ])
         ->assertRedirect();
 
-    $this->assertTrue(Hash::check('NewSecure@123', $this->guardian->fresh()->password));
+    expect($this->guardian->fresh()->email)->toBe('ngozi@example.test');
+
+    Notification::assertSentTo($admin, PortalProfileUpdatedNotification::class);
+});
+
+test('a guardian cannot change which children are linked to them', function () {
+    // The most consequential thing on the account: it decides whose results
+    // this parent can read. Linking stays entirely with the School Admin.
+    $before = $this->guardian->students()->pluck('students.id')->all();
+
+    $this->actingAs($this->guardian, 'guardian')
+        ->put(route('guardian.settings.update-profile', $this->school), [
+            'name' => $this->guardian->name,
+            'email' => $this->guardian->email,
+            'students' => [999999],
+            'student_ids' => [999999],
+        ])
+        ->assertRedirect();
+
+    expect($this->guardian->fresh()->students()->pluck('students.id')->all())->toBe($before);
 });
 
 test('a guardian can view the help page', function () {

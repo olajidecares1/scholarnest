@@ -2,10 +2,12 @@
 
 use App\Models\User;
 
-test('login screen can be rendered', function () {
-    $response = $this->get(route('login'));
-
-    $response->assertStatus(200);
+test('the shared login route sends visitors to the public front door', function () {
+    // There is no shared sign-in page any more: schools sign in at their own
+    // portal and the Super Admin through the hidden dialog on the registration
+    // page. The route name survives because Laravel's auth middleware and
+    // several fallbacks redirect to it.
+    $this->get(route('login'))->assertRedirect(route('register'));
 });
 
 test('users can authenticate using their email on the login screen', function () {

@@ -51,8 +51,14 @@ test('enabling maintenance mode blocks school admins but not super admins', func
         ->assertStatus(200);
 });
 
-test('maintenance mode does not block the login page', function () {
+test('maintenance mode does not block the way back in', function () {
     Setting::current()->update(['maintenance_mode' => true]);
 
-    $this->get(route('login'))->assertStatus(200);
+    // The registration page carries the hidden Super Admin sign-in, so it has
+    // to stay reachable - otherwise turning maintenance on locks the Super
+    // Admin out of the switch that turns it off again.
+    $this->get(route('register'))->assertStatus(200);
+
+    // And "login" still redirects there rather than into the maintenance screen.
+    $this->get(route('login'))->assertRedirect(route('register'));
 });

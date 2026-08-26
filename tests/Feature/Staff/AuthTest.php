@@ -106,13 +106,16 @@ test('an inactive staff member cannot access the portal', function () {
     $this->assertGuest('staff');
 });
 
-test('a staff member from a school without a qualifying plan is redirected to the locked page', function () {
+test('a staff member from a Basic-plan school can access the portal', function () {
     $school = staffPortalSchool(PlanKey::Basic);
     $staff = Staff::factory()->create(['school_id' => $school->id]);
 
+    // Basic used to be turned away here. It is not a premium portal: it is
+    // where teachers take attendance and enter marks, and a Basic school that
+    // cannot reach it has no way to run its own academic system.
     $this->actingAs($staff, 'staff')
         ->get(route('staff.dashboard', $school))
-        ->assertRedirect(route('staff.locked', $school));
+        ->assertOk();
 });
 
 test('a staff member from a school with no active subscription is redirected to the locked page', function () {

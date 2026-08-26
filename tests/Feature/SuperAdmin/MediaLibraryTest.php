@@ -4,6 +4,7 @@ use App\Enums\MediaType;
 use App\Enums\UserRole;
 use App\Models\AdminRole;
 use App\Models\Media;
+use App\Models\School;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -126,11 +127,15 @@ test('super admin can set login and register backgrounds', function () {
     expect($settings->register_background_media_id)->toBe($media->id);
 });
 
-test('the login page renders the configured background image', function () {
+test('the school admin login page renders the configured background image', function () {
     $media = Media::factory()->create(['type' => MediaType::Image]);
     Setting::current()->update(['login_background_media_id' => $media->id]);
 
-    $this->get(route('login'))
+    // The setting followed the sign-in itself: the shared login page is gone,
+    // and School Admins now sign in at their own school's portal.
+    $school = School::factory()->create();
+
+    $this->get(route('portal.admin.login', [$school, $school->portal_admin_token]))
         ->assertStatus(200)
         ->assertSee($media->url(), false);
 });

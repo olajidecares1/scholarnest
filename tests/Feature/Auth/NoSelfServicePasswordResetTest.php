@@ -47,7 +47,10 @@ test('the guardian login page has no forgot-password link', function () {
 });
 
 test('the school admin login page does have a working forgot-password link', function () {
-    $this->get(route('login'))
+    // The link moved with the page: School Admins now sign in at their own
+    // school's portal, so that is where their reset has to be reachable from.
+    $this->get(route('portal.admin.login', [$this->school, $this->school->portal_admin_token]))
         ->assertStatus(200)
-        ->assertSee('Forgot password');
+        ->assertSee('Forgot password')
+        ->assertSee(route('password.request'), false);
 });

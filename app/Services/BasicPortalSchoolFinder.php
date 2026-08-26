@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\PlanKey;
 use App\Models\School;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -126,7 +127,7 @@ class BasicPortalSchoolFinder
      * and duplicating its rules as a join here would mean two definitions of
      * "is on the Basic plan" that could drift apart.
      *
-     * @param  \Closure(\Illuminate\Contracts\Database\Eloquent\Builder): void  $constrain
+     * @param  \Closure(Builder): void  $constrain
      * @return Collection<int, School>
      */
     private function basicSchools(\Closure $constrain): Collection

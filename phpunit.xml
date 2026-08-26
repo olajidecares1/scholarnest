@@ -24,6 +24,12 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
+        <!-- Compiled Blade views go somewhere of their own, so a test run and a
+             running dev server cannot write the same cache file at the same
+             moment. Sharing storage/framework/views made the suite fail
+             intermittently in whichever tests happened to render a view while
+             `php artisan serve` was recompiling one. -->
+        <env name="VIEW_COMPILED_PATH" value="storage/framework/testing/views"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="DB_URL" value=""/>

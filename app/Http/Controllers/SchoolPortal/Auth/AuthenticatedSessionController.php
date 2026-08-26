@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SchoolPortal\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SchoolPortal\LoginRequest;
 use App\Models\School;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,16 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(School $school): View
     {
-        return view('school-portal.admin-login', ['school' => $school]);
+        return view('school-portal.admin-login', [
+            'school' => $school,
+
+            // The platform's configured sign-in background. It used to render
+            // on the shared login page; with that page gone this is where
+            // School Admins actually sign in, so the setting follows them here
+            // rather than becoming a control in the media library that changes
+            // nothing.
+            'background' => Setting::current()->loginBackgroundMedia,
+        ]);
     }
 
     /**

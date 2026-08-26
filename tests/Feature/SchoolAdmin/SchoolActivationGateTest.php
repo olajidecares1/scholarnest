@@ -98,6 +98,7 @@ test('end-to-end: a freshly registered school cannot access content routes immed
     $response = $this->post(route('register'), [
         'school_name' => 'Brand New Academy',
         'email' => 'admin@brandnew.example',
+        'phone' => '+234 801 234 5678',
         'password' => 'Password123!',
         'password_confirmation' => 'Password123!',
         'terms' => '1',

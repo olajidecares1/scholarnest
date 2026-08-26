@@ -47,7 +47,10 @@ class SettingsController extends Controller
             'school_code.unique' => 'This school code is already in use by another school. Please choose a different one.',
         ]);
 
-        $validated['automatic_grading'] = $request->boolean('automatic_grading');
+        // Grading is always automatic now, so there is nothing to read from
+        // the form. Forced rather than left to whatever a school last saved,
+        // so an old "off" cannot linger.
+        $validated['automatic_grading'] = true;
         $validated['auto_generate_admission_numbers'] = $request->boolean('auto_generate_admission_numbers');
         $validated['auto_generate_staff_ids'] = $request->boolean('auto_generate_staff_ids');
 

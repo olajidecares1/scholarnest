@@ -87,7 +87,7 @@ class RoleController extends Controller
             'admin_role_id' => $validated['admin_role_id'] ?? null,
         ]);
 
-        AuditLog::record('team.added', "Added Super Admin team member {$member->name}.", $member);
+        AuditLog::record('team.added', "Added EduNest Team team member {$member->name}.", $member);
 
         return redirect()->route('super-admin.roles.index')->with('status', 'Team member added successfully.');
     }

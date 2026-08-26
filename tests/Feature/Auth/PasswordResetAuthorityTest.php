@@ -8,6 +8,7 @@ use App\Models\Staff;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 
 /**
  * The password reset authority rule.
@@ -49,7 +50,7 @@ test('a school admin can reset a student password in their own school', function
     $student->refresh();
 
     expect(Hash::check('Temp-Password-123!', $student->password))->toBeTrue()
-        ->and($student->must_change_password)->toBeTrue();
+        ->and($student->must_change_password)->toBeFalse();
 });
 
 test('a school admin can reset a staff password in their own school', function () {
@@ -65,7 +66,7 @@ test('a school admin can reset a staff password in their own school', function (
     $member->refresh();
 
     expect(Hash::check('Temp-Password-123!', $member->password))->toBeTrue()
-        ->and($member->must_change_password)->toBeTrue();
+        ->and($member->must_change_password)->toBeFalse();
 });
 
 test('a school admin can reset a guardian password in their own school', function () {
@@ -81,7 +82,7 @@ test('a school admin can reset a guardian password in their own school', functio
     $guardian->refresh();
 
     expect(Hash::check('Temp-Password-123!', $guardian->password))->toBeTrue()
-        ->and($guardian->must_change_password)->toBeTrue();
+        ->and($guardian->must_change_password)->toBeFalse();
 });
 
 // -----------------------------------------------------------------------------
@@ -196,10 +197,16 @@ test('a signed-out visitor cannot reset any password', function () {
 });
 
 // -----------------------------------------------------------------------------
-// A temporary password must be changed before the account can be used
+// A temporary password no longer traps the account
 // -----------------------------------------------------------------------------
 
-test('a student given a temporary password is forced to change it before anything else', function () {
+test('an account flagged for a password change is not locked out of its portal', function () {
+    // must_change_password used to block every page except the settings
+    // screen, where the change-password form lived. That form is gone, so a
+    // flagged account would have been redirected to a page with no way to
+    // comply and redirected again on the next click - a locked account with no
+    // exit. Removing the self-service change without removing the flag's
+    // enforcement would have shipped exactly that.
     $student = Student::factory()->create([
         'school_id' => $this->school->id,
         'must_change_password' => true,
@@ -207,10 +214,10 @@ test('a student given a temporary password is forced to change it before anythin
 
     $this->actingAs($student, 'student')
         ->get(route('student.dashboard', $this->school))
-        ->assertRedirect(route('student.settings.index', $this->school));
+        ->assertOk();
 });
 
-test('a staff member given a temporary password is forced to change it before anything else', function () {
+test('a flagged staff member and guardian are not locked out either', function () {
     $member = Staff::factory()->create([
         'school_id' => $this->school->id,
         'must_change_password' => true,
@@ -218,55 +225,27 @@ test('a staff member given a temporary password is forced to change it before an
 
     $this->actingAs($member, 'staff')
         ->get(route('staff.dashboard', $this->school))
-        ->assertRedirect(route('staff.settings.index', $this->school));
-});
+        ->assertOk();
 
-test('a guardian given a temporary password is forced to change it before anything else', function () {
-    $student = Student::factory()->create(['school_id' => $this->school->id]);
+    $child = Student::factory()->create(['school_id' => $this->school->id]);
     $guardian = Guardian::factory()->create([
         'school_id' => $this->school->id,
         'must_change_password' => true,
     ]);
-    $guardian->students()->attach($student->id);
+    $guardian->students()->attach($child->id);
 
     $this->actingAs($guardian, 'guardian')
         ->get(route('guardian.dashboard', $this->school))
-        ->assertRedirect(route('guardian.settings.index', $this->school));
-});
-
-test('the settings page stays reachable so the password can actually be changed', function () {
-    $student = Student::factory()->create([
-        'school_id' => $this->school->id,
-        'must_change_password' => true,
-    ]);
-
-    // If this redirected too, the user would be trapped in a loop with no way
-    // to comply with the very thing being demanded of them.
-    $this->actingAs($student, 'student')
-        ->get(route('student.settings.index', $this->school))
         ->assertOk();
 });
 
-test('the portal opens up again once the student sets their own password', function () {
-    $student = Student::factory()->create([
-        'school_id' => $this->school->id,
-        'password' => Hash::make('Temp-FromAdmin-123!'),
-        'must_change_password' => true,
-    ]);
-
-    $this->actingAs($student, 'student')
-        ->put(route('student.settings.update-password', $this->school), [
-            'current_password' => 'Temp-FromAdmin-123!',
-            'password' => 'Students-Own-456!',
-            'password_confirmation' => 'Students-Own-456!',
-        ])
-        ->assertSessionDoesntHaveErrors();
-
-    expect($student->refresh()->must_change_password)->toBeFalse();
-
-    $this->actingAs($student, 'student')
-        ->get(route('student.dashboard', $this->school))
-        ->assertOk();
+test('nobody can change their own password in any portal', function () {
+    // The School Admin is the sole authority on credentials. Asserted as the
+    // absence of the routes, because a page that merely hides a form is not
+    // the same as a system that will not accept the request.
+    expect(Route::has('student.settings.update-password'))->toBeFalse()
+        ->and(Route::has('staff.settings.update-password'))->toBeFalse()
+        ->and(Route::has('guardian.settings.update-password'))->toBeFalse();
 });
 
 // -----------------------------------------------------------------------------
@@ -337,7 +316,7 @@ test('a school admin can reset a guardian password from a student page', functio
     $guardian->refresh();
 
     expect(Hash::check('Temp-Password-123!', $guardian->password))->toBeTrue()
-        ->and($guardian->must_change_password)->toBeTrue();
+        ->and($guardian->must_change_password)->toBeFalse();
 });
 
 test('the student-page guardian reset also refuses another school', function () {

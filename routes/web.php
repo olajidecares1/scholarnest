@@ -34,6 +34,7 @@ use App\Http\Controllers\SchoolAdmin\CoCurricularController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
 use App\Http\Controllers\SchoolAdmin\CustomDomainController;
 use App\Http\Controllers\SchoolAdmin\DashboardController as SchoolAdminDashboardController;
+use App\Http\Controllers\SchoolAdmin\DiaryController;
 use App\Http\Controllers\SchoolAdmin\EventController;
 use App\Http\Controllers\SchoolAdmin\ExaminationController;
 use App\Http\Controllers\SchoolAdmin\FacilityController;
@@ -69,6 +70,7 @@ use App\Http\Controllers\Staff\Cbt\DocumentUploadController as StaffCbtDocumentU
 use App\Http\Controllers\Staff\Cbt\QuestionController as StaffCbtQuestionController;
 use App\Http\Controllers\Staff\Cbt\TestController as StaffCbtTestController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
+use App\Http\Controllers\Staff\DiaryController as StaffDiaryController;
 use App\Http\Controllers\Staff\ExaminationController as StaffExaminationController;
 use App\Http\Controllers\Staff\HelpController as StaffHelpController;
 use App\Http\Controllers\Staff\IdCardController as StaffIdCardController;
@@ -105,6 +107,7 @@ use App\Http\Controllers\Subscriptions\ConfirmationController;
 use App\Http\Controllers\Subscriptions\ContactSalesController;
 use App\Http\Controllers\Subscriptions\PaymentMethodController;
 use App\Http\Controllers\Subscriptions\ReviewController;
+use App\Http\Controllers\Subscriptions\StudentCapacityController;
 use App\Http\Controllers\SuperAdmin\AnalyticsController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
 use App\Http\Controllers\SuperAdmin\CbtDocumentUploadController;
@@ -117,12 +120,12 @@ use App\Http\Controllers\SuperAdmin\CommunicationController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\MediaController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
+use App\Http\Controllers\SuperAdmin\PaymentReceiptController;
+use App\Http\Controllers\SuperAdmin\PlanPricingController;
 use App\Http\Controllers\SuperAdmin\ReportController as SuperAdminReportController;
 use App\Http\Controllers\SuperAdmin\ResultPinController;
 use App\Http\Controllers\SuperAdmin\RoleController;
 use App\Http\Controllers\SuperAdmin\SchoolController;
-use App\Http\Controllers\SuperAdmin\PaymentReceiptController;
-use App\Http\Controllers\SuperAdmin\PlanPricingController;
 use App\Http\Controllers\SuperAdmin\SearchController;
 use App\Http\Controllers\SuperAdmin\SettingsController;
 use App\Http\Controllers\SuperAdmin\SubscriptionApprovalController;
@@ -130,6 +133,7 @@ use App\Http\Controllers\SuperAdmin\SupportTicketController as SuperAdminSupport
 use App\Http\Controllers\SuperAdmin\ThemeController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
 use App\Http\Controllers\SupportTicketController;
+use App\Http\Middleware\EnsureUserIsSchoolAdmin;
 use App\Support\SecureRoute as R;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -224,8 +228,11 @@ Route::middleware('redirect_to_custom_domain')->name('public.')->group(function 
 // no SchoolWebsite record for that group's middleware/layout to depend on.
 Route::prefix('schools/{school:slug}/check-result')->name('check-result.')->group(function () {
     Route::get('/', [CheckResultController::class, 'create'])->name('show');
+    Route::post('/identify', [CheckResultController::class, 'identify'])->name('identify');
+    Route::get('/confirm', [CheckResultController::class, 'confirm'])->name('confirm');
     Route::post('/', [CheckResultController::class, 'verify'])->name('verify');
     Route::get('/result/{usage}', [CheckResultController::class, 'result'])->name('result');
+    Route::get('/result/{usage}/download', [CheckResultController::class, 'download'])->name('download');
 });
 
 // ID card QR verification: also deliberately ungated and unauthenticated -
@@ -242,7 +249,7 @@ Route::prefix('schools/{school:slug}/portal')->name('student.')->group(function 
         Route::post('{token}/login', [StudentAuthenticatedSessionController::class, 'store']);
     });
 
-    Route::middleware(['auth:student', 'student_active', 'password_changed:student'])->group(function () {
+    Route::middleware(['auth:student', 'student_active'])->group(function () {
         Route::post('logout', [StudentAuthenticatedSessionController::class, 'destroy'])->name('logout');
         Route::get('locked', [PortalLockedController::class, 'show'])->name('locked');
 
@@ -261,6 +268,10 @@ Route::prefix('schools/{school:slug}/portal')->name('student.')->group(function 
                 Route::get('/{examination}', [StudentResultController::class, 'show'])->name('show');
                 Route::get('/{examination}/print', [StudentResultController::class, 'print'])->name('print');
                 Route::get('/{examination}/pdf', [StudentResultController::class, 'pdf'])->name('pdf');
+
+                // The exam token, entered in the portal. Nothing above this
+                // line opens until it has been.
+                Route::post('/{examination}/unlock', [StudentResultController::class, 'unlock'])->name('unlock');
             });
 
             Route::name('attendance.')->prefix('attendance')->group(function () {
@@ -296,8 +307,6 @@ Route::prefix('schools/{school:slug}/portal')->name('student.')->group(function 
 
             Route::name('settings.')->prefix('settings')->group(function () {
                 Route::get('/', [StudentSettingsController::class, 'index'])->name('index');
-                Route::put('profile', [StudentSettingsController::class, 'updateProfile'])->name('update-profile');
-                Route::put('password', [StudentSettingsController::class, 'updatePassword'])->name('update-password');
             });
 
             Route::post('profile-change-requests', [StudentProfileChangeRequestController::class, 'store'])->name('profile-change-requests.store');
@@ -336,7 +345,7 @@ Route::prefix('schools/{school:slug}/parent-portal')->name('guardian.')->group(f
         Route::post('{token}/login', [GuardianAuthenticatedSessionController::class, 'store']);
     });
 
-    Route::middleware(['auth:guardian', 'guardian_active', 'password_changed:guardian'])->group(function () {
+    Route::middleware(['auth:guardian', 'guardian_active'])->group(function () {
         Route::post('logout', [GuardianAuthenticatedSessionController::class, 'destroy'])->name('logout');
         Route::get('locked', [GuardianPortalLockedController::class, 'show'])->name('locked');
 
@@ -350,6 +359,7 @@ Route::prefix('schools/{school:slug}/parent-portal')->name('guardian.')->group(f
                 Route::get('results/{examination}', [GuardianResultController::class, 'show'])->name('results.show');
                 Route::get('results/{examination}/print', [GuardianResultController::class, 'print'])->name('results.print');
                 Route::get('results/{examination}/pdf', [GuardianResultController::class, 'pdf'])->name('results.pdf');
+                Route::post('results/{examination}/unlock', [GuardianResultController::class, 'unlock'])->name('results.unlock');
                 Route::get('attendance', [GuardianAttendanceController::class, 'index'])->name('attendance');
                 Route::get('assignments', [GuardianAssignmentController::class, 'index'])->name('assignments');
                 Route::get('fees', [GuardianFeeController::class, 'index'])->name('fees');
@@ -367,7 +377,6 @@ Route::prefix('schools/{school:slug}/parent-portal')->name('guardian.')->group(f
             Route::name('settings.')->prefix('settings')->group(function () {
                 Route::get('/', [GuardianSettingsController::class, 'index'])->name('index');
                 Route::put('profile', [GuardianSettingsController::class, 'updateProfile'])->name('update-profile');
-                Route::put('password', [GuardianSettingsController::class, 'updatePassword'])->name('update-password');
             });
 
             Route::name('help.')->prefix('help')->group(function () {
@@ -384,30 +393,40 @@ Route::prefix('schools/{school:slug}/staff-portal')->name('staff.')->group(funct
         Route::post('{token}/login', [StaffAuthenticatedSessionController::class, 'store']);
     });
 
-    Route::middleware(['auth:staff', 'staff_active', 'password_changed:staff'])->group(function () {
+    Route::middleware(['auth:staff', 'staff_active'])->group(function () {
         Route::post('logout', [StaffAuthenticatedSessionController::class, 'destroy'])->name('logout');
         Route::get('locked', [StaffPortalLockedController::class, 'show'])->name('locked');
 
         Route::middleware('portal_access')->group(function () {
             Route::get('dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
             Route::get('profile', [StaffProfileController::class, 'show'])->name('profile');
-            Route::get('timetable', [StaffTimetableController::class, 'index'])->name('timetable');
+            Route::middleware('plan_feature:timetable')->get('timetable', [StaffTimetableController::class, 'index'])->name('timetable');
 
             Route::name('settings.')->prefix('settings')->group(function () {
                 Route::get('/', [StaffSettingsController::class, 'index'])->name('index');
                 Route::put('profile', [StaffSettingsController::class, 'updateProfile'])->name('update-profile');
-                Route::put('password', [StaffSettingsController::class, 'updatePassword'])->name('update-password');
             });
 
             Route::post('profile-change-requests', [StaffProfileChangeRequestController::class, 'store'])->name('profile-change-requests.store');
 
-            Route::name('id-card.')->prefix('id-card')->group(function () {
+            // ID cards are premium: Basic reaches the rest of this portal but
+            // not this corner of it.
+            Route::middleware('plan_feature:id-cards')->name('id-card.')->prefix('id-card')->group(function () {
                 Route::get('/', [StaffIdCardController::class, 'show'])->name('show');
                 Route::get('/preview', [StaffIdCardController::class, 'preview'])->name('preview');
             });
 
             Route::name('help.')->prefix('help')->group(function () {
                 Route::get('/', [StaffHelpController::class, 'index'])->name('index');
+            });
+
+            // The diary is a Standard and Exclusive feature, and only a
+            // teacher keeps one. Gated by plan here as well as in the School
+            // Admin panel, because the staff portal is open on every plan -
+            // without this a Basic school's teachers would reach it.
+            Route::middleware(['staff_is_teacher', 'plan_feature:diary'])->name('diary.')->prefix('diary')->group(function () {
+                Route::get('/', [StaffDiaryController::class, 'index'])->name('index');
+                Route::post('/', [StaffDiaryController::class, 'store'])->name('store');
             });
 
             Route::middleware('staff_is_teacher')->name('attendance.')->prefix('attendance')->group(function () {
@@ -433,7 +452,8 @@ Route::prefix('schools/{school:slug}/staff-portal')->name('staff.')->group(funct
                 Route::get('/{examination}/students/{student}/pdf', [StaffResultController::class, 'pdf'])->name('pdf');
             });
 
-            Route::middleware('staff_is_teacher')->name('cbt.')->prefix('cbt')->group(function () {
+            // CBT is premium, for the same reason as ID cards above.
+            Route::middleware(['staff_is_teacher', 'plan_feature:cbt'])->name('cbt.')->prefix('cbt')->group(function () {
                 Route::name('tests.')->prefix('tests')->group(function () {
                     Route::get('/', [StaffCbtTestController::class, 'index'])->name('index');
                     Route::post('/', [StaffCbtTestController::class, 'store'])->name('store');
@@ -452,6 +472,8 @@ Route::prefix('schools/{school:slug}/staff-portal')->name('staff.')->group(funct
                     Route::name('uploads.')->prefix('/{test}/uploads')->group(function () {
                         Route::post('/', [StaffCbtDocumentUploadController::class, 'store'])->name('store');
                         Route::get('/{upload}', [StaffCbtDocumentUploadController::class, 'show'])->name('show');
+                        Route::get('/{upload}/status', [StaffCbtDocumentUploadController::class, 'status'])->name('status');
+                        Route::post('/{upload}/retry', [StaffCbtDocumentUploadController::class, 'retry'])->name('retry');
                         Route::delete('/{upload}', [StaffCbtDocumentUploadController::class, 'destroy'])->name('destroy');
                     });
                 });
@@ -533,6 +555,15 @@ Route::get(R::uri('dashboard'), function (Request $request) {
         return redirect()->route('super-admin.dashboard');
     }
 
+    // This route is the one place a School Admin lands that is NOT behind the
+    // school_admin middleware, so the orphan check has to be repeated here.
+    // An account whose school has been deleted keeps a valid session, and
+    // every school page reaches for the school immediately - so without this
+    // it is a fatal error rather than a sign-out.
+    if ($request->user()->school === null) {
+        return EnsureUserIsSchoolAdmin::signOutOrphan($request);
+    }
+
     return app(SchoolAdminDashboardController::class)->index($request);
 })->middleware(['auth', 'verified', 'auth.session'])->name('dashboard');
 
@@ -545,6 +576,12 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
         Route::middleware('school_admin')->group(function () {
             Route::get(R::uri('subscriptions.choose-plan'), [ChoosePlanController::class, 'create'])->name('choose-plan');
             Route::post(R::uri('subscriptions.choose-plan'), [ChoosePlanController::class, 'store'])->name('choose-plan.store');
+
+            // How many students, and what that costs. Its own step because for
+            // a Basic school this number decides both the price and the
+            // capacity it lives with for the term.
+            Route::get(R::uri('subscriptions.students'), [StudentCapacityController::class, 'create'])->name('students');
+            Route::post(R::uri('subscriptions.students'), [StudentCapacityController::class, 'store'])->name('students.store');
 
             Route::get(R::uri('subscriptions.billing-details'), [BillingDetailsController::class, 'create'])->name('billing-details');
             Route::post(R::uri('subscriptions.billing-details'), [BillingDetailsController::class, 'store'])->name('billing-details.store');
@@ -585,12 +622,17 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::delete(R::uri('students.destroy').'/{student}', [StudentController::class, 'destroy'])->name('destroy');
             Route::post(R::uri('students.toggle-active').'/{student}', [StudentController::class, 'toggleActive'])->name('toggle-active');
             Route::put(R::uri('students.update-password').'/{student}', [StudentController::class, 'updatePassword'])->name('update-password');
+
+            // Login details: the username the student signs in with, and the
+            // password. Both set by the School Admin, who is the authority on
+            // each.
+            Route::put(R::uri('students.credentials').'/{student}/credentials', [StudentController::class, 'updateCredentials'])->name('credentials');
             Route::post(R::uri('students.guardians.store').'/{student}/guardians', [StudentController::class, 'storeGuardian'])->name('guardians.store');
             Route::put(R::uri('students.guardians.update-password').'/guardians/{guardian}', [StudentController::class, 'updateGuardianPassword'])->name('guardians.update-password');
             Route::delete(R::uri('students.guardians.destroy').'/{student}/guardians/{guardian}', [StudentController::class, 'destroyGuardian'])->name('guardians.destroy');
         });
 
-        Route::name('guardians.')->group(function () {
+        Route::middleware('plan_feature:guardians')->name('guardians.')->group(function () {
             Route::get(R::uri('guardians.index'), [GuardianController::class, 'index'])->name('index');
             Route::post(R::uri('guardians.index'), [GuardianController::class, 'store'])->name('store');
             Route::get(R::uri('guardians.show').'/{guardian}', [GuardianController::class, 'show'])->name('show');
@@ -598,11 +640,12 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::delete(R::uri('guardians.destroy').'/{guardian}', [GuardianController::class, 'destroy'])->name('destroy');
             Route::post(R::uri('guardians.toggle-active').'/{guardian}', [GuardianController::class, 'toggleActive'])->name('toggle-active');
             Route::put(R::uri('guardians.update-password').'/{guardian}/password', [GuardianController::class, 'updatePassword'])->name('update-password');
+            Route::put(R::uri('guardians.credentials').'/{guardian}/credentials', [GuardianController::class, 'updateCredentials'])->name('credentials');
             Route::post(R::uri('guardians.children.store').'/{guardian}/children', [GuardianController::class, 'linkStudent'])->name('children.store');
             Route::delete(R::uri('guardians.children.destroy').'/{guardian}/children/{student}', [GuardianController::class, 'unlinkStudent'])->name('children.destroy');
         });
 
-        Route::name('timetable.')->group(function () {
+        Route::middleware('plan_feature:timetable')->name('timetable.')->group(function () {
             Route::get(R::uri('timetable.index'), [TimetableController::class, 'index'])->name('index');
             Route::post(R::uri('timetable.index'), [TimetableController::class, 'store'])->name('store');
             Route::put(R::uri('timetable.update').'/{timetableEntry}', [TimetableController::class, 'update'])->name('update');
@@ -614,7 +657,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::post(R::uri('notices.index'), [NoticeController::class, 'store'])->name('store');
         });
 
-        Route::name('co-curricular.')->group(function () {
+        Route::middleware('plan_feature:co-curricular')->name('co-curricular.')->group(function () {
             Route::get(R::uri('co-curricular.index'), [CoCurricularController::class, 'index'])->name('index');
             Route::post(R::uri('co-curricular.index'), [CoCurricularController::class, 'store'])->name('store');
             Route::put(R::uri('co-curricular.update').'/{activity}', [CoCurricularController::class, 'update'])->name('update');
@@ -629,6 +672,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::delete(R::uri('staff.destroy').'/{member}', [StaffController::class, 'destroy'])->name('destroy');
             Route::post(R::uri('staff.toggle-active').'/{member}', [StaffController::class, 'toggleActive'])->name('toggle-active');
             Route::put(R::uri('staff.update-password').'/{member}', [StaffController::class, 'updatePassword'])->name('update-password');
+            Route::put(R::uri('staff.credentials').'/{member}/credentials', [StaffController::class, 'updateCredentials'])->name('credentials');
         });
 
         Route::name('profile-change-requests.')->group(function () {
@@ -675,7 +719,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             });
         });
 
-        Route::middleware('cbt_access')->group(function () {
+        Route::middleware('plan_feature:cbt')->group(function () {
             Route::name('cbt-practice.')->group(function () {
                 Route::get(R::uri('cbt-practice.index'), [CbtPracticeController::class, 'index'])->name('index');
                 Route::get(R::uri('cbt-practice.show').'/{examBody}', [CbtPracticeController::class, 'show'])->name('show');
@@ -708,6 +752,8 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
                 Route::delete(R::uri('examinations.subjects.destroy').'/{subject}', [ExaminationController::class, 'destroySubject'])->name('destroy');
             });
 
+            Route::get(R::uri('examinations.score-entry'), [ExaminationController::class, 'scoreEntry'])->name('score-entry');
+            Route::post(R::uri('examinations.score-entry'), [ExaminationController::class, 'storeExaminationForEntry'])->name('score-entry.create');
             Route::get(R::uri('examinations.scores').'/{subject}', [ExaminationController::class, 'scores'])->name('scores');
             Route::post(R::uri('examinations.scores.store').'/{subject}', [ExaminationController::class, 'storeScores'])->name('scores.store');
 
@@ -724,12 +770,42 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::get(R::uri('results.print').'/{examination}/{student}', [ResultController::class, 'print'])->name('print');
             Route::get(R::uri('results.pdf').'/{examination}/{student}', [ResultController::class, 'pdf'])->name('pdf');
         });
+        // Result tokens. Available on every plan - see
+        // EnsureSchoolHasResultPinAccess - because a token is how a result
+        // reaches a parent safely, not a feature a school upgrades to.
         Route::middleware('result_pin_access')->name('result-pins.')->group(function () {
             Route::get(R::uri('result-pins.index'), [ResultCheckingPinController::class, 'index'])->name('index');
-            Route::post(R::uri('result-pins.assign').'/{pin}', [ResultCheckingPinController::class, 'assign'])->name('assign');
+
+            // Issuing binds the token to its student and examination, so there
+            // is no separate "assign" step any more: an unbound token never
+            // exists in the first place.
+            Route::post(R::uri('result-pins.store'), [ResultCheckingPinController::class, 'store'])->name('store');
+            Route::post(R::uri('result-pins.store-bulk'), [ResultCheckingPinController::class, 'storeBulk'])->name('store-bulk');
+
+            Route::post(R::uri('result-pins.reissue').'/{pin}', [ResultCheckingPinController::class, 'reissue'])->name('reissue');
+            Route::post(R::uri('result-pins.reveal').'/{pin}', [ResultCheckingPinController::class, 'reveal'])->name('reveal');
             Route::post(R::uri('result-pins.revoke').'/{pin}', [ResultCheckingPinController::class, 'revoke'])->name('revoke');
+            Route::post(R::uri('result-pins.suspend').'/{pin}', [ResultCheckingPinController::class, 'toggleSuspension'])->name('suspend');
+
+            // The school's own result-checking address, which the School Admin
+            // hands to parents. Regenerating retires the old one for good.
+            Route::post(R::uri('result-pins.link-regenerate'), [ResultCheckingPinController::class, 'regenerateLink'])->name('link.regenerate');
+            Route::post(R::uri('result-pins.link-toggle'), [ResultCheckingPinController::class, 'toggleLink'])->name('link.toggle');
+
+            // Releasing a withheld result is the school's decision, taken per
+            // student and per term, and recorded as a decision rather than
+            // applied as a setting.
+            Route::post(R::uri('result-pins.fee-release').'/{student}', [ResultCheckingPinController::class, 'toggleFeeRelease'])->name('fee-release');
         });
-        Route::name('assignments.')->group(function () {
+        // The route prefix is "diary", which is the PlanFeature's own value -
+        // so the sidebar, the module card and this gate all reach the same
+        // answer without anyone keeping a second list.
+        Route::middleware('plan_feature:diary')->name('diary.')->group(function () {
+            Route::get(R::uri('diary.index'), [DiaryController::class, 'index'])->name('index');
+            Route::post(R::uri('diary.seen').'/{entry}', [DiaryController::class, 'markSeen'])->name('seen');
+        });
+
+        Route::middleware('plan_feature:assignments')->name('assignments.')->group(function () {
             Route::get(R::uri('assignments.index'), [AssignmentController::class, 'index'])->name('index');
             Route::post(R::uri('assignments.index'), [AssignmentController::class, 'store'])->name('store');
             Route::get(R::uri('assignments.show').'/{assignment}', [AssignmentController::class, 'show'])->name('show');
@@ -737,13 +813,13 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::delete(R::uri('assignments.destroy').'/{assignment}', [AssignmentController::class, 'destroy'])->name('destroy');
             Route::post(R::uri('assignments.submissions.store').'/{assignment}', [AssignmentController::class, 'storeSubmissions'])->name('submissions.store');
         });
-        Route::name('events.')->group(function () {
+        Route::middleware('plan_feature:events')->name('events.')->group(function () {
             Route::get(R::uri('events.index'), [EventController::class, 'index'])->name('index');
             Route::post(R::uri('events.index'), [EventController::class, 'store'])->name('store');
             Route::put(R::uri('events.update').'/{event}', [EventController::class, 'update'])->name('update');
             Route::delete(R::uri('events.destroy').'/{event}', [EventController::class, 'destroy'])->name('destroy');
         });
-        Route::name('library.')->group(function () {
+        Route::middleware('plan_feature:library')->name('library.')->group(function () {
             Route::get(R::uri('library.index'), [LibraryController::class, 'index'])->name('index');
             Route::post(R::uri('library.index'), [LibraryController::class, 'store'])->name('store');
             Route::put(R::uri('library.update').'/{book}', [LibraryController::class, 'update'])->name('update');
@@ -756,7 +832,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             });
         });
 
-        Route::name('transport.')->group(function () {
+        Route::middleware('plan_feature:transport')->name('transport.')->group(function () {
             Route::get(R::uri('transport.index'), [TransportController::class, 'index'])->name('index');
             Route::post(R::uri('transport.index'), [TransportController::class, 'store'])->name('store');
             Route::put(R::uri('transport.update').'/{vehicle}', [TransportController::class, 'update'])->name('update');
@@ -773,7 +849,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             });
         });
 
-        Route::name('hostels.')->group(function () {
+        Route::middleware('plan_feature:hostels')->name('hostels.')->group(function () {
             Route::get(R::uri('hostels.index'), [HostelController::class, 'index'])->name('index');
             Route::post(R::uri('hostels.index'), [HostelController::class, 'store'])->name('store');
             Route::put(R::uri('hostels.update').'/{hostel}', [HostelController::class, 'update'])->name('update');
@@ -789,7 +865,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::delete(R::uri('hostels.allocations.destroy').'/{allocation}', [HostelController::class, 'destroyAllocation'])->name('allocations.destroy');
         });
 
-        Route::name('finance.')->group(function () {
+        Route::middleware('plan_feature:finance')->name('finance.')->group(function () {
             Route::get(R::uri('finance.index'), [FinanceController::class, 'index'])->name('index');
             Route::post(R::uri('finance.index'), [FinanceController::class, 'storeStructure'])->name('store');
             Route::delete(R::uri('finance.destroy').'/{structure}', [FinanceController::class, 'destroyStructure'])->name('destroy');
@@ -802,7 +878,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
                 Route::post(R::uri('finance.invoices.payments.store').'/{invoice}', [FinanceController::class, 'storePayment'])->name('payments.store');
             });
         });
-        Route::middleware('website_access')->name('website.')->group(function () {
+        Route::middleware('plan_feature:website')->name('website.')->group(function () {
             Route::get(R::uri('website.index'), [WebsiteController::class, 'edit'])->name('index');
             Route::put(R::uri('website.blocks.update').'/{page}', [WebsiteController::class, 'updateBlocks'])->name('blocks.update');
             Route::put(R::uri('website.update-brand-color'), [WebsiteController::class, 'updateBrandColor'])->name('update-brand-color');
@@ -825,33 +901,33 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
                 Route::post(R::uri('website.nav-links.move').'/{navLink}', [WebsiteController::class, 'moveNavLink'])->name('move');
             });
         });
-        Route::name('news.')->group(function () {
+        Route::middleware('plan_feature:news')->name('news.')->group(function () {
             Route::get(R::uri('news.index'), [NewsController::class, 'index'])->name('index');
             Route::post(R::uri('news.index'), [NewsController::class, 'store'])->name('store');
             Route::put(R::uri('news.update').'/{post}', [NewsController::class, 'update'])->name('update');
             Route::delete(R::uri('news.destroy').'/{post}', [NewsController::class, 'destroy'])->name('destroy');
         });
-        Route::name('careers.')->group(function () {
+        Route::middleware('plan_feature:careers')->name('careers.')->group(function () {
             Route::get(R::uri('careers.index'), [JobPostingController::class, 'index'])->name('index');
             Route::post(R::uri('careers.index'), [JobPostingController::class, 'store'])->name('store');
             Route::put(R::uri('careers.update').'/{job}', [JobPostingController::class, 'update'])->name('update');
             Route::delete(R::uri('careers.destroy').'/{job}', [JobPostingController::class, 'destroy'])->name('destroy');
             Route::post(R::uri('careers.toggle-active').'/{job}', [JobPostingController::class, 'toggleActive'])->name('toggle-active');
         });
-        Route::name('testimonials.')->group(function () {
+        Route::middleware('plan_feature:testimonials')->name('testimonials.')->group(function () {
             Route::get(R::uri('testimonials.index'), [TestimonialController::class, 'index'])->name('index');
             Route::post(R::uri('testimonials.index'), [TestimonialController::class, 'store'])->name('store');
             Route::put(R::uri('testimonials.update').'/{testimonial}', [TestimonialController::class, 'update'])->name('update');
             Route::delete(R::uri('testimonials.destroy').'/{testimonial}', [TestimonialController::class, 'destroy'])->name('destroy');
         });
-        Route::name('facilities.')->group(function () {
+        Route::middleware('plan_feature:facilities')->name('facilities.')->group(function () {
             Route::get(R::uri('facilities.index'), [FacilityController::class, 'index'])->name('index');
             Route::post(R::uri('facilities.index'), [FacilityController::class, 'store'])->name('store');
             Route::put(R::uri('facilities.update').'/{facility}', [FacilityController::class, 'update'])->name('update');
             Route::delete(R::uri('facilities.destroy').'/{facility}', [FacilityController::class, 'destroy'])->name('destroy');
         });
 
-        Route::middleware('id_card_access')->name('id-cards.')->group(function () {
+        Route::middleware('plan_feature:id-cards')->name('id-cards.')->group(function () {
             Route::get(R::uri('id-cards.index'), [IdCardController::class, 'index'])->name('index');
             Route::get(R::uri('id-cards.preview').'/{type}/{record}', [IdCardController::class, 'preview'])->name('preview');
             Route::post(R::uri('id-cards.print'), [IdCardController::class, 'print'])->name('print');
@@ -870,7 +946,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             });
         });
 
-        Route::middleware('custom_domain_access')->name('custom-domain.')->group(function () {
+        Route::middleware('plan_feature:custom-domain')->name('custom-domain.')->group(function () {
             Route::get(R::uri('custom-domain.index'), [CustomDomainController::class, 'index'])->name('index');
             Route::post(R::uri('custom-domain.index'), [CustomDomainController::class, 'store'])->name('store');
             Route::get(R::uri('custom-domain.status').'/{domain}', [CustomDomainController::class, 'status'])->name('status');
@@ -907,6 +983,13 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::get(R::uri('super-admin.schools.show').'/{school}', [SchoolController::class, 'show'])->name('show');
             Route::post(R::uri('super-admin.schools.activate').'/{school}', [SchoolController::class, 'activate'])->name('activate');
             Route::post(R::uri('super-admin.schools.deactivate').'/{school}', [SchoolController::class, 'deactivate'])->name('deactivate');
+
+            // Deleting a school erases everything belonging to it - students,
+            // staff, results, invoices, 43 tables in all - and cannot be
+            // undone. Deactivating is the reversible option and is what the
+            // interface offers first; this exists for schools that were never
+            // real, such as test records and abandoned registrations.
+            Route::delete(R::uri('super-admin.schools.destroy').'/{school}', [SchoolController::class, 'destroy'])->name('destroy');
         });
 
         Route::name('subscriptions.')->middleware('permission:manage_subscriptions')->group(function () {
@@ -914,6 +997,12 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::get(R::uri('super-admin.subscriptions.export'), [SubscriptionApprovalController::class, 'export'])->name('export');
             Route::post(R::uri('super-admin.subscriptions.bulk-approve'), [SubscriptionApprovalController::class, 'bulkApprove'])->name('bulk-approve');
             Route::post(R::uri('super-admin.subscriptions.bulk-reject'), [SubscriptionApprovalController::class, 'bulkReject'])->name('bulk-reject');
+
+            // Reviewing one subscription without leaving the Super Admin panel.
+            // The school's own signup confirmation is not a Super Admin screen
+            // and must not be where "View" leads.
+            Route::get(R::uri('super-admin.subscriptions.show').'/{subscription}', [SubscriptionApprovalController::class, 'show'])->name('show');
+            Route::get(R::uri('super-admin.subscriptions.receipt').'/{subscription}', [PaymentReceiptController::class, 'showSubscriptionReceipt'])->name('receipt');
             Route::post(R::uri('super-admin.subscriptions.approve').'/{subscription}', [SubscriptionApprovalController::class, 'approve'])->name('approve');
             Route::post(R::uri('super-admin.subscriptions.reject').'/{subscription}', [SubscriptionApprovalController::class, 'reject'])->name('reject');
             Route::post(R::uri('super-admin.subscriptions.top-ups.approve').'/{topUp}', [SubscriptionApprovalController::class, 'approveTopUp'])->name('top-ups.approve');
@@ -928,8 +1017,17 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
         Route::name('result-pins.')->middleware('permission:manage_result_pins')->group(function () {
             Route::get(R::uri('super-admin.result-pins.index'), [ResultPinController::class, 'index'])->name('index');
             Route::get(R::uri('super-admin.result-pins.show').'/{school}', [ResultPinController::class, 'show'])->name('show');
-            Route::post(R::uri('super-admin.result-pins.generate').'/{school}', [ResultPinController::class, 'generate'])->name('generate');
+
+            // No "generate" any more. Schools issue their own tokens, because
+            // a token has to name its student and its examination and only the
+            // school knows those. The platform keeps oversight and the power to
+            // revoke.
             Route::post(R::uri('super-admin.result-pins.revoke').'/{pin}', [ResultPinController::class, 'revoke'])->name('revoke');
+
+            // Global token settings: the defaults every school's newly issued
+            // tokens inherit. Point 16 of the rule - oversight includes being
+            // able to move the baseline without editing code.
+            Route::put(R::uri('super-admin.result-pins.settings'), [ResultPinController::class, 'updateSettings'])->name('settings');
         });
 
         Route::get(R::uri('super-admin.payments.index'), [SuperAdminPaymentController::class, 'index'])->name('payments.index')->middleware('permission:manage_payments');
@@ -1032,6 +1130,8 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
                 Route::get(R::uri('super-admin.cbt.uploads.index'), [CbtDocumentUploadController::class, 'index'])->name('index');
                 Route::post(R::uri('super-admin.cbt.uploads.store'), [CbtDocumentUploadController::class, 'store'])->name('store');
                 Route::get(R::uri('super-admin.cbt.uploads.show').'/{upload}', [CbtDocumentUploadController::class, 'show'])->name('show');
+                Route::get(R::uri('super-admin.cbt.uploads.show').'/{upload}/status', [CbtDocumentUploadController::class, 'status'])->name('status');
+                Route::post(R::uri('super-admin.cbt.uploads.retry').'/{upload}', [CbtDocumentUploadController::class, 'retry'])->name('retry');
                 Route::put(R::uri('super-admin.cbt.uploads.mapping').'/{upload}', [CbtDocumentUploadController::class, 'confirmMapping'])->name('mapping');
                 Route::delete(R::uri('super-admin.cbt.uploads.destroy').'/{upload}', [CbtDocumentUploadController::class, 'destroy'])->name('destroy');
             });
@@ -1100,6 +1200,42 @@ require __DIR__.'/auth.php';
 | elsewhere in this file cannot be mistaken for a school.
 |
 */
+
+/*
+|--------------------------------------------------------------------------
+| A school's own result-checking address
+|--------------------------------------------------------------------------
+|
+| edunest.com/greenfield-college/result
+|
+| The link a school hands to parents. It carries no secret of its own - a
+| result token is still required to see anything - but it does decide WHICH
+| school's tokens are even considered, and that decision is made here from the
+| address rather than from anything the visitor can type.
+|
+| Registered immediately before the single-segment landing route below, and
+| for the same reasons: it sits in the root namespace, so it uses the same
+| reserved-word exclusion and the same lowercase-slug pattern. The trailing
+| "/result" segment means it cannot collide with the landing route itself.
+|
+| The parameter is the school's result_link_slug, NOT its slug - a school can
+| retire a link that has spread too far without renaming itself.
+|
+*/
+Route::prefix('{school:result_link_slug}/result')->name('school-result.')->group(function () {
+    Route::get('/', [CheckResultController::class, 'create'])->name('show');
+    Route::post('/identify', [CheckResultController::class, 'identify'])->name('identify');
+    Route::get('/confirm', [CheckResultController::class, 'confirm'])->name('confirm');
+    Route::post('/', [CheckResultController::class, 'verify'])->name('verify');
+    Route::get('/view/{usage}', [CheckResultController::class, 'result'])->name('result');
+    Route::get('/view/{usage}/download', [CheckResultController::class, 'download'])->name('download');
+})->where('school', sprintf(
+    '(?!(?:%s)$)[a-z0-9]+(?:-[a-z0-9]+)*',
+    implode('|', array_map(
+        static fn (string $slug): string => preg_quote($slug, '/'),
+        config('basic_portal.reserved_slugs'),
+    )),
+));
 Route::get('/{school:slug}', [BasicSchoolLandingController::class, 'show'])
     ->where('school', sprintf(
         // The alternation is wrapped in its own group before the "$" so that

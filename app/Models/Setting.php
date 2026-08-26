@@ -28,6 +28,8 @@ class Setting extends Model
         'favicon_path',
         'login_background_media_id',
         'register_background_media_id',
+        'result_token_max_uses',
+        'result_token_expiry_days',
     ];
 
     /**
@@ -39,6 +41,8 @@ class Setting extends Model
     {
         return [
             'maintenance_mode' => 'boolean',
+            'result_token_max_uses' => 'integer',
+            'result_token_expiry_days' => 'integer',
         ];
     }
 

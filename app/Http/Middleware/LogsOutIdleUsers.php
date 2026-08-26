@@ -81,16 +81,21 @@ class LogsOutIdleUsers
         Auth::guard($guard)->logout();
         $request->session()->forget($sessionKey);
 
+        // The school is read off the user before the session goes, which is
+        // what keeps the redirect school-specific: once the session is gone
+        // there is nothing left in the request that says which school this
+        // was. The global login is only for a user with no school of their
+        // own - a Super Admin, or an account whose school has been deleted.
         $destination = $user->school?->portalLoginUrl($guard) ?? route('login');
 
         if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'Your session expired due to inactivity.',
-                'redirect' => $destination,
-            ], 401);
+            // No message: an expiry is not news the person needs told. They
+            // stepped away, they come back to a login page, they sign in
+            // again. A banner explaining it only draws attention to an
+            // interruption they had already worked out.
+            return response()->json(['redirect' => $destination], 401);
         }
 
-        return redirect()->to($destination)
-            ->with('status', 'You were signed out after 3 minutes of inactivity.');
+        return redirect()->to($destination);
     }
 }
