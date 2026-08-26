@@ -2,11 +2,21 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\PlanKey;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Result tokens are available on every plan.
+ *
+ * They used to be gated to Basic, which made them look like a consolation
+ * prize for schools with no website. They are not a plan feature - they are
+ * how a result reaches a parent safely - so a Standard or Exclusive school
+ * needs them exactly as much.
+ *
+ * What is still required is an active subscription: a school that has not paid,
+ * or has been suspended, should not be issuing anything.
+ */
 class EnsureSchoolHasResultPinAccess
 {
     /**
@@ -16,9 +26,13 @@ class EnsureSchoolHasResultPinAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $hasResultPinAccess = $request->user()?->school?->hasPlanAccess(PlanKey::Basic) ?? false;
+        $school = $request->user()?->school;
 
-        abort_unless($hasResultPinAccess, 403, 'Result-checking PINs require the Basic plan.');
+        abort_unless(
+            $school?->hasActiveSubscription() ?? false,
+            403,
+            'Result tokens require an active subscription.',
+        );
 
         return $next($request);
     }
