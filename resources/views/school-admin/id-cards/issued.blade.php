@@ -17,13 +17,13 @@
             </a>
 
             <form method="GET" class="flex flex-wrap items-center gap-2">
-                <select name="type" onchange="this.form.submit()" class="rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                <select name="type" onchange="this.form.submit()" >
                     <option value="">All Types</option>
                     @foreach ($holderTypes as $type)
                         <option value="{{ $type->value }}" @selected(request('type') === $type->value)>{{ $type->label() }}</option>
                     @endforeach
                 </select>
-                <select name="status" onchange="this.form.submit()" class="rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                <select name="status" onchange="this.form.submit()" >
                     <option value="">All Statuses</option>
                     @foreach ($statuses as $status)
                         <option value="{{ $status->value }}" @selected(request('status') === $status->value)>{{ $status->label() }}</option>
@@ -32,7 +32,7 @@
             </form>
         </div>
 
-        <div class="overflow-hidden rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+        <div class="overflow-x-auto rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">

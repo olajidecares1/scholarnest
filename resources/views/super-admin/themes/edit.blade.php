@@ -15,9 +15,9 @@
             x-data="{ selected: '{{ $settings->theme_preset }}', colors: @js($presetColors) }"
         >
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Color Theme</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pick a palette. Preview updates instantly; save to apply platform-wide.</p>
+            <p class="field-hint mt-1">Pick a palette. Preview updates instantly; save to apply platform-wide.</p>
 
-            <form method="POST" action="{{ route('super-admin.themes.update') }}" class="mt-4 space-y-4">
+            <form method="POST" action="{{ route('super-admin.themes.update') }}" class="mt-4 space-y-2">
                 @csrf
                 @method('PUT')
 
@@ -64,7 +64,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Logo</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, or SVG. Max 2MB.</p>
+            <p class="field-hint mt-1">PNG, JPG, or SVG. Max 2MB.</p>
 
             <div class="mt-4 flex items-center gap-4">
                 <span class="flex h-16 w-16 items-center justify-center rounded-[5px] border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900 lg:rounded-[10px]">
@@ -82,7 +82,7 @@
                         name="logo"
                         accept=".png,.jpg,.jpeg,.svg"
                         required
-                        class="flex-1 rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="flex-1"
                     >
                     <button type="submit" class="rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">Upload</button>
                 </form>
@@ -91,7 +91,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Favicon</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG or ICO. Max 512KB.</p>
+            <p class="field-hint mt-1">PNG or ICO. Max 512KB.</p>
 
             <div class="mt-4 flex items-center gap-4">
                 <span class="flex h-10 w-10 items-center justify-center rounded-[5px] border border-gray-200 bg-gray-50 p-1.5 dark:border-gray-700 dark:bg-gray-900 lg:rounded-[10px]">
@@ -109,7 +109,7 @@
                         name="favicon"
                         accept=".png,.ico"
                         required
-                        class="flex-1 rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="flex-1"
                     >
                     <button type="submit" class="rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">Upload</button>
                 </form>

@@ -102,7 +102,7 @@
                 <form
                     method="POST"
                     :action="editing ? '{{ route('careers.update', ['job' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('careers.store') }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
@@ -123,7 +123,7 @@
                     <x-textarea-field name="description" label="Job Description" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="5" x-model="editing ? editing.description : ''" required />
 
                     <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                        <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="w-4 text-blue-600">
                         Open (visible on your public website)
                     </label>
 

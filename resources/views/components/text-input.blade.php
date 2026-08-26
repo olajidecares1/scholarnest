@@ -1,3 +1,6 @@
+{{-- A bare field with no label or message around it. Its appearance comes
+     entirely from the shared base rules in app.css, so it looks like every
+     other field in the project without repeating a single dimension here. --}}
 @props(['disabled' => false])
 
-<input @disabled($disabled) {{ $attributes->merge(['class' => 'w-full rounded-[8px] border border-gray-300 bg-white py-3 pl-4 pr-4 text-base text-gray-900 shadow-sm transition-colors duration-150 placeholder:text-gray-400 hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25']) }}>
+<input @disabled($disabled) {{ $attributes }}>

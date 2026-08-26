@@ -114,7 +114,7 @@
 
                     <div class="mt-4 space-y-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
                         <p class="text-sm font-bold text-gray-900 dark:text-white">1. Add these DNS records at your domain provider</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Changing your DNS records tells the internet where visitors should be sent when they type your domain name.</p>
+                        <p class="field-hint">Changing your DNS records tells the internet where visitors should be sent when they type your domain name.</p>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs">
                                 <thead>
@@ -154,7 +154,7 @@
                             @if ($primary->last_check_error)
                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $primary->last_check_error }}</p>
                             @else
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Once you've added the records above, click verify. We also automatically re-check every few minutes in the background.</p>
+                                <p class="field-hint mt-1">Once you've added the records above, click verify. We also automatically re-check every few minutes in the background.</p>
                             @endif
                             @if ($primary->last_checked_at)
                                 <p class="mt-1 text-[11px] text-gray-400 dark:text-gray-500">Last checked {{ $primary->last_checked_at->diffForHumans() }}</p>
@@ -181,7 +181,7 @@
                     <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
                         <div>
                             <p class="text-sm font-bold text-gray-900 dark:text-white">Redirect the default EduNest link</p>
-                            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Visitors to your default EduNest web address are redirected to {{ $primary->domain }}.</p>
+                            <p class="field-hint mt-0.5">Visitors to your default EduNest web address are redirected to {{ $primary->domain }}.</p>
                         </div>
                         <form method="POST" action="{{ route('custom-domain.toggle-redirect', $primary) }}">
                             @csrf
@@ -250,7 +250,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-xs text-gray-500 dark:text-gray-400">No subdomains yet — e.g. add "portal.{{ $primary->domain }}" if you'd like a dedicated address for a specific area of your site.</p>
+                        <p class="field-hint">No subdomains yet — e.g. add "portal.{{ $primary->domain }}" if you'd like a dedicated address for a specific area of your site.</p>
                     @endforelse
                 </div>
             </div>
@@ -263,7 +263,7 @@
                 <form
                     method="POST"
                     :action="editing ? '{{ route('custom-domain.update', ['domain' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('custom-domain.store') }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>

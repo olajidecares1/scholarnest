@@ -38,7 +38,7 @@
                     @if ($website->is_published)
                         <a href="{{ $publicUrl }}" target="_blank" class="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700">{{ $publicUrl }}</a>
                     @else
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Publish to make your website visible at {{ $publicUrl }}</p>
+                        <p class="field-hint mt-1">Publish to make your website visible at {{ $publicUrl }}</p>
                     @endif
                     <button type="button" @click="tab = 'domain'" class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700">
                         {{ $customDomainLive ? 'Serving on your custom domain' : 'Connect a custom domain' }}
@@ -68,9 +68,9 @@
             <form method="POST" action="{{ route('website.update-brand-color') }}" class="flex flex-wrap items-center gap-2">
                 @csrf
                 @method('PUT')
-                <label class="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Theme Color</label>
-                <input type="text" name="brand_primary_color" x-model="colorInput" @change="normalize()" placeholder="e.g. Indigo, Dark Blue, #1877f2" class="h-9 w-52 rounded-[6px] border border-gray-300 px-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
-                <input type="color" :value="colorInput || '#166fe5'" @input="colorInput = $event.target.value" class="h-9 w-10 rounded border border-gray-300 dark:border-gray-600">
+                <label class="field-label">Theme Color</label>
+                <input type="text" name="brand_primary_color" x-model="colorInput" @change="normalize()" placeholder="e.g. Indigo, Dark Blue, #1877f2" class="w-52">
+                <input type="color" :value="colorInput || '#166fe5'" @input="colorInput = $event.target.value" class="w-10">
                 <button type="submit" class="rounded-[6px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Apply Theme Color</button>
             </form>
 
@@ -143,7 +143,7 @@
 
                     <hr class="border-gray-100 dark:border-gray-700" x-show="! preview">
 
-                    <form method="POST" action="{{ route('website.update-header-hero-fields') }}" x-show="! preview" enctype="multipart/form-data" class="space-y-4">
+                    <form method="POST" action="{{ route('website.update-header-hero-fields') }}" x-show="! preview" enctype="multipart/form-data" class="space-y-2">
                         @csrf
                         @method('PUT')
 
@@ -158,8 +158,8 @@
                         </div>
 
                         <div>
-                            <input type="file" name="hero_image" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400">
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Fallback hero background image, only used if you haven't added any slides to the Hero Slider below.</p>
+                            <input type="file" name="hero_image" accept=".jpg,.jpeg,.png,.webp" class="w-full">
+                            <p class="field-hint mt-1">Fallback hero background image, only used if you haven't added any slides to the Hero Slider below.</p>
                             @if ($website->heroImageUrl())
                                 <img src="{{ $website->heroImageUrl() }}" class="mt-2 h-24 w-full max-w-sm rounded-[8px] object-cover">
                             @endif
@@ -168,7 +168,7 @@
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <x-text-field name="whats_happening_title" label="\"What's Happening\" Card Title" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" value="{{ $website->whats_happening_title }}" placeholder="What's Happening" helper="Optional." />
                             <label class="flex items-center gap-2 self-center text-sm text-gray-700 dark:text-gray-200">
-                                <input type="checkbox" name="show_whats_happening" value="1" {{ $website->show_whats_happening ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <input type="checkbox" name="show_whats_happening" value="1" {{ $website->show_whats_happening ? 'checked' : '' }} class="w-4 text-blue-600">
                                 Show this card on the hero (lists your upcoming events)
                             </label>
                         </div>
@@ -185,7 +185,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Hero Slider</h3>
-                                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Multiple background images that rotate in the hero banner.</p>
+                                <p class="field-hint mt-0.5">Multiple background images that rotate in the hero banner.</p>
                             </div>
                             <form method="POST" action="{{ route('website.hero-slides.store') }}" enctype="multipart/form-data">
                                 @csrf
@@ -348,12 +348,12 @@
 
                     <hr class="border-gray-100 dark:border-gray-700">
 
-                    <form method="POST" action="{{ route('website.update-contact-fields') }}" class="space-y-4">
+                    <form method="POST" action="{{ route('website.update-contact-fields') }}" class="space-y-2">
                         @csrf
                         @method('PUT')
 
                         <h3 class="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Contact Details</h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Powers the tel:/mailto: links and social icons across your site.</p>
+                        <p class="field-hint">Powers the tel:/mailto: links and social icons across your site.</p>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             <x-text-field name="contact_email" label="Contact Email" type="email" icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7" value="{{ $website->contact_email }}" helper="Optional." />
                             <x-text-field name="contact_phone" label="Contact Phone" type="tel" icon="M6.5 4.5h2l1.2 4-1.8 1.5a11 11 0 005.1 5.1l1.5-1.8 4 1.2v2a1.5 1.5 0 01-1.6 1.5A15 15 0 015 6.1a1.5 1.5 0 011.5-1.6z" value="{{ $website->contact_phone }}" helper="Optional." />
@@ -415,7 +415,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-sm font-bold text-gray-900 dark:text-white">Navigation Menu</h2>
-                        <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Links shown in the navbar. Leave empty to use the default menu.</p>
+                        <p class="field-hint mt-0.5">Links shown in the navbar. Leave empty to use the default menu.</p>
                     </div>
                     <button
                         type="button"
@@ -483,7 +483,7 @@
                     <form
                         method="POST"
                         :action="navLinkEditing ? '{{ route('website.nav-links.update', ['navLink' => '__ID__']) }}'.replace('__ID__', navLinkEditing.uuid) : '{{ route('website.nav-links.store') }}'"
-                        class="mt-4 space-y-4"
+                        class="mt-4 space-y-2"
                     >
                         @csrf
                         <template x-if="navLinkEditing"><input type="hidden" name="_method" value="PUT"></template>
@@ -510,7 +510,7 @@
             <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Gallery</h2>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Photos shown on your public website.</p>
+                    <p class="field-hint mt-0.5">Photos shown on your public website.</p>
                 </div>
                 <button
                     type="button"
@@ -550,10 +550,10 @@
         <div x-show="galleryOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="galleryOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Gallery Image</h3>
-                <form method="POST" action="{{ route('website.gallery.store') }}" enctype="multipart/form-data" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('website.gallery.store') }}" enctype="multipart/form-data" class="mt-4 space-y-2">
                     @csrf
                     <div>
-                        <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" required class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400">
+                        <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" required class="w-full">
                     </div>
                     <x-text-field name="caption" label="Caption" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Optional." />
                     <div class="flex justify-end gap-2">

@@ -45,7 +45,7 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search title, author, ISBN..."
-                        class="h-11 w-64 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="w-64"
                     >
                     <div class="w-40">
                         <x-select-field name="category" placeholder="All Categories" :selected="request('category')" :options="['' => 'All Categories'] + $categories->mapWithKeys(fn ($c) => [$c => $c])->all()" />
@@ -134,7 +134,7 @@
                 <form
                     method="POST"
                     :action="editing ? '{{ route('library.update', ['book' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('library.store') }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>

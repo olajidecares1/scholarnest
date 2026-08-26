@@ -49,7 +49,7 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search student..."
-                        class="h-10 w-52 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="w-52"
                     >
                     <div class="w-40">
                         <x-select-field name="class" placeholder="All Classes" :selected="request('class')" :options="['' => 'All Classes'] + $classOptions" />
@@ -120,7 +120,7 @@
         <div x-show="addOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="addOpen = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Invoice</h3>
-                <form method="POST" action="{{ route('finance.invoices.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('finance.invoices.store') }}" class="mt-4 space-y-2">
                     @csrf
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" />
                     <x-text-field name="title" label="Title" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" placeholder="e.g. Exam Fee" required />
@@ -146,7 +146,7 @@
                 <form
                     method="POST"
                     :action="paying ? '{{ route('finance.invoices.payments.store', ['invoice' => '__ID__']) }}'.replace('__ID__', paying.uuid) : '#'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <x-text-field name="amount" label="Amount Paid (₦)" type="number" icon="M8 12.3l2.6 2.6L16.3 9" min="0.01" step="0.01" required />

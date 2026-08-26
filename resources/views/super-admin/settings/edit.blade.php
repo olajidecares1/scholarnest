@@ -6,7 +6,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('super-admin.settings.update') }}" class="space-y-6">
+        <form method="POST" action="{{ route('super-admin.settings.update') }}" class="space-y-2">
             @csrf
             @method('PUT')
 
@@ -72,7 +72,7 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]" x-data="{ maintenance: {{ old('maintenance_mode', $settings->maintenance_mode) ? 'true' : 'false' }} }">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Maintenance Mode</h2>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">While enabled, school admins and visitors see a maintenance page. Super Admins can still access the platform.</p>
+                <p class="field-hint mt-1">While enabled, school admins and visitors see a maintenance page. EduNest Teams can still access the platform.</p>
 
                 <div class="mt-4 flex items-center justify-between rounded-[5px] border border-gray-200 p-3 dark:border-gray-700 lg:rounded-[10px]">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Enable maintenance mode</span>

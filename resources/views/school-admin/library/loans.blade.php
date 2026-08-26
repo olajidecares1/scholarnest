@@ -36,7 +36,7 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search book or student..."
-                        class="h-10 w-56 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="w-56"
                     >
                 </form>
             </div>
@@ -94,7 +94,7 @@
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Issue Book</h3>
-                <form method="POST" action="{{ route('library.loans.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('library.loans.store') }}" class="mt-4 space-y-2">
                     @csrf
                     <x-select-field name="book_id" label="Book" required placeholder="Select an available book" :options="$books->pluck('title', 'id')->all()" />
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" />

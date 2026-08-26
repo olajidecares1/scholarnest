@@ -10,7 +10,7 @@
                         <div class="flex items-center justify-between gap-3 px-5 py-3">
                             <div class="min-w-0">
                                 <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $entry->subject }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $entry->class_name }}@if ($entry->room) &middot; {{ $entry->room }} @endif</p>
+                                <p class="field-hint">{{ $entry->class_name }}@if ($entry->room) &middot; {{ $entry->room }} @endif</p>
                             </div>
                             <span class="shrink-0 text-xs font-semibold text-gray-500 dark:text-gray-400">
                                 {{ \Illuminate\Support\Carbon::parse($entry->start_time)->format('h:i A') }} – {{ \Illuminate\Support\Carbon::parse($entry->end_time)->format('h:i A') }}

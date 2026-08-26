@@ -5,7 +5,7 @@
                 <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-50 text-lg font-extrabold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ $monthPercent }}%</span>
                 <div>
                     <p class="text-sm font-bold text-gray-900 dark:text-white">This Month's Attendance</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Present {{ $monthPresent }} of {{ $monthTotal }} recorded days</p>
+                    <p class="field-hint">Present {{ $monthPresent }} of {{ $monthTotal }} recorded days</p>
                 </div>
             </div>
         </div>

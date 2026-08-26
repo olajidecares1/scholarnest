@@ -241,7 +241,7 @@
                     <h3 class="text-xs font-bold uppercase tracking-wide text-white">Newsletter</h3>
                     <p class="mt-3 text-xs text-gray-400">Subscribe for the latest updates.</p>
                     <div class="mt-3 flex">
-                        <input type="email" disabled placeholder="Enter your email" class="w-full rounded-l-[8px] border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none">
+                        <input type="email" disabled placeholder="Enter your email" class="rounded-r-none">
                         <span class="flex items-center justify-center rounded-r-[8px] bg-primary-600 px-3 text-white opacity-60" title="Coming soon">
                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                         </span>

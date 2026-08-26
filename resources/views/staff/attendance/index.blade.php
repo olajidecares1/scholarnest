@@ -38,7 +38,7 @@
                 </div>
                 @if ($classes->count() > 1)
                     <form method="GET">
-                        <select name="class" onchange="this.form.submit()" class="h-9 rounded-[8px] border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                        <select name="class" onchange="this.form.submit()" >
                             @foreach ($classes as $class)
                                 <option value="{{ $class }}" @selected($className === $class)>{{ $class }}</option>
                             @endforeach
@@ -74,7 +74,6 @@
                             value="{{ $date->toDateString() }}"
                             max="{{ today()->toDateString() }}"
                             onchange="this.form.submit()"
-                            class="h-11 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                         >
                     </form>
                 </div>

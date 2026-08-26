@@ -38,7 +38,7 @@
                             @endif
                         </div>
                         @if ($facility->description)
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ Str::limit($facility->description, 80) }}</p>
+                            <p class="field-hint mt-1">{{ Str::limit($facility->description, 80) }}</p>
                         @endif
                         <div class="mt-3 flex items-center gap-2">
                             <button
@@ -75,7 +75,7 @@
                     method="POST"
                     :action="editing ? '{{ route('facilities.update', ['facility' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('facilities.store') }}'"
                     enctype="multipart/form-data"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
@@ -85,8 +85,8 @@
                     <x-textarea-field name="description" label="Description" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="3" x-model="editing ? editing.description : ''" helper="Optional." />
 
                     <div>
-                        <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400">
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Photo (optional). Leave blank to keep the existing one when editing.</p>
+                        <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" class="w-full">
+                        <p class="field-hint mt-1">Photo (optional). Leave blank to keep the existing one when editing.</p>
                     </div>
 
                     <div class="flex justify-end gap-2">

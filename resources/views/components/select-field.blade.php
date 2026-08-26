@@ -1,3 +1,19 @@
+{{-- A select, styled as a field like every other field.
+
+     This used to be a bespoke drum-roll picker: a button 52px tall with the
+     label inside it and a scrolling wheel in a popover. It behaved unlike
+     every other control in the application and could not be made to match the
+     registration page, because it was not a field — it was a button pretending
+     to be one.
+
+     It is a native <select> now. The base rules in app.css give it the same
+     height, border, radius, typography and focus as every input, and draw its
+     chevron, so it matches by construction rather than by imitation. Native
+     also means it opens the platform's own picker on a phone, which is the
+     control people already know.
+
+     The x-modelable wrapper is kept because callers bind to it, so every
+     existing `model="..."` continues to work unchanged. --}}
 @props([
     'name',
     'label' => null,
@@ -15,185 +31,70 @@
     $id = $attributes->get('id') ?? $name;
     $errorMessages = $errors->getBag($errorBag)->get($name);
     $hasError = count($errorMessages) > 0;
-    $resolvedValue = old($name, $selected);
-    $optionList = collect($options)->map(fn ($optLabel, $optValue) => ['value' => (string) $optValue, 'label' => $optLabel])->values();
+    $resolvedValue = (string) old($name, $selected);
+    $optionList = collect($options)
+        ->map(fn ($optLabel, $optValue) => ['value' => (string) $optValue, 'label' => $optLabel])
+        ->values();
+
+    // Only when the caller has not already supplied an empty option of their
+    // own - a filter whose first entry is "All Classes" does not need a second
+    // blank row above it saying "Select an option".
+    $needsPlaceholderOption = $optionList->doesntContain(fn (array $option) => $option['value'] === '');
 @endphp
 
 <div
     x-modelable="value"
     @if ($model) x-model="{{ $model }}" @endif
-    x-data="{
-        open: false,
-        value: @js((string) $resolvedValue),
-        options: @js($optionList),
-        rowHeight: 44,
-        highlightedIndex: 0,
-        scrollTimer: null,
-        get selectedLabel() {
-            const match = this.options.find(o => o.value === this.value);
-            return match ? match.label : @js($placeholder);
-        },
-        syncHighlighted() {
-            const idx = this.options.findIndex(o => o.value === this.value);
-            this.highlightedIndex = idx >= 0 ? idx : 0;
-        },
-        init() {
-            this.syncHighlighted();
-            this.$watch('value', () => this.syncHighlighted());
-        },
-        openPicker() {
-            if (this.options.length === 0) return;
-            this.open = true;
-            this.$nextTick(() => this.scrollToIndex(this.highlightedIndex, false));
-        },
-        closePicker() {
-            this.open = false;
-            this.$refs.trigger?.focus();
-        },
-        scrollToIndex(i, smooth = true) {
-            const el = this.$refs.wheel;
-            if (!el) return;
-            el.scrollTo({ top: i * this.rowHeight, behavior: smooth ? 'smooth' : 'instant' });
-        },
-        selectIndex(i, close = false) {
-            if (i < 0 || i >= this.options.length) return;
-            this.highlightedIndex = i;
-            this.value = this.options[i].value;
-            this.scrollToIndex(i);
-            if (close) this.closePicker();
-        },
-        onWheelScroll() {
-            clearTimeout(this.scrollTimer);
-            this.scrollTimer = setTimeout(() => {
-                const el = this.$refs.wheel;
-                if (!el) return;
-                const idx = Math.round(el.scrollTop / this.rowHeight);
-                const clamped = Math.max(0, Math.min(this.options.length - 1, idx));
-                this.highlightedIndex = clamped;
-                this.value = this.options[clamped]?.value ?? this.value;
-                this.scrollToIndex(clamped);
-            }, 90);
-        },
-        onTriggerKeydown(e) {
-            if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) {
-                e.preventDefault();
-                this.openPicker();
-            }
-        },
-        onWheelKeydown(e) {
-            if (e.key === 'ArrowDown') { e.preventDefault(); this.selectIndex(this.highlightedIndex + 1); }
-            if (e.key === 'ArrowUp') { e.preventDefault(); this.selectIndex(this.highlightedIndex - 1); }
-            if (e.key === 'Enter') { e.preventDefault(); this.selectIndex(this.highlightedIndex, true); }
-            if (e.key === 'Escape') { e.preventDefault(); this.closePicker(); }
-        },
-    }"
-    class="relative"
+    x-data="{ value: @js($resolvedValue) }"
 >
-    <input type="hidden" name="{{ $name }}" :value="value" @if ($required) required @endif>
+    @if ($label)
+        <label for="{{ $id }}" class="field-label">
+            {{ $label }}@if ($required)<span class="text-red-500"> *</span>@endif
+        </label>
+    @endif
 
-    <button
-        type="button"
-        x-ref="trigger"
-        @click="openPicker()"
-        @keydown="onTriggerKeydown($event)"
-        role="combobox"
-        aria-haspopup="listbox"
-        :aria-expanded="open.toString()"
-        class="group relative flex w-full items-center rounded-[8px] border bg-white text-left shadow-sm transition-all duration-200 ease-out focus:outline-none dark:bg-gray-800
-            {{ $hasError
-                ? 'border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)] dark:border-red-500'
-                : 'border-gray-200 hover:border-gray-300 focus:border-primary-500 focus:shadow-[0_0_0_3px_rgba(24,119,242,0.12)] dark:border-gray-700 dark:hover:border-gray-600' }}"
-    >
+    <div class="relative {{ $label ? 'mt-1' : '' }}">
+        <select
+            id="{{ $id }}"
+            name="{{ $name }}"
+            x-model="value"
+            @if ($required) required @endif
+            {{ $attributes->except('id')->merge([
+                'class' => 'peer '
+                    . ($icon ? 'pl-9 ' : '')
+                    . ($hasError ? 'field-invalid' : ''),
+            ]) }}
+        >
+            @if ($needsPlaceholderOption)
+                <option value="" @if ($required) disabled @endif>{{ $placeholder }}</option>
+            @endif
+
+            @foreach ($optionList as $option)
+                <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+            @endforeach
+        </select>
+
         @if ($icon)
-            <span class="flex h-[52px] w-11 shrink-0 items-center justify-center text-gray-400 group-focus:text-primary-500">
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <span
+                class="pointer-events-none absolute left-0 top-0 flex w-9 items-center justify-center text-[#9AAAC4] transition-colors peer-focus:text-primary-500 dark:text-gray-500"
+                style="height: var(--field-height);"
+            >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="{{ $icon }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </span>
         @endif
-
-        <span class="min-w-0 flex-1 {{ $icon ? 'pl-0' : 'pl-4' }} pr-2">
-            @if ($label)
-                <span
-                    class="block text-[11px] font-bold uppercase tracking-wide {{ $hasError ? 'text-red-500' : 'text-gray-500 dark:text-gray-400' }}"
-                >
-                    {{ $label }}{{ $required ? ' *' : '' }}
-                </span>
-            @endif
-            <span
-                class="block truncate {{ $label ? 'pb-0.5 pt-0.5 text-[15px]' : 'py-3.5 text-[15px]' }} font-medium"
-                x-text="selectedLabel"
-                :class="value ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'"
-            ></span>
-        </span>
-
-        <span class="flex h-[52px] w-11 shrink-0 items-center justify-center text-gray-400 transition-transform duration-300 ease-out" :class="{ 'rotate-180': open }">
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-        </span>
-    </button>
+    </div>
 
     @if ($hasError)
-        <p class="mt-1.5 flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400">
-            <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <p class="mt-1 flex items-center gap-1 text-[11px] font-medium leading-[1.45] text-red-600 dark:text-red-400">
+            <svg class="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75" />
                 <path d="M12 8v5M12 15.5h.01" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
             </svg>
             {{ $errorMessages[0] }}
         </p>
     @elseif ($helper)
-        <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{{ $helper }}</p>
+        <p class="field-hint mt-1">{{ $helper }}</p>
     @endif
-
-    <div
-        x-show="open"
-        @click.outside="closePicker()"
-        @keydown="onWheelKeydown($event)"
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 -translate-y-2 scale-95"
-        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-        x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        style="display: none;"
-        class="absolute left-0 right-0 z-30 mt-2 overflow-hidden rounded-[8px] border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800"
-    >
-        <div class="flex items-center justify-between border-b border-gray-100 px-3 py-2 dark:border-gray-700">
-            <button type="button" @click="closePicker()" class="rounded-[8px] px-2 py-1 text-xs font-semibold text-gray-500 transition-colors duration-150 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">Cancel</button>
-            <button type="button" @click="selectIndex(highlightedIndex, true)" class="rounded-[8px] px-2 py-1 text-xs font-bold text-primary-600 transition-colors duration-150 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/30">Done</button>
-        </div>
-
-        <div class="relative" style="height: 220px;">
-            <div
-                class="pointer-events-none absolute inset-x-0 top-1/2 z-10 -translate-y-1/2 border-y-2 border-primary-200 bg-primary-50/40 dark:border-primary-800 dark:bg-primary-900/20"
-                style="height: 44px;"
-            ></div>
-
-            <div
-                x-ref="wheel"
-                @scroll="onWheelScroll()"
-                tabindex="0"
-                role="listbox"
-                class="edn-wheel h-full overflow-y-auto scroll-smooth"
-                style="padding-block: 88px; scroll-snap-type: y mandatory;"
-            >
-                <template x-for="(option, i) in options" :key="option.value">
-                    <div
-                        role="option"
-                        :aria-selected="value === option.value"
-                        @click="selectIndex(i, true)"
-                        class="flex cursor-pointer select-none items-center justify-center text-center transition-all duration-150 ease-out"
-                        style="height: 44px; scroll-snap-align: center;"
-                        :class="{
-                            'text-base font-bold text-primary-600 dark:text-primary-400': highlightedIndex === i,
-                            'text-sm text-gray-500 opacity-60 dark:text-gray-400': Math.abs(highlightedIndex - i) === 1,
-                            'text-sm text-gray-400 opacity-30 dark:text-gray-500': Math.abs(highlightedIndex - i) >= 2,
-                        }"
-                        x-text="option.label"
-                    ></div>
-                </template>
-            </div>
-        </div>
-    </div>
 </div>

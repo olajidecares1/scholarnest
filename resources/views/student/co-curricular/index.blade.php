@@ -10,7 +10,7 @@
                     @endif
                 </div>
                 @if ($activity->description)
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $activity->description }}</p>
+                    <p class="field-hint mt-1">{{ $activity->description }}</p>
                 @endif
                 @if ($activity->schedule_text)
                     <p class="mt-2 text-xs font-medium text-gray-600 dark:text-gray-300">{{ $activity->schedule_text }}</p>

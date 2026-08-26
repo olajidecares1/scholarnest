@@ -17,7 +17,7 @@
 
         <x-auth-session-status class="mt-4 text-center" :status="session('status')" />
 
-        <form method="POST" action="{{ url()->current() }}" class="mt-6 space-y-5">
+        <form method="POST" action="{{ url()->current() }}" class="mt-6 space-y-2">
             @csrf
 
             <div>
@@ -66,7 +66,7 @@
             />
 
             <label class="flex items-center gap-2 text-sm text-gray-700">
-                <input type="checkbox" name="remember" class="rounded border-gray-300 text-primary-500 shadow-sm focus:ring-primary-500">
+                <input type="checkbox" name="remember" class="text-primary-500">
                 Remember me
             </label>
 

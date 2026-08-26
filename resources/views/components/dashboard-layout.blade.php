@@ -7,7 +7,10 @@
     $platformSettings = \App\Models\Setting::current();
     $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-icon-dark.png');
     $school = auth()->user()->school;
-    $subscription = $school->activeSubscription;
+    // The approved subscription when there is one, otherwise the latest
+    // application - so a school waiting on approval still sees the plan it
+    // submitted and its pending badge, rather than "Choose a Plan".
+    $subscription = $school->subscriptionForDisplay();
     $openTicketsCount = \App\Models\SupportTicket::where('school_id', $school->id)->whereIn('status', [\App\Enums\TicketStatus::Open, \App\Enums\TicketStatus::InProgress])->count();
 @endphp
 
@@ -100,6 +103,7 @@
                     ['route' => 'class-subjects.index', 'label' => 'Class Subjects', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                     ['route' => 'academics.index', 'label' => 'Academics', 'icon' => 'M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z', 'extra' => '<path d="M6.5 11v4c0 1.4 2.5 2.75 5.5 2.75s5.5-1.35 5.5-2.75v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M20.5 9v5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                 ] as $item)
+                    @continue(! $school->canAccessRoute($item['route']))
                     @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
                     <a href="{{ route($item['route']) }}" class="{{ $navLinkClasses($isActive) }}">
                         <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -114,14 +118,16 @@
                     ['route' => 'attendance.index', 'label' => 'Attendance', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'timetable.index', 'label' => 'Timetable', 'icon' => 'M12 21a9 9 0 100-18 9 9 0 000 18z', 'extra' => '<path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'examinations.index', 'label' => 'Examinations', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                    ['route' => 'examinations.score-entry', 'label' => 'Test/Exam Score', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                     ['route' => 'results.index', 'label' => 'Results', 'icon' => 'M9 3h6a1 1 0 011 1v1h1a1 1 0 011 1v13a1 1 0 01-1 1H7a1 1 0 01-1-1V6a1 1 0 011-1h1V4a1 1 0 011-1z', 'extra' => '<path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                    ['route' => 'result-pins.index', 'label' => 'Result PINs', 'icon' => 'M15.5 8.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z', 'extra' => '<path d="M13 11l-6.5 6.5M9 17.5l-1.5-1.5M6.5 20L5 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
+                    ['route' => 'result-pins.index', 'label' => 'Generate Exam Token', 'icon' => 'M15.5 8.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z', 'extra' => '<path d="M13 11l-6.5 6.5M9 17.5l-1.5-1.5M6.5 20L5 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'assignments.index', 'label' => 'Assignments', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M9 11.5h6M9 14.5h6M9 17.5h3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                     ['route' => 'cbt-practice.index', 'label' => 'CBT Practice', 'icon' => 'M4.5 5.5h15a1 1 0 011 1V16a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M9.5 19.5h5M12 17v2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M8 12.5l2.3 2.3L15.5 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'cbt-tests.index', 'label' => 'CBT Tests', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /><path d="M8.5 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'events.index', 'label' => 'Events', 'icon' => 'M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                     ['route' => 'communications.index', 'label' => 'Communication', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                    ['route' => 'notices.index', 'label' => 'Notices', 'icon' => 'M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z', 'extra' => '<path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                    ['route' => 'diary.index', 'label' => 'Teacher Diary', 'icon' => 'M4 6.5A1.5 1.5 0 015.5 5h3.6a1 1 0 01.8.4l1 1.35a1 1 0 00.8.4h6.8A1.5 1.5 0 0120 8.65V17.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17.5v-11z', 'extra' => ''],
+                    ['route' => 'notices.index', 'label' => 'Memorandums', 'icon' => 'M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z', 'extra' => '<path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                     ['route' => 'co-curricular.index', 'label' => 'Co-curricular', 'icon' => 'M12 4.5l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z', 'extra' => ''],
                     ['route' => 'library.index', 'label' => 'Library', 'icon' => 'M3.5 6.2S5.5 5 8.5 5s5 1.2 5 1.2v12S11.5 17 8.5 17s-5 1.2-5 1.2v-12z', 'extra' => '<path d="M13.5 6.2S15.5 5 18.5 5s2 1.2 2 1.2v12s0 1.2-2 1.2-5 1.2-5 1.2v-12z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />'],
                     ['route' => 'transport.index', 'label' => 'Transport', 'icon' => 'M4 16V8.5a1 1 0 011-1h1.5l1.5-3h8l1.5 3H19a1 1 0 011 1V16a1 1 0 01-1 1h-1', 'extra' => '<path d="M6 17a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17 17a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM7.5 17h8M4 12.5h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
@@ -135,7 +141,7 @@
                     ['route' => 'id-cards.index', 'label' => 'ID Cards', 'icon' => 'M4 6.5a1.5 1.5 0 011.5-1.5h13A1.5 1.5 0 0120 6.5v11a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17.5v-11z', 'extra' => '<circle cx="9" cy="11" r="1.75" stroke="currentColor" stroke-width="1.5" /><path d="M6.5 15c.4-1.3 1.3-2 2.5-2s2.1.7 2.5 2M14 10h4M14 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                     ['route' => 'profile-change-requests.index', 'label' => 'Change Requests', 'icon' => 'M9 4.5h6l3 3V19a.5.5 0 01-.5.5h-11A.5.5 0 016 19V5a.5.5 0 01.5-.5h2.5z', 'extra' => '<path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                 ] as $item)
-                    @continue($item['route'] === 'result-pins.index' && ! $school->hasPlanAccess(\App\Enums\PlanKey::Basic))
+                    @continue(! $school->canAccessRoute($item['route']))
                     @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
                     <a href="{{ route($item['route']) }}" class="{{ $navLinkClasses($isActive) }}">
                         <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -278,7 +284,7 @@
                         @click.outside="open = false"
                         placeholder="Search students, staff, classes..."
                         autocomplete="off"
-                        class="w-64 rounded-[8px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 transition-colors duration-200 placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:bg-gray-800"
+                        class="w-64 pl-9 pr-3 transition-colors duration-200"
                     >
 
                     <div
@@ -329,6 +335,7 @@
                     </div>
                 </div>
 
+                @if ($school->canUseFeature(\App\Enums\PlanFeature::Website))
                 <a
                     href="{{ $school->website?->is_published ? $school->publicUrl('public.school-website') : route('website.index') }}"
                     target="{{ $school->website?->is_published ? '_blank' : '_self' }}"
@@ -339,6 +346,7 @@
                         <path d="M7 17L17 7M17 7H9M17 7v8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </a>
+                @endif
 
                 <div class="flex items-center gap-2.5 rounded-[8px] border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-900">
                     <a
@@ -463,14 +471,16 @@
                     ['route' => 'attendance.index', 'label' => 'Attendance'],
                     ['route' => 'timetable.index', 'label' => 'Timetable'],
                     ['route' => 'examinations.index', 'label' => 'Examinations'],
+                    ['route' => 'examinations.score-entry', 'label' => 'Test/Exam Score'],
                     ['route' => 'results.index', 'label' => 'Results'],
-                    ['route' => 'result-pins.index', 'label' => 'Result PINs'],
+                    ['route' => 'result-pins.index', 'label' => 'Generate Exam Token'],
                     ['route' => 'assignments.index', 'label' => 'Assignments'],
                     ['route' => 'cbt-practice.index', 'label' => 'CBT Practice'],
                     ['route' => 'cbt-tests.index', 'label' => 'CBT Tests'],
                     ['route' => 'events.index', 'label' => 'Events'],
                     ['route' => 'communications.index', 'label' => 'Communication'],
-                    ['route' => 'notices.index', 'label' => 'Notices'],
+                    ['route' => 'diary.index', 'label' => 'Teacher Diary', 'icon' => 'M4 6.5A1.5 1.5 0 015.5 5h3.6a1 1 0 01.8.4l1 1.35a1 1 0 00.8.4h6.8A1.5 1.5 0 0120 8.65V17.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17.5v-11z', 'extra' => ''],
+                    ['route' => 'notices.index', 'label' => 'Memorandums'],
                     ['route' => 'co-curricular.index', 'label' => 'Co-curricular'],
                     ['route' => 'library.index', 'label' => 'Library'],
                     ['route' => 'transport.index', 'label' => 'Transport'],
@@ -485,7 +495,7 @@
                     ['route' => 'profile-change-requests.index', 'label' => 'Change Requests'],
                     ['route' => 'settings.index', 'label' => 'Settings'],
                 ])
-                    ->reject(fn ($item) => $item['route'] === 'result-pins.index' && ! $school->hasPlanAccess(\App\Enums\PlanKey::Basic))
+                    ->filter(fn ($item) => $school->canAccessRoute($item['route']))
                     ->filter(fn ($item) => \Illuminate\Support\Facades\Route::has($item['route']))
                     ->map(fn ($item) => [...$item, 'url' => route($item['route'])])
                     ->values()
@@ -575,14 +585,16 @@
                         ['route' => 'academics.index', 'label' => 'Academics', 'icon' => 'M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z', 'extra' => '<path d="M6.5 11v4c0 1.4 2.5 2.75 5.5 2.75s5.5-1.35 5.5-2.75v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M20.5 9v5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                         ['route' => 'timetable.index', 'label' => 'Timetable', 'icon' => 'M12 21a9 9 0 100-18 9 9 0 000 18z', 'extra' => '<path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                         ['route' => 'examinations.index', 'label' => 'Examinations', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                    ['route' => 'examinations.score-entry', 'label' => 'Test/Exam Score', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                         ['route' => 'results.index', 'label' => 'Results', 'icon' => 'M9 3h6a1 1 0 011 1v1h1a1 1 0 011 1v13a1 1 0 01-1 1H7a1 1 0 01-1-1V6a1 1 0 011-1h1V4a1 1 0 011-1z', 'extra' => '<path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'result-pins.index', 'label' => 'Result PINs', 'icon' => 'M15.5 8.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z', 'extra' => '<path d="M13 11l-6.5 6.5M9 17.5l-1.5-1.5M6.5 20L5 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
+                        ['route' => 'result-pins.index', 'label' => 'Generate Exam Token', 'icon' => 'M15.5 8.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z', 'extra' => '<path d="M13 11l-6.5 6.5M9 17.5l-1.5-1.5M6.5 20L5 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                         ['route' => 'assignments.index', 'label' => 'Assignments', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 11.5h6M9 14.5h6M9 17.5h3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                         ['route' => 'cbt-practice.index', 'label' => 'CBT Practice', 'icon' => 'M4.5 5.5h15a1 1 0 011 1V16a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 12.5l2.3 2.3L15.5 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                         ['route' => 'cbt-tests.index', 'label' => 'CBT Tests', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M8.5 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                         ['route' => 'events.index', 'label' => 'Events', 'icon' => 'M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                         ['route' => 'communications.index', 'label' => 'Communication', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                        ['route' => 'notices.index', 'label' => 'Notices', 'icon' => 'M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z', 'extra' => '<path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                        ['route' => 'diary.index', 'label' => 'Teacher Diary', 'icon' => 'M4 6.5A1.5 1.5 0 015.5 5h3.6a1 1 0 01.8.4l1 1.35a1 1 0 00.8.4h6.8A1.5 1.5 0 0120 8.65V17.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17.5v-11z', 'extra' => ''],
+                    ['route' => 'notices.index', 'label' => 'Memorandums', 'icon' => 'M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z', 'extra' => '<path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                         ['route' => 'co-curricular.index', 'label' => 'Co-curricular', 'icon' => 'M12 4.5l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z', 'extra' => ''],
                         ['route' => 'library.index', 'label' => 'Library', 'icon' => 'M3.5 6.2S5.5 5 8.5 5s5 1.2 5 1.2v12S11.5 17 8.5 17s-5 1.2-5 1.2v-12z', 'extra' => '<path d="M13.5 6.2S15.5 5 18.5 5s2 1.2 2 1.2v12s0 1.2-2 1.2-5 1.2-5 1.2v-12z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />'],
                         ['route' => 'transport.index', 'label' => 'Transport', 'icon' => 'M4 16V8.5a1 1 0 011-1h1.5l1.5-3h8l1.5 3H19a1 1 0 011 1V16a1 1 0 01-1 1h-1', 'extra' => '<circle cx="6" cy="17" r="1.5" stroke="currentColor" stroke-width="1.5" /><circle cx="17" cy="17" r="1.5" stroke="currentColor" stroke-width="1.5" />'],
@@ -602,8 +614,8 @@
                         ['route' => 'settings.index', 'label' => 'Settings', 'icon' => '', 'extra' => '<circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /><path d="M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                     ] as $item)
                         @continue(! \Illuminate\Support\Facades\Route::has($item['route']))
-                        @continue($item['route'] === 'result-pins.index' && ! $school->hasPlanAccess(\App\Enums\PlanKey::Basic))
-                        @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
+                        @continue(! $school->canAccessRoute($item['route']))
+                            @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
                         <a
                             href="{{ route($item['route']) }}"
                             @click="moreOpen = false"

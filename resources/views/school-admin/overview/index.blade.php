@@ -95,7 +95,7 @@
                         <div class="flex items-center gap-1.5">
                             <div>
                                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Attendance Overview</h2>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Daily attendance so far this week</p>
+                                <p class="field-hint">Daily attendance so far this week</p>
                             </div>
                             <x-stat-tooltip text="A student counts as present for a day if they're marked Present or Late on at least one attendance record." />
                         </div>
@@ -167,7 +167,7 @@
                         <h2 class="text-sm font-bold text-gray-900 dark:text-white">Students Performance</h2>
                         <x-stat-tooltip text="Each student's average score across all graded subjects this term, grouped into four performance bands." />
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Average exam score per student, this term</p>
+                    <p class="field-hint">Average exam score per student, this term</p>
 
                     @if ($performanceBreakdown['total'] > 0)
                         <div
@@ -219,7 +219,7 @@
                                     </span>
                                     <div class="min-w-0 flex-1">
                                         <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $event->title }}</p>
-                                        <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $event->starts_at->format('M j, Y') }}@if (! $event->is_all_day) &middot; {{ $event->starts_at->format('g:ia') }} @endif</p>
+                                        <p class="field-hint mt-0.5">{{ $event->starts_at->format('M j, Y') }}@if (! $event->is_all_day) &middot; {{ $event->starts_at->format('g:ia') }} @endif</p>
                                     </div>
                                     <span class="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ $event->audience->label() }}</span>
                                 </div>

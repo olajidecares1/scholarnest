@@ -15,7 +15,7 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ $ticket->subject }}</h2>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Opened by {{ $ticket->openedBy->name }} &middot; {{ $ticket->created_at->diffForHumans() }}</p>
+                        <p class="field-hint mt-1">Opened by {{ $ticket->openedBy->name }} &middot; {{ $ticket->created_at->diffForHumans() }}</p>
                     </div>
                     <span class="rounded-full px-3 py-1 text-xs font-bold uppercase {{ $statusColors[$ticket->status->value] ?? 'bg-gray-100 text-gray-600' }}">
                         {{ $ticket->status->label() }}
@@ -35,7 +35,7 @@
             @endforeach
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <form method="POST" action="{{ route('super-admin.support-tickets.reply', $ticket) }}" class="space-y-3">
+                <form method="POST" action="{{ route('super-admin.support-tickets.reply', $ticket) }}" class="space-y-2">
                     @csrf
                     <x-textarea-field
                         id="message"
@@ -61,7 +61,7 @@
         <div class="space-y-4">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Ticket Details</h3>
-                <form method="POST" action="{{ route('super-admin.support-tickets.update', $ticket) }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('super-admin.support-tickets.update', $ticket) }}" class="mt-4 space-y-2">
                     @csrf
                     @method('PUT')
 
@@ -99,7 +99,7 @@
                 <a href="{{ route('super-admin.schools.show', $ticket->school) }}" class="mt-2 block text-sm font-semibold text-primary-500 hover:text-primary-600">
                     {{ $ticket->school->name }}
                 </a>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Priority: {{ $ticket->priority->label() }}</p>
+                <p class="field-hint mt-1">Priority: {{ $ticket->priority->label() }}</p>
             </div>
         </div>
     </div>

@@ -15,7 +15,7 @@
             <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $hostel->name }}</h2>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $hostel->gender->label() }} &middot; {{ $rooms->count() }} room(s)</p>
+                    <p class="field-hint mt-0.5">{{ $hostel->gender->label() }} &middot; {{ $rooms->count() }} room(s)</p>
                 </div>
                 <button
                     type="button"
@@ -79,7 +79,7 @@
                 <form
                     method="POST"
                     :action="editing ? '{{ route('hostels.rooms.update', ['room' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('hostels.rooms.store', $hostel) }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>

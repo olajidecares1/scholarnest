@@ -92,7 +92,7 @@
                 <form
                     method="POST"
                     :action="editing ? '{{ route('transport.update', ['vehicle' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('transport.store') }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>

@@ -1,7 +1,7 @@
 <x-super-admin-layout page-title="Add Admin" page-subtitle="Add another admin account to an existing school.">
     <div class="mx-auto max-w-xl">
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-            <form method="POST" action="{{ route('super-admin.users.store') }}" class="space-y-5">
+            <form method="POST" action="{{ route('super-admin.users.store') }}" class="space-y-2">
                 @csrf
 
                 <x-select-field

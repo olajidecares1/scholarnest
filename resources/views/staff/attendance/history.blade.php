@@ -11,7 +11,7 @@
                 @if ($classes->count() > 1)
                     <form method="GET">
                         <input type="hidden" name="period" value="{{ $period }}">
-                        <select name="class" onchange="this.form.submit()" class="h-9 rounded-[8px] border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                        <select name="class" onchange="this.form.submit()" >
                             @foreach ($classes as $class)
                                 <option value="{{ $class }}" @selected($className === $class)>{{ $class }}</option>
                             @endforeach
@@ -32,7 +32,7 @@
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Termly attendance will show here once term dates are configured.</p>
             </div>
         @else
-            <div class="overflow-hidden rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">

@@ -28,7 +28,7 @@
                             </span>
                             <div>
                                 <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $testimonial->name }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $testimonial->role ?? '—' }}</p>
+                                <p class="field-hint">{{ $testimonial->role ?? '—' }}</p>
                             </div>
                         </div>
                         <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $testimonial->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
@@ -70,7 +70,7 @@
                 <form
                     method="POST"
                     :action="editing ? '{{ route('testimonials.update', ['testimonial' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('testimonials.store') }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
@@ -83,7 +83,7 @@
                     <x-textarea-field name="quote" label="Quote" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="4" x-model="editing ? editing.quote : ''" required />
 
                     <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                        <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="w-4 text-blue-600">
                         Active (visible on your public website)
                     </label>
 

@@ -21,7 +21,7 @@
                     @endif
                     <div>
                         <h1 class="text-lg font-bold text-gray-900 dark:text-white">{{ $school->name }}</h1>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $school->current_session ?? 'Session not set' }}</p>
+                        <p class="field-hint">{{ $school->current_session ?? 'Session not set' }}</p>
                     </div>
                 </div>
                 <div class="text-right">

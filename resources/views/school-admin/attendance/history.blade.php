@@ -19,7 +19,7 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search student name..."
-                        class="h-11 w-56 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="w-56"
                     >
                     <div class="w-44">
                         <x-select-field
@@ -29,8 +29,8 @@
                             :options="['' => 'All Classes'] + $academicLevels->flatMap->classes->pluck('name', 'name')->all()"
                         />
                     </div>
-                    <input type="date" name="from" value="{{ request('from') }}" max="{{ today()->toDateString() }}" class="h-11 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
-                    <input type="date" name="to" value="{{ request('to') }}" max="{{ today()->toDateString() }}" class="h-11 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                    <input type="date" name="from" value="{{ request('from') }}" max="{{ today()->toDateString() }}" >
+                    <input type="date" name="to" value="{{ request('to') }}" max="{{ today()->toDateString() }}" >
                     <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
                     @if (request('search') || request('class') || request('from') || request('to'))
                         <a href="{{ route('attendance.history') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>

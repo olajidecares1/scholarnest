@@ -1,7 +1,7 @@
-<x-super-admin-layout page-title="Add Team Member" page-subtitle="Grant another admin Super Admin access.">
+<x-super-admin-layout page-title="Add Team Member" page-subtitle="Grant another admin EduNest Team access.">
     <div class="mx-auto max-w-xl">
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-            <form method="POST" action="{{ route('super-admin.roles.team.store') }}" class="space-y-5">
+            <form method="POST" action="{{ route('super-admin.roles.team.store') }}" class="space-y-2">
                 @csrf
 
                 <x-text-field
@@ -9,7 +9,7 @@
                     name="name"
                     label="Full Name"
                     icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
-                    helper="The person you're granting Super Admin access to."
+                    helper="The person you're granting EduNest Team access to."
                     :value="old('name')"
                     required
                     autofocus

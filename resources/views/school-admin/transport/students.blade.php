@@ -15,7 +15,7 @@
             <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $route->name }}</h2>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $assignments->count() }} student(s) assigned</p>
+                    <p class="field-hint mt-0.5">{{ $assignments->count() }} student(s) assigned</p>
                 </div>
                 <button
                     type="button"
@@ -64,7 +64,7 @@
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="open = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Assign Student</h3>
-                <form method="POST" action="{{ route('transport.routes.students.store', $route) }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('transport.routes.students.store', $route) }}" class="mt-4 space-y-2">
                     @csrf
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" helper="Students already on a route aren't listed." />
                     <x-text-field name="pickup_point" label="Pickup Point" icon="M12 21s7-6.1 7-11a7 7 0 10-14 0c0 4.9 7 11 7 11z" helper="Optional." />

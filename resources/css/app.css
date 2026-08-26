@@ -23,15 +23,6 @@
     --color-primary-900: #0a336d;
 }
 
-.edn-wheel {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.edn-wheel::-webkit-scrollbar {
-    display: none;
-}
-
 /* Public site navbar: premium entrance + hover micro-interactions. */
 @keyframes edn-fade-slide-down {
     from {
@@ -248,5 +239,671 @@
 
     .edn-kenburns {
         animation: none;
+    }
+}
+
+/* Alpine hides x-cloak elements only once it has booted. Without this rule the
+   markup is visible for that first moment, which would flash the hidden Super
+   Admin dialog on every page load - the one thing it must not do. */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Scroll without a visible scrollbar.
+   Used on the registration form column: the layout is sized to fit a viewport
+   without scrolling, but a genuinely short window (a laptop at 1366x600, a
+   phone in landscape) must still be able to reach the submit button. Hiding
+   the bar keeps the design clean; removing the scrolling would clip content. */
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* The success tick on the password-reset confirmation.
+   Drawn once on arrival: the ring wipes in, then the check strokes itself.
+   Both respect prefers-reduced-motion by simply appearing already drawn. */
+@keyframes reset-done-draw {
+    from { stroke-dashoffset: var(--reset-done-length); }
+    to { stroke-dashoffset: 0; }
+}
+
+.reset-done-ring {
+    --reset-done-length: 64;
+    stroke-dasharray: 64;
+    animation: reset-done-draw 0.5s ease-out forwards;
+}
+
+.reset-done-tick {
+    --reset-done-length: 20;
+    stroke-dasharray: 20;
+    animation: reset-done-draw 0.35s ease-out 0.35s forwards;
+    stroke-dashoffset: 20;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reset-done-ring,
+    .reset-done-tick {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+}
+
+/* ==========================================================================
+   Form controls — one design, project-wide.
+
+   The registration page is the reference. Every dimension below is taken from
+   it: 36px tall, 8px radius, a 1.2px border, 12.5px text, and a focus state
+   that changes the border colour and nothing else — no ring, no glow, no
+   shadow, no movement.
+
+   These are element selectors in the base layer rather than a class, which is
+   deliberate. A class only styles the fields somebody remembered to put it on;
+   an element rule styles every field in the project, including the ones nobody
+   has written yet. A page that needs a genuinely different width can still say
+   so with a utility — utilities outrank the base layer — but nothing has to
+   opt IN to the house style to get it.
+
+   Anything laid on top of a field (a leading icon, a trailing button) is
+   positioned against --field-height, so the fields and their furniture stay in
+   step if that number ever changes.
+   ========================================================================== */
+
+:root {
+    --field-height: 36px;
+    --field-radius: 8px;
+    --field-border-width: 1.2px;
+    --field-padding-x: 12px;
+    --field-font-size: 12.5px;
+
+    --field-bg: #ffffff;
+    --field-border: #e1e8f2;
+    --field-border-hover: #cbd6e6;
+    --field-border-focus: var(--color-primary-500);
+    --field-border-invalid: #f87171;
+    --field-text: #0f2a5c;
+    --field-placeholder: #9aaac4;
+    --field-label: #0f2a5c;
+    --field-hint: #64789f;
+    --field-disabled-bg: #f5f8fd;
+}
+
+.dark {
+    --field-bg: #1f2937;
+    --field-border: #374151;
+    --field-border-hover: #4b5563;
+    --field-text: #e5e7eb;
+    --field-placeholder: #6b7280;
+    --field-label: #e5e7eb;
+    --field-hint: #9ca3af;
+    --field-disabled-bg: #111827;
+}
+
+@layer base {
+    /* Everything a person types into. Buttons, checkboxes, radios, ranges,
+       colours and file pickers are excluded: they are controls of a different
+       shape, and forcing a text field's dimensions onto them would be wrong. */
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"], [type="submit"], [type="button"], [type="reset"], [type="image"]),
+    select,
+    textarea {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        height: var(--field-height);
+        padding-inline: var(--field-padding-x);
+        border: var(--field-border-width) solid var(--field-border);
+        border-radius: var(--field-radius);
+        background-color: var(--field-bg);
+        color: var(--field-text);
+        font-family: inherit;
+        font-size: var(--field-font-size);
+        line-height: 1.35;
+        appearance: none;
+        transition: border-color 0.15s ease-out;
+    }
+
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"], [type="submit"], [type="button"], [type="reset"], [type="image"]):hover:not(:disabled, :focus),
+    select:hover:not(:disabled, :focus),
+    textarea:hover:not(:disabled, :focus) {
+        border-color: var(--field-border-hover);
+    }
+
+    /* Clear, and only that. A field that grows a ring or a shadow on focus
+       moves the layout around it and pulls the eye away from what is being
+       typed. */
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"], [type="submit"], [type="button"], [type="reset"], [type="image"]):focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: var(--field-border-focus);
+        box-shadow: none;
+    }
+
+    input:disabled,
+    select:disabled,
+    textarea:disabled {
+        cursor: not-allowed;
+        background-color: var(--field-disabled-bg);
+        opacity: 0.65;
+    }
+
+    /* A placeholder is a hint, not a label: small, quiet, and gone the moment
+       the field is being used, so it never sits behind what is being typed. */
+    ::placeholder {
+        color: var(--field-placeholder);
+        font-size: var(--field-font-size);
+        opacity: 1;
+    }
+
+    :focus::placeholder {
+        color: transparent;
+    }
+
+    /* Multi-line fields keep every other property and give up only the fixed
+       height, which is the one thing that cannot apply to them. */
+    textarea {
+        height: auto;
+        min-height: calc(var(--field-height) * 2.5);
+        padding-block: 8px;
+        line-height: 1.5;
+        resize: vertical;
+    }
+
+    /* appearance:none removes the native arrow, so the select draws its own —
+       one chevron, the same on every platform. */
+    select {
+        padding-right: calc(var(--field-padding-x) + 18px);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aaac4' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right var(--field-padding-x) center;
+        background-size: 14px 14px;
+    }
+
+    select[multiple] {
+        height: auto;
+        background-image: none;
+        padding-right: var(--field-padding-x);
+    }
+
+    /* Native date and time controls put their own picker button inside the
+       field; sized down so it sits inside a 36px control rather than filling
+       it. */
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+    input[type="month"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator,
+    input[type="week"]::-webkit-calendar-picker-indicator {
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
+        opacity: 0.55;
+    }
+
+    input[type="search"]::-webkit-search-cancel-button {
+        appearance: none;
+    }
+
+    /* Ticks and radios: the registration page's proportions, which are smaller
+       than the browser default and sit correctly beside 12.5px text. */
+    input[type="checkbox"],
+    input[type="radio"] {
+        width: 15px;
+        height: 15px;
+        border: var(--field-border-width) solid #cbd6e6;
+        background-color: var(--field-bg);
+        color: var(--color-primary-500);
+        accent-color: var(--color-primary-500);
+        cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+        border-radius: 4px;
+    }
+
+    input[type="radio"] {
+        border-radius: 9999px;
+    }
+
+    .dark input[type="checkbox"],
+    .dark input[type="radio"] {
+        border-color: #4b5563;
+    }
+}
+
+/* The text around a field. Both are small on purpose: a label that competes
+   with the page heading, or a hint that competes with the value being typed,
+   makes a form harder to read rather than easier. */
+.field-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--field-label);
+}
+
+.field-hint {
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--field-hint);
+}
+
+/* A field in an invalid state. The border is the only thing that changes,
+   for the same reason the focus state is: the message underneath already
+   says what is wrong. */
+.field-invalid,
+.field-invalid:hover:not(:focus) {
+    border-color: var(--field-border-invalid);
+}
+
+/* --------------------------------------------------------------------------
+   The controls that are not text fields.
+
+   These were the gap in the first pass. Excluding them from the text-field
+   rules was right - a colour swatch is not a text box - but excluding them
+   from the SYSTEM was not: they were left carrying whatever each page had
+   given them, which for the file pickers meant three different button colours
+   across the project. They share the frame now, and differ only where they
+   genuinely must.
+   -------------------------------------------------------------------------- */
+@layer base {
+    /* File pickers. The field itself is a field like any other; the button
+       inside it is the one part that has to look like a button, and it is the
+       same button on every page that has one. */
+    input[type='file'] {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        height: var(--field-height);
+        border: var(--field-border-width) solid var(--field-border);
+        border-radius: var(--field-radius);
+        background-color: var(--field-bg);
+        color: var(--field-hint);
+        font-family: inherit;
+        font-size: var(--field-font-size);
+        line-height: 1.35;
+        cursor: pointer;
+        transition: border-color 0.15s ease-out;
+    }
+
+    input[type='file']:hover:not(:disabled, :focus) {
+        border-color: var(--field-border-hover);
+    }
+
+    input[type='file']:focus {
+        outline: none;
+        border-color: var(--field-border-focus);
+    }
+
+    input[type='file']::file-selector-button {
+        height: calc(var(--field-height) - (var(--field-border-width) * 2));
+        margin-right: 10px;
+        padding-inline: 12px;
+        border: 0;
+        border-radius: calc(var(--field-radius) - 1px) 0 0 calc(var(--field-radius) - 1px);
+        background-color: var(--color-primary-50);
+        color: var(--color-primary-700);
+        font-family: inherit;
+        font-size: var(--field-font-size);
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.15s ease-out;
+    }
+
+    input[type='file']:hover::file-selector-button {
+        background-color: var(--color-primary-100);
+    }
+
+    .dark input[type='file']::file-selector-button {
+        background-color: color-mix(in srgb, var(--color-primary-900) 45%, transparent);
+        color: var(--color-primary-300);
+    }
+
+    /* A file input hidden behind a drop zone is not a field at all; it is the
+       drop zone's trigger, and must keep its own dimensions. */
+    input[type='file'].sr-only,
+    input[type='file'].hidden {
+        display: revert;
+        height: revert;
+        border: revert;
+        background: revert;
+        cursor: revert;
+    }
+
+    input[type='file'].hidden {
+        display: none;
+    }
+
+    /* Colour swatches: the same frame, so a colour sits in a row of fields
+       without being the odd one out. The padding is trimmed to nothing so the
+       colour fills the control rather than floating inside a white margin. */
+    input[type='color'] {
+        display: block;
+        height: var(--field-height);
+        padding: 3px;
+        border: var(--field-border-width) solid var(--field-border);
+        border-radius: var(--field-radius);
+        background-color: var(--field-bg);
+        cursor: pointer;
+        transition: border-color 0.15s ease-out;
+    }
+
+    input[type='color']:hover:not(:disabled, :focus) {
+        border-color: var(--field-border-hover);
+    }
+
+    input[type='color']:focus {
+        outline: none;
+        border-color: var(--field-border-focus);
+    }
+
+    input[type='color']::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+
+    input[type='color']::-webkit-color-swatch,
+    input[type='color']::-moz-color-swatch {
+        border: 0;
+        border-radius: calc(var(--field-radius) - 3px);
+    }
+
+    /* Sliders. Native on every platform meant a different slider on every
+       platform; this is one track and one thumb, in the project's colour. */
+    input[type='range'] {
+        width: 100%;
+        height: 16px;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    input[type='range']:focus {
+        outline: none;
+    }
+
+    input[type='range']::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 9999px;
+        background-color: var(--field-border);
+    }
+
+    input[type='range']::-moz-range-track {
+        height: 4px;
+        border-radius: 9999px;
+        background-color: var(--field-border);
+    }
+
+    input[type='range']::-webkit-slider-thumb {
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        margin-top: -5px;
+        border: 0;
+        border-radius: 9999px;
+        background-color: var(--color-primary-500);
+    }
+
+    input[type='range']::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        border: 0;
+        border-radius: 9999px;
+        background-color: var(--color-primary-500);
+    }
+
+    input[type='range']:focus::-webkit-slider-thumb,
+    input[type='range']:focus::-moz-range-thumb {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-500) 25%, transparent);
+    }
+}
+
+/* A field that already holds something, where that is worth showing at a
+   glance - the digits of a reset code, which are read as a row rather than
+   one at a time. A state, not a second design. */
+.field-filled {
+    border-color: var(--color-primary-500);
+    background-color: color-mix(in srgb, var(--color-primary-50) 55%, var(--field-bg));
+}
+
+/* --------------------------------------------------------------------------
+   The plan-restriction page.
+
+   The motion is there to make the page feel deliberate rather than like
+   something that broke: the card settles, then the lines arrive in reading
+   order. It is small, it happens once, and it never repeats - a refusal that
+   bounces at you is worse than one that does not move at all. Anyone who has
+   asked for reduced motion gets the page already settled.
+   -------------------------------------------------------------------------- */
+@keyframes restricted-rise {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes restricted-line {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes restricted-badge {
+    0% {
+        opacity: 0;
+        transform: scale(0.6) rotate(-8deg);
+    }
+    60% {
+        transform: scale(1.06) rotate(2deg);
+    }
+    100% {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes restricted-glow {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.restricted-card {
+    animation: restricted-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.restricted-badge {
+    animation: restricted-badge 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+
+.restricted-glow {
+    animation: restricted-glow 0.9s ease-out 0.15s both;
+}
+
+.restricted-line {
+    animation: restricted-line 0.5s cubic-bezier(0.16, 1, 0.3, 1) var(--delay, 0ms) both;
+}
+
+/* The one piece of feedback that answers a pointer rather than the page load,
+   so the way forward feels live under the cursor. */
+.restricted-cta {
+    transition:
+        background-color 0.2s ease-out,
+        transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.25s ease-out;
+}
+
+.restricted-cta:hover {
+    transform: translateY(-1px);
+}
+
+.restricted-cta:active {
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .restricted-card,
+    .restricted-badge,
+    .restricted-glow,
+    .restricted-line {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    .restricted-cta:hover {
+        transform: none;
+    }
+}
+
+/* The subscription progress rail.
+
+   It scrolls sideways on a narrow screen, so it needs a scrollbar people can
+   see - a rail that slides with no indication that it slides is a rail nobody
+   slides. A slim one, styled to match the bar rather than the operating
+   system, and gone entirely from "sm" up where the steps fit and there is
+   nothing to scroll. Momentum scrolling and snapping make the drag feel like
+   the rest of the page on a touch screen. */
+.subscription-steps-rail {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd6e6 transparent;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+}
+
+.subscription-steps-rail > ol > li {
+    scroll-snap-align: center;
+}
+
+.subscription-steps-rail::-webkit-scrollbar {
+    height: 4px;
+}
+
+.subscription-steps-rail::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.subscription-steps-rail::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background-color: #cbd6e6;
+}
+
+@media (min-width: 640px) {
+    .subscription-steps-rail {
+        scrollbar-width: none;
+        scroll-snap-type: none;
+    }
+
+    .subscription-steps-rail::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .subscription-steps-rail {
+        scroll-behavior: auto;
+    }
+}
+
+
+/* -----------------------------------------------------------------------------
+   Upload progress
+   -------------------------------------------------------------------------- */
+
+/* A file upload has one measurable phase and one that is not. Sending bytes is
+   measurable, so the bar fills to a real percentage. Extracting questions from
+   the document is not - the extractor reports no interim progress - so the bar
+   switches to the indeterminate sweep below rather than inventing a number.
+   That distinction is the whole point of these two rules. */
+
+.upload-progress-track {
+    position: relative;
+    height: 6px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 999px;
+    background-color: #e8eef8;
+}
+
+.dark .upload-progress-track {
+    background-color: #1f2937;
+}
+
+.upload-progress-track--failed {
+    background-color: #fee2e2;
+}
+
+.dark .upload-progress-track--failed {
+    background-color: rgba(127, 29, 29, 0.4);
+}
+
+.upload-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-primary-400, #60a5fa), var(--color-primary-600, #2563eb));
+
+    /* Eased rather than linear: byte progress arrives in bursts, and a linear
+       transition makes a fast connection look like it is stuttering. */
+    transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.upload-progress-track--failed .upload-progress-bar {
+    background: linear-gradient(90deg, #f87171, #dc2626);
+}
+
+/* The honest "we do not know how long this will take" state: a sweep that
+   conveys work without claiming a position. */
+.upload-progress-bar--indeterminate {
+    width: 40%;
+    transition: none;
+    animation: upload-progress-sweep 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes upload-progress-sweep {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(250%);
+    }
+}
+
+/* With motion reduced the sweep would be the only cue that anything is
+   happening, so it becomes a gentle pulse in place rather than disappearing. */
+@media (prefers-reduced-motion: reduce) {
+    .upload-progress-bar {
+        transition: none;
+    }
+
+    .upload-progress-bar--indeterminate {
+        width: 100%;
+        animation: upload-progress-pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes upload-progress-pulse {
+        0%, 100% {
+            opacity: 0.45;
+        }
+
+        50% {
+            opacity: 1;
+        }
     }
 }

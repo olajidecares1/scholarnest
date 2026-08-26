@@ -4,7 +4,7 @@
             :photo-url="auth()->user()->photoUrl()"
             :initials="Str::of(auth()->user()->name)->substr(0, 1)->upper()"
             :name="auth()->user()->name"
-            role-label="Super Administrator"
+            role-label="EduNest Team"
             subtitle="Here's the platform at a glance."
         />
 
@@ -55,7 +55,7 @@
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:col-span-2 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Revenue Overview</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Verified payments by month, {{ now()->year }}</p>
+                <p class="field-hint">Verified payments by month, {{ now()->year }}</p>
                 <div
                     class="mt-3"
                     x-data
@@ -104,7 +104,7 @@
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Subscription Overview</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Active subscriptions by plan</p>
+                <p class="field-hint">Active subscriptions by plan</p>
                 @if (empty($subscriptionOverview))
                     <p class="py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active subscriptions yet.</p>
                 @else
@@ -125,7 +125,7 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Schools by Status</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Where every school currently stands</p>
+                <p class="field-hint">Where every school currently stands</p>
                 <div
                     class="mt-3"
                     x-data

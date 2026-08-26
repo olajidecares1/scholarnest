@@ -32,7 +32,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Student Submissions</h3>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Track submission status and record scores per student.</p>
+                <p class="field-hint mt-0.5">Track submission status and record scores per student.</p>
             </div>
 
             <form method="POST" action="{{ route('assignments.submissions.store', $assignment) }}">
@@ -84,7 +84,7 @@
                                             min="0"
                                             max="{{ $assignment->max_score }}"
                                             step="0.01"
-                                            class="h-10 w-24 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-24"
                                         >
                                     </td>
                                     <td class="px-6 py-3">
@@ -93,7 +93,7 @@
                                             name="submissions[{{ $student->id }}][feedback]"
                                             value="{{ $current?->feedback }}"
                                             placeholder="Optional feedback"
-                                            class="h-10 w-56 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-56"
                                         >
                                     </td>
                                 </tr>

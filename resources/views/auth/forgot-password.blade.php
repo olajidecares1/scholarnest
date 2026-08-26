@@ -16,7 +16,7 @@
 
         <x-auth-session-status class="mt-4" :status="session('status')" />
 
-        <form method="POST" action="{{ route('password.email') }}" class="mt-6 space-y-5">
+        <form method="POST" action="{{ route('password.email') }}" class="mt-6 space-y-2">
             @csrf
 
             <x-auth-email-input autofocus />

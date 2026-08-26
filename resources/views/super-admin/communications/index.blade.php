@@ -37,9 +37,9 @@
         <div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">New Announcement</h2>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">This will be sent to all {{ number_format($schoolAdminCount) }} school admin(s) by email and in-app notification.</p>
+                <p class="field-hint mt-1">This will be sent to all {{ number_format($schoolAdminCount) }} school admin(s) by email and in-app notification.</p>
 
-                <form method="POST" action="{{ route('super-admin.communications.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('super-admin.communications.store') }}" class="mt-4 space-y-2">
                     @csrf
 
                     <x-text-field

@@ -32,14 +32,14 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search by name or email..."
-                        class="w-full rounded-[8px] border-gray-300 py-2 pl-9 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                        class="w-full pl-9"
                     >
                 </div>
 
                 <div class="w-full sm:w-48">
                     <x-select-field
                         name="role"
-                        :options="['' => 'All Roles', 'school_admin' => 'School Admin', 'super_admin' => 'Super Admin']"
+                        :options="['' => 'All Roles', 'school_admin' => 'School Admin', 'super_admin' => 'EduNest Team']"
                         :selected="request('role')"
                     />
                 </div>
@@ -66,7 +66,7 @@
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3">
                                     <p class="font-semibold text-gray-900 dark:text-white">{{ $user->name }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}</p>
+                                    <p class="field-hint">{{ $user->email }}</p>
                                 </td>
                                 <td class="px-5 py-3">
                                     <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">{{ $user->role->label() }}</span>

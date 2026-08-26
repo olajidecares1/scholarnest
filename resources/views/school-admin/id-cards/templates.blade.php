@@ -40,7 +40,7 @@
                             <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $template->name }}</p>
                             <span class="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">{{ $template->type->label() }}</span>
                         </div>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        <p class="field-hint mt-1">
                             {{ $template->orientation->label() }}
                             @if ($template->is_default) &middot; Default @endif
                         </p>
@@ -86,7 +86,7 @@
                         method="POST"
                         :action="form.uuid ? '{{ route('id-cards.templates.update', ['template' => '__ID__']) }}'.replace('__ID__', form.uuid) : '{{ route('id-cards.templates.store') }}'"
                         enctype="multipart/form-data"
-                        class="mt-4 space-y-4"
+                        class="mt-4 space-y-2"
                     >
                         @csrf
                         <template x-if="form.uuid"><input type="hidden" name="_method" value="PUT"></template>
@@ -94,8 +94,8 @@
                         <x-text-field name="name" label="Template Name" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" x-model="form.name" placeholder="e.g. Standard Student Card" required />
 
                         <div>
-                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Card Type</label>
-                            <select name="type" x-model="form.type" class="mt-1.5 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Card Type</label>
+                            <select name="type" x-model="form.type" class="mt-1.5 w-full">
                                 @foreach (\App\Enums\IdCardHolderType::cases() as $type)
                                     <option value="{{ $type->value }}">{{ $type->label() }}</option>
                                 @endforeach
@@ -103,8 +103,8 @@
                         </div>
 
                         <div>
-                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Orientation</label>
-                            <select name="orientation" x-model="form.orientation" class="mt-1.5 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Orientation</label>
+                            <select name="orientation" x-model="form.orientation" class="mt-1.5 w-full">
                                 @foreach (\App\Enums\IdCardOrientation::cases() as $orientation)
                                     <option value="{{ $orientation->value }}">{{ $orientation->label() }}</option>
                                 @endforeach
@@ -113,25 +113,25 @@
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Primary Color</label>
-                                <input type="color" name="primary_color" x-model="form.primary_color" class="mt-1.5 h-10 w-full rounded-[8px] border border-gray-300 dark:border-gray-600">
+                                <label class="field-label">Primary Color</label>
+                                <input type="color" name="primary_color" x-model="form.primary_color" class="mt-1.5 w-full">
                             </div>
                             <div>
-                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Secondary Color</label>
-                                <input type="color" name="secondary_color" x-model="form.secondary_color" class="mt-1.5 h-10 w-full rounded-[8px] border border-gray-300 dark:border-gray-600">
+                                <label class="field-label">Secondary Color</label>
+                                <input type="color" name="secondary_color" x-model="form.secondary_color" class="mt-1.5 w-full">
                             </div>
                         </div>
 
                         <div>
-                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Back-side Instructions</label>
+                            <label class="field-label">Back-side Instructions</label>
                             <textarea
                                 name="instructions"
                                 x-model="form.instructions"
                                 rows="4"
                                 placeholder="This card is the property of {{ auth()->user()->school->name }}.&#10;It must be worn at all times on campus.&#10;It is non-transferable and must not be tampered with.&#10;Report loss or damage to the school office immediately."
-                                class="mt-1.5 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                                class="mt-1.5 w-full"
                             ></textarea>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">One instruction per line. Leave blank to use the default wording shown above.</p>
+                            <p class="field-hint mt-1">One instruction per line. Leave blank to use the default wording shown above.</p>
                         </div>
 
                         <div>
@@ -140,22 +140,22 @@
                                 name="background"
                                 accept=".jpg,.jpeg,.png,.webp"
                                 @change="form.background_preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null"
-                                class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-400"
+                                class="w-full"
                             >
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Background image (optional). Leave blank to keep the existing one when editing.</p>
+                            <p class="field-hint mt-1">Background image (optional). Leave blank to keep the existing one when editing.</p>
                         </div>
 
                         <div class="space-y-2">
                             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                                <input type="checkbox" name="show_blood_group" value="1" x-model="form.show_blood_group" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                                <input type="checkbox" name="show_blood_group" value="1" x-model="form.show_blood_group" class="text-blue-600">
                                 Show blood group
                             </label>
                             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                                <input type="checkbox" name="show_dob" value="1" x-model="form.show_dob" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                                <input type="checkbox" name="show_dob" value="1" x-model="form.show_dob" class="text-blue-600">
                                 Show date of birth
                             </label>
                             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                                <input type="checkbox" name="is_default" value="1" x-model="form.is_default" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                                <input type="checkbox" name="is_default" value="1" x-model="form.is_default" class="text-blue-600">
                                 Set as default for this card type
                             </label>
                         </div>

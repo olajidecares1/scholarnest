@@ -30,14 +30,14 @@
                     <input type="hidden" name="type" value="student">
                     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <div class="flex flex-wrap items-center gap-2">
-                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Template</label>
-                            <select name="template" class="rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Template</label>
+                            <select name="template" >
                                 @foreach ($studentTemplates as $t)
                                     <option value="{{ $t->uuid }}" @selected($t->is_default)>{{ $t->name }}</option>
                                 @endforeach
                             </select>
-                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Class</label>
-                            <select x-model="studentFilter" class="rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Class</label>
+                            <select x-model="studentFilter" >
                                 <option value="">All Classes</option>
                                 @foreach ($studentClasses as $className)
                                     <option value="{{ $className }}">{{ $className }}</option>
@@ -54,7 +54,7 @@
                         </div>
                     </div>
 
-                    <div class="overflow-hidden rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                         <table class="w-full text-left text-sm">
                             <thead class="border-b border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
@@ -100,14 +100,14 @@
                     <input type="hidden" name="type" value="teaching_staff">
                     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <div class="flex flex-wrap items-center gap-2">
-                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Template</label>
-                            <select name="template" class="rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Template</label>
+                            <select name="template" >
                                 @foreach ($teachingStaffTemplates as $t)
                                     <option value="{{ $t->uuid }}" @selected($t->is_default)>{{ $t->name }}</option>
                                 @endforeach
                             </select>
-                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Department</label>
-                            <select x-model="teachingFilter" class="rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Department</label>
+                            <select x-model="teachingFilter" >
                                 <option value="">All Departments</option>
                                 @foreach ($teachingDepartments as $department)
                                     <option value="{{ $department }}">{{ $department }}</option>
@@ -124,7 +124,7 @@
                         </div>
                     </div>
 
-                    <div class="overflow-hidden rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                         <table class="w-full text-left text-sm">
                             <thead class="border-b border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
@@ -170,14 +170,14 @@
                     <input type="hidden" name="type" value="non_teaching_staff">
                     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <div class="flex flex-wrap items-center gap-2">
-                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Template</label>
-                            <select name="template" class="rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Template</label>
+                            <select name="template" >
                                 @foreach ($nonTeachingStaffTemplates as $t)
                                     <option value="{{ $t->uuid }}" @selected($t->is_default)>{{ $t->name }}</option>
                                 @endforeach
                             </select>
-                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Department</label>
-                            <select x-model="nonTeachingFilter" class="rounded-[8px] border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Department</label>
+                            <select x-model="nonTeachingFilter" >
                                 <option value="">All Departments</option>
                                 @foreach ($nonTeachingDepartments as $department)
                                     <option value="{{ $department }}">{{ $department }}</option>
@@ -194,7 +194,7 @@
                         </div>
                     </div>
 
-                    <div class="overflow-hidden rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                         <table class="w-full text-left text-sm">
                             <thead class="border-b border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>

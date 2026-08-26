@@ -42,7 +42,7 @@
             class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
         >
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Login &amp; Registration Backgrounds</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Choose an image or video from your library, or select None to use the default background.</p>
+            <p class="field-hint mt-1">Choose an image or video from your library, or select None to use the default background.</p>
 
             <div class="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <div>
@@ -185,7 +185,7 @@
 
                         <div class="p-3">
                             <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ $item->name }}</p>
-                            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $item->humanSize() }} @if($item->width) &middot; {{ $item->width }}&times;{{ $item->height }} @endif</p>
+                            <p class="field-hint mt-0.5">{{ $item->humanSize() }} @if($item->width) &middot; {{ $item->width }}&times;{{ $item->height }} @endif</p>
 
                             <div class="mt-3 flex flex-wrap gap-1.5">
                                 <button
@@ -225,7 +225,7 @@
             <div x-show="uploadOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
                 <div @click.outside="uploadOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Upload Media</h3>
-                    <form method="POST" action="{{ route('super-admin.media.store') }}" enctype="multipart/form-data" class="mt-4 space-y-4">
+                    <form method="POST" action="{{ route('super-admin.media.store') }}" enctype="multipart/form-data" class="mt-4 space-y-2">
                         @csrf
                         <div>
                             <x-input-label for="file" value="Image or Video File" />
@@ -235,9 +235,9 @@
                                 type="file"
                                 required
                                 accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.webm"
-                                class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                                class="mt-1 w-full"
                             >
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, WEBP, MP4, MOV, or WEBM. Max 50MB. Images are automatically optimized.</p>
+                            <p class="field-hint mt-1">JPG, PNG, WEBP, MP4, MOV, or WEBM. Max 50MB. Images are automatically optimized.</p>
                         </div>
                         <x-text-field name="name" label="Display Name (optional)" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Leave blank to use the original filename." />
                         <div class="flex justify-end gap-2">
@@ -252,7 +252,7 @@
             <div x-show="renaming" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
                 <div @click.outside="renaming = null" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Rename Media</h3>
-                    <form method="POST" :action="renaming ? '{{ route('super-admin.media.update', ['media' => '__ID__']) }}'.replace('__ID__', renaming.id) : '#'" class="mt-4 space-y-4">
+                    <form method="POST" :action="renaming ? '{{ route('super-admin.media.update', ['media' => '__ID__']) }}'.replace('__ID__', renaming.id) : '#'" class="mt-4 space-y-2">
                         @csrf
                         @method('PUT')
                         <x-text-field name="name" label="Display Name" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Shown throughout the Media Library." x-model="renaming ? renaming.name : ''" required />
@@ -269,14 +269,14 @@
                 <div @click.outside="replacing = null" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Replace File</h3>
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" x-text="replacing ? 'Uploading a new file for \"' + replacing.name + '\" keeps it selected anywhere it is already in use.' : ''"></p>
-                    <form method="POST" :action="replacing ? '{{ route('super-admin.media.replace', ['media' => '__ID__']) }}'.replace('__ID__', replacing.id) : '#'" enctype="multipart/form-data" class="mt-4 space-y-4">
+                    <form method="POST" :action="replacing ? '{{ route('super-admin.media.replace', ['media' => '__ID__']) }}'.replace('__ID__', replacing.id) : '#'" enctype="multipart/form-data" class="mt-4 space-y-2">
                         @csrf
                         <input
                             name="file"
                             type="file"
                             required
                             accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.webm"
-                            class="w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                            class="w-full"
                         >
                         <div class="flex justify-end gap-2">
                             <button type="button" @click="replacing = null" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>

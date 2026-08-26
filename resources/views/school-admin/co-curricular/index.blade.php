@@ -28,7 +28,7 @@
                         @endif
                     </div>
                     @if ($activity->description)
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ Str::limit($activity->description, 80) }}</p>
+                        <p class="field-hint mt-1">{{ Str::limit($activity->description, 80) }}</p>
                     @endif
                     @if ($activity->schedule_text)
                         <p class="mt-2 text-xs font-medium text-gray-600 dark:text-gray-300">{{ $activity->schedule_text }}</p>
@@ -69,7 +69,7 @@
                 <form
                     method="POST"
                     :action="editing ? '{{ route('co-curricular.update', ['activity' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('co-curricular.store') }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>

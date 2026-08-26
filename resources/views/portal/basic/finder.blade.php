@@ -8,11 +8,11 @@
             <p class="mt-2 text-sm text-gray-500">Enter your school name to continue to its portal.</p>
         </div>
 
-        <form method="POST" action="{{ route('basic-portal.find', $token) }}" class="mt-6 space-y-4">
+        <form method="POST" action="{{ route('basic-portal.find', $token) }}" class="mt-6 space-y-2">
             @csrf
 
             <div>
-                <label for="school" class="mb-1.5 block text-sm font-semibold text-gray-700">Enter your school name</label>
+                <label for="school" class="field-label mb-1">Enter your school name</label>
                 <input
                     id="school"
                     name="school"
@@ -22,10 +22,10 @@
                     autofocus
                     autocomplete="organization"
                     placeholder="e.g. Greenfield College"
-                    class="w-full rounded-[8px] border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 @error('school') border-red-400 @enderror"
+                    class="@error('school') field-invalid @enderror"
                 />
                 @error('school')
-                    <p class="mt-1.5 text-xs font-medium text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-[11px] font-medium leading-[1.45] text-red-600">{{ $message }}</p>
                 @enderror
             </div>
 

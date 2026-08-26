@@ -17,7 +17,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Visitor Timeline</h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Page views over the last 14 days</p>
+            <p class="field-hint">Page views over the last 14 days</p>
             <div
                 class="mt-3"
                 x-data
@@ -37,7 +37,7 @@
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Traffic Sources</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Where visitors came from, last 30 days</p>
+                <p class="field-hint">Where visitors came from, last 30 days</p>
                 <div
                     class="mt-3"
                     x-data
@@ -53,7 +53,7 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Devices</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Device breakdown, last 30 days</p>
+                <p class="field-hint">Device breakdown, last 30 days</p>
                 <div
                     class="mt-3"
                     x-data
@@ -71,7 +71,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Top Pages</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Most visited pages, last 30 days</p>
+                <p class="field-hint">Most visited pages, last 30 days</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">

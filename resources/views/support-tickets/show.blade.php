@@ -36,7 +36,7 @@
         </div>
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm lg:rounded-[10px]">
-            <form method="POST" action="{{ route('support-tickets.reply', $ticket) }}" class="space-y-3">
+            <form method="POST" action="{{ route('support-tickets.reply', $ticket) }}" class="space-y-2">
                 @csrf
                 <x-textarea-field
                     id="message"

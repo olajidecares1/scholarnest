@@ -63,6 +63,98 @@
             </div>
         </div>
 
+        {{-- Student capacity.
+             One cumulative figure per school, however many times it has been
+             topped up. The table below is the history of how it got there -
+             each row records what the figure moved FROM and TO - but the
+             school only ever draws on the single total. --}}
+        @if ($capacity)
+            <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+                <div class="border-b border-gray-100 p-5 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Student Capacity</h3>
+                    <p class="field-hint mt-0.5">
+                        Billed per student. This is the ceiling the school is held to when admitting students.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-px bg-gray-100 lg:grid-cols-4 dark:bg-gray-700">
+                    @foreach ([
+                        ['Initial allocation', number_format($capacity['initial']), 'text-gray-600 dark:text-gray-300'],
+                        ['Total approved', number_format($capacity['allocated']), 'text-gray-900 dark:text-white'],
+                        ['Registered', number_format($capacity['used']), 'text-gray-900 dark:text-white'],
+                        ['Remaining', number_format($capacity['remaining']), $capacity['remaining'] === 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'],
+                    ] as [$label, $value, $tone])
+                        <div class="bg-white p-4 dark:bg-gray-800">
+                            <p class="field-hint">{{ $label }}</p>
+                            <p class="mt-1 text-2xl font-extrabold {{ $tone }}">{{ $value }}</p>
+                        </div>
+                    @endforeach
+                </div>
+
+                @if ($capacity['remaining'] === 0)
+                    <div class="border-t border-gray-100 bg-amber-50 p-4 text-xs font-medium text-amber-800 dark:border-gray-700 dark:bg-amber-900/20 dark:text-amber-300">
+                        This school has used every approved space. It cannot admit another student until additional capacity is approved.
+                    </div>
+                @endif
+
+                <div class="border-t border-gray-100 dark:border-gray-700">
+                    <div class="p-5 pb-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Capacity history</h4>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
+                                <tr>
+                                    <th class="px-5 py-3 font-semibold">Requested</th>
+                                    <th class="px-5 py-3 font-semibold">Approved</th>
+                                    <th class="px-5 py-3 font-semibold">Capacity</th>
+                                    <th class="px-5 py-3 font-semibold">Amount</th>
+                                    <th class="px-5 py-3 font-semibold">Status</th>
+                                    <th class="px-5 py-3 font-semibold">Reviewed</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                                @forelse ($topUps as $topUp)
+                                    <tr>
+                                        <td class="px-5 py-3 text-gray-600 dark:text-gray-300">+{{ number_format($topUp->additional_students_count) }}</td>
+                                        <td class="px-5 py-3 font-semibold text-gray-900 dark:text-white">
+                                            {{ $topUp->approved_students_count !== null ? '+'.number_format($topUp->approved_students_count) : '—' }}
+                                        </td>
+                                        <td class="px-5 py-3 text-xs text-gray-600 dark:text-gray-300">
+                                            @if ($topUp->new_students_count !== null)
+                                                {{ number_format($topUp->previous_students_count) }} &rarr; <span class="font-bold text-gray-900 dark:text-white">{{ number_format($topUp->new_students_count) }}</span>
+                                            @else
+                                                &mdash;
+                                            @endif
+                                        </td>
+                                        <td class="px-5 py-3 text-gray-600 dark:text-gray-300">&#8358;{{ number_format((float) $topUp->additional_amount, 2) }}</td>
+                                        <td class="px-5 py-3">
+                                            @php($tone = match ($topUp->status) {
+                                                \App\Enums\SubscriptionTopUpStatus::Approved => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                                                \App\Enums\SubscriptionTopUpStatus::Rejected => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                                                default => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                                            })
+                                            <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $tone }}">{{ $topUp->status->label() }}</span>
+                                        </td>
+                                        <td class="px-5 py-3 text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $topUp->verified_at ? $topUp->verified_at->format('j M Y').' · '.($topUp->verifiedBy?->name ?? '—') : 'Awaiting review' }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                                            No additional capacity has been requested. The school is on its initial allocation.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Subscription History</h3>
@@ -85,7 +177,7 @@
                                 <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">{{ $subscription->plan->name }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">&#8358;{{ number_format($subscription->amount, 2) }}</td>
                                 <td class="px-5 py-3">
-                                    <a href="{{ route('subscriptions.confirmation', $subscription) }}" class="text-primary-500 hover:text-primary-600">{{ $subscription->reference }}</a>
+                                    <a href="{{ route('super-admin.subscriptions.show', $subscription) }}" class="text-primary-500 hover:text-primary-600">{{ $subscription->reference }}</a>
                                 </td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $subscription->created_at->format('M j, Y') }}</td>
                                 <td class="px-5 py-3">

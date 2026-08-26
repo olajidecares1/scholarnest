@@ -18,7 +18,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div class="min-w-0">
                                 <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $invoice->title }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Due {{ $invoice->due_date->format('M j, Y') }}</p>
+                                <p class="field-hint">Due {{ $invoice->due_date->format('M j, Y') }}</p>
                             </div>
                             <div class="flex items-center gap-3">
                                 <span class="text-sm font-bold text-gray-900 dark:text-white">₦{{ number_format($invoice->amount, 2) }}</span>
@@ -26,7 +26,7 @@
                             </div>
                         </div>
                         @if ($invoice->balance() > 0)
-                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Balance: ₦{{ number_format($invoice->balance(), 2) }}</p>
+                            <p class="field-hint mt-2">Balance: ₦{{ number_format($invoice->balance(), 2) }}</p>
                         @endif
                     </div>
                 @empty

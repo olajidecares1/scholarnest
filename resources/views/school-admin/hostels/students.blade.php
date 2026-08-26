@@ -15,7 +15,7 @@
             <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Room {{ $room->room_number }}</h2>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $allocations->count() }} / {{ $room->capacity }} beds occupied</p>
+                    <p class="field-hint mt-0.5">{{ $allocations->count() }} / {{ $room->capacity }} beds occupied</p>
                 </div>
                 @if ($allocations->count() < $room->capacity)
                     <button
@@ -66,7 +66,7 @@
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="open = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Allocate Student</h3>
-                <form method="POST" action="{{ route('hostels.students.store', $room) }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('hostels.students.store', $room) }}" class="mt-4 space-y-2">
                     @csrf
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" helper="Students already in a room aren't listed." />
                     <div class="flex justify-end gap-2">

@@ -18,7 +18,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $pageTitle }} - {{ config('app.name', 'EduNest') }} Super Admin</title>
+        <title>{{ $pageTitle }} - {{ config('app.name', 'EduNest') }} EduNest Team</title>
 
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
@@ -58,7 +58,7 @@
                 </span>
                 <div>
                     <p class="text-lg font-bold leading-tight">EduNest</p>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-100">Super Admin</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-100">EduNest Team</p>
                 </div>
             </div>
 
@@ -241,7 +241,7 @@
             </nav>
 
             <div class="m-3 rounded-[8px] bg-white/10 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
-                <p class="text-sm font-semibold">Super Administrator</p>
+                <p class="text-sm font-semibold">EduNest Team</p>
                 <p class="mt-1 text-xs text-primary-50">You have full access to all platform features.</p>
                 <a
                     href="{{ route('super-admin.settings.index') }}"
@@ -317,7 +317,7 @@
                         @click.outside="open = false"
                         placeholder="Search schools, users, payments..."
                         autocomplete="off"
-                        class="w-64 rounded-[8px] border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 transition-all duration-300 ease-out focus:border-primary-500 focus:bg-white focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500"
+                        class="w-64 pl-9 pr-3 transition-all duration-300 ease-out"
                     >
 
                     <div

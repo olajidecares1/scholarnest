@@ -15,7 +15,7 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ $report->reference }}</h2>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Submitted {{ $report->created_at->diffForHumans() }}</p>
+                        <p class="field-hint mt-1">Submitted {{ $report->created_at->diffForHumans() }}</p>
                     </div>
                     <span class="rounded-full px-3 py-1 text-xs font-bold uppercase {{ $statusColors[$report->status->value] ?? 'bg-gray-100 text-gray-600' }}">
                         {{ $report->status->label() }}
@@ -67,7 +67,7 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Update Status</h3>
-                <form method="POST" action="{{ route('super-admin.reports.update', $report) }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('super-admin.reports.update', $report) }}" class="mt-4 space-y-2">
                     @csrf
                     @method('PUT')
 

@@ -45,7 +45,7 @@
                                 <div class="flex items-center justify-between gap-3 px-5 py-3">
                                     <div class="min-w-0">
                                         <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $entry->subject }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        <p class="field-hint">
                                             {{ \Illuminate\Support\Carbon::parse($entry->start_time)->format('h:i A') }} – {{ \Illuminate\Support\Carbon::parse($entry->end_time)->format('h:i A') }}
                                             @if ($entry->room)
                                                 &middot; {{ $entry->room }}
@@ -92,7 +92,7 @@
                 <form
                     method="POST"
                     :action="editing ? '{{ route('timetable.update', ['timetableEntry' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('timetable.store') }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>

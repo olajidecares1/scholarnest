@@ -11,7 +11,7 @@
                             <div class="min-w-0">
                                 <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $entry->subject }}</p>
                                 @if ($entry->room)
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $entry->room }}</p>
+                                    <p class="field-hint">{{ $entry->room }}</p>
                                 @endif
                             </div>
                             <span class="shrink-0 text-xs font-semibold text-gray-500 dark:text-gray-400">

@@ -24,7 +24,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('reports.store') }}" enctype="multipart/form-data" class="mt-6 space-y-5">
+        <form method="POST" action="{{ route('reports.store') }}" enctype="multipart/form-data" class="mt-6 space-y-2">
             @csrf
 
             <x-select-field
@@ -77,7 +77,7 @@
                     name="media"
                     type="file"
                     accept=".jpg,.jpeg,.png,.mp4,.mov"
-                    class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 pl-3 pr-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700"
+                    class="mt-1 w-full"
                 >
                 <p class="mt-1 text-xs text-gray-500">JPG, PNG, MP4, or MOV. Max 10MB.</p>
             </div>

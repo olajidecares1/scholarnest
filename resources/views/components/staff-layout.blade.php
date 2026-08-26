@@ -71,13 +71,27 @@
                             ['route' => 'staff.timetable', 'label' => 'My Timetable', 'icon' => '', 'extra' => '<path d="M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /><path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M8.5 12.5h7M8.5 15.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                             ...($staff->role === \App\Enums\StaffRole::Teacher ? [
                                 ['route' => 'staff.attendance.index', 'label' => 'Attendance', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />'],
-                                ['route' => 'staff.exams.index', 'label' => 'Exam Scores', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                                ['route' => 'staff.diary.index', 'label' => 'Diary', 'icon' => 'M4 6.5A1.5 1.5 0 015.5 5h3.6a1 1 0 01.8.4l1 1.35a1 1 0 00.8.4h6.8A1.5 1.5 0 0120 8.65V17.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17.5v-11z', 'extra' => ''],
+                                ['route' => 'staff.exams.index', 'label' => 'Test/Exam Score', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                                 ['route' => 'staff.results.index', 'label' => 'Report Cards', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9 12.5h6M9 15.5h6M9 9.5h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                                 ['route' => 'staff.cbt.tests.index', 'label' => 'CBT Management', 'icon' => 'M4.5 5.5h15a1 1 0 011 1V16a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M9.5 19.5h5M12 17v2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M8 12.5l2.3 2.3L15.5 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                             ] : []),
                             ['route' => 'staff.settings.index', 'label' => 'Settings', 'icon' => '', 'extra' => '<circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /><path d="M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                             ['route' => 'staff.help.index', 'label' => 'Help & Support', 'icon' => '', 'extra' => '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" /><path d="M9.5 9.3a2.5 2.5 0 114 2c-.9.6-1.5 1.1-1.5 2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="12" cy="17" r=".9" fill="currentColor" />'],
                         ];
+
+                        // CBT and ID cards stay on Standard and Exclusive, but the
+                        // staff portal itself is open to every plan now - so these
+                        // two entries need gating on their own. Their routes 403 on
+                        // Basic, and a link that 403s is worse than no link at all.
+                        $hasPremiumStaffModules = $school->hasPlanAccess(\App\Enums\PlanKey::Standard, \App\Enums\PlanKey::Exclusive);
+
+                        if (! $hasPremiumStaffModules) {
+                            $navItems = array_values(array_filter(
+                                $navItems,
+                                fn (array $item): bool => ! in_array($item['route'], ['staff.id-card.show', 'staff.cbt.tests.index', 'staff.diary.index', 'staff.timetable'], true),
+                            ));
+                        }
                     @endphp
 
                     @php $isDashboardActive = request()->routeIs('staff.dashboard'); @endphp
@@ -228,7 +242,10 @@
                         Home
                     </a>
 
-                    @if (\Illuminate\Support\Facades\Route::has('staff.timetable'))
+                    {{-- Gated as well as routed: on Basic the timetable route
+                         403s, and a bottom-bar tab that fails is worse than one
+                         that is not there. --}}
+                    @if (\Illuminate\Support\Facades\Route::has('staff.timetable') && $hasPremiumStaffModules)
                         @php $isTimetableActive = request()->routeIs('staff.timetable'); @endphp
                         <a href="{{ route('staff.timetable', $school) }}" class="{{ $bottomNavItemClasses($isTimetableActive) }}">
                             <svg class="{{ $bottomNavIconClasses($isTimetableActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -302,7 +319,7 @@
                             <span>Report Cards</span>
                         </a>
                     @endif
-                    @if ($staff->role === \App\Enums\StaffRole::Teacher && \Illuminate\Support\Facades\Route::has('staff.cbt.tests.index'))
+                    @if ($hasPremiumStaffModules && $staff->role === \App\Enums\StaffRole::Teacher && \Illuminate\Support\Facades\Route::has('staff.cbt.tests.index'))
                         <a href="{{ route('staff.cbt.tests.index', $school) }}" @click="moreOpen = false" class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold text-gray-600 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-700/50">
                             <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 5.5h15a1 1 0 011 1V16a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19.5h5M12 17v2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M8 12.5l2.3 2.3L15.5 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
                             <span>CBT</span>

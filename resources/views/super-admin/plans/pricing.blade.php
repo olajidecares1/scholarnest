@@ -34,7 +34,7 @@
                             {{ $plan->key->value }}
                         </span>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $plan->tagline }}</p>
+                    <p class="field-hint mt-1">{{ $plan->tagline }}</p>
 
                     <div class="mt-4 space-y-3">
                         {{-- Basic is sold per student; the other two are flat fee. Both
@@ -55,7 +55,7 @@
                                 step="0.01"
                                 min="0"
                                 value="{{ old('price_per_student_per_term', $plan->price_per_student_per_term) }}"
-                                class="h-10 w-full rounded-[8px] border border-gray-300 px-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                class="w-full"
                             >
                         </div>
 
@@ -68,7 +68,7 @@
                                 step="0.01"
                                 min="0"
                                 value="{{ old('price_monthly', $plan->price_monthly) }}"
-                                class="h-10 w-full rounded-[8px] border border-gray-300 px-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                class="w-full"
                             >
                         </div>
 
@@ -81,7 +81,7 @@
                                 step="0.01"
                                 min="0"
                                 value="{{ old('price_per_term', $plan->price_per_term) }}"
-                                class="h-10 w-full rounded-[8px] border border-gray-300 px-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                class="w-full"
                             >
                         </div>
                     </div>

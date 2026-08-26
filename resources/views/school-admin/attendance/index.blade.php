@@ -65,7 +65,6 @@
                         value="{{ $date->toDateString() }}"
                         max="{{ today()->toDateString() }}"
                         onchange="this.form.submit()"
-                        class="h-11 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                     >
                     <div
                         class="w-48"

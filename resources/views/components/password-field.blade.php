@@ -23,17 +23,20 @@
         {{ $attributes }}
     >
         <x-slot:trailing>
+            {{-- Font Awesome, which the app already loads, rather than a
+                 hand-drawn SVG. Changing it here changes every password field
+                 in the application - portal sign-ins, settings, staff and
+                 student password forms - since they all come through this
+                 component. Sized against the field so it never outgrows it. --}}
             <button
                 type="button"
                 @click="show = !show"
                 tabindex="-1"
-                class="flex h-11 w-11 shrink-0 items-center justify-center text-gray-400 transition-colors duration-200 hover:text-gray-600 dark:hover:text-gray-300"
+                :aria-label="show ? 'Hide password' : 'Show password'"
+                class="flex w-9 shrink-0 items-center justify-center text-[#9AAAC4] transition-colors hover:text-[#5B7099] dark:text-gray-500 dark:hover:text-gray-300"
+                style="height: var(--field-height);"
             >
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path x-show="!show" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                    <circle x-show="!show" cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.5" />
-                    <path x-show="show" d="M3 3l18 18M10.6 10.6a2.5 2.5 0 003.5 3.5M6.5 6.7C4 8.3 2 12 2 12s3.5 6 10 6c1.6 0 3-.35 4.2-.9M17.3 17.3C19.7 15.7 22 12 22 12s-1.3-2.3-3.5-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <i class="fa-solid text-[12px]" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
         </x-slot:trailing>
     </x-text-field>

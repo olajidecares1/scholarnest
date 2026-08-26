@@ -14,7 +14,7 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search schools..."
-                        class="w-full rounded-[8px] border-gray-300 py-2 pl-9 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                        class="w-full pl-9"
                     >
                 </div>
 

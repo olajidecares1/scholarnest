@@ -35,7 +35,7 @@
                             name="search"
                             value="{{ request('search') }}"
                             placeholder="Search events..."
-                            class="h-10 w-52 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                            class="w-52"
                         >
                     </form>
                 </div>
@@ -124,7 +124,7 @@
                 <form
                     method="POST"
                     :action="editing ? '{{ route('events.update', ['event' => '__ID__']) }}'.replace('__ID__', editing.uuid) : '{{ route('events.store') }}'"
-                    class="mt-4 space-y-4"
+                    class="mt-4 space-y-2"
                 >
                     @csrf
                     <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
@@ -142,7 +142,7 @@
                     </div>
 
                     <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                        <input type="checkbox" name="is_all_day" value="1" :checked="editing ? editing.is_all_day : false" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700">
+                        <input type="checkbox" name="is_all_day" value="1" :checked="editing ? editing.is_all_day : false" class="text-blue-600">
                         All-day event
                     </label>
 

@@ -54,8 +54,8 @@
                 <div x-show="type === 'subject_teacher'">
                     <template x-if="offerings[className]">
                         <div>
-                            <label class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Subject</label>
-                            <select name="subject" class="mt-1 h-11 w-full rounded-[8px] border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Subject</label>
+                            <select name="subject" class="mt-1 w-full">
                                 <template x-for="option in offerings[className]" :key="option">
                                     <option :value="option" x-text="option"></option>
                                 </template>
@@ -64,8 +64,8 @@
                     </template>
                     <template x-if="!offerings[className]">
                         <div>
-                            <label class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Subject</label>
-                            <input list="subject-options" name="subject" placeholder="e.g. Mathematics" class="mt-1 h-11 w-full rounded-[8px] border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                            <label class="field-label">Subject</label>
+                            <input list="subject-options" name="subject" placeholder="e.g. Mathematics" class="mt-1 w-full">
                             <datalist id="subject-options">
                                 @foreach ($subjectOptions as $subject)
                                     <option value="{{ $subject }}">

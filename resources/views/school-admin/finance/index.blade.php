@@ -29,7 +29,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Fee Structures</h2>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Define a fee once, then generate an invoice for every matching student.</p>
+                <p class="field-hint mt-0.5">Define a fee once, then generate an invoice for every matching student.</p>
             </div>
 
             <div class="overflow-x-auto">
@@ -79,7 +79,7 @@
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">New Fee Structure</h3>
-                <form method="POST" action="{{ route('finance.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('finance.store') }}" class="mt-4 space-y-2">
                     @csrf
                     <x-text-field name="name" label="Name" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" placeholder="e.g. Tuition Fee" required />
 

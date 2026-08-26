@@ -12,7 +12,7 @@
         <h2 class="mt-4 text-center text-xl font-bold text-gray-900">Reset Your Password</h2>
         <p class="mt-1 text-center text-sm text-gray-600">Choose a new password for your account.</p>
 
-        <form method="POST" action="{{ route('password.store') }}" class="mt-6 space-y-5">
+        <form method="POST" action="{{ route('password.store') }}" class="mt-6 space-y-2">
             @csrf
 
             <input type="hidden" name="token" value="{{ $request->route('token') }}">

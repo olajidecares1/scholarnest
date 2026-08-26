@@ -6,9 +6,9 @@
                 <div class="flex flex-wrap items-center justify-between gap-3 p-5">
                     <div class="min-w-0">
                         <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $assignment->title }}</p>
-                        <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $assignment->subject }} &middot; Due {{ $assignment->due_date->format('M j, Y') }}</p>
+                        <p class="field-hint mt-0.5">{{ $assignment->subject }} &middot; Due {{ $assignment->due_date->format('M j, Y') }}</p>
                         @if ($assignment->description)
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ Str::limit($assignment->description, 140) }}</p>
+                            <p class="field-hint mt-1">{{ Str::limit($assignment->description, 140) }}</p>
                         @endif
                     </div>
                     <div class="flex shrink-0 items-center gap-3">

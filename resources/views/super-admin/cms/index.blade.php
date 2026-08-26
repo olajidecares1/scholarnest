@@ -61,7 +61,7 @@
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
                 <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Page' : 'Add Page'"></h3>
-                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.pages.update', ['page' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.pages.store') }}'" class="mt-4 space-y-4">
+                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.pages.update', ['page' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.pages.store') }}'" class="mt-4 space-y-2">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
                         <x-text-field
@@ -82,7 +82,7 @@
                             x-text="editing ? editing.body : ''"
                         />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                            <input type="checkbox" name="is_published" value="1" x-bind:checked="editing ? editing.is_published : true" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                            <input type="checkbox" name="is_published" value="1" x-bind:checked="editing ? editing.is_published : true" class="text-primary-500">
                             Published
                         </label>
                         <div class="flex justify-end gap-2">
@@ -136,7 +136,7 @@
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
                 <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Blog Post' : 'Add Blog Post'"></h3>
-                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.blog-posts.update', ['blogPost' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.blog-posts.store') }}'" class="mt-4 space-y-4">
+                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.blog-posts.update', ['blogPost' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.blog-posts.store') }}'" class="mt-4 space-y-2">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
                         <x-text-field
@@ -164,7 +164,7 @@
                             x-text="editing ? editing.body : ''"
                         />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                            <input type="checkbox" name="is_published" value="1" x-bind:checked="editing ? editing.is_published : false" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                            <input type="checkbox" name="is_published" value="1" x-bind:checked="editing ? editing.is_published : false" class="text-primary-500">
                             Published
                         </label>
                         <div class="flex justify-end gap-2">
@@ -218,7 +218,7 @@
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
                 <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Testimonial' : 'Add Testimonial'"></h3>
-                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.testimonials.update', ['testimonial' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.testimonials.store') }}'" class="mt-4 space-y-4">
+                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.testimonials.update', ['testimonial' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.testimonials.store') }}'" class="mt-4 space-y-2">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
                         <x-text-field
@@ -254,7 +254,7 @@
                             x-model="editing ? editing.sort_order : 0"
                         />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                            <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                            <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="text-primary-500">
                             Active
                         </label>
                         <div class="flex justify-end gap-2">
@@ -307,7 +307,7 @@
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
                 <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit FAQ Item' : 'Add FAQ Item'"></h3>
-                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.faq-items.update', ['faqItem' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.faq-items.store') }}'" class="mt-4 space-y-4">
+                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.faq-items.update', ['faqItem' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.faq-items.store') }}'" class="mt-4 space-y-2">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
                         <x-text-field
@@ -336,7 +336,7 @@
                             x-model="editing ? editing.sort_order : 0"
                         />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                            <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                            <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="text-primary-500">
                             Active
                         </label>
                         <div class="flex justify-end gap-2">
@@ -390,7 +390,7 @@
             <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
                 <div @click.outside="open = false" class="w-full max-w-lg rounded-[8px] bg-white p-6 dark:bg-gray-800">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="editing ? 'Edit Team Member' : 'Add Team Member'"></h3>
-                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.team-members.update', ['teamMember' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.team-members.store') }}'" class="mt-4 space-y-4">
+                    <form method="POST" :action="editing ? '{{ route('super-admin.cms.team-members.update', ['teamMember' => '__ID__']) }}'.replace('__ID__', editing.id) : '{{ route('super-admin.cms.team-members.store') }}'" class="mt-4 space-y-2">
                         @csrf
                         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
                         <x-text-field
@@ -425,7 +425,7 @@
                             x-model="editing ? editing.sort_order : 0"
                         />
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-                            <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                            <input type="checkbox" name="is_active" value="1" x-bind:checked="editing ? editing.is_active : true" class="text-primary-500">
                             Active
                         </label>
                         <div class="flex justify-end gap-2">

@@ -4,11 +4,29 @@
     'authLinkRoute' => null,
     'simple' => false,
     'background' => null,
+
+    // Opt-in, page by page. Only the registration page turns this on, so the
+    // click sequence does not quietly exist on every auth screen in the app.
+    'superAdminAccess' => false,
+
+    // A page that belongs to one school rather than to the platform - the
+    // result checker, chiefly. Given one, the header wears that school's badge
+    // and name instead of EduNest's, because a parent checking their child's
+    // result should see their child's school.
+    'school' => null,
 ])
 
 @php
     $platformSettings = \App\Models\Setting::current();
     $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-icon-dark.png');
+
+    // The school's own logo, or its name alone if it has not uploaded one.
+    // Never a stand-in from somewhere else: a default logo here would be a
+    // different school's badge on this school's result.
+    $schoolLogoUrl = $school?->logoUrl();
+
+    $revealClicks = (int) config('super_admin.reveal_clicks', 5);
+    $revealTimeout = (int) config('super_admin.reveal_click_timeout', 2000);
 @endphp
 
 <!DOCTYPE html>
@@ -35,17 +53,89 @@
         <style>{!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}</style>
     </head>
     <body class="min-h-screen bg-white font-sans text-gray-900 antialiased">
-        <div class="flex min-h-screen flex-col">
+        <div
+            class="flex min-h-screen flex-col"
+            @if ($superAdminAccess)
+                x-data="{
+                    clicks: 0,
+                    timer: null,
+                    // A failed attempt redirects back here, so the dialog has to
+                    // reopen to show why - otherwise the error lands on a page
+                    // with nothing visible to attach it to.
+                    open: {{ $errors->has("login") ? "true" : "false" }},
+                    registerClick() {
+                        // Each click must land within the timeout of the one
+                        // before it. Pause too long and the count starts over,
+                        // so the sequence has to be deliberate rather than
+                        // something a visitor drifts into over a few minutes.
+                        clearTimeout(this.timer);
+                        this.clicks++;
+
+                        if (this.clicks >= {{ $revealClicks }}) {
+                            this.clicks = 0;
+                            this.open = true;
+                            this.$nextTick(() => this.$refs.superAdminLogin?.focus());
+                            return;
+                        }
+
+                        this.timer = setTimeout(() => { this.clicks = 0 }, {{ $revealTimeout }});
+                    },
+                    close() {
+                        this.open = false;
+                        this.clicks = 0;
+                        clearTimeout(this.timer);
+                    },
+                }"
+                @keydown.escape.window="close()"
+            @endif
+        >
             <header class="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur">
                 <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-                    <a href="{{ url('/') }}" class="flex items-center gap-2">
-                        <img
-                            src="{{ $logoUrl }}"
-                            alt="{{ config('app.name', 'EduNest') }}"
-                            class="h-9 w-9 shrink-0 rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
-                        >
-                        <span class="text-lg font-bold text-gray-900">Edu<span class="text-primary-500">Nest</span></span>
-                    </a>
+                    @if ($school)
+                        {{-- This school, named and badged. Not a link: there is
+                             nowhere on the platform for a parent with no
+                             account to be sent. --}}
+                        <div class="flex min-w-0 items-center gap-2.5">
+                            @if ($schoolLogoUrl)
+                                <img
+                                    src="{{ $schoolLogoUrl }}"
+                                    alt="{{ $school->name }}"
+                                    class="h-9 w-9 shrink-0 rounded-[5px] object-contain lg:rounded-[10px]"
+                                >
+                            @else
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] bg-primary-100 text-sm font-extrabold text-primary-700 lg:rounded-[10px]">
+                                    {{ \Illuminate\Support\Str::of($school->name)->substr(0, 1)->upper() }}
+                                </span>
+                            @endif
+                            <span class="truncate text-lg font-bold text-gray-900">{{ $school->name }}</span>
+                        </div>
+                    @elseif ($superAdminAccess)
+                        {{-- The logo mark is the click target, so it cannot
+                             navigate - the first click would leave the page and
+                             the sequence could never reach five. The wordmark
+                             beside it keeps the link home, so nothing is lost.
+
+                             Nothing here announces itself: no title, no cursor
+                             change, no hint in the markup. --}}
+                        <div class="flex items-center gap-2">
+                            <img
+                                src="{{ $logoUrl }}"
+                                alt="{{ config('app.name', 'EduNest') }}"
+                                @click="registerClick()"
+                                class="h-9 w-9 shrink-0 select-none rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
+                            >
+                            <a href="{{ url('/') }}" class="text-lg font-bold text-gray-900">Edu<span class="text-primary-500">Nest</span></a>
+                        </div>
+                    @else
+                        <a href="{{ url('/') }}" class="flex items-center gap-2">
+                            <img
+                                src="{{ $logoUrl }}"
+                                alt="{{ config('app.name', 'EduNest') }}"
+                                class="h-9 w-9 shrink-0 rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
+                            >
+                            <span class="text-lg font-bold text-gray-900">Edu<span class="text-primary-500">Nest</span></span>
+                        </a>
+                    @endif
 
                     @if ($authQuestion)
                         <div class="flex items-center gap-3 text-sm text-gray-600">
@@ -98,6 +188,10 @@
                     </div>
                 </div>
             </footer>
+
+            @if ($superAdminAccess)
+                <x-super-admin-login-dialog />
+            @endif
         </div>
     </body>
 </html>

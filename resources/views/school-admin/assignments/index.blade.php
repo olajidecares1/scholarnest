@@ -21,7 +21,7 @@
                         name="subject"
                         value="{{ request('subject') }}"
                         placeholder="Search subject..."
-                        class="h-11 w-48 rounded-[8px] border border-gray-300 px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="w-48"
                     >
                     <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
                     @if (request('class') || request('subject'))
@@ -91,7 +91,7 @@
         <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="open = false" class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">New Assignment</h3>
-                <form method="POST" action="{{ route('assignments.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('assignments.store') }}" class="mt-4 space-y-2">
                     @csrf
                     <x-text-field name="title" label="Title" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" placeholder="e.g. Algebra Worksheet" required />
 
