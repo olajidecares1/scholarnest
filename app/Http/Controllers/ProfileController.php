@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Services\ImageOptimizer;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -42,7 +42,7 @@ class ProfileController extends Controller
 
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
-            $photoPath = $file->storeAs('users', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
+            $photoPath = $file->storeAs('users', StoredUpload::name($file), 'public');
             $this->optimizer->optimize(Storage::disk('public')->path($photoPath), (string) $file->getMimeType());
             $user->photo_path = $photoPath;
         }

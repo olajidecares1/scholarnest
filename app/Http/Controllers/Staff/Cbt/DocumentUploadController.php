@@ -10,11 +10,11 @@ use App\Models\CbtTest;
 use App\Models\CbtTestDocumentUpload;
 use App\Models\School;
 use App\Services\QueueWorkerHealth;
+use App\Support\StoredUpload;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class DocumentUploadController extends Controller
@@ -30,8 +30,11 @@ class DocumentUploadController extends Controller
         ]);
 
         $file = $validated['file'];
+        // Used to record which format this is, not to name the file: the
+        // stored name comes from the content (StoredUpload). The validation
+        // rule above has already restricted this to the two we read.
         $extension = strtolower((string) $file->getClientOriginalExtension());
-        $path = $file->storeAs('cbt-test-uploads/documents', (string) Str::uuid().'.'.$extension, 'local');
+        $path = $file->storeAs('cbt-test-uploads/documents', StoredUpload::name($file), 'local');
 
         $upload = $test->documentUploads()->create([
             'staff_id' => $request->user('staff')->id,

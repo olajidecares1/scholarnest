@@ -5,10 +5,10 @@ namespace App\Http\Controllers\SchoolAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\NewsPost;
 use App\Services\ImageOptimizer;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class NewsController extends Controller
@@ -99,7 +99,7 @@ class NewsController extends Controller
         }
 
         $file = $request->file('image');
-        $path = $file->storeAs('news', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
+        $path = $file->storeAs('news', StoredUpload::name($file), 'public');
 
         $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
 

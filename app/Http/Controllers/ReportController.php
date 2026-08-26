@@ -8,8 +8,8 @@ use App\Models\Report;
 use App\Models\School;
 use App\Models\User;
 use App\Notifications\NewReportNotification;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -34,7 +34,7 @@ class ReportController extends Controller
 
         if ($request->hasFile('media')) {
             $media = $request->file('media');
-            $filename = (string) Str::uuid().'.'.$media->getClientOriginalExtension();
+            $filename = StoredUpload::name($media);
             $path = "reports/{$report->id}/{$filename}";
             $media->storeAs("reports/{$report->id}", $filename, 'local');
 

@@ -7,10 +7,10 @@ use App\Enums\IdCardOrientation;
 use App\Http\Controllers\Controller;
 use App\Models\IdCardTemplate;
 use App\Services\ImageOptimizer;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -101,7 +101,7 @@ class IdCardTemplateController extends Controller
         }
 
         $file = $request->file('background');
-        $path = $file->storeAs('id-card-templates', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
+        $path = $file->storeAs('id-card-templates', StoredUpload::name($file), 'public');
 
         $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
 

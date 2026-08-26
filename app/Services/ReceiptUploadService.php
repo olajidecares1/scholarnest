@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Models\School;
+use App\Support\StoredUpload;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ReceiptUploadService
 {
@@ -17,7 +17,7 @@ class ReceiptUploadService
      */
     public function store(School $school, UploadedFile $receipt): array
     {
-        $filename = (string) Str::uuid().'.'.$receipt->getClientOriginalExtension();
+        $filename = StoredUpload::name($receipt);
         $path = "receipts/{$school->id}/{$filename}";
 
         if (str_starts_with((string) $receipt->getMimeType(), 'image/')) {

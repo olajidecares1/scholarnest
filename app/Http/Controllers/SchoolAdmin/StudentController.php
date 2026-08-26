@@ -11,12 +11,12 @@ use App\Models\Student;
 use App\Services\IdentifierGenerator;
 use App\Services\ImageOptimizer;
 use App\Services\StudentLicenceAllocation;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
@@ -281,7 +281,7 @@ class StudentController extends Controller
         }
 
         $file = $request->file('photo');
-        $path = $file->storeAs('students', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
+        $path = $file->storeAs('students', StoredUpload::name($file), 'public');
 
         $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
 

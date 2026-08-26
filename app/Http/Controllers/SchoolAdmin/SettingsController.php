@@ -4,11 +4,11 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Services\ImageOptimizer;
+use App\Support\StoredUpload;
 use DateTimeZone;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -57,14 +57,14 @@ class SettingsController extends Controller
         $logoPath = null;
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
-            $logoPath = $file->storeAs('school-logos', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
+            $logoPath = $file->storeAs('school-logos', StoredUpload::name($file), 'public');
             $this->optimizer->optimize(Storage::disk('public')->path($logoPath), (string) $file->getMimeType());
         }
 
         $faviconPath = null;
         if ($request->hasFile('favicon')) {
             $file = $request->file('favicon');
-            $faviconPath = $file->storeAs('school-favicons', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
+            $faviconPath = $file->storeAs('school-favicons', StoredUpload::name($file), 'public');
             $this->optimizer->optimize(Storage::disk('public')->path($faviconPath), (string) $file->getMimeType());
         }
 

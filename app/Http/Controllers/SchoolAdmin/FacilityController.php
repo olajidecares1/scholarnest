@@ -5,10 +5,10 @@ namespace App\Http\Controllers\SchoolAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\SchoolFacility;
 use App\Services\ImageOptimizer;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class FacilityController extends Controller
@@ -87,7 +87,7 @@ class FacilityController extends Controller
         }
 
         $file = $request->file('image');
-        $path = $file->storeAs('facilities', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
+        $path = $file->storeAs('facilities', StoredUpload::name($file), 'public');
 
         $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
 

@@ -10,12 +10,12 @@ use App\Models\AuditLog;
 use App\Models\Staff;
 use App\Services\IdentifierGenerator;
 use App\Services\ImageOptimizer;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
@@ -231,7 +231,7 @@ class StaffController extends Controller
         }
 
         $file = $request->file('photo');
-        $path = $file->storeAs('staff', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
+        $path = $file->storeAs('staff', StoredUpload::name($file), 'public');
 
         $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
 

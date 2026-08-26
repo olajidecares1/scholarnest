@@ -7,11 +7,11 @@ use App\Models\AuditLog;
 use App\Models\CbtExam;
 use App\Models\CbtQuestion;
 use App\Services\ImageOptimizer;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class CbtQuestionController extends Controller
 {
@@ -107,7 +107,7 @@ class CbtQuestionController extends Controller
         }
 
         $file = $request->file('image');
-        $path = $file->storeAs('cbt-questions', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
+        $path = $file->storeAs('cbt-questions', StoredUpload::name($file), 'public');
 
         $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
 

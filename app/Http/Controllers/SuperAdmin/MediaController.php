@@ -8,11 +8,11 @@ use App\Models\AuditLog;
 use App\Models\Media;
 use App\Models\Setting;
 use App\Services\ImageOptimizer;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class MediaController extends Controller
@@ -79,12 +79,15 @@ class MediaController extends Controller
         ]);
 
         $file = $validated['file'] ?? $request->file('file');
+        // Image or video, not the filename - that comes from the content
+        // (StoredUpload). The mimes: rule above has already restricted this
+        // to the lists at the top of the class.
         $extension = strtolower((string) $file->getClientOriginalExtension());
         $type = in_array($extension, self::VIDEO_MIMES, true) ? MediaType::Video : MediaType::Image;
 
         Storage::disk($media->disk)->delete($media->path);
 
-        $path = $file->storeAs('media', (string) Str::uuid().'.'.$extension, 'public');
+        $path = $file->storeAs('media', StoredUpload::name($file), 'public');
         $width = null;
         $height = null;
         $size = Storage::disk('public')->size($path);
@@ -158,10 +161,13 @@ class MediaController extends Controller
 
     private function storeUploadedFile(UploadedFile $file, ?string $name): Media
     {
+        // Image or video, not the filename - that comes from the content
+        // (StoredUpload). The mimes: rule above has already restricted this
+        // to the lists at the top of the class.
         $extension = strtolower((string) $file->getClientOriginalExtension());
         $type = in_array($extension, self::VIDEO_MIMES, true) ? MediaType::Video : MediaType::Image;
 
-        $path = $file->storeAs('media', (string) Str::uuid().'.'.$extension, 'public');
+        $path = $file->storeAs('media', StoredUpload::name($file), 'public');
 
         $width = null;
         $height = null;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Setting;
+use App\Support\StoredUpload;
 use App\Support\ThemePreset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -49,7 +50,7 @@ class ThemeController extends Controller
         }
 
         $file = $request->file('logo');
-        $path = $file->storeAs('branding', 'logo-'.Str::random(8).'.'.$file->getClientOriginalExtension(), 'public');
+        $path = $file->storeAs('branding', StoredUpload::name($file, 'logo-'.Str::random(8)), 'public');
 
         $settings->update(['logo_path' => $path]);
 
@@ -71,7 +72,7 @@ class ThemeController extends Controller
         }
 
         $file = $request->file('favicon');
-        $path = $file->storeAs('branding', 'favicon-'.Str::random(8).'.'.$file->getClientOriginalExtension(), 'public');
+        $path = $file->storeAs('branding', StoredUpload::name($file, 'favicon-'.Str::random(8)), 'public');
 
         $settings->update(['favicon_path' => $path]);
 
