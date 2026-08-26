@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Listeners\LogFailedLogin;
 use App\Listeners\LogSuccessfulLogin;
+use App\Services\DocumentExtraction\LocalQuestionExtractor;
+use App\Services\DocumentExtraction\QuestionExtractionProvider;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
@@ -18,7 +20,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Document extraction runs locally, with no key, no credit and no
+        // network. The binding is here rather than type-hinted directly so a
+        // different engine - OCR for scanned pages, or a hosted model - can be
+        // swapped in later by changing one line, without the local extractor
+        // ever ceasing to be the default that works on its own.
+        $this->app->bind(QuestionExtractionProvider::class, LocalQuestionExtractor::class);
     }
 
     /**

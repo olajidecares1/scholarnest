@@ -40,7 +40,18 @@ return [
             'connection' => env('DB_QUEUE_CONNECTION'),
             'table' => env('DB_QUEUE_TABLE', 'jobs'),
             'queue' => env('DB_QUEUE', 'default'),
-            'retry_after' => (int) env('DB_QUEUE_RETRY_AFTER', 90),
+            /*
+             * Must exceed the longest job timeout in the application, which
+             * is CBT document extraction at 600 seconds.
+             *
+             * retry_after is how long the queue waits before deciding a
+             * reserved job was abandoned and handing it to another worker.
+             * At the framework default of 90 a large PDF - which routinely
+             * takes minutes to read - would be picked up again while the
+             * first worker was still working on it, importing the same
+             * questions two or three times over and paying for each pass.
+             */
+            'retry_after' => (int) env('DB_QUEUE_RETRY_AFTER', 700),
             'after_commit' => false,
         ],
 
