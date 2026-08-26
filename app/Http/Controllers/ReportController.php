@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\UserRole;
 use App\Http\Requests\StoreReportRequest;
 use App\Models\Report;
 use App\Models\School;
-use App\Models\User;
 use App\Notifications\NewReportNotification;
+use App\Services\TeamNotifier;
 use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -44,8 +43,10 @@ class ReportController extends Controller
             ]);
         }
 
-        User::where('role', UserRole::SuperAdmin)->each(
-            fn (User $superAdmin) => $superAdmin->notify(new NewReportNotification($report))
+        // One report, one notification, claimed against the report.
+        app(TeamNotifier::class)->once(
+            'report.submitted:'.$report->uuid,
+            new NewReportNotification($report),
         );
 
         return redirect()->route('reports.confirmation', ['reference' => $report->reference]);

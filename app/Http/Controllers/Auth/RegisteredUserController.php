@@ -9,7 +9,9 @@ use App\Models\AuditLog;
 use App\Models\School;
 use App\Models\Setting;
 use App\Models\User;
+use App\Notifications\SchoolRegisteredNotification;
 use App\Services\DefaultAcademicStructure;
+use App\Services\TeamNotifier;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +21,8 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    public function __construct(private readonly TeamNotifier $team) {}
+
     /**
      * Display the registration view.
      */
@@ -64,6 +68,14 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         AuditLog::record('school.registered', "New school \"{$user->school->name}\" registered and is awaiting a subscription.", $user->school);
+
+        // One registration, one notification. The key is the school's, not
+        // this request's, so a retry or a re-delivered job announces nothing
+        // twice - see App\Services\TeamNotifier.
+        $this->team->once(
+            SchoolRegisteredNotification::eventKeyFor($user->school),
+            new SchoolRegisteredNotification($user->school),
+        );
 
         return redirect(route('dashboard', absolute: false));
     }

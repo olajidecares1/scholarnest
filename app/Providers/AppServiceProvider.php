@@ -2,16 +2,11 @@
 
 namespace App\Providers;
 
-use App\Listeners\LogFailedLogin;
-use App\Listeners\LogSuccessfulLogin;
 use App\Services\DocumentExtraction\LocalQuestionExtractor;
 use App\Services\DocumentExtraction\QuestionExtractionProvider;
 use App\Support\ProductionConfiguration;
-use Illuminate\Auth\Events\Failed;
-use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -50,8 +45,24 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        Event::listen(Login::class, LogSuccessfulLogin::class);
-        Event::listen(Failed::class, LogFailedLogin::class);
+        /*
+         * LogSuccessfulLogin and LogFailedLogin are NOT registered here.
+         *
+         * Laravel discovers listeners in app/Listeners by the type hint on
+         * their handle() method, so these two were registered twice - once by
+         * discovery and once by hand - and every login wrote its audit entry
+         * twice. `php artisan event:list` showed the pair plainly:
+         *
+         *     Illuminate\Auth\Events\Login
+         *       ⇂ App\Listeners\LogSuccessfulLogin
+         *       ⇂ App\Listeners\LogSuccessfulLogin@handle
+         *
+         * A school's User carries the school's name, and registering signs the
+         * new admin straight in, so one registration put "School ABC logged
+         * in." in front of the EduNest Team twice. LogPasswordReset was never
+         * listed here and appeared exactly once, which is what the other two
+         * now do.
+         */
 
         // Applies everywhere Password::defaults() is used as a validation
         // rule (registration, self-service password change, forgot-password

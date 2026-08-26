@@ -10,6 +10,7 @@ use App\Models\SupportTicket;
 use App\Models\User;
 use App\Notifications\NewSupportTicketNotification;
 use App\Notifications\SupportTicketRepliedNotification;
+use App\Services\TeamNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -38,8 +39,10 @@ class SupportTicketController extends Controller
             'opened_by' => auth()->id(),
         ]);
 
-        User::where('role', UserRole::SuperAdmin)->each(
-            fn (User $superAdmin) => $superAdmin->notify(new NewSupportTicketNotification($ticket))
+        // One ticket, one notification, claimed against the ticket.
+        app(TeamNotifier::class)->once(
+            'support-ticket.opened:'.$ticket->uuid,
+            new NewSupportTicketNotification($ticket),
         );
 
         return redirect()->route('support-tickets.show', $ticket)

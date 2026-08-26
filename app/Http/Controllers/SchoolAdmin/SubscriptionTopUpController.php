@@ -4,16 +4,15 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionTopUpStatus;
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Subscriptions\StoreTopUpRequest;
 use App\Models\AuditLog;
 use App\Models\SubscriptionTopUp;
-use App\Models\User;
 use App\Notifications\NewSubscriptionTopUpSubmittedNotification;
 use App\Services\PaymentReceiptScreening;
 use App\Services\ReceiptUploadService;
 use App\Services\StudentLicenceAllocation;
+use App\Services\TeamNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -103,8 +102,10 @@ class SubscriptionTopUpController extends Controller
 
         AuditLog::record('subscription.topup.submitted', "Requested {$topUp->additional_students_count} additional student slots.", $topUp);
 
-        User::where('role', UserRole::SuperAdmin)->each(
-            fn (User $superAdmin) => $superAdmin->notify(new NewSubscriptionTopUpSubmittedNotification($topUp))
+        // One request, one notification, claimed against the top-up itself.
+        app(TeamNotifier::class)->once(
+            'subscription.top-up.submitted:'.$topUp->uuid,
+            new NewSubscriptionTopUpSubmittedNotification($topUp),
         );
 
         return redirect()->route('students.index')

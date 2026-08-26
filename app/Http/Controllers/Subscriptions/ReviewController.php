@@ -6,15 +6,14 @@ use App\Enums\BillingCycle;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
-use App\Models\User;
 use App\Notifications\NewSubscriptionSubmittedNotification;
 use App\Services\SubscriptionWizardService;
+use App\Services\TeamNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +22,10 @@ use Illuminate\View\View;
 
 class ReviewController extends Controller
 {
-    public function __construct(private readonly SubscriptionWizardService $wizard) {}
+    public function __construct(
+        private readonly SubscriptionWizardService $wizard,
+        private readonly TeamNotifier $team,
+    ) {}
 
     public function create(): View|RedirectResponse
     {
@@ -93,8 +95,12 @@ class ReviewController extends Controller
 
         AuditLog::record('subscription.submitted', "Submitted a {$subscription->plan->name} subscription for review.", $subscription);
 
-        User::where('role', UserRole::SuperAdmin)->each(
-            fn (User $superAdmin) => $superAdmin->notify(new NewSubscriptionSubmittedNotification($subscription))
+        // One submission, one notification - claimed against the subscription
+        // so a retried or replayed request announces nothing twice. See
+        // App\Services\TeamNotifier.
+        $this->team->once(
+            'subscription.submitted:'.$subscription->uuid,
+            new NewSubscriptionSubmittedNotification($subscription),
         );
 
         return redirect()->route('subscriptions.confirmation', $subscription);
