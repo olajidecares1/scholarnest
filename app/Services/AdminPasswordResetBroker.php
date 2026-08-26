@@ -44,6 +44,29 @@ class AdminPasswordResetBroker
         $user->notify(new AdminPasswordResetRequested($linkToken, $code, $reset->expires_at));
     }
 
+    /**
+     * Issue a fresh code for a reset that is already under way.
+     *
+     * The link token is deliberately left alone. Only its hash is stored, so
+     * it cannot be re-derived here anyway - but more importantly, rotating it
+     * would kill the link in the email the person is currently looking at, and
+     * "resend the code" should not invalidate the page they are standing on.
+     *
+     * The attempt counter resets with the code: the five tries are against the
+     * code that was sent, not against the reset for all time.
+     */
+    public function resendCode(AdminPasswordReset $reset, string $linkToken): void
+    {
+        $code = (string) random_int(100000, 999999);
+
+        $reset->update([
+            'code_hash' => Hash::make($code),
+            'attempts' => 0,
+        ]);
+
+        $reset->user->notify(new AdminPasswordResetRequested($linkToken, $code, $reset->expires_at));
+    }
+
     public function resolve(string $linkToken): ?AdminPasswordReset
     {
         return AdminPasswordReset::active()

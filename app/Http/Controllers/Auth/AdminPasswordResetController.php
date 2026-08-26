@@ -23,6 +23,13 @@ use Illuminate\View\View;
  */
 class AdminPasswordResetController extends Controller
 {
+    /**
+     * Seconds between one code and the next. Mirrored by the countdown on the
+     * verification page, so the button re-enables exactly when the server
+     * would accept another request.
+     */
+    public const RESEND_COOLDOWN_SECONDS = 60;
+
     public function create(): View
     {
         return view('auth.admin-password-reset.request');
@@ -70,6 +77,36 @@ class AdminPasswordResetController extends Controller
         return view('auth.admin-password-reset.verify-code', ['token' => $token]);
     }
 
+    /**
+     * Send another code for a reset already in progress.
+     *
+     * Cooled down to one a minute per reset, which is what the countdown on
+     * the page reflects. Without it "Resend" is a button that mails the
+     * account holder as fast as it can be clicked.
+     */
+    public function resend(Request $request, string $token, AdminPasswordResetBroker $broker): RedirectResponse
+    {
+        $reset = $broker->resolve($token);
+
+        if (! $reset) {
+            return redirect()->route('admin.password-reset.show', $token);
+        }
+
+        $key = 'admin-password-reset-resend:'.$reset->id;
+
+        if (RateLimiter::tooManyAttempts($key, 1)) {
+            return back()->withErrors([
+                'code' => 'Please wait a moment before requesting another code.',
+            ]);
+        }
+
+        RateLimiter::hit($key, self::RESEND_COOLDOWN_SECONDS);
+
+        $broker->resendCode($reset, $token);
+
+        return back()->with('status', 'We\'ve sent a new code to your email address.');
+    }
+
     public function verifyCode(Request $request, string $token, AdminPasswordResetBroker $broker): RedirectResponse
     {
         $reset = $broker->resolve($token);
@@ -115,8 +152,32 @@ class AdminPasswordResetController extends Controller
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
+        $school = $reset->user->school;
+
         $broker->complete($reset, $validated['password']);
 
-        return redirect()->route('login')->with('status', 'Your password has been reset. You can now log in.');
+        // Where this person actually signs in, worked out before the session
+        // is anything and remembered for the success screen. A School Admin
+        // belongs to one school and signs in at its portal; a Super Admin has
+        // no school and uses the hidden dialog on the registration page.
+        return redirect()->route('admin.password-reset.done')->with(
+            'password_reset_sign_in_url',
+            $school?->portalLoginUrl('web') ?? route('register'),
+        );
+    }
+
+    /**
+     * The end of the flow: password changed, here is the way back in.
+     *
+     * A page of its own rather than a flash message on the sign-in screen,
+     * because there is no longer one sign-in screen to flash it on - and
+     * because "it worked" deserves to be stated plainly rather than as a
+     * banner above a form.
+     */
+    public function done(Request $request): View
+    {
+        return view('auth.admin-password-reset.done', [
+            'signInUrl' => $request->session()->get('password_reset_sign_in_url', route('register')),
+        ]);
     }
 }

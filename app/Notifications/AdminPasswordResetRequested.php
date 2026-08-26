@@ -45,6 +45,11 @@ class AdminPasswordResetRequested extends Notification
             ->line('Once there, you\'ll be asked for this verification code:')
             ->line('**'.$this->code.'**')
             ->line('This link and code expire at '.$this->expiresAt->format('g:i A \o\n M j, Y').' and can only be used once.')
+            // Stated explicitly because the code is the second half of the
+            // reset: anyone who has both it and the link can change the
+            // password, so it is worth saying plainly that nobody at EduNest
+            // will ever ask for it.
+            ->line('Keep this code to yourself. EduNest staff will never ask you for it.')
             ->line('If you did not request a password reset, no action is required - your password will not be changed.');
     }
 }

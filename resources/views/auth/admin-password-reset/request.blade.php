@@ -1,39 +1,64 @@
-<x-auth-layout :title="'Forgot Password - ' . config('app.name')" simple>
+<x-auth-layout :title="'Reset your password - ' . config('app.name')" simple>
     <x-auth-card>
         <div class="flex justify-center">
-            <span class="flex h-14 w-14 items-center justify-center rounded-[5px] bg-primary-100 text-primary-600 lg:rounded-[10px]">
-                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="10" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5" />
-                    <path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.5" />
-                </svg>
+            <span class="flex h-14 w-14 items-center justify-center rounded-full bg-primary-50 text-primary-500">
+                <i class="fa-solid fa-unlock-keyhole text-xl"></i>
             </span>
         </div>
 
-        <h2 class="mt-4 text-center text-xl font-bold text-gray-900">Forgot Your Password?</h2>
-        <p class="mt-1 text-center text-sm text-gray-600">
-            Enter your School Admin email address and we&rsquo;ll send you a secure link and a verification code to reset it.
+        <h1 class="mt-5 text-center text-2xl font-bold tracking-tight text-gray-900">Reset your password</h1>
+        <p class="mx-auto mt-2 max-w-xs text-center text-sm leading-relaxed text-gray-500">
+            Enter the email address on your account and we&rsquo;ll send you a reset link and verification code.
         </p>
 
-        <x-auth-session-status class="mt-4" :status="session('status')" />
+        @if (session('status'))
+            {{-- Deliberately the same message whether or not the address
+                 matched an account: a different one would let anybody use this
+                 form to discover which emails are registered. --}}
+            <div class="mt-6 flex items-start gap-2.5 rounded-[8px] bg-green-50 p-3.5 text-xs leading-relaxed text-green-700">
+                <i class="fa-solid fa-circle-check mt-0.5"></i>
+                <span>{{ session('status') }}</span>
+            </div>
+        @endif
 
-        <form method="POST" action="{{ route('admin.password-reset.send') }}" class="mt-6 space-y-5">
+        <form method="POST" action="{{ route('admin.password-reset.send') }}" class="mt-6 space-y-2">
             @csrf
 
-            <x-auth-email-input autofocus />
+            <div>
+                <label for="email" class="field-label mb-1">Email Address</label>
+
+                <div class="relative">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                        <i class="fa-solid fa-envelope text-sm"></i>
+                    </span>
+
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value="{{ old('email') }}"
+                        required
+                        autofocus
+                        autocomplete="email"
+                        placeholder="you@yourschool.com"
+                        class="block w-full pl-10 pr-3"
+                    >
+                </div>
+
+                <x-input-error :messages="$errors->get('email')" class="mt-1.5" />
+            </div>
 
             <button
                 type="submit"
                 class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
-                Send Reset Instructions
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <i class="fa-solid fa-paper-plane"></i> Send Reset Code
             </button>
         </form>
 
-        <p class="mt-6 text-center text-sm text-gray-600">
-            <a href="{{ route('login') }}" class="font-semibold text-primary-500 hover:text-primary-600">&larr; Back to Sign In</a>
+        <p class="mt-6 border-t border-gray-100 pt-5 text-center text-xs text-gray-400">
+            <i class="fa-solid fa-clock"></i>
+            The link and code expire after 30 minutes and can only be used once.
         </p>
     </x-auth-card>
 </x-auth-layout>
