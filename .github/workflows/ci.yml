@@ -34,7 +34,7 @@ jobs:
           php-version: '8.2'
           # gd re-encodes uploaded images, zip reads .docx, sqlite is what the
           # suite runs against, intl is pulled in by the framework.
-          extensions: mbstring, gd, zip, intl, sqlite3, pdo_sqlite, fileinfo, curl
+          extensions: mbstring, gd, zip, intl, bcmath, dom, xml, sqlite3, pdo_sqlite, fileinfo, curl
           coverage: none
 
       - name: Cache Composer packages
