@@ -23,14 +23,21 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Upload a Document</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                PDF or Word (.doc/.docx), up to 20MB. If the document covers multiple examination years, every year is detected and split automatically.
+            <p class="field-hint mt-1">
+                PDF or Word (.doc/.docx), up to {{ \App\Http\Controllers\SuperAdmin\CbtDocumentUploadController::maxUploadLabel() }}. If the document covers multiple examination years, every year is detected and split automatically.
                 Leave exam body/subject blank to let AI detect them from the document.
             </p>
 
-            <form method="POST" action="{{ route('super-admin.cbt.uploads.store') }}" enctype="multipart/form-data" class="mt-4 space-y-4">
-                @csrf
-
+            @if ($extractionWarning)
+                {{-- Said before the upload, not after it. Waiting on a document
+                     that cannot be read is the failure this whole change is
+                     about. --}}
+                <div class="mb-4 flex items-start gap-3 rounded-[8px] border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+                    <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0 text-amber-600 dark:text-amber-400"></i>
+                    <p class="text-xs leading-[1.6] text-amber-900 dark:text-amber-300">{{ $extractionWarning }}</p>
+                </div>
+            @endif
+            <x-upload-progress-form :action="route('super-admin.cbt.uploads.store')" :max-mb="21">
                 <div>
                     <x-input-label for="cbt-upload-file" value="Document" />
                     <input
@@ -39,7 +46,7 @@
                         type="file"
                         accept=".pdf,.doc,.docx"
                         required
-                        class="mt-1 w-full rounded-[8px] border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-[8px] file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        class="mt-1 w-full"
                     >
                     <x-input-error :messages="$errors->get('file')" class="mt-2" />
                 </div>
@@ -59,17 +66,13 @@
                     />
                 </div>
 
-                <button type="submit" class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12M7 9l5-5 5 5M5 20h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                    Upload & Extract
-                </button>
-            </form>
+            </x-upload-progress-form>
         </div>
 
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Uploads</h2>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Every document ever uploaded, and what came out of it.</p>
+                <p class="field-hint mt-1">Every document ever uploaded, and what came out of it.</p>
             </div>
 
             <div class="overflow-x-auto">

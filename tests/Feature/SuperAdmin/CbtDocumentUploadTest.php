@@ -8,11 +8,10 @@ use App\Models\CbtDocumentUpload;
 use App\Models\CbtExamBody;
 use App\Models\CbtSubject;
 use App\Models\User;
-use App\Services\CbtDocumentExtractionService;
 use App\Services\CbtDocumentImportService;
-use App\Services\CbtDocxTextExtractor;
+use App\Services\DocumentExtraction\ExtractionResult;
+use App\Services\DocumentExtraction\QuestionExtractionProvider;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
@@ -56,112 +55,100 @@ test('rejects a file type that is not pdf, doc, or docx', function () {
         ->assertSessionHasErrors('file');
 });
 
-test('the extraction job imports questions when exam body and subject are confidently matched', function () {
+test('the extraction job imports questions when exam body and subject are known', function () {
     Storage::fake('local');
     Storage::fake('public');
-    Http::fake([
-        'api.anthropic.com/*' => Http::response([
-            'stop_reason' => 'tool_use',
-            'content' => [
-                [
-                    'type' => 'tool_use',
-                    'name' => 'record_extracted_exam',
-                    'input' => [
-                        'exam_body' => 'WAEC',
-                        'subject' => 'Mathematics',
-                        'years' => [
-                            [
-                                'year' => 2015,
-                                'questions' => [
-                                    [
-                                        'number' => 1,
-                                        'question_text' => 'What is 2 + 2?',
-                                        'has_diagram' => false,
-                                        'diagram_description' => null,
-                                        'options' => [
-                                            ['label' => 'A', 'text' => '3'],
-                                            ['label' => 'B', 'text' => '4'],
-                                        ],
-                                        'correct_label' => 'B',
-                                        'answer_source' => 'found_in_document',
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ], 200),
-    ]);
 
-    CbtExamBody::factory()->create(['code' => 'WAEC']);
-    CbtSubject::factory()->create(['name' => 'Mathematics']);
+    // The uploader picks these on the form. A local parser does not guess an
+    // examination board from prose, and inventing one would be worse than
+    // asking.
+    $examBody = CbtExamBody::factory()->create(['code' => 'WAEC']);
+    $subject = CbtSubject::factory()->create(['name' => 'Mathematics']);
 
-    $path = UploadedFile::fake()->create('waec.pdf', 10, 'application/pdf')->storeAs('cbt-uploads/documents', 'waec.pdf', 'local');
+    $path = UploadedFile::fake()->create('waec.pdf', 10, 'application/pdf')
+        ->storeAs('cbt-uploads/documents', 'waec.pdf', 'local');
 
     $upload = CbtDocumentUpload::factory()->create([
         'uploaded_by' => $this->superAdmin->id,
+        'cbt_exam_body_id' => $examBody->id,
+        'cbt_subject_id' => $subject->id,
         'path' => $path,
         'mime_type' => 'application/pdf',
         'status' => CbtDocumentUploadStatus::Pending,
     ]);
 
+    $this->mock(QuestionExtractionProvider::class)
+        ->shouldReceive('extract')->once()->andReturn(new ExtractionResult(questions: [
+            [
+                'number' => 1,
+                'question_text' => 'What is 2 + 2?',
+                'has_diagram' => false,
+                'diagram_description' => null,
+                'options' => [
+                    ['label' => 'A', 'text' => '3'],
+                    ['label' => 'B', 'text' => '4'],
+                ],
+                'correct_label' => 'B',
+                'answer_source' => 'found_in_document',
+                'year' => 2015,
+            ],
+        ]));
+
     (new ProcessCbtDocumentUpload($upload))->handle(
-        app(CbtDocumentExtractionService::class),
-        app(CbtDocxTextExtractor::class),
+        app(QuestionExtractionProvider::class),
         app(CbtDocumentImportService::class),
     );
 
     $upload->refresh();
-    expect($upload->status)->toBe(CbtDocumentUploadStatus::Completed);
-    expect($upload->questions_extracted_count)->toBe(1);
-    expect($upload->examBody->code)->toBe('WAEC');
+
+    expect($upload->status)->toBe(CbtDocumentUploadStatus::Completed)
+        ->and($upload->questions_extracted_count)->toBe(1)
+        ->and($upload->examBody->code)->toBe('WAEC')
+        ->and($upload->detected_years)->toBe([2015]);
 });
 
-test('the extraction job flags the upload as needing mapping when no matching exam body exists', function () {
+test('the extraction job flags the upload as needing mapping when no exam body was chosen', function () {
     Storage::fake('local');
-    Http::fake([
-        'api.anthropic.com/*' => Http::response([
-            'stop_reason' => 'tool_use',
-            'content' => [
-                [
-                    'type' => 'tool_use',
-                    'name' => 'record_extracted_exam',
-                    'input' => [
-                        'exam_body' => 'Some Unknown Board',
-                        'subject' => 'Unknown Subject',
-                        'years' => [],
-                    ],
-                ],
-            ],
-        ], 200),
-    ]);
 
-    $path = UploadedFile::fake()->create('unknown.pdf', 10, 'application/pdf')->storeAs('cbt-uploads/documents', 'unknown.pdf', 'local');
+    $path = UploadedFile::fake()->create('unknown.pdf', 10, 'application/pdf')
+        ->storeAs('cbt-uploads/documents', 'unknown.pdf', 'local');
 
     $upload = CbtDocumentUpload::factory()->create([
         'uploaded_by' => $this->superAdmin->id,
+        'cbt_exam_body_id' => null,
+        'cbt_subject_id' => null,
         'path' => $path,
         'mime_type' => 'application/pdf',
         'status' => CbtDocumentUploadStatus::Pending,
     ]);
 
+    $this->mock(QuestionExtractionProvider::class)
+        ->shouldReceive('extract')->once()->andReturn(new ExtractionResult(questions: [
+            [
+                'number' => 1,
+                'question_text' => 'What is 2 + 2?',
+                'has_diagram' => false,
+                'options' => [['label' => 'A', 'text' => '3'], ['label' => 'B', 'text' => '4']],
+                'correct_label' => 'B',
+                'answer_source' => 'found_in_document',
+            ],
+        ]));
+
     (new ProcessCbtDocumentUpload($upload))->handle(
-        app(CbtDocumentExtractionService::class),
-        app(CbtDocxTextExtractor::class),
+        app(QuestionExtractionProvider::class),
         app(CbtDocumentImportService::class),
     );
 
     expect($upload->fresh()->status)->toBe(CbtDocumentUploadStatus::NeedsMapping);
 });
 
-test('the extraction job marks the upload as failed when the api call errors', function () {
+test('the extraction job fails gracefully when the document yields nothing', function () {
+    // A scan, a corrupt file, or a document with no questions in it. The
+    // teacher gets a sentence, never an exception.
     Storage::fake('local');
-    Http::fake([
-        'api.anthropic.com/*' => Http::response(['error' => 'bad request'], 400),
-    ]);
 
-    $path = UploadedFile::fake()->create('broken.pdf', 10, 'application/pdf')->storeAs('cbt-uploads/documents', 'broken.pdf', 'local');
+    $path = UploadedFile::fake()->create('scan.pdf', 10, 'application/pdf')
+        ->storeAs('cbt-uploads/documents', 'scan.pdf', 'local');
 
     $upload = CbtDocumentUpload::factory()->create([
         'uploaded_by' => $this->superAdmin->id,
@@ -170,14 +157,22 @@ test('the extraction job marks the upload as failed when the api call errors', f
         'status' => CbtDocumentUploadStatus::Pending,
     ]);
 
+    $this->mock(QuestionExtractionProvider::class)
+        ->shouldReceive('extract')->once()->andReturn(new ExtractionResult(
+            questions: [],
+            looksScanned: true,
+        ));
+
     (new ProcessCbtDocumentUpload($upload))->handle(
-        app(CbtDocumentExtractionService::class),
-        app(CbtDocxTextExtractor::class),
+        app(QuestionExtractionProvider::class),
         app(CbtDocumentImportService::class),
     );
 
-    expect($upload->fresh()->status)->toBe(CbtDocumentUploadStatus::Failed);
-    expect($upload->fresh()->error_message)->not->toBeNull();
+    $upload->refresh();
+
+    expect($upload->status)->toBe(CbtDocumentUploadStatus::Failed)
+        ->and($upload->error_message)->toContain('scanned or image-based')
+        ->and($upload->error_message)->not->toContain('Exception');
 });
 
 test('super admin can confirm exam body mapping and import the extracted questions', function () {

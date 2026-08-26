@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Enums\CbtDocumentUploadStatus;
+use App\Http\Controllers\Concerns\AcceptsCbtDocumentUploads;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessCbtDocumentUpload;
 use App\Models\AuditLog;
@@ -10,6 +11,9 @@ use App\Models\CbtDocumentUpload;
 use App\Models\CbtExamBody;
 use App\Models\CbtSubject;
 use App\Services\CbtDocumentImportService;
+use App\Services\CbtExtractionAvailability;
+use App\Services\QueueWorkerHealth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -18,11 +22,12 @@ use Illuminate\View\View;
 
 class CbtDocumentUploadController extends Controller
 {
-    private const ALLOWED_MIMES = ['pdf', 'doc', 'docx'];
+    use AcceptsCbtDocumentUploads;
 
-    public function index(): View
+    public function index(CbtExtractionAvailability $availability): View
     {
         return view('super-admin.cbt.uploads.index', [
+            'extractionWarning' => $availability->warning(),
             'uploads' => CbtDocumentUpload::with(['uploadedBy', 'examBody', 'subject'])
                 ->latest()
                 ->paginate(15),
@@ -31,10 +36,10 @@ class CbtDocumentUploadController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
-            'file' => ['required', 'file', 'mimes:'.implode(',', self::ALLOWED_MIMES), 'max:20480'],
+            'file' => $this->documentRules(),
             'cbt_exam_body_id' => ['nullable', 'integer', 'exists:cbt_exam_bodies,id'],
             'cbt_subject_id' => ['nullable', 'integer', 'exists:cbt_subjects,id'],
         ]);
@@ -58,10 +63,18 @@ class CbtDocumentUploadController extends Controller
 
         AuditLog::record('cbt.document.uploaded', "Uploaded \"{$upload->original_filename}\" for CBT extraction.", $upload);
 
-        return redirect()->route('super-admin.cbt.uploads.show', $upload)->with('status', 'Document uploaded. Extraction is running in the background.');
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status_url' => route('super-admin.cbt.uploads.status', $upload),
+                'redirect_url' => route('super-admin.cbt.uploads.show', $upload),
+            ], 201);
+        }
+
+        return redirect()->route('super-admin.cbt.uploads.show', $upload)
+            ->with('status', 'Document uploaded. Extraction is running in the background.');
     }
 
-    public function show(CbtDocumentUpload $upload): View
+    public function show(CbtDocumentUpload $upload, QueueWorkerHealth $queue): View
     {
         $upload->load([
             'examBody',
@@ -70,6 +83,7 @@ class CbtDocumentUploadController extends Controller
         ]);
 
         return view('super-admin.cbt.uploads.show', [
+            'stalled' => $upload->status === CbtDocumentUploadStatus::Pending && ! $queue->isRunning(),
             'upload' => $upload,
             'examBodies' => CbtExamBody::orderBy('name')->get(),
             'subjects' => CbtSubject::orderBy('name')->get(),
@@ -111,5 +125,50 @@ class CbtDocumentUploadController extends Controller
         AuditLog::record('cbt.document.deleted', "Deleted uploaded document \"{$name}\".");
 
         return redirect()->route('super-admin.cbt.uploads.index')->with('status', "\"{$name}\" deleted successfully.");
+    }
+
+    /**
+     * The live state of one upload, for the progress interface to poll.
+     *
+     * Deliberately thin: a status, a message, and whether to keep asking. The
+     * page decides how to draw it.
+     */
+    public function status(CbtDocumentUpload $upload, QueueWorkerHealth $queue): JsonResponse
+    {
+        $stalled = $upload->status === CbtDocumentUploadStatus::Pending && ! $queue->isRunning();
+
+        return response()->json([
+            'status' => $upload->status->value,
+            'label' => $upload->status->label(),
+            'message' => $stalled
+                ? 'Waiting for the extraction service. Nothing is processing jobs at the moment.'
+                : $upload->status->progressMessage(),
+            'percent' => $upload->status->progressPercent(),
+            'in_progress' => $upload->status->isInProgress(),
+            'stalled' => $stalled,
+            'question_count' => $upload->questions()->count(),
+            'error' => $upload->error_message,
+        ]);
+    }
+
+    /**
+     * Put a failed or stalled upload back on the queue.
+     *
+     * The file is already stored, so this re-runs the extraction rather than
+     * asking for the document again - which matters most in the case this was
+     * written for, where nothing was wrong with the upload and the queue
+     * simply was not running.
+     */
+    public function retry(CbtDocumentUpload $upload, QueueWorkerHealth $queue): RedirectResponse
+    {
+        $upload->update([
+            'status' => CbtDocumentUploadStatus::Pending,
+            'error_message' => null,
+        ]);
+
+        ProcessCbtDocumentUpload::dispatch($upload);
+        $queue->forget();
+
+        return back()->with('status', 'Extraction has been queued again.');
     }
 }

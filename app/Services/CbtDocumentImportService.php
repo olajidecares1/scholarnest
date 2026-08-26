@@ -13,8 +13,16 @@ use Illuminate\Support\Facades\DB;
 class CbtDocumentImportService
 {
     /**
-     * Turn a document upload's extracted AI response into real CbtExam /
+     * Turn a document upload's extracted response into real CbtExam /
      * CbtQuestion / CbtQuestionOption records, one CbtExam per detected year.
+     *
+     * Every question passes through {@see ExtractedQuestion} first, which is
+     * what decides whether it is fit for a student to answer. This service used
+     * to make that judgement inline and got it wrong in one specific way: an
+     * answer key naming an option the question did not have produced a question
+     * with no correct option and no review flag, so it published looking normal
+     * and marked every student wrong. Keeping the rule in one place is what
+     * stops the catalog and the school-test importer drifting apart on it.
      *
      * @return array{extracted: int, needs_review: int}
      */
@@ -39,35 +47,35 @@ class CbtDocumentImportService
                     ]
                 );
 
+                if (filled($yearBlock['instructions'] ?? null) && blank($exam->instructions)) {
+                    $exam->update(['instructions' => $yearBlock['instructions']]);
+                }
+
+                $questions = ExtractedQuestionSet::fromExtraction($yearBlock);
                 $nextSortOrder = $exam->questions()->count();
 
-                foreach ($yearBlock['questions'] ?? [] as $questionData) {
-                    $answerMissing = ($questionData['answer_source'] ?? 'not_found') !== 'found_in_document'
-                        || empty($questionData['correct_label']);
-                    $hasDiagram = (bool) ($questionData['has_diagram'] ?? false);
-
-                    $question = CbtQuestion::create([
+                foreach ($questions->questions as $question) {
+                    $record = CbtQuestion::create([
                         'cbt_exam_id' => $exam->id,
                         'cbt_document_upload_id' => $upload->id,
-                        'question_text' => $questionData['question_text'] ?? '',
+                        'question_text' => $question->text,
+                        'marks' => $question->marks,
                         'sort_order' => $nextSortOrder++,
-                        'needs_review' => $answerMissing || $hasDiagram,
-                        'review_notes' => $this->reviewNotes($questionData, $answerMissing, $hasDiagram),
+                        'needs_review' => $question->needsReview(),
+                        'review_notes' => $question->reviewNotes(),
                     ]);
 
-                    foreach ($questionData['options'] ?? [] as $option) {
-                        $label = strtoupper((string) ($option['label'] ?? ''));
-
-                        $question->options()->create([
-                            'label' => $label,
-                            'option_text' => $option['text'] ?? '',
-                            'is_correct' => ! $answerMissing && strtoupper((string) $questionData['correct_label']) === $label,
+                    foreach ($question->options as $option) {
+                        $record->options()->create([
+                            'label' => $option['label'],
+                            'option_text' => $option['text'],
+                            'is_correct' => $option['is_correct'],
                         ]);
                     }
 
                     $extractedCount++;
 
-                    if ($question->needs_review) {
+                    if ($record->needs_review) {
                         $reviewCount++;
                     }
                 }
@@ -84,26 +92,5 @@ class CbtDocumentImportService
         });
 
         return ['extracted' => $extractedCount, 'needs_review' => $reviewCount];
-    }
-
-    /**
-     * @param  array<string, mixed>  $questionData
-     */
-    private function reviewNotes(array $questionData, bool $answerMissing, bool $hasDiagram): ?string
-    {
-        $notes = [];
-
-        if ($answerMissing) {
-            $notes[] = 'Correct answer was not found in the source document - select it manually.';
-        }
-
-        if ($hasDiagram) {
-            $description = $questionData['diagram_description'] ?? null;
-            $notes[] = $description
-                ? "Diagram referenced ({$description}) - attach the matching image manually."
-                : 'Diagram referenced - attach the matching image manually.';
-        }
-
-        return $notes === [] ? null : implode(' ', $notes);
     }
 }

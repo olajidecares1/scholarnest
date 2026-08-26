@@ -3,10 +3,6 @@
 @endphp
 
 <x-super-admin-layout :page-title="$upload->original_filename" page-subtitle="Review what was extracted from this document.">
-    @if (in_array($upload->status->value, ['pending', 'processing'], true))
-        <meta http-equiv="refresh" content="5">
-    @endif
-
     <div class="space-y-6">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
@@ -19,27 +15,17 @@
             Back to Uploads
         </a>
 
-        @if ($upload->status->value === 'pending' || $upload->status->value === 'processing')
-            <div class="flex items-center gap-4 rounded-[5px] border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-900/20 lg:rounded-[10px]">
-                <svg class="h-6 w-6 shrink-0 animate-spin text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3a9 9 0 100 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
-                <div>
-                    <p class="text-sm font-semibold text-blue-800 dark:text-blue-300">Extracting questions&hellip;</p>
-                    <p class="mt-1 text-xs text-blue-700 dark:text-blue-400">This can take a few minutes for large documents. This page refreshes automatically.</p>
-                </div>
-            </div>
-        @endif
-
-        @if ($upload->status->value === 'failed')
-            <div class="rounded-[5px] border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20 lg:rounded-[10px]">
-                <p class="text-sm font-semibold text-red-800 dark:text-red-300">Extraction failed</p>
-                <p class="mt-1 text-xs text-red-700 dark:text-red-400">{{ $upload->error_message }}</p>
-            </div>
-        @endif
+        <x-upload-status-panel
+            :upload="$upload"
+            :stalled="$stalled"
+            :status-url="route('super-admin.cbt.uploads.status', $upload)"
+            :retry-url="route('super-admin.cbt.uploads.retry', $upload)"
+        />
 
         @if ($upload->status->value === 'needs_mapping')
             <div class="rounded-[5px] border border-amber-200 bg-white p-6 shadow-sm dark:border-amber-800 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-bold text-gray-900 dark:text-white">Confirm Exam Body & Subject</p>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="field-hint mt-1">
                     AI detected
                     <strong>{{ $upload->ai_response['exam_body'] ?? 'an exam body' }}</strong> /
                     <strong>{{ $upload->ai_response['subject'] ?? 'a subject' }}</strong>,
@@ -87,7 +73,7 @@
             @if (! empty($upload->extracted_images))
                 <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Images Found in the Document</h2>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Attach any of these to the matching question below via "Edit" in the question bank &mdash; automatic diagram-to-question matching isn't reliable enough to do silently.</p>
+                    <p class="field-hint mt-1">Attach any of these to the matching question below via "Edit" in the question bank &mdash; automatic diagram-to-question matching isn't reliable enough to do silently.</p>
                     <div class="mt-3 flex flex-wrap gap-3">
                         @foreach ($upload->extractedImageUrls() as $imageUrl)
                             <img src="{{ $imageUrl }}" class="h-24 w-24 rounded-[5px] border border-gray-200 object-cover dark:border-gray-700">

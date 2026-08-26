@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Staff\Cbt;
 
 use App\Enums\CbtDocumentUploadStatus;
+use App\Http\Controllers\Concerns\AcceptsCbtDocumentUploads;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessCbtTestDocumentUpload;
 use App\Models\CbtTest;
 use App\Models\CbtTestDocumentUpload;
 use App\Models\School;
+use App\Services\QueueWorkerHealth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,14 +19,14 @@ use Illuminate\View\View;
 
 class DocumentUploadController extends Controller
 {
-    private const ALLOWED_MIMES = ['pdf', 'doc', 'docx'];
+    use AcceptsCbtDocumentUploads;
 
-    public function store(Request $request, School $school, CbtTest $test): RedirectResponse
+    public function store(Request $request, School $school, CbtTest $test): RedirectResponse|JsonResponse
     {
         $this->authorizeTest($request, $test);
 
         $validated = $request->validate([
-            'file' => ['required', 'file', 'mimes:'.implode(',', self::ALLOWED_MIMES), 'max:20480'],
+            'file' => $this->documentRules(),
         ]);
 
         $file = $validated['file'];
@@ -41,10 +44,18 @@ class DocumentUploadController extends Controller
 
         ProcessCbtTestDocumentUpload::dispatch($upload);
 
-        return redirect()->route('staff.cbt.tests.show', [$school, $test])->with('status', 'Document uploaded. Extraction is running in the background.');
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status_url' => route('staff.cbt.tests.uploads.status', [$school, $test, $upload]),
+                'redirect_url' => route('staff.cbt.tests.uploads.show', [$school, $test, $upload]),
+            ], 201);
+        }
+
+        return redirect()->route('staff.cbt.tests.uploads.show', [$school, $test, $upload])
+            ->with('status', 'Document uploaded. Extraction is running in the background.');
     }
 
-    public function show(Request $request, School $school, CbtTest $test, CbtTestDocumentUpload $upload): View
+    public function show(Request $request, School $school, CbtTest $test, CbtTestDocumentUpload $upload, QueueWorkerHealth $queue): View
     {
         $this->authorizeTest($request, $test);
         abort_unless($upload->cbt_test_id === $test->id, 403);
@@ -52,6 +63,7 @@ class DocumentUploadController extends Controller
         $upload->load('questions.options');
 
         return view('staff.cbt.upload', [
+            'stalled' => $upload->status === CbtDocumentUploadStatus::Pending && ! $queue->isRunning(),
             'school' => $school,
             'test' => $test,
             'upload' => $upload,
@@ -72,6 +84,52 @@ class DocumentUploadController extends Controller
         $upload->delete();
 
         return redirect()->route('staff.cbt.tests.show', [$school, $test])->with('status', 'Upload removed.');
+    }
+
+    /**
+     * The live state of one upload, for the progress interface to poll.
+     */
+    public function status(Request $request, School $school, CbtTest $test, CbtTestDocumentUpload $upload, QueueWorkerHealth $queue): JsonResponse
+    {
+        $this->authorizeTest($request, $test);
+        abort_unless($upload->cbt_test_id === $test->id, 403);
+
+        $stalled = $upload->status === CbtDocumentUploadStatus::Pending && ! $queue->isRunning();
+
+        return response()->json([
+            'status' => $upload->status->value,
+            'label' => $upload->status->label(),
+            'message' => $stalled
+                ? 'Waiting for the extraction service. Nothing is processing jobs at the moment.'
+                : $upload->status->progressMessage(),
+            'percent' => $upload->status->progressPercent(),
+            'in_progress' => $upload->status->isInProgress(),
+            'stalled' => $stalled,
+            'question_count' => $upload->questions()->count(),
+            'error' => $upload->error_message,
+        ]);
+    }
+
+    /**
+     * Put a failed or stalled upload back on the queue.
+     *
+     * The document is already stored, so this re-runs the extraction rather
+     * than asking the teacher to find and upload the file a second time.
+     */
+    public function retry(Request $request, School $school, CbtTest $test, CbtTestDocumentUpload $upload, QueueWorkerHealth $queue): RedirectResponse
+    {
+        $this->authorizeTest($request, $test);
+        abort_unless($upload->cbt_test_id === $test->id, 403);
+
+        $upload->update([
+            'status' => CbtDocumentUploadStatus::Pending,
+            'error_message' => null,
+        ]);
+
+        ProcessCbtTestDocumentUpload::dispatch($upload);
+        $queue->forget();
+
+        return back()->with('status', 'Extraction has been queued again.');
     }
 
     private function authorizeTest(Request $request, CbtTest $test): void
