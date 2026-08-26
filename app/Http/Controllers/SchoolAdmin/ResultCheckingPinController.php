@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\ExamTerm;
 use App\Enums\ResultCheckingPinStatus;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Examination;
@@ -30,6 +31,8 @@ use LogicException;
  */
 class ResultCheckingPinController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function __construct(
         private readonly ResultTokenIssuer $issuer,
         private readonly ResultAccessPolicy $access,
@@ -201,7 +204,7 @@ class ResultCheckingPinController extends Controller
      */
     public function reissue(Request $request, ResultCheckingPin $pin): RedirectResponse
     {
-        abort_unless($pin->school_id === $request->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($pin);
 
         try {
             $issued = $this->issuer->reissue($pin, $request->user());
@@ -235,7 +238,7 @@ class ResultCheckingPinController extends Controller
      */
     public function reveal(Request $request, ResultCheckingPin $pin): RedirectResponse
     {
-        abort_unless($pin->school_id === $request->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($pin);
 
         AuditLog::record(
             'result-token.revealed',
@@ -255,7 +258,7 @@ class ResultCheckingPinController extends Controller
 
     public function revoke(Request $request, ResultCheckingPin $pin): RedirectResponse
     {
-        abort_unless($pin->school_id === $request->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($pin);
 
         $pin->update(['status' => ResultCheckingPinStatus::Revoked]);
 
@@ -273,7 +276,7 @@ class ResultCheckingPinController extends Controller
      */
     public function toggleSuspension(Request $request, ResultCheckingPin $pin): RedirectResponse
     {
-        abort_unless($pin->school_id === $request->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($pin);
 
         if ($pin->status === ResultCheckingPinStatus::Suspended) {
             $pin->update(['status' => ResultCheckingPinStatus::Active]);

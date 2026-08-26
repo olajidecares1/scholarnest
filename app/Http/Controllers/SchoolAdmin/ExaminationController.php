@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\ExamTerm;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\ExaminationSubject;
@@ -18,6 +19,8 @@ use Illuminate\View\View;
 
 class ExaminationController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -356,11 +359,11 @@ class ExaminationController extends Controller
 
     private function authorizeExamination(Examination $examination): void
     {
-        abort_unless($examination->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($examination);
     }
 
     private function authorizeSubject(ExaminationSubject $subject): void
     {
-        abort_unless($subject->examination->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($subject->examination);
     }
 }

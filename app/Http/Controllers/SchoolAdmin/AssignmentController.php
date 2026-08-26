@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\SubmissionStatus;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Student;
@@ -14,6 +15,8 @@ use Illuminate\View\View;
 
 class AssignmentController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -141,6 +144,6 @@ class AssignmentController extends Controller
 
     private function authorizeAssignment(Assignment $assignment): void
     {
-        abort_unless($assignment->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($assignment);
     }
 }

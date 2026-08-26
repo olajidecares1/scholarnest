@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\CustomDomainSslStatus;
 use App\Enums\CustomDomainStatus;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\CustomDomain;
 use App\Services\CustomDomainVerificationService;
@@ -17,6 +18,8 @@ use Illuminate\View\View;
 
 class CustomDomainController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -35,7 +38,7 @@ class CustomDomainController extends Controller
      */
     public function status(Request $request, CustomDomain $domain): JsonResponse
     {
-        $this->authorizeDomain($request, $domain);
+        $this->authorizeDomain($domain);
 
         return response()->json([
             'status' => $domain->status->value,
@@ -70,7 +73,7 @@ class CustomDomainController extends Controller
 
     public function verify(Request $request, CustomDomain $domain, CustomDomainVerificationService $verifier): RedirectResponse
     {
-        $this->authorizeDomain($request, $domain);
+        $this->authorizeDomain($domain);
 
         $verified = $verifier->verify($domain);
 
@@ -81,7 +84,7 @@ class CustomDomainController extends Controller
 
     public function update(Request $request, CustomDomain $domain): RedirectResponse
     {
-        $this->authorizeDomain($request, $domain);
+        $this->authorizeDomain($domain);
 
         $validated = $this->validated($request, $domain->school_id, $domain->id);
 
@@ -99,7 +102,7 @@ class CustomDomainController extends Controller
 
     public function setPrimary(Request $request, CustomDomain $domain): RedirectResponse
     {
-        $this->authorizeDomain($request, $domain);
+        $this->authorizeDomain($domain);
 
         DB::transaction(function () use ($domain) {
             CustomDomain::where('school_id', $domain->school_id)->update(['is_primary' => false]);
@@ -111,7 +114,7 @@ class CustomDomainController extends Controller
 
     public function toggleRedirect(Request $request, CustomDomain $domain): RedirectResponse
     {
-        $this->authorizeDomain($request, $domain);
+        $this->authorizeDomain($domain);
 
         $domain->update(['redirect_default_domain' => ! $domain->redirect_default_domain]);
 
@@ -122,7 +125,7 @@ class CustomDomainController extends Controller
 
     public function destroy(Request $request, CustomDomain $domain): RedirectResponse
     {
-        $this->authorizeDomain($request, $domain);
+        $this->authorizeDomain($domain);
 
         $wasPrimary = $domain->is_primary;
         $name = $domain->domain;
@@ -154,8 +157,8 @@ class CustomDomainController extends Controller
         ]);
     }
 
-    private function authorizeDomain(Request $request, CustomDomain $domain): void
+    private function authorizeDomain(CustomDomain $domain): void
     {
-        abort_unless($domain->school_id === $request->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($domain);
     }
 }

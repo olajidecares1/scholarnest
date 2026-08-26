@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\CoCurricularActivity;
 use Illuminate\Http\RedirectResponse;
@@ -10,6 +11,8 @@ use Illuminate\View\View;
 
 class CoCurricularController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -63,6 +66,6 @@ class CoCurricularController extends Controller
 
     private function authorizeActivity(CoCurricularActivity $activity): void
     {
-        abort_unless($activity->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($activity);
     }
 }

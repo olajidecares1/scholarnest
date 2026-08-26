@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\NewsPost;
 use App\Services\ImageOptimizer;
@@ -13,6 +14,8 @@ use Illuminate\View\View;
 
 class NewsController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function __construct(private readonly ImageOptimizer $optimizer) {}
 
     public function index(Request $request): View
@@ -108,6 +111,6 @@ class NewsController extends Controller
 
     private function authorizePost(NewsPost $post): void
     {
-        abort_unless($post->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($post);
     }
 }

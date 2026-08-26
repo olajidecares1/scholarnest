@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\BookLoan;
@@ -12,6 +13,8 @@ use Illuminate\View\View;
 
 class LibraryController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -174,11 +177,11 @@ class LibraryController extends Controller
 
     private function authorizeBook(Book $book): void
     {
-        abort_unless($book->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($book);
     }
 
     private function authorizeLoan(BookLoan $loan): void
     {
-        abort_unless($loan->book->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($loan->book);
     }
 }

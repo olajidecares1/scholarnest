@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\StaffRole;
 use App\Enums\TeacherAssignmentType;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\ExaminationSubject;
 use App\Models\Staff;
@@ -16,6 +17,8 @@ use Illuminate\View\View;
 
 class TeacherAssignmentController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -100,7 +103,7 @@ class TeacherAssignmentController extends Controller
 
     public function destroy(TeacherAssignment $assignment): RedirectResponse
     {
-        abort_unless($assignment->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($assignment);
 
         $staffName = $assignment->staff->fullName();
         $assignment->delete();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\EmploymentType;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\JobPosting;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +13,8 @@ use Illuminate\View\View;
 
 class JobPostingController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -93,6 +96,6 @@ class JobPostingController extends Controller
 
     private function authorizeJob(JobPosting $job): void
     {
-        abort_unless($job->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($job);
     }
 }

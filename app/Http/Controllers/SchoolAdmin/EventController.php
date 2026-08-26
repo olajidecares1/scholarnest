@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\EventAudience;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\SchoolEvent;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +13,8 @@ use Illuminate\View\View;
 
 class EventController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -83,6 +86,6 @@ class EventController extends Controller
 
     private function authorizeEvent(SchoolEvent $event): void
     {
-        abort_unless($event->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($event);
     }
 }

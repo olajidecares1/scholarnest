@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\IdCardHolderType;
 use App\Enums\IssuedIdCardStatus;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\IssuedIdCard;
@@ -13,6 +14,8 @@ use Illuminate\View\View;
 
 class IssuedIdCardController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -34,7 +37,7 @@ class IssuedIdCardController extends Controller
 
     public function revoke(Request $request, IssuedIdCard $card): RedirectResponse
     {
-        abort_unless($card->school_id === $request->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($card);
 
         $card->update([
             'status' => IssuedIdCardStatus::Revoked,

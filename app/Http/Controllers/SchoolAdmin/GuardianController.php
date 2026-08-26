@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
@@ -18,6 +19,7 @@ use Illuminate\View\View;
 
 class GuardianController extends Controller
 {
+    use AuthorizesSchoolOwnership;
     use SetsPortalCredentials;
 
     public function __construct(private readonly IdentifierGenerator $identifiers) {}
@@ -193,7 +195,7 @@ class GuardianController extends Controller
 
     private function authorizeGuardian(Guardian $guardian): void
     {
-        abort_unless($guardian->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($guardian);
     }
 
     /**

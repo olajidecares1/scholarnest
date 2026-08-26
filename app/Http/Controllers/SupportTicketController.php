@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Requests\StoreSupportTicketReplyRequest;
 use App\Http\Requests\StoreSupportTicketRequest;
 use App\Models\SupportTicket;
@@ -14,6 +15,8 @@ use Illuminate\View\View;
 
 class SupportTicketController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(): View
     {
         $tickets = auth()->user()->school->supportTickets()->latest()->paginate(10);
@@ -45,7 +48,7 @@ class SupportTicketController extends Controller
 
     public function show(SupportTicket $ticket): View
     {
-        abort_unless($ticket->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($ticket);
 
         $ticket->load(['replies.user', 'assignedTo']);
 
@@ -56,7 +59,7 @@ class SupportTicketController extends Controller
 
     public function reply(StoreSupportTicketReplyRequest $request, SupportTicket $ticket): RedirectResponse
     {
-        abort_unless($ticket->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($ticket);
 
         $reply = $ticket->replies()->create([
             'user_id' => auth()->id(),

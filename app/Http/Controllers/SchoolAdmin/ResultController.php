@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\ExamTerm;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\ExaminationReport;
@@ -20,6 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResultController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -155,7 +158,7 @@ class ResultController extends Controller
 
     private function authorizeResult(Examination $examination, Student $student): void
     {
-        abort_unless($examination->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($examination);
         abort_unless($student->school_id === $examination->school_id, 403);
     }
 }

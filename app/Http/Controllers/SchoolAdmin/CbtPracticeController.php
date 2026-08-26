@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\CbtExamBody;
 use App\Models\CbtExamBodyClassGrant;
@@ -11,6 +12,8 @@ use Illuminate\View\View;
 
 class CbtPracticeController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(): View
     {
         return view('school-admin.cbt-practice.index', [
@@ -46,7 +49,7 @@ class CbtPracticeController extends Controller
 
     public function destroyGrant(CbtExamBodyClassGrant $grant): RedirectResponse
     {
-        abort_unless($grant->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($grant);
 
         $grant->delete();
 

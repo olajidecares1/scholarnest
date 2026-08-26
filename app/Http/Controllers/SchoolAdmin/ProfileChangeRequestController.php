@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\ProfileChangeRequest;
@@ -11,6 +12,8 @@ use Illuminate\View\View;
 
 class ProfileChangeRequestController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -28,7 +31,7 @@ class ProfileChangeRequestController extends Controller
 
     public function approve(Request $request, ProfileChangeRequest $changeRequest): RedirectResponse
     {
-        abort_unless($changeRequest->school_id === $request->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($changeRequest);
         abort_if($changeRequest->status !== 'pending', 422, 'This request has already been reviewed.');
 
         $validated = $request->validate([
@@ -44,7 +47,7 @@ class ProfileChangeRequestController extends Controller
 
     public function reject(Request $request, ProfileChangeRequest $changeRequest): RedirectResponse
     {
-        abort_unless($changeRequest->school_id === $request->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($changeRequest);
         abort_if($changeRequest->status !== 'pending', 422, 'This request has already been reviewed.');
 
         $validated = $request->validate([

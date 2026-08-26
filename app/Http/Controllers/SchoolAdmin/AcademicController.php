@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\ClassStream;
 use App\Enums\ExamTerm;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicLevel;
 use App\Models\AcademicTerm;
@@ -19,6 +20,8 @@ use Illuminate\View\View;
 
 class AcademicController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -60,7 +63,7 @@ class AcademicController extends Controller
 
     public function destroyTerm(AcademicTerm $term): RedirectResponse
     {
-        abort_unless($term->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($term);
 
         $term->delete();
 
@@ -155,7 +158,7 @@ class AcademicController extends Controller
 
     private function authorizeGradeBand(GradeBand $gradeBand): void
     {
-        abort_unless($gradeBand->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($gradeBand);
     }
 
     public function storeLevel(Request $request): RedirectResponse
@@ -245,11 +248,11 @@ class AcademicController extends Controller
 
     private function authorizeLevel(AcademicLevel $level): void
     {
-        abort_unless($level->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($level);
     }
 
     private function authorizeClass(SchoolClass $class): void
     {
-        abort_unless($class->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($class);
     }
 }

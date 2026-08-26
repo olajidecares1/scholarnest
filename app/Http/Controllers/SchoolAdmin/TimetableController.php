@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\TimetableEntry;
 use Illuminate\Http\RedirectResponse;
@@ -10,6 +11,8 @@ use Illuminate\View\View;
 
 class TimetableController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -78,6 +81,6 @@ class TimetableController extends Controller
 
     private function authorizeEntry(TimetableEntry $entry): void
     {
-        abort_unless($entry->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($entry);
     }
 }

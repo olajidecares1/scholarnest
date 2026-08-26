@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\CbtTestStatus;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\CbtTest;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +13,8 @@ use Illuminate\View\View;
 
 class CbtTestController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -84,6 +87,6 @@ class CbtTestController extends Controller
 
     private function authorizeTest(CbtTest $test): void
     {
-        abort_unless($test->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($test);
     }
 }

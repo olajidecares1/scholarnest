@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\HostelGender;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\Hostel;
 use App\Models\HostelAllocation;
@@ -15,6 +16,8 @@ use Illuminate\View\View;
 
 class HostelController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -161,7 +164,7 @@ class HostelController extends Controller
 
     public function destroyAllocation(HostelAllocation $allocation): RedirectResponse
     {
-        abort_unless($allocation->room->hostel->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($allocation->room->hostel);
 
         $room = $allocation->room;
         $allocation->delete();
@@ -184,11 +187,11 @@ class HostelController extends Controller
 
     private function authorizeHostel(Hostel $hostel): void
     {
-        abort_unless($hostel->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($hostel);
     }
 
     private function authorizeRoom(HostelRoom $room): void
     {
-        abort_unless($room->hostel->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($room->hostel);
     }
 }

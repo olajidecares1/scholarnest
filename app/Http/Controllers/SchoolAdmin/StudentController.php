@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\Gender;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
@@ -23,6 +24,7 @@ use Illuminate\View\View;
 
 class StudentController extends Controller
 {
+    use AuthorizesSchoolOwnership;
     use SetsPortalCredentials;
 
     public function __construct(
@@ -223,7 +225,7 @@ class StudentController extends Controller
 
     public function updateGuardianPassword(Request $request, Guardian $guardian): RedirectResponse
     {
-        abort_unless($guardian->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($guardian);
 
         $validated = $request->validate([
             'password' => ['required', 'string', Password::defaults()],
@@ -239,7 +241,7 @@ class StudentController extends Controller
     public function destroyGuardian(Student $student, Guardian $guardian): RedirectResponse
     {
         $this->authorizeStudent($student);
-        abort_unless($guardian->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($guardian);
 
         $guardian->students()->detach($student->id);
 
@@ -290,7 +292,7 @@ class StudentController extends Controller
 
     private function authorizeStudent(Student $student): void
     {
-        abort_unless($student->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($student);
     }
 
     /**

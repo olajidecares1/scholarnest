@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\FeePaymentMethod;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\FeeStructure;
 use App\Models\Invoice;
@@ -15,6 +16,8 @@ use Illuminate\View\View;
 
 class FinanceController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -184,11 +187,11 @@ class FinanceController extends Controller
 
     private function authorizeStructure(FeeStructure $structure): void
     {
-        abort_unless($structure->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($structure);
     }
 
     private function authorizeInvoice(Invoice $invoice): void
     {
-        abort_unless($invoice->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($invoice);
     }
 }

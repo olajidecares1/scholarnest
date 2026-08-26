@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\PlanKey;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\HeroSlide;
 use App\Models\NavLink;
@@ -20,6 +21,8 @@ use Illuminate\View\View;
 
 class WebsiteController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     private const PAGES = ['home', 'about', 'admissions', 'contact', 'footer'];
 
     public function __construct(private readonly ImageOptimizer $optimizer) {}
@@ -187,7 +190,7 @@ class WebsiteController extends Controller
 
     public function destroyGalleryImage(SchoolGalleryImage $image): RedirectResponse
     {
-        abort_unless($image->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($image);
 
         Storage::disk('public')->delete($image->image_path);
         $image->delete();
@@ -215,7 +218,7 @@ class WebsiteController extends Controller
 
     public function destroyHeroSlide(HeroSlide $slide): RedirectResponse
     {
-        abort_unless($slide->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($slide);
 
         Storage::disk('public')->delete($slide->image_path);
         $slide->delete();
@@ -225,7 +228,7 @@ class WebsiteController extends Controller
 
     public function moveHeroSlide(Request $request, HeroSlide $slide): RedirectResponse
     {
-        abort_unless($slide->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($slide);
 
         $validated = $request->validate([
             'direction' => ['required', Rule::in(['up', 'down'])],
@@ -267,7 +270,7 @@ class WebsiteController extends Controller
 
     public function updateNavLink(Request $request, NavLink $navLink): RedirectResponse
     {
-        abort_unless($navLink->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($navLink);
 
         $validated = $request->validate([
             'label' => ['required', 'string', 'max:40'],
@@ -281,7 +284,7 @@ class WebsiteController extends Controller
 
     public function destroyNavLink(NavLink $navLink): RedirectResponse
     {
-        abort_unless($navLink->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($navLink);
 
         $navLink->delete();
 
@@ -290,7 +293,7 @@ class WebsiteController extends Controller
 
     public function moveNavLink(Request $request, NavLink $navLink): RedirectResponse
     {
-        abort_unless($navLink->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($navLink);
 
         $validated = $request->validate([
             'direction' => ['required', Rule::in(['up', 'down'])],

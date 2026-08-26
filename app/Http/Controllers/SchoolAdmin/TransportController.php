@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\TransportAssignment;
@@ -14,6 +15,8 @@ use Illuminate\View\View;
 
 class TransportController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -137,7 +140,7 @@ class TransportController extends Controller
 
     public function destroyAssignment(TransportAssignment $assignment): RedirectResponse
     {
-        abort_unless($assignment->route->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($assignment->route);
 
         $route = $assignment->route;
         $assignment->delete();
@@ -174,11 +177,11 @@ class TransportController extends Controller
 
     private function authorizeVehicle(TransportVehicle $vehicle): void
     {
-        abort_unless($vehicle->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($vehicle);
     }
 
     private function authorizeRoute(TransportRoute $route): void
     {
-        abort_unless($route->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($route);
     }
 }

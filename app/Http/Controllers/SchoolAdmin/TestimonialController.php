@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\Testimonial;
 use Illuminate\Http\RedirectResponse;
@@ -10,6 +11,8 @@ use Illuminate\View\View;
 
 class TestimonialController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -70,6 +73,6 @@ class TestimonialController extends Controller
 
     private function authorizeTestimonial(Testimonial $testimonial): void
     {
-        abort_unless($testimonial->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($testimonial);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\Gender;
 use App\Enums\StaffRole;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
@@ -22,6 +23,7 @@ use Illuminate\View\View;
 
 class StaffController extends Controller
 {
+    use AuthorizesSchoolOwnership;
     use SetsPortalCredentials;
 
     public function __construct(
@@ -240,7 +242,7 @@ class StaffController extends Controller
 
     private function authorizeStaff(Staff $member): void
     {
-        abort_unless($member->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($member);
     }
 
     /**

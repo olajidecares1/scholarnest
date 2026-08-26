@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\IdCardHolderType;
 use App\Enums\IdCardOrientation;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\IdCardTemplate;
 use App\Services\ImageOptimizer;
@@ -16,6 +17,8 @@ use Illuminate\View\View;
 
 class IdCardTemplateController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     public function __construct(private readonly ImageOptimizer $optimizer) {}
 
     public function index(Request $request): View
@@ -110,6 +113,6 @@ class IdCardTemplateController extends Controller
 
     private function authorizeTemplate(IdCardTemplate $template): void
     {
-        abort_unless($template->school_id === auth()->user()->school_id, 403);
+        $this->authorizeSchoolOwnership($template);
     }
 }
