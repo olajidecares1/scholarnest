@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MemorandumAudience;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\SchoolNoticeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,8 +25,19 @@ class SchoolNotice extends Model
         'sent_by',
         'title',
         'body',
+        'audience',
         'class_name',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'audience' => MemorandumAudience::class,
+        ];
+    }
 
     /**
      * @return BelongsTo<School, $this>

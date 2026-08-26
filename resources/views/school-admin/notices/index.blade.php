@@ -1,4 +1,4 @@
-<x-dashboard-layout page-title="Notices" page-subtitle="Send messages to your students' portal inbox.">
+<x-dashboard-layout page-title="Memorandums" page-subtitle="Send a message to your staff, students or parents.">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="lg:col-span-2">
             @if (session('status'))
@@ -19,7 +19,10 @@
                                 <span class="text-xs text-gray-400">{{ $notice->created_at->diffForHumans() }}</span>
                             </div>
                             <p class="mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">{{ $notice->body }}</p>
-                            <p class="mt-2 text-xs text-gray-400">To {{ $notice->class_name ?? 'all classes' }}</p>
+                            <p class="mt-2 text-xs text-gray-400">
+                                To {{ $notice->audience?->label() ?? 'Students / Pupils' }}
+                                &middot; {{ $notice->class_name ?? 'all classes' }}
+                            </p>
                         </div>
                     @empty
                         <p class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No notices sent yet.</p>
@@ -36,10 +39,10 @@
 
         <div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <h2 class="text-sm font-bold text-gray-900 dark:text-white">New Notice</h2>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Delivered to the Messages tab and as a notification in each student's portal.</p>
+                <h2 class="text-sm font-bold text-gray-900 dark:text-white">New Memorandum</h2>
+                <p class="field-hint mt-1">Delivered to the Messages tab and as a notification in each recipient's portal.</p>
 
-                <form method="POST" action="{{ route('notices.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('notices.store') }}" class="mt-4 space-y-2">
                     @csrf
 
                     <x-text-field
@@ -51,9 +54,26 @@
                         placeholder="e.g. Mid-Term Break Notice"
                     />
 
+                    {{-- Who it goes to. "Everyone" is one memorandum, not
+                         three written out separately - a school addressing the
+                         whole community should not have to say it three times,
+                         and a term later the record should still read as one
+                         message to everybody. --}}
+                    <x-select-field
+                        name="audience"
+                        label="Send To"
+                        selected="{{ old('audience', \App\Enums\MemorandumAudience::All->value) }}"
+                        :options="collect($audiences)->mapWithKeys(fn ($audience) => [$audience->value => $audience->label()])->all()"
+                        helper="Only the groups your plan has accounts for are listed."
+                    />
+
+                    {{-- Narrows the people who belong to a class - students,
+                         and the parents of those students. Staff are not in a
+                         class, so a memorandum to staff reaches all of them
+                         whatever is chosen here. --}}
                     <x-select-field
                         name="class_name"
-                        label="Audience"
+                        label="Limit to a Class"
                         selected="{{ old('class_name') }}"
                         placeholder="All Classes"
                         :options="['' => 'All Classes'] + $academicLevels->flatMap->classes->pluck('name', 'name')->all()"
@@ -73,7 +93,7 @@
                         type="submit"
                         class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                     >
-                        Send Notice
+                        Send Memorandum
                     </button>
                 </form>
             </div>
