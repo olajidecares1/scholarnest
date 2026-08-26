@@ -1,0 +1,78 @@
+name: CI
+
+# Every push to a long-lived branch, and every pull request aimed at one.
+# Nothing merges into main without this being green - see docs/GITHUB.md for
+# the branch protection rule that enforces it, which is a repository setting
+# and cannot live in this file.
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+# A second push to the same branch cancels the run still going for the first.
+# The older run is answering a question nobody is asking any more.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Pint and the test suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 8.2 is what composer.json requires and what the project is developed
+      # on. When PHP 8.3 becomes the floor, change it here and in composer.json
+      # together - a CI that tests a version nobody runs proves nothing.
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          # gd re-encodes uploaded images, zip reads .docx, sqlite is what the
+          # suite runs against, intl is pulled in by the framework.
+          extensions: mbstring, gd, zip, intl, sqlite3, pdo_sqlite, fileinfo, curl
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Refuse known-vulnerable dependencies
+        run: composer audit
+
+      - name: Check formatting
+        run: vendor/bin/pint --test
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      # Not optional. Feature tests render Blade views, those views call @vite,
+      # and @vite throws without a build manifest - so skipping this fails the
+      # suite in a way that looks nothing like a missing asset build.
+      - name: Build assets
+        run: npm run build
+
+      - name: Prepare the environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      # The suite runs against sqlite in memory (see phpunit.xml), so there is
+      # no database service to stand up here.
+      - name: Run the test suite
+        run: php artisan test
