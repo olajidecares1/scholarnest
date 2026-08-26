@@ -65,4 +65,24 @@ class Examination extends Model
     {
         return $this->hasMany(ResultCheckingPin::class);
     }
+
+    /**
+     * The per-student report rows - where the two remarks live.
+     *
+     * @return HasMany<ExaminationReport, $this>
+     */
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ExaminationReport::class);
+    }
+
+    /**
+     * The published cards this examination produced.
+     *
+     * @return HasMany<RepositoryResult, $this>
+     */
+    public function repositoryResults(): HasMany
+    {
+        return $this->hasMany(RepositoryResult::class);
+    }
 }

@@ -91,6 +91,12 @@ Route::prefix('schools/{school:slug}/staff-portal')->name('staff.')->group(funct
                 Route::put('/{examination}/students/{student}/remarks', [StaffResultController::class, 'updateRemarks'])->name('remarks');
                 Route::get('/{examination}/students/{student}/print', [StaffResultController::class, 'print'])->name('print');
                 Route::get('/{examination}/students/{student}/pdf', [StaffResultController::class, 'pdf'])->name('pdf');
+
+                // Push to Repository. A Class Teacher publishes for their own
+                // class; the Repository itself is the School Admin's, and
+                // there is no route to it from here.
+                Route::post('/{examination}/students/{student}/push', [StaffResultController::class, 'push'])->name('push');
+                Route::post('/{examination}/push', [StaffResultController::class, 'pushClass'])->name('push-class');
             });
 
             // CBT is premium, for the same reason as ID cards above.

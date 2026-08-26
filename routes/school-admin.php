@@ -27,6 +27,7 @@ use App\Http\Controllers\SchoolAdmin\NoticeController;
 use App\Http\Controllers\SchoolAdmin\ProfileChangeRequestController;
 use App\Http\Controllers\SchoolAdmin\ResultCheckingPinController;
 use App\Http\Controllers\SchoolAdmin\ResultController;
+use App\Http\Controllers\SchoolAdmin\ResultRepositoryController;
 use App\Http\Controllers\SchoolAdmin\SchoolReportController;
 use App\Http\Controllers\SchoolAdmin\SearchController as SchoolSearchController;
 use App\Http\Controllers\SchoolAdmin\SettingsController as SchoolSettingsController;
@@ -214,6 +215,25 @@ Route::name('results.')->group(function () {
     Route::post(R::uri('results.send').'/{examination}/{student}', [ResultController::class, 'send'])->name('send');
     Route::get(R::uri('results.print').'/{examination}/{student}', [ResultController::class, 'print'])->name('print');
     Route::get(R::uri('results.pdf').'/{examination}/{student}', [ResultController::class, 'pdf'])->name('pdf');
+
+    // Push to Repository. The same action a Class Teacher has on their own
+    // class, from the page where the School Admin is already looking at the
+    // finished card.
+    Route::post(R::uri('results.push').'/{examination}/{student}', [ResultController::class, 'push'])->name('push');
+    Route::post(R::uri('results.push-class').'/{examination}', [ResultController::class, 'pushClass'])->name('push-class');
+});
+
+/*
+ * The Result Repository.
+ *
+ * Inside the School Admin group and nowhere else, which is the whole access
+ * rule: teachers push into the repository from their own results page and have
+ * no route to this one, and pupils and parents reach published cards only
+ * through the result-checking link.
+ */
+Route::name('result-repository.')->group(function () {
+    Route::get(R::uri('result-repository.index'), [ResultRepositoryController::class, 'index'])->name('index');
+    Route::get(R::uri('result-repository.show').'/{result}', [ResultRepositoryController::class, 'show'])->name('show');
 });
 // Result tokens. Available on every plan - see
 // EnsureSchoolHasResultPinAccess - because a token is how a result

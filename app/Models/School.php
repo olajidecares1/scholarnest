@@ -420,6 +420,27 @@ class School extends Model
     }
 
     /**
+     * Does the result-checking link serve published cards, or live marks?
+     *
+     * Basic schools have no portals, so the checking link is the ONLY way a
+     * result reaches a family - which is exactly why it must serve what the
+     * school approved rather than whatever the scores table says this minute.
+     * A parent who opens a card mid-entry has been shown an unfinished result
+     * and told it was final.
+     *
+     * Standard and Exclusive keep their existing behaviour: their families
+     * read results in a portal, and those rules are deliberately untouched.
+     *
+     * One method rather than a plan check at the call sites, because this is
+     * the seam. If the repository should later back the checking link on every
+     * plan, this returns true and nothing else moves.
+     */
+    public function resultsComeFromRepository(): bool
+    {
+        return $this->hasPlanAccess(PlanKey::Basic);
+    }
+
+    /**
      * Whether this school's plan includes a given feature.
      */
     public function canUseFeature(PlanFeature $feature): bool

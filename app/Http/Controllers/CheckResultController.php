@@ -7,9 +7,11 @@ use App\Http\Requests\VerifyResultPinRequest;
 use App\Models\ResultCheckingPinUsage;
 use App\Models\School;
 use App\Models\Student;
+use App\Services\PublishedResultData;
 use App\Services\ReportCardData;
 use App\Services\ResultAccessPolicy;
 use App\Services\ResultCheckIdentity;
+use App\Services\ResultRepository;
 use App\Services\ResultTokenVerifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -35,6 +37,8 @@ class CheckResultController extends Controller
         private readonly ResultTokenVerifier $verifier,
         private readonly ResultAccessPolicy $access,
         private readonly ResultCheckIdentity $identity,
+        private readonly ResultRepository $repository,
+        private readonly PublishedResultData $publishedData,
     ) {}
 
     public function create(Request $request, School $school): View
@@ -228,10 +232,63 @@ class CheckResultController extends Controller
             ]);
         }
 
+        // Published, or not yet. A valid token for a result the school has not
+        // released is not an error and must not read like one - the family did
+        // nothing wrong, and the token is not spent by being told to wait.
+        if ($this->publishedCardIsMissing($school, $usage)) {
+            return view('check-result.pending', [
+                'school' => $school,
+                'student' => $usage->student,
+                'examination' => $usage->examination,
+            ]);
+        }
+
         return view('check-result.result', [
-            ...ReportCardData::for($usage->examination, $usage->student),
+            ...$this->cardFor($school, $usage),
             'usage' => $usage,
         ]);
+    }
+
+    /**
+     * The report card this token opens.
+     *
+     * On a Basic school it comes out of the Result Repository - the card the
+     * school pushed and approved - and nowhere else. A result the school has
+     * not published yet is not shown half-finished; the page says it is not
+     * ready, which is the truth and is something a parent can act on.
+     *
+     * Every other plan reads the marks live, exactly as before. See
+     * School::resultsComeFromRepository().
+     *
+     * The 404 is a backstop. result() checks first and shows the page that
+     * explains the wait; nothing should reach this abort from there.
+     *
+     * @return array<string, mixed>
+     */
+    private function cardFor(School $school, ResultCheckingPinUsage $usage): array
+    {
+        if (! $school->resultsComeFromRepository()) {
+            return ReportCardData::for($usage->examination, $usage->student);
+        }
+
+        $published = $this->repository->find($school, $usage->student, $usage->examination);
+
+        abort_if($published === null, 404);
+
+        return $this->publishedData->rehydrate($published);
+    }
+
+    /**
+     * Whether there is a published card to hand over at all.
+     *
+     * Separated from cardFor() so the page that explains the wait can be shown
+     * instead of a 404 - a parent holding a valid token has done nothing wrong
+     * and should be told the school has not released this result yet.
+     */
+    private function publishedCardIsMissing(School $school, ResultCheckingPinUsage $usage): bool
+    {
+        return $school->resultsComeFromRepository()
+            && $this->repository->find($school, $usage->student, $usage->examination) === null;
     }
 
     /**
@@ -250,9 +307,14 @@ class CheckResultController extends Controller
 
         abort_if($this->access->isLocked($usage->student, $usage->examination), 404);
 
+        // Nothing to save until the school has published it. A 404 here rather
+        // than the pending page, because this address returns a file - there
+        // is no page to explain anything on.
+        abort_if($this->publishedCardIsMissing($school, $usage), 404);
+
         $pdf = Pdf::loadView(
             'school-admin.results.pdf.report-card',
-            ReportCardData::for($usage->examination, $usage->student),
+            $this->cardFor($school, $usage),
         )->setPaper('a4');
 
         return $pdf->download("result-{$usage->student->admission_number}.pdf");

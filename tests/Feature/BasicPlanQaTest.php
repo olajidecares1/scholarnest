@@ -9,6 +9,7 @@ use App\Enums\UserRole;
 use App\Models\AcademicTerm;
 use App\Models\Examination;
 use App\Models\ExaminationSubject;
+use App\Models\RepositoryResult;
 use App\Models\ResultCheckingPin;
 use App\Models\ResultCheckingPinUsage;
 use App\Models\School;
@@ -157,6 +158,16 @@ test('the complete Basic-plan workflow runs end to end', function () {
 
     expect((float) $score->score)->toBe(88.0)
         ->and($score->percentage())->toBe(88.0);
+
+    // --- The Class Teacher pushes the finished result to the Repository -----
+    // On a Basic school this is what releases a result: the checking link
+    // serves what the school published, not whatever the scores table says
+    // while marks are still being entered.
+    $this->actingAs($teacher, 'staff')
+        ->post(route('staff.results.push', [$school, $examination, $student]))
+        ->assertSessionHasNoErrors();
+
+    expect(RepositoryResult::where('student_id', $student->id)->count())->toBe(1);
 
     // --- School Admin issues the result token -------------------------------
     $this->actingAs($admin)->post(route('result-pins.store'), [

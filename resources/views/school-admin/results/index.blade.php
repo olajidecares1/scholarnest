@@ -15,6 +15,14 @@
             </div>
         @endif
 
+        {{-- Why a result was refused, in the words of what is missing. See
+             App\Services\ResultCompleteness. --}}
+        @error('repository')
+            <div class="rounded-[5px] bg-amber-50 p-4 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 lg:rounded-[10px]">
+                {{ $message }}
+            </div>
+        @enderror
+
         <div class="rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <form method="GET" class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
@@ -50,9 +58,19 @@
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $selectedClass ?? 'This class' }} has no examination for {{ $selectedSession }}, {{ $selectedTerm->label() }}. Create one from the Examinations page first.</p>
             </div>
         @else
+            <x-push-to-repository
+                :push-class-url="route('results.push-class', $examination)"
+                :class-name="$selectedClass"
+                :session="$selectedSession"
+                :term="$selectedTerm"
+                :published-count="$publishedResults->count()"
+                :total-count="$students->count()"
+                :stale-count="count($staleStudentIds)"
+            />
+
             <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="overflow-x-auto">
-                    <table class="w-full min-w-[920px] text-left text-sm">
+                    <table class="w-full min-w-[1020px] text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
                                 <th class="px-4 py-3 font-semibold">Student</th>
@@ -63,6 +81,7 @@
                                 <th class="px-4 py-3 font-semibold">Avg. Score</th>
                                 <th class="px-4 py-3 font-semibold">Percentage</th>
                                 <th class="px-4 py-3 font-semibold">Status</th>
+                                <th class="px-4 py-3 font-semibold">Repository</th>
                                 <th class="px-4 py-3 text-right font-semibold">Actions</th>
                             </tr>
                         </thead>
@@ -98,6 +117,13 @@
                                     <td class="whitespace-nowrap px-4 py-3">
                                         <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $statusBadge($row['status']) }}">{{ $row['status'] }}</span>
                                     </td>
+
+                                    <x-repository-status-cell
+                                        :published="$publishedResults->get($student->id)"
+                                        :is-stale="in_array($student->id, $staleStudentIds, true)"
+                                        :push-url="route('results.push', [$examination, $student])"
+                                    />
+
                                     <td class="px-4 py-3">
                                         <div class="flex items-center justify-end gap-1" x-data="{ downloading: false }">
                                             <button
@@ -147,7 +173,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $selectedClass }} yet.</td>
+                                    <td colspan="10" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $selectedClass }} yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Enums\ExamTerm;
+use App\Http\Controllers\Concerns\PushesResultsToRepository;
 use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\ExaminationReport;
@@ -10,15 +11,19 @@ use App\Models\School;
 use App\Models\Student;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ReportCardData;
+use App\Services\ResultRepository;
 use App\Support\AcademicSession;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResultController extends Controller
 {
+    use PushesResultsToRepository;
+
     public function index(Request $request, School $school): View
     {
         $staff = $request->user('staff');
@@ -43,6 +48,10 @@ class ResultController extends Controller
             ])
             : collect();
 
+        $repository = $examination
+            ? app(ResultRepository::class)->stateFor($examination)
+            : ['published' => collect(), 'staleStudentIds' => []];
+
         return view('staff.results.index', [
             'school' => $school,
             'classes' => $classes,
@@ -53,6 +62,8 @@ class ResultController extends Controller
             'selectedTerm' => $term,
             'examination' => $examination,
             'students' => $students,
+            'publishedResults' => $repository['published'],
+            'staleStudentIds' => $repository['staleStudentIds'],
         ]);
     }
 
@@ -107,12 +118,57 @@ class ResultController extends Controller
         return $pdf->download("report-card-{$student->admission_number}.pdf");
     }
 
+    /**
+     * Push to Repository: publish one pupil's finished card.
+     *
+     * A Class Teacher may publish for the class they are the Class Teacher of,
+     * and no other. They cannot see the Repository itself - publishing into it
+     * and administering it are different jobs, and only one of them is theirs.
+     */
+    public function push(Request $request, School $school, Examination $examination, Student $student): JsonResponse|RedirectResponse
+    {
+        $this->authorizeClassTeacher($request, $examination, $student);
+
+        $staff = $request->user('staff');
+
+        return $this->pushResultToRepository(
+            $request,
+            $examination,
+            $student,
+            $staff,
+            trim($staff->first_name.' '.$staff->last_name),
+        );
+    }
+
+    /**
+     * The same, for every pupil in their class whose card is ready.
+     */
+    public function pushClass(Request $request, School $school, Examination $examination): JsonResponse|RedirectResponse
+    {
+        $this->authorizeClassTeacherOfExamination($request, $examination);
+
+        $staff = $request->user('staff');
+
+        return $this->pushClassToRepository(
+            $request,
+            $examination,
+            $staff,
+            trim($staff->first_name.' '.$staff->last_name),
+        );
+    }
+
     private function authorizeClassTeacher(Request $request, Examination $examination, Student $student): void
+    {
+        $this->authorizeClassTeacherOfExamination($request, $examination);
+
+        abort_unless($student->school_id === $examination->school_id, 403);
+    }
+
+    private function authorizeClassTeacherOfExamination(Request $request, Examination $examination): void
     {
         $staff = $request->user('staff');
 
         abort_unless($examination->school_id === $staff->school_id, 403);
         abort_unless($staff->classesAsClassTeacher()->contains($examination->class_name), 403, 'You are not the Class Teacher of this class.');
-        abort_unless($student->school_id === $examination->school_id, 403);
     }
 }

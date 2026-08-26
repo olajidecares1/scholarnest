@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\ExamTerm;
 use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
+use App\Http\Controllers\Concerns\PushesResultsToRepository;
 use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\ExaminationReport;
@@ -11,6 +12,7 @@ use App\Models\Student;
 use App\Notifications\ResultAvailableNotification;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ReportCardData;
+use App\Services\ResultRepository;
 use App\Support\AcademicSession;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResultController extends Controller
 {
-    use AuthorizesSchoolOwnership;
+    use AuthorizesSchoolOwnership, PushesResultsToRepository;
 
     public function index(Request $request): View
     {
@@ -50,6 +52,13 @@ class ResultController extends Controller
             ])
             : collect();
 
+        // Which of these have been pushed, and which have been corrected
+        // since. Two queries for the page rather than one per row - see
+        // ResultRepository::stateFor().
+        $repository = $examination
+            ? app(ResultRepository::class)->stateFor($examination)
+            : ['published' => collect(), 'staleStudentIds' => []];
+
         return view('school-admin.results.index', [
             'classOptions' => $classOptions,
             'sessionOptions' => AcademicSession::options(),
@@ -59,6 +68,8 @@ class ResultController extends Controller
             'selectedTerm' => $term,
             'examination' => $examination,
             'students' => $students,
+            'publishedResults' => $repository['published'],
+            'staleStudentIds' => $repository['staleStudentIds'],
         ]);
     }
 
@@ -154,6 +165,37 @@ class ResultController extends Controller
             ->setPaper('a4');
 
         return $pdf->download("report-card-{$student->admission_number}.pdf");
+    }
+
+    /**
+     * Push to Repository: publish one pupil's finished card.
+     */
+    public function push(Request $request, Examination $examination, Student $student): JsonResponse|RedirectResponse
+    {
+        $this->authorizeResult($examination, $student);
+
+        return $this->pushResultToRepository(
+            $request,
+            $examination,
+            $student,
+            $request->user(),
+            $request->user()->name,
+        );
+    }
+
+    /**
+     * The same, for every pupil in the class whose card is ready.
+     */
+    public function pushClass(Request $request, Examination $examination): JsonResponse|RedirectResponse
+    {
+        $this->authorizeSchoolOwnership($examination);
+
+        return $this->pushClassToRepository(
+            $request,
+            $examination,
+            $request->user(),
+            $request->user()->name,
+        );
     }
 
     private function authorizeResult(Examination $examination, Student $student): void

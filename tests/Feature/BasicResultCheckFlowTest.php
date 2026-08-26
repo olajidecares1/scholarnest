@@ -8,10 +8,16 @@ use App\Models\ExaminationSubject;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\ResultRepository;
 use App\Services\ResultTokenIssuer;
 
 /**
- * A Basic-plan school with its own result address, a pupil, and a marked result.
+ * A Basic-plan school with its own result address, a pupil, a marked result
+ * - and that result PUBLISHED to the school's Result Repository.
+ *
+ * The publish is part of the fixture because it is now part of the workflow: a
+ * Basic school's checking link serves what the school pushed, so a result that
+ * was never pushed is one the school has not released yet.
  *
  * @return array{0: School, 1: Student, 2: Examination}
  */
@@ -47,6 +53,9 @@ function flowSchool(string $name = 'Greenfield College'): array
         'exam_score' => 51,
         'score' => 83,
     ]);
+
+    $publisher = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
+    app(ResultRepository::class)->publish($examination, $student, $publisher, $publisher->name);
 
     return [$school, $student, $examination];
 }
