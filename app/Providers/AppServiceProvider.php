@@ -6,6 +6,7 @@ use App\Listeners\LogFailedLogin;
 use App\Listeners\LogSuccessfulLogin;
 use App\Services\DocumentExtraction\LocalQuestionExtractor;
 use App\Services\DocumentExtraction\QuestionExtractionProvider;
+use App\Support\ProductionConfiguration;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
@@ -33,6 +34,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Refuses to serve a request from a production environment configured
+        // to leak - APP_DEBUG on, or a session cookie that is not secure and
+        // encrypted. Outside production, and for console commands, it does
+        // nothing. See App\Support\ProductionConfiguration.
+        ProductionConfiguration::verify(
+            $this->app->environment('production'),
+            $this->app->runningInConsole(),
+        );
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
