@@ -1,9 +1,9 @@
-# Security audit — 21 August 2026
+# Security audit — 21 August 2026, closed out 26 August
 
 A first pass over EduNest against the security requirements in the project
 brief. Everything below was checked against the actual code, not assumed.
 
-**Overall: this codebase is in good shape.** 941 tests pass, tenant isolation is
+**Overall: this codebase is in good shape.** 1,659 tests pass, tenant isolation is
 applied consistently, and several things the brief asks for are already done
 properly. The findings are real but none of them are emergencies.
 
@@ -210,26 +210,42 @@ load them from `bootstrap/app.php`.
 
 ---
 
-## Suggested order of work
+## Status
 
-1. Finding 1 — per-IP login limiter
-2. Finding 2 — password reset limiter
-3. Finding 4 — block PHP execution in upload directories
-4. Finding 5 — production configuration and a boot-time guard
-5. Finding 3 — content-derived file extensions
-6. Findings 6 and 7 — refactors, done gradually
+All seven findings are closed.
 
-Items 1 to 4 are small, self-contained, and each can be covered by a test.
+| # | Finding | Closed by |
+| --- | --- | --- |
+| 1 | Password spraying not rate limited | per-IP login limiter, 30 failures / 15 min |
+| 2 | Reset requests not rate limited per IP | reset limiter |
+| 3 | Stored filenames use the client extension | `App\Support\StoredUpload` — content-derived, allowlisted |
+| 4 | PHP execution not blocked in upload directories | `.htaccess` in the upload root |
+| 5 | Production configuration undocumented | `App\Support\ProductionConfiguration` + [PRODUCTION.md](PRODUCTION.md) |
+| 6 | Ownership check repeated in 45 places | `AuthorizesSchoolOwnership` |
+| 7 | `routes/web.php` was 94 KB | split into nine files by area |
+
+Findings 3, 6 and 7 each carry a test that fails if the old pattern returns, so
+they close rather than merely get fixed.
 
 ---
 
 ## Not yet audited
 
-Worth a second pass later:
+This was a first pass. These have still not been looked at:
 
-- The Student, Staff and Guardian portal login flows (four separate guards)
+- The Student, Staff and Guardian portal login flows (four separate guards).
+  Their password-reset restrictions are audited and enforced - see
+  [PASSWORD-RESET-POLICY.md](PASSWORD-RESET-POLICY.md) - but the sign-in paths
+  themselves are not.
 - `PortalSessionBroker` and `ValidateSchoolPortalToken`
 - The public misconduct-reporting upload path (video handling)
-- CBT document import, which parses uploaded `.docx` files
+- CBT document import, which now parses uploaded `.docx` and `.pdf` locally -
+  a parser reading untrusted files in-process is worth its own pass
 - CSRF coverage on the portal routes
 - Whether `EnsureHasPermission` can be bypassed by direct route access
+- `ReportController::create` lists every school on a public page, publishing
+  the full customer list
+
+Also outstanding from finding 6: roughly twenty checks of a different shape -
+"these two records belong to the same school as each other" rather than "this
+record is mine". That is a second rule and wants its own thinking.
