@@ -21,8 +21,8 @@
             class="flex h-full flex-col justify-center gap-2 rounded-[10px] border border-blue-300 bg-white p-3 shadow-sm dark:border-blue-700 dark:bg-gray-800"
         >
             @csrf
-            <input type="text" name="name" placeholder="e.g. JSS 1" required autofocus class="w-full rounded-[6px] border border-gray-300 px-2 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-            <select name="stream" class="w-full rounded-[6px] border border-gray-300 px-2 py-1.5 text-xs text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+            <input type="text" name="name" placeholder="e.g. JSS 1" required autofocus class="w-full">
+            <select name="stream" class="w-full">
                 <option value="" @selected(! $stream)>No stream</option>
                 @foreach (\App\Enums\ClassStream::cases() as $option)
                     <option value="{{ $option->value }}" @selected($stream === $option)>{{ $option->label() }}</option>

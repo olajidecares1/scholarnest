@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicLevel;
 use App\Models\AcademicTerm;
 use App\Models\GradeBand;
+use App\Models\School;
 use App\Models\SchoolClass;
 use App\Services\DefaultAcademicStructure;
 use App\Support\AcademicSession;
@@ -28,6 +29,11 @@ class AcademicController extends Controller
             'levels' => $school->academicLevels()->with('classes')->get(),
             'terms' => AcademicTerm::where('school_id', $school->id)->orderByDesc('session')->orderBy('term')->get(),
             'gradeBands' => $school->gradeBands,
+
+            // Once a school has its own scale, that scale is the only one its
+            // pupils are graded on - so anything it leaves uncovered has to be
+            // visible here rather than discovered on a report card.
+            'gradeCoverageGaps' => GradeBand::coverageGaps($school),
             'sessionOptions' => AcademicSession::options(),
             'termOptions' => ExamTerm::cases(),
         ]);
@@ -66,6 +72,10 @@ class AcademicController extends Controller
         $school = $request->user()->school;
         $validated = $request->validate($this->gradeBandRules());
 
+        if ($clash = $this->overlapError($school, $validated)) {
+            return back()->withErrors(['min_percent' => $clash])->withInput();
+        }
+
         $school->gradeBands()->create([
             ...$validated,
             'position' => $school->gradeBands()->count(),
@@ -79,9 +89,45 @@ class AcademicController extends Controller
         $this->authorizeGradeBand($gradeBand);
 
         $validated = $request->validate($this->gradeBandRules());
+
+        if ($clash = $this->overlapError($gradeBand->school, $validated, $gradeBand->id)) {
+            return back()->withErrors(['min_percent' => $clash])->withInput();
+        }
+
         $gradeBand->update($validated);
 
         return back()->with('status', "Grade \"{$gradeBand->letter}\" updated.");
+    }
+
+    /**
+     * Refuse a band that covers percentages another band already claims.
+     *
+     * Two bands over the same mark make the grade depend on which sorts first,
+     * so a pupil on 65% could be a B or a C depending on the order rows happen
+     * to come back in. Caught here rather than left to surface as an
+     * inexplicable grade on a report card.
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function overlapError(School $school, array $validated, ?int $ignoreId = null): ?string
+    {
+        $clashes = GradeBand::overlapsFor(
+            $school,
+            (int) $validated['min_percent'],
+            (int) $validated['max_percent'],
+            $ignoreId,
+        );
+
+        if ($clashes === []) {
+            return null;
+        }
+
+        return sprintf(
+            '%d–%d%% overlaps %s. Grade ranges cannot cover the same percentage twice.',
+            $validated['min_percent'],
+            $validated['max_percent'],
+            implode(' and ', $clashes),
+        );
     }
 
     public function destroyGradeBand(GradeBand $gradeBand): RedirectResponse

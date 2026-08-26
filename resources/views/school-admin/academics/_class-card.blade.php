@@ -45,7 +45,7 @@
                 name="name"
                 value="{{ $class->name }}"
                 autofocus
-                class="w-full rounded-[6px] border border-gray-300 px-2 py-1 text-center text-sm font-semibold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                class="w-full text-center"
             >
             <button type="submit" class="rounded-[6px] bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
         </form>

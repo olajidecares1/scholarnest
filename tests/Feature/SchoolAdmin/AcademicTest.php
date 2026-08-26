@@ -213,6 +213,7 @@ test('registering a new school automatically seeds its default academic structur
     $response = $this->post(route('register'), [
         'school_name' => 'Brightstar Academy',
         'email' => 'admin@brightstar.example',
+        'phone' => '+234 801 234 5678',
         'password' => 'Password123!',
         'password_confirmation' => 'Password123!',
         'terms' => '1',

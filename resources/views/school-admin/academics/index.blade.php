@@ -58,10 +58,10 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Term Dates</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Used to work out "this term's" attendance on report cards and in the Teacher Portal.</p>
+            <p class="field-hint mt-1">Used to work out "this term's" attendance on report cards and in the Teacher Portal.</p>
 
             @if ($terms->isNotEmpty())
-                <div class="mt-4 overflow-hidden rounded-[8px] border border-gray-200 dark:border-gray-700">
+                <div class="mt-4 overflow-x-auto rounded-[8px] border border-gray-200 dark:border-gray-700">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
@@ -104,10 +104,28 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Grading</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Configure the percentage ranges, letters, and descriptions used to grade every score. Leave empty to use the default A–F scale (70/60/50/45/40).</p>
+            <p class="field-hint mt-1">
+                Configure the percentage ranges, letters, and descriptions used to grade every score in this school.
+                Leave it empty to use the default A–E scale; add even one grade and this school is graded on your scale alone.
+            </p>
+
+            @if ($gradeCoverageGaps !== [])
+                {{-- Once a school has its own scale, nothing falls back to the
+                     built-in one - so an uncovered range would print a dash on a
+                     report card instead of a grade. Said here, where it can be
+                     fixed, rather than there. --}}
+                <div class="mt-4 flex items-start gap-2.5 rounded-[8px] border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+                    <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0 text-amber-600 dark:text-amber-400"></i>
+                    <p class="text-xs leading-[1.6] text-amber-900 dark:text-amber-300">
+                        Your scale does not cover
+                        @foreach ($gradeCoverageGaps as $gap)<strong>{{ $gap['from'] }}–{{ $gap['to'] }}%</strong>@if (! $loop->last), @endif @endforeach.
+                        A score in that range will show no grade. Add a band covering it.
+                    </p>
+                </div>
+            @endif
 
             @if ($gradeBands->isNotEmpty())
-                <div class="mt-4 overflow-hidden rounded-[8px] border border-gray-200 dark:border-gray-700">
+                <div class="mt-4 overflow-x-auto rounded-[8px] border border-gray-200 dark:border-gray-700">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
@@ -147,10 +165,10 @@
                                         <td colspan="5" class="px-3 py-2">
                                             <form method="POST" action="{{ route('academics.grade-bands.update', $band) }}" class="grid grid-cols-1 gap-2 sm:grid-cols-5 sm:items-end">
                                                 @csrf @method('PUT')
-                                                <input type="number" name="min_percent" value="{{ $band->min_percent }}" min="0" max="100" required class="h-9 rounded-[8px] border border-gray-300 px-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" placeholder="Min %">
-                                                <input type="number" name="max_percent" value="{{ $band->max_percent }}" min="0" max="100" required class="h-9 rounded-[8px] border border-gray-300 px-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" placeholder="Max %">
-                                                <input type="text" name="letter" value="{{ $band->letter }}" maxlength="3" required class="h-9 rounded-[8px] border border-gray-300 px-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" placeholder="Letter">
-                                                <input type="text" name="description" value="{{ $band->description }}" maxlength="100" class="h-9 rounded-[8px] border border-gray-300 px-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" placeholder="Description">
+                                                <input type="number" name="min_percent" value="{{ $band->min_percent }}" min="0" max="100" required  placeholder="Min %">
+                                                <input type="number" name="max_percent" value="{{ $band->max_percent }}" min="0" max="100" required  placeholder="Max %">
+                                                <input type="text" name="letter" value="{{ $band->letter }}" maxlength="3" required  placeholder="Letter">
+                                                <input type="text" name="description" value="{{ $band->description }}" maxlength="100"  placeholder="Description">
                                                 <div class="flex gap-2">
                                                     <button type="submit" class="rounded-[8px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
                                                     <button type="button" @click="editing = false" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
@@ -199,8 +217,8 @@
                         </template>
                         <form x-show="editingLevel" method="POST" action="{{ route('academics.levels.update', $level) }}" class="flex flex-1 items-center gap-2">
                             @csrf @method('PUT')
-                            <input type="text" name="name" x-model="levelName" class="w-full rounded-[8px] border border-gray-300 px-2 py-1 text-sm font-bold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                            <input type="text" name="code" x-model="levelCode" maxlength="10" placeholder="Code" title="Admission-number level code, e.g. PRY" class="w-20 shrink-0 rounded-[8px] border border-gray-300 px-2 py-1 text-sm font-bold uppercase text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="text" name="name" x-model="levelName" class="w-full">
+                            <input type="text" name="code" x-model="levelCode" maxlength="10" placeholder="Code" title="Admission-number level code, e.g. PRY" class="w-20 shrink-0 uppercase">
                             <button type="submit" class="shrink-0 rounded-[8px] bg-blue-600 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
                         </form>
                     </div>
@@ -258,13 +276,13 @@
         <div x-show="addLevelOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="addLevelOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Academic Level</h3>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">e.g. Senior Secondary School, Junior Secondary School, Upper Primary, Lower Primary, Nursery, Kindergarten/Creche, or any other level your school uses.</p>
-                <form method="POST" action="{{ route('academics.levels.store') }}" class="mt-4 space-y-4">
+                <p class="field-hint mt-1">e.g. Senior Secondary School, Junior Secondary School, Upper Primary, Lower Primary, Nursery, Kindergarten/Creche, or any other level your school uses.</p>
+                <form method="POST" action="{{ route('academics.levels.store') }}" class="mt-4 space-y-2">
                     @csrf
-                    <input type="text" name="name" required placeholder="Level name" class="w-full rounded-[8px] border border-gray-300 px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                    <input type="text" name="name" required placeholder="Level name" class="w-full">
                     <div>
-                        <input type="text" name="code" maxlength="10" placeholder="Code (optional, e.g. PRY)" class="w-full rounded-[8px] border border-gray-300 px-3 py-2.5 text-sm font-medium uppercase text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Used in auto-generated admission numbers for classes in this level, e.g. "PRY" &rarr; MIS-2025/2026-PRY-004.</p>
+                        <input type="text" name="code" maxlength="10" placeholder="Code (optional, e.g. PRY)" class="w-full uppercase">
+                        <p class="field-hint mt-1">Used in auto-generated admission numbers for classes in this level, e.g. "PRY" &rarr; MIS-2025/2026-PRY-004.</p>
                     </div>
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="addLevelOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
