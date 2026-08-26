@@ -9,7 +9,10 @@ use App\Services\DocumentExtraction\QuestionExtractionProvider;
 use App\Support\ProductionConfiguration;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -56,5 +59,28 @@ class AppServiceProvider extends ServiceProvider
         // the app-wide minimum: 8+ characters, upper+lower case, a number,
         // and a symbol.
         Password::defaults(fn () => Password::min(8)->letters()->mixedCase()->numbers()->symbols());
+
+        /*
+         * What "throttle:api" means.
+         *
+         * Keyed on the TOKEN rather than the account, so a parent with the app
+         * on a phone and a tablet gets a budget for each - and losing a device
+         * to a runaway retry loop does not lock them out of the other one.
+         * Falling back to the account id keeps the limit meaningful if a token
+         * is ever absent, and to the IP for anything unauthenticated.
+         *
+         * 60 a minute is generous for drawing screens and mean for walking a
+         * school's records. Sign-in is throttled separately and much harder,
+         * on the route itself.
+         */
+        RateLimiter::for('api', function (Request $request) {
+            $token = $request->user()?->currentAccessToken();
+
+            $key = $token?->getKey()
+                ? 'token:'.$token->getKey()
+                : ($request->user()?->getKey() ? 'account:'.$request->user()->getKey() : 'ip:'.$request->ip());
+
+            return Limit::perMinute(60)->by($key);
+        });
     }
 }

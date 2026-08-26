@@ -1,6 +1,8 @@
 <?php
 
 use App\Exceptions\FeatureRequiresUpgrade;
+use App\Http\Middleware\Api\EnsureApiAccountIsActive;
+use App\Http\Middleware\Api\EnsureApiActorIs;
 use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureGuardianIsActive;
 use App\Http\Middleware\EnsureHasPermission;
@@ -30,6 +32,11 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+
+        // Versioned, and prefixed once here rather than on every route file.
+        // See routes/api.php.
+        api: __DIR__.'/../routes/api.php',
+        apiPrefix: 'api',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -42,6 +49,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'student_active' => EnsureStudentIsActive::class,
             'guardian_active' => EnsureGuardianIsActive::class,
             'staff_active' => EnsureStaffIsActive::class,
+
+            // The API's two gates. api.active re-checks on every request what
+            // a session portal only checks at sign-in, because a token lives
+            // for weeks; api.actor takes the role as a parameter
+            // (api.actor:student), since a valid token is valid everywhere
+            // until something says which endpoints it belongs at.
+            'api.active' => EnsureApiAccountIsActive::class,
+            'api.actor' => EnsureApiActorIs::class,
 
             // Takes the guard name as a parameter: password_changed:student.
             // Forces a Student, Staff or Guardian whose password was reset by
@@ -73,6 +88,12 @@ return Application::configure(basePath: dirname(__DIR__))
             TrackPageView::class,
             LogsOutIdleUsers::class,
         ]);
+
+        // Laravel 11 stopped throttling the api group by default. An API
+        // without a limiter is an invitation to page through a school's
+        // records as fast as the network allows, so it goes back on here;
+        // the limits themselves are in AppServiceProvider.
+        $middleware->throttleApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         /*

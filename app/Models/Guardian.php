@@ -14,11 +14,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\HasApiTokens;
 
 class Guardian extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     /** @use HasFactory<GuardianFactory> */
-    use Authenticatable, CanResetPassword, HasFactory, HasUuidRouteKey, Notifiable;
+    use Authenticatable, CanResetPassword, HasApiTokens, HasFactory, HasUuidRouteKey, Notifiable;
 
     /**
      * The attributes that are mass assignable.

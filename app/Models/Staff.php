@@ -18,11 +18,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\HasApiTokens;
 
 class Staff extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     /** @use HasFactory<StaffFactory> */
-    use Authenticatable, CanResetPassword, HasFactory, HasUuidRouteKey, Notifiable;
+    use Authenticatable, CanResetPassword, HasApiTokens, HasFactory, HasUuidRouteKey, Notifiable;
 
     /**
      * The table associated with the model.

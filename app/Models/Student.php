@@ -17,11 +17,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\HasApiTokens;
 
 class Student extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     /** @use HasFactory<StudentFactory> */
-    use Authenticatable, CanResetPassword, HasFactory, HasUuidRouteKey, Notifiable;
+    use Authenticatable, CanResetPassword, HasApiTokens, HasFactory, HasUuidRouteKey, Notifiable;
 
     /**
      * The attributes that are mass assignable.
