@@ -39,6 +39,12 @@ class RegisteredUserController extends Controller
         $user = DB::transaction(function () use ($validated) {
             $school = School::create([
                 'name' => $validated['school_name'],
+
+                // The registration form is the only place these are collected,
+                // so they are kept as the school's billing contact rather than
+                // asked for a second time later.
+                'billing_email' => $validated['email'],
+                'billing_phone' => $validated['phone'],
             ]);
 
             DefaultAcademicStructure::seedFor($school);

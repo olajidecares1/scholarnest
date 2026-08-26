@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SuperAdminSessionController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Support\SecureRoute as R;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,16 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post(R::uri('login'), [AuthenticatedSessionController::class, 'store']);
+
+    // The hidden Super Admin sign-in, revealed by the logo click sequence on
+    // the registration page. Only the DIALOG is hidden - this endpoint applies
+    // the full credential, role, status, throttle and CSRF checks to every
+    // request that reaches it, however it got here. See
+    // App\Http\Controllers\Auth\SuperAdminSessionController.
+    Route::get(R::uri('super-admin.login'), [SuperAdminSessionController::class, 'create'])
+        ->name('super-admin.login');
+
+    Route::post(R::uri('super-admin.login'), [SuperAdminSessionController::class, 'store']);
 
     Route::get(R::uri('password.request'), [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
@@ -65,6 +76,12 @@ Route::middleware('guest')->group(function () {
 
         Route::post(R::uri('admin.password-reset.show').'/{token}/complete', [AdminPasswordResetController::class, 'complete'])
             ->name('admin.password-reset.complete');
+
+        Route::post(R::uri('admin.password-reset.show').'/{token}/resend', [AdminPasswordResetController::class, 'resend'])
+            ->name('admin.password-reset.resend');
+
+        Route::get(R::uri('admin.password-reset.done'), [AdminPasswordResetController::class, 'done'])
+            ->name('admin.password-reset.done');
     });
 });
 

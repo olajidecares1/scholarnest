@@ -25,7 +25,7 @@ class MakeSuperAdminCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a Super Admin account. There is no public registration route for this role by design.';
+    protected $description = 'Create a EduNest Team account. There is no public registration route for this role by design.';
 
     /**
      * Execute the console command.
@@ -70,7 +70,7 @@ class MakeSuperAdminCommand extends Command
             'email_verified_at' => now(),
         ]);
 
-        $this->components->info("Super Admin \"{$user->name}\" ({$user->email}) created successfully.");
+        $this->components->info("EduNest Team \"{$user->name}\" ({$user->email}) created successfully.");
 
         return self::SUCCESS;
     }

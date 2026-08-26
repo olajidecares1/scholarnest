@@ -5,22 +5,29 @@ namespace App\Http\Controllers\Auth;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * There is no shared sign-in page any more.
+     *
+     * Every school signs in at its own portal - /schools/{slug}/portal/admin/
+     * {token}/login - which is where logging out and an expired session both
+     * return them, and the Super Admin signs in through the hidden dialog on
+     * the registration page. A generic "EduNest login" served neither, and
+     * looked enough like the registration page to be mistaken for it.
+     *
+     * The route NAME stays, because it is what Laravel's auth middleware
+     * redirects guests to and what seven places in the application fall back
+     * on. It now sends them to the public front door instead of rendering a
+     * page of its own.
      */
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('auth.login', [
-            'background' => Setting::current()->loginBackgroundMedia,
-        ]);
+        return redirect()->route('register');
     }
 
     /**
