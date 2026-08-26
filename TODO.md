@@ -1,6 +1,6 @@
 # EduNest roadmap
 
-What is built, what is not, and what to do next. Updated 21 August 2026.
+What is built, what is not, and what to do next. Updated 26 August 2026.
 
 The working rule for this project:
 
@@ -11,9 +11,9 @@ The working rule for this project:
 
 ## Where the project stands
 
-EduNest is a working Laravel 12 application with **941 passing tests**. Most of
-the functional brief is already built. What remains is mostly hardening,
-platform work, and the mobile/API layer.
+A working Laravel 12 application on PHP 8.2, with the whole functional brief
+built and tested. The security audit is closed. What remains is platform work:
+getting the code off this laptop, the framework upgrade, and the clients.
 
 ---
 
@@ -22,148 +22,149 @@ platform work, and the mobile/API layer.
 ### Portals
 - [x] Super Admin — schools, subscriptions, CMS, media, support tickets
 - [x] School Admin — full dashboard with dark mode
-- [x] Staff portal — registers, score entry, assignments, CBT authoring
+- [x] Staff portal — registers, score entry, assignments, CBT authoring, diary
 - [x] Student portal — results, assignments, attendance, timetable, CBT
 - [x] Guardian portal — children's results, attendance, fees, messages
 
 ### School management
-- [x] Students, staff and guardians
+- [x] Students, staff and guardians, with issued login details and ID sequences
 - [x] Academic structure: levels, terms, classes, subjects, offerings
-- [x] Teacher assignments
+- [x] Teacher assignments and the teacher diary
 - [x] Attendance recording
-- [x] Examinations, scores, grade bands
+- [x] Examinations, one shared score-entry grid, grade bands with overlap
+      refusal and gap reporting
 - [x] Report cards, with PDF and Word export
-- [x] Result-checking PINs
+- [x] Result tokens, bound to one student and one examination
 - [x] ID card templates, issuing and public QR verification
-- [x] Fees: structures, invoices, payments
+- [x] Fees: structures, invoices, payments, and results withheld against a
+      balance until the school releases them
 - [x] Library, transport, hostels, co-curricular activities
 - [x] Timetables
+- [x] Memoranda addressed to a chosen audience
+
+### CBT
+- [x] Question papers read from `.docx` and `.pdf` **locally** — no API key,
+      no credit, no network
+- [x] The paper's rubric and per-question marks carried across
+- [x] Upload progress, and a warning when no queue worker is running
+- [x] Student sitting: server-anchored clock, answers that survive a dropped
+      connection
 
 ### Platform
-- [x] Three subscription plans with per-plan feature gating
-- [x] Subscription wizard, top-ups and student slot limits
-- [x] Basic-plan student licences: Super Admin sets the allocation, limit
-      enforced under lock on create AND reactivate *(added 21 Aug)*
-- [x] Editable plan pricing (Super Admin) *(added 21 Aug)*
-- [x] Public school websites with a block-based builder
-- [x] Basic-plan portal: token-gated school finder at /{token}, forwarding
-      to edunest.com/{school-slug} *(added 21 Aug)*
-- [x] Custom domains with verification
-- [x] News, events, gallery, testimonials, facilities, job postings
+- [x] Three plans, gated by one `plan_feature` middleware
+- [x] Subscription wizard with student capacity as its own step
+- [x] Payment-receipt screening that only ever rejects, never approves
+- [x] Basic-plan student licences, Super Admin decides the allocation
+- [x] Basic-plan portal: token-gated school finder at `/{token}`
+- [x] Public school websites, custom domains, news, events, gallery
 - [x] Misconduct reporting with media uploads
-- [x] Audit logging of sign-ins, failures and password resets
-- [x] Maintenance mode
+- [x] Audit logging, maintenance mode
+- [x] **API v1** — Sanctum tokens, versioned routes, Eloquent resources,
+      per-token rate limiting. See [docs/API.md](docs/API.md)
+- [x] **CI** — Pint, `composer audit` and the suite on every push
 
 ### Security
-- [x] Tenant isolation, applied consistently and tested
-- [x] UUIDs in URLs instead of sequential ids
-- [x] Login throttling — 5 failures / 15 min per account
-- [x] Login throttling — 30 failures / 15 min per IP *(added 21 Aug)*
-- [x] Password reset rate limiting *(added 21 Aug)*
-- [x] Password reset: 60-minute expiry, single use, hashed tokens
-- [x] Uploads re-encoded through GD, EXIF stripped
-- [x] Script execution blocked in upload directories *(added 21 Aug)*
+- [x] The audit is **closed — all seven findings**. See
+      [docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md)
+- [x] Tenant isolation through one `AuthorizesSchoolOwnership` check
+- [x] UUIDs in URLs, never the database's integer keys
+- [x] Login throttling per account and per IP; password-reset rate limiting
+- [x] Password reset: 60-minute expiry, single use, hashed tokens, and only a
+      School Admin may reset Staff, Student and Guardian passwords
+- [x] Uploads named from their content against an allowlist; re-encoded through
+      GD; EXIF stripped; script execution blocked in upload directories
+- [x] Production refuses to serve with `APP_DEBUG` on or an insecure session
+      cookie
 - [x] Idle session timeout across all portals
-- [x] Password reset authority: only a School Admin may reset Staff, Student
-      and Guardian passwords, enforced server-side and audited *(added 21 Aug)*
+- [x] Super Admin sign-in behind a hidden dialog, with nothing on the server
+      trusting that it is hidden
+- [x] Dependency lock clean under `composer audit`
 
 ---
 
 ## Next up
 
-### 1. Finish the security audit — *do this first*
+### 1. Get the code onto GitHub — *do this first, it is still not done*
 
-From [docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md). Findings 1, 2 and 4 are
-done. Remaining:
-
-- [ ] **Finding 5** — document production configuration, and refuse to boot with
-      `APP_DEBUG=true` when `APP_ENV=production`
-- [ ] **Finding 3** — derive upload file extensions from content (`$file->extension()`)
-      rather than the client-supplied name, at all 14 upload sites
-- [ ] **Finding 6** — move the repeated `abort_unless($model->school_id === ...)`
-      check into a shared trait or Policy. Gradual, module by module.
-- [ ] **Finding 7** — split `routes/web.php` (78 KB) by area
-
-Not yet audited, and worth a second pass:
-
-- [ ] The four portal login flows (Student, Staff, Guardian, School Portal).
-      Their password-reset restrictions are now audited and enforced - see
-      docs/PASSWORD-RESET-POLICY.md - but the sign-in paths themselves are not.
-- [ ] `PortalSessionBroker` and `ValidateSchoolPortalToken`
-- [ ] Misconduct-report video upload handling
-- [ ] CBT `.docx` import parsing
-- [ ] `ReportController::create` lists every school on a public page, which
-      publishes the full customer list. Consider limiting it to schools whose
-      plan includes misconduct reporting.
-
-### 2. Get the code onto GitHub
-
-The repository is local only. Four weeks of work exists on one machine.
+The repository is **local only**. Every commit in this project exists on one
+disk. [docs/GITHUB.md](docs/GITHUB.md) has the exact commands.
 
 - [ ] Create a private GitHub repository
-- [ ] Add it as a remote and push `main` and `dev`
-- [ ] Confirm `.env` is absent from the pushed history *(verified locally: it
-      has never been committed)*
+- [ ] `git remote add origin …`, then push `main` and `dev`
+- [ ] Turn on branch protection for `main` and require the CI check
+- [ ] Push the parked `upgrade/laravel-13` branch too
 
-See [docs/GITHUB.md](docs/GITHUB.md) for the exact commands.
+*(`.env` has never been committed — verified. `.env.backup*` and
+`storage/backups` are ignored.)*
 
-### 3. Upgrade to Laravel 13 and PHP 8.3
+### 2. Make PHP 8.3 the default, then merge Laravel 13
 
-The brief asks for Laravel 13 on PHP 8.3+. The app currently runs Laravel 12 on
-PHP 8.2.
+The work is done and waiting on branch **`upgrade/laravel-13`**: composer.json
+requires `php ^8.3` and `laravel/framework ^13.0`, and the lock resolves to
+Laravel 13.29 with Tinker 3 and Pest 4.
 
-Do it in this order, testing after each step:
+It is not merged because the `php` on PATH is **8.2.12**, and installing that
+vendor tree breaks `php artisan serve` with a platform check failure. In order:
 
-- [ ] Run the suite on PHP 8.3 first, without changing Laravel *(PHP 8.3.33 is
-      already installed at `C:\php83`)*
-- [ ] Read the Laravel 13 upgrade guide and note the breaking changes
-- [ ] Bump `laravel/framework` to `^13.0` on a branch off `dev`
-- [ ] Update first-party packages (Breeze, Pest, Pint, Boost)
-- [ ] Run the full suite and work through failures
-- [ ] Merge only when all 941 tests pass
+- [ ] Install PHP 8.3 as the default (8.3.33 is already at `C:\php83`)
+- [ ] `git switch upgrade/laravel-13 && composer install`
+- [ ] Run the suite and work through the failures — Pest 3 → 4 is a major jump
+      and has not been run yet
+- [ ] Update `.github/workflows/ci.yml` to 8.3 in the same commit
+- [ ] Merge into `dev` only when the whole suite passes
 
-### 4. Continuous integration
+### 3. Finish the API
 
-- [ ] GitHub Actions workflow: install dependencies, run Pint, run the suite
-- [ ] Require it to pass before merging into `main`
+v1 is read-only and covers the student and guardian surface. Before the Flutter
+work:
 
----
+- [ ] Staff endpoints: classes, registers, score entry
+- [ ] Writes — and the offline/idempotency design that has to come first
+- [ ] A password-change endpoint, so an account told to change its password is
+      not sent back to the browser
+- [ ] Decide whether School Admin gets tokens at all
 
-## Not built yet
+### 4. The clients
 
-### API layer
-Needed before any mobile work. There is no `routes/api.php`.
+- [ ] PWA: manifest, service worker, offline shell, install prompt
+- [ ] Flutter iOS and Android against the API
 
-- [ ] Decide on authentication (Sanctum tokens)
-- [ ] Versioned routes (`/api/v1/...`)
-- [ ] Eloquent API Resources for every exposed model
-- [ ] Tenant resolution for API requests
-- [ ] Rate limiting per token
+### 5. Infrastructure
 
-### PWA
-- [ ] Web app manifest
-- [ ] Service worker and offline shell
-- [ ] Install prompt
-
-### Flutter apps
-- [ ] iOS and Android clients against the API above
-
-### Infrastructure
-- [ ] Production deployment, HTTPS, backups
+- [ ] Production deployment and HTTPS — [docs/PRODUCTION.md](docs/PRODUCTION.md)
+      is the checklist
 - [ ] Redis for cache, sessions and queues
+- [ ] Backups, and **back up `APP_KEY` with the database** — a database
+      restored without it is a database of ciphertext
 - [ ] Error tracking
 - [ ] CDN for uploaded media
 
 ---
 
+## Still worth auditing
+
+The audit was a first pass. It never looked at:
+
+- [ ] The four portal sign-in paths themselves
+- [ ] `PortalSessionBroker` and `ValidateSchoolPortalToken`
+- [ ] Misconduct-report video upload handling
+- [ ] The local document parsers — they now read untrusted `.docx` and `.pdf`
+      in-process, which deserves its own pass
+- [ ] CSRF coverage on the portal routes
+- [ ] Whether `EnsureHasPermission` can be bypassed by direct route access
+- [ ] `ReportController::create` lists every school on a public page, which
+      publishes the full customer list
+- [ ] The ~20 remaining "these two records belong to the same school as each
+      other" checks, which are a different rule from the one
+      `AuthorizesSchoolOwnership` now holds
+
+---
+
 ## Known local issues
 
-- [x] ~~`public/storage` pointed at the project's old `htdocs` location, so every
-      uploaded image was broken~~ *(fixed 21 Aug — re-linked to the current path)*
 - [ ] `C:\xampp\htdocs\EduNest` holds an abandoned Laravel 13 skeleton from a
-      false start, using the separate `edunest_v13` database. Safe to delete
-      once you are sure nothing there is wanted. See
+      false start, on the separate `edunest_v13` database. Safe to delete once
+      you are sure nothing there is wanted. See
       [docs/architecture/decisions/0001-two-codebases.md](docs/architecture/decisions/0001-two-codebases.md).
 - [ ] `D:\EduNest` is a stale copy from 21 August. Once GitHub is set up it
-      becomes redundant and should be removed to avoid editing the wrong one.
-- [ ] `README.md` is still Laravel's default and should describe EduNest.
+      becomes redundant and should be removed, so nobody edits the wrong one.

@@ -1,59 +1,121 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# EduNest
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A multi-tenant school management platform: one installation, many schools, each
+with its own staff, pupils, parents, records — and its own public website.
 
-## About Laravel
+Built on Laravel 12 and PHP 8.2.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## What it does
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Five portals**, each with its own guard and its own sign-in:
 
-## Learning Laravel
+| Portal | For |
+| --- | --- |
+| Super Admin | The platform: schools, subscriptions, CMS, media, support |
+| School Admin | One school, everything in it |
+| Staff | Registers, score entry, assignments, CBT authoring, diary |
+| Student | Results, assignments, attendance, timetable, CBT |
+| Guardian | Their children's results, attendance, fees, messages |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+**Running a school** — pupils, staff and guardians; academic levels, terms,
+classes, subjects and offerings; teacher assignments; attendance; examinations,
+scores and grade bands; report cards with PDF and Word export; ID cards with
+public QR verification; fees, invoices and payments; library, transport,
+hostels and co-curricular activities; timetables.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Computer-based testing** — question papers uploaded as `.docx` or `.pdf` and
+read into structured questions locally, with no API key and no network. The
+paper's rubric and per-question marks come across with it.
 
-## Laravel Sponsors
+**A public website per school** — a block-based builder, news, events, gallery,
+testimonials, facilities and job postings, with custom domains and
+verification.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**Three plans**, with per-feature gating, a subscription wizard, top-ups and
+student licences the Super Admin is the authority on.
 
-### Premium Partners
+**An HTTP API** for the mobile clients — see [docs/API.md](docs/API.md).
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## Running it locally
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Requires PHP **8.2**, Composer, Node 22+, and MySQL or SQLite.
 
-## Code of Conduct
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan storage:link
+npm run build
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Then, in one command:
 
-## Security Vulnerabilities
+```bash
+composer run dev
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+That runs the web server, a queue worker and Vite together. **The queue worker
+matters**: CBT extraction is queued, and without a worker an upload sits at
+"Pending" forever.
 
-## License
+### Tests
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan test --compact
+```
+
+The suite runs against SQLite in memory and needs no database of its own. It
+does need `npm run build` to have been run at least once — Blade views call
+`@vite`, and `@vite` throws without a manifest.
+
+### Formatting
+
+```bash
+vendor/bin/pint
+```
+
+CI runs `pint --test`, `composer audit` and the suite on every push.
+
+---
+
+## Documentation
+
+| Document | What it covers |
+| --- | --- |
+| [docs/API.md](docs/API.md) | The v1 HTTP API the mobile apps are built against |
+| [docs/PRODUCTION.md](docs/PRODUCTION.md) | What must change before this is served to real schools |
+| [docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md) | The audit, its findings, and what closed each one |
+| [docs/PASSWORD-RESET-POLICY.md](docs/PASSWORD-RESET-POLICY.md) | Who may reset whose password, and why |
+| [docs/BASIC-PLAN-PORTAL.md](docs/BASIC-PLAN-PORTAL.md) | How Basic-plan schools are reached without a website |
+| [docs/BASIC-PLAN-STUDENT-LICENCES.md](docs/BASIC-PLAN-STUDENT-LICENCES.md) | How student capacity is sold and enforced |
+| [docs/GITHUB.md](docs/GITHUB.md) | Branching, commit style, and the day-to-day workflow |
+| [TODO.md](TODO.md) | What is built, what is not, and what to do next |
+
+---
+
+## How the code is arranged
+
+Standard Laravel 12, with a few things worth knowing before you go looking:
+
+- **Routes are split by area.** `routes/web.php` is a manifest naming nine
+  files in the order they are registered — and that order is part of the
+  behaviour, not tidiness. `routes/api.php` does the same for the API.
+- **Tenancy is `school_id`, everywhere.** One check, in
+  `AuthorizesSchoolOwnership`.
+- **Plan restrictions are one middleware**, `plan_feature:<feature>`, described
+  once in the `PlanFeature` enum.
+- **URLs carry UUIDs**, never the database's own integer keys.
+- **Uploads are named from their content**, not from what the browser called
+  the file — `App\Support\StoredUpload`.
+
+---
+
+## Licence
+
+Not open source. All rights reserved.
