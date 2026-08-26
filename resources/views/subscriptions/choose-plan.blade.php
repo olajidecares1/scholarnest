@@ -1,6 +1,6 @@
 <x-dashboard-layout page-title="Choose Your Plan" page-subtitle="Select a subscription plan that best fits your school's needs.">
     <div class="mx-auto max-w-6xl space-y-6">
-        <x-subscription-steps :current="1" />
+        <x-subscription-steps step="choose-plan" />
 
         <form
             method="POST"
@@ -8,7 +8,6 @@
             x-data="{
                 planId: {{ $selectedPlanId ?? 'null' }},
                 billingCycle: 'per_term',
-                studentsCount: 1,
                 planKey(id) {
                     const plans = {{ $plans->pluck('key.value', 'id')->toJson() }};
                     return plans[id] ?? null;
@@ -19,7 +18,6 @@
 
             <x-input-error :messages="$errors->get('plan_id')" class="mb-4" />
             <x-input-error :messages="$errors->get('billing_cycle')" class="mb-4" />
-            <x-input-error :messages="$errors->get('students_count')" class="mb-4" />
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 @foreach ($plans as $plan)
@@ -68,21 +66,6 @@
                             @elseif ($plan->key->value === 'basic')
                                 <p class="text-xl font-extrabold text-gray-900">&#8358;{{ number_format($plan->price_per_student_per_term, 0) }}</p>
                                 <p class="text-xs text-gray-500">Per Student / Per Term &mdash; Billed based on number of students</p>
-
-                                <div class="mt-3" x-show="planId === {{ $plan->id }}" x-cloak>
-                                    <label class="block text-xs font-semibold text-gray-700">Number of Students</label>
-                                    <input
-                                        type="number"
-                                        name="students_count"
-                                        x-model.number="studentsCount"
-                                        min="1"
-                                        class="mt-1 w-full rounded-[8px] border-gray-300 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                                    >
-                                    <p class="mt-1 text-xs text-gray-500">
-                                        Estimated total:
-                                        <span class="font-semibold text-gray-900" x-text="'₦' + (studentsCount * {{ (float) $plan->price_per_student_per_term }}).toLocaleString()"></span>
-                                    </p>
-                                </div>
                             @else
                                 <div x-show="planId === {{ $plan->id }}" x-cloak class="mb-3 flex rounded-[8px] bg-white p-1 text-xs font-semibold">
                                     <button type="button" @click="billingCycle = 'monthly'" :class="billingCycle === 'monthly' ? 'bg-primary-500 text-white' : 'text-gray-500'" class="flex-1 rounded-[8px] px-3 py-1.5">Monthly</button>

@@ -1,6 +1,6 @@
 <x-dashboard-layout page-title="Review & Confirm" page-subtitle="Review your subscription details before submitting.">
     <div class="mx-auto max-w-3xl space-y-6">
-        <x-subscription-steps :current="4" />
+        <x-subscription-steps step="review" />
 
         <x-auth-card class="!max-w-none">
             <h2 class="text-lg font-bold text-gray-900">Subscription Summary</h2>
@@ -16,8 +16,17 @@
                     <dd class="font-semibold text-gray-900">{{ $billingCycle->label() }}</dd>
                 </div>
                 @if ($studentsCount)
+                    {{-- The unit price is shown as well as the total so the
+                         school can check the arithmetic itself rather than
+                         being asked to trust a single figure. It comes from
+                         the plan record the Super Admin configures - never a
+                         number written into this page. --}}
                     <div class="flex justify-between py-3">
-                        <dt class="text-gray-500">Number of Students</dt>
+                        <dt class="text-gray-500">Price per Student</dt>
+                        <dd class="font-semibold text-gray-900">&#8358;{{ number_format($plan->price_per_student_per_term, 2) }}</dd>
+                    </div>
+                    <div class="flex justify-between py-3">
+                        <dt class="text-gray-500">Students Requested</dt>
                         <dd class="font-semibold text-gray-900">{{ number_format($studentsCount) }}</dd>
                     </div>
                 @endif
@@ -54,6 +63,26 @@
             <div class="mt-4 flex items-center justify-between rounded-[5px] bg-primary-50 p-4 lg:rounded-[10px]">
                 <span class="text-sm font-semibold text-gray-700">Total Amount</span>
                 <span class="text-xl font-extrabold text-primary-700">&#8358;{{ number_format($amount, 2) }}</span>
+            </div>
+
+            {{-- Said before the school pays, not after. Submitting a receipt is
+                 a request, not an activation: nothing opens until a Super Admin
+                 has reviewed the payment. A school that learns this only from
+                 the confirmation screen has already been surprised. --}}
+            <div class="mt-3 flex items-start gap-2.5 rounded-[5px] bg-amber-50 p-4 lg:rounded-[10px]">
+                <i class="fa-solid fa-clock mt-0.5 text-amber-600"></i>
+                <div class="text-sm">
+                    <p class="font-semibold text-amber-900">Activation Status: Awaiting EduNest Team Approval</p>
+                    <p class="mt-0.5 leading-relaxed text-amber-800">
+                        @if ($studentsCount)
+                            Once your payment is verified, your school is activated with
+                            <span class="font-semibold">{{ number_format($studentsCount) }}</span> student
+                            {{ \Illuminate\Support\Str::plural('space', $studentsCount) }}. You can request more at any time.
+                        @else
+                            Your subscription becomes active once a EduNest Team has verified your payment.
+                        @endif
+                    </p>
+                </div>
             </div>
 
             <form method="POST" action="{{ route('subscriptions.review.store') }}" class="mt-6">

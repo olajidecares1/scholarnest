@@ -20,22 +20,22 @@
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-amber-600 dark:text-amber-400">Pending Approvals</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['pending']) }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Schools awaiting approval</p>
+                <p class="field-hint">Schools awaiting approval</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-primary-600 dark:text-primary-400">Auto-Activate Eligible</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['autoActivate']) }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Returning schools, fast-track review</p>
+                <p class="field-hint">Returning schools, fast-track review</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-green-600 dark:text-green-400">Active Subscriptions</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['active']) }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Currently active schools</p>
+                <p class="field-hint">Currently active schools</p>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-purple-600 dark:text-purple-400">Expiring Soon (30 Days)</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['expiringSoon']) }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Subscriptions expiring soon</p>
+                <p class="field-hint">Subscriptions expiring soon</p>
             </div>
         </div>
 
@@ -80,7 +80,7 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search schools..."
-                        class="w-full rounded-[8px] border-gray-300 py-2 pl-9 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                        class="w-full pl-9"
                     >
                 </div>
 
@@ -192,7 +192,7 @@
                                 <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50" x-data="{ rejecting: false }">
                                     <td class="px-5 py-3">
                                         <p class="font-semibold text-gray-900 dark:text-white">{{ $topUp->subscription->school->name }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $topUp->subscription->plan->name }} &middot; {{ $topUp->reference }}</p>
+                                        <p class="field-hint">{{ $topUp->subscription->plan->name }} &middot; {{ $topUp->reference }}</p>
                                     </td>
                                     <td class="px-5 py-3">
                                         {{-- What the school ASKED for. What is actually
@@ -208,7 +208,7 @@
                                     <td class="px-5 py-3">
                                         <p class="font-medium text-gray-900 dark:text-white">&#8358;{{ number_format($topUp->additional_amount, 2) }}</p>
                                         @if ($topUp->price_per_student !== null)
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">&#8358;{{ number_format($topUp->price_per_student, 2) }} per student</p>
+                                            <p class="field-hint">&#8358;{{ number_format($topUp->price_per_student, 2) }} per student</p>
                                         @endif
                                         @if (filled($topUp->receipt_path))
                                             <a
@@ -255,7 +255,7 @@
                                                         max="100000"
                                                         required
                                                         placeholder="{{ $topUp->additional_students_count }}"
-                                                        class="h-8 w-28 rounded-[6px] border border-gray-300 px-2 text-xs text-gray-900 shadow-sm focus:border-green-500 focus:outline-none focus:ring-[3px] focus:ring-green-500/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                                        class="w-28"
                                                     >
                                                 </div>
                                                 <button type="submit" class="h-8 rounded-[8px] bg-green-600 px-3 text-xs font-semibold text-white hover:bg-green-700">Approve</button>
@@ -310,7 +310,7 @@
                                     <input
                                         type="checkbox"
                                         @change="$event.target.checked ? selectedIds = {{ $subscriptions->pluck('id')->values()->toJson() }} : selectedIds = []"
-                                        class="rounded border-gray-300 text-primary-500 focus:ring-primary-500"
+                                        class="text-primary-500"
                                     >
                                 @endif
                             </th>
@@ -333,7 +333,7 @@
                                             value="{{ $subscription->id }}"
                                             :checked="selectedIds.includes({{ $subscription->id }})"
                                             @change="$event.target.checked ? selectedIds.push({{ $subscription->id }}) : selectedIds = selectedIds.filter(id => id !== {{ $subscription->id }})"
-                                            class="rounded border-gray-300 text-primary-500 focus:ring-primary-500"
+                                            class="text-primary-500"
                                         >
                                     @endif
                                 </td>
@@ -345,7 +345,7 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">{{ $subscription->plan->name }}</span>
-                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $subscription->billing_cycle->label() }}</p>
+                                    <p class="field-hint mt-1">{{ $subscription->billing_cycle->label() }}</p>
                                 </td>
                                 <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">&#8358;{{ number_format($subscription->amount, 2) }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $subscription->latestPayment?->method?->label() ?? '—' }}</td>
@@ -367,7 +367,7 @@
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2" x-data="{ open: false, rejecting: false }">
                                         <a
-                                            href="{{ route('subscriptions.confirmation', $subscription) }}"
+                                            href="{{ route('super-admin.subscriptions.show', $subscription) }}"
                                             class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             View

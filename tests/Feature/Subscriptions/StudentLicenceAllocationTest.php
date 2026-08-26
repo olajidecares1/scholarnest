@@ -10,6 +10,8 @@ use App\Models\Student;
 use App\Models\Subscription;
 use App\Models\SubscriptionTopUp;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -102,7 +104,7 @@ test('the refusal explains the limit and what to do about it', function () {
 
     $message = session('errors')->first('admission_number');
 
-    expect($message)->toContain('Student Limit Reached')
+    expect($message)->toContain('Student/Pupil Capacity Reached')
         ->and($message)->toContain('2 out of 2')
         ->and($message)->toContain('additional payment');
 });
@@ -192,7 +194,7 @@ test('submitting a receipt does not change the allocation by itself', function (
     $this->actingAs($admin)->post(route('subscription-top-up.store'), [
         'additional_students_count' => 50,
         'payment_method' => 'bank_transfer',
-        'receipt' => Illuminate\Http\UploadedFile::fake()->create('receipt.pdf', 100, 'application/pdf'),
+        'receipt' => UploadedFile::fake()->create('receipt.pdf', 100, 'application/pdf'),
     ]);
 
     // Still 100. The request is pending, not granted.
@@ -331,7 +333,7 @@ test('an approved allocation immediately raises the ceiling', function () {
 // -----------------------------------------------------------------------------
 
 test('a super admin can view an uploaded receipt', function () {
-    Illuminate\Support\Facades\Storage::fake('local');
+    Storage::fake('local');
 
     [$school, $admin, $subscription] = basicSchoolWithLicences(100);
     $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
@@ -339,7 +341,7 @@ test('a super admin can view an uploaded receipt', function () {
     $this->actingAs($admin)->post(route('subscription-top-up.store'), [
         'additional_students_count' => 10,
         'payment_method' => 'bank_transfer',
-        'receipt' => Illuminate\Http\UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
+        'receipt' => UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
     ]);
 
     $topUp = SubscriptionTopUp::latest('id')->first();
@@ -351,14 +353,14 @@ test('a super admin can view an uploaded receipt', function () {
 });
 
 test('a school admin cannot read receipts through the super admin route', function () {
-    Illuminate\Support\Facades\Storage::fake('local');
+    Storage::fake('local');
 
     [$school, $admin, $subscription] = basicSchoolWithLicences(100);
 
     $this->actingAs($admin)->post(route('subscription-top-up.store'), [
         'additional_students_count' => 10,
         'payment_method' => 'bank_transfer',
-        'receipt' => Illuminate\Http\UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
+        'receipt' => UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
     ]);
 
     $topUp = SubscriptionTopUp::latest('id')->first();
@@ -378,7 +380,7 @@ test('the amount owed is calculated from the configured per-student price', func
     $this->actingAs($admin)->post(route('subscription-top-up.store'), [
         'additional_students_count' => 50,
         'payment_method' => 'bank_transfer',
-        'receipt' => Illuminate\Http\UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
+        'receipt' => UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
     ]);
 
     $topUp = SubscriptionTopUp::latest('id')->first();
@@ -395,7 +397,7 @@ test('changing the plan price later does not rewrite an existing request', funct
     $this->actingAs($admin)->post(route('subscription-top-up.store'), [
         'additional_students_count' => 10,
         'payment_method' => 'bank_transfer',
-        'receipt' => Illuminate\Http\UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
+        'receipt' => UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
     ]);
 
     $topUp = SubscriptionTopUp::latest('id')->first();
@@ -460,7 +462,7 @@ test('a new price applies to the next request a school makes', function () {
     $this->actingAs($admin->fresh())->post(route('subscription-top-up.store'), [
         'additional_students_count' => 10,
         'payment_method' => 'bank_transfer',
-        'receipt' => Illuminate\Http\UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
+        'receipt' => UploadedFile::fake()->create('receipt.pdf', 50, 'application/pdf'),
     ]);
 
     $topUp = SubscriptionTopUp::latest('id')->first();
@@ -479,4 +481,467 @@ test('a school admin cannot change plan pricing', function () {
         ->assertForbidden();
 
     expect((float) $subscription->plan->fresh()->price_per_student_per_term)->toBe(500.0);
+});
+
+// -----------------------------------------------------------------------------
+// One cumulative capacity, however many times it is topped up
+// -----------------------------------------------------------------------------
+
+/**
+ * Request and approve one top-up, returning the school's capacity afterwards.
+ */
+function topUpAndApprove(School $school, Subscription $subscription, User $superAdmin, int $additional): int
+{
+    $topUp = SubscriptionTopUp::factory()->create([
+        'subscription_id' => $subscription->id,
+        'additional_students_count' => $additional,
+        'status' => SubscriptionTopUpStatus::PendingVerification,
+    ]);
+
+    test()->actingAs($superAdmin)->post(route('super-admin.subscriptions.top-ups.approve', $topUp), [
+        'approved_students_count' => $additional,
+    ]);
+
+    return (int) $school->fresh()->studentSlotLimit();
+}
+
+test('three successive top-ups add up rather than replacing each other', function () {
+    [$school, , $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    expect($school->fresh()->studentSlotLimit())->toBe(50);
+
+    // The rule the brief is emphatic about: each approval ADDS. A school that
+    // buys 20 more must end on 70, never on 20 - the new allocation replacing
+    // the old one is the failure being guarded against here.
+    expect(topUpAndApprove($school, $subscription, $superAdmin, 20))->toBe(70)
+        ->and(topUpAndApprove($school, $subscription, $superAdmin, 30))->toBe(100);
+});
+
+test('a top-up never overwrites the existing allocation', function () {
+    [$school, , $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    $after = topUpAndApprove($school, $subscription, $superAdmin, 20);
+
+    // 70, not 20. Stated separately from the test above because overwriting is
+    // the specific mistake, and it should fail loudly and on its own.
+    expect($after)->toBe(70)
+        ->and($after)->not->toBe(20);
+});
+
+test('capacity is one number, not a set of batches', function () {
+    [$school, $admin, $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    fillSchoolToCapacity($school, 50);
+    topUpAndApprove($school, $subscription, $superAdmin, 20);
+
+    // The 51st student is admitted out of the single pool of 70, not out of a
+    // separate "second batch" that would have to be tracked and drawn down.
+    $this->actingAs($admin)->post(route('students.store'), newStudentPayload())
+        ->assertSessionHasNoErrors();
+
+    expect($school->students()->where('is_active', true)->count())->toBe(51)
+        ->and($school->fresh()->studentSlotLimit())->toBe(70);
+});
+
+test('the school can fill the topped-up capacity exactly and no further', function () {
+    [$school, $admin, $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    fillSchoolToCapacity($school, 50);
+    topUpAndApprove($school, $subscription, $superAdmin, 20);
+
+    // Up to 70...
+    fillSchoolToCapacity($school, 19);
+
+    $this->actingAs($admin)->post(route('students.store'), newStudentPayload())
+        ->assertSessionHasNoErrors();
+
+    expect($school->students()->where('is_active', true)->count())->toBe(70);
+
+    // ...and the 71st is refused, exactly as the 51st was before the top-up.
+    $this->actingAs($admin)->post(route('students.store'), newStudentPayload())
+        ->assertSessionHasErrors('admission_number');
+
+    expect($school->students()->where('is_active', true)->count())->toBe(70);
+});
+
+test('a pending top-up leaves the ceiling where it was', function () {
+    [$school, $admin, $subscription] = basicSchoolWithLicences(50);
+
+    fillSchoolToCapacity($school, 50);
+
+    SubscriptionTopUp::factory()->create([
+        'subscription_id' => $subscription->id,
+        'additional_students_count' => 20,
+        'status' => SubscriptionTopUpStatus::PendingVerification,
+    ]);
+
+    // Requesting is not buying. Until a Super Admin approves it the school is
+    // still at 50, and student 51 is still refused.
+    expect($school->fresh()->studentSlotLimit())->toBe(50);
+
+    $this->actingAs($admin)->post(route('students.store'), newStudentPayload())
+        ->assertSessionHasErrors('admission_number');
+
+    expect($school->students()->where('is_active', true)->count())->toBe(50);
+});
+
+test('a rejected top-up never becomes capacity, even after later approvals', function () {
+    [$school, , $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    $rejected = SubscriptionTopUp::factory()->create([
+        'subscription_id' => $subscription->id,
+        'additional_students_count' => 999,
+        'status' => SubscriptionTopUpStatus::PendingVerification,
+    ]);
+
+    $this->actingAs($superAdmin)->post(route('super-admin.subscriptions.top-ups.reject', $rejected), [
+        'reason' => 'Receipt did not match the amount.',
+    ]);
+
+    expect($school->fresh()->studentSlotLimit())->toBe(50);
+
+    // A later, genuine top-up adds only itself - the rejected 999 does not
+    // reappear in the total.
+    expect(topUpAndApprove($school, $subscription, $superAdmin, 20))->toBe(70);
+});
+
+test('every top-up is kept as history while capacity stays a single figure', function () {
+    [$school, , $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    topUpAndApprove($school, $subscription, $superAdmin, 20);
+    topUpAndApprove($school, $subscription, $superAdmin, 30);
+
+    $history = SubscriptionTopUp::where('subscription_id', $subscription->id)->orderBy('id')->get();
+
+    // The rows record what happened and what each one moved the figure from
+    // and to - they are an audit trail, not three separate allowances.
+    expect($history)->toHaveCount(2)
+        ->and($history[0]->previous_students_count)->toBe(50)
+        ->and($history[0]->new_students_count)->toBe(70)
+        ->and($history[1]->previous_students_count)->toBe(70)
+        ->and($history[1]->new_students_count)->toBe(100)
+        ->and($school->fresh()->studentSlotLimit())->toBe(100);
+});
+
+// -----------------------------------------------------------------------------
+// The Super Admin can see the whole picture
+// -----------------------------------------------------------------------------
+
+test('the super admin sees a school\'s cumulative capacity and how it got there', function () {
+    [$school, , $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    fillSchoolToCapacity($school, 40);
+    topUpAndApprove($school, $subscription, $superAdmin, 20);
+
+    $response = $this->actingAs($superAdmin)
+        ->get(route('super-admin.schools.show', $school))
+        ->assertOk();
+
+    // The figures the brief asks for: what they started with, what they have
+    // now, what is used, what is left.
+    $response->assertSee('Student Capacity')
+        ->assertSee('Initial allocation')
+        ->assertSee('Total approved')
+        ->assertSee('Remaining');
+
+    expect($response->viewData('capacity'))
+        ->toMatchArray(['initial' => 50, 'allocated' => 70, 'used' => 40, 'remaining' => 30]);
+});
+
+test('the capacity history shows each top-up moving the single figure', function () {
+    [$school, , $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    topUpAndApprove($school, $subscription, $superAdmin, 20);
+    topUpAndApprove($school, $subscription, $superAdmin, 30);
+
+    $response = $this->actingAs($superAdmin)
+        ->get(route('super-admin.schools.show', $school))
+        ->assertOk();
+
+    // Two history rows, one cumulative total - not three separate allowances.
+    expect($response->viewData('topUps'))->toHaveCount(2)
+        ->and($response->viewData('capacity')['allocated'])->toBe(100);
+
+    $response->assertSee('Capacity history');
+});
+
+test('a school with no top-ups still shows its initial allocation', function () {
+    [$school] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    $response = $this->actingAs($superAdmin)
+        ->get(route('super-admin.schools.show', $school))
+        ->assertOk()
+        ->assertSee('No additional capacity has been requested');
+
+    expect($response->viewData('capacity'))
+        ->toMatchArray(['initial' => 50, 'allocated' => 50, 'used' => 0, 'remaining' => 50]);
+});
+
+test('the capacity panel is hidden for plans that are not sold per student', function () {
+    $school = School::factory()->create();
+    activateSchool($school, PlanKey::Standard);
+
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    // Standard and Exclusive are flat-fee and uncapped, so a capacity ceiling
+    // would be a number that means nothing.
+    $response = $this->actingAs($superAdmin)
+        ->get(route('super-admin.schools.show', $school))
+        ->assertOk()
+        ->assertDontSee('Student Capacity');
+
+    expect($response->viewData('capacity'))->toBeNull();
+});
+
+// -----------------------------------------------------------------------------
+// The school sees its own capacity, on its own dashboard
+// -----------------------------------------------------------------------------
+
+test('the basic dashboard shows the school its total, registered and available capacity', function () {
+    [$school, $admin, $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    fillSchoolToCapacity($school, 50);
+    topUpAndApprove($school, $subscription, $superAdmin, 20);
+
+    $response = $this->actingAs($admin)->get(route('dashboard'))->assertOk();
+
+    // The three figures the brief names, and the button beside them.
+    $response->assertSee('Student/Pupil Capacity')
+        ->assertSee('Total Approved')
+        ->assertSee('Registered')
+        ->assertSee('Available')
+        ->assertSee('Add More Students/Pupils');
+
+    expect($response->viewData('capacity'))
+        ->toMatchArray(['initial' => 50, 'allocated' => 70, 'used' => 50, 'remaining' => 20, 'pending' => 0]);
+});
+
+test('the dashboard says so plainly when capacity is exhausted', function () {
+    [$school, $admin] = basicSchoolWithLicences(70);
+
+    fillSchoolToCapacity($school, 70);
+
+    $this->actingAs($admin)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee('Student/Pupil Capacity Reached')
+        ->assertSee('You have used all 70 approved student/pupil spaces.')
+        ->assertSee('Add More Students/Pupils');
+});
+
+test('a pending request is shown on the dashboard but never counted as capacity', function () {
+    [$school, $admin, $subscription] = basicSchoolWithLicences(50);
+
+    fillSchoolToCapacity($school, 50);
+
+    SubscriptionTopUp::factory()->create([
+        'subscription_id' => $subscription->id,
+        'additional_students_count' => 20,
+        'status' => SubscriptionTopUpStatus::PendingVerification,
+    ]);
+
+    $response = $this->actingAs($admin)->get(route('dashboard'))->assertOk();
+
+    // Told it is under review, and told in the same breath that the capacity
+    // has not moved - a school that assumes otherwise finds out at the point
+    // of registering a student.
+    $response->assertSee('awaiting EduNest Team approval', false)
+        ->assertSee('Student/Pupil Capacity Reached');
+
+    expect($response->viewData('capacity'))
+        ->toMatchArray(['allocated' => 50, 'used' => 50, 'remaining' => 0, 'pending' => 20]);
+});
+
+test('the capacity card is not drawn for a plan that is not sold per student', function () {
+    $school = School::factory()->create();
+    activateSchool($school, PlanKey::Standard);
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
+
+    // Standard is flat-fee and uncapped, so a ceiling would be a number that
+    // means nothing.
+    $response = $this->actingAs($admin)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertDontSee('Student/Pupil Capacity');
+
+    expect($response->viewData('capacity'))->toBeNull();
+});
+
+test('a school awaiting approval is shown no capacity at all', function () {
+    $school = School::factory()->create();
+    $plan = Plan::firstOrCreate(
+        ['key' => PlanKey::Basic],
+        Plan::factory()->make(['key' => PlanKey::Basic, 'price_per_student_per_term' => 500])->toArray(),
+    );
+
+    Subscription::factory()->create([
+        'school_id' => $school->id,
+        'plan_id' => $plan->id,
+        'status' => SubscriptionStatus::PendingVerification,
+        'students_count' => 50,
+    ]);
+
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
+
+    // Paying is a request. Until a Super Admin has approved it there is no
+    // capacity to report, and the card must not imply there is.
+    $response = $this->actingAs($admin)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee('Awaiting activation')
+        ->assertDontSee('Student/Pupil Capacity');
+
+    expect($response->viewData('capacity'))->toBeNull();
+});
+
+// -----------------------------------------------------------------------------
+// The school can request more, and can see what it has requested before
+// -----------------------------------------------------------------------------
+
+test('the request page prices additional spaces from the configured plan price', function () {
+    [$school, $admin] = basicSchoolWithLicences(50);
+
+    Plan::where('key', PlanKey::Basic)->update(['price_per_student_per_term' => 750]);
+
+    // Never a number written into the page: change the plan, and the quote
+    // changes with it.
+    $this->actingAs($admin)
+        ->get(route('subscription-top-up.create'))
+        ->assertOk()
+        ->assertSee('Additional Spaces Requested')
+        ->assertSee('Current Capacity')
+        ->assertSee(number_format(750, 2));
+});
+
+test('the request page lists every past request with its status', function () {
+    [$school, $admin, $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    topUpAndApprove($school, $subscription, $superAdmin, 20);
+
+    $rejected = SubscriptionTopUp::factory()->create([
+        'subscription_id' => $subscription->id,
+        'additional_students_count' => 30,
+        'status' => SubscriptionTopUpStatus::PendingVerification,
+    ]);
+
+    $this->actingAs($superAdmin)->post(route('super-admin.subscriptions.top-ups.reject', $rejected), [
+        'reason' => 'Receipt did not match the amount.',
+    ]);
+
+    SubscriptionTopUp::factory()->create([
+        'subscription_id' => $subscription->id,
+        'additional_students_count' => 15,
+        'status' => SubscriptionTopUpStatus::PendingVerification,
+    ]);
+
+    $response = $this->actingAs($admin)
+        ->get(route('subscription-top-up.create'))
+        ->assertOk();
+
+    // History, including the initial allocation, with each outcome named -
+    // and a capacity that still counts only the approved one.
+    $response->assertSee('Capacity Request History')
+        ->assertSee('Initial')
+        ->assertSee('Approved')
+        ->assertSee('Rejected')
+        ->assertSee('Pending Verification');
+
+    expect($response->viewData('history'))->toHaveCount(3)
+        ->and($response->viewData('capacity'))
+        ->toMatchArray(['initial' => 50, 'allocated' => 70, 'pending' => 15]);
+});
+
+test('the initial payment on the history is what was charged, not today\'s price', function () {
+    [$school, $admin, $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    topUpAndApprove($school, $subscription, $superAdmin, 20);
+
+    // Raising the price must not retroactively rewrite what the school paid
+    // at signup.
+    Plan::where('key', PlanKey::Basic)->update(['price_per_student_per_term' => 900]);
+
+    $response = $this->actingAs($admin)->get(route('subscription-top-up.create'))->assertOk();
+
+    expect($response->viewData('initialAmount'))->toEqual(25000.0);
+});
+
+test('a school on a flat fee plan cannot open the request page at all', function () {
+    $school = School::factory()->create();
+    activateSchool($school, PlanKey::Standard);
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
+
+    $this->actingAs($admin)
+        ->get(route('subscription-top-up.create'))
+        ->assertForbidden();
+});
+
+// -----------------------------------------------------------------------------
+// One card, one vocabulary, wherever capacity is shown
+// -----------------------------------------------------------------------------
+
+test('the students page shows the same capacity card as the dashboard', function () {
+    [$school, $admin, $subscription] = basicSchoolWithLicences(50);
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    fillSchoolToCapacity($school, 40);
+    topUpAndApprove($school, $subscription, $superAdmin, 20);
+
+    $response = $this->actingAs($admin)->get(route('students.index'))->assertOk();
+
+    // The same component, so the page a school manages students from cannot
+    // describe its capacity differently from the page it lands on.
+    $response->assertSee('Student/Pupil Capacity')
+        ->assertSee('Total Approved')
+        ->assertSee('Registered')
+        ->assertSee('Available')
+        ->assertSee('Add More Students/Pupils');
+
+    expect($response->viewData('capacity'))
+        ->toMatchArray(['initial' => 50, 'allocated' => 70, 'used' => 40, 'remaining' => 30]);
+});
+
+test('the card warns before the wall, not only at it', function () {
+    [$school, $admin] = basicSchoolWithLicences(50);
+
+    fillSchoolToCapacity($school, 47);
+
+    // Additional spaces need a payment and an approval, which takes longer
+    // than the moment a school discovers it cannot admit the next student.
+    $response = $this->actingAs($admin)->get(route('students.index'))->assertOk();
+
+    $response->assertSee('Running low on student/pupil spaces')
+        ->assertDontSee('Student/Pupil Capacity Reached');
+
+    expect($response->viewData('capacity'))
+        ->toMatchArray(['remaining' => 3, 'runningLow' => true]);
+});
+
+test('the blocked message and the card say the same thing', function () {
+    [$school, $admin] = basicSchoolWithLicences(3);
+
+    fillSchoolToCapacity($school, 3);
+
+    $this->actingAs($admin)->post(route('students.store'), newStudentPayload());
+
+    // A school meets the limit in two places - the card and the refusal - and
+    // they used to be worded as though they were different rules.
+    expect(session('errors')->first('admission_number'))
+        ->toContain('Student/Pupil Capacity Reached');
+
+    $this->actingAs($admin)
+        ->get(route('students.index'))
+        ->assertOk()
+        ->assertSee('Student/Pupil Capacity Reached');
 });

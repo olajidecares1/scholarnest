@@ -34,26 +34,30 @@ class ChoosePlanController extends Controller
         }
 
         if ($plan->key === PlanKey::Basic) {
-            $studentsCount = $request->integer('students_count');
-
+            // The quantity is asked for on its own step next, so only the plan
+            // is settled here. Anything already entered is left alone, so
+            // stepping back to change plan and returning does not silently
+            // wipe the number the school had typed.
             $this->wizard->put([
                 'plan_id' => $plan->id,
                 'billing_cycle' => BillingCycle::PerStudentPerTerm->value,
-                'students_count' => $studentsCount,
-                'amount' => (float) $plan->price_per_student_per_term * $studentsCount,
             ]);
-        } else {
-            $billingCycle = BillingCycle::from($request->string('billing_cycle')->value());
 
-            $this->wizard->put([
-                'plan_id' => $plan->id,
-                'billing_cycle' => $billingCycle->value,
-                'students_count' => null,
-                'amount' => $billingCycle === BillingCycle::Monthly
-                    ? (float) $plan->price_monthly
-                    : (float) $plan->price_per_term,
-            ]);
+            return redirect()->route('subscriptions.students');
         }
+
+        // Standard: a flat fee, so the price is settled here and there is no
+        // student-quantity step to visit.
+        $billingCycle = BillingCycle::from($request->string('billing_cycle')->value());
+
+        $this->wizard->put([
+            'plan_id' => $plan->id,
+            'billing_cycle' => $billingCycle->value,
+            'students_count' => null,
+            'amount' => $billingCycle === BillingCycle::Monthly
+                ? (float) $plan->price_monthly
+                : (float) $plan->price_per_term,
+        ]);
 
         return redirect()->route('subscriptions.billing-details');
     }

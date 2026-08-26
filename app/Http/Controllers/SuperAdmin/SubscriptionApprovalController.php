@@ -7,8 +7,8 @@ use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
 use App\Enums\SubscriptionTopUpStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SuperAdmin\BulkSubscriptionRequest;
 use App\Http\Requests\Subscriptions\ApproveTopUpRequest;
+use App\Http\Requests\SuperAdmin\BulkSubscriptionRequest;
 use App\Http\Requests\SuperAdmin\RejectSubscriptionRequest;
 use App\Models\AuditLog;
 use App\Models\Plan;
@@ -53,6 +53,25 @@ class SubscriptionApprovalController extends Controller
                     ->count(),
                 'pendingTopUps' => SubscriptionTopUp::where('status', SubscriptionTopUpStatus::PendingVerification)->count(),
             ],
+        ]);
+    }
+
+    /**
+     * One subscription, reviewed from inside the Super Admin panel.
+     *
+     * This exists because the only "view" for a subscription used to be
+     * subscriptions.confirmation - the last step of the SCHOOL's signup
+     * wizard. Sending a Super Admin there to review a payment showed them a
+     * progress bar and "Thank You! Your Payment Has Been Received", as though
+     * they were the school that had just paid, and dropped them out of their
+     * own workflow entirely.
+     */
+    public function show(Subscription $subscription): View
+    {
+        $subscription->load(['plan', 'school', 'latestPayment.verifiedBy']);
+
+        return view('super-admin.subscriptions.show', [
+            'subscription' => $subscription,
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Subscription;
 use App\Models\SubscriptionTopUp;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -22,6 +23,35 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class PaymentReceiptController extends Controller
 {
+    /**
+     * The receipt uploaded with a school's original subscription payment.
+     *
+     * The counterpart to showTopUpReceipt() below, which only ever covered
+     * top-ups. Without this the Super Admin had nowhere inside their own panel
+     * to actually look at what a school had paid, which is why reviewing a
+     * subscription meant opening the school's signup pages instead.
+     */
+    public function showSubscriptionReceipt(Subscription $subscription): StreamedResponse
+    {
+        $payment = $subscription->latestPayment;
+
+        abort_if($payment === null || blank($payment->receipt_path), 404, 'No receipt was uploaded for this subscription.');
+
+        $disk = Storage::disk('local');
+
+        abort_unless($disk->exists($payment->receipt_path), 404, 'This receipt is no longer on file.');
+
+        return $disk->response(
+            $payment->receipt_path,
+            $payment->receipt_original_name ?: 'receipt',
+            [
+                'X-Content-Type-Options' => 'nosniff',
+                'Content-Security-Policy' => "default-src 'none'; img-src 'self'; object-src 'self'",
+                'Content-Disposition' => 'inline; filename="'.addslashes($payment->receipt_original_name ?: 'receipt').'"',
+            ],
+        );
+    }
+
     public function showTopUpReceipt(SubscriptionTopUp $topUp): StreamedResponse
     {
         abort_if(blank($topUp->receipt_path), 404, 'No receipt was uploaded for this request.');

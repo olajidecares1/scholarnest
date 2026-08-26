@@ -79,6 +79,11 @@ class ReviewController extends Controller
                 'reference' => strtoupper((string) Str::random(10)),
                 'receipt_path' => $data['receipt_path'],
                 'receipt_original_name' => $data['receipt_original_name'],
+
+                // What screening could read off the receipt, for whoever
+                // reviews it. Notes, not a verdict - the wording deliberately
+                // ends "not verified".
+                'notes' => $data['receipt_screening_notes'] ?? null,
             ]);
 
             return $subscription;

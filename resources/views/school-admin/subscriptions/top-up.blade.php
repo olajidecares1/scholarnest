@@ -1,4 +1,4 @@
-<x-dashboard-layout page-title="Add Student Slots" page-subtitle="Purchase additional student slots for this term.">
+<x-dashboard-layout page-title="Add More Students/Pupils" page-subtitle="Request additional student/pupil spaces for this term.">
     <div class="mx-auto max-w-3xl space-y-6">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
@@ -6,48 +6,76 @@
             </div>
         @endif
 
-        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Current Student Slots</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Your Basic plan is billed per student, per term — {{ $activeStudentsCount }} of {{ $subscription->students_count }} slots are currently in use.</p>
-
-            <div class="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-                <div class="h-full rounded-full bg-blue-600" style="width: {{ $subscription->students_count > 0 ? min(100, round($activeStudentsCount / $subscription->students_count * 100)) : 0 }}%"></div>
-            </div>
-        </div>
+        {{-- The same card the dashboard shows, minus the button that leads
+             here. One component, so the figures cannot diverge between the
+             page that reports capacity and the page that asks for more. --}}
+        <x-student-capacity-card :capacity="$capacity" :action="false" />
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Request Additional Slots</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Your request is reviewed by a Super Administrator before your student limit increases — this is not automatic.</p>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Request Additional Student/Pupil Spaces</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                Your request is reviewed by a EduNest Team before your capacity increases — this is not automatic,
+                and the spaces cannot be used until it is approved.
+            </p>
 
             <form
                 method="POST"
                 action="{{ route('subscription-top-up.store') }}"
                 enctype="multipart/form-data"
-                class="mt-6 space-y-6"
+                class="mt-6 space-y-2"
                 x-data="{ additionalStudentsCount: 1 }"
             >
                 @csrf
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">Additional Students Needed</label>
+                    <label for="additional_students_count" class="field-label">Additional Spaces Requested</label>
                     <input
+                        id="additional_students_count"
                         type="number"
                         name="additional_students_count"
                         x-model.number="additionalStudentsCount"
                         min="1"
-                        class="mt-1 w-full rounded-[8px] border-gray-300 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        max="100000"
+                        required
+                        inputmode="numeric"
+                        class="mt-1 w-full"
                     >
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Amount due:
-                        <span class="font-semibold text-gray-900 dark:text-white" x-text="'₦' + (additionalStudentsCount * {{ (float) $plan->price_per_student_per_term }}).toLocaleString()"></span>
-                        (₦{{ number_format($plan->price_per_student_per_term, 0) }} per student, per term)
-                    </p>
                     <x-input-error :messages="$errors->get('additional_students_count')" class="mt-2" />
+
+                    {{-- The unit price comes from the plan record the Super
+                         Admin configures. The total on screen is a quote; the
+                         charge is worked out again on the server from the same
+                         record when this form is submitted. --}}
+                    <dl class="mt-3 space-y-1.5 rounded-[5px] bg-gray-50 p-4 text-sm dark:bg-gray-900/40 lg:rounded-[10px]">
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500 dark:text-gray-400">Current Capacity</dt>
+                            <dd class="font-semibold text-gray-900 dark:text-white">{{ number_format($capacity['allocated']) }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500 dark:text-gray-400">Additional Spaces Requested</dt>
+                            <dd class="font-semibold text-gray-900 dark:text-white" x-text="Number(additionalStudentsCount) > 0 ? Number(additionalStudentsCount).toLocaleString() : '—'"></dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500 dark:text-gray-400">Price per Student/Pupil</dt>
+                            <dd class="font-semibold text-gray-900 dark:text-white">&#8358;{{ number_format($plan->price_per_student_per_term, 2) }}</dd>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-200 pt-1.5 dark:border-gray-700">
+                            <dt class="font-semibold text-gray-700 dark:text-gray-200">Amount Due</dt>
+                            <dd
+                                class="text-base font-extrabold text-primary-700 dark:text-primary-400"
+                                x-text="'₦' + (Math.max(0, Number(additionalStudentsCount)) * {{ (float) $plan->price_per_student_per_term }}).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })"
+                            ></dd>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-200 pt-1.5 dark:border-gray-700">
+                            <dt class="text-gray-500 dark:text-gray-400">Capacity if approved</dt>
+                            <dd class="font-semibold text-gray-900 dark:text-white" x-text="({{ (int) $capacity['allocated'] }} + Math.max(0, Number(additionalStudentsCount))).toLocaleString()"></dd>
+                        </div>
+                    </dl>
                 </div>
 
                 <div>
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Bank Transfer Details</h3>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Make payment to the account below, then upload your receipt. Your limit increases once verified.</p>
+                    <p class="field-hint mt-0.5">Make payment to the account below, then upload your receipt. Your limit increases once verified.</p>
 
                     <dl class="mt-3 space-y-2 rounded-[5px] bg-gray-50 p-4 text-sm dark:bg-gray-900/40 lg:rounded-[10px]">
                         <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Bank Name</dt><dd class="font-semibold text-gray-900 dark:text-white">GTBank</dd></div>
@@ -99,6 +127,72 @@
                     </button>
                 </div>
             </form>
+        </div>
+
+        {{-- Payment, approval and capacity history. These rows are a record of
+             what was asked for and what was decided - they are NOT separate
+             usable allowances. The school's usable capacity is the single
+             cumulative figure in the card above. --}}
+        <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Capacity Request History</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                Every request you have made, and what each one was decided. Only approved requests add to your capacity.
+            </p>
+
+            <div class="mt-4 overflow-x-auto">
+                <table class="w-full min-w-[34rem] text-left text-sm">
+                    <thead class="border-b border-gray-200 text-xs uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th class="py-2 pr-4 font-semibold">Request</th>
+                            <th class="py-2 pr-4 font-semibold">Additional Students/Pupils</th>
+                            <th class="py-2 pr-4 font-semibold">Amount</th>
+                            <th class="py-2 font-semibold">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <tr>
+                            <td class="py-3 pr-4 font-semibold text-gray-900 dark:text-white">Initial</td>
+                            <td class="py-3 pr-4 text-gray-700 dark:text-gray-300">{{ number_format($capacity['initial']) }}</td>
+                            <td class="py-3 pr-4 text-gray-700 dark:text-gray-300">&#8358;{{ number_format($initialAmount, 2) }}</td>
+                            <td class="py-3">
+                                <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700 dark:bg-green-900/30 dark:text-green-400">Approved</span>
+                            </td>
+                        </tr>
+
+                        @foreach ($history as $index => $request)
+                            <tr>
+                                <td class="py-3 pr-4 font-semibold text-gray-900 dark:text-white">
+                                    Request #{{ $index + 2 }}
+                                    <span class="block text-xs font-normal text-gray-400">{{ $request->created_at->format('d M Y') }}</span>
+                                </td>
+                                <td class="py-3 pr-4 text-gray-700 dark:text-gray-300">
+                                    {{ number_format($request->additional_students_count) }}
+                                    @if ($request->status === \App\Enums\SubscriptionTopUpStatus::Approved && $request->approved_students_count !== $request->additional_students_count)
+                                        <span class="block text-xs text-gray-400">{{ number_format($request->approved_students_count) }} approved</span>
+                                    @endif
+                                </td>
+                                <td class="py-3 pr-4 text-gray-700 dark:text-gray-300">&#8358;{{ number_format($request->additional_amount, 2) }}</td>
+                                <td class="py-3">
+                                    <span @class([
+                                        'rounded-full px-2 py-0.5 text-xs font-bold',
+                                        'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' => $request->status === \App\Enums\SubscriptionTopUpStatus::Approved,
+                                        'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' => $request->status === \App\Enums\SubscriptionTopUpStatus::PendingVerification,
+                                        'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' => $request->status === \App\Enums\SubscriptionTopUpStatus::Rejected,
+                                    ])>{{ $request->status->label() }}</span>
+
+                                    @if ($request->status === \App\Enums\SubscriptionTopUpStatus::Approved)
+                                        <span class="block text-xs text-gray-400">{{ number_format($request->previous_students_count) }} &rarr; {{ number_format($request->new_students_count) }}</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            @if ($history->isEmpty())
+                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">You have not requested any additional spaces yet.</p>
+            @endif
         </div>
     </div>
 </x-dashboard-layout>

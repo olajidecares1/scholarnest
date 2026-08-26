@@ -44,10 +44,10 @@ class ChoosePlanRequest extends FormRequest
                 return;
             }
 
-            if ($plan->key === PlanKey::Basic && ! $this->filled('students_count')) {
-                $validator->errors()->add('students_count', 'Please tell us how many students your school has.');
-            }
-
+            // Basic no longer asks for the student count here: it has a step
+            // of its own, and requiring it on this screen would mean the
+            // school could not get to that step without first answering the
+            // question it is there to ask.
             if ($plan->key === PlanKey::Standard && ! $this->filled('billing_cycle')) {
                 $validator->errors()->add('billing_cycle', 'Please choose a billing cycle.');
             }

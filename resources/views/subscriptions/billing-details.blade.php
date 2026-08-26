@@ -1,12 +1,12 @@
 <x-dashboard-layout page-title="Billing Details" page-subtitle="Confirm the billing information for your school.">
     <div class="mx-auto max-w-2xl space-y-6">
-        <x-subscription-steps :current="2" />
+        <x-subscription-steps step="billing-details" />
 
         <x-auth-card class="!max-w-none">
             <h2 class="text-lg font-bold text-gray-900">Billing Contact Information</h2>
             <p class="mt-1 text-sm text-gray-600">This information will appear on your subscription records and receipts.</p>
 
-            <form method="POST" action="{{ route('subscriptions.billing-details.store') }}" class="mt-6 space-y-5">
+            <form method="POST" action="{{ route('subscriptions.billing-details.store') }}" class="mt-6 space-y-2">
                 @csrf
 
                 <x-text-field
@@ -53,7 +53,7 @@
                 />
 
                 <div class="flex items-center justify-between pt-2">
-                    <a href="{{ route('subscriptions.choose-plan') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900">&larr; Back</a>
+                    <a href="{{ $backRoute }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900">&larr; Back</a>
 
                     <button
                         type="submit"

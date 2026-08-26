@@ -1,12 +1,12 @@
 <x-dashboard-layout page-title="Payment Method" page-subtitle="Choose how you'd like to pay for your subscription.">
     <div class="mx-auto max-w-3xl space-y-6">
-        <x-subscription-steps :current="3" />
+        <x-subscription-steps step="payment-method" />
 
         <x-auth-card class="!max-w-none">
             <h2 class="text-lg font-bold text-gray-900">Select Payment Method</h2>
             <p class="mt-1 text-sm text-gray-600">Choose your preferred payment method to complete the subscription.</p>
 
-            <form method="POST" action="{{ route('subscriptions.payment-method.store') }}" enctype="multipart/form-data" class="mt-6 space-y-6" x-data="{ method: 'bank_transfer' }">
+            <form method="POST" action="{{ route('subscriptions.payment-method.store') }}" enctype="multipart/form-data" class="mt-6 space-y-2" x-data="{ method: 'bank_transfer' }">
                 @csrf
 
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">

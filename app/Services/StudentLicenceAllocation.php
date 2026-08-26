@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Enums\SubscriptionTopUpStatus;
 use App\Models\School;
 use App\Models\Student;
+use App\Models\SubscriptionTopUp;
 use Closure;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -68,6 +71,88 @@ class StudentLicenceAllocation
         }
 
         return max(0, $allocated - $this->used($school));
+    }
+
+    /**
+     * Every capacity request this school has ever made, oldest first.
+     *
+     * History, not allowances. Each row records what a request asked for and
+     * what the decision moved the single cumulative figure from and to; none
+     * of them is a separate pool the school can draw on.
+     *
+     * @return Collection<int, SubscriptionTopUp>
+     */
+    public function requestHistory(School $school): Collection
+    {
+        return SubscriptionTopUp::query()
+            ->whereIn('subscription_id', $school->subscriptions()->select('id'))
+            ->with('verifiedBy')
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * What the school was allocated at activation, before any additional
+     * request - the figure every approved addition was added to.
+     *
+     * Read back off the first request's "previous" snapshot rather than stored
+     * separately, so it cannot drift from the additions that followed it.
+     */
+    public function initial(School $school): ?int
+    {
+        $allocated = $this->allocated($school);
+
+        if ($allocated === null) {
+            return null;
+        }
+
+        return $this->requestHistory($school)->first()?->previous_students_count ?? $allocated;
+    }
+
+    /**
+     * How many additional spaces are sitting in requests awaiting a decision.
+     *
+     * Deliberately NOT part of allocated(): a submitted payment is a request,
+     * and a request buys nothing until a Super Admin has approved it. This
+     * figure exists so the school can be told its request is being reviewed
+     * without that number ever counting towards what it may use.
+     */
+    public function pendingRequests(School $school): int
+    {
+        return (int) SubscriptionTopUp::query()
+            ->whereIn('subscription_id', $school->subscriptions()->select('id'))
+            ->where('status', SubscriptionTopUpStatus::PendingVerification)
+            ->sum('additional_students_count');
+    }
+
+    /**
+     * The whole capacity picture for one school, or null when its plan is not
+     * sold per student.
+     *
+     * One method because these figures are only ever meaningful together, and
+     * because every screen that shows them must show the same ones. Total is
+     * the initial allocation plus every APPROVED addition, and remaining is
+     * that total minus the students actually on record - both read from the
+     * database at the moment of asking, never from anything the browser sent.
+     *
+     * @return array{initial: int, allocated: int, used: int, remaining: int, pending: int, runningLow: bool}|null
+     */
+    public function summary(School $school): ?array
+    {
+        $allocated = $this->allocated($school);
+
+        if ($allocated === null) {
+            return null;
+        }
+
+        return [
+            'initial' => $this->initial($school),
+            'allocated' => $allocated,
+            'used' => $this->used($school),
+            'remaining' => $this->remaining($school),
+            'pending' => $this->pendingRequests($school),
+            'runningLow' => $this->isRunningLow($school),
+        ];
     }
 
     /**
@@ -147,8 +232,8 @@ class StudentLicenceAllocation
         $allocated = $this->allocated($school) ?? 0;
         $used = $this->used($school);
 
-        return "Student Limit Reached. You have reached the maximum number of students included in your current Basic Plan allocation. "
-            ."You currently have {$used} out of {$allocated} student licences in use. "
-            .'To add more students, please make an additional payment and submit your payment receipt for approval.';
+        return 'Student/Pupil Capacity Reached. You have used all '.number_format($allocated).' approved student/pupil spaces '
+            ."({$used} out of {$allocated} in use). "
+            .'To register more students/pupils, please make an additional payment and submit your payment receipt for approval.';
     }
 }

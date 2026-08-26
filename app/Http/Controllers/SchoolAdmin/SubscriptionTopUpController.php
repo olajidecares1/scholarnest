@@ -11,7 +11,9 @@ use App\Models\AuditLog;
 use App\Models\SubscriptionTopUp;
 use App\Models\User;
 use App\Notifications\NewSubscriptionTopUpSubmittedNotification;
+use App\Services\PaymentReceiptScreening;
 use App\Services\ReceiptUploadService;
+use App\Services\StudentLicenceAllocation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,7 +21,11 @@ use Illuminate\View\View;
 
 class SubscriptionTopUpController extends Controller
 {
-    public function __construct(private readonly ReceiptUploadService $receiptUploader) {}
+    public function __construct(
+        private readonly ReceiptUploadService $receiptUploader,
+        private readonly StudentLicenceAllocation $licences,
+        private readonly PaymentReceiptScreening $screening,
+    ) {}
 
     public function create(): View
     {
@@ -31,7 +37,21 @@ class SubscriptionTopUpController extends Controller
         return view('school-admin.subscriptions.top-up', [
             'plan' => $subscription->plan,
             'subscription' => $subscription,
-            'activeStudentsCount' => $school->students()->where('is_active', true)->count(),
+
+            // Both read through the service that enforces the limit, so this
+            // page cannot show the school a capacity the system would not
+            // honour. The history is the audit trail behind the single
+            // cumulative figure - not a set of separate allowances.
+            'capacity' => $this->licences->summary($school),
+            'history' => $history = $this->licences->requestHistory($school),
+
+            // What the school paid at signup: the running total less every
+            // approved addition since. Derived from the amounts actually
+            // charged rather than from today's price per student, which may
+            // have been changed by the Super Admin in the meantime.
+            'initialAmount' => (float) $subscription->amount - (float) $history
+                ->where('status', SubscriptionTopUpStatus::Approved)
+                ->sum('additional_amount'),
         ]);
     }
 
@@ -50,6 +70,20 @@ class SubscriptionTopUpController extends Controller
         $pricePerStudent = (float) $subscription->plan->price_per_student_per_term;
 
         $additionalAmount = (float) $validated['additional_students_count'] * $pricePerStudent;
+
+        // The same screening the registration flow runs, against the top-up's
+        // own amount. Without it this route would be the way round it: pay for
+        // one slot at registration, then top up with anything at all.
+        $screening = $this->screening->screen(
+            $request->file('receipt'),
+            $additionalAmount,
+            (string) $school->name,
+        );
+
+        if (! $screening['passed']) {
+            return back()->withErrors(['receipt' => $screening['reason']])->withInput();
+        }
+
         $receipt = $this->receiptUploader->store($school, $request->file('receipt'));
         $reference = strtoupper(Str::slug($school->name, '')).'-TOPUP-'.now()->format('dmy').'-'.strtoupper(Str::random(4));
 
@@ -74,6 +108,6 @@ class SubscriptionTopUpController extends Controller
         );
 
         return redirect()->route('students.index')
-            ->with('status', "Your request for {$topUp->additional_students_count} additional student slots was submitted and is awaiting Super Admin approval.");
+            ->with('status', "Your request for {$topUp->additional_students_count} additional student slots was submitted and is awaiting EduNest Team approval.");
     }
 }

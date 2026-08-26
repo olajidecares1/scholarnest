@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\BillingCycle;
 use App\Models\School;
 use Illuminate\Support\Str;
 
@@ -33,6 +34,24 @@ class SubscriptionWizardService
     public function hasChosenPlan(): bool
     {
         return $this->get('plan_id') !== null;
+    }
+
+    /**
+     * Whether the price is a per-student one, which is what decides both the
+     * amount and the school's capacity for the term.
+     *
+     * Asked in more than one place - the progress bar draws a step for it, the
+     * screens after it link back to that step - so it is answered here once
+     * rather than by each caller comparing the billing cycle for itself.
+     */
+    public function isPerStudent(): bool
+    {
+        return $this->get('billing_cycle') === BillingCycle::PerStudentPerTerm->value;
+    }
+
+    public function hasStudentCapacity(): bool
+    {
+        return $this->get('students_count') !== null;
     }
 
     public function hasBillingDetails(): bool

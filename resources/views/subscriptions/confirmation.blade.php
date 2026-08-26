@@ -1,6 +1,11 @@
+{{-- The last step of the school's own signup wizard, and only that.
+
+     A Super Admin who opens a subscription is redirected to the review screen
+     in their own panel before reaching here (see ConfirmationController), so
+     this page has one audience again: the school that just paid. --}}
 <x-dashboard-layout page-title="Payment Confirmed & Sent" page-subtitle="Your payment has been received and is under review.">
     <div class="mx-auto max-w-3xl space-y-6">
-        <x-subscription-steps :current="5" />
+        <x-subscription-steps step="confirmation" :per-student="$subscription->billing_cycle === \App\Enums\BillingCycle::PerStudentPerTerm" />
 
         <x-auth-card class="!max-w-none text-center">
             <div class="flex justify-center">
