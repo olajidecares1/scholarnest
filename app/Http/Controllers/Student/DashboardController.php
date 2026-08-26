@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Enums\MemorandumAudience;
 use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
@@ -25,6 +26,7 @@ class DashboardController extends Controller
             ->count();
 
         $noticesQuery = SchoolNotice::where('school_id', $student->school_id)
+            ->forAudience(MemorandumAudience::Students)
             ->where(fn ($q) => $q->whereNull('class_name')->orWhere('class_name', $student->class_name));
 
         $readNoticeIds = SchoolNoticeRead::where('student_id', $student->id)->pluck('school_notice_id');

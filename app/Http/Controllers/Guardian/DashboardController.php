@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Guardian;
 
+use App\Enums\MemorandumAudience;
 use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\SchoolNotice;
@@ -20,6 +21,7 @@ class DashboardController extends Controller
         $activeChild = $children->firstWhere('uuid', $request->string('child')->toString()) ?? $children->first();
 
         $recentNotices = SchoolNotice::where('school_id', $guardian->school_id)
+            ->forAudience(MemorandumAudience::Guardians)
             ->where(fn ($query) => $query->whereNull('class_name')->orWhere('class_name', $activeChild->class_name))
             ->latest()
             ->take(4)

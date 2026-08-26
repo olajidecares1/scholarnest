@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Enums\MemorandumAudience;
 use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\SchoolNotice;
@@ -16,6 +17,7 @@ class MessageController extends Controller
         $student = $request->user('student');
 
         $notices = SchoolNotice::where('school_id', $student->school_id)
+            ->forAudience(MemorandumAudience::Students)
             ->where(fn ($query) => $query->whereNull('class_name')->orWhere('class_name', $student->class_name))
             ->latest()
             ->paginate(10);
@@ -35,6 +37,11 @@ class MessageController extends Controller
 
         abort_unless($notice->school_id === $student->school_id, 403);
         abort_unless($notice->class_name === null || $notice->class_name === $student->class_name, 403);
+
+        // Addressed to students, or to everyone. A memorandum meant for the
+        // staff room is refused here as well as hidden from the list, because
+        // hiding it from a list is not a rule - the URL is guessable.
+        abort_unless(in_array(MemorandumAudience::Students, $notice->audience->groups(), true), 403);
 
         $notice->reads()->firstOrCreate(
             ['student_id' => $student->id],

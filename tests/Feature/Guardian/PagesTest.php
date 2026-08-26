@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\MemorandumAudience;
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
@@ -40,7 +41,12 @@ test('a guardian with no linked children is forbidden from the dashboard', funct
 });
 
 test('a guardian sees their child\'s dashboard with a module grid and recent notices', function () {
-    SchoolNotice::factory()->create(['school_id' => $this->school->id, 'title' => 'Term Begins', 'class_name' => null]);
+    SchoolNotice::factory()->create([
+        'school_id' => $this->school->id,
+        'title' => 'Term Begins',
+        'class_name' => null,
+        'audience' => MemorandumAudience::All,
+    ]);
 
     $this->actingAs($this->guardian, 'guardian')
         ->get(route('guardian.dashboard', $this->school))
@@ -127,9 +133,11 @@ test('a guardian cannot view a student who is not their child', function () {
 });
 
 test('a guardian sees notices for their child\'s class and school-wide notices', function () {
-    SchoolNotice::factory()->create(['school_id' => $this->school->id, 'title' => 'For Everyone', 'class_name' => null]);
-    SchoolNotice::factory()->create(['school_id' => $this->school->id, 'title' => 'For My Child\'s Class', 'class_name' => 'JSS 1']);
-    SchoolNotice::factory()->create(['school_id' => $this->school->id, 'title' => 'For Other Class', 'class_name' => 'JSS 2']);
+    $addressedToParents = ['school_id' => $this->school->id, 'audience' => MemorandumAudience::Guardians];
+
+    SchoolNotice::factory()->create([...$addressedToParents, 'title' => 'For Everyone', 'class_name' => null]);
+    SchoolNotice::factory()->create([...$addressedToParents, 'title' => 'For My Child\'s Class', 'class_name' => 'JSS 1']);
+    SchoolNotice::factory()->create([...$addressedToParents, 'title' => 'For Other Class', 'class_name' => 'JSS 2']);
 
     $this->actingAs($this->guardian, 'guardian')
         ->get(route('guardian.messages.index', $this->school))
@@ -137,6 +145,30 @@ test('a guardian sees notices for their child\'s class and school-wide notices',
         ->assertSee('For Everyone')
         ->assertSee('For My Child\'s Class')
         ->assertDontSee('For Other Class');
+});
+
+test('a memorandum addressed to the staff room does not reach a parent', function () {
+    // The audience column existed before anything read it, so every notice
+    // reached every portal regardless of who it was written for.
+    SchoolNotice::factory()->create([
+        'school_id' => $this->school->id,
+        'title' => 'Staff briefing Monday',
+        'class_name' => null,
+        'audience' => MemorandumAudience::Staff,
+    ]);
+
+    SchoolNotice::factory()->create([
+        'school_id' => $this->school->id,
+        'title' => 'Parents evening',
+        'class_name' => null,
+        'audience' => MemorandumAudience::Guardians,
+    ]);
+
+    $this->actingAs($this->guardian, 'guardian')
+        ->get(route('guardian.messages.index', $this->school))
+        ->assertStatus(200)
+        ->assertSee('Parents evening')
+        ->assertDontSee('Staff briefing Monday');
 });
 
 test('a guardian can view the settings page and update their contact details', function () {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Guardian;
 
+use App\Enums\MemorandumAudience;
 use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\SchoolNotice;
@@ -16,6 +17,7 @@ class MessageController extends Controller
         $classNames = $guardian->students->pluck('class_name')->filter()->unique();
 
         $notices = SchoolNotice::where('school_id', $guardian->school_id)
+            ->forAudience(MemorandumAudience::Guardians)
             ->where(fn ($query) => $query->whereNull('class_name')->orWhereIn('class_name', $classNames))
             ->latest()
             ->paginate(10);

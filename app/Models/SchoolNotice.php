@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\MemorandumAudience;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\SchoolNoticeFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,6 +38,24 @@ class SchoolNotice extends Model
         return [
             'audience' => MemorandumAudience::class,
         ];
+    }
+
+    /**
+     * Only the memoranda this audience is addressed in.
+     *
+     * A memorandum carries who it is for; until this existed nothing read that
+     * back, so a note to "Teachers & Staff" appeared in front of students and
+     * parents anyway - the write side of the feature without the read side.
+     *
+     * "Everyone" is stored as its own value rather than expanded when saved,
+     * so matching means matching either this audience or All.
+     *
+     * @param  Builder<SchoolNotice>  $query
+     * @return Builder<SchoolNotice>
+     */
+    public function scopeForAudience(Builder $query, MemorandumAudience $audience): Builder
+    {
+        return $query->whereIn('audience', [$audience->value, MemorandumAudience::All->value]);
     }
 
     /**
