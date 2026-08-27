@@ -9,40 +9,6 @@
     $canManageCbt = auth()->user()->hasPermission('manage_cbt');
     $cbtExamBodies = $canManageCbt ? \App\Models\CbtExamBody::orderBy('name')->get() : collect();
     $canManageResultPins = auth()->user()->hasPermission('manage_result_pins');
-
-    /*
-     * The one gated list of destinations, used by the desktop rail below and
-     * by the mobile page-nav further down.
-     *
-     * Hoisted here rather than copied: it already carries every permission
-     * check, and a second copy is how the rail and the page-nav come to
-     * disagree about what somebody may open.
-     */
-    $sidebarItems = collect([
-        ['route' => 'super-admin.dashboard', 'label' => 'Dashboard'],
-        ['route' => 'super-admin.schools.index', 'label' => 'Schools'],
-        ['route' => 'super-admin.subscriptions.index', 'label' => 'Subscriptions'],
-    ])
-        ->when($canManageCbt, fn ($collection) => $collection->push(['route' => 'super-admin.cbt.index', 'label' => 'CBT']))
-        ->when($canManageCbt, fn ($collection) => $collection->push(['route' => 'super-admin.cbt.uploads.index', 'label' => 'Upload CBT']))
-        ->when($canManageResultPins, fn ($collection) => $collection->push(['route' => 'super-admin.result-pins.index', 'label' => 'Result PINs']))
-        ->concat([
-            ['route' => 'super-admin.payments.index', 'label' => 'Payments'],
-            ['route' => 'super-admin.users.index', 'label' => 'Users'],
-            ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions'],
-            ['route' => 'super-admin.reports.index', 'label' => 'Reports'],
-            ['route' => 'super-admin.analytics.index', 'label' => 'Analytics'],
-            ['route' => 'super-admin.communications.index', 'label' => 'Communications'],
-            ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets'],
-            ['route' => 'super-admin.cms.index', 'label' => 'CMS'],
-            ['route' => 'super-admin.media.index', 'label' => 'Media'],
-            ['route' => 'super-admin.themes.index', 'label' => 'Themes'],
-            ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings'],
-            ['route' => 'super-admin.settings.index', 'label' => 'System Settings'],
-            ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs'],
-        ])
-        ->filter(fn ($item) => \Illuminate\Support\Facades\Route::has($item['route']))
-        ->values();
 @endphp
 
 <!DOCTYPE html>
@@ -83,12 +49,7 @@
         ></div>
 
         <aside
-            {{-- The mobile drawer, unchanged except that it is now mobile
-                 ONLY. It used to serve as the desktop sidebar too, by sliding
-                 into place at lg; the desktop rail below replaces that half.
-                 Everything about how it looks and behaves on a phone or a
-                 tablet is exactly as it was. --}}
-            class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col overflow-y-auto bg-primary-800 text-white shadow-xl transition-transform duration-200 lg:hidden"
+            class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full transform flex-col overflow-y-auto bg-primary-800 text-white shadow-xl transition-transform duration-200 lg:translate-x-0"
             :class="{ 'translate-x-0': sidebarOpen }"
         >
             <div class="flex items-center gap-2 px-5 py-5">
@@ -310,36 +271,7 @@
             <p class="px-5 pb-5 text-xs text-primary-100">&copy; {{ now()->year }} EduNest. All rights reserved.</p>
         </aside>
 
-        {{-- The desktop rail. White, icons above labels, and permission-gated
-             by exactly the same $sidebarItems the mobile page-nav reads - a
-             redesign must not become a second answer to "what may this person
-             open?". --}}
-        <aside class="fixed inset-y-0 left-0 z-40 hidden w-28 flex-col border-r border-gray-200 bg-white shadow-sm print:hidden lg:flex dark:border-gray-800 dark:bg-gray-900">
-            <div class="flex flex-col items-center gap-1.5 px-2 pb-2 pt-4">
-                <span class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-white p-1.5 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'EduNest') }}" class="h-full w-full object-contain">
-                </span>
-                <small class="block w-full break-words text-center text-[10px] font-bold leading-[1.3] text-gray-700 dark:text-gray-200">EduNest Team</small>
-            </div>
-
-            <nav class="edn-sidebar-scroll flex-1 space-y-0.5 overflow-y-auto px-2 pb-4">
-                @foreach ($sidebarItems as $item)
-                    @php
-                        $isActive = request()->routeIs(\Illuminate\Support\Str::of($item['route'])->beforeLast('.').'.*');
-                        $railClasses = 'group flex flex-col items-center justify-start gap-1.5 rounded-[10px] px-1 py-2.5 text-center transition-all duration-200 ease-out '
-                            .($isActive
-                                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300'
-                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white');
-                    @endphp
-                    <a href="{{ route($item['route']) }}" class="{{ $railClasses }}">
-                        <i class="{{ \App\Support\SidebarIcons::for($item['route']) }} text-[17px] leading-none text-primary-600 transition-transform duration-200 group-hover:scale-110 dark:text-primary-400"></i>
-                        <small class="block w-full break-words text-[10px] font-semibold leading-[1.3]">{{ $item['label'] }}</small>
-                    </a>
-                @endforeach
-            </nav>
-        </aside>
-
-        <div class="lg:pl-28">
+        <div class="lg:pl-64">
             @php
                 $notifications = auth()->user()->notifications()->latest()->take(8)->get();
                 $unreadCount = auth()->user()->unreadNotifications()->count();
@@ -569,7 +501,32 @@
             </header>
 
             @php
-                $pageNavItems = $sidebarItems->map(fn ($item) => [...$item, 'url' => route($item['route'])])->all();
+                $pageNavItems = collect([
+                    ['route' => 'super-admin.dashboard', 'label' => 'Dashboard'],
+                    ['route' => 'super-admin.schools.index', 'label' => 'Schools'],
+                    ['route' => 'super-admin.subscriptions.index', 'label' => 'Subscriptions'],
+                ])
+                    ->when($canManageCbt, fn ($collection) => $collection->push(['route' => 'super-admin.cbt.index', 'label' => 'CBT']))
+                    ->when($canManageResultPins, fn ($collection) => $collection->push(['route' => 'super-admin.result-pins.index', 'label' => 'Result PINs']))
+                    ->concat([
+                        ['route' => 'super-admin.payments.index', 'label' => 'Payments'],
+                        ['route' => 'super-admin.users.index', 'label' => 'Users'],
+                        ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions'],
+                        ['route' => 'super-admin.reports.index', 'label' => 'Reports'],
+                        ['route' => 'super-admin.analytics.index', 'label' => 'Analytics'],
+                        ['route' => 'super-admin.communications.index', 'label' => 'Communications'],
+                        ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets'],
+                        ['route' => 'super-admin.cms.index', 'label' => 'CMS'],
+                        ['route' => 'super-admin.media.index', 'label' => 'Media'],
+                        ['route' => 'super-admin.themes.index', 'label' => 'Themes'],
+                        ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings'],
+                        ['route' => 'super-admin.settings.index', 'label' => 'System Settings'],
+                        ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs'],
+                    ])
+                    ->filter(fn ($item) => \Illuminate\Support\Facades\Route::has($item['route']))
+                    ->map(fn ($item) => [...$item, 'url' => route($item['route'])])
+                    ->values()
+                    ->all();
                 $pageNav = \App\Support\PageNavigator::resolve($pageNavItems, request()->route()?->getName());
             @endphp
             <x-mobile-page-nav :prev="$pageNav['prev']" :next="$pageNav['next']" :current-label="$pageNav['current']" />
