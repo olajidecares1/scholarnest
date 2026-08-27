@@ -6,61 +6,90 @@
             <h2 class="text-lg font-bold text-gray-900">Select Payment Method</h2>
             <p class="mt-1 text-sm text-gray-600">Choose your preferred payment method to complete the subscription.</p>
 
-            <form method="POST" action="{{ route('subscriptions.payment-method.store') }}" enctype="multipart/form-data" class="mt-6 space-y-2" x-data="{ method: 'bank_transfer' }">
+            @if ($paymentMethods->isEmpty())
+                {{-- Not an empty list of radios above a button that cannot
+                     succeed. The EduNest Team has turned everything off, and
+                     the honest thing is to say so and offer the way back. --}}
+                <div class="mt-6 rounded-[10px] border border-amber-200 bg-amber-50 p-6 text-center">
+                    <p class="text-sm font-bold text-amber-900">No payment methods are available right now</p>
+                    <p class="mx-auto mt-1.5 max-w-md text-[12.5px] leading-[1.7] text-amber-800">
+                        The EduNest Team has not enabled any way to pay at the moment. Your plan choice has been
+                        saved &mdash; please try again shortly, or contact the EduNest Team.
+                    </p>
+
+                    <a
+                        href="{{ route('subscriptions.billing-details') }}"
+                        class="mt-4 inline-flex h-[38px] items-center justify-center gap-2 rounded-[8px] border border-amber-300 bg-white px-4 text-[13px] font-bold text-amber-800 transition hover:bg-amber-100"
+                    >
+                        &larr; Back
+                    </a>
+                </div>
+            @else
+            <form method="POST" action="{{ route('subscriptions.payment-method.store') }}" enctype="multipart/form-data" class="mt-6 space-y-2" x-data="{ method: '{{ $paymentMethods->first()->key }}' }">
                 @csrf
 
+                {{-- Every option comes from the payment_methods table. A method
+                     the EduNest Team disables is not here AND is refused by
+                     PaymentMethodRequest, which is the half that matters. --}}
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <label class="flex cursor-pointer items-start gap-3 rounded-[8px] border-2 border-primary-500 bg-primary-50 p-4">
-                        <input type="radio" name="payment_method" value="bank_transfer" x-model="method" class="mt-1">
-                        <span>
-                            <span class="flex items-center gap-2 text-sm font-semibold text-gray-900">
-                                <svg class="h-5 w-5 text-primary-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 10l9-6 9 6M4 10v9h16v-9M9 19v-6h6v6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                                </svg>
-                                Bank Transfer
+                    @foreach ($paymentMethods as $paymentMethod)
+                        <label
+                            class="flex cursor-pointer items-start gap-3 rounded-[8px] border-2 p-4 transition"
+                            :class="method === '{{ $paymentMethod->key }}' ? 'border-primary-500 bg-primary-50' : 'border-gray-200 bg-white'"
+                        >
+                            <input type="radio" name="payment_method" value="{{ $paymentMethod->key }}" x-model="method" class="mt-1">
+                            <span>
+                                <span class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                                    <svg class="h-5 w-5 text-primary-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 10l9-6 9 6M4 10v9h16v-9M9 19v-6h6v6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                    </svg>
+                                    {{ $paymentMethod->label }}
+                                </span>
+                                @if ($paymentMethod->description)
+                                    <span class="mt-1 block text-xs text-gray-500">{{ $paymentMethod->description }}</span>
+                                @endif
                             </span>
-                            <span class="mt-1 block text-xs text-gray-500">Pay via bank transfer</span>
-                        </span>
-                    </label>
+                        </label>
+                    @endforeach
+                </div>
 
-                    <label class="flex cursor-not-allowed items-start gap-3 rounded-[8px] border border-gray-200 bg-gray-50 p-4 opacity-60">
-                        <input type="radio" disabled class="mt-1">
-                        <span>
-                            <span class="flex items-center gap-2 text-sm font-semibold text-gray-500">
-                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5" />
-                                    <path d="M3 10h18" stroke="currentColor" stroke-width="1.5" />
+                <x-input-error :messages="$errors->get('payment_method')" class="mt-2" />
+
+                @foreach ($paymentMethods as $paymentMethod)
+                    <div x-show="method === '{{ $paymentMethod->key }}'" x-cloak class="space-y-4">
+                        @if ($paymentMethod->instructions)
+                            <div class="flex items-start gap-2 rounded-[5px] bg-primary-50 p-3 text-xs leading-[1.6] text-primary-700 lg:rounded-[10px]">
+                                <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
+                                    <path d="M12 8v.01M12 11v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                                 </svg>
-                                Paystack (Card, USSD, Transfer)
-                                <span class="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-semibold uppercase text-gray-500">Soon</span>
-                            </span>
-                            <span class="mt-1 block text-xs text-gray-500">Pay instantly online</span>
-                        </span>
-                    </label>
-                </div>
+                                {{ $paymentMethod->instructions }}
+                            </div>
+                        @endif
 
-                <div class="flex items-start gap-2 rounded-[5px] bg-primary-50 p-3 text-xs text-primary-700 lg:rounded-[10px]">
-                    <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
-                        <path d="M12 8v.01M12 11v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                    </svg>
-                    After making payment via bank transfer, please upload your payment receipt below for verification.
-                </div>
+                        @if ($paymentMethod->bankFields())
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-900">{{ $paymentMethod->label }} Details</h3>
 
-                <div>
-                    <h3 class="text-sm font-bold text-gray-900">Bank Transfer Details</h3>
-                    <p class="mt-0.5 text-xs text-gray-500">Make payment to the account below. Your subscription will be activated after verification.</p>
+                                <dl class="mt-3 space-y-2 rounded-[5px] bg-gray-50 p-4 text-sm lg:rounded-[10px]">
+                                    @foreach ($paymentMethod->bankFields() as $fieldLabel => $fieldValue)
+                                        <div class="flex justify-between gap-4">
+                                            <dt class="text-gray-500">{{ $fieldLabel }}</dt>
+                                            <dd class="text-right font-semibold text-gray-900">{{ $fieldValue }}</dd>
+                                        </div>
+                                    @endforeach
 
-                    <dl class="mt-3 space-y-2 rounded-[5px] bg-gray-50 p-4 text-sm lg:rounded-[10px]">
-                        <div class="flex justify-between"><dt class="text-gray-500">Bank Name</dt><dd class="font-semibold text-gray-900">GTBank</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">Account Name</dt><dd class="font-semibold text-gray-900">EduNest Technologies Ltd</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">Account Number</dt><dd class="font-semibold text-gray-900">0123456789</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">Sort Code</dt><dd class="font-semibold text-gray-900">058152052</dd></div>
-                        <div class="flex justify-between border-t border-gray-200 pt-2"><dt class="text-gray-500">Reference</dt><dd class="font-bold text-primary-600">{{ $reference }}</dd></div>
-                    </dl>
-                    <p class="mt-2 text-xs text-gray-500">Use the reference code above when making payment.</p>
-                </div>
+                                    <div class="flex justify-between gap-4 border-t border-gray-200 pt-2">
+                                        <dt class="text-gray-500">Reference</dt>
+                                        <dd class="font-bold text-primary-600">{{ $reference }}</dd>
+                                    </div>
+                                </dl>
 
+                                <p class="mt-2 text-xs text-gray-500">Use the reference code above when making payment.</p>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
                 <div>
                     <h3 class="text-sm font-bold text-gray-900">Upload Payment Receipt</h3>
                     <p class="mt-0.5 text-xs text-gray-500">Upload your bank transfer receipt or screenshot as proof of payment.</p>
@@ -106,6 +135,7 @@
                     </button>
                 </div>
             </form>
+            @endif
         </x-auth-card>
     </div>
 </x-dashboard-layout>

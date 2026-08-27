@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Subscriptions;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Subscriptions\PaymentMethodRequest;
 use App\Models\Plan;
+use App\Services\AvailablePaymentMethods;
 use App\Services\PaymentReceiptScreening;
 use App\Services\ReceiptUploadService;
 use App\Services\SubscriptionWizardService;
@@ -17,6 +18,7 @@ class PaymentMethodController extends Controller
         private readonly SubscriptionWizardService $wizard,
         private readonly ReceiptUploadService $receiptUploader,
         private readonly PaymentReceiptScreening $screening,
+        private readonly AvailablePaymentMethods $available,
     ) {}
 
     public function create(): View|RedirectResponse
@@ -30,6 +32,11 @@ class PaymentMethodController extends Controller
         return view('subscriptions.payment-method', [
             'plan' => Plan::findOrFail($this->wizard->get('plan_id')),
             'reference' => $this->wizard->reference($school),
+
+            // Whatever the EduNest Team has enabled, with the details they
+            // entered. Nothing about how to pay is written into the template
+            // any more - see App\Services\AvailablePaymentMethods.
+            'paymentMethods' => $this->available->all(),
         ]);
     }
 

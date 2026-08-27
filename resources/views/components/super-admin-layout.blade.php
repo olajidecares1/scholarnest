@@ -239,6 +239,7 @@
                     ['route' => 'super-admin.cms.index', 'label' => 'CMS', 'icon' => 'M4.5 6a1.5 1.5 0 011.5-1.5h6l2 2h5.5A1.5 1.5 0 0121 8v9.5A1.5 1.5 0 0119.5 19h-15A1.5 1.5 0 013 17.5v-11z', 'extra' => ''],
                     ['route' => 'super-admin.media.index', 'label' => 'Media', 'icon' => 'M4 5.5h16a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1v-11a1 1 0 011-1z', 'extra' => '<circle cx="8.5" cy="10" r="1.5" stroke="currentColor" stroke-width="1.5" /><path d="M3 15.5l5-4.5 4 3.5 3-2.5 6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'super-admin.themes.index', 'label' => 'Themes', 'icon' => 'M12 3a9 9 0 109 9', 'extra' => '<circle cx="7.8" cy="10.5" r="1.1" fill="currentColor" /><circle cx="10.5" cy="6.8" r="1.1" fill="currentColor" /><circle cx="15.2" cy="7.3" r="1.1" fill="currentColor" /><circle cx="17.2" cy="12.5" r="1.1" fill="currentColor" />'],
+                    ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings', 'icon' => 'M3 8.5h18M4 5.5h16a1 1 0 011 1V18a1 1 0 01-1 1H4a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M7 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                     ['route' => 'super-admin.settings.index', 'label' => 'System Settings', 'icon' => 'M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z', 'extra' => '<circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" />'],
                     ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs', 'icon' => 'M7 3.5h7l4 4v13a.5.5 0 01-.5.5h-11a.5.5 0 01-.5-.5v-16a.5.5 0 01.5-.5z', 'extra' => '<path d="M14 3.5V7.5h4M9 12.5h6M9 15.5h6M9 9.5h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                 ] as $item)
@@ -518,6 +519,7 @@
                         ['route' => 'super-admin.cms.index', 'label' => 'CMS'],
                         ['route' => 'super-admin.media.index', 'label' => 'Media'],
                         ['route' => 'super-admin.themes.index', 'label' => 'Themes'],
+                        ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings'],
                         ['route' => 'super-admin.settings.index', 'label' => 'System Settings'],
                         ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs'],
                     ])

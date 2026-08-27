@@ -13,6 +13,7 @@ use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardCo
 use App\Http\Controllers\SuperAdmin\MediaController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
 use App\Http\Controllers\SuperAdmin\PaymentReceiptController;
+use App\Http\Controllers\SuperAdmin\PaymentSettingsController;
 use App\Http\Controllers\SuperAdmin\PlanPricingController;
 use App\Http\Controllers\SuperAdmin\ReportController as SuperAdminReportController;
 use App\Http\Controllers\SuperAdmin\ResultPinController;
@@ -220,6 +221,18 @@ Route::name('media.')->middleware('permission:manage_media')->group(function () 
 
 Route::get(R::uri('super-admin.settings.index'), [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
 Route::put(R::uri('super-admin.settings.index'), [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage_settings');
+
+/*
+ * Payment settings: how schools may pay, and what they pay into.
+ *
+ * Behind the same manage_settings permission as the rest of the
+ * platform's configuration - this decides where money is sent.
+ */
+Route::middleware('permission:manage_settings')->name('payment-settings.')->group(function () {
+    Route::get(R::uri('super-admin.payment-settings.index'), [PaymentSettingsController::class, 'index'])->name('index');
+    Route::put(R::uri('super-admin.payment-settings.update').'/{method}', [PaymentSettingsController::class, 'update'])->name('update');
+    Route::post(R::uri('super-admin.payment-settings.toggle').'/{method}/toggle', [PaymentSettingsController::class, 'toggle'])->name('toggle');
+});
 
 // Plan pricing, including the Basic plan's per-student price - the
 // figure the whole student-licence system multiplies by. Kept out of

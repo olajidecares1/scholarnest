@@ -2,14 +2,13 @@
 
 namespace App\Http\Requests\Subscriptions;
 
+use App\Services\AvailablePaymentMethods;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PaymentMethodRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
@@ -22,10 +21,27 @@ class PaymentMethodRequest extends FormRequest
      */
     public function rules(): array
     {
+        $available = app(AvailablePaymentMethods::class);
+
         return [
-            // Only bank_transfer is accepted for now; Paystack is not yet integrated.
-            'payment_method' => ['required', 'string', 'in:bank_transfer'],
+            // The list comes from what the EduNest Team has enabled, not from
+            // a hard-coded "in:bank_transfer". A method turned off must be
+            // refused HERE - the brief is explicit that hiding the radio while
+            // leaving the endpoint open is not the same thing, and it is not:
+            // the form is a suggestion and this is the rule.
+            'payment_method' => ['required', 'string', Rule::in($available->keys())],
+
             'receipt' => ['required', 'file', 'mimes:png,jpg,jpeg,pdf', 'max:5120'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'payment_method.in' => 'That payment method is not currently available. Please choose one of the options shown.',
         ];
     }
 }
