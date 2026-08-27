@@ -97,83 +97,157 @@
             <x-student-capacity-card :capacity="$capacity" class="mb-6" />
         @endif
 
-        <div class="grid grid-cols-4 gap-2.5 sm:grid-cols-5 sm:gap-3 md:grid-cols-6 lg:grid-cols-4 lg:gap-4 xl:grid-cols-5">
-            <x-module-card :href="route('overview.index')" label="Overview" icon="fa-chart-line" color="text-primary-600 bg-primary-50 dark:bg-primary-900/20" />
-            <x-module-card :href="route('reports.summary')" label="Reports" icon="fa-chart-pie" color="text-slate-600 bg-slate-100 dark:bg-slate-700" />
+        {{-- A dashboard, not a second menu.
 
-            <x-module-card :href="route('students.index')" label="Students" icon="fa-user-graduate" color="text-purple-600 bg-purple-50 dark:bg-purple-900/20" :badge="number_format($moduleCounts['students'])" />
-            <x-module-card :href="route('staff.index')" label="Teachers & Staff" icon="fa-chalkboard-user" color="text-blue-600 bg-blue-50 dark:bg-blue-900/20" :badge="number_format($moduleCounts['staff'])" />
-            @if (\Illuminate\Support\Facades\Route::has('academics.index'))
-                <x-module-card :href="route('academics.index')" label="Academics" icon="fa-book-open-reader" color="text-teal-600 bg-teal-50 dark:bg-teal-900/20" />
-            @endif
-            <x-module-card :href="route('attendance.index')" label="Attendance" icon="fa-clipboard-check" color="text-green-600 bg-green-50 dark:bg-green-900/20" :badge="$moduleCounts['attendanceToday'] > 0 ? $moduleCounts['attendanceToday'].'%' : null" />
-            @if ($school->canAccessRoute('timetable.index'))
-                <x-module-card :href="route('timetable.index')" label="Timetable" icon="fa-calendar-days" color="text-cyan-600 bg-cyan-50 dark:bg-cyan-900/20" />
-            @endif
-            <x-module-card :href="route('examinations.index')" label="Examinations" icon="fa-file-pen" color="text-amber-600 bg-amber-50 dark:bg-amber-900/20" />
-            {{-- Every plan. A Standard school still has students whose results
-                 are withheld over fees, and still needs a way to hand one of
-                 them a link. --}}
-            <x-module-card :href="route('result-pins.index')" label="Exam Tokens" icon="fa-key" color="text-teal-600 bg-teal-50 dark:bg-teal-900/20" />
-            @if ($school->canAccessRoute('assignments.index'))
-                <x-module-card :href="route('assignments.index')" label="Assignments" icon="fa-list-check" color="text-rose-600 bg-rose-50 dark:bg-rose-900/20" />
-            @endif
-            @if ($school->canAccessRoute('cbt-practice.index'))
-                <x-module-card :href="route('cbt-practice.index')" label="CBT Practice" icon="fa-laptop-code" color="text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20" />
-            @endif
-            @if (\Illuminate\Support\Facades\Route::has('cbt-tests.index'))
-                @if ($school->canAccessRoute('cbt-tests.index'))
-                    <x-module-card :href="route('cbt-tests.index')" label="CBT Tests" icon="fa-file-circle-check" color="text-violet-600 bg-violet-50 dark:bg-violet-900/20" />
+             This was twenty-five cards linking to the same places as the
+             sidebar. It told a head teacher nothing they could act on. What
+             follows is what the school actually looks like this morning: how
+             many pupils and staff, whether the registers were taken, how far
+             the term's marks have got, and what is waiting on them.
+
+             Every figure is read from the database - see
+             App\Services\SchoolDashboardMetrics. --}}
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+            @foreach ([
+                'students' => ['Pupils', 'fa-user-graduate'],
+                'staff' => ['Teachers & Staff', 'fa-chalkboard-user'],
+                'guardians' => ['Parents', 'fa-users'],
+                'classes' => ['Active Classes', 'fa-layer-group'],
+            ] as $key => [$label, $icon])
+                <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <small class="block truncate text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $label }}</small>
+                            <p class="mt-1 text-2xl font-bold leading-none text-gray-900 dark:text-white">{{ number_format($headline[$key]['value']) }}</p>
+                        </div>
+                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-primary-50 dark:bg-primary-900/30">
+                            <i class="fa-solid {{ $icon }} text-primary-600 dark:text-primary-300"></i>
+                        </span>
+                    </div>
+                    <small class="mt-2 block text-[11px] leading-tight text-gray-400 dark:text-gray-500">{{ $headline[$key]['caption'] }}</small>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="flex items-center justify-between gap-3">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Attendance today</h3>
+                    <i class="fa-solid fa-calendar-check text-primary-600 dark:text-primary-300"></i>
+                </div>
+
+                @if ($attendanceSummary['percent'] === null)
+                    <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">No register has been taken today.</p>
+                @else
+                    <p class="mt-3 text-3xl font-bold leading-none text-gray-900 dark:text-white">{{ $attendanceSummary['percent'] }}%</p>
+                    <small class="mt-1 block text-[12px] text-gray-500 dark:text-gray-400">
+                        {{ number_format($attendanceSummary['present']) }} present, {{ number_format($attendanceSummary['absent']) }} absent
+                    </small>
                 @endif
-            @endif
-            @if ($school->canAccessRoute('events.index'))
-                <x-module-card :href="route('events.index')" label="Events" icon="fa-calendar-days" color="text-orange-600 bg-orange-50 dark:bg-orange-900/20" />
-            @endif
-            @if ($school->canAccessRoute('diary.index'))
-                <x-module-card :href="route('diary.index')" label="Teacher Diary" icon="fa-folder" color="text-amber-600 bg-amber-50 dark:bg-amber-900/20" />
-            @endif
-            <x-module-card :href="route('communications.index')" label="Communication" icon="fa-bullhorn" color="text-sky-600 bg-sky-50 dark:bg-sky-900/20" />
-            @if (\Illuminate\Support\Facades\Route::has('notices.index'))
-                <x-module-card :href="route('notices.index')" label="Memorandums" icon="fa-bell" color="text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20" />
-            @endif
-            @if (\Illuminate\Support\Facades\Route::has('co-curricular.index'))
-                @if ($school->canAccessRoute('co-curricular.index'))
-                    <x-module-card :href="route('co-curricular.index')" label="Co-curricular" icon="fa-medal" color="text-fuchsia-600 bg-fuchsia-50 dark:bg-fuchsia-900/20" />
+
+                <small class="mt-3 block text-[11.5px] text-gray-500 dark:text-gray-400">
+                    {{ $attendanceSummary['classesMarked'] }} of {{ $attendanceSummary['classesTotal'] }} classes marked
+                </small>
+
+                {{-- The week behind today, so one bad morning reads as a bad
+                     morning rather than as a trend. --}}
+                <div class="mt-4 flex items-end gap-1.5">
+                    @foreach ($attendanceSummary['week'] as $day)
+                        <div class="flex flex-1 flex-col items-center gap-1">
+                            <div class="flex h-16 w-full items-end rounded-[4px] bg-gray-100 dark:bg-gray-700">
+                                @if ($day['percent'] !== null)
+                                    <div class="w-full rounded-[4px] bg-primary-500" style="height: {{ max($day['percent'], 4) }}%"></div>
+                                @endif
+                            </div>
+                            <small class="text-[10px] text-gray-400 dark:text-gray-500">{{ $day['day'] }}</small>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="flex items-center justify-between gap-3">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Results this session</h3>
+                    <i class="fa-solid fa-square-poll-vertical text-primary-600 dark:text-primary-300"></i>
+                </div>
+
+                @if ($resultsSummary['examinations'] === 0)
+                    <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">No examinations recorded for {{ $school->currentSession() }} yet.</p>
+                @else
+                    <dl class="mt-3 space-y-2.5 text-sm">
+                        <div class="flex items-center justify-between gap-3">
+                            <dt class="text-gray-500 dark:text-gray-400">Marks entered</dt>
+                            <dd class="font-bold text-gray-900 dark:text-white">{{ number_format($resultsSummary['entered']) }} / {{ number_format($resultsSummary['expected']) }}</dd>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <dt class="text-gray-500 dark:text-gray-400">Still outstanding</dt>
+                            <dd class="font-bold {{ $resultsSummary['outstanding'] > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400' }}">
+                                {{ number_format($resultsSummary['outstanding']) }}
+                            </dd>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <dt class="text-gray-500 dark:text-gray-400">Published to parents</dt>
+                            <dd class="font-bold text-gray-900 dark:text-white">{{ number_format($resultsSummary['published']) }}</dd>
+                        </div>
+                    </dl>
+
+                    @if ($resultsSummary['expected'] > 0)
+                        <div class="mt-4 h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+                            <div class="h-full rounded-full bg-primary-500" style="width: {{ min(100, (int) round($resultsSummary['entered'] / max($resultsSummary['expected'], 1) * 100)) }}%"></div>
+                        </div>
+                    @endif
                 @endif
-            @endif
-            @if ($school->canAccessRoute('library.index'))
-                <x-module-card :href="route('library.index')" label="Library" icon="fa-book" color="text-lime-600 bg-lime-50 dark:bg-lime-900/20" />
-            @endif
-            @if ($school->canAccessRoute('transport.index'))
-                <x-module-card :href="route('transport.index')" label="Transport" icon="fa-bus" color="text-violet-600 bg-violet-50 dark:bg-violet-900/20" />
-            @endif
-            @if ($school->canAccessRoute('hostels.index'))
-                <x-module-card :href="route('hostels.index')" label="Hostel" icon="fa-building" color="text-orange-700 bg-orange-50 dark:bg-orange-900/20" />
-            @endif
-            @if ($school->canAccessRoute('finance.index'))
-                <x-module-card :href="route('finance.index')" label="Finance" icon="fa-sack-dollar" color="text-red-600 bg-red-50 dark:bg-red-900/20" :badge="$moduleCounts['outstandingFees'] !== '₦0' ? $moduleCounts['outstandingFees'] : null" />
-            @endif
-            @if ($school->canAccessRoute('website.index'))
-                <x-module-card :href="route('website.index')" label="Website" icon="fa-globe" color="text-blue-600 bg-blue-50 dark:bg-blue-900/20" />
-            @endif
-            @if ($school->canAccessRoute('news.index'))
-                <x-module-card :href="route('news.index')" label="News" icon="fa-newspaper" color="text-pink-600 bg-pink-50 dark:bg-pink-900/20" />
-            @endif
-            @if ($school->canAccessRoute('careers.index'))
-                <x-module-card :href="route('careers.index')" label="Careers" icon="fa-briefcase" color="text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" />
-            @endif
-            @if ($school->canAccessRoute('testimonials.index'))
-                <x-module-card :href="route('testimonials.index')" label="Testimonials" icon="fa-quote-left" color="text-teal-600 bg-teal-50 dark:bg-teal-900/20" />
-            @endif
-            @if ($school->canAccessRoute('facilities.index'))
-                <x-module-card :href="route('facilities.index')" label="Facilities" icon="fa-building-columns" color="text-cyan-600 bg-cyan-50 dark:bg-cyan-900/20" />
-            @endif
-            @if (\Illuminate\Support\Facades\Route::has('id-cards.index'))
-                @if ($school->canAccessRoute('id-cards.index'))
-                    <x-module-card :href="route('id-cards.index')" label="ID Cards" icon="fa-id-card" color="text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20" />
-                @endif
-            @endif
-            <x-module-card :href="route('settings.index')" label="Settings" icon="fa-gear" color="text-gray-600 bg-gray-100 dark:bg-gray-700" />
+            </div>
+
+            <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="flex items-center justify-between gap-3">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Waiting on you</h3>
+                    <i class="fa-solid fa-bell text-primary-600 dark:text-primary-300"></i>
+                </div>
+
+                @forelse ($pendingActions as $action)
+                    <div class="mt-3 flex items-center justify-between gap-3 rounded-[8px] bg-gray-50 px-3 py-2.5 dark:bg-gray-900/40">
+                        <small class="text-[12.5px] font-medium text-gray-700 dark:text-gray-200">
+                            @if ($action['url'])
+                                <a href="{{ $action['url'] }}" class="hover:text-primary-600 hover:underline dark:hover:text-primary-300">{{ $action['label'] }}</a>
+                            @else
+                                {{ $action['label'] }}
+                            @endif
+                        </small>
+                        <span class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                            {{ number_format($action['count']) }}
+                        </span>
+                    </div>
+                @empty
+                    <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Nothing needs your attention.</p>
+                @endforelse
+
+                <small class="mt-4 block border-t border-gray-100 pt-3 text-[11.5px] text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                    <i class="fa-solid fa-calendar-days mr-1 text-gray-400"></i>
+                    Session {{ $school->current_session ?? 'not set' }}
+                </small>
+            </div>
+        </div>
+
+        <div class="mt-6 rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Recent activity</h3>
+                <i class="fa-solid fa-clock-rotate-left text-primary-600 dark:text-primary-300"></i>
+            </div>
+
+            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                @forelse ($recentActivity as $entry)
+                    <div class="flex items-start justify-between gap-4 px-5 py-3">
+                        <div class="min-w-0">
+                            <small class="block truncate text-[12.5px] font-medium text-gray-800 dark:text-gray-200">{{ $entry->description }}</small>
+                            <small class="mt-0.5 block text-[11px] text-gray-400 dark:text-gray-500">{{ $entry->user_name ?: 'System' }}</small>
+                        </div>
+                        <small class="shrink-0 text-[11px] text-gray-400 dark:text-gray-500">{{ $entry->created_at?->diffForHumans() }}</small>
+                    </div>
+                @empty
+                    <p class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Nothing has happened yet.</p>
+                @endforelse
+            </div>
         </div>
     @endif
 </x-dashboard-layout>

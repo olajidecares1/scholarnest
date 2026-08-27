@@ -35,7 +35,6 @@
              without this stylesheet they render as blank space. Every other
              auth screen inherits it from the shared layout; this page is
              standalone and has to load it itself. --}}
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>{!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}</style>

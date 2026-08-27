@@ -23,7 +23,11 @@ test('a school admin without a subscription sees the choose-a-plan prompt', func
         ->assertSee(route('subscriptions.choose-plan'), false);
 });
 
-test('a school admin with an active subscription sees the module grid dashboard', function () {
+test('a school admin with an active subscription sees a dashboard, not a second menu', function () {
+    // This used to assert a grid of twenty-five cards linking to the same
+    // places as the sidebar. That grid was the problem: a dashboard should say
+    // what the school looks like this morning, and navigation already has a
+    // home. The cards are gone and these are the sections that replaced them.
     Subscription::factory()->create([
         'school_id' => $this->school->id,
         'status' => SubscriptionStatus::Active,
@@ -33,11 +37,11 @@ test('a school admin with an active subscription sees the module grid dashboard'
     $this->actingAs($this->admin)
         ->get(route('dashboard'))
         ->assertStatus(200)
-        ->assertSee('Students')
-        ->assertSee('Teachers & Staff')
-        ->assertSee('Overview')
-        ->assertSee('Reports')
-        ->assertSee($this->school->name);
+        ->assertSee($this->school->name)
+        ->assertSee('Attendance today')
+        ->assertSee('Results this session')
+        ->assertSee('Waiting on you')
+        ->assertSee('Recent activity');
 });
 
 test('a school admin with an active subscription sees the full analytics overview', function () {

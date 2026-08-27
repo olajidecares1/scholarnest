@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
+/* Font Awesome, bundled rather than fetched from a CDN.
+ *
+ * It used to be a <link> to cdnjs in each layout, which meant two things: the
+ * icons vanished on any network that could not reach cdnjs, and the EduNest
+ * Team's layout - which never had that link - rendered no icons at all. Every
+ * page loads this stylesheet, so importing it here is what makes "the icons
+ * are loaded" true everywhere instead of true in four templates out of five. */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

@@ -32,7 +32,6 @@
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
         <script>
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -41,7 +40,14 @@
         </script>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <style>{!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}</style>
+        {{-- The platform palette first, then this school's own brand colour
+             over it. The sidebar icons read --color-primary, so School A
+             gets School A's colour and a school that has set none falls
+             back to the platform's rather than losing its icons. --}}
+        <style>
+            {!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}
+            {!! $school?->website?->brand_primary_color ? \App\Support\BrandColorScale::cssVariables('primary', $school->website->brand_primary_color) : '' !!}
+        </style>
         <style>
             .edn-sidebar-scroll {
                 scrollbar-width: thin;
@@ -63,12 +69,12 @@
         </style>
     </head>
     <body class="bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
-        <aside class="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-[#111a35] text-white shadow-xl print:hidden lg:flex">
+        <aside class="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-gray-200 bg-white shadow-sm print:hidden lg:flex dark:border-gray-800 dark:bg-gray-900">
             <div class="edn-sidebar-scroll flex-1 overflow-y-auto">
-            <div class="mx-3 mb-3 mt-4 rounded-[8px] bg-white/10 p-3">
+            <div class="mx-3 mb-3 mt-4 rounded-[8px] bg-gray-100 dark:bg-gray-800 p-3">
                 <div class="flex items-center gap-2.5">
-                    <span class="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-500">
-                        <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
+                    <span class="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 dark:bg-primary-900/40">
+                        <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-900 dark:text-gray-100">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
                         @if ($school->logoUrl())
                             <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="relative h-full w-full rounded-full bg-white object-cover" onerror="this.style.display='none'">
                         @else
@@ -77,7 +83,7 @@
                     </span>
                     <div class="min-w-0 flex-1">
                         <p class="truncate text-sm font-bold leading-tight">{{ $school->name }}</p>
-                        <a href="{{ route('settings.index') }}" class="mt-0.5 flex items-center gap-1 text-xs font-medium text-slate-300 transition-colors duration-200 hover:text-white">
+                        <a href="{{ route('settings.index') }}" class="mt-0.5 flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-gray-400 transition-colors duration-200 hover:text-gray-900 dark:text-gray-100">
                             <span class="truncate">Session: {{ $school->current_session ?? 'Not set' }}</span>
                             <svg class="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                         </a>
@@ -87,10 +93,10 @@
 
             <nav class="space-y-1 px-3 pb-4">
                 @php
-                    $navLinkClasses = fn (bool $isActive) => 'group flex min-h-[42px] items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-all duration-300 ease-out active:scale-[0.97] '
+                    $navLinkClasses = fn (bool $isActive) => 'group relative flex items-start gap-3 rounded-[10px] px-3 py-2.5 text-left transition-all duration-200 ease-out '
                         .($isActive
-                            ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                            : 'text-slate-300 hover:translate-x-1 hover:bg-white/5 hover:text-white');
+                            ? 'bg-primary-50 text-primary-800 shadow-sm ring-1 ring-primary-200 dark:bg-primary-900/40 dark:text-primary-100 dark:ring-primary-700'
+                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-900 dark:text-gray-100');
                     $navIconClasses = 'h-5 w-5 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110';
                 @endphp
 
@@ -106,11 +112,11 @@
                     @continue(! $school->canAccessRoute($item['route']))
                     @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
                     <a href="{{ route($item['route']) }}" class="{{ $navLinkClasses($isActive) }}">
-                        <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            {!! $item['extra'] ?? '' !!}
-                            <path d="{{ $item['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        {{ $item['label'] }}
+                        <i class="{{ \App\Support\SidebarMeta::icon($item['route']) }} fa-fw text-[18px] leading-none text-primary-600 transition-transform duration-200 group-hover:scale-110 dark:text-primary-300"></i>
+                        <span class="min-w-0 flex-1">
+                            <h4 class="truncate text-[13px] font-semibold leading-tight">{{ $item['label'] }}</h4>
+                            <small class="mt-0.5 block truncate text-[11px] font-normal leading-tight text-gray-500 dark:text-gray-400">{{ \App\Support\SidebarMeta::description($item['route']) }}</small>
+                        </span>
                     </a>
                 @endforeach
 
@@ -145,26 +151,26 @@
                     @continue(! $school->canAccessRoute($item['route']))
                     @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
                     <a href="{{ route($item['route']) }}" class="{{ $navLinkClasses($isActive) }}">
-                        <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            {!! $item['extra'] ?? '' !!}
-                            <path d="{{ $item['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        {{ $item['label'] }}
+                        <i class="{{ \App\Support\SidebarMeta::icon($item['route']) }} fa-fw text-[18px] leading-none text-primary-600 transition-transform duration-200 group-hover:scale-110 dark:text-primary-300"></i>
+                        <span class="min-w-0 flex-1">
+                            <h4 class="truncate text-[13px] font-semibold leading-tight">{{ $item['label'] }}</h4>
+                            <small class="mt-0.5 block truncate text-[11px] font-normal leading-tight text-gray-500 dark:text-gray-400">{{ \App\Support\SidebarMeta::description($item['route']) }}</small>
+                        </span>
                     </a>
                 @endforeach
 
                 @php $isSettingsActive = request()->routeIs('settings.index'); @endphp
                 <a href="{{ route('settings.index') }}" class="{{ $navLinkClasses($isSettingsActive) }}">
-                    <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" />
-                        <path d="M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    Settings
+                    <i class="fa-solid fa-gear fa-fw fa-fw text-[18px] leading-none text-primary-600 transition-transform duration-200 group-hover:scale-110 dark:text-primary-300"></i>
+                    <span class="min-w-0 flex-1">
+                            <h4 class="truncate text-[13px] font-semibold leading-tight">Settings</h4>
+                            <small class="mt-0.5 block truncate text-[11px] font-normal leading-tight text-gray-500 dark:text-gray-400">School details and preferences</small>
+                        </span>
                 </a>
             </nav>
 
             <div class="m-3 space-y-3">
-                <div class="rounded-[8px] bg-white/10 p-4 transition-colors duration-300 hover:bg-white/[0.15]">
+                <div class="rounded-[8px] bg-gray-100 dark:bg-gray-800 p-4 transition-colors duration-300 hover:bg-white/[0.15]">
                     <div class="flex items-center justify-between">
                         <p class="flex items-center gap-1.5 text-sm font-semibold">
                             <svg class="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8l3.5 2.5L12 5l5.5 5.5L21 8l-1.5 10h-15L3 8z" /></svg>
@@ -172,7 +178,7 @@
                         </p>
                     </div>
                     @if ($subscription)
-                        <p class="mt-2 text-sm font-bold text-white">{{ $subscription->plan->name }}</p>
+                        <p class="mt-2 text-sm font-bold text-gray-900 dark:text-gray-100">{{ $subscription->plan->name }}</p>
                         <span @class([
                             'mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase',
                             'bg-green-400/20 text-green-300' => $subscription->status === \App\Enums\SubscriptionStatus::Active,
@@ -182,25 +188,25 @@
                             {{ $subscription->status->label() }}
                         </span>
                         @if ($subscription->ends_at)
-                            <p class="mt-2 flex items-center justify-between text-xs text-slate-300">
+                            <p class="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                                 <span>Valid Until</span>
-                                <span class="font-semibold text-white">{{ $subscription->ends_at->format('M j, Y') }}</span>
+                                <span class="font-semibold text-gray-900 dark:text-gray-100">{{ $subscription->ends_at->format('M j, Y') }}</span>
                             </p>
                         @endif
                     @else
-                        <p class="mt-2 text-xs text-slate-300">No active subscription yet.</p>
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">No active subscription yet.</p>
                     @endif
                     <a
                         href="{{ route('subscriptions.choose-plan') }}"
-                        class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:scale-[0.97]"
+                        class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-2 text-xs font-semibold text-gray-900 dark:text-gray-100 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:scale-[0.97]"
                     >
                         {{ $subscription ? 'Upgrade Plan' : 'Choose a Plan' }}
                     </a>
                 </div>
 
-                <div class="rounded-[8px] bg-white/10 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
+                <div class="rounded-[8px] bg-gray-100 dark:bg-gray-800 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
                     <p class="text-sm font-semibold">Need Help?</p>
-                    <p class="mt-1 text-xs text-slate-300">Contact our support team.</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Contact our support team.</p>
                     <a
                         href="{{ route('support-tickets.create') }}"
                         class="mt-3 inline-flex w-full items-center justify-center rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-[#111a35] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]"
@@ -210,17 +216,17 @@
                 </div>
             </div>
 
-            <div class="relative border-t border-white/10 px-3 py-3" x-data="{ open: false }">
-                <button type="button" @click="open = !open" @click.outside="open = false" class="flex w-full items-center gap-2.5 rounded-[8px] px-2 py-2 text-left transition-all duration-200 hover:bg-white/5 active:scale-[0.98]">
-                    <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500 text-sm font-bold text-white">
+            <div class="relative border-t border-gray-200 dark:border-gray-800 px-3 py-3" x-data="{ open: false }">
+                <button type="button" @click="open = !open" @click.outside="open = false" class="flex w-full items-center gap-2.5 rounded-[8px] px-2 py-2 text-left transition-all duration-200 hover:bg-gray-100 dark:bg-gray-800 active:scale-[0.98]">
+                    <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/40 text-sm font-bold text-gray-900 dark:text-gray-100">
                         {{ Str::of(auth()->user()->name)->substr(0, 1)->upper() }}
                         <span class="absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#111a35] bg-green-400"></span>
                     </span>
                     <span class="min-w-0 flex-1">
-                        <span class="block truncate text-sm font-semibold text-white">{{ auth()->user()->name }}</span>
-                        <span class="block truncate text-xs text-slate-400">{{ auth()->user()->role->label() }}</span>
+                        <span class="block truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{{ auth()->user()->name }}</span>
+                        <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ auth()->user()->role->label() }}</span>
                     </span>
-                    <svg class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-300 ease-out" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-out" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </button>
@@ -239,7 +245,7 @@
                 </div>
             </div>
 
-            <p class="px-5 pb-4 text-xs text-slate-400">&copy; {{ now()->year }} {{ config('app.name', 'EduNest') }}. All rights reserved.</p>
+            <p class="px-5 pb-4 text-xs text-gray-500 dark:text-gray-400">&copy; {{ now()->year }} {{ config('app.name', 'EduNest') }}. All rights reserved.</p>
             </div>
         </aside>
 

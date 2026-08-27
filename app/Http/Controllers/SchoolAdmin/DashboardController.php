@@ -12,6 +12,7 @@ use App\Models\Invoice;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\Subscription;
+use App\Services\SchoolDashboardMetrics;
 use App\Services\StudentLicenceAllocation;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
@@ -19,7 +20,10 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __construct(private readonly StudentLicenceAllocation $licences) {}
+    public function __construct(
+        private readonly StudentLicenceAllocation $licences,
+        private readonly SchoolDashboardMetrics $metrics,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -46,6 +50,16 @@ class DashboardController extends Controller
             // has approved its payment, which is what makes this card the
             // school's confirmation that it is live.
             'capacity' => $this->licences->summary($school),
+
+            // The dashboard is a dashboard now rather than a second menu.
+            // Every figure below is read from the database - see
+            // App\Services\SchoolDashboardMetrics.
+            'headline' => $this->metrics->headline($school),
+            'attendanceSummary' => $this->metrics->attendance($school),
+            'resultsSummary' => $this->metrics->results($school),
+            'pendingActions' => $this->metrics->pending($school),
+            'recentActivity' => $this->metrics->recentActivity($school),
+
             'moduleCounts' => [
                 'students' => $school->students()->count(),
                 'staff' => $school->staff()->count(),
