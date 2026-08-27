@@ -24,15 +24,22 @@ class CbtDocumentUploadController extends Controller
 {
     use AcceptsCbtDocumentUploads;
 
-    public function index(CbtExtractionAvailability $availability): View
+    public function index(Request $request, CbtExtractionAvailability $availability): View
     {
+        // Arriving from a particular exam body's page pre-selects it, so
+        // somebody who was managing JAMB and clicked Upload does not have to
+        // say "JAMB" again on the next screen.
+        $examBodies = CbtExamBody::orderBy('name')->get();
+
         return view('super-admin.cbt.uploads.index', [
             'extractionWarning' => $availability->warning(),
             'uploads' => CbtDocumentUpload::with(['uploadedBy', 'examBody', 'subject'])
                 ->latest()
                 ->paginate(15),
-            'examBodies' => CbtExamBody::orderBy('name')->get(),
+            'examBodies' => $examBodies,
             'subjects' => CbtSubject::orderBy('name')->get(),
+            'selectedExamBodyId' => $examBodies
+                ->firstWhere('uuid', $request->string('exam_body')->toString())?->id,
         ]);
     }
 

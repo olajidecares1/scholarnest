@@ -199,6 +199,22 @@
                                     {{ $examBody->name }} CBT
                                 </a>
                             @endforeach
+                            {{-- The uploader had a page, a queue, an extractor
+                                 and no way in from here: it was reachable only
+                                 from the All Exam Bodies landing page, so
+                                 anybody working inside a particular exam body
+                                 could not find it at all. --}}
+                            <a
+                                href="{{ route('super-admin.cbt.uploads.index') }}"
+                                class="group flex items-center gap-2 rounded-[8px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->routeIs('super-admin.cbt.uploads.*') ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
+                            >
+                                <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 16V5m0 0l-4 4m4-4l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M5 17.5V19a1.5 1.5 0 001.5 1.5h11A1.5 1.5 0 0019 19v-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                </svg>
+                                Upload CBT Document
+                            </a>
+
                             <a
                                 href="{{ route('super-admin.cbt.index') }}"
                                 class="group flex items-center gap-2 rounded-[8px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->routeIs('super-admin.cbt.index') ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"

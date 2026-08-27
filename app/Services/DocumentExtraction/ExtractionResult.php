@@ -24,6 +24,7 @@ final class ExtractionResult
         public readonly array $images = [],
         public readonly array $warnings = [],
         public readonly bool $looksScanned = false,
+        public readonly ?DocumentMetadata $metadata = null,
     ) {}
 
     public function isEmpty(): bool
@@ -41,6 +42,10 @@ final class ExtractionResult
         return [
             'questions' => $this->questions,
             'instructions' => $this->instructions,
+
+            // Carried alongside rather than applied: the importer stores it
+            // so the review screen can offer it, and a person decides.
+            'detected' => $this->metadata?->found() ?? [],
         ];
     }
 

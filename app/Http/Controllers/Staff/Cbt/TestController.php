@@ -36,7 +36,12 @@ class TestController extends Controller
             'status' => CbtTestStatus::Draft,
         ]);
 
-        return redirect()->route('staff.cbt.tests.show', [$school, $test])->with('status', "\"{$test->title}\" was created.");
+        // Straight to the upload panel. A teacher who came here to turn a
+        // Word paper into a CBT should not have to hunt for the uploader on
+        // the page they have just been dropped onto.
+        return redirect()
+            ->to(route('staff.cbt.tests.show', [$school, $test]).'#document-upload')
+            ->with('status', "\"{$test->title}\" was created. Upload your question paper below.");
     }
 
     public function show(Request $request, School $school, CbtTest $test, CbtExtractionAvailability $availability): View

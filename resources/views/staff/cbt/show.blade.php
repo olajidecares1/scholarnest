@@ -175,6 +175,7 @@
                 @endif
 
                 <x-upload-progress-form
+                    id="document-upload"
                     :action="route('staff.cbt.tests.uploads.store', [$school, $test])"
                     :max-mb="21"
                     class="mt-3 space-y-2"

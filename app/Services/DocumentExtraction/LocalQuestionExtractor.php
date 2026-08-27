@@ -16,6 +16,7 @@ class LocalQuestionExtractor implements QuestionExtractionProvider
     public function __construct(
         private readonly DocumentTextExtractor $text,
         private readonly QuestionParser $parser,
+        private readonly HeadingReader $heading,
     ) {}
 
     public function extract(string $absolutePath, ?string $mimeType = null): ExtractionResult
@@ -34,14 +35,27 @@ class LocalQuestionExtractor implements QuestionExtractionProvider
             );
         }
 
-        $parsed = $this->parser->parse($document->text);
+        // The key block is cut off before parsing: a key entry ("1. B") is
+        // indistinguishable from a question followed by an option, so a paper
+        // with a key would otherwise come out with phantom questions on the end.
+        $parsed = $this->parser->parse($this->heading->bodyOf($document->text));
+
+        // A key printed at the end fills in the questions that did not carry
+        // their answer beside them. Applied after parsing, because it needs
+        // to know which questions exist before it can match numbers to them.
+        $questions = $this->heading->applyAnswerKey($parsed['questions'], $document->text);
 
         return new ExtractionResult(
-            questions: $parsed['questions'],
+            questions: $questions,
             instructions: $parsed['instructions'],
             images: $document->images,
             warnings: $document->warnings,
             looksScanned: $document->looksScanned,
+
+            // What the paper says it is - subject, class, session, term,
+            // title. Suggestions for the review screen, never applied on
+            // their own. See DocumentMetadata.
+            metadata: $this->heading->metadata($document->text),
         );
     }
 }

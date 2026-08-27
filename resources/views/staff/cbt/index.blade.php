@@ -1,4 +1,4 @@
-<x-staff-layout page-title="CBT Management" page-subtitle="Create and manage your class tests and examinations.">
+<x-staff-layout page-title="CBT Management" page-subtitle="Create tests by hand, or upload a Word or PDF question paper and let EduNest turn it into a CBT.">
     <div class="space-y-6" x-data="{ open: false }">
         @if (session('status'))
             <div class="rounded-[8px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
@@ -7,7 +7,7 @@
         @endif
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Tests you create here are delivered to students in the target class as "My Tests".</p>
+            <p class="max-w-2xl text-sm text-gray-500 dark:text-gray-400">Tests you create here are delivered to students in the target class as "My Tests". Create a test first, then upload a <span class="font-semibold">Word (.docx)</span> or <span class="font-semibold">PDF</span> paper on the test's page - the questions, options and answer key are read out of it for you to check before you publish.</p>
             <button
                 type="button"
                 @click="open = true"
@@ -36,7 +36,7 @@
                 </a>
             @empty
                 <div class="col-span-full rounded-[10px] border border-dashed border-gray-300 p-10 text-center dark:border-gray-700">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">No tests yet. Click "Create Test" to get started.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No tests yet. Click "Create Test" to get started - then upload a Word or PDF question paper and EduNest will extract the questions for you.</p>
                 </div>
             @endforelse
         </div>

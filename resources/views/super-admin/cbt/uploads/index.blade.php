@@ -52,16 +52,21 @@
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {{-- "Detect it from the document", not "let AI detect it".
+                         Extraction has run locally since the hosted model was
+                         removed, and copy promising AI is copy that will send
+                         somebody looking for an API key that is not needed. --}}
                     <x-select-field
                         name="cbt_exam_body_id"
                         label="Exam Body (optional)"
-                        placeholder="Let AI detect it"
+                        placeholder="Detect it from the document"
+                        :selected="$selectedExamBodyId"
                         :options="$examBodies->pluck('name', 'id')->all()"
                     />
                     <x-select-field
                         name="cbt_subject_id"
                         label="Subject (optional)"
-                        placeholder="Let AI detect it"
+                        placeholder="Detect it from the document"
                         :options="$subjects->pluck('name', 'id')->all()"
                     />
                 </div>

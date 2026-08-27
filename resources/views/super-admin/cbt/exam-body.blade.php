@@ -58,15 +58,32 @@
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Exams</h2>
                     <p class="field-hint mt-1">Each exam is one subject for one year. Add questions once an exam is created.</p>
                 </div>
-                <button
-                    type="button"
-                    @click="addExamOpen = true"
-                    @if ($examBody->subjects->isEmpty()) disabled title="Assign at least one subject first" @endif
-                    class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
-                >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
-                    Add Exam
-                </button>
+                <div class="flex items-center gap-2">
+                    {{-- The way in that was missing. Somebody managing JAMB
+                         was looking at this page, and the document uploader
+                         was linked only from the All Exam Bodies landing page
+                         - so from here there was no upload at all. --}}
+                    <a
+                        href="{{ route('super-admin.cbt.uploads.index', ['exam_body' => $examBody->uuid]) }}"
+                        class="flex items-center gap-2 rounded-[8px] border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400"
+                    >
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16V5m0 0l-4 4m4-4l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M5 17.5V19a1.5 1.5 0 001.5 1.5h11A1.5 1.5 0 0019 19v-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                        </svg>
+                        Upload Document
+                    </a>
+
+                    <button
+                        type="button"
+                        @click="addExamOpen = true"
+                        @if ($examBody->subjects->isEmpty()) disabled title="Assign at least one subject first" @endif
+                        class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                    >
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                        Add Exam
+                    </button>
+                </div>
             </div>
 
             <div class="overflow-x-auto">
