@@ -169,21 +169,22 @@ test('linking a child only offers students not already linked to that guardian',
     $guardian = Guardian::factory()->create(['school_id' => $this->school->id]);
     $guardian->students()->attach($linkedStudent->id);
 
+    // The page lists Amara as an already-linked child. It no longer carries
+    // every other pupil in the school with it: the picker searches as you
+    // type, because a dropdown of the whole school stops being usable at about
+    // the third class. So the rule is asserted where it now lives.
     $this->actingAs($this->admin)
         ->get(route('guardians.show', $guardian))
         ->assertStatus(200)
-        ->assertSee('David')
         ->assertSee('Amara');
-    // Amara appears once as an already-linked child; David appears once as
-    // a selectable option in the "link a child" dropdown - the important
-    // assertion is that David (unlinked) is offered while Amara (already
-    // linked) is not duplicated into the selectable list, checked next.
 
-    $guardian->refresh();
-    $availableUuids = Student::where('school_id', $this->school->id)
-        ->whereNotIn('id', $guardian->students()->pluck('students.id'))
-        ->pluck('uuid');
+    $offered = $this->actingAs($this->admin)
+        ->getJson(route('guardians.link-candidates', $guardian))
+        ->assertOk()
+        ->json('students');
 
-    expect($availableUuids)->toContain($unlinkedStudent->uuid);
-    expect($availableUuids)->not->toContain($linkedStudent->uuid);
+    $offeredUuids = collect($offered)->pluck('uuid');
+
+    expect($offeredUuids)->toContain($unlinkedStudent->uuid);
+    expect($offeredUuids)->not->toContain($linkedStudent->uuid);
 });

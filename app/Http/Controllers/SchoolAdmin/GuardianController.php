@@ -9,6 +9,7 @@ use App\Models\AuditLog;
 use App\Models\Guardian;
 use App\Models\Student;
 use App\Services\IdentifierGenerator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -90,18 +91,15 @@ class GuardianController extends Controller
     {
         $this->authorizeGuardian($guardian);
 
-        $linkedStudentIds = $guardian->students()->pluck('students.id');
-
         return view('school-admin.guardians.show', [
             'credentialShare' => $this->credentialShareLink($guardian, 'Parent ID', (string) $guardian->guardian_number),
             'guardian' => $guardian,
-            // Only existing, unlinked students of this same school can ever
-            // be offered here - the point is to connect an existing student
-            // record to a guardian, never to create a new one.
-            'availableStudents' => Student::where('school_id', $guardian->school_id)
-                ->whereNotIn('id', $linkedStudentIds)
-                ->orderBy('first_name')
-                ->get(),
+
+            // Only the classes, for the picker's filter. The pupils themselves
+            // are fetched as they are searched for - loading every one of them
+            // into the page was what made this unusable for a school with more
+            // than a few classes. See linkCandidates().
+            'classOptions' => $guardian->school->configuredClassNames(),
         ]);
     }
 
@@ -158,6 +156,47 @@ class GuardianController extends Controller
         AuditLog::record('password.reset', "Portal password reset for guardian {$guardian->name}.", $guardian);
 
         return back()->with('status', "Portal password set for {$guardian->name}.");
+    }
+
+    /**
+     * Children this guardian could be linked to.
+     *
+     * Narrowed by class and by a search, because the alternative - every pupil
+     * in the school in one dropdown - stops being usable at about the third
+     * class and is how the wrong child gets linked.
+     *
+     * Scoped to the guardian's own school, and that is the only scoping that
+     * matters: the class and the search are conveniences, the school_id is the
+     * rule. A guardian at one school must never be offered a pupil at another.
+     */
+    public function linkCandidates(Request $request, Guardian $guardian): JsonResponse
+    {
+        $this->authorizeGuardian($guardian);
+
+        $search = trim($request->string('q')->toString());
+
+        $students = Student::query()
+            ->where('school_id', $guardian->school_id)
+            ->whereNotIn('id', $guardian->students()->pluck('students.id'))
+            ->when($request->filled('class'), fn ($query) => $query->where('class_name', $request->string('class')->toString()))
+            ->when($search !== '', fn ($query) => $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('admission_number', 'like', "%{$search}%");
+            }))
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->limit(25)
+            ->get();
+
+        return response()->json([
+            'students' => $students->map(fn (Student $student) => [
+                'uuid' => $student->uuid,
+                'name' => $student->fullName(),
+                'admission_number' => $student->admission_number,
+                'class_name' => $student->class_name,
+            ])->all(),
+        ]);
     }
 
     public function linkStudent(Request $request, Guardian $guardian): RedirectResponse

@@ -56,4 +56,22 @@ class AcademicTerm extends Model
             ->where('term', $term)
             ->first();
     }
+
+    /**
+     * The term the school is in today, if its calendar says so.
+     *
+     * Read from the dates the school entered rather than guessed from the
+     * month, because a school that runs to its own calendar is exactly the
+     * school a guess gets wrong. Null when today falls outside every recorded
+     * term - the holidays, or a school that has not filled its calendar in -
+     * and callers treat that as "no term is current" rather than inventing one.
+     */
+    public static function currentFor(School $school): ?self
+    {
+        return self::where('school_id', $school->id)
+            ->where('session', $school->currentSession())
+            ->whereDate('starts_on', '<=', today())
+            ->whereDate('ends_on', '>=', today())
+            ->first();
+    }
 }

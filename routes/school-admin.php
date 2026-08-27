@@ -74,6 +74,12 @@ Route::name('students.')->group(function () {
     // each.
     Route::put(R::uri('students.credentials').'/{student}/credentials', [StudentController::class, 'updateCredentials'])->name('credentials');
     Route::post(R::uri('students.guardians.store').'/{student}/guardians', [StudentController::class, 'storeGuardian'])->name('guardians.store');
+
+    // Linking a parent who already has an account, found by searching rather
+    // than by retyping their email and hoping it matches. The candidates
+    // endpoint is school-scoped; see the controller.
+    Route::get(R::uri('students.guardian-candidates').'/{student}/guardian-candidates', [StudentController::class, 'guardianCandidates'])->name('guardian-candidates');
+    Route::post(R::uri('students.guardians.link').'/{student}/guardians/link', [StudentController::class, 'linkGuardian'])->name('guardians.link');
     Route::put(R::uri('students.guardians.update-password').'/guardians/{guardian}', [StudentController::class, 'updateGuardianPassword'])->name('guardians.update-password');
     Route::delete(R::uri('students.guardians.destroy').'/{student}/guardians/{guardian}', [StudentController::class, 'destroyGuardian'])->name('guardians.destroy');
 });
@@ -87,6 +93,8 @@ Route::middleware('plan_feature:guardians')->name('guardians.')->group(function 
     Route::post(R::uri('guardians.toggle-active').'/{guardian}', [GuardianController::class, 'toggleActive'])->name('toggle-active');
     Route::put(R::uri('guardians.update-password').'/{guardian}/password', [GuardianController::class, 'updatePassword'])->name('update-password');
     Route::put(R::uri('guardians.credentials').'/{guardian}/credentials', [GuardianController::class, 'updateCredentials'])->name('credentials');
+    // Class, then search, then select - the picker on the guardian's page.
+    Route::get(R::uri('guardians.link-candidates').'/{guardian}/link-candidates', [GuardianController::class, 'linkCandidates'])->name('link-candidates');
     Route::post(R::uri('guardians.children.store').'/{guardian}/children', [GuardianController::class, 'linkStudent'])->name('children.store');
     Route::delete(R::uri('guardians.children.destroy').'/{guardian}/children/{student}', [GuardianController::class, 'unlinkStudent'])->name('children.destroy');
 });

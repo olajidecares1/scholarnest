@@ -137,16 +137,36 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('students.guardians.store', $student) }}" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                @csrf
-                <x-text-field name="name" label="Guardian Name" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" required />
-                <x-text-field name="email" type="email" label="Guardian Email" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" required />
-                <x-text-field name="phone" label="Phone" icon="M5 4.5h3l1.5 4-2 1.5a11 11 0 005 5l1.5-2 4 1.5v3a1 1 0 01-1 1A15 15 0 015 5.5a1 1 0 011-1z" helper="Optional." />
-                <x-text-field name="relationship" label="Relationship" icon="M12 4.5l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z" placeholder="e.g. Mother, Father, Guardian" helper="Optional." />
-                <div class="sm:col-span-2">
-                    <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Link Guardian</button>
-                </div>
-            </form>
+            {{-- The relationship can be made from either side. This is the
+                 same picker the parent's own page uses, pointed the other
+                 way: search the parents already on the system and link one.
+
+                 Kept alongside the form below rather than replacing it,
+                 because the two answer different questions - "this parent is
+                 already here, find them" and "this parent is new". --}}
+            <x-link-search-picker
+                :search-url="route('students.guardian-candidates', $student)"
+                :submit-url="route('students.guardians.link', $student)"
+                field="guardian"
+                label="Link an existing parent/guardian"
+                placeholder="Search by name, email or Parent ID..."
+                empty-text="No unlinked parents match that. Add a new one below."
+            />
+
+            <div class="mt-6 border-t border-gray-100 pt-6 dark:border-gray-700">
+                <p class="text-sm font-bold text-gray-900 dark:text-white">Or add a new parent/guardian</p>
+
+                <form method="POST" action="{{ route('students.guardians.store', $student) }}" class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    @csrf
+                    <x-text-field name="name" label="Guardian Name" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" required />
+                    <x-text-field name="email" type="email" label="Guardian Email" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" required />
+                    <x-text-field name="phone" label="Phone" icon="M5 4.5h3l1.5 4-2 1.5a11 11 0 005 5l1.5-2 4 1.5v3a1 1 0 01-1 1A15 15 0 015 5.5a1 1 0 011-1z" helper="Optional." />
+                    <x-text-field name="relationship" label="Relationship" icon="M12 4.5l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z" placeholder="e.g. Mother, Father, Guardian" helper="Optional." />
+                    <div class="sm:col-span-2">
+                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Add &amp; Link Guardian</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </x-dashboard-layout>

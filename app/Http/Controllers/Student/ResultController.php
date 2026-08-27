@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Concerns\UnlocksResultsWithToken;
 use App\Http\Controllers\Controller;
+use App\Models\AcademicTerm;
 use App\Models\Examination;
 use App\Models\School;
 use App\Models\Student;
@@ -24,10 +25,21 @@ class ResultController extends Controller
     {
         $student = $request->user('student');
 
+        // The current term first, then everything else newest-first. A parent
+        // opening this page has almost always come for the term just ended,
+        // and making them scan for it among four years of cards is the small
+        // daily cost of sorting purely by date.
+        $currentTerm = AcademicTerm::currentFor($school);
+
         $results = $student->examinationScores()
             ->with(['subject.examination'])
             ->get()
-            ->sortByDesc(fn ($score) => $score->subject->examination->exam_date)
+            ->sortBy(fn ($score) => [
+                $currentTerm
+                    && $score->subject->examination->session === $currentTerm->session
+                    && $score->subject->examination->term === $currentTerm->term ? 0 : 1,
+                -($score->subject->examination->exam_date?->timestamp ?? 0),
+            ])
             ->groupBy(fn ($score) => $score->subject->examination->name.' — '.$score->subject->examination->session);
 
         return view('student.results.index', [

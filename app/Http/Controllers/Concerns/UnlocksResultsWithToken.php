@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Concerns;
 
 use App\Models\Examination;
+use App\Models\ResultCheckingPinUsage;
 use App\Models\School;
 use App\Models\Student;
 use App\Services\ResultTokenVerifier;
@@ -23,10 +24,15 @@ use Illuminate\Validation\ValidationException;
  * portal are separate controllers on separate guards, and a gate implemented
  * twice is a gate that will eventually be two different gates.
  *
- * What is remembered is the pair (student, examination), in the session. Not
- * the token: once it has been redeemed there is no reason to keep it, and a
- * session that held one would be a place to steal it from. Signing out closes
- * every result that was opened.
+ * What is remembered is the pair (student, examination) - never the token.
+ * Once a token has been redeemed there is no reason to keep it, and a session
+ * that held one would be a place to steal it from.
+ *
+ * An unlock OUTLIVES the session. It has to: schools issue one token per child
+ * per term and do not reissue them, so a parent asked for the token again in
+ * June would be locked out of a card they were shown in February. The durable
+ * answer is the redemption record itself, which already proved the token
+ * belonged to this school, this child and this examination.
  */
 trait UnlocksResultsWithToken
 {
@@ -38,15 +44,78 @@ trait UnlocksResultsWithToken
     private const UNLOCKED_SESSION_KEY = 'unlocked_results';
 
     /**
-     * Has this session already redeemed a token for this exact result?
+     * Has the token for this exact result ever been entered successfully?
+     *
+     * Ever, not "in this session". A token opens a result once and for good:
+     * a parent who unlocked last term's card in February must not be asked for
+     * that token again in June, and asking would be worse than an
+     * inconvenience - schools do not reissue tokens, so a parent who has lost
+     * the slip would be locked out of a result they had already been shown.
+     *
+     * What makes that safe is WHERE the durable answer comes from. A usage row
+     * is the receipt of a verification that already proved the token belonged
+     * to this school, this child and this examination, so an unlock inherits
+     * exactly the binding the token had. It is not a second, looser rule.
+     *
+     * The session is consulted first only because it saves a query on the
+     * request that has just unlocked something.
      */
     protected function resultIsUnlocked(Student $student, Examination $examination): bool
     {
-        return in_array(
+        $inSession = in_array(
             $this->unlockKey($student, $examination),
             session(self::UNLOCKED_SESSION_KEY, []),
             true,
         );
+
+        return $inSession || $this->hasBeenRedeemed($student, $examination);
+    }
+
+    /**
+     * A successful redemption on record for this pair.
+     *
+     * Deliberately not scoped to who redeemed it. The rule in the brief is
+     * that a token unlocks "that particular result for that child", so a
+     * result opened by the pupil is open to the parent linked to them and the
+     * other way round - one token per child per term is exactly what the
+     * school issued, and making each account redeem it separately would need
+     * two.
+     */
+    private function hasBeenRedeemed(Student $student, Examination $examination): bool
+    {
+        return ResultCheckingPinUsage::query()
+            ->where('student_id', $student->id)
+            ->where('examination_id', $examination->id)
+            ->exists();
+    }
+
+    /**
+     * How many of this pupil's results are open, and how many still need a
+     * token.
+     *
+     * For the profile pages, which say "Check Result" without listing
+     * anything. Counted over the examinations the pupil actually has marks in,
+     * which is the same set the results page lists - a card promising two
+     * locked results against a page showing three would be its own small
+     * betrayal.
+     *
+     * @return array{locked: int, unlocked: int}
+     */
+    protected function resultLockSummary(Student $student): array
+    {
+        $examinations = Examination::query()
+            ->where('school_id', $student->school_id)
+            ->whereHas('subjects.scores', fn ($query) => $query->where('student_id', $student->id))
+            ->get();
+
+        $unlocked = $examinations
+            ->filter(fn (Examination $examination) => $this->resultIsUnlocked($student, $examination))
+            ->count();
+
+        return [
+            'locked' => $examinations->count() - $unlocked,
+            'unlocked' => $unlocked,
+        ];
     }
 
     /**

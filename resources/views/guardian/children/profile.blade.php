@@ -33,6 +33,13 @@
             <p class="mt-6 text-xs text-gray-400 dark:text-gray-500">To update these details, please contact the school office.</p>
         </div>
 
+        <x-check-result-card
+            :results-url="route('guardian.children.results', [$school, $student])"
+            :name="$student->first_name"
+            :locked="$resultLocks['locked']"
+            :unlocked="$resultLocks['unlocked']"
+        />
+
         <x-profile-change-request-card
             :action="route('guardian.children.profile-change-requests.store', [$school, $student])"
             :fields="$protectedFields"

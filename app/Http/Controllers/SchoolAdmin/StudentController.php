@@ -13,6 +13,7 @@ use App\Services\IdentifierGenerator;
 use App\Services\ImageOptimizer;
 use App\Services\StudentLicenceAllocation;
 use App\Support\StoredUpload;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -198,6 +199,75 @@ class StudentController extends Controller
         AuditLog::record('password.reset', "Portal password reset for student {$student->fullName()}.", $student);
 
         return back()->with('status', "Portal password set for {$student->fullName()}.");
+    }
+
+    /**
+     * Parents and guardians this pupil could be linked to.
+     *
+     * The reverse of the guardian page's search, so the relationship can be
+     * made from whichever side the School Admin happens to be looking at. Same
+     * scoping rule: the school_id decides, everything else narrows.
+     */
+    public function guardianCandidates(Request $request, Student $student): JsonResponse
+    {
+        $this->authorizeStudent($student);
+
+        $search = trim($request->string('q')->toString());
+
+        $guardians = Guardian::query()
+            ->where('school_id', $student->school_id)
+            ->whereNotIn('id', $student->guardians()->pluck('guardians.id'))
+            ->when($search !== '', fn ($query) => $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('guardian_number', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            }))
+            ->orderBy('name')
+            ->limit(25)
+            ->get();
+
+        return response()->json([
+            'guardians' => $guardians->map(fn (Guardian $guardian) => [
+                'uuid' => $guardian->uuid,
+                'name' => $guardian->name,
+                'email' => $guardian->email,
+                'guardian_number' => $guardian->guardian_number,
+                'children' => $guardian->students()->count(),
+            ])->all(),
+        ]);
+    }
+
+    /**
+     * Link a parent or guardian who already has an account.
+     *
+     * Separate from storeGuardian(), which creates one from a typed name and
+     * email. Both are wanted: a school registering a new parent needs the
+     * form, and a school linking a second child to a parent already on the
+     * system needs to find them rather than retype an email and hope it
+     * matches exactly.
+     */
+    public function linkGuardian(Request $request, Student $student): RedirectResponse
+    {
+        $this->authorizeStudent($student);
+
+        $validated = $request->validate([
+            'guardian' => ['required', 'string'],
+            'relationship' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        // The uuid arrives in a request and could be any guardian's. It is
+        // resolved WITHIN this pupil's school, so one from another school does
+        // not resolve at all rather than resolving and then being refused.
+        $guardian = Guardian::where('uuid', $validated['guardian'])
+            ->where('school_id', $student->school_id)
+            ->firstOrFail();
+
+        $guardian->students()->syncWithoutDetaching([
+            $student->id => ['relationship' => $validated['relationship'] ?? null],
+        ]);
+
+        return back()->with('status', "{$guardian->name} was linked as a guardian for {$student->fullName()}.");
     }
 
     public function storeGuardian(Request $request, Student $student): RedirectResponse

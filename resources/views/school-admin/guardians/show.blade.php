@@ -112,24 +112,17 @@
                 <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">No children linked yet.</p>
             @endif
 
-            @if ($availableStudents->isNotEmpty())
-                <form method="POST" action="{{ route('guardians.children.store', $guardian) }}" class="mt-6 grid grid-cols-1 gap-3 border-t border-gray-100 pt-6 dark:border-gray-700 sm:grid-cols-3">
-                    @csrf
-                    <div class="sm:col-span-2">
-                        <x-select-field
-                            name="student"
-                            label="Link an Existing Student"
-                            placeholder="Select a student"
-                            required
-                            :options="$availableStudents->mapWithKeys(fn ($s) => [$s->uuid => $s->fullName().' — '.$s->admission_number.($s->class_name ? ' — '.$s->class_name : '')])->all()"
-                        />
-                    </div>
-                    <x-text-field name="relationship" label="Relationship" icon="M12 4.5l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z" placeholder="e.g. Mother, Father, Guardian" helper="Optional." />
-                    <div class="sm:col-span-3">
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Link Child</button>
-                    </div>
-                </form>
-            @endif
+            {{-- Class, then search, then select. A parent may have several
+                 children here, and each is linked the same way. --}}
+            <x-link-search-picker
+                :search-url="route('guardians.link-candidates', $guardian)"
+                :submit-url="route('guardians.children.store', $guardian)"
+                field="student"
+                label="Link a child to this parent/guardian"
+                placeholder="Search by name or admission number..."
+                :class-options="$classOptions"
+                empty-text="No unlinked pupils match that."
+            />
         </div>
     </div>
 </x-dashboard-layout>

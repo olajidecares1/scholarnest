@@ -31,5 +31,11 @@
                 <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-right font-medium text-gray-900 dark:text-white">{{ $student->address ?? '—' }}</dd></div>
             </dl>
         </div>
+
+        <x-check-result-card
+            :results-url="route('student.results.index', $school)"
+            :locked="$resultLocks['locked']"
+            :unlocked="$resultLocks['unlocked']"
+        />
     </div>
 </x-student-layout>
