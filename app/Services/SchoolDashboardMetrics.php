@@ -203,7 +203,7 @@ class SchoolDashboardMetrics
     public function recentActivity(School $school, int $limit = 8): Collection
     {
         return AuditLog::query()
-            ->where('school_id', $school->id)
+            ->forSchool($school)
             ->latest('id')
             ->limit($limit)
             ->get();
