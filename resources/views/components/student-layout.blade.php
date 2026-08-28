@@ -8,6 +8,18 @@
     $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-icon-dark.png');
     $student = auth('student')->user();
     $school = $student->school;
+
+    // One source for what this pupil may see - the bottom bar, the More sheet
+    // and the home screen all read it, so they cannot disagree.
+    $portalNav = \App\Support\PortalNavigation::forStudent($student);
+
+    $unreadNotifications = \App\Support\PortalNavigation::unreadNotifications($student);
+    $unreadMessages = \App\Support\PortalNavigation::unreadMessages($student);
+
+    $portalBadges = array_filter([
+        'student.notifications.index' => $unreadNotifications,
+        'student.messages.index' => $unreadMessages,
+    ]);
 @endphp
 
 <!DOCTYPE html>
@@ -176,12 +188,16 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 rounded-[8px] border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-900">
+                    {{-- Messages sit beside the bell, as they would on a phone.
+                         The bell keeps its dropdown; this is the envelope. --}}
+                    <x-portal-top-actions
+                        :messages-url="\Illuminate\Support\Facades\Route::has('student.messages.index') ? route('student.messages.index', $school) : null"
+                        :unread-messages="$unreadMessages"
+                    />
+
                     <div class="relative" x-data="{ open: false }">
                         <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                                <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            </svg>
+                            <i class="fa-solid fa-bell fa-fw text-[17px] leading-none"></i>
                             @if ($unreadCount > 0)
                                 <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
                             @endif
@@ -268,116 +284,14 @@
             </main>
         </div>
 
-        {{-- Mobile/tablet bottom navigation --}}
-        <div x-data="{ moreOpen: false }">
-            <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur print:hidden lg:hidden dark:border-gray-800 dark:bg-gray-900/95">
-                <div class="mx-auto grid max-w-2xl grid-cols-4">
-                    @php
-                        $bottomNavItemClasses = fn (bool $isActive) => 'group flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-all duration-300 ease-out active:scale-90 '
-                            .($isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400');
-                        $bottomNavIconClasses = fn (bool $isActive) => 'h-6 w-6 shrink-0 transition-all duration-300 ease-out group-active:scale-90 '.($isActive ? '-translate-y-0.5' : '');
-                    @endphp
-
-                    @php
-                        $isDashboardActive = request()->routeIs('student.dashboard');
-                    @endphp
-                    <a href="{{ route('student.dashboard', $school) }}" class="{{ $bottomNavItemClasses($isDashboardActive) }}">
-                        <svg class="{{ $bottomNavIconClasses($isDashboardActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M6 10v9a1 1 0 001 1h3v-6h4v6h3a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Home
-                    </a>
-
-                    @if (\Illuminate\Support\Facades\Route::has('student.timetable'))
-                        @php $isTimetableActive = request()->routeIs('student.timetable'); @endphp
-                        <a href="{{ route('student.timetable', $school) }}" class="{{ $bottomNavItemClasses($isTimetableActive) }}">
-                            <svg class="{{ $bottomNavIconClasses($isTimetableActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M8.5 12.5h7M8.5 15.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                            </svg>
-                            Timetable
-                        </a>
-                    @endif
-
-                    @if (\Illuminate\Support\Facades\Route::has('student.results.index'))
-                        @php $isRecordsActive = request()->routeIs('student.results.*'); @endphp
-                        <a href="{{ route('student.results.index', $school) }}" class="{{ $bottomNavItemClasses($isRecordsActive) }}">
-                            <svg class="{{ $bottomNavIconClasses($isRecordsActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            </svg>
-                            Records
-                        </a>
-                    @endif
-
-                    <button type="button" @click="moreOpen = true" class="{{ $bottomNavItemClasses(false) }}">
-                        <svg class="{{ $bottomNavIconClasses(false) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="5" cy="12" r="1.6" fill="currentColor" />
-                            <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-                            <circle cx="19" cy="12" r="1.6" fill="currentColor" />
-                        </svg>
-                        More
-                    </button>
-                </div>
-            </nav>
-
-            {{-- "More" bottom sheet --}}
-            <div
-                x-show="moreOpen"
-                x-transition.opacity
-                @click="moreOpen = false"
-                class="fixed inset-0 z-50 bg-gray-900/50 lg:hidden"
-                style="display: none;"
-            ></div>
-
-            <div
-                x-show="moreOpen"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="translate-y-full"
-                x-transition:enter-end="translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="translate-y-0"
-                x-transition:leave-end="translate-y-full"
-                class="fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-y-auto rounded-t-[16px] bg-white pb-[calc(env(safe-area-inset-bottom)+0.5rem)] shadow-2xl print:hidden lg:hidden dark:bg-gray-800"
-                style="display: none;"
-                @click.outside="moreOpen = false"
-            >
-                <div class="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-600"></div>
-
-                <div class="grid grid-cols-4 gap-1 px-3 pb-3 pt-4">
-                    @foreach ($navItems as $item)
-                        @continue(! \Illuminate\Support\Facades\Route::has($item['route']))
-                        @continue(in_array($item['route'], ['student.dashboard', 'student.timetable', 'student.results.index'], true))
-                        @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*') || request()->routeIs($item['route']); @endphp
-                        <a
-                            href="{{ route($item['route'], $school) }}"
-                            @click="moreOpen = false"
-                            class="group relative flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold transition-all duration-300 ease-out active:scale-95 {{ $isActive ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50' }}"
-                        >
-                            <svg class="h-6 w-6 shrink-0 transition-transform duration-300 ease-out group-active:scale-90" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                {!! $item['extra'] ?? '' !!}
-                                @if ($item['icon'])
-                                    <path d="{{ $item['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                                @endif
-                            </svg>
-                            <span class="leading-tight">{{ $item['label'] }}</span>
-                            @if (! empty($item['badge']))
-                                <span class="absolute right-1 top-1 rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">{{ $item['badge'] }}</span>
-                            @endif
-                        </a>
-                    @endforeach
-                </div>
-
-                <form method="POST" action="{{ route('student.logout', $school) }}" class="border-t border-gray-100 px-3 py-3 dark:border-gray-700">
-                    @csrf
-                    <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold text-red-600 transition-colors duration-200 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H6a2 2 0 01-2-2V5a2 2 0 012-2h3M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                        Log Out
-                    </button>
-                </form>
-            </div>
-        </div>
+        {{-- The app-style bottom bar. Every item, and every plan and role
+             rule behind it, comes from App\Support\PortalNavigation. --}}
+        <x-portal-bottom-nav
+            :primary="$portalNav['primary']"
+            :categories="$portalNav['categories']"
+            :badges="$portalBadges"
+            :logout-url="route('student.logout', $school)"
+        />
 
         <x-idle-session-guard :logout-url="route('student.logout', $school)" />
     </body>

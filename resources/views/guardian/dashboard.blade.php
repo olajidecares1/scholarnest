@@ -21,17 +21,12 @@
             </div>
         @endif
 
-        <div class="grid grid-cols-4 gap-2.5 sm:grid-cols-5 sm:gap-3 md:grid-cols-6 lg:grid-cols-4 lg:gap-4 xl:grid-cols-5">
-            <x-module-card :href="route('guardian.children.profile', [$school, $activeChild])" label="Child Profile" icon="fa-user" color="text-blue-600 bg-blue-50 dark:bg-blue-900/20" />
-            <x-module-card :href="route('guardian.children.timetable', [$school, $activeChild])" label="Timetable" icon="fa-calendar-days" color="text-cyan-600 bg-cyan-50 dark:bg-cyan-900/20" />
-            <x-module-card :href="route('guardian.children.results', [$school, $activeChild])" label="Exams & Results" icon="fa-file-pen" color="text-amber-600 bg-amber-50 dark:bg-amber-900/20" />
-            <x-module-card :href="route('guardian.children.attendance', [$school, $activeChild])" label="Attendance" icon="fa-clipboard-check" color="text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" />
-            <x-module-card :href="route('guardian.children.assignments', [$school, $activeChild])" label="Assignments" icon="fa-list-check" color="text-rose-600 bg-rose-50 dark:bg-rose-900/20" />
-            <x-module-card :href="route('guardian.children.fees', [$school, $activeChild])" label="Fees & Payments" icon="fa-sack-dollar" color="text-red-600 bg-red-50 dark:bg-red-900/20" />
-            <x-module-card :href="route('guardian.messages.index', $school)" label="Messages" icon="fa-envelope" color="text-purple-600 bg-purple-50 dark:bg-purple-900/20" />
-            <x-module-card :href="route('guardian.settings.index', $school)" label="Settings" icon="fa-gear" color="text-gray-600 bg-gray-100 dark:bg-gray-700" />
-            <x-module-card :href="route('guardian.help.index', $school)" label="Help & Support" icon="fa-circle-question" color="text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20" />
-        </div>
+        {{-- Every academic entry below is bound to the child selected above, so
+             "Check Result" opens THAT child's results and the token stays tied
+             to that child. Switching child switches the whole menu. --}}
+        @php $nav = \App\Support\PortalNavigation::forGuardian($guardian, $activeChild); @endphp
+
+        <x-portal-app-menu :categories="$nav['categories']" />
 
         <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="flex items-center justify-between">

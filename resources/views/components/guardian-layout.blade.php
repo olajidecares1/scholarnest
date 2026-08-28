@@ -9,6 +9,17 @@
     $guardian = auth('guardian')->user();
     $school = $guardian->school;
     $activeChild ??= $guardian->students->first();
+
+    // Bound to the child being viewed: a parent is not looking at "results"
+    // but at this child's results, so switching child switches the whole menu
+    // rather than leaving a link pointing at a sibling.
+    $portalNav = \App\Support\PortalNavigation::forGuardian($guardian, $activeChild);
+
+    $unreadNotifications = \App\Support\PortalNavigation::unreadNotifications($guardian);
+
+    $portalBadges = array_filter([
+        'guardian.notifications.index' => $unreadNotifications,
+    ]);
 @endphp
 
 <!DOCTYPE html>
@@ -190,13 +201,16 @@
                     @endif
                 </div>
 
+                {{-- Messages sit beside the bell, as they would on a phone.
+                     The bell keeps its dropdown; this is the envelope. --}}
+                <x-portal-top-actions
+                    :messages-url="\Illuminate\Support\Facades\Route::has('guardian.messages.index') ? route('guardian.messages.index', $school) : null"
+                />
+
                 @if (\Illuminate\Support\Facades\Route::has('guardian.notifications.index'))
                     <div class="relative" x-data="{ open: false }">
                         <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                                <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            </svg>
+                            <i class="fa-solid fa-bell fa-fw text-[17px] leading-none"></i>
                             @if ($unreadCount > 0)
                                 <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
                             @endif
@@ -288,135 +302,14 @@
             </main>
         </div>
 
-        {{-- Mobile/tablet bottom navigation --}}
-        <div x-data="{ moreOpen: false }">
-            <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur print:hidden lg:hidden dark:border-gray-800 dark:bg-gray-900/95">
-                <div class="mx-auto grid max-w-2xl grid-cols-4">
-                    @php
-                        $bottomNavItemClasses = fn (bool $isActive) => 'group flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-all duration-300 ease-out active:scale-90 '
-                            .($isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400');
-                        $bottomNavIconClasses = fn (bool $isActive) => 'h-6 w-6 shrink-0 transition-all duration-300 ease-out group-active:scale-90 '.($isActive ? '-translate-y-0.5' : '');
-                        $isDashboardActive = request()->routeIs('guardian.dashboard');
-                    @endphp
-
-                    <a href="{{ route('guardian.dashboard', $school) }}" class="{{ $bottomNavItemClasses($isDashboardActive) }}">
-                        <svg class="{{ $bottomNavIconClasses($isDashboardActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M6 10v9a1 1 0 001 1h3v-6h4v6h3a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Home
-                    </a>
-
-                    @if ($activeChild && \Illuminate\Support\Facades\Route::has('guardian.children.timetable'))
-                        @php $isTimetableActive = request()->routeIs('guardian.children.timetable'); @endphp
-                        <a href="{{ route('guardian.children.timetable', [$school, $activeChild]) }}" class="{{ $bottomNavItemClasses($isTimetableActive) }}">
-                            <svg class="{{ $bottomNavIconClasses($isTimetableActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M8.5 12.5h7M8.5 15.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                            </svg>
-                            Timetable
-                        </a>
-                    @endif
-
-                    @if ($activeChild && \Illuminate\Support\Facades\Route::has('guardian.children.results'))
-                        @php $isResultsActive = request()->routeIs('guardian.children.results'); @endphp
-                        <a href="{{ route('guardian.children.results', [$school, $activeChild]) }}" class="{{ $bottomNavItemClasses($isResultsActive) }}">
-                            <svg class="{{ $bottomNavIconClasses($isResultsActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            </svg>
-                            Results
-                        </a>
-                    @endif
-
-                    <button type="button" @click="moreOpen = true" class="{{ $bottomNavItemClasses(false) }}">
-                        <svg class="{{ $bottomNavIconClasses(false) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="5" cy="12" r="1.6" fill="currentColor" />
-                            <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-                            <circle cx="19" cy="12" r="1.6" fill="currentColor" />
-                        </svg>
-                        More
-                    </button>
-                </div>
-            </nav>
-
-            {{-- "More" bottom sheet --}}
-            <div
-                x-show="moreOpen"
-                x-transition.opacity
-                @click="moreOpen = false"
-                class="fixed inset-0 z-50 bg-gray-900/50 lg:hidden"
-                style="display: none;"
-            ></div>
-
-            <div
-                x-show="moreOpen"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="translate-y-full"
-                x-transition:enter-end="translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="translate-y-0"
-                x-transition:leave-end="translate-y-full"
-                class="fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-y-auto rounded-t-[16px] bg-white pb-[calc(env(safe-area-inset-bottom)+0.5rem)] shadow-2xl print:hidden lg:hidden dark:bg-gray-800"
-                style="display: none;"
-                @click.outside="moreOpen = false"
-            >
-                <div class="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-600"></div>
-
-                <div class="grid grid-cols-4 gap-1 px-3 pb-3 pt-4">
-                    @if ($activeChild)
-                        <a href="{{ route('guardian.children.profile', [$school, $activeChild]) }}" @click="moreOpen = false" class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold text-gray-600 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-700/50">
-                            <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" /><path d="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
-                            <span>Child Profile</span>
-                        </a>
-                        <a href="{{ route('guardian.children.attendance', [$school, $activeChild]) }}" @click="moreOpen = false" class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold text-gray-600 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-700/50">
-                            <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /><path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                            <span>Attendance</span>
-                        </a>
-                        <a href="{{ route('guardian.children.assignments', [$school, $activeChild]) }}" @click="moreOpen = false" class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold text-gray-600 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-700/50">
-                            <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><path d="M9 11.5h6M9 14.5h6M9 17.5h3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
-                            <span>Assignments</span>
-                        </a>
-                        <a href="{{ route('guardian.children.fees', [$school, $activeChild]) }}" @click="moreOpen = false" class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold text-gray-600 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-700/50">
-                            <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" /></svg>
-                            <span>Fees</span>
-                        </a>
-                    @endif
-                    @if (\Illuminate\Support\Facades\Route::has('guardian.messages.index'))
-                        <a href="{{ route('guardian.messages.index', $school) }}" @click="moreOpen = false" class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold text-gray-600 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-700/50">
-                            <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
-                            <span>Messages</span>
-                        </a>
-                    @endif
-                    @if (\Illuminate\Support\Facades\Route::has('guardian.notifications.index'))
-                        <a href="{{ route('guardian.notifications.index', $school) }}" @click="moreOpen = false" class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold text-gray-600 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-700/50">
-                            <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
-                            <span>Notifications</span>
-                        </a>
-                    @endif
-                    @if (\Illuminate\Support\Facades\Route::has('guardian.settings.index'))
-                        <a href="{{ route('guardian.settings.index', $school) }}" @click="moreOpen = false" class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold text-gray-600 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-700/50">
-                            <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /><path d="M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                            <span>Settings</span>
-                        </a>
-                    @endif
-                    @if (\Illuminate\Support\Facades\Route::has('guardian.help.index'))
-                        <a href="{{ route('guardian.help.index', $school) }}" @click="moreOpen = false" class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold text-gray-600 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-700/50">
-                            <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" /><path d="M9.5 9.3a2.5 2.5 0 114 2c-.9.6-1.5 1.1-1.5 2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="12" cy="17" r=".9" fill="currentColor" /></svg>
-                            <span>Help</span>
-                        </a>
-                    @endif
-                </div>
-
-                <form method="POST" action="{{ route('guardian.logout', $school) }}" class="border-t border-gray-100 px-3 py-3 dark:border-gray-700">
-                    @csrf
-                    <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold text-red-600 transition-colors duration-200 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H6a2 2 0 01-2-2V5a2 2 0 012-2h3M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                        Log Out
-                    </button>
-                </form>
-            </div>
-        </div>
+        {{-- The app-style bottom bar. Every item, and every plan and role
+             rule behind it, comes from App\Support\PortalNavigation. --}}
+        <x-portal-bottom-nav
+            :primary="$portalNav['primary']"
+            :categories="$portalNav['categories']"
+            :badges="$portalBadges"
+            :logout-url="route('guardian.logout', $school)"
+        />
 
         <x-idle-session-guard :logout-url="route('guardian.logout', $school)" />
     </body>

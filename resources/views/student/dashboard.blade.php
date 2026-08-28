@@ -9,34 +9,20 @@
             subtitle="Stay consistent and never stop learning."
         />
 
-        {{-- Module grid --}}
-        <div class="grid grid-cols-4 gap-2.5 sm:grid-cols-5 sm:gap-3 md:grid-cols-6 lg:grid-cols-4 lg:gap-4 xl:grid-cols-5">
-            @foreach ([
-                ['route' => 'student.profile', 'label' => 'My Profile', 'icon' => 'fa-user', 'color' => 'text-blue-600 bg-blue-50 dark:bg-blue-900/20'],
-                ['route' => 'student.timetable', 'label' => 'My Timetable', 'icon' => 'fa-calendar-days', 'color' => 'text-cyan-600 bg-cyan-50 dark:bg-cyan-900/20'],
-                ['route' => 'student.subjects', 'label' => 'My Subjects', 'icon' => 'fa-book', 'color' => 'text-rose-600 bg-rose-50 dark:bg-rose-900/20'],
-                ['route' => 'student.assignments.index', 'label' => 'Assignments', 'icon' => 'fa-list-check', 'color' => 'text-amber-600 bg-amber-50 dark:bg-amber-900/20', 'badge' => $pendingAssignmentsCount > 0 ? $pendingAssignmentsCount : null],
-                ['route' => 'student.results.index', 'label' => 'Exams & Results', 'icon' => 'fa-file-pen', 'color' => 'text-purple-600 bg-purple-50 dark:bg-purple-900/20'],
-                ['route' => 'student.attendance.index', 'label' => 'Attendance', 'icon' => 'fa-clipboard-check', 'color' => 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20'],
-                ['route' => 'student.library.index', 'label' => 'Library', 'icon' => 'fa-book-open-reader', 'color' => 'text-lime-600 bg-lime-50 dark:bg-lime-900/20'],
-                ['route' => 'student.cbt-practice.index', 'label' => 'CBT Practice', 'icon' => 'fa-laptop-code', 'color' => 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20'],
-                ['route' => 'student.tests.index', 'label' => 'My Tests', 'icon' => 'fa-file-circle-check', 'color' => 'text-violet-600 bg-violet-50 dark:bg-violet-900/20'],
-                ['route' => 'student.messages.index', 'label' => 'Messages', 'icon' => 'fa-envelope', 'color' => 'text-sky-600 bg-sky-50 dark:bg-sky-900/20', 'badge' => $unreadNoticesCount > 0 ? $unreadNoticesCount : null],
-                ['route' => 'student.notifications.index', 'label' => 'Notifications', 'icon' => 'fa-bell', 'color' => 'text-orange-600 bg-orange-50 dark:bg-orange-900/20', 'badge' => $unreadNotificationsCount > 0 ? $unreadNotificationsCount : null],
-                ['route' => 'student.co-curricular.index', 'label' => 'Co-curricular', 'icon' => 'fa-medal', 'color' => 'text-fuchsia-600 bg-fuchsia-50 dark:bg-fuchsia-900/20'],
-                ['route' => 'student.settings.index', 'label' => 'Settings', 'icon' => 'fa-gear', 'color' => 'text-gray-600 bg-gray-100 dark:bg-gray-700'],
-                ['route' => 'student.help.index', 'label' => 'Help & Support', 'icon' => 'fa-circle-question', 'color' => 'text-teal-600 bg-teal-50 dark:bg-teal-900/20'],
-            ] as $item)
-                @continue(! \Illuminate\Support\Facades\Route::has($item['route']))
-                <x-module-card
-                    :href="route($item['route'], $school)"
-                    :label="$item['label']"
-                    :icon="$item['icon']"
-                    :color="$item['color']"
-                    :badge="$item['badge'] ?? null"
-                />
-            @endforeach
-        </div>
+        {{-- The home screen: every feature this pupil may use, grouped,
+             as an icon over its name. It replaced a grid of large cards
+             that were navigation dressed as content - four of them filled
+             a phone screen, so Results was three screens down. --}}
+        @php
+            $nav = \App\Support\PortalNavigation::forStudent($student);
+            $badges = array_filter([
+                'student.notifications.index' => $unreadNotificationsCount,
+                'student.messages.index' => $unreadNoticesCount,
+                'student.assignments.index' => $pendingAssignmentsCount,
+            ]);
+        @endphp
+
+        <x-portal-app-menu :categories="$nav['categories']" :badges="$badges" />
 
         {{-- Recent Notices --}}
         <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">

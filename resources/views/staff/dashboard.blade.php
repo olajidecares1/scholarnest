@@ -8,34 +8,21 @@
             subtitle="Have a productive day at work."
         />
         @php
-            // CBT stays on Standard and Exclusive. This portal is open to every
-            // plan now, so the tile needs its own gate - the route 403s on Basic.
+            // CBT, the diary, ID cards and the timetable stay on Standard and
+            // Exclusive. This portal is open to every plan, so the panels below
+            // need their own gate - those routes 403 on Basic.
+            //
+            // The feature menu no longer needs a list here: PortalNavigation
+            // applies the same rule, once, for every surface that shows it.
             $hasPremiumStaffModules = $school->hasPlanAccess(\App\Enums\PlanKey::Standard, \App\Enums\PlanKey::Exclusive);
-            // The diary is Standard and Exclusive only, like CBT and ID
-            // cards - and the staff portal itself is open on every plan, so
-            // the card has to be filtered here as well as gated on the route.
-            $premiumOnlyRoutes = ['staff.cbt.tests.index', 'staff.id-card.show', 'staff.diary.index', 'staff.timetable'];
         @endphp
 
 
-        <div class="grid grid-cols-4 gap-2.5 sm:grid-cols-5 sm:gap-3 md:grid-cols-6 lg:grid-cols-4 lg:gap-4 xl:grid-cols-5">
-            @foreach ([
-                ['route' => 'staff.profile', 'label' => 'My Profile', 'icon' => 'fa-user', 'color' => 'text-blue-600 bg-blue-50 dark:bg-blue-900/20'],
-                ['route' => 'staff.timetable', 'label' => 'My Timetable', 'icon' => 'fa-calendar-days', 'color' => 'text-cyan-600 bg-cyan-50 dark:bg-cyan-900/20'],
-                ...($staff->role === \App\Enums\StaffRole::Teacher ? [
-                    ['route' => 'staff.attendance.index', 'label' => 'Attendance', 'icon' => 'fa-clipboard-check', 'color' => 'text-green-600 bg-green-50 dark:bg-green-900/20'],
-                    ['route' => 'staff.diary.index', 'label' => 'Diary', 'icon' => 'fa-folder', 'color' => 'text-amber-600 bg-amber-50 dark:bg-amber-900/20'],
-                    ['route' => 'staff.exams.index', 'label' => 'Test/Exam Score', 'icon' => 'fa-file-pen', 'color' => 'text-orange-600 bg-orange-50 dark:bg-orange-900/20'],
-                    ['route' => 'staff.results.index', 'label' => 'Report Cards', 'icon' => 'fa-file-lines', 'color' => 'text-rose-600 bg-rose-50 dark:bg-rose-900/20'],
-                    ['route' => 'staff.cbt.tests.index', 'label' => 'CBT Management', 'icon' => 'fa-laptop-code', 'color' => 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20'],
-                ] : []),
-                ['route' => 'staff.settings.index', 'label' => 'Settings', 'icon' => 'fa-gear', 'color' => 'text-gray-600 bg-gray-100 dark:bg-gray-700'],
-                ['route' => 'staff.help.index', 'label' => 'Help & Support', 'icon' => 'fa-circle-question', 'color' => 'text-teal-600 bg-teal-50 dark:bg-teal-900/20'],
-            ] as $item)
-                @continue(! \Illuminate\Support\Facades\Route::has($item['route']) || (! $hasPremiumStaffModules && in_array($item['route'], $premiumOnlyRoutes, true)))
-                <x-module-card :href="route($item['route'], $school)" :label="$item['label']" :icon="$item['icon']" :color="$item['color']" />
-            @endforeach
-        </div>
+        {{-- The home screen: an icon over its name, grouped, replacing a
+             grid of large cards that were navigation dressed as content. --}}
+        @php $nav = \App\Support\PortalNavigation::forStaff($staff); @endphp
+
+        <x-portal-app-menu :categories="$nav['categories']" />
 
         @php
             $classTeacherOf = $staff->classesAsClassTeacher();
