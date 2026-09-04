@@ -100,6 +100,7 @@ test('two different schools can reuse the same staff number', function () {
 
 test('a school admin can upload a staff photo', function () {
     Storage::fake('public');
+    Storage::fake('local');
 
     $this->actingAs($this->admin)->post(route('staff.store'), [
         'staff_number' => 'STF-0002',
@@ -112,7 +113,7 @@ test('a school admin can upload a staff photo', function () {
 
     $member = Staff::where('school_id', $this->school->id)->where('last_name', 'Ade')->firstOrFail();
     expect($member->photo_path)->not->toBeNull();
-    Storage::disk('public')->assertExists($member->photo_path);
+    Storage::disk('local')->assertExists($member->photo_path);
 });
 
 test('a school admin can view a staff profile', function () {

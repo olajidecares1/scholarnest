@@ -1,6 +1,6 @@
 # Password reset and account recovery policy
 
-Who is allowed to reset a password in EduNest, and how that restriction is
+Who is allowed to reset a password in ScholarNest, and how that restriction is
 enforced.
 
 ---
@@ -22,6 +22,7 @@ flow, because there is nobody above them inside the school to ask.
 | ------------ | --------------------------------------- | ------------- |
 | Super Admin | Yes | Self-service |
 | School Admin | Yes | Self-service (link + 6-digit code) |
+
 | Staff | **No** | Their School Admin |
 | Student | **No** | Their School Admin |
 | Parent/Guardian | **No** | Their School Admin |
@@ -45,6 +46,63 @@ verifies who is asking, in a building where they can be recognised.
 
 The rule is enforced in four independent places. Defeating the interface
 achieves nothing, because the interface is not what enforces it.
+
+---
+
+## How the administrator flow works
+
+Laravel's own password broker, with one addition.
+
+```
+Forgot password?  ->  enter email  ->  always the same answer
+                                        ↓
+                          email: "Reset Your ScholarNest Password"
+                          [ Reset Password ]  +  6-digit code
+                                        ↓
+                      reset page: code + new password + confirm
+                                        ↓
+                          password updated  ->  sign in
+```
+
+**Laravel owns the token.** It generates it, decides when it expires
+(`auth.passwords.users.expire`, 60 minutes), refuses it once used, and replaces
+it when a new one is requested. None of that is re-implemented here.
+
+**The code is the addition, and it is derived rather than stored.** It is an
+HMAC of the token under the application key — see `App\Support\PasswordResetCode`.
+That means it expires with the token, is replaced with the token, and is deleted
+with the token, without a second table that could disagree with the first.
+Someone holding the link holds the token and nothing else; without the key they
+cannot compute the code, so the link alone remains insufficient.
+
+Why a code at all: the link travels through mail servers, sits in an inbox that
+may be shared or open on a staffroom screen, and leaks through referrer headers
+and browser history. Requiring the code means whoever resets the password had to
+read the email body, not merely acquire the URL from it.
+
+**What the request endpoint never reveals.** The answer is the same sentence
+whether the address has an account, has no account, or asked too recently.
+Laravel's default says "We can't find a user with that email address", which
+turns the form into a free way to test who is a ScholarNest administrator.
+
+**Where the link points.** The URL is built from `APP_URL`, not from the request.
+Laravel's `route()` takes its host from the incoming request, so a forged Host
+header on the forgot-password endpoint would otherwise put an attacker's domain
+in the victim's email — and the victim would hand over their token by clicking
+it.
+
+**What is recorded.** Every request is written to the application log, including
+the ones that matched nothing, because a run of misses is what enumeration looks
+like. Successful resets additionally write an audit entry and send the account
+holder a "your password was changed" notification — the one message that reaches
+somebody whose account was taken by whoever controls their inbox.
+
+> **There used to be two flows.** A second, parallel reset — its own token table,
+> its own broker, its own four pages — existed alongside this one, and nothing
+> linked to it. The sign-in page pointed at the route *without* the verification
+> code, so every administrator who ever clicked "Forgot password?" used the
+> weaker path while the stronger one sat unreachable and unaudited. The code
+> moved onto the linked route and the parallel flow was deleted.
 
 ### 1. The routes do not exist
 

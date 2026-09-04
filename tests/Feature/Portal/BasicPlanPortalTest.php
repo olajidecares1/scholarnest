@@ -68,7 +68,11 @@ test('the token at the root does not swallow the application', function () {
     // the check that matters most: real paths must still resolve.
     $this->get('/portal/sign-in')->assertOk();
     $this->get('/up')->assertOk();
-    $this->get('/portal')->assertNotFound();
+
+    // /portal is the open front door now - name your school, pick your
+    // portal - rather than a 404. It used to be reachable only at the
+    // token-gated address above, which no school could be expected to keep.
+    $this->get('/portal')->assertOk();
 });
 
 // -----------------------------------------------------------------------------
@@ -79,7 +83,7 @@ test('an exact school name redirects to that school', function () {
     $school = basicSchool('Greenfield College');
 
     $this->post('/'.PORTAL_TOKEN, ['school' => 'Greenfield College'])
-        ->assertRedirect('/'.$school->slug);
+        ->assertRedirect(route('portal.index', $school));
 
     expect($school->slug)->toBe('greenfield-college');
 });
@@ -88,24 +92,24 @@ test('the name is matched without caring about case or spacing', function () {
     $school = basicSchool('Greenfield College');
 
     $this->post('/'.PORTAL_TOKEN, ['school' => '  gREENFIELD college '])
-        ->assertRedirect('/'.$school->slug);
+        ->assertRedirect(route('portal.index', $school));
 });
 
 test('a school can also be found by its slug or school code', function () {
     $school = basicSchool('Greenfield College');
 
     $this->post('/'.PORTAL_TOKEN, ['school' => $school->slug])
-        ->assertRedirect('/'.$school->slug);
+        ->assertRedirect(route('portal.index', $school));
 
     $this->post('/'.PORTAL_TOKEN, ['school' => $school->school_code])
-        ->assertRedirect('/'.$school->slug);
+        ->assertRedirect(route('portal.index', $school));
 });
 
 test('a partial name finds the school', function () {
     $school = basicSchool('Greenfield College');
 
     $this->post('/'.PORTAL_TOKEN, ['school' => 'Greenfield'])
-        ->assertRedirect('/'.$school->slug);
+        ->assertRedirect(route('portal.index', $school));
 });
 
 test('several matches are listed to choose from rather than guessed at', function () {
@@ -126,7 +130,7 @@ test('an exact name wins over schools that merely contain it', function () {
 
     // Without tiered matching, the exact school would be buried in a list.
     $this->post('/'.PORTAL_TOKEN, ['school' => 'Kings College'])
-        ->assertRedirect('/'.$exact->slug);
+        ->assertRedirect(route('portal.index', $exact));
 });
 
 test('an unknown school name is refused without saying why', function () {
@@ -145,20 +149,23 @@ test('the school name is required', function () {
 // Plan separation
 // -----------------------------------------------------------------------------
 
-test('a standard school cannot be found through the basic portal', function () {
-    nonBasicSchool('Royal College', PlanKey::Standard);
+test('a standard school is found here too, and lands on its portal', function () {
+    $school = nonBasicSchool('Royal College', PlanKey::Standard);
 
-    // Standard schools have their own subdomain. Surfacing them here would
-    // both break the plan separation and leak what a school pays for.
+    // This used to refuse them, on the reasoning that Standard schools have
+    // their own subdomain and never need looking up. That left a Standard
+    // school which had mislaid its subdomain with nowhere to type its own
+    // name. Naming your school is the way in on every plan now; the PLAN
+    // still decides which portals the hub then offers.
     $this->post('/'.PORTAL_TOKEN, ['school' => 'Royal College'])
-        ->assertSessionHasErrors('school');
+        ->assertRedirect(route('portal.index', $school));
 });
 
-test('an exclusive school cannot be found through the basic portal', function () {
-    nonBasicSchool('Elite Academy', PlanKey::Exclusive);
+test('an exclusive school is found here too', function () {
+    $school = nonBasicSchool('Elite Academy', PlanKey::Exclusive);
 
     $this->post('/'.PORTAL_TOKEN, ['school' => 'Elite Academy'])
-        ->assertSessionHasErrors('school');
+        ->assertRedirect(route('portal.index', $school));
 });
 
 test('a school with no active subscription cannot be found', function () {
@@ -178,7 +185,7 @@ test('a basic school page shows its portal sign-in choices', function () {
     // The two roles Basic actually has - School Admin and Teacher - plus the
     // result-token route for parents. It used to list Student and Parent
     // logins too, which on Basic opened straight onto the locked page.
-    $this->get('/'.$school->slug)
+    $this->get('/'.$school->portal_key)
         ->assertOk()
         ->assertSee('Greenfield College')
         ->assertSee('School Admin')
@@ -187,10 +194,26 @@ test('a basic school page shows its portal sign-in choices', function () {
         ->assertDontSee('Parent / Guardian');
 });
 
-test('a standard school at the root is sent to its own website instead', function () {
+test('a standard school with a website is sent to it instead', function () {
+    $school = nonBasicSchool('Royal College', PlanKey::Standard);
+    $school->website()->create(['hero_title' => 'Welcome', 'is_published' => true]);
+
+    // A school with its own front door does not also get a competing one at
+    // the platform root.
+    $this->get('/'.$school->portal_key)->assertRedirect($school->fresh()->websiteUrl());
+});
+
+test('a standard school with no website published yet gets the portal hub, not a redirect into nothing', function () {
     $school = nonBasicSchool('Royal College', PlanKey::Standard);
 
-    $this->get('/'.$school->slug)->assertRedirect();
+    // This used to redirect anyway, to an address the public site answers
+    // with 404 - so a school that had not yet built its website sent every
+    // visitor at its root to a dead page. There is nothing to redirect TO
+    // until a site is published, so they get the page that tells them where
+    // to sign in.
+    $this->get('/'.$school->portal_key)
+        ->assertOk()
+        ->assertSee($school->name);
 });
 
 test('an unknown slug is a 404', function () {
@@ -224,7 +247,7 @@ test('a school whose name merely starts with a reserved word still works', funct
 
     expect($school->slug)->toBe('newspaper-college');
 
-    $this->get('/'.$school->slug)->assertOk();
+    $this->get('/'.$school->portal_key)->assertOk();
 });
 
 test('a school can never be given a token-shaped slug', function () {
@@ -241,7 +264,7 @@ test('a school can never be given a token-shaped slug', function () {
         ->and($school->slug)->toBe($thirtyTwoLetterName.'-2');
 
     // And it must actually be reachable.
-    $this->get('/'.$school->slug)->assertOk();
+    $this->get('/'.$school->portal_key)->assertOk();
 });
 
 test('a school whose name produces an empty slug still gets a usable one', function () {
@@ -257,11 +280,11 @@ test('a school whose name produces an empty slug still gets a usable one', funct
 
     // And it must actually route.
     activateSchool($school, PlanKey::Basic);
-    $this->get('/'.$school->slug)->assertOk();
+    $this->get('/'.$school->portal_key)->assertOk();
 });
 
 // -----------------------------------------------------------------------------
-// The finder must not become a way to list EduNest's customers
+// The finder must not become a way to list ScholarNest's customers
 // -----------------------------------------------------------------------------
 
 test('like wildcards typed into the box are treated as literal text', function () {

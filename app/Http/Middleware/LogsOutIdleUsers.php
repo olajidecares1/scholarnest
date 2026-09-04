@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\UserRole;
+use App\Support\PortalLoginRedirect;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,26 @@ class LogsOutIdleUsers
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // The public website is not a portal and must never be decided by one.
+        //
+        // This middleware is global, which is right for covering every
+        // protected route without having to remember to attach it - but global
+        // meant it also ran on the school's PUBLIC website, and there it did
+        // real damage. A School Admin looking at their own site, signed in in
+        // the same browser, spends four minutes writing a message on the
+        // contact form; this saw an idle session on the way in, logged them
+        // out, and answered the POST with the portal login. The message was
+        // never written and the visitor was thrown off the public site - both
+        // halves of the reported bug, from one line.
+        //
+        // Asking the ROUTE whether it requires authentication keeps that from
+        // coming back: a new protected route is covered the moment it is given
+        // auth middleware, and a new public one is exempt without anybody
+        // having to think about it.
+        if (! $this->requiresAuthentication($request)) {
+            return $next($request);
+        }
+
         $authenticated = false;
 
         foreach (self::GUARDS as $guard) {
@@ -76,6 +97,32 @@ class LogsOutIdleUsers
         return $response;
     }
 
+    /**
+     * Does the matched route sit behind an auth guard?
+     *
+     * Read off the route's own middleware rather than kept as a list of paths
+     * here, because a list would go stale the first time somebody added a
+     * route and did not know this file existed.
+     */
+    private function requiresAuthentication(Request $request): bool
+    {
+        $route = $request->route();
+
+        if (! $route) {
+            return false;
+        }
+
+        foreach ($route->gatherMiddleware() as $middleware) {
+            // "auth", "auth:staff", "auth.session" - all of them mean this
+            // route is somebody's signed-in page.
+            if (is_string($middleware) && preg_match('/^auth(\.|:|$)/', $middleware) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function expire(Request $request, string $guard, mixed $user, string $sessionKey): Response
     {
         Auth::guard($guard)->logout();
@@ -86,7 +133,11 @@ class LogsOutIdleUsers
         // there is nothing left in the request that says which school this
         // was. The global login is only for a user with no school of their
         // own - a Super Admin, or an account whose school has been deleted.
-        $destination = $user->school?->portalLoginUrl($guard) ?? route('login');
+        // Never route('login'): that name redirects on to registration, so the
+        // old fallback ended an expired session at "register your school".
+        // PortalLoginRedirect works the portal out from the request instead,
+        // and its own last resort is the unified sign-in.
+        $destination = $user->school?->portalLoginUrl($guard) ?? PortalLoginRedirect::for($request);
 
         if ($request->expectsJson()) {
             // No message: an expiry is not news the person needs told. They

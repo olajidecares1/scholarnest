@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * One way a school may pay, as the EduNest Team has configured it.
+ * One way a school may pay, as the ScholarNest Team has configured it.
  *
  * Named ...Setting rather than PaymentMethod because App\Enums\PaymentMethod
  * already holds the vocabulary - which methods exist at all - and a payment

@@ -48,8 +48,11 @@ class EnsureUserIsSchoolAdmin
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->withErrors([
-            'login' => 'This school account is no longer available. Please contact EduNest support if you believe this is a mistake.',
+        // The unified sign-in, not route('login') - that name redirects on to
+        // registration, and this message beside a "register your school" form
+        // reads as an instruction to do exactly that.
+        return redirect()->route('portal.show')->withErrors([
+            'login' => 'This school account is no longer available. Please contact ScholarNest support if you believe this is a mistake.',
         ]);
     }
 }

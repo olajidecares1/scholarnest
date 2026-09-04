@@ -37,7 +37,17 @@ test('the public contact page renders without error when nothing has been saved'
     $this->get(route('public.school-contact.index', $this->school))->assertStatus(200);
 });
 
-test('a custom saved block is reflected on the public home page', function () {
+test('a saved hero block no longer replaces the designed hero', function () {
+    // THE RULE CHANGED, and deliberately. The home hero used to be swapped out
+    // for page-builder blocks the moment a school had saved one - and those
+    // are placed by absolute coordinate, so they collided into overlapping
+    // text at any width but the one they were arranged at. A school that had
+    // touched the builder once got that instead of the design, permanently.
+    //
+    // The designed template is now what every school gets. The words are still
+    // theirs, from their website settings; the LAYOUT is fixed, because that
+    // is the part a coordinate system was never going to get right across four
+    // breakpoints.
     WebsiteBlock::where('school_id', $this->school->id)->where('page', 'home')->delete();
 
     $style = WebsiteBlockDefaults::defaultStyle('text');
@@ -55,8 +65,10 @@ test('a custom saved block is reflected on the public home page', function () {
 
     $this->get(route('public.school-website', $this->school))
         ->assertStatus(200)
-        ->assertSee('Custom Hero Title')
-        ->assertSee('font-size:72px', false);
+        ->assertDontSee('Custom Hero Title')
+        ->assertDontSee('font-size:72px', false)
+        // The school's own hero title, from its settings, is what shows.
+        ->assertSee($this->school->name);
 });
 
 test('a custom saved block is reflected on the public about page', function () {

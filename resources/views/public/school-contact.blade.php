@@ -21,25 +21,26 @@
                 <p class="text-center text-sm text-gray-500">This school hasn't added contact details yet.</p>
             @endif
 
-            @if ($website->facebook_url || $website->twitter_url || $website->instagram_url)
+            {{-- Every network the school has filled in, from its own settings -
+                 see App\Support\SchoolSocialLinks. --}}
+            @php $socialLinks = \App\Support\SchoolSocialLinks::for($school); @endphp
+
+            @if ($socialLinks !== [])
                 <div class="mt-10 text-center">
                     <p class="text-xs font-bold uppercase tracking-wide text-gray-500">Follow Us</p>
-                    <div class="mt-3 flex justify-center gap-3">
-                        @if ($website->facebook_url)
-                            <a href="{{ $website->facebook_url }}" target="_blank" rel="noopener" class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors duration-150 hover:bg-primary-600 hover:text-white">
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.25-1.5 1.55-1.5H16.7V3.7C16.4 3.65 15.4 3.55 14.25 3.55c-2.4 0-4.05 1.45-4.05 4.15v2.25H7.5v3.1h2.7v8h3.3z" /></svg>
+                    <div class="mt-3 flex flex-wrap justify-center gap-3">
+                        @foreach ($socialLinks as $link)
+                            <a
+                                href="{{ $link['url'] }}"
+                                target="_blank"
+                                rel="noopener"
+                                title="{{ $link['label'] }}"
+                                aria-label="{{ $link['label'] }}"
+                                class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors duration-150 hover:bg-primary-600 hover:text-white"
+                            >
+                                <i class="{{ $link['icon'] }} text-base"></i>
                             </a>
-                        @endif
-                        @if ($website->twitter_url)
-                            <a href="{{ $website->twitter_url }}" target="_blank" rel="noopener" class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors duration-150 hover:bg-primary-600 hover:text-white">
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6.5c-.6.3-1.3.5-2 .6.7-.4 1.3-1.2 1.5-2-.7.4-1.5.7-2.3.9a3.5 3.5 0 00-6 3.2A10 10 0 014 5.9a3.5 3.5 0 001.1 4.7c-.5 0-1-.2-1.5-.4v.1c0 1.7 1.2 3.1 2.8 3.4-.5.1-1 .2-1.6.1.4 1.4 1.7 2.4 3.3 2.4A7 7 0 014 17.5a10 10 0 005.4 1.6c6.5 0 10-5.4 10-10v-.5c.7-.5 1.3-1.1 1.7-1.8z" /></svg>
-                            </a>
-                        @endif
-                        @if ($website->instagram_url)
-                            <a href="{{ $website->instagram_url }}" target="_blank" rel="noopener" class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors duration-150 hover:bg-primary-600 hover:text-white">
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5" stroke="currentColor" stroke-width="1.6" /><circle cx="12" cy="12" r="3.7" stroke="currentColor" stroke-width="1.6" /><circle cx="17" cy="7" r="1" fill="currentColor" /></svg>
-                            </a>
-                        @endif
+                        @endforeach
                     </div>
                 </div>
             @endif
@@ -50,6 +51,25 @@
                         Send Us a Message
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                     </a>
+                </div>
+            @endif
+
+            {{-- Where the school actually is.
+
+                 This page is the one a visitor opens looking for exactly that,
+                 and it carried no address and no map at all - only the home
+                 page had one. Same component as the home page, so the two
+                 cannot disagree, and it draws nothing when no address has been
+                 set. --}}
+            @php($pageContact = \App\Support\SchoolContact::for($school))
+
+            @if (filled($pageContact->address))
+                <div class="mt-12">
+                    <h2 class="text-center text-lg font-extrabold text-gray-900">Find Us</h2>
+
+                    <div class="mx-auto mt-5 max-w-3xl">
+                        <x-school-map :school="$school" :height="320" :show-address="true" />
+                    </div>
                 </div>
             @endif
         </div>

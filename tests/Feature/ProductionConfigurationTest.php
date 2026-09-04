@@ -13,6 +13,14 @@ function withProductionConfig(array $overrides = []): void
         'app.debug' => false,
         'session.secure' => true,
         'session.encrypt' => true,
+
+        // A real production address. The baseline used to leave this at the
+        // test default of http://localhost, which was fine while the check
+        // looked only at debug and session settings - and stopped being fine
+        // the moment APP_URL joined them, because a platform whose every
+        // generated link points at localhost is not correctly configured.
+        'app.url' => 'https://scholarnest.com.ng',
+
         ...$overrides,
     ]);
 }

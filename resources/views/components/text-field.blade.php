@@ -96,6 +96,11 @@
             {{ $errorMessages[0] }}
         </p>
     @elseif ($helper)
-        <p class="field-hint mt-1">{{ $helper }}</p>
+        {{-- <small>, not <p>: this is small print ABOUT the control above it,
+             which is what the element means. It also makes every hint in the
+             application the same tag, so the ones written by hand next to file
+             pickers and textareas - controls this component cannot wrap - match
+             the ones it renders. --}}
+        <small class="field-hint mt-1">{{ $helper }}</small>
     @endif
 </div>

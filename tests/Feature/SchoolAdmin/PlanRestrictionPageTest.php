@@ -66,7 +66,6 @@ test('a basic school admin is refused every standard-only feature', function (st
     'news' => 'news.index',
     'careers' => 'careers.index',
     'testimonials' => 'testimonials.index',
-    'facilities' => 'facilities.index',
     'co-curricular' => 'co-curricular.index',
     'website' => 'website.index',
     'ID cards' => 'id-cards.index',
@@ -230,12 +229,34 @@ test('the basic dashboard does not link to a single restricted feature', functio
     // A link that 403s is worse than no link, however good the page behind the
     // 403 looks.
     foreach (['cbt-practice.index', 'cbt-tests.index', 'events.index', 'news.index',
-        'careers.index', 'testimonials.index', 'facilities.index', 'website.index',
+        'careers.index', 'testimonials.index', 'website.index',
         'id-cards.index', 'guardians.index', 'co-curricular.index',
         'assignments.index', 'library.index', 'transport.index', 'hostels.index',
         'finance.index'] as $route) {
         $response->assertDontSee(route($route));
     }
+});
+
+test('but facilities is on every plan, so a Basic school reaches it', function () {
+    // The exception to everything above. A school's buildings are a plain fact
+    // about the school rather than a premium extra, so Facilities is open to
+    // Basic while News, Events and the website itself stay behind the gate.
+    $admin = adminOnPlan(PlanKey::Basic);
+
+    $this->actingAs($admin)->get(route('facilities.index'))->assertOk();
+});
+
+test('and the basic dashboard offers it', function () {
+    // The interface asks canAccessRoute before it draws a link and the
+    // middleware asks the same question before serving the page, so the two
+    // cannot disagree - but that cuts both ways, and a feature opened up in
+    // one place has to appear in the other.
+    $admin = adminOnPlan(PlanKey::Basic);
+
+    $this->actingAs($admin)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee(route('facilities.index'));
 });
 
 test('the standard dashboard does link to them', function () {

@@ -1,4 +1,4 @@
-# Putting EduNest on GitHub
+# Putting ScholarNest on GitHub
 
 Right now the repository exists **only on this laptop**. Four weeks of work, and
 one hard disk failure or one bad `git reset` would end it. This is the most
@@ -21,7 +21,7 @@ Two things have already been checked, so you can push safely:
 ## 1. Create the repository
 
 1. Go to <https://github.com/new>
-2. **Repository name:** `edunest`
+2. **Repository name:** `scholarnest`
 3. **Description:** Multi-tenant school management and school website platform
 4. **Visibility: Private.** This matters. The repository will contain the
    structure of a system holding real children's records. Make it public only
@@ -35,14 +35,14 @@ Two things have already been checked, so you can push safely:
 
 ## 2. Connect this project to it
 
-GitHub will show you a URL like `https://github.com/YOURNAME/edunest.git`.
+GitHub will show you a URL like `https://github.com/YOURNAME/scholarnest.git`.
 
 Open a terminal in the project folder and run:
 
 ```powershell
-cd C:\Users\OlajideCares\Documents\EduNest
+cd C:\Users\OlajideCares\Documents\ScholarNest
 
-git remote add origin https://github.com/YOURNAME/edunest.git
+git remote add origin https://github.com/YOURNAME/scholarnest.git
 
 git remote -v
 ```

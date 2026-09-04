@@ -4,6 +4,7 @@ namespace App\Http\Requests\SuperAdmin;
 
 use App\Models\AdminRole;
 use App\Models\User;
+use App\Rules\NotDerivedFromIdentity;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
@@ -24,7 +25,10 @@ class StoreTeamMemberRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'admin_role_id' => ['nullable', 'integer', 'exists:'.AdminRole::class.',id'],
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password' => ['required', 'confirmed', Password::defaults(), new NotDerivedFromIdentity([
+                $this->input('name'),
+                $this->input('email'),
+            ])],
         ];
     }
 }

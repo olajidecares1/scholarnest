@@ -61,7 +61,7 @@
                             <p class="mt-3 flex items-start gap-2 rounded-[8px] border border-red-200 bg-red-50 p-3 text-[12px] leading-[1.6] text-red-800 dark:border-red-900 dark:bg-red-900/20 dark:text-red-300">
                                 <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0"></i>
                                 <span>
-                                    These are the placeholder details that shipped with EduNest, not a real account.
+                                    These are the placeholder details that shipped with ScholarNest, not a real account.
                                     Replace them before any school pays.
                                 </span>
                             </p>

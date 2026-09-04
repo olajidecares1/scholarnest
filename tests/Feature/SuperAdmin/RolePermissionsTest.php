@@ -37,7 +37,7 @@ test('super admin can add a team member restricted to a role', function () {
 
     $response = $this->actingAs($this->superAdmin)->post(route('super-admin.roles.team.store'), [
         'name' => 'Finance Assistant',
-        'email' => 'finance@edunest.test',
+        'email' => 'finance@scholarnest.test',
         'admin_role_id' => $role->id,
         'password' => 'Password123!',
         'password_confirmation' => 'Password123!',
@@ -45,7 +45,7 @@ test('super admin can add a team member restricted to a role', function () {
 
     $response->assertRedirect(route('super-admin.roles.index'));
 
-    $member = User::where('email', 'finance@edunest.test')->firstOrFail();
+    $member = User::where('email', 'finance@scholarnest.test')->firstOrFail();
     expect($member->role)->toBe(UserRole::SuperAdmin);
     expect($member->admin_role_id)->toBe($role->id);
 });

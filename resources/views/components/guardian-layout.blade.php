@@ -31,7 +31,7 @@
 
         <title>{{ $pageTitle }} - {{ $school->name }}</title>
 
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <x-favicon :school="$school" />
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
@@ -50,144 +50,14 @@
             {!! \App\Support\ThemePreset::cssVariables($platformSettings->theme_preset) !!}
             {!! $school?->website?->brand_primary_color ? \App\Support\BrandColorScale::cssVariables('primary', $school->website->brand_primary_color) : '' !!}
         </style>
-        <style>
-            .edn-sidebar-scroll { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.22) transparent; }
-            .edn-sidebar-scroll::-webkit-scrollbar { width: 6px; }
-            .edn-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
-            .edn-sidebar-scroll::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.18); border-radius: 9999px; }
-            .edn-sidebar-scroll::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32); }
-        </style>
     </head>
-    <body class="bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
-        <aside class="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-gray-200 bg-white shadow-sm print:hidden lg:flex dark:border-gray-800 dark:bg-gray-900">
-            <div class="edn-sidebar-scroll flex-1 overflow-y-auto">
-                <div class="mx-3 mb-1 mt-4 rounded-[8px] bg-gray-100 dark:bg-gray-800 p-3">
-                    <div class="flex items-center gap-2.5">
-                        <span class="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 dark:bg-primary-900/40">
-                            <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-900 dark:text-gray-100">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
-                            @if ($school->logoUrl())
-                                <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="relative h-full w-full rounded-full bg-white object-cover" onerror="this.style.display='none'">
-                            @endif
-                        </span>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-bold leading-tight">{{ $school->name }}</p>
-                            <p class="mt-0.5 truncate text-xs font-medium text-gray-500 dark:text-gray-400">Parent Portal</p>
-                        </div>
-                    </div>
-                </div>
+    <body class="overflow-x-hidden bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
 
-                <nav class="space-y-1 px-3 pb-4 pt-3">
-                    @php
-                        $navLinkClasses = fn (bool $isActive) => 'group relative flex items-start gap-3 rounded-[10px] px-3 py-2.5 text-left transition-all duration-200 ease-out '
-                        .($isActive
-                            ? 'bg-primary-50 text-primary-800 shadow-sm ring-1 ring-primary-200 dark:bg-primary-900/40 dark:text-primary-100 dark:ring-primary-700'
-                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-900 dark:text-gray-100');
-                        $navIconClasses = 'h-5 w-5 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110';
-
-                        $childNavItems = [
-                            ['route' => 'guardian.children.profile', 'label' => 'Child Profile', 'icon' => 'M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7', 'extra' => '<circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />'],
-                            ['route' => 'guardian.children.timetable', 'label' => 'Timetable', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M8.5 12.5h7M8.5 15.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                            ['route' => 'guardian.children.results', 'label' => 'Exams & Results', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
-                            ['route' => 'guardian.children.attendance', 'label' => 'Attendance', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />'],
-                            ['route' => 'guardian.children.assignments', 'label' => 'Assignments', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 4V3.3a1 1 0 011-1h4a1 1 0 011 1V4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M9 11.5h6M9 14.5h6M9 17.5h3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                            ['route' => 'guardian.children.fees', 'label' => 'Fees & Payments', 'icon' => 'M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z', 'extra' => '<path d="M4 7.5l2.5-3h11l2.5 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />'],
-                        ];
-
-                        $globalNavItems = [
-                            ['route' => 'guardian.messages.index', 'label' => 'Messages', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                            ['route' => 'guardian.notifications.index', 'label' => 'Notifications', 'icon' => 'M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z', 'extra' => '<path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
-                            ['route' => 'guardian.settings.index', 'label' => 'Settings', 'icon' => '', 'extra' => '<circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /><path d="M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                            ['route' => 'guardian.help.index', 'label' => 'Help & Support', 'icon' => '', 'extra' => '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" /><path d="M9.5 9.3a2.5 2.5 0 114 2c-.9.6-1.5 1.1-1.5 2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="12" cy="17" r=".9" fill="currentColor" />'],
-                        ];
-                    @endphp
-
-                    @php $isDashboardActive = request()->routeIs('guardian.dashboard'); @endphp
-                    <a href="{{ route('guardian.dashboard', $school) }}" class="{{ $navLinkClasses($isDashboardActive) }}">
-                        <i class="fa-solid fa-gauge fa-fw fa-fw text-[18px] leading-none text-primary-600 transition-transform duration-200 group-hover:scale-110 dark:text-primary-300"></i>
-                        <span class="min-w-0 flex-1">
-                            <h4 class="truncate text-[13px] font-semibold leading-tight">Dashboard</h4>
-                            <small class="mt-0.5 block truncate text-[11px] font-normal leading-tight text-gray-500 dark:text-gray-400">Overview of your school</small>
-                        </span>
-                    </a>
-
-                    @if ($activeChild)
-                        @foreach ($childNavItems as $item)
-                            @continue(! \Illuminate\Support\Facades\Route::has($item['route']))
-                            @php $isActive = request()->routeIs($item['route']); @endphp
-                            <a href="{{ route($item['route'], [$school, $activeChild]) }}" class="{{ $navLinkClasses($isActive) }}">
-                                <i class="{{ \App\Support\SidebarMeta::icon($item['route']) }} fa-fw text-[18px] leading-none text-primary-600 transition-transform duration-200 group-hover:scale-110 dark:text-primary-300"></i>
-                                <span class="min-w-0 flex-1">
-                            <h4 class="truncate text-[13px] font-semibold leading-tight">{{ $item['label'] }}</h4>
-                            <small class="mt-0.5 block truncate text-[11px] font-normal leading-tight text-gray-500 dark:text-gray-400">{{ \App\Support\SidebarMeta::description($item['route']) }}</small>
-                        </span>
-                            </a>
-                        @endforeach
-                    @endif
-
-                    @foreach ($globalNavItems as $item)
-                        @continue(! \Illuminate\Support\Facades\Route::has($item['route']))
-                        @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*') || request()->routeIs($item['route']); @endphp
-                        <a href="{{ route($item['route'], $school) }}" class="{{ $navLinkClasses($isActive) }}">
-                            <i class="{{ \App\Support\SidebarMeta::icon($item['route']) }} fa-fw text-[18px] leading-none text-primary-600 transition-transform duration-200 group-hover:scale-110 dark:text-primary-300"></i>
-                            <span class="min-w-0 flex-1">
-                            <h4 class="truncate text-[13px] font-semibold leading-tight">{{ $item['label'] }}</h4>
-                            <small class="mt-0.5 block truncate text-[11px] font-normal leading-tight text-gray-500 dark:text-gray-400">{{ \App\Support\SidebarMeta::description($item['route']) }}</small>
-                        </span>
-                        </a>
-                    @endforeach
-                </nav>
-
-                <div class="m-3">
-                    <div class="rounded-[8px] bg-gray-100 dark:bg-gray-800 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
-                        <p class="text-sm font-semibold">Need Help?</p>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Our support team is here to help.</p>
-                        @if (\Illuminate\Support\Facades\Route::has('guardian.help.index'))
-                            <a
-                                href="{{ route('guardian.help.index', $school) }}"
-                                class="mt-3 inline-flex w-full items-center justify-center rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-[#111a35] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]"
-                            >
-                                Contact Support
-                            </a>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="relative border-t border-gray-200 dark:border-gray-800 px-3 py-3" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="flex w-full items-center gap-2.5 rounded-[8px] px-2 py-2 text-left transition-all duration-200 hover:bg-gray-100 dark:bg-gray-800 active:scale-[0.98]">
-                        <span class="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 dark:bg-primary-900/40 text-sm font-bold text-gray-900 dark:text-gray-100">
-                            {{ Str::of($guardian->name)->substr(0, 1)->upper() }}
-                            <span class="absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#111a35] bg-green-400"></span>
-                        </span>
-                        <span class="min-w-0 flex-1">
-                            <span class="block truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $guardian->name }}</span>
-                            <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $guardian->email }}</span>
-                        </span>
-                        <svg class="h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-out" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
-
-                    <div
-                        x-show="open"
-                        x-transition
-                        style="display: none;"
-                        class="absolute bottom-full left-3 right-3 z-30 mb-2 rounded-[8px] border border-gray-200 bg-white py-1 shadow-lg"
-                    >
-                        @if (\Illuminate\Support\Facades\Route::has('guardian.settings.index'))
-                            <a href="{{ route('guardian.settings.index', $school) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Profile</a>
-                        @endif
-                        <form method="POST" action="{{ route('guardian.logout', $school) }}">
-                            @csrf
-                            <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">Log Out</button>
-                        </form>
-                    </div>
-                </div>
-
-                <p class="px-5 pb-4 text-xs text-gray-500 dark:text-gray-400">&copy; {{ now()->year }} {{ $school->name }}. All rights reserved.</p>
-            </div>
-        </aside>
-
-        <div class="print:pl-0 lg:pl-64">
+        {{-- The app shell. These portals are phone and tablet interfaces at
+             every width: there is no desktop layout to fall through to, so on a
+             wide screen the app is centred at a comfortable reading width
+             rather than stretched across two feet of glass. --}}
+        <div class="mx-auto w-full max-w-3xl">
             @php
                 $notifications = $guardian->notifications()->latest()->take(8)->get();
                 $unreadCount = $guardian->unreadNotifications()->count();
@@ -278,26 +148,22 @@
             </header>
 
             @php
+                // Prev/next walks the same menu as everything else - which is
+                // already bound to the child being viewed, so a swipe cannot
+                // wander onto a sibling's pages.
                 $pageNavItems = collect([
-                    ['route' => 'guardian.dashboard', 'label' => 'Dashboard', 'url' => route('guardian.dashboard', $school)],
+                    ['route' => 'guardian.dashboard', 'label' => 'Home', 'url' => route('guardian.dashboard', $school)],
                 ])
-                    ->when($activeChild, fn ($collection) => $collection->concat(
-                        collect($childNavItems)
-                            ->filter(fn ($item) => \Illuminate\Support\Facades\Route::has($item['route']))
-                            ->map(fn ($item) => ['route' => $item['route'], 'label' => $item['label'], 'url' => route($item['route'], [$school, $activeChild])])
+                    ->concat(collect($portalNav['categories'])->flatten(1)->map(
+                        fn (array $item) => ['route' => $item['route'], 'label' => $item['label'], 'url' => $item['url']]
                     ))
-                    ->concat(
-                        collect($globalNavItems)
-                            ->filter(fn ($item) => \Illuminate\Support\Facades\Route::has($item['route']))
-                            ->map(fn ($item) => ['route' => $item['route'], 'label' => $item['label'], 'url' => route($item['route'], $school)])
-                    )
                     ->values()
                     ->all();
                 $pageNav = \App\Support\PageNavigator::resolve($pageNavItems, request()->route()?->getName());
             @endphp
-            <x-mobile-page-nav :prev="$pageNav['prev']" :next="$pageNav['next']" :current-label="$pageNav['current']" />
+            <x-mobile-page-nav :prev="$pageNav['prev']" :next="$pageNav['next']" :current-label="$pageNav['current']" always-visible />
 
-            <main class="p-4 pb-24 sm:p-6 lg:p-8 lg:pb-8 dark:bg-gray-900">
+            <main class="edn-portal-main p-3 sm:p-5 dark:bg-gray-900">
                 {{ $slot }}
             </main>
         </div>

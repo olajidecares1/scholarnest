@@ -136,7 +136,26 @@
 
                     <div class="mt-3 flex flex-wrap gap-2">
                         <button type="submit" name="status" value="draft" @disabled($test->hasStudentAttempts()) title="{{ $test->hasStudentAttempts() ? 'Students have already started this test.' : '' }}" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Save as Draft</button>
-                        <button type="submit" name="status" value="locked" @disabled($test->hasStudentAttempts()) title="{{ $test->hasStudentAttempts() ? 'Students have already started this test.' : '' }}" class="rounded-[8px] border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Lock</button>
+                    {{-- One button, both ways.
+
+                         It only ever sent "locked", so a test that was locked
+                         had a Lock button that did nothing - the way back was
+                         "Save as Draft", which does not read as the opposite of
+                         Lock and nobody found it.
+
+                         Unlocking returns the test to DRAFT because that is
+                         genuinely what Lock froze: students only ever see
+                         Published and Archived tests, so a locked test is a
+                         finished draft held back from editing, not a live one
+                         suspended. Returning it to Draft is the exact inverse.
+                         Publishing is a separate, deliberate act, and it stays
+                         that way. --}}
+                    @php $isLocked = $test->status === \App\Enums\CbtTestStatus::Locked; @endphp
+
+                        <button type="submit" name="status" value="{{ $isLocked ? 'draft' : 'locked' }}" @disabled($test->hasStudentAttempts()) title="{{ $test->hasStudentAttempts() ? 'Students have already started this test.' : ($isLocked ? 'Unlock this test so it can be edited again.' : 'Lock this test so it cannot be edited.') }}" class="flex items-center gap-1.5 rounded-[8px] border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                            <i class="fa-solid {{ $isLocked ? 'fa-lock-open' : 'fa-lock' }} text-[12px]" aria-hidden="true"></i>
+                            {{ $isLocked ? 'Unlock' : 'Lock' }}
+                        </button>
                         <button type="submit" name="status" value="published" @disabled($publishBlocker) title="{{ $publishBlocker ?? '' }}" class="rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0">Publish</button>
                         <button type="submit" name="status" value="archived" class="rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
                     </div>

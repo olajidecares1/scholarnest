@@ -15,9 +15,12 @@
             Back to Uploads
         </a>
 
+        {{-- The ScholarNest Team CAN start a worker, so they are the audience that
+             gets told which command does it. --}}
         <x-upload-status-panel
             :upload="$upload"
             :stalled="$stalled"
+            :can-operate-the-server="true"
             :status-url="route('super-admin.cbt.uploads.status', $upload)"
             :retry-url="route('super-admin.cbt.uploads.retry', $upload)"
         />

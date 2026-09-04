@@ -45,11 +45,11 @@ function schoolAtPaymentStep(): User
 // Nothing is hard-coded any more
 // ---------------------------------------------------------------------------
 
-test('the payment page shows the account details the EduNest Team entered', function () {
+test('the payment page shows the account details the ScholarNest Team entered', function () {
     $this->bankTransfer->update([
         'details' => [
             'bank_name' => 'Zenith Bank',
-            'account_name' => 'EduNest Nigeria Ltd',
+            'account_name' => 'ScholarNest Nigeria Ltd',
             'account_number' => '1234509876',
         ],
     ]);
@@ -58,7 +58,7 @@ test('the payment page shows the account details the EduNest Team entered', func
         ->get(route('subscriptions.payment-method'))
         ->assertOk()
         ->assertSee('Zenith Bank')
-        ->assertSee('EduNest Nigeria Ltd')
+        ->assertSee('ScholarNest Nigeria Ltd')
         ->assertSee('1234509876')
 
         // The values that used to be typed into the template.
@@ -71,7 +71,7 @@ test('changing the details changes what the next school sees', function () {
         ->put(route('super-admin.payment-settings.update', $this->bankTransfer), [
             'label' => 'Bank Transfer',
             'bank_name' => 'First Bank',
-            'account_name' => 'EduNest Ltd',
+            'account_name' => 'ScholarNest Ltd',
             'account_number' => '3011223344',
         ])
         ->assertSessionHasNoErrors();
@@ -210,7 +210,7 @@ test('the shipped placeholder is flagged until it is replaced', function () {
     $this->actingAs($this->team)
         ->get(route('super-admin.payment-settings.index'))
         ->assertOk()
-        ->assertSee('placeholder details that shipped with EduNest');
+        ->assertSee('placeholder details that shipped with ScholarNest');
 
     $this->bankTransfer->update([
         'details' => ['bank_name' => 'Zenith Bank', 'account_number' => '1234509876'],
@@ -219,5 +219,5 @@ test('the shipped placeholder is flagged until it is replaced', function () {
     $this->actingAs($this->team)
         ->get(route('super-admin.payment-settings.index'))
         ->assertOk()
-        ->assertDontSee('placeholder details that shipped with EduNest');
+        ->assertDontSee('placeholder details that shipped with ScholarNest');
 });

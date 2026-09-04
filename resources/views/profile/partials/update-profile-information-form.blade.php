@@ -31,7 +31,7 @@
             name="name"
             label="Name"
             icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7"
-            helper="Your full name, as shown across EduNest."
+            helper="Your full name, as shown across ScholarNest."
             :value="old('name', $user->name)"
             required
             autofocus

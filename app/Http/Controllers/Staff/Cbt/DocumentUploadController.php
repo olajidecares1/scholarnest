@@ -103,7 +103,7 @@ class DocumentUploadController extends Controller
             'status' => $upload->status->value,
             'label' => $upload->status->label(),
             'message' => $stalled
-                ? 'Waiting for the extraction service. Nothing is processing jobs at the moment.'
+                ? $queue->stalledMessage(canOperateTheServer: false)
                 : $upload->status->progressMessage(),
             'percent' => $upload->status->progressPercent(),
             'in_progress' => $upload->status->isInProgress(),

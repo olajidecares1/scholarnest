@@ -42,8 +42,8 @@ class ProfileController extends Controller
 
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
-            $photoPath = $file->storeAs('users', StoredUpload::name($file), 'public');
-            $this->optimizer->optimize(Storage::disk('public')->path($photoPath), (string) $file->getMimeType());
+            $photoPath = $file->storeAs('users', StoredUpload::name($file), 'local');
+            $this->optimizer->optimize(Storage::disk('local')->path($photoPath), (string) $file->getMimeType());
             $user->photo_path = $photoPath;
         }
 

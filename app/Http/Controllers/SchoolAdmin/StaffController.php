@@ -137,7 +137,7 @@ class StaffController extends Controller
         $this->authorizeStaff($member);
 
         if ($member->photo_path) {
-            Storage::disk('public')->delete($member->photo_path);
+            Storage::disk('local')->delete($member->photo_path);
         }
 
         $name = $member->fullName();
@@ -188,7 +188,7 @@ class StaffController extends Controller
         $this->authorizeStaff($member);
 
         $validated = $request->validate([
-            'password' => ['required', 'string', Password::defaults()],
+            'password' => ['required', 'string', Password::defaults(), $this->identityRuleFor($member)],
         ]);
 
         $member->update(['password' => Hash::make($validated['password']), 'must_change_password' => false]);
@@ -233,9 +233,9 @@ class StaffController extends Controller
         }
 
         $file = $request->file('photo');
-        $path = $file->storeAs('staff', StoredUpload::name($file), 'public');
+        $path = $file->storeAs('staff', StoredUpload::name($file), 'local');
 
-        $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
+        $this->optimizer->optimize(Storage::disk('local')->path($path), (string) $file->getMimeType());
 
         return $path;
     }

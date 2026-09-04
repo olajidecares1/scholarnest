@@ -14,8 +14,11 @@
 
      Everything else lives behind More, in the same categorised grid the home
      screen uses, so a feature is in the same place whichever way you reach it. --}}
-<div x-data="{ moreOpen: false }" class="print:hidden lg:hidden">
-    <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
+<div x-data="{ moreOpen: false }" class="print:hidden">
+    {{-- Shown at every width. These portals have no desktop layout to fall
+         through to, so the bottom bar is the navigation, not a small-screen
+         substitute for a sidebar. --}}
+    <nav class="edn-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
         <div class="mx-auto grid max-w-2xl" style="grid-template-columns: repeat({{ min(count($primary) + 1, 5) }}, minmax(0, 1fr));">
             @foreach ($primary as $item)
                 <a
@@ -77,7 +80,7 @@
         x-transition:leave-start="translate-y-0"
         x-transition:leave-end="translate-y-full"
         @keydown.escape.window="moreOpen = false"
-        class="fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-[20px] border-t border-gray-200 bg-white pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-2xl dark:border-gray-700 dark:bg-gray-800"
+        class="edn-more-sheet fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[85dvh] w-full max-w-3xl overflow-y-auto rounded-t-[20px] border-t border-gray-200 bg-white pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-2xl dark:border-gray-700 dark:bg-gray-800"
         style="display: none;"
         role="dialog"
         aria-label="More"

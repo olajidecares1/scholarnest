@@ -81,22 +81,15 @@ class LoginRequest extends FormRequest
      */
     public function authenticateAs(string $guard, School $school): void
     {
-        if ($guard === 'guardian') {
-            // Guardian\LoginRequest is the one outlier of the four - its
-            // form field is named "email", not "login" like the other
-            // three - so the cloned request needs that field bridged
-            // across before delegating.
-            $guardianRequest = \App\Http\Requests\Guardian\LoginRequest::createFrom($this);
-            $guardianRequest->merge(['email' => $this->string('login')->toString()]);
-            $guardianRequest->authenticate($school);
-
-            return;
-        }
-
+        // Guardian\LoginRequest used to be the outlier of the four, taking a
+        // field named "email" while the rest took "login". It now takes a
+        // Parent ID or a phone number under the same "login" name as the
+        // others, so the bridge that used to be needed here is gone.
         match ($guard) {
             'web' => \App\Http\Requests\SchoolPortal\LoginRequest::createFrom($this)->authenticate($school),
             'student' => \App\Http\Requests\Student\LoginRequest::createFrom($this)->authenticate($school),
             'staff' => \App\Http\Requests\Staff\LoginRequest::createFrom($this)->authenticate($school),
+            'guardian' => \App\Http\Requests\Guardian\LoginRequest::createFrom($this)->authenticate($school),
         };
     }
 }

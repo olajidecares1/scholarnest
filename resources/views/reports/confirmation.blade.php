@@ -10,7 +10,7 @@
 
         <h2 class="mt-4 text-center text-xl font-bold text-gray-900">Report Submitted</h2>
         <p class="mt-1 text-center text-sm text-gray-600">
-            Thank you for helping keep the EduNest community safe. Our team will review your report.
+            Thank you for helping keep the ScholarNest community safe. Our team will review your report.
         </p>
 
         @if ($reference)

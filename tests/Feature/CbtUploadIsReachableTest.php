@@ -20,7 +20,7 @@ beforeEach(function () {
     $this->team = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
 });
 
-test('the EduNest Team sidebar links to the CBT uploader', function () {
+test('the ScholarNest Team sidebar links to the CBT uploader', function () {
     $this->actingAs($this->team)
         ->get(route('super-admin.cbt.index'))
         ->assertOk()

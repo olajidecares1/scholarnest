@@ -29,7 +29,7 @@
                         label="Support Email"
                         type="email"
                         icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7"
-                        helper="Where schools can reach the EduNest team."
+                        helper="Where schools can reach the ScholarNest team."
                         :value="old('support_email', $settings->support_email)"
                     />
 
@@ -72,7 +72,7 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]" x-data="{ maintenance: {{ old('maintenance_mode', $settings->maintenance_mode) ? 'true' : 'false' }} }">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Maintenance Mode</h2>
-                <p class="field-hint mt-1">While enabled, school admins and visitors see a maintenance page. EduNest Teams can still access the platform.</p>
+                <p class="field-hint mt-1">While enabled, school admins and visitors see a maintenance page. ScholarNest Teams can still access the platform.</p>
 
                 <div class="mt-4 flex items-center justify-between rounded-[5px] border border-gray-200 p-3 dark:border-gray-700 lg:rounded-[10px]">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Enable maintenance mode</span>
@@ -97,7 +97,7 @@
                         icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
                         helper="Shown to visitors while maintenance mode is on."
                         rows="3"
-                        placeholder="EduNest is currently undergoing scheduled maintenance. Please check back shortly."
+                        placeholder="ScholarNest is currently undergoing scheduled maintenance. Please check back shortly."
                         :value="old('maintenance_message', $settings->maintenance_message)"
                     />
                 </div>

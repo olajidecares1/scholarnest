@@ -48,7 +48,7 @@ class Setting extends Model
 
     public static function current(): self
     {
-        return self::query()->firstOrCreate([], ['site_name' => config('app.name', 'EduNest')]);
+        return self::query()->firstOrCreate([], ['site_name' => config('app.name', 'ScholarNest')]);
     }
 
     /**

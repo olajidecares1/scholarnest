@@ -88,6 +88,6 @@ test('Standard and Exclusive keep the timetable', function (PlanKey $planKey) {
     [PlanKey::Exclusive],
 ]);
 
-test('the role is described to people as the EduNest Team', function () {
-    expect(UserRole::SuperAdmin->label())->toBe('EduNest Team');
+test('the role is described to people as the ScholarNest Team', function () {
+    expect(UserRole::SuperAdmin->label())->toBe('ScholarNest Team');
 });

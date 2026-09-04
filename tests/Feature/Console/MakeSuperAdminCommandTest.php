@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Validator;
 test('it creates a super admin account', function () {
     $this->artisan('make:super-admin')
         ->expectsQuestion('Full name', 'Ada Admin')
-        ->expectsQuestion('Email address', 'ada@edunest.example')
+        ->expectsQuestion('Email address', 'ada@scholarnest.example')
         ->expectsQuestion('Password', 'SuperSecret123!')
         ->expectsQuestion('Confirm password', 'SuperSecret123!')
         ->assertSuccessful();
 
-    $user = User::where('email', 'ada@edunest.example')->first();
+    $user = User::where('email', 'ada@scholarnest.example')->first();
 
     expect($user)->not->toBeNull();
     expect($user->role)->toBe(UserRole::SuperAdmin);
@@ -20,10 +20,10 @@ test('it creates a super admin account', function () {
 });
 
 test('email must be unique', function () {
-    User::factory()->create(['email' => 'taken@edunest.example']);
+    User::factory()->create(['email' => 'taken@scholarnest.example']);
 
     $errors = Validator::make(
-        ['email' => 'taken@edunest.example'],
+        ['email' => 'taken@scholarnest.example'],
         ['email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class]]
     )->errors();
 

@@ -6,6 +6,16 @@
             </div>
         @endif
 
+        {{-- The background sits behind BOTH Latest News and Upcoming Events -
+             they are one card - so it is set once, here, and the Events page
+             points at this rather than repeating the control. --}}
+        <x-card-background-field
+            :action="route('website.news-events-card-background')"
+            :current="$website?->newsEventsCardImageUrl()"
+            title="News & Events card background"
+            description="One image sits behind both Latest News and Upcoming Events on your website - they share a card. Leave it empty for the plain background."
+        />
+
         <div class="flex flex-wrap items-center justify-between gap-3">
             <p class="text-sm text-gray-500 dark:text-gray-400">Posts appear in the "Latest News" section of your public website.</p>
             <button

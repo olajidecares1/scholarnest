@@ -29,6 +29,7 @@ class AcademicController extends Controller
         DefaultAcademicStructure::seedFor($school);
 
         return view('school-admin.academics.index', [
+            'website' => $school->website,
             'levels' => $school->academicLevels()->with('classes')->get(),
             'terms' => AcademicTerm::where('school_id', $school->id)->orderByDesc('session')->orderBy('term')->get(),
             'gradeBands' => $school->gradeBands,

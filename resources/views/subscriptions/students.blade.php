@@ -104,7 +104,7 @@
                     <i class="fa-solid fa-circle-info mt-0.5 text-amber-600"></i>
                     <p class="text-sm leading-relaxed text-amber-800">
                         This is your school's total student capacity for the term. Your school is activated with these
-                        spaces only after a EduNest Team has verified your payment.
+                        spaces only after a ScholarNest Team has verified your payment.
                     </p>
                 </div>
 

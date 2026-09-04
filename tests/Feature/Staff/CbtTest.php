@@ -32,20 +32,27 @@ test('a non-teacher staff member cannot access CBT management', function () {
         ->assertForbidden();
 });
 
-test('a teacher does not see the CBT Management card on their dashboard if not a teacher', function () {
+// Asserted on the LINK rather than the label. These two used to look for the
+// words "CBT Management", which the mobile menu shortened to "CBT" - and once
+// it did, the negative test below would have passed no matter what, because
+// "CBT Management" appears nowhere for anyone. The route is what the rule is
+// actually about: can this person reach CBT from their dashboard.
+
+test('a non-teacher is not offered CBT on their dashboard', function () {
     $nonTeacher = Staff::factory()->create(['school_id' => $this->school->id, 'role' => StaffRole::Administrator]);
 
     $this->actingAs($nonTeacher, 'staff')
         ->get(route('staff.dashboard', $this->school))
         ->assertStatus(200)
-        ->assertDontSee('CBT Management');
+        ->assertDontSee(route('staff.cbt.tests.index', $this->school), false);
 });
 
-test('a teacher sees the CBT Management card on their dashboard', function () {
+test('a teacher can reach CBT from their dashboard', function () {
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.dashboard', $this->school))
         ->assertStatus(200)
-        ->assertSee('CBT Management');
+        ->assertSee(route('staff.cbt.tests.index', $this->school), false)
+        ->assertSee('CBT');
 });
 
 test('a teacher can create a CBT test', function () {

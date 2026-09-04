@@ -15,14 +15,18 @@
 
      Colours come from --color-primary, which each layout emits from the
      school's own brand settings, so School A's icons are School A's colour. --}}
-<div {{ $attributes->class(['space-y-6']) }}>
+<div {{ $attributes->class(['space-y-4 sm:space-y-6']) }}>
     @foreach ($categories as $category => $items)
         @continue(empty($items))
 
         <section>
             <h2 class="px-1 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ $category }}</h2>
 
-            <div class="mt-2.5 grid grid-cols-4 gap-1 sm:grid-cols-5 sm:gap-2 md:grid-cols-6 lg:grid-cols-8">
+            {{-- Three across on a 320px iPhone 5, four once there is 360px to
+                 work with, more as the tablet widens. Four columns on the
+                 narrowest phones left roughly 70px a cell, which is not enough
+                 for "Help & Support" to wrap into. --}}
+            <div class="mt-2.5 grid grid-cols-3 gap-1 min-[360px]:grid-cols-4 min-[540px]:grid-cols-5 sm:gap-2 md:grid-cols-6">
                 @foreach ($items as $item)
                     <a
                         href="{{ $item['url'] }}"

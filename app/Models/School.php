@@ -7,6 +7,7 @@ use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
 use App\Support\AcademicSession;
 use App\Support\HasUuidRouteKey;
+use App\Support\PrincipalSignature;
 use App\Support\TenantUrl;
 use App\Support\WebsiteBlockDefaults;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -32,14 +33,33 @@ class School extends Model
         'slug',
         'logo_path',
         'favicon_path',
+        'stamp_path',
         'timezone',
         'current_session',
+
+        // The school's own address, on every plan - see App\Support\SchoolContact.
+        'contact_address',
+        'contact_phone',
+        'contact_email',
+
+        // The motto under the school's name and the values along the foot of
+        // a report card, on every plan - see App\Support\SchoolMotto.
+        'motto',
+        'core_values',
+
+        // Social handles, on every plan - see App\Support\SchoolSocialLinks.
+        'facebook_url',
+        'instagram_url',
+        'twitter_url',
+        'tiktok_url',
+        'youtube_url',
+        'linkedin_url',
+        'whatsapp_number',
         'billing_contact_name',
         'billing_email',
         'billing_phone',
         'billing_address',
         'principal_name',
-        'principal_signature_path',
         'is_active',
         'deactivated_at',
         'automatic_grading',
@@ -76,7 +96,7 @@ class School extends Model
     /**
      * Would this slug be mistaken for the Basic-plan portal token?
      *
-     * The portal lives at the root of the site - edunest.com/{32-char token} -
+     * The portal lives at the root of the site - scholarnest.com/{32-char token} -
      * and so do school slugs. The token route is registered first and therefore
      * wins, which means a school whose slug happened to be 32 unbroken
      * alphanumeric characters would be permanently unreachable: every request
@@ -97,7 +117,7 @@ class School extends Model
         static::creating(function (self $school) {
             if (! $school->slug) {
                 // The slug is also the school's address at the root of the
-                // platform - edunest.com/greenfield-college - so it competes
+                // platform - scholarnest.com/greenfield-college - so it competes
                 // for names with the application's own top-level paths. A
                 // school that managed to claim "login" or "dashboard" would
                 // be a genuine problem, so those names are skipped here as
@@ -121,6 +141,32 @@ class School extends Model
                 }
 
                 $school->slug = $slug;
+            }
+
+            // What identifies this school inside a PORTAL address, in place
+            // of the slug.
+            //
+            // The slug is public - it is the school's own website address -
+            // and there is no reason for a private portal link to announce
+            // whose portal it is in every bookmark and referrer header. This
+            // is opaque and says nothing.
+            //
+            // It is not a second password: the portal token gates the sign-in
+            // page and the session gates everything behind it. See the
+            // add_portal_key_to_schools_table migration.
+            // The label the school's website sits at on the platform's own
+            // domain. Derived from the NAME rather than the slug, so it never
+            // inherits a collision suffix the slug happened to need.
+            if (! $school->subdomain) {
+                $school->subdomain = self::availableSubdomain($school->name);
+            }
+
+            if (! $school->portal_key) {
+                do {
+                    $key = Str::random(20);
+                } while (static::where('portal_key', $key)->exists());
+
+                $school->portal_key = $key;
             }
 
             // Short, memorable, and unique - unlike the slug, which is
@@ -155,7 +201,7 @@ class School extends Model
             // so it reads as the school does: /greenfield-college/result.
             // Kept as its own value because a school must be able to retire a
             // link that has spread too far without renaming itself.
-            $school->result_link_slug ??= self::availableResultLinkSlug($school->slug);
+            $school->result_link_slug ??= self::availableResultLinkSlug();
         });
 
         /*
@@ -176,6 +222,8 @@ class School extends Model
          * left to read the addresses from.
          */
         static::deleting(function (self $school) {
+            $school->deleteStoredFiles();
+
             $accounts = DB::table('users')
                 ->where('school_id', $school->id)
                 ->get(['id', 'email']);
@@ -203,7 +251,25 @@ class School extends Model
             'auto_generate_admission_numbers' => 'boolean',
             'auto_generate_staff_ids' => 'boolean',
             'result_link_enabled' => 'boolean',
+            'registration_reminder_sent_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Has this school finished registering?
+     *
+     * Registering means creating the account AND getting as far as submitting
+     * a subscription for review. A school that stopped at the account is not
+     * a customer yet, whatever the dashboard shows them.
+     *
+     * Derived rather than stored: any subscription at all, in any state -
+     * pending, active, even rejected - means they completed the process. A
+     * rejected payment is a conversation to have, not a reason to send
+     * somebody a "you never finished signing up" email.
+     */
+    public function hasCompletedRegistration(): bool
+    {
+        return $this->subscriptions()->exists();
     }
 
     public function logoUrl(): ?string
@@ -216,9 +282,55 @@ class School extends Model
         return $this->favicon_path ? Storage::disk('public')->url($this->favicon_path) : null;
     }
 
-    public function principalSignatureUrl(): ?string
+    /**
+     * Does this school have an official stamp on file?
+     *
+     * No plan check anywhere near this. A stamp is how a school's own
+     * paperwork is recognised - a Basic school's result slip needs it exactly
+     * as much as an Exclusive school's - so it is available on every plan.
+     */
+    public function hasStamp(): bool
     {
-        return $this->principal_signature_path ? Storage::disk('public')->url($this->principal_signature_path) : null;
+        return filled($this->stamp_path) && Storage::disk('local')->exists($this->stamp_path);
+    }
+
+    /**
+     * The stamp, embedded rather than linked.
+     *
+     * INLINE, AND DELIBERATELY NO URL - the same reasoning as a signature.
+     * A stamp is the mark that makes a document official, so an address that
+     * hands anybody a clean copy of it is an address for forging the school's
+     * paperwork. It is a few kilobytes and appears once per document, so there
+     * is nothing to gain from a URL and a great deal to lose.
+     */
+    public function stampDataUri(): ?string
+    {
+        if (! $this->hasStamp()) {
+            return null;
+        }
+
+        return 'data:image/png;base64,'.base64_encode(Storage::disk('local')->get($this->stamp_path));
+    }
+
+    /**
+     * The same image as a local filesystem path, for dompdf views only -
+     * dompdf's `enable_remote` is off and a data URI bloats every PDF.
+     */
+    public function stampAbsolutePath(): ?string
+    {
+        return $this->hasStamp() ? Storage::disk('local')->path($this->stamp_path) : null;
+    }
+
+    /**
+     * The school's Principal signature - see App\Support\PrincipalSignature.
+     *
+     * Not a column on this model. School Admin is the Principal, so the
+     * signature belongs to their account and this school resolves it from
+     * there. Keeping a copy here as well was two answers to one question.
+     */
+    public function principalSignature(): ?PrincipalSignature
+    {
+        return PrincipalSignature::for($this);
     }
 
     /**
@@ -234,11 +346,12 @@ class School extends Model
             : null;
     }
 
-    public function principalSignatureAbsolutePath(): ?string
+    /**
+     * The name to print under the Principal's ruled line.
+     */
+    public function principalName(): ?string
     {
-        return $this->principal_signature_path && Storage::disk('public')->exists($this->principal_signature_path)
-            ? Storage::disk('public')->path($this->principal_signature_path)
-            : null;
+        return PrincipalSignature::nameFor($this);
     }
 
     /**
@@ -255,6 +368,19 @@ class School extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * ScholarNest's invoices to this school - subscriptions and top-ups both.
+     *
+     * Not $this->invoices(), which is this school's own fee invoices to its
+     * parents. Two unrelated documents that share a word.
+     *
+     * @return HasMany<SubscriptionInvoice, $this>
+     */
+    public function subscriptionInvoices(): HasMany
+    {
+        return $this->hasMany(SubscriptionInvoice::class);
     }
 
     /**
@@ -477,7 +603,7 @@ class School extends Model
     }
 
     /**
-     * This school's result-checking address: edunest.com/greenfield-college/result
+     * This school's result-checking address: scholarnest.com/greenfield-college/result
      *
      * The one thing a Basic school hands to parents. It carries no secret - a
      * token is still required to see anything - so it is deliberately readable
@@ -523,7 +649,7 @@ class School extends Model
             // the new address still reads as the school and a parent can be
             // told "it is the same link with -2 on the end".
             $this->forceFill([
-                'result_link_slug' => self::availableResultLinkSlug($this->slug),
+                'result_link_slug' => self::availableResultLinkSlug(),
             ])->save();
 
             return $this->result_link_slug;
@@ -538,36 +664,171 @@ class School extends Model
      * back into the pool would eventually be reissued to a different school,
      * and every parent still holding the old link would land on it.
      */
-    public static function availableResultLinkSlug(?string $base): string
+    /**
+     * A fresh result-checking link, which does not name the school.
+     *
+     * It used to be built from the school's name - "greenfield-college" - and
+     * this is the link a school hands to parents, so that name travelled into
+     * every message, bookmark, browser history and referrer header it reached.
+     *
+     * Random instead. Nothing is lost by it: a parent clicks this link, they
+     * do not type it, and the retirability that made a separate column
+     * worthwhile in the first place is unaffected - a school can still burn a
+     * link that has spread too far and get another.
+     *
+     * 16 characters, matching the route pattern in routes/school-links.php.
+     * The reserved-word check the old slug needed is gone with the slug: no
+     * reserved path is 16 mixed-case alphanumerics.
+     */
+    /**
+     * Every file this school put on disk, deleted with the school.
+     *
+     * DELETING A SCHOOL USED TO LEAVE ALL OF THIS BEHIND. The database cascaded
+     * cleanly - pupils, staff, results, the website, all gone - and every
+     * uploaded file stayed exactly where it was. Photographs of children,
+     * signatures, payment receipts and conduct-report attachments belonging to
+     * a school that no longer existed, and the public ones still served at
+     * their old addresses. "Permanently deleted" was not true of the half that
+     * mattered most.
+     *
+     * COLLECTED FROM THE RECORDS, not from a directory. Only receipts and
+     * conduct reports are filed per school; photographs and signatures share
+     * flat directories keyed by a random name, so there is no folder to remove
+     * and the paths have to be gathered while the rows still exist.
+     *
+     * Called from the deleting hook for that reason - a moment later there is
+     * nothing left to read them from.
+     */
+    public function deleteStoredFiles(): void
+    {
+        $private = Storage::disk('local');
+        $public = Storage::disk('public');
+
+        // People, and the marks they signed with. Private disk.
+        $private->delete([
+            ...$this->students()->pluck('photo_path')->filter()->all(),
+            ...$this->staff()->pluck('photo_path')->filter()->all(),
+            ...$this->guardians()->pluck('photo_path')->filter()->all(),
+            ...$this->users()->pluck('photo_path')->filter()->all(),
+            ...Signature::where('school_id', $this->id)->pluck('path')->filter()->all(),
+
+            // The official stamp, which lives on the private disk beside the
+            // signatures for the same reason.
+            ...array_filter([$this->stamp_path]),
+        ]);
+
+        // Anything the school published. Public disk, and it must stop being
+        // served the moment the school stops existing.
+        $public->delete(array_filter([
+            $this->logo_path,
+            $this->favicon_path,
+            ...$this->galleryImages()->pluck('image_path')->filter()->all(),
+            ...$this->heroSlides()->pluck('image_path')->filter()->all(),
+            ...$this->newsPosts()->pluck('image_path')->filter()->all(),
+            ...$this->facilities()->pluck('image_path')->filter()->all(),
+        ]));
+
+        // Receipts are the one thing filed per school, so the directory goes.
+        $private->deleteDirectory("receipts/{$this->id}");
+
+        // Conduct reports are filed per REPORT, not per school - photographs
+        // members of the public took of a child, which is the last thing that
+        // should outlive the school they were sent to. One directory each.
+        foreach (MisconductReport::where('school_id', $this->id)->pluck('uuid') as $uuid) {
+            $private->deleteDirectory("misconduct-reports/{$uuid}");
+        }
+    }
+
+    /**
+     * The label this school's website sits at on the platform's own domain.
+     *
+     *     vincentmartinscollege.scholarnest.com.ng
+     *
+     * NO HYPHENS, unlike the slug. A subdomain is read aloud, typed from
+     * memory and printed on things, and "vincent-martins-college" is three
+     * chances to put a hyphen in the wrong place.
+     *
+     * Everything but letters and digits is dropped rather than replaced -
+     * apostrophes, ampersands, accents and spaces alike - so "GodStime Int'L
+     * School" becomes "godstimeintlschool" rather than acquiring separators
+     * from punctuation nobody says out loud.
+     *
+     * @param  list<string>  $alsoTaken  Labels claimed earlier in the same
+     *                                   batch but not yet written, so a
+     *                                   backfill cannot hand two schools the
+     *                                   same address.
+     */
+    public static function availableSubdomain(?string $name, array $alsoTaken = []): string
     {
         $reserved = array_map('strtolower', (array) config('basic_portal.reserved_slugs', []));
 
-        $base = Str::slug((string) $base) ?: 'school';
-        $slug = $base;
+        // 63 is the maximum length of a single DNS label. A longer one is not
+        // merely ugly - it is not a valid hostname, and the school's website
+        // would be unreachable.
+        $base = Str::of($name ?? '')
+            ->ascii()
+            ->lower()
+            ->replaceMatches('/[^a-z0-9]/', '')
+            ->limit(63, '')
+            ->toString();
+
+        if ($base === '') {
+            $base = 'school';
+        }
+
+        $subdomain = $base;
         $suffix = 1;
 
         while (
-            in_array($slug, $reserved, true)
-            || self::looksLikeAPortalToken($slug)
-            || static::where('result_link_slug', $slug)->exists()
-            || RetiredSchoolResultLink::where('slug', $slug)->exists()
+            in_array($subdomain, $reserved, true)
+            || in_array($subdomain, $alsoTaken, true)
+            || static::where('subdomain', $subdomain)->exists()
         ) {
-            $slug = "{$base}-".++$suffix;
+            $suffix++;
+            // The suffix has to fit inside the 63 too, so the base is trimmed
+            // to make room rather than the label being allowed to overflow.
+            $subdomain = Str::limit($base, 63 - strlen((string) $suffix), '').$suffix;
         }
+
+        return $subdomain;
+    }
+
+    public static function availableResultLinkSlug(): string
+    {
+        do {
+            $slug = Str::random(16);
+        } while (
+            static::where('result_link_slug', $slug)->exists()
+            || RetiredSchoolResultLink::where('slug', $slug)->exists()
+        );
 
         return $slug;
     }
 
     /**
      * The number of students this school is entitled to admit this term, or
-     * null for plans that aren't sold per-student (Standard/Exclusive are
-     * flat-fee, so they have no such cap). Reflects any approved top-ups,
-     * since those are applied by increasing the active subscription's
-     * students_count in place rather than tracked separately.
+     * null for plans that aren't sold per-student.
+     *
+     * Basic AND Standard are both per-student now - Standard's flat term fee
+     * was replaced by a price per pupil - so both are capped. Exclusive has no
+     * such cap.
+     *
+     * Reflects any approved top-ups, since those are applied by increasing the
+     * active subscription's students_count in place rather than being tracked
+     * as separate batches. That is what keeps the total cumulative:
+     * initial capacity plus every approved addition, never a reset.
+     *
+     * This is the seam the whole limit hangs off - StudentLicenceAllocation
+     * reads it and everything that can add a student goes through that - so
+     * Standard became capped by this method alone changing its mind.
      */
     public function studentSlotLimit(): ?int
     {
-        if (! $this->hasPlanAccess(PlanKey::Basic)) {
+        if (! $this->hasActiveSubscription()) {
+            return null;
+        }
+
+        if (! $this->activeSubscription->plan->key->isSoldPerStudent()) {
             return null;
         }
 
@@ -975,10 +1236,69 @@ class School extends Model
         $baseDomain = config('custom_domain.tenant_base_domain');
 
         if ($baseDomain && $this->hasPlanAccess(PlanKey::Standard)) {
-            return "{$this->slug}.{$baseDomain}";
+            // The subdomain column, not the slug: a website address should not
+            // carry the slug's hyphens. See availableSubdomain().
+            return "{$this->subdomain}.{$baseDomain}";
         }
 
         return null;
+    }
+
+    /**
+     * Does this school have a public website at all?
+     *
+     * Two conditions, and both matter. The PLAN has to include a website -
+     * it is a Standard and Exclusive feature - and the school has to have
+     * published one. A Standard school that has never opened the website
+     * manager has no public site, and neither does a school that was Standard
+     * last term and is Basic now.
+     *
+     * That second case is why this asks the plan rather than the website row:
+     * a downgraded school keeps its published website row, and without the
+     * plan check the application would go on advertising an address that
+     * PublicSchoolWebsiteController refuses to serve.
+     */
+    public function hasPublicWebsite(): bool
+    {
+        return $this->canUseFeature(PlanFeature::Website)
+            && (bool) $this->website?->is_published;
+    }
+
+    /**
+     * The school's public website address, or NULL if it has none.
+     *
+     * Null is the whole point of this method. publicUrl() answers "what would
+     * the website address be", which for a Basic school is a path that
+     * always 404s - and the application was handing that dead address to
+     * `production:urls` and to the dashboard's "view your website" link as
+     * though it were real. A school without a website should produce no
+     * website URL, not a broken one.
+     */
+    public function websiteUrl(): ?string
+    {
+        return $this->hasPublicWebsite()
+            ? $this->publicUrl('public.school-website')
+            : null;
+    }
+
+    /**
+     * Where to send a member of the public looking for this school.
+     *
+     * The plan decides, and this is the single place it decides:
+     *
+     *   BASIC        the portal landing at the site root, /{portal_key},
+     *                reached through the shared token finder. No website.
+     *   STANDARD     its own subdomain, greenfield.scholarnest.com.ng.
+     *   EXCLUSIVE    its own domain, once verified; its subdomain until then.
+     *
+     * A Standard school that has not published a website yet falls back to
+     * the same portal landing a Basic school gets - it is a working page that
+     * tells a visitor where to sign in, which is better than the empty shell
+     * of an unpublished site.
+     */
+    public function frontDoorUrl(): string
+    {
+        return $this->websiteUrl() ?? route('basic-portal.school', $this);
     }
 
     /**
@@ -1025,7 +1345,7 @@ class School extends Model
         }
 
         $tenantRouteName = 'tenant.'.Str::after($routeName, 'public.');
-        $generated = route($tenantRouteName, [...$params, 'tenantDomain' => 'edunest-placeholder-host.invalid']);
+        $generated = route($tenantRouteName, [...$params, 'tenantDomain' => 'scholarnest-placeholder-host.invalid']);
         $path = parse_url($generated, PHP_URL_PATH) ?? '/';
         $query = parse_url($generated, PHP_URL_QUERY);
 

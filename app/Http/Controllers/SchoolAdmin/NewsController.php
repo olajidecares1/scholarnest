@@ -28,6 +28,7 @@ class NewsController extends Controller
             ->withQueryString();
 
         return view('school-admin.news.index', [
+            'website' => $school->website,
             'posts' => $posts,
         ]);
     }

@@ -84,11 +84,17 @@ function linkIssueTokenFor(School $school, Student $student, Examination $examin
 // One school, one address
 // -----------------------------------------------------------------------------
 
-test('every school gets its own result-checking address, derived from its name', function () {
+test('every school gets its own result-checking address, and it does not name the school', function () {
+    // It used to be built from the name - greenfield-college - and this is the
+    // one link a school deliberately spreads, so that name travelled into every
+    // message, notice board and referrer header it reached. Random now.
     $school = schoolWithLink('Greenfield College');
 
-    expect($school->result_link_slug)->toBe('greenfield-college')
-        ->and($school->resultLinkUrl())->toEndWith('/greenfield-college/result');
+    expect($school->result_link_slug)->toHaveLength(16)
+        ->not->toContain('greenfield')
+        ->and($school->resultLinkUrl())
+        ->toEndWith('/'.$school->result_link_slug.'/result')
+        ->not->toContain('greenfield');
 });
 
 test('two schools with the same name get different addresses', function () {
@@ -101,7 +107,7 @@ test('two schools with the same name get different addresses', function () {
 test('a school result address opens the token prompt', function () {
     $school = schoolWithLink('Greenfield College');
 
-    $this->get('/greenfield-college/result')
+    $this->get($school->resultLinkUrl())
         ->assertOk()
         ->assertSee('School ID / Admission Number');
 });
@@ -189,34 +195,40 @@ test('a school admin sees their result link on the token screen', function () {
     $this->actingAs($admin)
         ->get(route('result-pins.index'))
         ->assertOk()
-        ->assertSee('greenfield-college/result');
+        ->assertSee($school->result_link_slug.'/result');
 });
 
 test('a school admin can switch the link off and on again', function () {
     $school = schoolWithLink('Greenfield College');
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
+    $link = $school->resultLinkUrl();
+
     $this->actingAs($admin)->post(route('result-pins.link.toggle'))->assertRedirect();
 
     // Switched off looks like no link at all, rather than explaining itself.
-    $this->get('/greenfield-college/result')->assertNotFound();
+    $this->get($link)->assertNotFound();
 
     $this->actingAs($admin)->post(route('result-pins.link.toggle'))->assertRedirect();
 
-    $this->get('/greenfield-college/result')->assertOk();
+    $this->get($link)->assertOk();
 });
 
 test('regenerating issues a new address and kills the old one', function () {
     $school = schoolWithLink('Greenfield College');
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
+    // Captured rather than written out. The slug is random now, so there is
+    // no literal to assert against - which is the point of the change.
+    $before = $school->result_link_slug;
+
     $this->actingAs($admin)->post(route('result-pins.link.regenerate'))->assertRedirect();
 
     $fresh = $school->fresh();
 
-    expect($fresh->result_link_slug)->not->toBe('greenfield-college');
+    expect($fresh->result_link_slug)->not->toBe($before);
 
-    $this->get('/greenfield-college/result')->assertNotFound();
+    $this->get('/'.$before.'/result')->assertNotFound();
     $this->get('/'.$fresh->result_link_slug.'/result')->assertOk();
 });
 
@@ -224,15 +236,17 @@ test('a retired address is never handed to another school', function () {
     $school = schoolWithLink('Greenfield College');
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
+    $before = $school->result_link_slug;
+
     $this->actingAs($admin)->post(route('result-pins.link.regenerate'));
 
-    expect(RetiredSchoolResultLink::where('slug', 'greenfield-college')->exists())->toBeTrue();
+    expect(RetiredSchoolResultLink::where('slug', $before)->exists())->toBeTrue();
 
     // A parent still holding the old link must never be walked to somebody
     // else's school, so the address stays claimed forever.
     $newcomer = schoolWithLink('Greenfield College');
 
-    expect($newcomer->result_link_slug)->not->toBe('greenfield-college');
+    expect($newcomer->result_link_slug)->not->toBe($before);
 });
 
 test('tokens already issued keep working after the link is regenerated', function () {
@@ -258,11 +272,13 @@ test('a school admin cannot touch another school link', function () {
 
     $adminB = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $schoolB->id]);
 
+    $untouched = $schoolA->result_link_slug;
+
     // There is no school parameter to tamper with: the action always resolves
     // the acting user's own school.
     $this->actingAs($adminB)->post(route('result-pins.link.regenerate'));
 
-    expect($schoolA->fresh()->result_link_slug)->toBe('greenfield-college');
+    expect($schoolA->fresh()->result_link_slug)->toBe($untouched);
 });
 
 // -----------------------------------------------------------------------------

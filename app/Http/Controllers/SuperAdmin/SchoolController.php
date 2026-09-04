@@ -88,6 +88,19 @@ class SchoolController extends Controller
             // drift from the figure that actually admits or refuses a student.
             // Null means the plan is not sold per student.
             'capacity' => $licences->summary($school),
+
+            // Every invoice ScholarNest has raised against this school, and
+            // through each one its payment and who approved it. Eager-loaded
+            // because the table reads the payment and the approver on every
+            // row, and without this a school with a long history would issue
+            // a query per row to render it.
+            'invoices' => $school->subscriptionInvoices()
+                ->with([
+                    'subscription.latestPayment.verifiedBy',
+                    'topUp.verifiedBy',
+                ])
+                ->latest('issued_at')
+                ->get(),
         ]);
     }
 

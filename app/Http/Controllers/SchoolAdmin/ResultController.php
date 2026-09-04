@@ -8,6 +8,7 @@ use App\Http\Controllers\Concerns\PushesResultsToRepository;
 use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\ExaminationReport;
+use App\Models\PrincipalRemark;
 use App\Models\Student;
 use App\Notifications\ResultAvailableNotification;
 use App\Services\ExaminationResultCalculator;
@@ -81,6 +82,15 @@ class ResultController extends Controller
             ...ReportCardData::for($examination, $student),
             'canEditTeacherRemark' => true,
             'canEditPrincipalRemark' => true,
+
+            // The Principal's saved remarks, so they can drop one in rather
+            // than retype it for the four hundredth time. Scoped to the acting
+            // school from the session - there is nothing in the request that
+            // could ask for another school's library.
+            'principalRemarkLibrary' => PrincipalRemark::query()
+                ->where('school_id', $request->user()->school_id)
+                ->latest('updated_at')
+                ->get(),
         ];
 
         return response()->json([
@@ -102,10 +112,33 @@ class ResultController extends Controller
         $validated = $request->validate([
             'teacher_remark' => ['nullable', 'string', 'max:1000'],
             'principal_remark' => ['nullable', 'string', 'max:1000'],
+            'save_principal_remark' => ['nullable', 'boolean'],
         ]);
 
         $report = ExaminationReport::firstOrCreateFor($examination, $student);
-        $report->update($validated);
+
+        $principalRemark = $validated['principal_remark'] ?? null;
+        $principalRemarkChanged = array_key_exists('principal_remark', $validated)
+            && (string) $principalRemark !== (string) $report->principal_remark;
+
+        $report->update([
+            ...collect($validated)->except('save_principal_remark')->all(),
+
+            // Attribution, recorded only when the sentence actually moved. A
+            // school with two administrators otherwise has no record of which
+            // of them wrote what is on a child's card.
+            ...$principalRemarkChanged ? [
+                'principal_remark_by' => $request->user()->id,
+                'principal_remark_at' => now(),
+            ] : [],
+        ]);
+
+        // The remark is COPIED onto the report, never referenced. Adding it to
+        // the library is a separate, opt-in act, and editing the library entry
+        // afterwards does not rewrite cards already carrying the sentence.
+        if ($request->boolean('save_principal_remark') && filled($principalRemark)) {
+            PrincipalRemark::saveFor($request->user()->school, $principalRemark, $request->user());
+        }
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'Remarks saved.']);

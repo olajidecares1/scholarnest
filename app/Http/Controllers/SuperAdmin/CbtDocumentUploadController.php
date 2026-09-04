@@ -32,7 +32,9 @@ class CbtDocumentUploadController extends Controller
         $examBodies = CbtExamBody::orderBy('name')->get();
 
         return view('super-admin.cbt.uploads.index', [
-            'extractionWarning' => $availability->warning(),
+            // The ScholarNest Team can start a worker, so they are the audience
+            // that gets told which command does it.
+            'extractionWarning' => $availability->warning(canOperateTheServer: true),
             'uploads' => CbtDocumentUpload::with(['uploadedBy', 'examBody', 'subject'])
                 ->latest()
                 ->paginate(15),
@@ -151,7 +153,7 @@ class CbtDocumentUploadController extends Controller
             'status' => $upload->status->value,
             'label' => $upload->status->label(),
             'message' => $stalled
-                ? 'Waiting for the extraction service. Nothing is processing jobs at the moment.'
+                ? $queue->stalledMessage(canOperateTheServer: true)
                 : $upload->status->progressMessage(),
             'percent' => $upload->status->progressPercent(),
             'in_progress' => $upload->status->isInProgress(),

@@ -1,18 +1,21 @@
-<x-auth-layout :simple="true" title="Find your school">
+<x-auth-layout :simple="true" :header="false" title="Find your school">
     <x-auth-card>
         <div class="text-center">
             <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-primary-600 text-2xl text-white shadow-md">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </span>
             <h1 class="mt-3 text-xl font-bold text-gray-900">Find your school</h1>
-            <p class="mt-2 text-sm text-gray-500">Enter your school name to continue to its portal.</p>
+            <p class="mt-2 text-sm text-gray-500">Enter your school name or registered email to continue to its portal.</p>
         </div>
 
-        <form method="POST" action="{{ route('basic-portal.find', $token) }}" class="mt-6 space-y-2">
+        {{-- Posts back to whichever door it was opened at: /portal, or the
+             older token-gated address. --}}
+        <form method="POST" action="{{ $token ? route('basic-portal.find', $token) : route('portal.find') }}" class="mt-6 space-y-2">
             @csrf
+            <x-honeypot />
 
             <div>
-                <label for="school" class="field-label mb-1">Enter your school name</label>
+                <label for="school" class="field-label mb-1">School name or email</label>
                 <input
                     id="school"
                     name="school"
@@ -21,7 +24,7 @@
                     required
                     autofocus
                     autocomplete="organization"
-                    placeholder="e.g. Greenfield College"
+                    placeholder="e.g. Greenfield College, or admin@greenfield.com"
                     class="@error('school') field-invalid @enderror"
                 />
                 @error('school')
@@ -49,7 +52,15 @@
                 <div class="mt-3 space-y-2">
                     @foreach ($matches as $match)
                         <a
-                            href="{{ route('basic-portal.school', $match->slug) }}"
+                            {{-- The portal hub, for the same reason the single
+                                 match redirects there: somebody who asked for
+                                 a portal wants the portal, not the school's
+                                 public website.
+
+                                 The model, not the slug: the route binds on
+                                 portal_key, so a slug string would build an
+                                 address that no longer resolves. --}}
+                            href="{{ route('portal.index', $match) }}"
                             class="group flex items-center gap-3 rounded-[8px] border border-gray-200 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-md"
                         >
                             @if ($match->logoUrl())
@@ -74,7 +85,7 @@
         @endif
 
         <p class="mt-6 text-center text-xs text-gray-500">
-            Not sure of the exact name? Ask your school for the name they registered with EduNest.
+            Not sure of the exact name? Ask your school for the name they registered with ScholarNest.
         </p>
     </x-auth-card>
 </x-auth-layout>

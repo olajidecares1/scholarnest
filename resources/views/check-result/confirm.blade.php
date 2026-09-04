@@ -67,6 +67,7 @@
 
         <form method="POST" action="{{ $verifyUrl }}" class="mt-5 space-y-2">
             @csrf
+            <x-honeypot />
 
             <x-text-field
                 name="code"

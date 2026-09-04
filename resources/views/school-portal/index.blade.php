@@ -1,4 +1,4 @@
-<x-auth-layout :simple="true" :title="'Portal · '.$school->name">
+<x-auth-layout :simple="true" :header="false" :title="'Portal · '.$school->name">
     <x-auth-card>
         @php
             // Which doors this school actually has.
@@ -18,9 +18,9 @@
 
         <div class="text-center">
             @if ($school->logoUrl())
-                <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="mx-auto h-16 w-16 rounded-[10px] object-cover shadow-md">
+                <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="mx-auto h-20 w-20 rounded-[10px] object-cover shadow-md">
             @else
-                <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-primary-600 text-2xl text-white shadow-md"><i class="fa-solid fa-school"></i></span>
+                <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-[10px] bg-primary-600 text-2xl text-white shadow-md"><i class="fa-solid fa-school"></i></span>
             @endif
             <h1 class="mt-3 text-xl font-bold text-gray-900">{{ $school->name }}</h1>
             <p class="text-xs font-semibold uppercase tracking-wide text-primary-500">Portal</p>

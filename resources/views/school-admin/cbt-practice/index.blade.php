@@ -1,7 +1,7 @@
 <x-dashboard-layout page-title="CBT Practice" page-subtitle="Browse the practice exam bank available to your students.">
     <div class="space-y-6">
         <div class="rounded-[5px] border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300 lg:rounded-[10px]">
-            This is a read-only view of EduNest's shared practice question bank. Exam bodies, subjects, and questions are curated centrally and shared across every school.
+            This is a read-only view of ScholarNest's shared practice question bank. Exam bodies, subjects, and questions are curated centrally and shared across every school.
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

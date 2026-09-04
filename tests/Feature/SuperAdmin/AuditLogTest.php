@@ -42,7 +42,7 @@ test('activating and deactivating a school is recorded in the audit log', functi
 test('updating settings is recorded in the audit log', function () {
     $this->actingAs($this->superAdmin)->put(route('super-admin.settings.update'), [
         'site_name' => 'Updated Name',
-        'notification_from_name' => 'EduNest',
+        'notification_from_name' => 'ScholarNest',
         'maintenance_mode' => '0',
     ]);
 

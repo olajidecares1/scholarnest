@@ -28,6 +28,12 @@ class AdminRole extends Model
         'manage_communications' => 'Manage Communications',
         'manage_support_tickets' => 'Manage Support Tickets',
         'manage_cms' => 'Manage CMS',
+
+        // Separate from manage_cms on purpose. A blog post is marketing copy;
+        // the Terms & Conditions are the contract every school has agreed to,
+        // and somebody trusted to write the first is not automatically trusted
+        // to alter the second.
+        'manage_legal' => 'Manage Legal Documents',
         'manage_themes' => 'Manage Themes',
         'manage_media' => 'Manage Media Library',
         'manage_cbt' => 'Manage CBT / Past Questions',

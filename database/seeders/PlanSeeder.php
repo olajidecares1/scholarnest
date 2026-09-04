@@ -43,8 +43,19 @@ class PlanSeeder extends Seeder
             [
                 'name' => 'Standard Plan',
                 'tagline' => 'Get a professional school website and powerful features to engage with parents and the public.',
-                'price_monthly' => 50000,
-                'price_per_term' => 200000,
+
+                // Per student now, like Basic, at twice the Basic rate. The
+                // old ₦200,000-a-term fee is gone: both flat-fee columns are
+                // nulled rather than left behind, because a stale 200000 in
+                // price_per_term is exactly the number a future reader would
+                // pick up by mistake.
+                'price_per_student_per_term' => 1000,
+                'price_monthly' => null,
+                'price_per_term' => null,
+                'max_teachers' => null,
+
+                // UNCHANGED, deliberately. Only the way Standard is PRICED has
+                // moved; everything it can do it still does.
                 'features' => [
                     'Everything in Basic (No Teacher Account Limit)',
                     'Student, Parent & Teacher Portal Access',
@@ -54,7 +65,7 @@ class PlanSeeder extends Seeder
                     'Transport & Hostel Management',
                     'Computer-Based Testing (CBT)',
                     'Public School Website',
-                    'Subdomain (edunest.schoolname.com)',
+                    'Subdomain (scholarnest.schoolname.com)',
                     'ID Card Management',
                     'Hero Slider',
                     'Gallery (Photos & Videos)',
@@ -76,6 +87,11 @@ class PlanSeeder extends Seeder
                 'name' => 'Exclusive Plan',
                 'tagline' => 'All Standard features, plus premium benefits and your own custom domain.',
                 'has_custom_pricing' => true,
+
+                // The row STAYS, with every feature it has. Exclusive is not
+                // being removed - it cannot be subscribed to yet, and that is
+                // decided by PlanKey::isAvailableToSubscribe() rather than by
+                // deleting anything here. Turning it on later is one line.
                 'features' => [
                     'Everything in Standard',
                     'Custom Domain (schoolname.com) & Subdomains',

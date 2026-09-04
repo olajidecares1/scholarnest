@@ -27,7 +27,7 @@ beforeEach(function () {
 test('Font Awesome is bundled, not fetched from a CDN', function () {
     // The brief asked for the loading problem to be fixed rather than the class
     // names changed around it. It was a <link> to cdnjs in four templates and
-    // absent from the fifth, so the EduNest Team's pages rendered no icons at
+    // absent from the fifth, so the ScholarNest Team's pages rendered no icons at
     // all and everyone's icons vanished without that host.
     $bundle = collect(glob(public_path('build/assets/app-*.css')))
         ->sortByDesc(fn (string $path) => filemtime($path))
@@ -62,7 +62,10 @@ test('no layout still points at the CDN', function () {
     expect($offenders)->toBe([]);
 });
 
-test('every portal renders Font Awesome icons in its sidebar', function () {
+test('every portal renders Font Awesome icons in its navigation', function () {
+    // Named "in its sidebar" until the three portals lost theirs. The staff,
+    // pupil and parent portals are phone and tablet interfaces now, so their
+    // icons are in the bottom bar; the two dashboards still have a rail.
     $this->actingAs($this->admin)->get(route('dashboard'))->assertOk()->assertSee('fa-solid fa-gauge', false);
 
     $teacher = Staff::factory()->create(['school_id' => $this->school->id, 'role' => StaffRole::Teacher, 'is_active' => true]);

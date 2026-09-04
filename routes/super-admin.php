@@ -10,6 +10,8 @@ use App\Http\Controllers\SuperAdmin\CbtSubjectController;
 use App\Http\Controllers\SuperAdmin\CmsController;
 use App\Http\Controllers\SuperAdmin\CommunicationController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
+use App\Http\Controllers\SuperAdmin\DocumentTemplateController;
+use App\Http\Controllers\SuperAdmin\LegalDocumentController as SuperAdminLegalDocumentController;
 use App\Http\Controllers\SuperAdmin\MediaController;
 use App\Http\Controllers\SuperAdmin\PaymentController as SuperAdminPaymentController;
 use App\Http\Controllers\SuperAdmin\PaymentReceiptController;
@@ -162,6 +164,23 @@ Route::name('cms.')->middleware('permission:manage_cms')->group(function () {
     Route::delete(R::uri('super-admin.cms.team-members.destroy').'/{teamMember}', [CmsController::class, 'destroyTeamMember'])->name('team-members.destroy');
 });
 
+/*
+ * The platform's own legal documents.
+ *
+ * Its OWN permission rather than manage_cms, and that distinction is the point:
+ * a blog post is marketing copy, and the Terms & Conditions are the contract
+ * every school on the platform has agreed to. Somebody trusted to write the
+ * former is not automatically trusted to alter the latter.
+ *
+ * Bound by slug, so these read .../legal/privacy and line up with the public
+ * URL rather than carrying a row id.
+ */
+Route::name('legal.')->middleware('permission:manage_legal')->group(function () {
+    Route::get(R::uri('super-admin.legal.index'), [SuperAdminLegalDocumentController::class, 'index'])->name('index');
+    Route::get(R::uri('super-admin.legal.edit').'/{document}', [SuperAdminLegalDocumentController::class, 'edit'])->name('edit');
+    Route::put(R::uri('super-admin.legal.update').'/{document}', [SuperAdminLegalDocumentController::class, 'update'])->name('update');
+});
+
 Route::name('cbt.')->middleware('permission:manage_cbt')->group(function () {
     Route::get(R::uri('super-admin.cbt.index'), [CbtExamBodyController::class, 'index'])->name('index');
 
@@ -243,3 +262,9 @@ Route::name('plans.')->middleware('permission:manage_settings')->group(function 
 });
 
 Route::get(R::uri('super-admin.audit-logs.index'), [AuditLogController::class, 'index'])->name('audit-logs.index')->middleware('permission:manage_audit_logs');
+
+// The report card and ID card as schools receive them. Read-only, and behind
+// manage_settings because it can render any school's real crest and details.
+Route::get(R::uri('super-admin.document-templates.index'), [DocumentTemplateController::class, 'index'])
+    ->name('document-templates.index')
+    ->middleware('permission:manage_settings');

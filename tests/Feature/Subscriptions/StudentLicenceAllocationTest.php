@@ -163,9 +163,33 @@ test('deactivating always works and releases a licence', function () {
     expect($school->students()->where('is_active', true)->count())->toBe(2);
 });
 
-test('standard and exclusive schools are not capped', function () {
+test('standard schools ARE capped now, like basic', function () {
+    // This test used to assert the opposite. Standard's flat ₦200,000 term fee
+    // was replaced by ₦1,000 a pupil, so it is sold per student and capped per
+    // student - the same rule, at its own price. Only its BILLING moved;
+    // its features are untouched.
     $school = School::factory()->create();
     $plan = Plan::firstOrCreate(['key' => PlanKey::Standard], Plan::factory()->make(['key' => PlanKey::Standard])->toArray());
+    Subscription::factory()->create([
+        'school_id' => $school->id,
+        'plan_id' => $plan->id,
+        'status' => SubscriptionStatus::Active,
+        'students_count' => 5,
+    ]);
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
+
+    fillSchoolToCapacity($school, 5);
+
+    $this->actingAs($admin)->post(route('students.store'), newStudentPayload());
+
+    // The sixth is refused against an allocation of five.
+    expect($school->students()->count())->toBe(5);
+});
+
+test('exclusive schools are still uncapped', function () {
+    // Exclusive is not sold per student, so it has no such cap.
+    $school = School::factory()->create();
+    $plan = Plan::firstOrCreate(['key' => PlanKey::Exclusive], Plan::factory()->make(['key' => PlanKey::Exclusive])->toArray());
     Subscription::factory()->create([
         'school_id' => $school->id,
         'plan_id' => $plan->id,
@@ -176,7 +200,6 @@ test('standard and exclusive schools are not capped', function () {
 
     fillSchoolToCapacity($school, 5);
 
-    // The per-student cap belongs to Basic alone; flat-fee plans are uncapped.
     $this->actingAs($admin)
         ->post(route('students.store'), newStudentPayload())
         ->assertSessionDoesntHaveErrors();
@@ -755,7 +778,7 @@ test('a pending request is shown on the dashboard but never counted as capacity'
     // Told it is under review, and told in the same breath that the capacity
     // has not moved - a school that assumes otherwise finds out at the point
     // of registering a student.
-    $response->assertSee('awaiting EduNest Team approval', false)
+    $response->assertSee('awaiting ScholarNest Team approval', false)
         ->assertSee('Student/Pupil Capacity Reached');
 
     expect($response->viewData('capacity'))
@@ -877,9 +900,11 @@ test('the initial payment on the history is what was charged, not today\'s price
     expect($response->viewData('initialAmount'))->toEqual(25000.0);
 });
 
-test('a school on a flat fee plan cannot open the request page at all', function () {
+test('a school on a plan not sold per student cannot open the request page', function () {
+    // Standard used to be the example here. It is sold per student now, so
+    // Exclusive is the only plan left that has nothing to top up.
     $school = School::factory()->create();
-    activateSchool($school, PlanKey::Standard);
+    activateSchool($school, PlanKey::Exclusive);
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
     $this->actingAs($admin)

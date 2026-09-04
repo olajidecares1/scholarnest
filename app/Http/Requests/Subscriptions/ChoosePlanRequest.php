@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Subscriptions;
 
-use App\Enums\PlanKey;
 use App\Models\Plan;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -44,13 +43,21 @@ class ChoosePlanRequest extends FormRequest
                 return;
             }
 
-            // Basic no longer asks for the student count here: it has a step
-            // of its own, and requiring it on this screen would mean the
-            // school could not get to that step without first answering the
-            // question it is there to ask.
-            if ($plan->key === PlanKey::Standard && ! $this->filled('billing_cycle')) {
-                $validator->errors()->add('billing_cycle', 'Please choose a billing cycle.');
+            // Coming soon, and refused here rather than only hidden on the
+            // page. A disabled radio button is a suggestion; this is the rule.
+            if (! $plan->key->isAvailableToSubscribe()) {
+                $validator->errors()->add(
+                    'plan_id',
+                    $plan->key->label().' is coming soon and cannot be subscribed to yet.',
+                );
+
+                return;
             }
+
+            // No billing-cycle check any more. Basic and Standard are both
+            // priced per student and both ask the quantity on a step of their
+            // own; requiring an answer on this screen would mean a school
+            // could not reach the step that asks the question.
         });
     }
 }

@@ -1,7 +1,8 @@
 <x-student-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.$student->first_name.'!'">
-    <div class="space-y-6">
+    <div class="space-y-4 sm:space-y-6">
         {{-- Welcome banner --}}
         <x-welcome-banner
+            compact
             :photo-url="$student->photoUrl()"
             :initials="Str::of($student->first_name)->substr(0, 1)->upper()"
             :name="$student->fullName()"
@@ -25,7 +26,7 @@
         <x-portal-app-menu :categories="$nav['categories']" :badges="$badges" />
 
         {{-- Recent Notices --}}
-        <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-700 dark:bg-gray-800">
             <div class="flex items-center justify-between">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Recent Notices</h2>
                 @if (\Illuminate\Support\Facades\Route::has('student.messages.index'))

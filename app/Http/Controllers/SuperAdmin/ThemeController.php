@@ -40,7 +40,11 @@ class ThemeController extends Controller
     public function updateLogo(Request $request): RedirectResponse
     {
         $request->validate([
-            'logo' => ['required', 'image', 'mimes:png,jpg,jpeg,svg', 'max:2048'],
+            // svg was listed here but never accepted: the `image` rule beside
+            // it refuses SVG unless allow_svg is passed. Advertising a format
+            // that is silently rejected is how somebody spends an afternoon
+            // wondering why their logo will not upload.
+            'logo' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
         ]);
 
         $settings = Setting::current();
@@ -59,22 +63,53 @@ class ThemeController extends Controller
         return back()->with('status', 'Logo updated.');
     }
 
+    /**
+     * The platform favicon.
+     *
+     * The rules here are `mimetypes`, not `image` + `mimes`, and that is the
+     * whole reason this feature appeared broken. The form offers PNG or ICO
+     * and `accept=".png,.ico"`, but `image` refuses ICO outright - it admits
+     * jpg, jpeg, png, bmp, gif, webp and nothing else - so every .ico upload
+     * failed validation no matter what sat beside it. The same trap the logo
+     * rules above carry a note about, with `svg`.
+     *
+     * `mimetypes` also reads the file's actual content rather than trusting
+     * the name it arrived under, so a .png that is really something else is
+     * refused too.
+     */
     public function updateFavicon(Request $request): RedirectResponse
     {
         $request->validate([
-            'favicon' => ['required', 'image', 'mimes:png,ico', 'max:512'],
+            'favicon' => [
+                'required',
+                'file',
+                // image/x-icon is what most browsers and editors write;
+                // image/vnd.microsoft.icon is the registered name, and which
+                // one finfo reports depends on the platform's magic database.
+                'mimetypes:image/png,image/x-icon,image/vnd.microsoft.icon',
+                'max:512',
+            ],
+        ], [
+            'favicon.mimetypes' => 'The favicon must be a PNG or ICO file.',
+            'favicon.max' => 'The favicon may not be larger than 512KB.',
         ]);
 
         $settings = Setting::current();
 
-        if ($settings->favicon_path) {
-            Storage::disk('public')->delete($settings->favicon_path);
-        }
+        $previous = $settings->favicon_path;
 
         $file = $request->file('favicon');
         $path = $file->storeAs('branding', StoredUpload::name($file, 'favicon-'.Str::random(8)), 'public');
 
         $settings->update(['favicon_path' => $path]);
+
+        // Deleted only once the replacement is stored and recorded. Deleting
+        // first meant a failed write left the setting pointing at a file that
+        // no longer existed, and every page in the platform asking for a
+        // favicon that 404s.
+        if ($previous && $previous !== $path) {
+            Storage::disk('public')->delete($previous);
+        }
 
         AuditLog::record('theme.favicon_updated', 'Updated platform favicon.', $settings);
 

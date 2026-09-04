@@ -11,7 +11,7 @@
 
         <h2 class="mt-4 text-center text-xl font-bold text-gray-900">Report a Concern</h2>
         <p class="mt-1 text-center text-sm text-gray-600">
-            Tell us about a misconduct concern involving a school on EduNest. You may report anonymously.
+            Tell us about a misconduct concern involving a school on ScholarNest. You may report anonymously.
         </p>
 
         @if ($errors->any())
@@ -26,6 +26,7 @@
 
         <form method="POST" action="{{ route('reports.store') }}" enctype="multipart/form-data" class="mt-6 space-y-2">
             @csrf
+            <x-honeypot />
 
             <x-select-field
                 id="school_id"

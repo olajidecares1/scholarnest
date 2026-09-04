@@ -56,6 +56,10 @@ class ProductionConfiguration
             $problems[] = 'SESSION_ENCRYPT=true (otherwise session payloads are readable wherever they are stored)';
         }
 
+        foreach (self::appUrlProblems() as $problem) {
+            $problems[] = $problem;
+        }
+
         if ($problems === []) {
             return;
         }
@@ -66,5 +70,56 @@ class ProductionConfiguration
             .implode("\n  - ", $problems)
             ."\n\nSee docs/PRODUCTION.md. Console commands are unaffected, so this can be fixed in place."
         );
+    }
+
+    /**
+     * Everything wrong with APP_URL, which is not merely cosmetic here.
+     *
+     * APP_URL is the address this platform answers at, and four separate things
+     * are built from it: every link route() generates, every link in an email,
+     * the host RedirectToCanonicalHost sends stray traffic to, and the default
+     * target schools are told to point their custom domains at.
+     *
+     * Get it wrong and the application still starts. It serves pages happily
+     * while every link it hands out goes somewhere unreachable, and a school
+     * following one is signed out because the session cookie belongs to the
+     * host they left. That failure is silent, which is why it is checked here
+     * rather than left to be noticed.
+     *
+     * The plan-specific addresses - the Basic portal token, the Standard
+     * subdomain base, the Exclusive DNS target - are NOT checked here on
+     * purpose. Each affects one tier, and refusing every request over a Basic
+     * misconfiguration would take Standard and Exclusive schools down with it.
+     * `php artisan production:urls` reports those instead.
+     *
+     * @return list<string>
+     */
+    private static function appUrlProblems(): array
+    {
+        $appUrl = (string) config('app.url');
+        $host = parse_url($appUrl, PHP_URL_HOST);
+
+        if (! $host) {
+            return ['APP_URL=https://your-domain (it is missing or unparseable, and every link the platform generates is built from it)'];
+        }
+
+        $problems = [];
+
+        if (parse_url($appUrl, PHP_URL_SCHEME) !== 'https') {
+            $problems[] = 'APP_URL must use https (production forces https on every generated link, so an http APP_URL disagrees with what is actually served)';
+        }
+
+        // A hostname nobody outside this machine can resolve. Local values are
+        // the ones that survive a copied .env, which is exactly how they reach
+        // production.
+        if ($host === 'localhost' || filter_var(trim($host, '[]'), FILTER_VALIDATE_IP) !== false) {
+            $problems[] = "APP_URL points at \"{$host}\", which nothing outside this machine can reach - set it to the domain the platform is served at";
+        }
+
+        if (str_ends_with($host, '.test') || str_ends_with($host, '.local') || $host === 'lvh.me' || str_ends_with($host, '.lvh.me')) {
+            $problems[] = "APP_URL points at \"{$host}\", which is a local development address - set it to the domain the platform is served at";
+        }
+
+        return $problems;
     }
 }

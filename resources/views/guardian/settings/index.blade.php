@@ -24,9 +24,9 @@
                     <p class="field-hint">Your photo can only be changed by the school office.</p>
                 </div>
 
-                <x-text-field name="name" label="Full Name" value="{{ $guardian->name }}" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" required />
-                <x-text-field name="email" type="email" label="Email Address" value="{{ $guardian->email }}" icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7" />
-                <x-text-field name="phone" type="tel" label="Phone Number" value="{{ $guardian->phone }}" icon="M6.5 4.5h2l1.2 4-1.8 1.5a11 11 0 005.1 5.1l1.5-1.8 4 1.2v2a1.5 1.5 0 01-1.6 1.5A15 15 0 015 6.1a1.5 1.5 0 011.5-1.6z" />
+                <x-text-field name="name" label="Full Name" :value="$guardian->name" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" required />
+                <x-text-field name="email" type="email" label="Email Address" :value="$guardian->email" icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7" />
+                <x-text-field name="phone" type="tel" label="Phone Number" :value="$guardian->phone" icon="M6.5 4.5h2l1.2 4-1.8 1.5a11 11 0 005.1 5.1l1.5-1.8 4 1.2v2a1.5 1.5 0 01-1.6 1.5A15 15 0 015 6.1a1.5 1.5 0 011.5-1.6z" />
 
                 {{-- Named rather than simply absent. Which children are linked
                      to this account is the most consequential thing on it - it

@@ -61,6 +61,14 @@ jobs:
       - name: Install JavaScript dependencies
         run: npm ci
 
+      # Composer's dependencies are already audited above; the front end's
+      # were not, which meant half the supply chain was being watched. High
+      # and critical only: npm reports advisories against build-time packages
+      # that never reach a browser, and a job that cries wolf gets ignored or
+      # deleted rather than fixed.
+      - name: Refuse known-vulnerable JavaScript dependencies
+        run: npm audit --audit-level=high
+
       # Not optional. Feature tests render Blade views, those views call @vite,
       # and @vite throws without a build manifest - so skipping this fails the
       # suite in a way that looks nothing like a missing asset build.

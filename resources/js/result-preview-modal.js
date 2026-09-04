@@ -91,6 +91,11 @@ export function registerResultPreviewStore(Alpine) {
             const teacherRemark = document.getElementById('result-teacher-remark')?.value ?? '';
             const principalRemark = document.getElementById('result-principal-remark')?.value ?? '';
 
+            // Opt-in, and read from the box rather than assumed: a
+            // Principal writing a one-off sentence about one child should
+            // not silently fill their library with it.
+            const saveToLibrary = document.getElementById('result-save-principal-remark')?.checked ?? false;
+
             try {
                 const response = await fetch(this.remarksUrl, {
                     method: 'PUT',
@@ -99,7 +104,11 @@ export function registerResultPreviewStore(Alpine) {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ teacher_remark: teacherRemark, principal_remark: principalRemark }),
+                    body: JSON.stringify({
+                        teacher_remark: teacherRemark,
+                        principal_remark: principalRemark,
+                        save_principal_remark: saveToLibrary,
+                    }),
                 });
 
                 if (!response.ok) {

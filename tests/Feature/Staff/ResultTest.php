@@ -51,17 +51,52 @@ test('a teacher with no class teacher assignment is forbidden', function () {
         ->assertForbidden();
 });
 
-test('the class teacher can print and download the report card', function () {
-    $this->actingAs($this->teacher, 'staff')
-        ->get(route('staff.results.print', [$this->school, $this->examination, $this->student]))
-        ->assertOk()
-        ->assertSee('Amaka');
+test('a class teacher cannot print or download a report card, by any URL', function () {
+    // Not "the buttons are gone". There is no endpoint left behind them, so
+    // typing the address by hand reaches nothing. Asserted against the raw
+    // paths because route() cannot name a route that does not exist - which
+    // is itself the point.
+    $base = "/schools/{$this->school->uuid}/staff-portal/results/{$this->examination->uuid}/students/{$this->student->uuid}";
 
+    foreach (["{$base}/print", "{$base}/pdf", "{$base}/download", "{$base}/print?format=pdf"] as $url) {
+        $this->actingAs($this->teacher, 'staff')
+            ->get($url)
+            ->assertNotFound();
+    }
+
+    expect(fn () => route('staff.results.print', [$this->school, $this->examination, $this->student]))
+        ->toThrow(InvalidArgumentException::class)
+        ->and(fn () => route('staff.results.pdf', [$this->school, $this->examination, $this->student]))
+        ->toThrow(InvalidArgumentException::class);
+});
+
+test('the report card page offers no print, download or Student ID control', function () {
     $response = $this->actingAs($this->teacher, 'staff')
-        ->get(route('staff.results.pdf', [$this->school, $this->examination, $this->student]));
+        ->get(route('staff.results.index', $this->school));
 
-    $response->assertOk();
-    expect($response->headers->get('content-type'))->toContain('application/pdf');
+    $response->assertOk()
+        ->assertDontSee('Download PDF')
+        ->assertDontSee('title="Print"', false)
+        ->assertDontSee('title="Download PDF"', false)
+        ->assertDontSee('result-print-frame')
+        ->assertDontSee('Student ID')
+        // The pupil's admission number is their Student ID; it is not printed
+        // on this page at all.
+        ->assertDontSee($this->student->admission_number);
+});
+
+test('the pupil\'s Student ID is withheld from the data, not just the markup', function () {
+    // A value the response never carries cannot be read out of the page
+    // source, off the network tab, or by replaying the request by hand.
+    $response = $this->actingAs($this->teacher, 'staff')
+        ->getJson(route('staff.results.show', [$this->school, $this->examination, $this->student]));
+
+    $response->assertOk()
+        ->assertJsonMissing(['card_number' => $this->student->admission_number]);
+
+    expect($response->json())->not->toHaveKey('card_number')
+        ->and($response->json('details_html'))->not->toContain($this->student->admission_number)
+        ->and($response->json('details_html'))->not->toContain('Student ID');
 });
 
 test('the class teacher can write the class teacher\'s remark but not the principal\'s remark', function () {

@@ -49,7 +49,7 @@ function chooseBasicPlanFor(User $user, int $students): Plan
 }
 
 test('guests cannot access the subscription wizard', function () {
-    $this->get(route('subscriptions.choose-plan'))->assertRedirect(route('login'));
+    $this->get(route('subscriptions.choose-plan'))->assertRedirect(route('portal.show'));
 });
 
 test('choose plan screen lists all seeded plans', function () {
@@ -148,28 +148,29 @@ test('the quantity step cannot be skipped on a per student plan', function () {
     ])->assertRedirect(route('subscriptions.students'));
 });
 
-test('a flat fee plan has no quantity step to visit', function () {
+test('standard now HAS a quantity step, like basic', function () {
+    // It used to skip straight to billing on a flat term fee. It is priced per
+    // pupil now, so it asks the same question Basic does.
     $user = schoolAdmin();
     $plan = Plan::where('key', PlanKey::Standard)->firstOrFail();
 
     $this->actingAs($user)->post(route('subscriptions.choose-plan.store'), [
         'plan_id' => $plan->id,
-        'billing_cycle' => 'per_term',
-    ])->assertRedirect(route('subscriptions.billing-details'));
+    ])->assertRedirect(route('subscriptions.students'));
 
     $this->actingAs($user)
         ->get(route('subscriptions.students'))
-        ->assertRedirect(route('subscriptions.billing-details'));
+        ->assertOk();
 });
 
-test('choosing the exclusive plan redirects to contact sales', function () {
+test('choosing the exclusive plan is refused - it is coming soon', function () {
+    // It used to go to contact sales. Exclusive cannot be subscribed to at
+    // all for now, and the refusal is here rather than only on the page.
     $plan = Plan::where('key', PlanKey::Exclusive)->firstOrFail();
 
-    $response = $this->actingAs(schoolAdmin())->post(route('subscriptions.choose-plan.store'), [
-        'plan_id' => $plan->id,
-    ]);
-
-    $response->assertRedirect(route('subscriptions.contact-sales'));
+    $this->actingAs(schoolAdmin())
+        ->post(route('subscriptions.choose-plan.store'), ['plan_id' => $plan->id])
+        ->assertSessionHasErrors('plan_id');
 });
 
 test('billing details cannot be accessed before a plan is chosen', function () {
@@ -376,7 +377,7 @@ test('the review step says activation waits on the super admin', function () {
     $this->actingAs($user)
         ->get(route('subscriptions.review'))
         ->assertOk()
-        ->assertSee('Awaiting EduNest Team Approval');
+        ->assertSee('Awaiting ScholarNest Team Approval');
 });
 
 test('the price on the review step follows the configured plan price', function () {
@@ -409,21 +410,21 @@ test('the progress bar carries the quantity as a step of its own, and names the 
         ->assertSee('In Progress');
 });
 
-test('the progress bar leaves the quantity step out for a flat fee plan', function () {
+test('the progress bar now shows the quantity step for standard too', function () {
+    // The bar is drawn from the billing cycle, so Standard moving to
+    // per-student billing put the step into its process as well as into its
+    // price. A bar that hid it would misdescribe what the school just did.
     $user = schoolAdmin();
     $plan = Plan::where('key', PlanKey::Standard)->firstOrFail();
 
-    $this->actingAs($user)->post(route('subscriptions.choose-plan.store'), [
-        'plan_id' => $plan->id,
-        'billing_cycle' => 'per_term',
-    ]);
+    $this->actingAs($user)->post(route('subscriptions.choose-plan.store'), ['plan_id' => $plan->id]);
+    $this->actingAs($user)->post(route('subscriptions.students.store'), ['students_count' => 40]);
 
-    // A step a Standard school can never visit would misdescribe its process.
     $this->actingAs($user)
         ->get(route('subscriptions.billing-details'))
         ->assertOk()
         ->assertSee('Billing Details')
-        ->assertDontSee('Students &amp; Amount', false);
+        ->assertSee('Students &amp; Amount', false);
 });
 
 test('the confirmation page keeps the quantity step the school walked through', function () {
@@ -476,16 +477,15 @@ test('the step counter counts the steps that plan actually has', function () {
     $user = schoolAdmin();
     $plan = Plan::where('key', PlanKey::Standard)->firstOrFail();
 
-    $this->actingAs($user)->post(route('subscriptions.choose-plan.store'), [
-        'plan_id' => $plan->id,
-        'billing_cycle' => 'per_term',
-    ]);
+    $this->actingAs($user)->post(route('subscriptions.choose-plan.store'), ['plan_id' => $plan->id]);
+    $this->actingAs($user)->post(route('subscriptions.students.store'), ['students_count' => 40]);
 
-    // Five for a flat-fee plan, which has no student-quantity step - the
-    // counter is derived from the same list the bar draws, so it cannot
-    // promise a step that is not there.
+    // SIX now, not five: Standard gained the student-quantity step when it
+    // moved to per-pupil pricing. The counter is derived from the same list
+    // the bar draws, so it cannot promise a step that is not there - or miss
+    // one that is.
     $this->actingAs($user)
         ->get(route('subscriptions.billing-details'))
         ->assertOk()
-        ->assertSee('Step 2 of 5');
+        ->assertSee('Step 3 of 6');
 });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PlanFeature;
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
 use App\Models\Plan;
@@ -64,4 +65,43 @@ test('hasActiveSubscription is true with an active subscription and an active sc
     Subscription::factory()->create(['school_id' => $school->id, 'plan_id' => $plan->id, 'status' => SubscriptionStatus::Active]);
 
     expect($school->hasActiveSubscription())->toBeTrue();
+});
+
+describe('facilities is available on every plan', function () {
+    test('a Basic school may use it, unlike the other website features', function () {
+        $school = activateSchool(School::factory()->create(), PlanKey::Basic);
+
+        // The contrast is the point. Facilities is a record of what the school
+        // HAS, not a website feature, so Basic keeps it while News, Events and
+        // the site itself stay behind the paid plans.
+        expect($school->canUseFeature(PlanFeature::Facilities))->toBeTrue()
+            ->and($school->canUseFeature(PlanFeature::News))->toBeFalse()
+            ->and($school->canUseFeature(PlanFeature::Website))->toBeFalse();
+    });
+
+    test('and so may Standard and Exclusive', function () {
+        foreach ([PlanKey::Standard, PlanKey::Exclusive] as $key) {
+            $school = activateSchool(School::factory()->create(), $key);
+
+            expect($school->canUseFeature(PlanFeature::Facilities))->toBeTrue();
+        }
+    });
+
+    test('the sidebar link follows, so a Basic school can reach the page', function () {
+        // The interface asks canAccessRoute before it draws the link and the
+        // middleware asks the same question before serving it, so both follow
+        // from requiredPlans and cannot disagree.
+        $school = activateSchool(School::factory()->create(), PlanKey::Basic);
+
+        expect($school->canAccessRoute('facilities.index'))->toBeTrue();
+    });
+
+    test('a school with no active subscription still gets nothing', function () {
+        // "Every plan" is not "no plan". An unpaid school is not on a plan at
+        // all, and opening this up must not have opened that.
+        $school = School::factory()->create();
+
+        expect($school->canUseFeature(PlanFeature::Facilities))->toBeFalse()
+            ->and($school->canAccessRoute('facilities.index'))->toBeFalse();
+    });
 });

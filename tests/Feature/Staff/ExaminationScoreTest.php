@@ -31,18 +31,24 @@ test('a teacher sees examinations for subjects they teach', function () {
     $response = $this->actingAs($this->teacher, 'staff')->get(route('staff.exams.index', $this->school));
 
     $response->assertOk()
-        ->assertSee('First Term Examination')
+        ->assertSee('JSS 1')
         ->assertSee('Mathematics')
-        ->assertDontSee('English Language');
+        ->assertDontSee('English Language')
+        // The examination's name is deliberately not a column any more: it
+        // repeated the term and session sitting beside it.
+        ->assertDontSee('First Term Examination');
 });
 
 test('a teacher does not see examinations for classes/subjects they do not teach', function () {
     $examination = Examination::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 2', 'name' => 'Other Class Exam']);
     ExaminationSubject::factory()->create(['examination_id' => $examination->id, 'name' => 'Mathematics', 'max_score' => 100]);
 
+    // Asserted on the class, which is what the table now shows. Asserting on
+    // the examination's name would pass for the wrong reason - that name is
+    // no longer rendered for anybody.
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.exams.index', $this->school))
-        ->assertDontSee('Other Class Exam');
+        ->assertDontSee('JSS 2');
 });
 
 test('a teacher can enter test and exam scores for a subject they teach', function () {

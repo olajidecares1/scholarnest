@@ -17,7 +17,7 @@ class AuthenticatedSessionController extends Controller
      * Every school signs in at its own portal - /schools/{slug}/portal/admin/
      * {token}/login - which is where logging out and an expired session both
      * return them, and the Super Admin signs in through the hidden dialog on
-     * the registration page. A generic "EduNest login" served neither, and
+     * the registration page. A generic "ScholarNest login" served neither, and
      * looked enough like the registration page to be mistaken for it.
      *
      * The route NAME stays, because it is what Laravel's auth middleware

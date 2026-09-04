@@ -26,7 +26,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Parent Portal — same school-slug-scoped, readable convention as the Student Portal above.
-Route::prefix('schools/{school:slug}/parent-portal')->name('guardian.')->group(function () {
+// The school is identified by an opaque key, not its slug - see
+// routes/student.php for why, and the add_portal_key_to_schools_table
+// migration for what the key is. The parameter is still "school" and still
+// resolves to a School, so no controller or route() call changed.
+Route::prefix('p/{school:portal_key}/parent-portal')->name('guardian.')->group(function () {
     Route::middleware(['guest:guardian', 'portal_token'])->group(function () {
         Route::get('{token}/login', [GuardianAuthenticatedSessionController::class, 'create'])->name('login');
         Route::post('{token}/login', [GuardianAuthenticatedSessionController::class, 'store']);

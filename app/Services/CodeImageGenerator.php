@@ -105,6 +105,64 @@ class CodeImageGenerator
      *
      * @return array{uri: string, width: int, height: int}|null
      */
+    /**
+     * A school's logo, faded, for use as a watermark behind a printed page.
+     *
+     * The fade is baked into the image rather than applied with CSS, because
+     * dompdf does not honour opacity on an <img> and ignores it on a
+     * background - a watermark drawn the CSS way looks right on screen and
+     * comes out of the printer at full strength, obliterating the marks
+     * underneath it.
+     *
+     * Composited onto white rather than left transparent: a PNG with an alpha
+     * channel over a white page is the same thing to the eye, but a printer
+     * driver that flattens transparency badly is not, and this is the one
+     * image on the page nobody would notice had gone wrong until the cards
+     * were already handed out.
+     *
+     * @param  float  $opacity  0 (invisible) to 1 (untouched).
+     * @return array{uri: string, width: int, height: int}|null
+     */
+    public function watermarkDataUri(string $absolutePath, int $size, float $opacity = 0.06): ?array
+    {
+        $logo = $this->containedImageDataUri($absolutePath, $size, $size);
+
+        if (! $logo) {
+            return null;
+        }
+
+        $source = @imagecreatefromstring(base64_decode(substr($logo['uri'], strlen('data:image/png;base64,')), true) ?: '');
+
+        if (! $source) {
+            return null;
+        }
+
+        $canvas = imagecreatetruecolor($logo['width'], $logo['height']);
+        imagefill($canvas, 0, 0, imagecolorallocate($canvas, 255, 255, 255));
+
+        // imagecopymerge cannot blend a source that carries its own alpha, so
+        // the logo is laid on white first and the two are merged after.
+        $flattened = imagecreatetruecolor($logo['width'], $logo['height']);
+        imagefill($flattened, 0, 0, imagecolorallocate($flattened, 255, 255, 255));
+        imagealphablending($flattened, true);
+        imagecopy($flattened, $source, 0, 0, 0, 0, $logo['width'], $logo['height']);
+        imagedestroy($source);
+
+        imagecopymerge($canvas, $flattened, 0, 0, 0, 0, $logo['width'], $logo['height'], (int) round(max(0, min(1, $opacity)) * 100));
+        imagedestroy($flattened);
+
+        ob_start();
+        imagepng($canvas);
+        $bytes = ob_get_clean();
+        imagedestroy($canvas);
+
+        return [
+            'uri' => 'data:image/png;base64,'.base64_encode($bytes),
+            'width' => $logo['width'],
+            'height' => $logo['height'],
+        ];
+    }
+
     public function containedImageDataUri(string $absolutePath, int $maxWidth, int $maxHeight): ?array
     {
         $info = @getimagesize($absolutePath);
@@ -150,80 +208,6 @@ class CodeImageGenerator
     }
 
     /**
-     * The ID card's top header graphic: two hand-drawn navy corner shapes
-     * (a smooth bezier swoosh, not a CSS border-radius approximation) with
-     * a wide white gap between them, and the pill-shaped card slot drawn
-     * directly into that gap so it's guaranteed to sit exactly where the
-     * curves meet with no separate layout/positioning needed.
-     *
-     * Rendered as a raster PNG via GD at the EXACT display pixel size (no
-     * supersampling), not left as an SVG - confirmed by actual render that
-     * dompdf does not scale a multi-path SVG with a non-square viewBox the
-     * same way a browser does, collapsing these two corner shapes into a
-     * single distorted blob. Supersampling for crispness then relying on
-     * dompdf to downscale had the same problem: extracting the raw bytes
-     * dompdf actually received proved the source image was correct
-     * (~8% navy coverage) and dompdf itself was distorting it when scaling
-     * down to display size - the same "does not reliably honor
-     * width/height" behaviour already worked around for every other raster
-     * image on this card. Generating at the exact display size removes any
-     * scaling step for dompdf to get wrong.
-     */
-    public function idCardHeaderDataUri(string $color, int $width = 204, int $height = 38): string
-    {
-        $canvasWidth = $width;
-        $canvasHeight = $height;
-
-        $canvas = imagecreatetruecolor($canvasWidth, $canvasHeight);
-        imagealphablending($canvas, false);
-        imagesavealpha($canvas, true);
-        $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
-        imagefill($canvas, 0, 0, $transparent);
-        imagealphablending($canvas, true);
-
-        [$r, $g, $b] = sscanf(ltrim($color, '#'), '%02x%02x%02x');
-        $navy = imagecolorallocate($canvas, $r, $g, $b);
-
-        // Shapes are designed against a 200x60 reference box: a wide top
-        // edge tapering down a smooth cubic-bezier curve to a point partway
-        // down the side edge, leaving most of the top-centre free for the
-        // pill slot. Scaled up to the actual canvas size below. Tuned by
-        // objectively measuring navy-pixel coverage (not just eyeballing a
-        // tiny render, which proved unreliable) until the corners read as a
-        // modest accent rather than a dominant band - about 8-9% of the
-        // header area.
-        $sx = $canvasWidth / 200;
-        $sy = $canvasHeight / 60;
-        $curve = $this->cubicBezierPoints([65, 0], [36, 2], [10, 11], [0, 25]);
-
-        $leftPolygon = [];
-        foreach (array_merge([[0, 0]], $curve) as [$x, $y]) {
-            $leftPolygon[] = $x * $sx;
-            $leftPolygon[] = $y * $sy;
-        }
-        imagefilledpolygon($canvas, $leftPolygon, $navy);
-
-        $rightPolygon = [];
-        foreach (array_merge([[200, 0]], array_map(fn ($p) => [200 - $p[0], $p[1]], $curve)) as [$x, $y]) {
-            $rightPolygon[] = $x * $sx;
-            $rightPolygon[] = $y * $sy;
-        }
-        imagefilledpolygon($canvas, $rightPolygon, $navy);
-
-        $pillDark = imagecolorallocate($canvas, 203, 213, 225);
-        $pillLight = imagecolorallocate($canvas, 226, 232, 240);
-        $this->drawPill($canvas, (int) (86 * $sx), (int) (4 * $sy), (int) (28 * $sx), (int) (10 * $sy), $pillDark);
-        $this->drawPill($canvas, (int) (86 * $sx), (int) (4 * $sy), (int) (28 * $sx), (int) (5 * $sy), $pillLight);
-
-        ob_start();
-        imagepng($canvas);
-        $bytes = ob_get_clean();
-        imagedestroy($canvas);
-
-        return 'data:image/png;base64,'.base64_encode($bytes);
-    }
-
-    /**
      * @param  array{0: float, 1: float}  $p0
      * @param  array{0: float, 1: float}  $p1
      * @param  array{0: float, 1: float}  $p2
@@ -253,104 +237,5 @@ class CodeImageGenerator
         imagefilledrectangle($canvas, $x + $radius, $y, $x + $width - $radius, $y + $height, $color);
         imagefilledellipse($canvas, $x + $radius, $y + $radius, $height, $height, $color);
         imagefilledellipse($canvas, $x + $width - $radius, $y + $radius, $height, $height, $color);
-    }
-
-    /**
-     * A solid-colour band with one smooth full-width elliptical curve on
-     * either its bottom edge (dips down through the centre - used for a
-     * card's top header) or its top edge (rises up through the centre -
-     * used for a bottom footer), the same shape CSS `border-radius: 50% Npx`
-     * on both corners produces in a browser.
-     *
-     * Rendered as GD raster rather than left as CSS: confirmed by an
-     * isolated reproduction that dompdf has a real bug where a SECOND
-     * `border-radius: 50% ...` curve anywhere later on the same page
-     * silently fails to paint at all once a first one has already been
-     * rendered - reliable alone, broken as soon as a card needs both a
-     * curved header and a curved footer (i.e. every back-of-card design).
-     * A pre-rendered image sidesteps dompdf's border-radius handling
-     * entirely, so it can't collide with any other curve on the page.
-     */
-    public function curvedBandDataUri(string $color, int $width, int $height, string $edge, int $depth): string
-    {
-        // GD's imagefilledpolygon() draws hard, non-anti-aliased edges, which
-        // makes a curve built from many short straight segments look like a
-        // visible staircase at final size - worse the steeper the curve
-        // (the footer's depth is a large fraction of its own height, so it
-        // needs more supersampling than a shallow curve would). Drawing at
-        // 8x scale and then downsampling with imagecopyresampled() (which
-        // does interpolate) smooths that away - the same supersample-then-
-        // shrink technique already used for the ID card header graphic,
-        // done here in PHP rather than relying on dompdf to shrink an
-        // oversized image (which it has already been confirmed to do
-        // unreliably).
-        $scale = 8;
-        $bigWidth = $width * $scale;
-        $bigHeight = $height * $scale;
-        $bigDepth = $depth * $scale;
-
-        $big = imagecreatetruecolor($bigWidth, $bigHeight);
-        imagealphablending($big, false);
-        imagesavealpha($big, true);
-        $transparent = imagecolorallocatealpha($big, 0, 0, 0, 127);
-        imagefill($big, 0, 0, $transparent);
-        imagealphablending($big, true);
-
-        [$r, $g, $b] = sscanf(ltrim($color, '#'), '%02x%02x%02x');
-        $fill = imagecolorallocate($big, $r, $g, $b);
-
-        // One continuous elliptical arc (centre-x, semi-axes width/2 and
-        // depth) traced from theta=0 to pi traces exactly the curve two
-        // mirrored quarter-ellipse corners would produce, without the
-        // seam/gap risk of building it from two separate halves.
-        $steps = 96;
-        $curvePoints = [];
-        for ($i = 0; $i <= $steps; $i++) {
-            $theta = M_PI * $i / $steps;
-            $x = $bigWidth / 2 + ($bigWidth / 2) * cos($theta);
-            $y = $edge === 'bottom'
-                ? ($bigHeight - $bigDepth) + $bigDepth * sin($theta)
-                : $bigDepth * (1 - sin($theta));
-            $curvePoints[] = [$x, $y];
-        }
-
-        $polygon = [];
-        if ($edge === 'bottom') {
-            // (0,0) -> (width,0) -> curve (right-to-left, dipping through
-            // bottom-centre) -> implicit close back to (0,0).
-            $polygon[] = 0;
-            $polygon[] = 0;
-            $polygon[] = $bigWidth;
-            $polygon[] = 0;
-        } else {
-            // (0,height) -> (width,height) -> curve (right-to-left, rising
-            // through top-centre) -> implicit close back to (0,height).
-            $polygon[] = 0;
-            $polygon[] = $bigHeight;
-            $polygon[] = $bigWidth;
-            $polygon[] = $bigHeight;
-        }
-
-        foreach ($curvePoints as [$x, $y]) {
-            $polygon[] = $x;
-            $polygon[] = $y;
-        }
-
-        imagefilledpolygon($big, $polygon, $fill);
-
-        $canvas = imagecreatetruecolor($width, $height);
-        imagealphablending($canvas, false);
-        imagesavealpha($canvas, true);
-        $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
-        imagefill($canvas, 0, 0, $transparent);
-        imagecopyresampled($canvas, $big, 0, 0, 0, 0, $width, $height, $bigWidth, $bigHeight);
-        imagedestroy($big);
-
-        ob_start();
-        imagepng($canvas);
-        $bytes = ob_get_clean();
-        imagedestroy($canvas);
-
-        return 'data:image/png;base64,'.base64_encode($bytes);
     }
 }

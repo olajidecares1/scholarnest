@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SchoolAdmin\DashboardController as SchoolAdminDashboardController;
+use App\Http\Controllers\SubscriptionInvoiceController;
 use App\Http\Controllers\Subscriptions\BillingDetailsController;
 use App\Http\Controllers\Subscriptions\ChoosePlanController;
 use App\Http\Controllers\Subscriptions\ConfirmationController;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Signed-in EduNest accounts
+| Signed-in ScholarNest accounts
 |--------------------------------------------------------------------------
 |
 | The `web` guard: School Admins and the Super Admin. The two large areas
@@ -75,6 +76,16 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
 
         Route::get(R::uri('subscriptions.confirmation').'/{subscription}', [ConfirmationController::class, 'show'])->name('confirmation');
     });
+
+    // Invoices, for whoever is signed in. Authorised against the account's own
+    // school inside the controller - a School Admin reaches their school's
+    // invoices and no others.
+    Route::get(R::uri('invoices.index'), [SubscriptionInvoiceController::class, 'index'])
+        ->middleware('school_admin')
+        ->name('invoices.index');
+
+    Route::get(R::uri('invoices.download').'/{invoice}', [SubscriptionInvoiceController::class, 'download'])
+        ->name('invoices.download');
 
     Route::middleware('school_admin')->name('support-tickets.')->group(function () {
         Route::get(R::uri('support-tickets.index'), [SupportTicketController::class, 'index'])->name('index');

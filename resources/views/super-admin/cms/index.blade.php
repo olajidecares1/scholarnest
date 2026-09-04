@@ -240,7 +240,7 @@
                             name="quote"
                             label="Quote"
                             icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
-                            helper="What they said about EduNest."
+                            helper="What they said about ScholarNest."
                             rows="4"
                             required
                             x-text="editing ? editing.quote : ''"

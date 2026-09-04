@@ -19,9 +19,12 @@ beforeEach(function () {
         'status' => SubscriptionStatus::Active,
     ]);
 
+    // A parent signs in with their Parent ID or phone number, never their
+    // email - the same rule the portal enforces, since the API delegates to
+    // the very same login request.
     $this->guardian = Guardian::factory()->create([
         'school_id' => $this->school->id,
-        'email' => 'parent@example.com',
+        'guardian_number' => 'GRN001-PAR-001',
         'password' => Hash::make('Correct-Horse1!'),
         'must_change_password' => false,
     ]);
@@ -36,10 +39,15 @@ beforeEach(function () {
     $this->token = $this->postJson('/api/v1/tokens', [
         'role' => 'guardian',
         'school_code' => 'GRN001',
-        'login' => 'parent@example.com',
+        'login' => 'GRN001-PAR-001',
         'password' => 'Correct-Horse1!',
         'device_name' => 'Parent phone',
     ])->json('token');
+
+    // A null token here means the sign-in above failed, and every test in this
+    // file would then fail with an unhelpful TypeError from withToken()
+    // instead of naming the real problem.
+    expect($this->token)->not->toBeNull();
 
     app('auth')->forgetGuards();
 });

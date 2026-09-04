@@ -1,6 +1,6 @@
 # Security audit — 21 August 2026, closed out 26 August
 
-A first pass over EduNest against the security requirements in the project
+A first pass over ScholarNest against the security requirements in the project
 brief. Everything below was checked against the actual code, not assumed.
 
 **Overall: this codebase is in good shape.** 1,659 tests pass, tenant isolation is
@@ -112,7 +112,7 @@ connection and several teachers may mistype passwords in the same window.
 requests **for the same email address**, but nothing limits one address
 requesting resets for thousands of different accounts.
 
-That allows mass password-reset emails to be triggered from EduNest — which is
+That allows mass password-reset emails to be triggered from ScholarNest — which is
 both an abuse of the school's users and a fast route to the mail provider
 blocking the platform's sending domain.
 

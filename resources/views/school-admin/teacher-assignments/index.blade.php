@@ -84,7 +84,7 @@
             <form method="GET" class="grid grid-cols-1 gap-3 sm:grid-cols-4">
                 <x-select-field name="teacher" label="Teacher" placeholder="All Teachers" :selected="$selectedTeacher" :options="['' => 'All Teachers', ...collect($teachers)->mapWithKeys(fn ($t) => [$t->uuid => $t->fullName()])->all()]" />
                 <x-select-field name="class" label="Class" placeholder="All Classes" :selected="$selectedClass" :options="['' => 'All Classes', ...$classOptions->all()]" />
-                <x-text-field name="subject" label="Subject" value="{{ $selectedSubject }}" placeholder="Search subject..." />
+                <x-text-field name="subject" label="Subject" :value="$selectedSubject" placeholder="Search subject..." />
                 <div class="flex items-end gap-2">
                     <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
                     @if ($selectedTeacher || $selectedClass || $selectedSubject)

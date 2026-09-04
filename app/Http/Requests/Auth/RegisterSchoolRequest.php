@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\User;
+use App\Rules\NotDerivedFromIdentity;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
@@ -34,7 +35,31 @@ class RegisterSchoolRequest extends FormRequest
             // of registration.
             'phone' => ['required', 'string', 'max:30'],
 
-            'password' => ['required', 'confirmed', Password::defaults()],
+            // The school name and email are the two things printed at the top
+            // of the school's own website, and "Greenfield2026!" satisfies
+            // every complexity rule while being the first guess anybody makes
+            // against Greenfield College. Read from THIS request because at
+            // registration there is no account yet - they are the values the
+            // account is about to be created with.
+            'password' => [
+                'required',
+                'confirmed',
+                Password::defaults(),
+                new NotDerivedFromIdentity([
+                    $this->input('school_name'),
+                    $this->input('email'),
+                ]),
+            ],
+
+            // THE AGREEMENT IS A SERVER-SIDE RULE, and this line is the whole
+            // of it. The checkbox on the form carries `required`, but that is
+            // a browser convenience: it is trivially removed with developer
+            // tools and absent entirely from a request made outside a browser.
+            //
+            // `accepted` refuses anything that is not a true value - and
+            // refuses a request in which the field is missing altogether,
+            // which is exactly what an unticked checkbox sends, since a
+            // browser omits unchecked boxes rather than sending them as false.
             'terms' => ['accepted'],
         ];
     }
@@ -45,7 +70,10 @@ class RegisterSchoolRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'terms.accepted' => 'Please accept the Terms & Conditions, Privacy Policy and Data Protection Policy to continue.',
+            // Names the three documents that exist. It used to name a "Data
+            // Protection Policy", which never did - so a school reading the
+            // refusal was told to accept something it could not find.
+            'terms.accepted' => 'Please read and accept the Terms & Conditions, Privacy Policy and Cookie Policy to continue.',
         ];
     }
 

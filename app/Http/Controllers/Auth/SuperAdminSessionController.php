@@ -50,7 +50,7 @@ class SuperAdminSessionController extends Controller
             // weaker copy of them written just for this door.
             $request->authenticate();
         } catch (ValidationException $exception) {
-            $this->log('super-admin.login-failed', "Failed EduNest Team sign-in attempt for '{$login}'.", $login);
+            $this->log('super-admin.login-failed', "Failed ScholarNest Team sign-in attempt for '{$login}'.", $login);
 
             throw $exception;
         }
@@ -58,26 +58,42 @@ class SuperAdminSessionController extends Controller
         $user = Auth::user();
 
         if ($user->role !== UserRole::SuperAdmin) {
-            // Valid credentials, wrong role. They are logged straight back out
-            // and told exactly what a wrong password is told - confirming that
-            // a real account exists behind this address would turn the hidden
-            // door into an account oracle.
+            // Valid credentials, wrong role. No session is granted here - this
+            // door admits Super Admins only - but they are told plainly where
+            // to go instead.
+            //
+            // THAT IS SAFE, AND ONLY BECAUSE THE PASSWORD WAS CORRECT. The
+            // oracle this door has to avoid is telling a stranger whether an
+            // address belongs to an account; somebody who has just proved they
+            // hold that account's password already knows it exists, because it
+            // is theirs. A WRONG password never reaches this line - it is
+            // refused above with the generic message, unchanged.
+            //
+            // It used to say "These credentials do not match our records",
+            // which is what a wrong password is told. School Admins reach this
+            // dialog by accident, and that sentence sent them away certain
+            // their password was broken when it was perfectly good.
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
             $this->log(
                 'super-admin.login-refused',
-                "Refused EduNest Team sign-in for '{$login}': the account is not a EduNest Team.",
+                "Refused ScholarNest Team sign-in for '{$login}': the account is not a ScholarNest Team.",
                 $login,
             );
 
-            throw ValidationException::withMessages(['login' => trans('auth.failed')]);
+            // The finder, not route('login') - that one redirects straight
+            // back to the registration page, which is where they started.
+            return redirect()->route('portal.find.show')->with(
+                'status',
+                'That was the ScholarNest Team sign-in. Your details are correct - please sign in to your school here instead.',
+            );
         }
 
         $request->session()->regenerate();
 
-        AuditLog::record('super-admin.login', "EduNest Team {$user->name} signed in.", $user);
+        AuditLog::record('super-admin.login', "ScholarNest Team {$user->name} signed in.", $user);
 
         return redirect()->intended(route('super-admin.dashboard', absolute: false));
     }

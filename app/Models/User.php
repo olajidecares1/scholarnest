@@ -4,19 +4,23 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\UserRole;
+use App\Models\Concerns\HasProtectedPhoto;
+use App\Models\Concerns\HasSignature;
+use App\Notifications\ResetPasswordNotification;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUuidRouteKey, Notifiable;
+    use HasFactory, HasSignature, HasUuidRouteKey, Notifiable;
+
+    use HasProtectedPhoto;
 
     /**
      * The attributes that are mass assignable.
@@ -64,11 +68,6 @@ class User extends Authenticatable
         return in_array($permission, $this->adminRole?->permissions ?? [], true);
     }
 
-    public function photoUrl(): ?string
-    {
-        return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
-    }
-
     public static function generateUniqueUsernameFromEmail(string $email): string
     {
         $base = Str::slug(Str::before($email, '@'), '_') ?: 'user';
@@ -106,5 +105,19 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * ScholarNest's own reset email, not Laravel's default.
+     *
+     * Overridden here rather than configured with ResetPassword::toMailUsing()
+     * in a service provider, because this is the only model that has a reset
+     * flow at all - Staff, Student and Guardian deliberately do not, see
+     * docs/PASSWORD-RESET-POLICY.md - and a global callback would suggest
+     * otherwise to anyone reading it.
+     */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new ResetPasswordNotification($token, $this->email));
     }
 }

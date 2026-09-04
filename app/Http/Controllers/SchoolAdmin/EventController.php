@@ -29,6 +29,7 @@ class EventController extends Controller
             ->withQueryString();
 
         return view('school-admin.events.index', [
+            'website' => $school->website,
             'events' => $events,
             'when' => $when,
             'upcomingCount' => $school->events()->where('starts_at', '>=', now())->count(),

@@ -29,7 +29,7 @@ test('sending an announcement notifies every school admin', function () {
 
     $response = $this->actingAs($this->superAdmin)->post(route('super-admin.communications.store'), [
         'title' => 'Scheduled Maintenance',
-        'body' => 'EduNest will be briefly unavailable this weekend.',
+        'body' => 'ScholarNest will be briefly unavailable this weekend.',
     ]);
 
     $response->assertRedirect(route('super-admin.communications.index'));

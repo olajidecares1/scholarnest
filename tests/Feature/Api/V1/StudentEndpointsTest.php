@@ -235,9 +235,11 @@ test('a student token is refused at a guardian endpoint', function () {
 });
 
 test('a guardian token is refused at a student endpoint', function () {
+    // Parent ID, not email: a parent's login identifier changed, and the API
+    // uses the same login request the portal does.
     $guardian = Guardian::factory()->create([
         'school_id' => $this->school->id,
-        'email' => 'parent@example.com',
+        'guardian_number' => 'GRN001-PAR-001',
         'password' => Hash::make('Correct-Horse1!'),
         'must_change_password' => false,
     ]);
@@ -245,10 +247,12 @@ test('a guardian token is refused at a student endpoint', function () {
     $guardianToken = $this->postJson('/api/v1/tokens', [
         'role' => 'guardian',
         'school_code' => 'GRN001',
-        'login' => 'parent@example.com',
+        'login' => 'GRN001-PAR-001',
         'password' => 'Correct-Horse1!',
         'device_name' => 'Parent phone',
     ])->json('token');
+
+    expect($guardianToken)->not->toBeNull();
 
     app('auth')->forgetGuards();
 

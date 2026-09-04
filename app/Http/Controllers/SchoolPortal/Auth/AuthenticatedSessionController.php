@@ -44,7 +44,7 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Destroy an authenticated School Admin session, returning to this
-     * school's own portal login rather than the global EduNest login.
+     * school's own portal login rather than the global ScholarNest login.
      */
     public function destroy(Request $request, School $school): RedirectResponse
     {

@@ -40,6 +40,20 @@ class ProcessCbtTestDocumentUpload implements ShouldQueue
     public int $tries = 3;
 
     /**
+     * An upload deleted before its job ran is not a failure.
+     *
+     * The job holds the model by id and looks it up again when it runs, so a
+     * document somebody uploaded and then removed - while nothing was working
+     * the queue - left a job pointing at a row that no longer exists. It threw
+     * ModelNotFoundException and landed in failed_jobs, which is a real alarm
+     * raised over somebody changing their mind.
+     *
+     * With this, the job is quietly dropped instead. There is genuinely
+     * nothing to do: the record is gone, and so is the file it named.
+     */
+    public bool $deleteWhenMissingModels = true;
+
+    /**
      * @return list<int>
      */
     public function backoff(): array

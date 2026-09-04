@@ -33,7 +33,7 @@
             {{-- The band carries the feature's own icon - the same one on the
                  card they clicked - so the page reads as an answer to what
                  they just did rather than a generic wall. --}}
-            <div class="relative overflow-hidden bg-gradient-to-br from-[#EAF2FF] to-white px-6 pb-6 pt-8 text-center sm:px-10">
+            <div class="relative overflow-hidden bg-white px-6 pb-6 pt-8 text-center sm:px-10">
                 <div class="restricted-glow pointer-events-none absolute inset-x-0 -top-24 mx-auto h-48 w-48 rounded-full bg-primary-500/10 blur-3xl"></div>
 
                 <span class="restricted-badge relative mx-auto flex h-16 w-16 items-center justify-center rounded-[18px] bg-white text-primary-500 shadow-[0_8px_24px_-8px_rgba(24,119,242,0.5)]">

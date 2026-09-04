@@ -13,15 +13,33 @@
      signal of how far through the document it is. The bar sweeps rather than
      fills, for the same reason the upload form drops its percentage.
 
-     @param upload     The upload being watched.
-     @param statusUrl  JSON endpoint returning its live state.
-     @param retryUrl   Where to POST to queue the extraction again. --}}
+     TWO AUDIENCES. A stalled queue is one fact with two useful sentences: the
+     ScholarNest Team can start a worker and should be told which command does it,
+     while a teacher cannot and should never be shown a shell command. This
+     panel used to print the command to both - so a teacher whose upload was
+     waiting was handed `php artisan queue:work` and left to wonder what to do
+     with it.
+
+     QueueWorkerHealth::stalledMessage() already drew that distinction, and the
+     JSON endpoint behind this panel already passed it (false for staff, true
+     for the Super Admin). Only the rendered markup ignored it, which is why
+     the polled message and the visible one disagreed.
+
+     @param upload               The upload being watched.
+     @param statusUrl            JSON endpoint returning its live state.
+     @param retryUrl             Where to POST to queue the extraction again.
+     @param canOperateTheServer  Whether this viewer can start a worker.
+                                 Defaults to false: the safe answer is the one
+                                 that shows no shell command, so a new caller
+                                 that forgets to say cannot leak operator
+                                 instructions to a teacher. --}}
 
 @props([
     'upload',
     'statusUrl',
     'retryUrl',
     'stalled' => false,
+    'canOperateTheServer' => false,
 ])
 
 <div
@@ -126,12 +144,21 @@
                 service is started.
             </p>
 
-            <p class="mt-2 text-xs text-amber-800/80 dark:text-amber-400/80">
-                Whoever administers this server can start it with
-                <code class="rounded bg-amber-100 px-1 py-0.5 font-mono text-[11px] dark:bg-amber-900/40">php artisan queue:work</code>.
-                In development, <code class="rounded bg-amber-100 px-1 py-0.5 font-mono text-[11px] dark:bg-amber-900/40">composer run dev</code>
-                starts it alongside the web server.
-            </p>
+            @if ($canOperateTheServer)
+                <p class="mt-2 text-xs text-amber-800/80 dark:text-amber-400/80">
+                    Whoever administers this server can start it with
+                    <code class="rounded bg-amber-100 px-1 py-0.5 font-mono text-[11px] dark:bg-amber-900/40">php artisan queue:work</code>.
+                    In development, <code class="rounded bg-amber-100 px-1 py-0.5 font-mono text-[11px] dark:bg-amber-900/40">composer run dev</code>
+                    starts it alongside the web server.
+                </p>
+            @else
+                {{-- What a teacher can actually do about it: nothing to the
+                     server, but telling somebody is a real action, and knowing
+                     the document is safe is the part that matters to them. --}}
+                <p class="mt-2 text-xs text-amber-800/80 dark:text-amber-400/80">
+                    You do not need to upload it again. If it stays this way, please let the ScholarNest Team know.
+                </p>
+            @endif
 
             <form method="POST" action="{{ $retryUrl }}" class="mt-3">
                 @csrf

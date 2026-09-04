@@ -5,13 +5,27 @@
     'simple' => false,
     'background' => null,
 
+    // The sticky bar across the top: logo, wordmark, and the "already have an
+    // account?" link.
+    //
+    // Off on the PORTALS, where it was costing about 90px of height at the top
+    // of a page whose whole job is one sign-in card - and on a phone that is
+    // the difference between seeing the password field and having to scroll for
+    // it. With it off, the logo sits on its own in the top-left corner and the
+    // card gets the room back.
+    //
+    // Still on everywhere else, because those pages need what it holds: the
+    // result checker shows the school's own badge there, and registration needs
+    // the way back to sign-in.
+    'header' => true,
+
     // Opt-in, page by page. Only the registration page turns this on, so the
     // click sequence does not quietly exist on every auth screen in the app.
     'superAdminAccess' => false,
 
     // A page that belongs to one school rather than to the platform - the
     // result checker, chiefly. Given one, the header wears that school's badge
-    // and name instead of EduNest's, because a parent checking their child's
+    // and name instead of ScholarNest's, because a parent checking their child's
     // result should see their child's school.
     'school' => null,
 ])
@@ -36,14 +50,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $title ?? config('app.name', 'EduNest') }}</title>
+        <title>{{ $title ?? config('app.name', 'ScholarNest') }}</title>
 
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-        @if ($platformSettings->favicon_path)
-            <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($platformSettings->favicon_path) }}">
-        @endif
+        <x-favicon />
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
@@ -53,7 +62,10 @@
     </head>
     <body class="min-h-screen bg-white font-sans text-gray-900 antialiased">
         <div
-            class="flex min-h-screen flex-col"
+            {{-- relative so the header-less logo can be positioned against the
+                 page rather than the viewport - absolute-to-viewport would
+                 leave it hovering over the card as the page scrolls. --}}
+            class="relative flex min-h-screen flex-col"
             @if ($superAdminAccess)
                 x-data="{
                     clicks: 0,
@@ -88,6 +100,26 @@
                 @keydown.escape.window="close()"
             @endif
         >
+            @unless ($header)
+                {{-- No header bar: the logo alone, in the top-left corner.
+
+                     Absolute rather than in the flow, so it takes no height
+                     from the card below it - which is the point of turning the
+                     header off. pointer-events-none on the wrapper with the
+                     link re-enabling them keeps the empty space beside the logo
+                     from swallowing clicks meant for the page. --}}
+                <div class="pointer-events-none absolute left-4 top-4 z-30 sm:left-6 sm:top-6">
+                    <a href="{{ url('/') }}" class="pointer-events-auto inline-block">
+                        <img
+                            src="{{ $logoUrl }}"
+                            alt="{{ config('app.name', 'ScholarNest') }}"
+                            class="h-20 w-20 select-none rounded-[10px] object-contain"
+                        >
+                    </a>
+                </div>
+            @endunless
+
+            @if ($header)
             <header class="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur">
                 <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
                     @if ($school)
@@ -119,20 +151,20 @@
                         <div class="flex items-center gap-2">
                             <img
                                 src="{{ $logoUrl }}"
-                                alt="{{ config('app.name', 'EduNest') }}"
+                                alt="{{ config('app.name', 'ScholarNest') }}"
                                 @click="registerClick()"
-                                class="h-9 w-9 shrink-0 select-none rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
+                                class="h-20 w-20 shrink-0 select-none rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
                             >
-                            <a href="{{ url('/') }}" class="text-lg font-bold text-gray-900">Edu<span class="text-primary-500">Nest</span></a>
+                            <a href="{{ url('/') }}" class="text-lg font-bold text-gray-900">Scholar<span class="text-primary-500">Nest</span></a>
                         </div>
                     @else
                         <a href="{{ url('/') }}" class="flex items-center gap-2">
                             <img
                                 src="{{ $logoUrl }}"
-                                alt="{{ config('app.name', 'EduNest') }}"
-                                class="h-9 w-9 shrink-0 rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
+                                alt="{{ config('app.name', 'ScholarNest') }}"
+                                class="h-20 w-20 shrink-0 rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
                             >
-                            <span class="text-lg font-bold text-gray-900">Edu<span class="text-primary-500">Nest</span></span>
+                            <span class="text-lg font-bold text-gray-900">Scholar<span class="text-primary-500">Nest</span></span>
                         </a>
                     @endif
 
@@ -149,8 +181,9 @@
                     @endif
                 </div>
             </header>
+            @endif
 
-            <main class="relative flex-1 overflow-hidden bg-gray-50">
+            <main class="relative flex-1 overflow-hidden bg-white">
                 @if ($background)
                     <div class="pointer-events-none absolute inset-0">
                         @if ($background->type->value === 'video')
@@ -162,8 +195,12 @@
                     </div>
                 @endif
 
-                <div class="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full bg-primary-100/60 blur-3xl"></div>
-                <div class="pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full bg-primary-50 blur-3xl"></div>
+                {{-- Two large blurred blue discs used to sit here, one top
+                     right and one bottom left. They were not a gradient in
+                     the CSS sense - which is why searching for "gradient"
+                     found nothing - but a 384px circle at blur-3xl reads as
+                     one, and they tinted every portal, every sign-in and the
+                     school finder pale blue. The background is plain white. --}}
 
                 @if ($simple)
                     <div class="relative mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
@@ -179,7 +216,7 @@
 
             <footer class="border-t border-gray-200 bg-white">
                 <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-sm text-gray-500 sm:flex-row sm:px-6 lg:px-8">
-                    <span>&copy; {{ now()->year }} EduNest. All rights reserved.</span>
+                    <span>&copy; {{ now()->year }} ScholarNest. All rights reserved.</span>
                     <div class="flex items-center gap-4">
                         <a href="#" class="hover:text-primary-500">Privacy Policy</a>
                         <a href="#" class="hover:text-primary-500">Terms of Service</a>

@@ -35,12 +35,12 @@
 
             <form x-show="editing" style="display: none;" method="POST" action="{{ route('cbt-tests.update', $test) }}" class="mt-4 grid grid-cols-1 gap-4 border-b border-gray-100 pb-4 dark:border-gray-700 sm:grid-cols-2">
                 @csrf @method('PUT')
-                <x-text-field name="title" label="Title" value="{{ $test->title }}" required />
-                <x-text-field name="subject" label="Subject" value="{{ $test->subject }}" required />
-                <x-text-field name="class_name" label="Class" value="{{ $test->class_name }}" required />
+                <x-text-field name="title" label="Title" :value="$test->title" required />
+                <x-text-field name="subject" label="Subject" :value="$test->subject" required />
+                <x-text-field name="class_name" label="Class" :value="$test->class_name" required />
                 <div class="grid grid-cols-2 gap-4">
-                    <x-text-field name="duration_minutes" type="number" label="Duration (minutes)" value="{{ $test->duration_minutes }}" min="5" max="300" required />
-                    <x-text-field name="pass_mark" type="number" label="Pass Mark (%)" value="{{ $test->pass_mark }}" min="1" max="100" required />
+                    <x-text-field name="duration_minutes" type="number" label="Duration (minutes)" :value="$test->duration_minutes" min="5" max="300" required />
+                    <x-text-field name="pass_mark" type="number" label="Pass Mark (%)" :value="$test->pass_mark" min="1" max="100" required />
                 </div>
                 <div class="sm:col-span-2">
                     <button type="submit" class="rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-700">Save Changes</button>
@@ -61,7 +61,15 @@
                 </div>
                 <div class="mt-3 flex flex-wrap gap-2">
                     <button type="submit" name="status" value="draft" @disabled($test->hasStudentAttempts()) class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Save as Draft</button>
-                    <button type="submit" name="status" value="locked" @disabled($test->hasStudentAttempts()) class="rounded-[8px] border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Lock</button>
+                    {{-- The same one-button toggle as the teacher's page, and
+                         for the same reason: this sent "locked" whatever the
+                         test's state, so on a locked test it did nothing. --}}
+                    @php $isLocked = $test->status === \App\Enums\CbtTestStatus::Locked; @endphp
+
+                    <button type="submit" name="status" value="{{ $isLocked ? 'draft' : 'locked' }}" @disabled($test->hasStudentAttempts()) title="{{ $isLocked ? 'Unlock this test so it can be edited again.' : 'Lock this test so it cannot be edited.' }}" class="flex items-center gap-1.5 rounded-[8px] border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                        <i class="fa-solid {{ $isLocked ? 'fa-lock-open' : 'fa-lock' }} text-[12px]" aria-hidden="true"></i>
+                        {{ $isLocked ? 'Unlock' : 'Lock' }}
+                    </button>
                     <button type="submit" name="status" value="published" class="rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700">Publish</button>
                     <button type="submit" name="status" value="archived" class="rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
                 </div>

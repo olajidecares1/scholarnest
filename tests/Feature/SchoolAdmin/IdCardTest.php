@@ -299,7 +299,11 @@ test('the student role badge always uses a fixed red colour regardless of the te
 
     $response = $this->actingAs($admin)->getJson(route('id-cards.preview', ['student', $student]));
 
-    expect($response->json('front'))->toContain('#dc2626');
+    // The reference card's red, which the badge shares with the tagline and
+    // the rule under the header. The rule this test protects is unchanged -
+    // the badge ignores the school's own colours - only the shade moved, from
+    // a stand-in to the one the supplied design actually uses.
+    expect($response->json('front'))->toContain('#c8102e');
     expect($response->json('front'))->not->toContain('background-color: #00ff00');
 });
 

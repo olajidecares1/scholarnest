@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * A school has registered, and the EduNest Team should know once.
+ * A school has registered, and the ScholarNest Team should know once.
  *
  * Sent through TeamNotifier, which claims the event before anything goes out -
  * see that class for why a second registration notification cannot exist for
@@ -46,7 +46,7 @@ class SchoolRegisteredNotification extends Notification
         return (new MailMessage)
             ->subject('New School Registration - '.$this->school->name)
             ->greeting('Hello '.$notifiable->name.',')
-            ->line($this->school->name.' has registered on EduNest and is awaiting a subscription.')
+            ->line($this->school->name.' has registered on ScholarNest and is awaiting a subscription.')
             ->line('School code: '.$this->school->school_code)
             ->line('Contact: '.$this->school->billing_email.($this->school->billing_phone ? ' · '.$this->school->billing_phone : ''))
             ->line('Registered: '.$this->school->created_at->format('j M Y, g:ia'))

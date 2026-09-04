@@ -72,6 +72,14 @@ enum PlanFeature: string
     {
         return match ($this) {
             self::CustomDomain => [PlanKey::Exclusive],
+
+            // Every plan, Basic included. A school's buildings are a plain fact
+            // about the school rather than a premium extra, and a Basic school
+            // still needs somewhere to record them - its facilities show on its
+            // ID cards and printed material even with no public website to put
+            // them on.
+            self::Facilities => [PlanKey::Basic, PlanKey::Standard, PlanKey::Exclusive],
+
             default => [PlanKey::Standard, PlanKey::Exclusive],
         };
     }

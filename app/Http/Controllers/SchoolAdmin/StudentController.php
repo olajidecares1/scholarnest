@@ -144,7 +144,7 @@ class StudentController extends Controller
         $this->authorizeStudent($student);
 
         if ($student->photo_path) {
-            Storage::disk('public')->delete($student->photo_path);
+            Storage::disk('local')->delete($student->photo_path);
         }
 
         $name = $student->fullName();
@@ -191,7 +191,7 @@ class StudentController extends Controller
         $this->authorizeStudent($student);
 
         $validated = $request->validate([
-            'password' => ['required', 'string', Password::defaults()],
+            'password' => ['required', 'string', Password::defaults(), $this->identityRuleFor($student)],
         ]);
 
         $student->update(['password' => Hash::make($validated['password']), 'must_change_password' => false]);
@@ -298,7 +298,7 @@ class StudentController extends Controller
         $this->authorizeSchoolOwnership($guardian);
 
         $validated = $request->validate([
-            'password' => ['required', 'string', Password::defaults()],
+            'password' => ['required', 'string', Password::defaults(), $this->identityRuleFor($guardian)],
         ]);
 
         $guardian->update(['password' => Hash::make($validated['password']), 'must_change_password' => false]);
@@ -353,9 +353,9 @@ class StudentController extends Controller
         }
 
         $file = $request->file('photo');
-        $path = $file->storeAs('students', StoredUpload::name($file), 'public');
+        $path = $file->storeAs('students', StoredUpload::name($file), 'local');
 
-        $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
+        $this->optimizer->optimize(Storage::disk('local')->path($path), (string) $file->getMimeType());
 
         return $path;
     }

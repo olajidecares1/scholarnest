@@ -25,6 +25,7 @@
         ->concat([
             ['route' => 'super-admin.payments.index', 'label' => 'Payments'],
             ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings'],
+            ['route' => 'super-admin.document-templates.index', 'label' => 'Templates'],
             ['route' => 'super-admin.users.index', 'label' => 'Users'],
             ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions'],
             ['route' => 'super-admin.reports.index', 'label' => 'Reports'],
@@ -32,6 +33,7 @@
             ['route' => 'super-admin.communications.index', 'label' => 'Communications'],
             ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets'],
             ['route' => 'super-admin.cms.index', 'label' => 'CMS'],
+            ['route' => 'super-admin.legal.index', 'label' => 'Legal Documents'],
             ['route' => 'super-admin.media.index', 'label' => 'Media'],
             ['route' => 'super-admin.themes.index', 'label' => 'Themes'],
             ['route' => 'super-admin.settings.index', 'label' => 'System Settings'],
@@ -48,14 +50,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $pageTitle }} - {{ config('app.name', 'EduNest') }} EduNest Team</title>
+        <title>{{ $pageTitle }} - {{ config('app.name', 'ScholarNest') }} ScholarNest Team</title>
 
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-        @if ($platformSettings->favicon_path)
-            <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($platformSettings->favicon_path) }}">
-        @endif
+        <x-favicon />
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
@@ -84,11 +81,11 @@
         >
             <div class="flex items-center gap-2 px-5 py-5">
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-white p-1.5 shadow-sm transition-transform duration-300 ease-out hover:scale-105 hover:rotate-3">
-                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'EduNest') }}" class="h-full w-full object-contain">
+                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'ScholarNest') }}" class="h-full w-full object-contain">
                 </span>
                 <div>
-                    <p class="text-lg font-bold leading-tight">EduNest</p>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-100">EduNest Team</p>
+                    <p class="text-lg font-bold leading-tight">ScholarNest</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-100">ScholarNest Team</p>
                 </div>
             </div>
 
@@ -267,6 +264,7 @@
                     ['route' => 'super-admin.communications.index', 'label' => 'Communications', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
                     ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets', 'icon' => 'M4.5 8.5a2 2 0 012-2h11a2 2 0 012 2v7a2 2 0 01-2 2h-11a2 2 0 01-2-2v-7z', 'extra' => '<path d="M4.5 9.5l7.1 4.6a1 1 0 001.1 0l6.8-4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'super-admin.cms.index', 'label' => 'CMS', 'icon' => 'M4.5 6a1.5 1.5 0 011.5-1.5h6l2 2h5.5A1.5 1.5 0 0121 8v9.5A1.5 1.5 0 0119.5 19h-15A1.5 1.5 0 013 17.5v-11z', 'extra' => ''],
+                    ['route' => 'super-admin.legal.index', 'label' => 'Legal Documents', 'icon' => 'M6 3.5h12a.5.5 0 01.5.5v16a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M9 8h6M9 11.5h6M9 15h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
                     ['route' => 'super-admin.media.index', 'label' => 'Media', 'icon' => 'M4 5.5h16a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1v-11a1 1 0 011-1z', 'extra' => '<circle cx="8.5" cy="10" r="1.5" stroke="currentColor" stroke-width="1.5" /><path d="M3 15.5l5-4.5 4 3.5 3-2.5 6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'],
                     ['route' => 'super-admin.themes.index', 'label' => 'Themes', 'icon' => 'M12 3a9 9 0 109 9', 'extra' => '<circle cx="7.8" cy="10.5" r="1.1" fill="currentColor" /><circle cx="10.5" cy="6.8" r="1.1" fill="currentColor" /><circle cx="15.2" cy="7.3" r="1.1" fill="currentColor" /><circle cx="17.2" cy="12.5" r="1.1" fill="currentColor" />'],
                     ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings', 'icon' => 'M3 8.5h18M4 5.5h16a1 1 0 011 1V18a1 1 0 01-1 1H4a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M7 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
@@ -288,7 +286,7 @@
             </nav>
 
             <div class="m-3 rounded-[8px] bg-white/10 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
-                <p class="text-sm font-semibold">EduNest Team</p>
+                <p class="text-sm font-semibold">ScholarNest Team</p>
                 <p class="mt-1 text-xs text-primary-50">You have full access to all platform features.</p>
                 <a
                     href="{{ route('super-admin.settings.index') }}"
@@ -298,7 +296,7 @@
                 </a>
             </div>
 
-            <p class="px-5 pb-5 text-xs text-primary-100">&copy; {{ now()->year }} EduNest. All rights reserved.</p>
+            <p class="px-5 pb-5 text-xs text-primary-100">&copy; {{ now()->year }} ScholarNest. All rights reserved.</p>
         </aside>
 
         {{-- The desktop sidebar. White, Font Awesome, and permission-gated by
@@ -309,11 +307,11 @@
         <aside class="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-gray-200 bg-white shadow-sm print:hidden lg:flex dark:border-gray-800 dark:bg-gray-900">
             <div class="flex items-center gap-2.5 px-4 py-5">
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-white p-1.5 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'EduNest') }}" class="h-full w-full object-contain">
+                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'ScholarNest') }}" class="h-full w-full object-contain">
                 </span>
                 <div class="min-w-0">
-                    <h4 class="truncate text-sm font-bold leading-tight text-gray-900 dark:text-white">EduNest</h4>
-                    <small class="block truncate text-[11px] font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">EduNest Team</small>
+                    <h4 class="truncate text-sm font-bold leading-tight text-gray-900 dark:text-white">ScholarNest</h4>
+                    <small class="block truncate text-[11px] font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">ScholarNest Team</small>
                 </div>
             </div>
 

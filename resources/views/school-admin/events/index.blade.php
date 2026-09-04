@@ -10,6 +10,27 @@
             </div>
         @endif
 
+        {{-- A POINTER, not a second control.
+
+             Upcoming Events shares its card with Latest News, and one image
+             sits behind both. An upload box on each page would say they were
+             two cards with two backgrounds, and whichever was saved last would
+             appear to overwrite the other. --}}
+        <div class="flex flex-wrap items-center gap-3 rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                <i class="fa-regular fa-image text-[15px]" aria-hidden="true"></i>
+            </span>
+
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-bold text-gray-900 dark:text-white">Card background</p>
+                <p class="field-hint mt-0.5">Upcoming Events shares a card with Latest News, so they share one background image.</p>
+            </div>
+
+            <a href="{{ route('news.index') }}" class="shrink-0 rounded-[8px] border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">
+                Manage it on the News page
+            </a>
+        </div>
+
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <div class="flex items-center gap-1">

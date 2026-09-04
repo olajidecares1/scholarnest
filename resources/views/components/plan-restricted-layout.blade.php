@@ -19,12 +19,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ $title }} - {{ config('app.name', 'EduNest') }}</title>
+        <title>{{ $title }} - {{ config('app.name', 'ScholarNest') }}</title>
 
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-        @if ($platformSettings->favicon_path)
-            <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($platformSettings->favicon_path) }}">
-        @endif
+        <x-favicon />
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
@@ -38,7 +35,7 @@
             <header class="shrink-0 px-6 py-5 sm:px-10">
                 <div class="flex items-center gap-2.5">
                     <img src="{{ $logoUrl }}" alt="" class="h-8 w-8 shrink-0 rounded-[8px]">
-                    <span class="text-[19px] font-bold leading-none tracking-tight">EduNest</span>
+                    <span class="text-[19px] font-bold leading-none tracking-tight">ScholarNest</span>
                 </div>
             </header>
 

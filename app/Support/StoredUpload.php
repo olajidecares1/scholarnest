@@ -45,7 +45,18 @@ class StoredUpload
      * @var list<string>
      */
     private const ALLOWED = [
-        'jpg', 'jpeg', 'png', 'bmp', 'gif', 'webp', 'ico', 'svg',
+        // SVG is deliberately absent. It is the one image format that is also
+        // a script host - an <svg> may contain <script>, and these files are
+        // written to the public disk and served from the school's own origin,
+        // so one uploaded by a School Admin would run as that school.
+        //
+        // Laravel's `image` rule already refuses SVG (it is admitted only by
+        // the explicit `allow_svg` parameter, which nothing here passes), so
+        // no upload reaches this list with one today. It was still on the list
+        // though, which meant the day somebody validated with `mimes:svg`
+        // alone, this would happily write it. An SVG now becomes .bin and is
+        // never served as an image.
+        'jpg', 'jpeg', 'png', 'bmp', 'gif', 'webp', 'ico',
         'mp4', 'mov', 'webm',
         'pdf', 'docx',
     ];

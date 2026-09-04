@@ -17,7 +17,7 @@ use Throwable;
  *
  * What it deliberately does NOT do is approve anything. A document that passes
  * every check here is still only "worth a person looking at" - it is stored,
- * the school is told it is under review, and the EduNest Team activates the
+ * the school is told it is under review, and the ScholarNest Team activates the
  * subscription by hand as before. Nothing in this class shortens that.
  *
  * The reason for that line is simple: a carefully edited receipt will pass

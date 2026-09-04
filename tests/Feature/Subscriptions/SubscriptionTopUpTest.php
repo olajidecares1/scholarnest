@@ -32,9 +32,24 @@ function basicSchoolAdminWithSubscription(int $studentsCount = 100): array
     return [$admin, $subscription];
 }
 
-test('a non-basic school cannot reach the top-up page', function () {
+test('a standard school CAN reach the top-up page now', function () {
+    // It used to be refused. Standard is sold per student now, so it is capped
+    // per student, so it must be able to buy more - a plan capped in one place
+    // and unable to top up in another would be a trap.
     $school = School::factory()->create();
     $plan = Plan::firstOrCreate(['key' => PlanKey::Standard], Plan::factory()->make(['key' => PlanKey::Standard])->toArray());
+    Subscription::factory()->create([
+        'school_id' => $school->id, 'plan_id' => $plan->id,
+        'status' => SubscriptionStatus::Active, 'students_count' => 50,
+    ]);
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
+
+    $this->actingAs($admin)->get(route('subscription-top-up.create'))->assertOk();
+});
+
+test('an exclusive school cannot - it is not sold per student', function () {
+    $school = School::factory()->create();
+    $plan = Plan::firstOrCreate(['key' => PlanKey::Exclusive], Plan::factory()->make(['key' => PlanKey::Exclusive])->toArray());
     Subscription::factory()->create(['school_id' => $school->id, 'plan_id' => $plan->id, 'status' => SubscriptionStatus::Active]);
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 

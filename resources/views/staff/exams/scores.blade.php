@@ -1,4 +1,11 @@
-<x-staff-layout :page-title="'Scores · '.$subject->name" :page-subtitle="$examination->name.' · '.$examination->class_name">
+{{-- The subtitle names the class, term and session rather than the
+     examination. "First Term Examination" told a teacher nothing they could
+     not read off the term beside it; which session's first term is the part
+     that actually distinguishes one marking sheet from another. --}}
+<x-staff-layout
+    :page-title="'Scores · '.$subject->name"
+    :page-subtitle="$examination->class_name.' · '.$examination->term->label().' · '.$examination->session"
+>
     <div class="space-y-6">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">

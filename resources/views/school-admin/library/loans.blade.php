@@ -98,7 +98,7 @@
                     @csrf
                     <x-select-field name="book_id" label="Book" required placeholder="Select an available book" :options="$books->pluck('title', 'id')->all()" />
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" />
-                    <x-text-field name="due_at" label="Due Date" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" value="{{ now()->addWeeks(2)->toDateString() }}" required />
+                    <x-text-field name="due_at" label="Due Date" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" :value="now()->addWeeks(2)->toDateString()" required />
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
                         <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Issue Book</button>

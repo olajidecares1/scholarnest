@@ -100,6 +100,7 @@ test('two different schools can reuse the same admission number', function () {
 
 test('a school admin can upload a student photo', function () {
     Storage::fake('public');
+    Storage::fake('local');
 
     $this->actingAs($this->admin)->post(route('students.store'), [
         'admission_number' => 'STU-0002',
@@ -111,7 +112,7 @@ test('a school admin can upload a student photo', function () {
 
     $student = Student::where('admission_number', 'STU-0002')->firstOrFail();
     expect($student->photo_path)->not->toBeNull();
-    Storage::disk('public')->assertExists($student->photo_path);
+    Storage::disk('local')->assertExists($student->photo_path);
 });
 
 test('a school admin can view a student profile', function () {

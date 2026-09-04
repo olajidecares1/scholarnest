@@ -9,7 +9,7 @@
                     </svg>
                 </span>
                 <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">You don&rsquo;t have an active subscription yet</h2>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Choose a plan to unlock EduNest for {{ $school->name }}.</p>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Choose a plan to unlock ScholarNest for {{ $school->name }}.</p>
                 <a
                     href="{{ route('subscriptions.choose-plan') }}"
                     class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"

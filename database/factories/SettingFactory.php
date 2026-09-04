@@ -18,11 +18,11 @@ class SettingFactory extends Factory
     public function definition(): array
     {
         return [
-            'site_name' => 'EduNest',
-            'support_email' => 'support@edunest.test',
+            'site_name' => 'ScholarNest',
+            'support_email' => 'support@scholarnest.test',
             'support_phone' => null,
-            'notification_from_name' => 'EduNest',
-            'notification_from_email' => 'no-reply@edunest.test',
+            'notification_from_name' => 'ScholarNest',
+            'notification_from_email' => 'no-reply@scholarnest.test',
             'maintenance_mode' => false,
             'maintenance_message' => null,
         ];

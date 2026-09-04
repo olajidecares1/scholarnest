@@ -63,6 +63,6 @@
             {{ $errorMessages[0] }}
         </p>
     @elseif ($helper)
-        <p class="field-hint mt-1">{{ $helper }}</p>
+        <small class="field-hint mt-1">{{ $helper }}</small>
     @endif
 </div>

@@ -9,7 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 /**
- * A Basic school's own page: edunest.com/greenfield-college
+ * A Basic school's own page: scholarnest.com/greenfield-college
  *
  * This is where the school finder sends people, and it is the closest thing a
  * Basic school has to a home page. Basic does not include a public website, so
@@ -37,8 +37,17 @@ class SchoolLandingController extends Controller
         // subdomain, or their own domain - and their public website lives
         // there. Send them to it rather than serving a second, competing
         // entry point from the platform root.
+        //
+        // websiteUrl(), not publicUrl(): a Standard school that has not
+        // published a website yet has no website to redirect to, and sending
+        // them to its address would bounce a visitor to a 404 by way of a
+        // redirect. They get this same portal landing instead.
+        if ($website = $school->websiteUrl()) {
+            return redirect()->to($website);
+        }
+
         if ($school->hasPlanAccess(PlanKey::Standard, PlanKey::Exclusive)) {
-            return redirect()->to($school->publicUrl('public.school-website'));
+            return view('school-portal.index', ['school' => $school]);
         }
 
         // Deactivated, unsubscribed, or awaiting approval. There is nothing

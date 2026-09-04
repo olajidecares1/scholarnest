@@ -169,10 +169,12 @@ test('the Basic staff dashboard does not link to CBT', function () {
 test('the Standard staff dashboard does link to CBT', function () {
     [$school, $teacher] = basicSchoolWithTeacher(PlanKey::Standard);
 
+    // The link, not the wording: the mobile menu labels this "CBT", and what
+    // the plan rule is about is whether a Standard teacher can reach it.
     $this->actingAs($teacher, 'staff')
         ->get(route('staff.dashboard', $school))
         ->assertOk()
-        ->assertSee('CBT Management');
+        ->assertSee(route('staff.cbt.tests.index', $school), false);
 });
 
 // -----------------------------------------------------------------------------
@@ -224,7 +226,7 @@ test('a Basic school portal page offers the teacher login', function () {
 
     // Opening the staff portal is only half of it - a teacher also has to be
     // able to find the way in, and a Basic school has no website to link from.
-    $this->get('/'.$school->slug)
+    $this->get('/'.$school->portal_key)
         ->assertOk()
         ->assertSee('Staff / Teacher')
         ->assertSee('School Admin');
@@ -236,7 +238,7 @@ test('a Basic school portal page does not offer student or parent logins', funct
 
     // Those two portals are Standard and Exclusive only, so on Basic they
     // would open onto the locked page.
-    $this->get('/'.$school->slug)
+    $this->get('/'.$school->portal_key)
         ->assertOk()
         ->assertDontSee('Parent / Guardian')
         ->assertDontSee('Results, assignments');
@@ -247,7 +249,7 @@ test('a Basic school portal page sends parents to the result token instead', fun
     activateSchool($school, PlanKey::Basic);
 
     // No Parent Portal is not no parent result access.
-    $this->get('/'.$school->slug)
+    $this->get('/'.$school->portal_key)
         ->assertOk()
         ->assertSee('Check Result')
         // The school's own result address, which is what a Basic school hands

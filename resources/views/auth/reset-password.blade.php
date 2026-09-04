@@ -10,7 +10,7 @@
         </div>
 
         <h2 class="mt-4 text-center text-xl font-bold text-gray-900">Reset Your Password</h2>
-        <p class="mt-1 text-center text-sm text-gray-600">Choose a new password for your account.</p>
+        <p class="mt-1 text-center text-sm text-gray-600">Enter the code from your email, then choose a new password.</p>
 
         <form method="POST" action="{{ route('password.store') }}" class="mt-6 space-y-2">
             @csrf
@@ -18,6 +18,32 @@
             <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
             <x-auth-email-input :value="old('email', $request->email)" />
+
+            {{-- The second half of the reset. The link proves possession of the
+                 URL; this proves the email itself was read, so a link that
+                 leaks through a referrer header or a shared inbox is not on its
+                 own enough to take the account.
+
+                 inputmode="numeric" so a phone offers the number pad, and
+                 autocomplete="one-time-code" so the code can be filled from the
+                 notification rather than retyped. --}}
+            <div>
+                <label for="code" class="field-label">Verification Code</label>
+                <input
+                    id="code"
+                    name="code"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="6"
+                    required
+                    autofocus
+                    placeholder="6-digit code from your email"
+                    value="{{ old('code') }}"
+                    class="mt-1 w-full tracking-[0.35em] @error('code') field-invalid @enderror"
+                >
+                <x-input-error :messages="$errors->get('code')" class="mt-1" />
+            </div>
 
             <x-auth-password-input
                 id="password"

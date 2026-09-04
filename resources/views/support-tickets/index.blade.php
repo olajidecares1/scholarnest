@@ -1,4 +1,4 @@
-<x-dashboard-layout page-title="Support Tickets" page-subtitle="Get help from the EduNest team.">
+<x-dashboard-layout page-title="Support Tickets" page-subtitle="Get help from the ScholarNest team.">
     <div class="mx-auto max-w-4xl space-y-6">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 lg:rounded-[10px]">

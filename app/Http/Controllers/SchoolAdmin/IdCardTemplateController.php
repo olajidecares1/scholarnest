@@ -8,7 +8,9 @@ use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\IdCardTemplate;
 use App\Services\ImageOptimizer;
+use App\Support\IdCardSample;
 use App\Support\StoredUpload;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,11 +23,56 @@ class IdCardTemplateController extends Controller
 
     public function __construct(private readonly ImageOptimizer $optimizer) {}
 
+    /**
+     * The specimen card shown beside the editor.
+     *
+     * Rendered by the real card templates from invented details, so what a
+     * School Admin approves here is the card that prints. The editor asks for
+     * this again whenever a colour or the card type changes, which is why the
+     * colours arrive as query parameters rather than being read from a saved
+     * template - nothing has been saved yet.
+     *
+     * Nothing is written: IdCardSample builds unsaved models.
+     */
+    public function sample(Request $request): JsonResponse
+    {
+        $school = $request->user()->school;
+
+        $validated = $request->validate([
+            'type' => ['nullable', Rule::enum(IdCardHolderType::class)],
+            'orientation' => ['nullable', Rule::enum(IdCardOrientation::class)],
+            'primary_color' => ['nullable', 'string', 'max:20'],
+            'secondary_color' => ['nullable', 'string', 'max:20'],
+            'accent_color' => ['nullable', 'string', 'max:20'],
+            'instructions' => ['nullable', 'string', 'max:2000'],
+            'show_blood_group' => ['nullable', 'boolean'],
+        ]);
+
+        $card = IdCardSample::for(
+            $school,
+            IdCardHolderType::tryFrom($validated['type'] ?? '') ?? IdCardHolderType::Student,
+            IdCardOrientation::tryFrom($validated['orientation'] ?? '') ?? IdCardOrientation::Portrait,
+            [
+                'primary_color' => $validated['primary_color'] ?? null,
+                'secondary_color' => $validated['secondary_color'] ?? null,
+                'accent_color' => $validated['accent_color'] ?? null,
+                'instructions' => $validated['instructions'] ?? null,
+                'show_blood_group' => (bool) ($validated['show_blood_group'] ?? false),
+            ],
+        );
+
+        return response()->json([
+            'front' => view('school-admin.id-cards._card', ['card' => $card])->render(),
+            'back' => view('school-admin.id-cards._card_back', ['card' => $card])->render(),
+        ]);
+    }
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
 
         return view('school-admin.id-cards.templates', [
+            'school' => $school,
             'templates' => $school->idCardTemplates()->latest()->get(),
         ]);
     }
@@ -89,6 +136,9 @@ class IdCardTemplateController extends Controller
             'orientation' => ['required', Rule::enum(IdCardOrientation::class)],
             'primary_color' => ['required', 'string', 'max:20'],
             'secondary_color' => ['required', 'string', 'max:20'],
+            // Nullable: a template saved before this colour existed keeps the
+            // reference red until its school chooses another.
+            'accent_color' => ['nullable', 'string', 'max:20'],
             'instructions' => ['nullable', 'string', 'max:2000'],
             'show_blood_group' => ['nullable', 'boolean'],
             'show_dob' => ['nullable', 'boolean'],

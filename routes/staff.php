@@ -15,6 +15,7 @@ use App\Http\Controllers\Staff\ProfileChangeRequestController as StaffProfileCha
 use App\Http\Controllers\Staff\ProfileController as StaffProfileController;
 use App\Http\Controllers\Staff\ResultController as StaffResultController;
 use App\Http\Controllers\Staff\SettingsController as StaffSettingsController;
+use App\Http\Controllers\Staff\SignatureController as StaffSignatureController;
 use App\Http\Controllers\Staff\TimetableController as StaffTimetableController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,7 +29,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Staff Portal — same school-slug-scoped, readable convention as the Student/Parent Portals above.
-Route::prefix('schools/{school:slug}/staff-portal')->name('staff.')->group(function () {
+// The school is identified by an opaque key, not its slug - see
+// routes/student.php for why, and the add_portal_key_to_schools_table
+// migration for what the key is. The parameter is still "school" and still
+// resolves to a School, so no controller or route() call changed.
+Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(function () {
     Route::middleware(['guest:staff', 'portal_token'])->group(function () {
         Route::get('{token}/login', [StaffAuthenticatedSessionController::class, 'create'])->name('login');
         Route::post('{token}/login', [StaffAuthenticatedSessionController::class, 'store']);
@@ -46,6 +51,17 @@ Route::prefix('schools/{school:slug}/staff-portal')->name('staff.')->group(funct
             Route::name('settings.')->prefix('settings')->group(function () {
                 Route::get('/', [StaffSettingsController::class, 'index'])->name('index');
                 Route::put('profile', [StaffSettingsController::class, 'updateProfile'])->name('update-profile');
+
+                // On every plan: a Basic school's results are signed too.
+                // The upload form and the drawn signature both end up in the
+                // same place; a teacher with a scan already made should not
+                // have to redraw it.
+                Route::post('signature', [StaffSettingsController::class, 'updateSignature'])->name('update-signature');
+
+                // Drawn on a canvas and posted with fetch(), so the modal can
+                // stay open and report back without a page load.
+                Route::post('signature/register', [StaffSignatureController::class, 'store'])->name('signature.store');
+                Route::delete('signature/register', [StaffSignatureController::class, 'destroy'])->name('signature.destroy');
             });
 
             Route::post('profile-change-requests', [StaffProfileChangeRequestController::class, 'store'])->name('profile-change-requests.store');
@@ -86,11 +102,21 @@ Route::prefix('schools/{school:slug}/staff-portal')->name('staff.')->group(funct
             });
 
             Route::middleware('staff_is_teacher')->name('results.')->prefix('results')->group(function () {
+                // A Class Teacher may READ their class's cards and write the
+                // teacher's remark. That is the whole of it.
+                //
+                // There is deliberately no print route and no pdf route here.
+                // Taking the buttons off the page would have left the URLs
+                // answering to anyone who typed them, and a report card is a
+                // document the school issues - the teacher who marks it is not
+                // the one who hands it out. Removed rather than gated, so
+                // there is no endpoint left to reach: /results/{exam}/students/
+                // {student}/print and .../pdf now 404 for the staff guard.
+                //
+                // The School Admin keeps both, on their own routes.
                 Route::get('/', [StaffResultController::class, 'index'])->name('index');
                 Route::get('/{examination}/students/{student}', [StaffResultController::class, 'show'])->name('show');
                 Route::put('/{examination}/students/{student}/remarks', [StaffResultController::class, 'updateRemarks'])->name('remarks');
-                Route::get('/{examination}/students/{student}/print', [StaffResultController::class, 'print'])->name('print');
-                Route::get('/{examination}/students/{student}/pdf', [StaffResultController::class, 'pdf'])->name('pdf');
 
                 // Push to Repository. A Class Teacher publishes for their own
                 // class; the Repository itself is the School Admin's, and

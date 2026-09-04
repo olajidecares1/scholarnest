@@ -65,8 +65,10 @@ test('the registration page still offers ordinary school registration', function
     // is asserted by its form title rather than the panel headline, which the
     // design breaks across two lines.
     //
-    // No sign-in link is asserted: the design deliberately has none, so the
-    // registration page offers registration and nothing else.
+    // This page DOES now carry a sign-in link. It deliberately had none, and
+    // that turned out to be the reason two schools ended up typing valid
+    // credentials into the hidden Team dialog: it was the only login form on
+    // the page. See 'the registration page offers a way to sign in'.
     $this->get(route('register'))
         ->assertOk()
         ->assertSee('Register Your School')
@@ -155,16 +157,24 @@ test('a School Admin with a valid password is refused at this door', function ()
     ]);
 
     // Their password is genuinely correct - it works on the shared sign-in
-    // page - and it still gets them nowhere here.
+    // page - and it still gets them no session here.
+    //
+    // They are sent to the sign-in they actually wanted rather than told their
+    // password is wrong. Two real schools reached this dialog by accident and
+    // were turned away certain their credentials were broken, because the
+    // registration page had no sign-in link and this was the only login form
+    // on it.
     $this->post(route('super-admin.login'), [
         'login' => $schoolAdmin->email,
         'password' => 'correct-horse-battery',
-    ])->assertSessionHasErrors('login');
+    ])
+        ->assertRedirect(route('portal.find.show'))
+        ->assertSessionHas('status');
 
     $this->assertGuest();
 });
 
-test('a refused non-Super-Admin is told exactly what a wrong password is told', function () {
+test('a wrong password tells a stranger nothing, whoever the account belongs to', function () {
     $school = School::factory()->create();
 
     $schoolAdmin = User::factory()->create([
@@ -174,23 +184,33 @@ test('a refused non-Super-Admin is told exactly what a wrong password is told', 
         'is_active' => true,
     ]);
 
+    $superAdmin = superAdminUser();
+
+    // THIS is the oracle that matters, and it is about the WRONG-password
+    // path. Somebody guessing at addresses must not be able to learn from the
+    // answer whether an account exists, or whether it is a Super Admin.
+    $messages = collect([$schoolAdmin->email, $superAdmin->email, 'nobody@example.test'])
+        ->map(function (string $email) {
+            session()->forget('errors');
+
+            $this->post(route('super-admin.login'), [
+                'login' => $email,
+                'password' => 'not-the-password',
+            ]);
+
+            return session('errors')->first('login');
+        });
+
+    expect($messages->unique())->toHaveCount(1);
+
+    // The correct-password path is deliberately different now: somebody who
+    // has just proved they hold the account's password already knows it
+    // exists, because it is theirs. Telling them where to sign in leaks
+    // nothing and rescues them from a dead end.
     $this->post(route('super-admin.login'), [
         'login' => $schoolAdmin->email,
         'password' => 'correct-horse-battery',
-    ]);
-    $wrongRole = session('errors')->first('login');
-
-    session()->forget('errors');
-
-    $this->post(route('super-admin.login'), [
-        'login' => $schoolAdmin->email,
-        'password' => 'not-the-password',
-    ]);
-    $wrongPassword = session('errors')->first('login');
-
-    // Identical, or the hidden door becomes a way to ask "does this account
-    // exist, and is it a Super Admin?"
-    expect($wrongRole)->toBe($wrongPassword);
+    ])->assertRedirect(route('portal.find.show'));
 });
 
 test('a deactivated Super Admin cannot sign in', function () {
@@ -290,4 +310,13 @@ test('the hidden form carries a CSRF token and sits in the web middleware group'
     $middleware = app('router')->getRoutes()->getByName('super-admin.login')->gatherMiddleware();
 
     expect($middleware)->toContain('web')->toContain('guest');
+});
+
+test('the registration page offers a way to sign in', function () {
+    // The absence of this link is what sent two schools hunting, and the only
+    // login form on the page was the hidden Team dialog.
+    $this->get(route('register'))
+        ->assertOk()
+        ->assertSee(route('portal.find.show'), false)
+        ->assertSee('Already registered?');
 });

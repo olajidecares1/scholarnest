@@ -166,7 +166,7 @@
                         support tickets.
                     </p>
                     <p class="mt-2">
-                        If you only want to stop the school using EduNest, close this and choose
+                        If you only want to stop the school using ScholarNest, close this and choose
                         <span class="font-semibold">Suspend</span> instead. That is reversible.
                     </p>
                 </div>

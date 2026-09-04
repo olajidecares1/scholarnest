@@ -8,7 +8,7 @@
                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 9v4m0 4h.01M10.3 3.9L2.5 17a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Your school&rsquo;s account has been suspended</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Please contact EduNest support to resolve this before you can continue using your account.</p>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Please contact ScholarNest support to resolve this before you can continue using your account.</p>
                     </div>
                     @break
 
@@ -21,7 +21,7 @@
                             </svg>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">You don&rsquo;t have an active subscription yet</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Choose a plan to unlock EduNest for {{ $school->name }}.</p>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Choose a plan to unlock ScholarNest for {{ $school->name }}.</p>
                         <a
                             href="{{ route('subscriptions.choose-plan') }}"
                             class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
@@ -40,7 +40,7 @@
                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" /><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Awaiting activation</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Your account is awaiting payment confirmation and activation by the EduNest Team.</p>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Your account is awaiting payment confirmation and activation by the ScholarNest Team.</p>
                         @if ($subscription?->reference)
                             <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Reference {{ $subscription->reference }} &middot; submitted {{ $subscription->created_at->diffForHumans() }}</p>
                         @endif
@@ -71,7 +71,7 @@
                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" /><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Your subscription has expired</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Renew your plan to regain access to EduNest for {{ $school->name }}.</p>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Renew your plan to regain access to ScholarNest for {{ $school->name }}.</p>
                         <a
                             href="{{ route('subscriptions.choose-plan') }}"
                             class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"

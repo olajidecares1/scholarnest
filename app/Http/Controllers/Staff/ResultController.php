@@ -13,12 +13,10 @@ use App\Services\ExaminationResultCalculator;
 use App\Services\ReportCardData;
 use App\Services\ResultRepository;
 use App\Support\AcademicSession;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\Response;
 
 class ResultController extends Controller
 {
@@ -75,10 +73,17 @@ class ResultController extends Controller
             ...ReportCardData::for($examination, $student),
             'canEditTeacherRemark' => true,
             'canEditPrincipalRemark' => false,
+
+            // The pupil's admission number is their Student ID, and it is not
+            // this portal's to show. Withheld in the DATA rather than hidden
+            // in the markup: a value the response never carries cannot be read
+            // out of the page source, off the network tab, or by replaying the
+            // request by hand.
+            'showStudentId' => false,
         ];
 
         return response()->json([
-            'card_number' => $student->admission_number,
+            // No card_number key at all, for the same reason.
             'details_html' => view('school-admin.results._details', $data)->render(),
             'report_card_html' => view('school-admin.results._report-card', $data)->render(),
             'has_scores' => $data['subjects']->contains(fn ($subject) => $subject->scores->isNotEmpty()),
@@ -99,23 +104,6 @@ class ResultController extends Controller
         $report->update($validated);
 
         return response()->json(['status' => 'Remarks saved.']);
-    }
-
-    public function print(Request $request, School $school, Examination $examination, Student $student): View
-    {
-        $this->authorizeClassTeacher($request, $examination, $student);
-
-        return view('school-admin.results.print', ReportCardData::for($examination, $student));
-    }
-
-    public function pdf(Request $request, School $school, Examination $examination, Student $student): Response
-    {
-        $this->authorizeClassTeacher($request, $examination, $student);
-
-        $pdf = Pdf::loadView('school-admin.results.pdf.report-card', ReportCardData::for($examination, $student))
-            ->setPaper('a4');
-
-        return $pdf->download("report-card-{$student->admission_number}.pdf");
     }
 
     /**

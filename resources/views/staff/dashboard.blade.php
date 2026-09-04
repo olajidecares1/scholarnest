@@ -1,6 +1,7 @@
 <x-staff-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.$staff->first_name.'!'">
-    <div class="space-y-6">
+    <div class="space-y-4 sm:space-y-6">
         <x-welcome-banner
+            compact
             :photo-url="$staff->photoUrl()"
             :initials="Str::of($staff->first_name)->substr(0, 1)->upper()"
             :name="$staff->fullName()"
@@ -30,7 +31,7 @@
         @endphp
 
         @if ($classTeacherOf->isNotEmpty() && \Illuminate\Support\Facades\Route::has('staff.attendance.index'))
-            <a href="{{ route('staff.attendance.index', $school) }}" class="flex items-center justify-between gap-3 rounded-[10px] border border-green-200 bg-green-50 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-green-900/40 dark:bg-green-900/10">
+            <a href="{{ route('staff.attendance.index', $school) }}" class="flex items-center justify-between gap-3 rounded-[10px] border border-green-200 bg-green-50 p-4 shadow-sm sm:p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-green-900/40 dark:bg-green-900/10">
                 <div class="flex items-center gap-3">
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                         <i class="fa-solid fa-clipboard-check"></i>
@@ -46,7 +47,7 @@
 
         @if ($staff->role === \App\Enums\StaffRole::Teacher && ($classTeacherOf->isNotEmpty() || $subjectAssignments->isNotEmpty()))
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-700 dark:bg-gray-800">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">My Classes</h2>
                     <p class="field-hint mt-1">Classes you're the Class Teacher of.</p>
                     <div class="mt-3 flex flex-wrap gap-2">
@@ -57,7 +58,7 @@
                         @endforelse
                     </div>
                 </div>
-                <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-700 dark:bg-gray-800">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">My Subjects</h2>
                     <p class="field-hint mt-1">Subjects you've been assigned to teach.</p>
                     <div class="mt-3 space-y-1.5">
@@ -74,7 +75,7 @@
             </div>
         @endif
 
-        <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-700 dark:bg-gray-800">
             <div class="flex items-center justify-between">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Today's Classes</h2>
                 @if (\Illuminate\Support\Facades\Route::has('staff.timetable') && $hasPremiumStaffModules)

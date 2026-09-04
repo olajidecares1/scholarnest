@@ -12,6 +12,8 @@ use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Notifications\NewSubscriptionSubmittedNotification;
+use App\Notifications\SubscriptionInvoiceIssuedNotification;
+use App\Services\SubscriptionInvoiceIssuer;
 use App\Services\SubscriptionWizardService;
 use App\Services\TeamNotifier;
 use Illuminate\Http\RedirectResponse;
@@ -25,6 +27,7 @@ class ReviewController extends Controller
     public function __construct(
         private readonly SubscriptionWizardService $wizard,
         private readonly TeamNotifier $team,
+        private readonly SubscriptionInvoiceIssuer $invoices,
     ) {}
 
     public function create(): View|RedirectResponse
@@ -93,7 +96,21 @@ class ReviewController extends Controller
 
         $this->wizard->clear();
 
+        // The invoice is raised the moment the subscription is submitted, not
+        // when it is approved. A school that has just paid needs the document
+        // now - for its own books, and to have something to quote if the
+        // approval takes a day. The invoice says plainly that it is awaiting
+        // approval; it is not a receipt.
+        //
+        // Issuing is idempotent, so a replayed submission cannot bill twice.
+        $invoice = $this->invoices->issueForSubscription($subscription);
+
+        $school->users()->each(
+            fn ($user) => $user->notify(new SubscriptionInvoiceIssuedNotification($invoice))
+        );
+
         AuditLog::record('subscription.submitted', "Submitted a {$subscription->plan->name} subscription for review.", $subscription);
+        AuditLog::record('invoice.issued', "Issued invoice {$invoice->number} to {$school->name}.", $invoice);
 
         // One submission, one notification - claimed against the subscription
         // so a retried or replayed request announces nothing twice. See

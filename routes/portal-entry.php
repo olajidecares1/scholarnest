@@ -21,11 +21,15 @@ use Illuminate\Support\Facades\Route;
 
 // School Portal — single entry point per school linking out to all four
 // role-specific logins above, so a school's public website never has to
-// send anyone to the shared global EduNest login. Same school-slug-scoped,
+// send anyone to the shared global ScholarNest login. Same school-slug-scoped,
 // readable-by-design convention as the three portals above. Available on
 // every plan (login itself has never been plan-gated for any portal - only
 // the post-login dashboards are, via "portal_access").
-Route::prefix('schools/{school:slug}/portal')->name('portal.')->group(function () {
+// The school is identified by an opaque key, not its slug - see
+// routes/student.php for why, and the add_portal_key_to_schools_table
+// migration for what the key is. The parameter is still "school" and still
+// resolves to a School, so no controller or route() call changed.
+Route::prefix('p/{school:portal_key}/portal')->name('portal.')->group(function () {
     Route::get('/', [SchoolPortalController::class, 'index'])->name('index');
 
     Route::name('admin.')->prefix('admin')->group(function () {
@@ -39,6 +43,25 @@ Route::prefix('schools/{school:slug}/portal')->name('portal.')->group(function (
         });
     });
 });
+
+// THE FRONT DOOR, for every plan.
+//
+// Type your school's name, land on that school's portal page, and pick the
+// portal you need - and which portals are offered there is decided by the
+// school's plan, not here. Basic gets School Admin, Staff and result checking;
+// Standard and Exclusive add the Student and Parent portals.
+//
+// Open, with no token in the address, because a school cannot use a door it
+// cannot find. The token-gated address below still works and is unchanged;
+// this is simply the one a school can be told about.
+//
+// Throttled on the POST for the same reason it always was: the search runs
+// against school names, and an unthrottled one is a way to enumerate
+// ScholarNest's customer list.
+Route::get('/portal', [BasicSchoolFinderController::class, 'show'])->name('portal.find.show');
+Route::post('/portal', [BasicSchoolFinderController::class, 'find'])
+    ->middleware(['throttle:20,1', 'honeypot'])
+    ->name('portal.find');
 
 // The new unified portal login (Phase 2 of the portal-URL-security rewrite),
 // default-host mirror of the tenant-domain pair registered above - this is
@@ -57,7 +80,7 @@ Route::post('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'st
 // flow is entirely separate from the two portals above and shares no route,
 // controller or view with them. See docs/BASIC-PLAN-PORTAL.md.
 //
-// The token sits alone at the root - edunest.com/6219db402a20f65b63358972bd5274cd
+// The token sits alone at the root - scholarnest.com/6219db402a20f65b63358972bd5274cd
 // - so the address gives away nothing at all about the application's shape.
 // There is no "/portal" segment to notice, and nothing to strip off and probe.
 //
@@ -72,17 +95,17 @@ Route::post('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'st
 // elsewhere in this file are 128 characters, not 32.
 //
 // Throttled because the POST is a lookup against school names, and an
-// unthrottled one would let anyone enumerate EduNest's customer list.
+// unthrottled one would let anyone enumerate ScholarNest's customer list.
 Route::middleware(['basic_portal_token', 'throttle:20,1'])
     ->where(['token' => '[A-Za-z0-9]{32}'])
     ->name('basic-portal.')
     ->group(function () {
         Route::get('{token}', [BasicSchoolFinderController::class, 'show'])->name('finder');
-        Route::post('{token}', [BasicSchoolFinderController::class, 'find'])->name('find');
+        Route::post('{token}', [BasicSchoolFinderController::class, 'find'])->middleware('honeypot')->name('find');
     });
 
 Route::middleware('throttle:5,1')->group(function () {
     Route::get(R::uri('reports.create'), [ReportController::class, 'create'])->name('reports.create');
-    Route::post(R::uri('reports.create'), [ReportController::class, 'store'])->name('reports.store');
+    Route::post(R::uri('reports.create'), [ReportController::class, 'store'])->middleware('honeypot')->name('reports.store');
 });
 Route::get(R::uri('reports.confirmation'), [ReportController::class, 'confirmation'])->name('reports.confirmation');

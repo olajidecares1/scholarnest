@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PlanKey;
-use App\Enums\StaffRole;
 use App\Models\NewsPost;
 use App\Models\School;
 use App\Models\SchoolWebsite;
@@ -19,11 +18,21 @@ class PublicSchoolWebsiteController extends Controller
             'school' => $school,
             'website' => $website,
             'heroSlides' => $school->heroSlides,
-            'galleryImages' => $school->galleryImages()->take(6)->get(),
+            // Twenty-four, for the reason given on upcomingEvents below. A
+            // gallery is the one panel where a school will happily have that
+            // many, and the viewer walks all of them.
+            'galleryImages' => $school->galleryImages()->orderBy('sort_order')->take(24)->get(),
             'academicLevels' => $school->academicLevels()->with('classes')->get(),
-            'teachers' => $school->staff()->where('role', StaffRole::Teacher)->where('is_active', true)->take(10)->get(),
-            'upcomingEvents' => $school->events()->where('starts_at', '>=', now())->orderBy('starts_at')->take(5)->get(),
-            'latestNews' => $school->newsPosts()->where('is_published', true)->orderByDesc('published_at')->take(3)->get(),
+            // 'teachers' is gone with the section that used it. Left behind, it
+            // would have been a staff query run on every visit to every
+            // school's front page for a variable nothing reads.
+
+            // Twelve each, and the number matters more than it looks. These
+            // panels used to end in a "View all" link; without it the panel is
+            // the only place they are reachable, so whatever it is not given is
+            // not on the site at all. Twelve fills four groups of three.
+            'upcomingEvents' => $school->events()->where('starts_at', '>=', now())->orderBy('starts_at')->take(12)->get(),
+            'latestNews' => $school->newsPosts()->where('is_published', true)->orderByDesc('published_at')->take(12)->get(),
             'openJobs' => $school->jobPostings()->where('is_active', true)->orderByDesc('posted_at')->take(3)->get(),
             'testimonials' => $school->testimonials()->where('is_active', true)->orderBy('sort_order')->take(6)->get(),
             'facilities' => $school->facilities()->take(6)->get(),
@@ -92,7 +101,7 @@ class PublicSchoolWebsiteController extends Controller
             'school' => $school,
             'website' => $website,
             'post' => $post,
-            'otherPosts' => $school->newsPosts()->where('is_published', true)->whereKeyNot($post->id)->orderByDesc('published_at')->take(3)->get(),
+            'otherPosts' => $school->newsPosts()->where('is_published', true)->whereKeyNot($post->id)->orderByDesc('published_at')->take(6)->get(),
         ]);
     }
 

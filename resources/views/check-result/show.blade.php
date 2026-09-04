@@ -35,6 +35,7 @@
 
         <form method="POST" action="{{ $identifyUrl }}" class="mt-6 space-y-2">
             @csrf
+            <x-honeypot />
 
             <x-text-field
                 name="admission_number"

@@ -11,7 +11,8 @@
 
         <h2 class="mt-4 text-center text-xl font-bold text-gray-900">Forgot Your Password?</h2>
         <p class="mt-1 text-center text-sm text-gray-600">
-            No problem. Enter your email address and we&rsquo;ll send you a link to reset it.
+            No problem. Enter your email address and we&rsquo;ll send you a reset link
+            and a verification code. You&rsquo;ll need both.
         </p>
 
         <x-auth-session-status class="mt-4" :status="session('status')" />

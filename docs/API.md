@@ -1,4 +1,4 @@
-# EduNest API v1
+# ScholarNest API v1
 
 The HTTP interface the mobile apps are built against. Read-only in this
 version: everything here answers a question a client needs to draw a screen,

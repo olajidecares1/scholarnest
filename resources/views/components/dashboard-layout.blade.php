@@ -12,6 +12,12 @@
     // submitted and its pending badge, rather than "Choose a Plan".
     $subscription = $school->subscriptionForDisplay();
     $openTicketsCount = \App\Models\SupportTicket::where('school_id', $school->id)->whereIn('status', [\App\Enums\TicketStatus::Open, \App\Enums\TicketStatus::InProgress])->count();
+
+    // What the public has sent this school and nobody has looked at yet.
+    // Counted together because they share one icon: an administrator wants
+    // to know something arrived, not which of two kinds it was.
+    $inboxCount = \App\Models\ContactMessage::where('school_id', $school->id)->whereNull('read_at')->count()
+        + \App\Models\MisconductReport::where('school_id', $school->id)->where('status', \App\Models\MisconductReport::STATUS_NEW)->count();
 @endphp
 
 <!DOCTYPE html>
@@ -21,14 +27,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $pageTitle }} - {{ config('app.name', 'EduNest') }}</title>
+        <title>{{ $pageTitle }} - {{ config('app.name', 'ScholarNest') }}</title>
 
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-        @if ($platformSettings->favicon_path)
-            <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($platformSettings->favicon_path) }}">
-        @endif
+        <x-favicon />
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
@@ -245,7 +246,7 @@
                 </div>
             </div>
 
-            <p class="px-5 pb-4 text-xs text-gray-500 dark:text-gray-400">&copy; {{ now()->year }} {{ config('app.name', 'EduNest') }}. All rights reserved.</p>
+            <p class="px-5 pb-4 text-xs text-gray-500 dark:text-gray-400">&copy; {{ now()->year }} {{ config('app.name', 'ScholarNest') }}. All rights reserved.</p>
             </div>
         </aside>
 
@@ -343,9 +344,13 @@
                 </div>
 
                 @if ($school->canUseFeature(\App\Enums\PlanFeature::Website))
+                {{-- websiteUrl() is null until there is a published site on a
+                     plan that includes one, so this cannot open a tab at an
+                     address the public site would refuse to serve. --}}
+                @php $publishedWebsiteUrl = $school->websiteUrl(); @endphp
                 <a
-                    href="{{ $school->website?->is_published ? $school->publicUrl('public.school-website') : route('website.index') }}"
-                    target="{{ $school->website?->is_published ? '_blank' : '_self' }}"
+                    href="{{ $publishedWebsiteUrl ?? route('website.index') }}"
+                    target="{{ $publishedWebsiteUrl ? '_blank' : '_self' }}"
                     class="hidden items-center gap-1.5 rounded-[8px] border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-600 transition-all duration-200 hover:border-blue-300 hover:text-blue-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-blue-700 sm:flex"
                 >
                     School Website
@@ -356,6 +361,21 @@
                 @endif
 
                 <div class="flex items-center gap-2.5 rounded-[8px] border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-900">
+                    {{-- Messages and conduct reports from the school's own
+                         website. Its own icon rather than a badge on the
+                         support one: a ticket is the school asking ScholarNest
+                         for help, this is the public writing to the school. --}}
+                    <a
+                        href="{{ route('inbox.index') }}"
+                        class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800"
+                        title="Inbox"
+                    >
+                        <i class="fa-solid fa-envelope text-[17px]" aria-hidden="true"></i>
+                        @if ($inboxCount > 0)
+                            <span class="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">{{ min($inboxCount, 99) }}</span>
+                        @endif
+                    </a>
+
                     <a
                         href="{{ route('support-tickets.index') }}"
                         class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800"
@@ -501,6 +521,7 @@
                     ['route' => 'facilities.index', 'label' => 'Facilities'],
                     ['route' => 'id-cards.index', 'label' => 'ID Cards'],
                     ['route' => 'profile-change-requests.index', 'label' => 'Change Requests'],
+                    ['route' => 'invoices.index', 'label' => 'Invoices'],
                     ['route' => 'settings.index', 'label' => 'Settings'],
                 ])
                     ->filter(fn ($item) => $school->canAccessRoute($item['route']))

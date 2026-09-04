@@ -17,8 +17,12 @@ use App\Http\Middleware\EnsureStudentIsActive;
 use App\Http\Middleware\EnsureUserIsSchoolAdmin;
 use App\Http\Middleware\EnsureUserIsSuperAdmin;
 use App\Http\Middleware\LogsOutIdleUsers;
+use App\Http\Middleware\RedirectToCanonicalHost;
 use App\Http\Middleware\RedirectToCustomDomain;
+use App\Http\Middleware\RedirectToHttps;
+use App\Http\Middleware\RejectBotSubmissions;
 use App\Http\Middleware\ResolveTenantFromCustomDomain;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrackPageView;
 use App\Http\Middleware\ValidateBasicPortalToken;
 use App\Http\Middleware\ValidateSchoolPortalToken;
@@ -41,8 +45,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // One call, because Middleware::alias() ASSIGNS rather than merges - a
+        // second call anywhere in this closure silently discards every alias
+        // above it, and the first thing you see is "Target class
+        // [school_admin] does not exist" from an unrelated route.
         $middleware->alias([
             'super_admin' => EnsureUserIsSuperAdmin::class,
+
+            // The trap field on the forms strangers can reach. An alias rather
+            // than a global: it belongs on public forms, not on every
+            // authenticated POST in the application.
+            'honeypot' => RejectBotSubmissions::class,
+
             'school_admin' => EnsureUserIsSchoolAdmin::class,
             'school_activated' => EnsureSchoolIsActivated::class,
             'permission' => EnsureHasPermission::class,
@@ -81,6 +95,22 @@ return Application::configure(basePath: dirname(__DIR__))
             // The 32-character token gating the Basic-plan portal entry point.
             'basic_portal_token' => ValidateBasicPortalToken::class,
             'auth.session' => AuthenticateSession::class,
+        ]);
+
+        // Applied to every response the application makes, web and API alike:
+        // a browser cannot enforce a policy it was never sent, and an API
+        // error page is as capable of being framed or sniffed as any other.
+        // RedirectToHttps runs first so a plaintext request is turned away
+        // before anything else looks at it.
+        $middleware->prepend([
+            RedirectToHttps::class,
+
+            // After the scheme is settled and before anything reads the
+            // session: a request being sent to the canonical host must not
+            // start a session on the host it is leaving.
+            RedirectToCanonicalHost::class,
+
+            SecurityHeaders::class,
         ]);
 
         $middleware->web(append: [

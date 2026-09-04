@@ -7,7 +7,14 @@
     $actionButtonClasses = 'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-50 hover:text-primary-600 disabled:pointer-events-none disabled:opacity-40 dark:text-gray-400 dark:hover:bg-primary-900/30 dark:hover:text-primary-400';
 @endphp
 
-<x-staff-layout page-title="Report Cards" page-subtitle="View, preview, print, and download your class's report cards.">
+{{-- A Class Teacher READS their class's report cards and writes the teacher's
+     remark. They do not print them, download them, or see a pupil's Student
+     ID here: issuing a document is the school's job, and the teacher who
+     marks it is not the one who hands it out.
+
+     The routes behind print and pdf are gone from routes/staff.php, so this
+     is not a page with its buttons taken off. --}}
+<x-staff-layout page-title="Report Cards" page-subtitle="View and preview your class's report cards, and write your remarks.">
     <div class="space-y-6">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
@@ -82,7 +89,6 @@
                             <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
                                     <th class="px-4 py-3 font-semibold">Student</th>
-                                    <th class="px-4 py-3 font-semibold">Student ID</th>
                                     <th class="px-4 py-3 font-semibold">Avg. Score</th>
                                     <th class="px-4 py-3 font-semibold">Percentage</th>
                                     <th class="px-4 py-3 font-semibold">Status</th>
@@ -96,8 +102,6 @@
                                         $student = $row['student'];
                                         $showUrl = route('staff.results.show', [$school, $examination, $student]);
                                         $remarksUrl = route('staff.results.remarks', [$school, $examination, $student]);
-                                        $printUrl = route('staff.results.print', [$school, $examination, $student]);
-                                        $pdfUrl = route('staff.results.pdf', [$school, $examination, $student]);
                                     @endphp
                                     <tr class="transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-gray-700/40">
                                         <td class="px-4 py-3">
@@ -112,7 +116,6 @@
                                                 <span class="truncate font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
                                             </div>
                                         </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ $student->admission_number }}</td>
                                         <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['averageScore'] ?? '—' }}</td>
                                         <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['average'] !== null ? $row['average'].'%' : '—' }}</td>
                                         <td class="whitespace-nowrap px-4 py-3">
@@ -125,12 +128,22 @@
                                             :push-url="route('staff.results.push', [$school, $examination, $student])"
                                         />
 
+                                        {{-- View and A4 preview only.
+
+                                             No Print and no Download: a report
+                                             card is a document the school
+                                             issues, and the teacher who marks
+                                             it is not the one who hands it
+                                             out. The routes behind both are
+                                             gone as well, so this is not a
+                                             pair of buttons taken off a page
+                                             that still answers. --}}
                                         <td class="px-4 py-3">
-                                            <div class="flex items-center justify-end gap-1" x-data="{ downloading: false }">
+                                            <div class="flex items-center justify-end gap-1">
                                                 <button
                                                     type="button"
                                                     title="View Result"
-                                                    @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '', '{{ $printUrl }}', '{{ $pdfUrl }}', 'details')"
+                                                    @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '', '', '', 'details')"
                                                     class="{{ $actionButtonClasses }}"
                                                 >
                                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /></svg>
@@ -138,35 +151,17 @@
                                                 <button
                                                     type="button"
                                                     title="A4 Preview"
-                                                    @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '', '{{ $printUrl }}', '{{ $pdfUrl }}', 'report-card')"
+                                                    @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '', '', '', 'report-card')"
                                                     class="{{ $actionButtonClasses }}"
                                                 >
                                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    title="Print"
-                                                    @click="$store.resultPreview.printDirect('{{ $printUrl }}')"
-                                                    class="{{ $actionButtonClasses }}"
-                                                >
-                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.5 8.5V4a.5.5 0 01.5-.5h10a.5.5 0 01.5.5v4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><path d="M6 17.5H4.75A1.25 1.25 0 013.5 16.25v-5.5A1.25 1.25 0 014.75 9.5h14.5a1.25 1.25 0 011.25 1.25v5.5a1.25 1.25 0 01-1.25 1.25H18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><path d="M6.5 13.5h11v7a.5.5 0 01-.5.5h-10a.5.5 0 01-.5-.5v-7z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    title="Download PDF"
-                                                    :disabled="downloading"
-                                                    @click="downloading = true; $store.resultPreview.downloadDirect('{{ $pdfUrl }}', '{{ $student->admission_number }}').finally(() => downloading = false)"
-                                                    class="{{ $actionButtonClasses }}"
-                                                >
-                                                    <svg x-show="!downloading" class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v11m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><path d="M5 17.5V19a1.5 1.5 0 001.5 1.5h11A1.5 1.5 0 0019 19v-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                                                    <svg x-show="downloading" style="display: none;" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" stroke-opacity="0.25" /><path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $className }} yet.</td>
+                                        <td colspan="6" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $className }} yet.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -177,5 +172,5 @@
         @endif
     </div>
 
-    <x-result-preview-modal :can-send="false" />
+    <x-result-preview-modal :can-send="false" :can-print="false" :can-download="false" />
 </x-staff-layout>

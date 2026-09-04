@@ -13,6 +13,7 @@ use App\Http\Requests\SuperAdmin\RejectSubscriptionRequest;
 use App\Models\AuditLog;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\SubscriptionInvoice;
 use App\Models\SubscriptionTopUp;
 use App\Notifications\SubscriptionApprovedNotification;
 use App\Notifications\SubscriptionRejectedNotification;
@@ -245,8 +246,15 @@ class SubscriptionApprovalController extends Controller
             ]);
         });
 
+        // The welcome email, and this is the only place it is sent from - see
+        // the notification for why it belongs here and nowhere earlier.
+        //
+        // $subscription is re-read so the email quotes the dates the
+        // activation above just wrote, rather than the nulls it was holding.
+        $invoice = SubscriptionInvoice::where('subscription_id', $subscription->id)->first();
+
         $subscription->school->users()->each(
-            fn ($user) => $user->notify(new SubscriptionApprovedNotification($subscription))
+            fn ($user) => $user->notify(new SubscriptionApprovedNotification($subscription->fresh(), $invoice))
         );
 
         AuditLog::record('subscription.approved', "Approved subscription for {$subscription->school->name}.", $subscription);

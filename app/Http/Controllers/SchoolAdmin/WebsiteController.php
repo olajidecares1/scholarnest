@@ -11,6 +11,7 @@ use App\Models\School;
 use App\Models\SchoolGalleryImage;
 use App\Services\ImageOptimizer;
 use App\Support\StoredUpload;
+use App\Support\WebsiteTypography;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -112,6 +113,45 @@ class WebsiteController extends Controller
         return back()->with('status', 'Your theme color was updated.');
     }
 
+    /**
+     * The typeface and base weight the school's website is set in.
+     *
+     * The family is validated against the curated list rather than merely
+     * being a string, because this value ends up inside a CSS declaration on
+     * every visitor's page - an unchecked one would be a way to point the site
+     * at an arbitrary font host.
+     *
+     * The weight is checked against what THAT family publishes, not against a
+     * general range: asking Google for a weight a family does not ship returns
+     * a stylesheet without it and leaves the browser to synthesise the
+     * difference, which looks worse than the weight the school actually asked
+     * for.
+     */
+    public function updateTypography(Request $request): RedirectResponse
+    {
+        $school = $request->user()->school;
+        $website = $school->website()->firstOrCreate([], $this->defaultAttributes($school));
+
+        $validated = $request->validate([
+            'font_family' => ['required', 'string', Rule::in(array_keys(WebsiteTypography::families()))],
+            'font_weight' => ['required', 'integer'],
+        ], [
+            'font_family.in' => 'Please choose one of the fonts in the list.',
+        ]);
+
+        $available = WebsiteTypography::weightsFor($validated['font_family']);
+
+        if (! in_array((int) $validated['font_weight'], $available, true)) {
+            return back()->withErrors([
+                'font_weight' => 'That weight is not available for '.$validated['font_family'].'. Available: '.implode(', ', $available).'.',
+            ]);
+        }
+
+        $website->update($validated);
+
+        return back()->with('status', 'Your website typography was updated.');
+    }
+
     public function updateHeaderHeroFields(Request $request): RedirectResponse
     {
         $school = $request->user()->school;
@@ -137,6 +177,50 @@ class WebsiteController extends Controller
         ]);
 
         return back()->with('status', 'Your Header settings were updated.');
+    }
+
+    /**
+     * The About section: what a school says about itself, and the three
+     * statements a parent is actually weighing.
+     */
+    public function updateAboutFields(Request $request): RedirectResponse
+    {
+        $school = $request->user()->school;
+        $website = $school->website()->firstOrCreate([], $this->defaultAttributes($school));
+
+        $validated = $request->validate([
+            'about_headline' => ['nullable', 'string', 'max:180'],
+            'about_text' => ['nullable', 'string', 'max:2000'],
+            'mission' => ['nullable', 'string', 'max:500'],
+            'vision' => ['nullable', 'string', 'max:500'],
+            'values' => ['nullable', 'string', 'max:500'],
+            'about_image' => ['nullable', 'image', 'max:5120'],
+
+            // The Principal's Desk and the Quote of the Week. The columns were
+            // here all along - the section that showed them was removed and
+            // the fields went with it, leaving data a school could not reach.
+            'principal_name' => ['nullable', 'string', 'max:150'],
+            'principal_title' => ['nullable', 'string', 'max:120'],
+            'principal_message' => ['nullable', 'string', 'max:2000'],
+            'principal_photo' => ['nullable', 'image', 'max:5120'],
+            'quote_text' => ['nullable', 'string', 'max:500'],
+            'quote_author' => ['nullable', 'string', 'max:150'],
+            'quote_author_role' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $aboutImagePath = $this->storeImage($request, 'about_image', 'website');
+        $principalPhotoPath = $this->storeImage($request, 'principal_photo', 'website');
+
+        $website->update([
+            ...collect($validated)->except(['about_image', 'principal_photo'])->all(),
+
+            // Left alone when no new file is chosen, so editing the wording
+            // does not clear the photograph.
+            'about_image_path' => $aboutImagePath ?: $website->about_image_path,
+            'principal_photo_path' => $principalPhotoPath ?: $website->principal_photo_path,
+        ]);
+
+        return back()->with('status', 'Your About section was updated.');
     }
 
     public function updateContactFields(Request $request): RedirectResponse
@@ -330,6 +414,116 @@ class WebsiteController extends Controller
                 ['label' => 'Academic Levels', 'value' => (string) $school->academicLevels()->count()],
             ],
         ];
+    }
+
+    /**
+     * The background behind the Latest News AND Upcoming Events card.
+     *
+     * ONE setting for both. They are one card as far as a school is concerned,
+     * and a control on each page would say they were two - so the Events page
+     * points at this one rather than repeating it.
+     */
+    public function updateNewsEventsCardBackground(Request $request): RedirectResponse
+    {
+        return $this->updateCardBackground(
+            $request,
+            'news_events_card_image_path',
+            'The background for your News & Events card was updated.',
+            'The background image was removed. The card is back to its plain background.',
+        );
+    }
+
+    /**
+     * The background behind the Academic Excellence card, which is a separate
+     * card and so has a separate setting.
+     */
+    public function updateAcademicsCardBackground(Request $request): RedirectResponse
+    {
+        return $this->updateCardBackground(
+            $request,
+            'academics_card_image_path',
+            'The background for your Academic Excellence card was updated.',
+            'The background image was removed. The card is back to its plain background.',
+        );
+    }
+
+    /**
+     * The background behind the About band.
+     */
+    public function updateAboutCardBackground(Request $request): RedirectResponse
+    {
+        return $this->updateCardBackground(
+            $request,
+            'about_card_image_path',
+            'The background for your About section was updated.',
+            'The background image was removed. The section is back to its plain background.',
+        );
+    }
+
+    /**
+     * Upload or remove one card background.
+     *
+     * The COLUMN is chosen by the two methods above, never by the request.
+     * Taking a field name from the form would let anyone with a browser write
+     * to any column on this row, and the two callers are the only things that
+     * should decide which card they are setting.
+     *
+     * The school comes from the signed-in user, so an image can only ever be
+     * attached to the uploader's own school - there is no school id in the
+     * form to tamper with.
+     */
+    private function updateCardBackground(Request $request, string $column, string $savedMessage, string $removedMessage): RedirectResponse
+    {
+        $school = $request->user()->school;
+        $website = $school->website()->firstOrCreate([], $this->defaultAttributes($school));
+
+        $request->validate([
+            // "image" checks the file is really an image rather than something
+            // renamed to look like one; the format list keeps it to the ones a
+            // browser will actually render as a background.
+            // 1200 wide, not 600.
+            //
+            // These sit behind a full-width band, so the browser stretches
+            // whatever it is given across the whole page. A 600px image on a
+            // 1400px section is being blown up more than twice, and no amount
+            // of care elsewhere makes an upscaled photograph look sharp - it
+            // just looks soft, which is exactly how the first one did.
+            'background_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120', 'dimensions:min_width=1200,min_height=500'],
+            'remove' => ['nullable', 'boolean'],
+        ], [
+            'background_image.dimensions' => 'That image is too small to stay sharp across the full width of the page. Please choose one at least 1200 by 500 pixels — wider is better.',
+            'background_image.max' => 'That image is larger than 5MB. Please choose a smaller one.',
+        ]);
+
+        if ($request->boolean('remove')) {
+            $existing = $website->{$column};
+
+            $website->update([$column => null]);
+
+            if ($existing) {
+                Storage::disk('public')->delete($existing);
+            }
+
+            return back()->with('status', $removedMessage);
+        }
+
+        $path = $this->storeImage($request, 'background_image', 'website/cards');
+
+        if (! $path) {
+            return back()->with('status', 'Choose an image first.');
+        }
+
+        $previous = $website->{$column};
+
+        $website->update([$column => $path]);
+
+        // Only once the new one is safely recorded, so a failed write cannot
+        // leave the card pointing at a file that is no longer there.
+        if ($previous && $previous !== $path) {
+            Storage::disk('public')->delete($previous);
+        }
+
+        return back()->with('status', $savedMessage);
     }
 
     private function storeImage(Request $request, string $field, string $folder): ?string

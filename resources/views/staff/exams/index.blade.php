@@ -61,8 +61,12 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
+                        {{-- No Examination column. It repeated the term and
+                             session that follow it - every row read "First
+                             Term Examination, First Term, 2026/2027" - and
+                             cost the columns a teacher actually reads on a
+                             phone the width to be legible. --}}
                         <tr>
-                            <th class="px-4 py-3 font-semibold">Examination</th>
                             <th class="px-4 py-3 font-semibold">Class</th>
                             <th class="px-4 py-3 font-semibold">Session</th>
                             <th class="px-4 py-3 font-semibold">Term</th>
@@ -76,8 +80,7 @@
                             @php [$examination, $subject] = [$row['examination'], $row['subject']]; @endphp
                             @php($entered = $subject->scores()->count())
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/40">
-                                <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">{{ $examination->name }}</td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $examination->class_name }}</td>
+                                <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">{{ $examination->class_name }}</td>
                                 <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $examination->session }}</td>
                                 <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $examination->term->label() }}</td>
                                 <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $subject->name }}</td>
@@ -96,7 +99,7 @@
                                 {{-- Which of the three reasons it is. "No examinations match
                                      your subjects" sent a teacher looking at the timetable
                                      when the actual cause was elsewhere. --}}
-                                <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                                <td colspan="6" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                                     @if (! $hasAssignments)
                                         You have not been assigned to a class or subject yet, so there are no
                                         scores for you to enter. Ask your school administrator to assign you.

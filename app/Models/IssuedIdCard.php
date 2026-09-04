@@ -60,9 +60,33 @@ class IssuedIdCard extends Model
         return $query->where('school_id', $schoolId)->first();
     }
 
+    /**
+     * A holder supplied directly, instead of looked up.
+     *
+     * Only the sample card uses this - see IdCardSample. Everything else
+     * resolves its holder from the database as it always did.
+     */
+    private Student|Staff|null $resolvedHolder = null;
+
+    /**
+     * Hand this card a holder rather than making it find one.
+     *
+     * The template editor draws a specimen card from invented details, so
+     * there is no pupil to look up. Without this the sample would have to be
+     * a second, hand-maintained copy of the card design - which is what it
+     * used to be, and why the preview stopped resembling the real thing.
+     */
+    public function withHolder(Student|Staff $holder): static
+    {
+        $this->resolvedHolder = $holder;
+
+        return $this;
+    }
+
     public function holder(): Student|Staff|null
     {
-        return self::resolveHolder($this->holder_type, $this->holder_uuid, $this->school_id);
+        return $this->resolvedHolder
+            ?? self::resolveHolder($this->holder_type, $this->holder_uuid, $this->school_id);
     }
 
     public function verificationUrl(): string

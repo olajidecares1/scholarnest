@@ -4,9 +4,16 @@ namespace App\Providers;
 
 use App\Services\DocumentExtraction\LocalQuestionExtractor;
 use App\Services\DocumentExtraction\QuestionExtractionProvider;
+use App\Services\QueueWorkerHealth;
+use App\Support\PortalLoginRedirect;
 use App\Support\ProductionConfiguration;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -46,6 +53,60 @@ class AppServiceProvider extends ServiceProvider
         }
 
         /*
+         * An expired session sends people to their own portal's login.
+         *
+         * Laravel's default is route('login'), and in this application that
+         * name redirects on to route('register') - the shared sign-in page was
+         * removed once every portal got its own, and the name was left aimed at
+         * the public front door. The result was that stepping away from the
+         * dashboard for four minutes ended on a form inviting a School Admin to
+         * register the school they already run.
+         *
+         * Fixed here, at the one place every guest redirect passes through,
+         * rather than by pointing route('login') somewhere else - that name is
+         * still the registration page's front door and several other things
+         * lean on it. See App\Support\PortalLoginRedirect.
+         */
+        Authenticate::redirectUsing(fn (Request $request) => PortalLoginRedirect::for($request));
+
+        /*
+         * Which school and portal this browser last signed in to.
+         *
+         * The School Admin dashboard is an obfuscated path with no school in
+         * it, reachable on the default host, so once the session is gone there
+         * is otherwise nothing left to say which school the person belongs to -
+         * and "your session expired" would degrade to the generic sign-in.
+         * Listening on the Login event covers all four portals at once rather
+         * than adding the same line to each controller's store().
+         */
+        Event::listen(function (Login $event): void {
+            $school = $event->user->school ?? null;
+
+            if ($school) {
+                Cookie::queue(Cookie::make(
+                    PortalLoginRedirect::COOKIE,
+                    "{$school->id}:{$event->guard}",
+                    PortalLoginRedirect::COOKIE_MINUTES,
+                    httpOnly: true,
+                ));
+            }
+        });
+
+        /*
+         * A queue worker stamps a heartbeat on every pass of its loop - idle
+         * or busy, roughly once a second.
+         *
+         * Without it, "is anything processing jobs?" could only be inferred
+         * from a job having sat unclaimed for a long time, which meant someone
+         * who uploaded a CBT document with no worker running watched a
+         * progress bar for over two minutes before being told the truth. With
+         * it, the answer is known within one poll. See QueueWorkerHealth.
+         */
+        Queue::looping(function (): void {
+            QueueWorkerHealth::heartbeat();
+        });
+
+        /*
          * LogSuccessfulLogin and LogFailedLogin are NOT registered here.
          *
          * Laravel discovers listeners in app/Listeners by the type hint on
@@ -59,7 +120,7 @@ class AppServiceProvider extends ServiceProvider
          *
          * A school's User carries the school's name, and registering signs the
          * new admin straight in, so one registration put "School ABC logged
-         * in." in front of the EduNest Team twice. LogPasswordReset was never
+         * in." in front of the ScholarNest Team twice. LogPasswordReset was never
          * listed here and appeared exactly once, which is what the other two
          * now do.
          */

@@ -1,16 +1,16 @@
-<x-auth-layout :simple="true" :title="$school ? $school->name.' Portal' : 'EduNest Portal'">
+<x-auth-layout :simple="true" :header="false" :title="$school ? $school->name.' Portal' : 'ScholarNest Portal'">
     <x-auth-card>
         <div class="text-center">
             @if ($school)
                 @if ($school->logoUrl())
-                    <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="mx-auto h-14 w-14 rounded-[10px] object-cover shadow-md">
+                    <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="mx-auto h-20 w-20 rounded-[10px] object-cover shadow-md">
                 @else
-                    <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-primary-600 text-lg font-extrabold text-white shadow-md">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
+                    <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-[10px] bg-primary-600 text-lg font-extrabold text-white shadow-md">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
                 @endif
                 <h1 class="mt-3 text-lg font-bold text-gray-900">{{ $school->name }}</h1>
             @else
-                <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-primary-600 text-lg font-extrabold text-white shadow-md">E</span>
-                <h1 class="mt-3 text-lg font-bold text-gray-900">EduNest Portal</h1>
+                <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-[10px] bg-primary-600 text-lg font-extrabold text-white shadow-md">S</span>
+                <h1 class="mt-3 text-lg font-bold text-gray-900">ScholarNest Portal</h1>
             @endif
             <p class="text-xs font-semibold uppercase tracking-wide text-primary-500">Sign in to continue</p>
         </div>

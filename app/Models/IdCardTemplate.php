@@ -28,6 +28,7 @@ class IdCardTemplate extends Model
         'orientation',
         'primary_color',
         'secondary_color',
+        'accent_color',
         'instructions',
         'background_path',
         'show_blood_group',

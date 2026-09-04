@@ -19,11 +19,14 @@ use App\Http\Controllers\SchoolAdmin\GuardianController;
 use App\Http\Controllers\SchoolAdmin\HostelController;
 use App\Http\Controllers\SchoolAdmin\IdCardController;
 use App\Http\Controllers\SchoolAdmin\IdCardTemplateController;
+use App\Http\Controllers\SchoolAdmin\InboxController;
 use App\Http\Controllers\SchoolAdmin\IssuedIdCardController;
 use App\Http\Controllers\SchoolAdmin\JobPostingController;
 use App\Http\Controllers\SchoolAdmin\LibraryController;
+use App\Http\Controllers\SchoolAdmin\MisconductReportController;
 use App\Http\Controllers\SchoolAdmin\NewsController;
 use App\Http\Controllers\SchoolAdmin\NoticeController;
+use App\Http\Controllers\SchoolAdmin\PrincipalRemarkController;
 use App\Http\Controllers\SchoolAdmin\ProfileChangeRequestController;
 use App\Http\Controllers\SchoolAdmin\ResultCheckingPinController;
 use App\Http\Controllers\SchoolAdmin\ResultController;
@@ -31,10 +34,12 @@ use App\Http\Controllers\SchoolAdmin\ResultRepositoryController;
 use App\Http\Controllers\SchoolAdmin\SchoolReportController;
 use App\Http\Controllers\SchoolAdmin\SearchController as SchoolSearchController;
 use App\Http\Controllers\SchoolAdmin\SettingsController as SchoolSettingsController;
+use App\Http\Controllers\SchoolAdmin\SignatureController as SchoolAdminSignatureController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
 use App\Http\Controllers\SchoolAdmin\SubscriptionTopUpController;
 use App\Http\Controllers\SchoolAdmin\TeacherAssignmentController;
+use App\Http\Controllers\SchoolAdmin\TemplatePreviewController;
 use App\Http\Controllers\SchoolAdmin\TestimonialController;
 use App\Http\Controllers\SchoolAdmin\TimetableController;
 use App\Http\Controllers\SchoolAdmin\TransportController;
@@ -218,8 +223,23 @@ Route::name('examinations.')->group(function () {
 });
 Route::name('results.')->group(function () {
     Route::get(R::uri('results.index'), [ResultController::class, 'index'])->name('index');
+
+    // The report card template as it will be generated - the real template,
+    // rendered from specimen data. See SchoolAdminTemplatePreviewController.
+    Route::get(R::uri('results.index').'/template', [TemplatePreviewController::class, 'reportCard'])->name('template-preview');
     Route::get(R::uri('results.show').'/{examination}/{student}', [ResultController::class, 'show'])->name('show');
     Route::put(R::uri('results.remarks').'/{examination}/{student}', [ResultController::class, 'updateRemarks'])->name('remarks');
+
+    // The Principal's library of reusable remarks. School Admin is the
+    // Principal, so these are theirs; every route is scoped to their own
+    // school inside the controller, never by anything in the request.
+    Route::name('remark-library.')->group(function () {
+        Route::get(R::uri('remark-library.index'), [PrincipalRemarkController::class, 'index'])->name('index');
+        Route::get(R::uri('remark-library.list'), [PrincipalRemarkController::class, 'list'])->name('list');
+        Route::post(R::uri('remark-library.store'), [PrincipalRemarkController::class, 'store'])->name('store');
+        Route::put(R::uri('remark-library.store').'/{principalRemark}', [PrincipalRemarkController::class, 'update'])->name('update');
+        Route::delete(R::uri('remark-library.store').'/{principalRemark}', [PrincipalRemarkController::class, 'destroy'])->name('destroy');
+    });
     Route::post(R::uri('results.send').'/{examination}/{student}', [ResultController::class, 'send'])->name('send');
     Route::get(R::uri('results.print').'/{examination}/{student}', [ResultController::class, 'print'])->name('print');
     Route::get(R::uri('results.pdf').'/{examination}/{student}', [ResultController::class, 'pdf'])->name('pdf');
@@ -356,6 +376,14 @@ Route::middleware('plan_feature:website')->name('website.')->group(function () {
     Route::put(R::uri('website.blocks.update').'/{page}', [WebsiteController::class, 'updateBlocks'])->name('blocks.update');
     Route::put(R::uri('website.update-brand-color'), [WebsiteController::class, 'updateBrandColor'])->name('update-brand-color');
     Route::put(R::uri('website.update-header-hero-fields'), [WebsiteController::class, 'updateHeaderHeroFields'])->name('update-header-hero-fields');
+    Route::put(R::uri('website.update-about-fields'), [WebsiteController::class, 'updateAboutFields'])->name('update-about-fields');
+
+    // Card backgrounds. TWO endpoints, not three: Latest News and Upcoming
+    // Events share one card and one background, so they share one setting.
+    Route::post(R::uri('website.news-events-card-background'), [WebsiteController::class, 'updateNewsEventsCardBackground'])->name('news-events-card-background');
+    Route::post(R::uri('website.academics-card-background'), [WebsiteController::class, 'updateAcademicsCardBackground'])->name('academics-card-background');
+    Route::post(R::uri('website.about-card-background'), [WebsiteController::class, 'updateAboutCardBackground'])->name('about-card-background');
+    Route::put(R::uri('website.update-typography'), [WebsiteController::class, 'updateTypography'])->name('update-typography');
     Route::put(R::uri('website.update-contact-fields'), [WebsiteController::class, 'updateContactFields'])->name('update-contact-fields');
     Route::post(R::uri('website.publish'), [WebsiteController::class, 'togglePublish'])->name('publish');
     Route::post(R::uri('website.gallery.store'), [WebsiteController::class, 'storeGalleryImage'])->name('gallery.store');
@@ -402,12 +430,17 @@ Route::middleware('plan_feature:facilities')->name('facilities.')->group(functio
 
 Route::middleware('plan_feature:id-cards')->name('id-cards.')->group(function () {
     Route::get(R::uri('id-cards.index'), [IdCardController::class, 'index'])->name('index');
+
+    // The ID card template as it will be generated.
+    Route::get(R::uri('id-cards.index').'/template', [TemplatePreviewController::class, 'idCard'])->name('template-preview');
     Route::get(R::uri('id-cards.preview').'/{type}/{record}', [IdCardController::class, 'preview'])->name('preview');
     Route::post(R::uri('id-cards.print'), [IdCardController::class, 'print'])->name('print');
     Route::post(R::uri('id-cards.pdf'), [IdCardController::class, 'pdf'])->name('pdf');
 
     Route::name('templates.')->group(function () {
         Route::get(R::uri('id-cards.templates.index'), [IdCardTemplateController::class, 'index'])->name('index');
+        // The specimen card beside the editor, re-rendered as colours change.
+        Route::get(R::uri('id-cards.templates.index').'/sample', [IdCardTemplateController::class, 'sample'])->name('sample');
         Route::post(R::uri('id-cards.templates.index'), [IdCardTemplateController::class, 'store'])->name('store');
         Route::put(R::uri('id-cards.templates.update').'/{template}', [IdCardTemplateController::class, 'update'])->name('update');
         Route::delete(R::uri('id-cards.templates.destroy').'/{template}', [IdCardTemplateController::class, 'destroy'])->name('destroy');
@@ -430,8 +463,35 @@ Route::middleware('plan_feature:custom-domain')->name('custom-domain.')->group(f
     Route::delete(R::uri('custom-domain.destroy').'/{domain}', [CustomDomainController::class, 'destroy'])->name('destroy');
 });
 
+// Conduct reports sent in by the public. Reviewed by the school they were
+// sent to and nobody else - see the controller.
+// Messages and conduct reports arrive in one inbox, because that is where
+// an administrator looks for either.
+Route::name('inbox.')->group(function () {
+    Route::get(R::uri('inbox.index'), [InboxController::class, 'index'])->name('index');
+
+    // The listing shows what each thing is about; the body lives here. Both
+    // are scoped to the signed-in administrator's own school in the
+    // controller - the uuid in the address is an identifier, never a
+    // permission.
+    Route::get(R::uri('inbox.message').'/{contactMessage}', [InboxController::class, 'showMessage'])->name('message');
+    Route::get(R::uri('inbox.report').'/{misconductReport}', [InboxController::class, 'showReport'])->name('report');
+
+    Route::put(R::uri('inbox.read-message').'/{contactMessage}', [InboxController::class, 'readMessage'])->name('read-message');
+});
+
+Route::name('misconduct-reports.')->group(function () {
+    Route::put(R::uri('misconduct-reports.index').'/{misconductReport}', [MisconductReportController::class, 'update'])->name('update');
+    Route::get(R::uri('misconduct-reports.attachment').'/{attachment}', [MisconductReportController::class, 'download'])->name('attachment');
+});
+
 Route::get(R::uri('settings.index'), [SchoolSettingsController::class, 'edit'])->name('settings.index');
 Route::put(R::uri('settings.update'), [SchoolSettingsController::class, 'update'])->name('settings.update');
+
+// The School Admin's own signature, drawn on a canvas and posted with fetch().
+// On every plan: a Basic school's results are signed too.
+Route::post(R::uri('signature.store'), [SchoolAdminSignatureController::class, 'store'])->name('signature.store');
+Route::delete(R::uri('signature.store'), [SchoolAdminSignatureController::class, 'destroy'])->name('signature.destroy');
 
 Route::get(R::uri('reports.summary'), [SchoolReportController::class, 'summary'])->name('reports.summary');
 Route::get(R::uri('overview.index'), [SchoolAdminDashboardController::class, 'overview'])->name('overview.index');

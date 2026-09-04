@@ -218,7 +218,7 @@ test('an orphaned school admin is signed out rather than crashing', function () 
 
     $this->actingAs($orphan)
         ->get(route('dashboard'))
-        ->assertRedirect(route('login'));
+        ->assertRedirect(route('portal.show'));
 
     $this->assertGuest();
 });
@@ -233,7 +233,7 @@ test('an orphaned school admin cannot reach school pages either', function () {
     // makes the same check - so no page is left that still fatals.
     $this->actingAs($orphan)
         ->get(route('students.index'))
-        ->assertRedirect(route('login'));
+        ->assertRedirect(route('portal.show'));
 });
 
 test('a school admin with a school is unaffected by the orphan check', function () {

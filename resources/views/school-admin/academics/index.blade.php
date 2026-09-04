@@ -45,6 +45,16 @@
             </div>
         @endif
 
+        {{-- Academic Excellence is its own card on the public website, so it
+             has its own background - separate from the one News and Events
+             share. --}}
+        <x-card-background-field
+            :action="route('website.academics-card-background')"
+            :current="$website?->academicsCardImageUrl()"
+            title="Academic Excellence card background"
+            description="Sits behind the Academic Excellence section of your public website. Leave it empty for the plain background."
+        />
+
         <div class="flex justify-end">
             <button
                 type="button"

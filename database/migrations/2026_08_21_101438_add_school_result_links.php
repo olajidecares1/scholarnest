@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Each school's own result-checking address: edunest.com/greenfield-college/result
+ * Each school's own result-checking address: scholarnest.com/greenfield-college/result
  *
  * The address is a column rather than simply the school's slug, because a
  * school has to be able to retire one. A result link gets printed on slips,

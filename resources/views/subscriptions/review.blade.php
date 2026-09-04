@@ -72,14 +72,14 @@
             <div class="mt-3 flex items-start gap-2.5 rounded-[5px] bg-amber-50 p-4 lg:rounded-[10px]">
                 <i class="fa-solid fa-clock mt-0.5 text-amber-600"></i>
                 <div class="text-sm">
-                    <p class="font-semibold text-amber-900">Activation Status: Awaiting EduNest Team Approval</p>
+                    <p class="font-semibold text-amber-900">Activation Status: Awaiting ScholarNest Team Approval</p>
                     <p class="mt-0.5 leading-relaxed text-amber-800">
                         @if ($studentsCount)
                             Once your payment is verified, your school is activated with
                             <span class="font-semibold">{{ number_format($studentsCount) }}</span> student
                             {{ \Illuminate\Support\Str::plural('space', $studentsCount) }}. You can request more at any time.
                         @else
-                            Your subscription becomes active once a EduNest Team has verified your payment.
+                            Your subscription becomes active once a ScholarNest Team has verified your payment.
                         @endif
                     </p>
                 </div>

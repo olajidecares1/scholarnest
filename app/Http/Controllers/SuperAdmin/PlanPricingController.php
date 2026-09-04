@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\SuperAdmin;
 
-use App\Enums\PlanKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\UpdatePlanPricingRequest;
 use App\Models\AuditLog;
@@ -43,7 +42,9 @@ class PlanPricingController extends Controller
 
         AuditLog::record(
             'plan.pricing.updated',
-            $plan->key === PlanKey::Basic
+            // Basic AND Standard are both per-student now, so both get the
+            // specific before/after line rather than the vague one.
+            $plan->key->isSoldPerStudent()
                 ? sprintf(
                     'Changed the %s per-student price from %s to %s.',
                     $plan->name,

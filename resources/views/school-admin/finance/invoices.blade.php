@@ -150,7 +150,7 @@
                 >
                     @csrf
                     <x-text-field name="amount" label="Amount Paid (₦)" type="number" icon="M8 12.3l2.6 2.6L16.3 9" min="0.01" step="0.01" required />
-                    <x-text-field name="paid_at" label="Date Paid" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" value="{{ now()->toDateString() }}" required />
+                    <x-text-field name="paid_at" label="Date Paid" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" :value="now()->toDateString()" required />
                     <x-select-field name="method" label="Method" required :options="$methodCollection" />
                     <x-text-field name="reference" label="Reference" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" helper="Optional." />
                     <div class="flex justify-end gap-2">

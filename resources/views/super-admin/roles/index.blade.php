@@ -1,4 +1,4 @@
-<x-super-admin-layout page-title="Roles & Permissions" page-subtitle="Manage admin roles and your EduNest Team team.">
+<x-super-admin-layout page-title="Roles & Permissions" page-subtitle="Manage admin roles and your ScholarNest Team team.">
     <div class="space-y-6">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
@@ -52,7 +52,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No custom roles yet. Team members without a role have full EduNest Team access.</td>
+                                <td colspan="4" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No custom roles yet. Team members without a role have full ScholarNest Team access.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -63,8 +63,8 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <div>
-                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">EduNest Team Team</h2>
-                    <p class="field-hint">Everyone with EduNest Team access.</p>
+                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">ScholarNest Team Team</h2>
+                    <p class="field-hint">Everyone with ScholarNest Team access.</p>
                 </div>
                 <a
                     href="{{ route('super-admin.roles.team.create') }}"

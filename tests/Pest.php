@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\ResultTokenIssuer;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 /*
@@ -25,8 +26,23 @@ use Tests\TestCase;
 |
 */
 
+/*
+ * A test starts with an empty cache, the same way it starts with an empty
+ * database.
+ *
+ * RefreshDatabase rolls the database back between tests but nothing rolled the
+ * CACHE back, and CACHE_STORE is "array" - a PHP array living in the process,
+ * which every test in that process shares. Login throttling counts attempts
+ * there, so a file with several "wrong password" tests left five failures on
+ * the counter and the NEXT test to post those credentials got a 429 for a
+ * password that was correct.
+ *
+ * That is why the credential tests failed intermittently and passed when run
+ * alone: nothing was wrong with them except which tests had run first.
+ */
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->beforeEach(fn () => Cache::flush())
     ->in('Feature');
 
 /*

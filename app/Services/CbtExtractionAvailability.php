@@ -38,15 +38,34 @@ class CbtExtractionAvailability
      *
      * Says the document is stored either way, because it is: a queue that is
      * not running delays extraction, it never loses the file.
+     *
+     * TWO AUDIENCES, for the same reason as
+     * QueueWorkerHealth::stalledMessage(): the ScholarNest Team can start a worker
+     * and should be told which command does it, and a teacher cannot and
+     * should never be shown a shell command. This returned one message with
+     * "php artisan queue:work" in it to both, so a teacher about to upload was
+     * handed an instruction they had no way to act on.
+     *
+     * @param  bool  $canOperateTheServer  defaults to false, because the safe
+     *                                     answer is the one with no shell
+     *                                     command in it - a caller that
+     *                                     forgets to say cannot leak operator
+     *                                     instructions to a teacher.
      */
-    public function warning(): ?string
+    public function warning(bool $canOperateTheServer = false): ?string
     {
         if ($this->hasWorker()) {
             return null;
         }
 
-        return 'The background service that reads uploaded documents is not running, so extraction will be queued and wait. '
-            .'Your upload will still be stored safely. Start it with "php artisan queue:work" — in development, '
-            .'"composer run dev" starts it alongside the web server.';
+        if ($canOperateTheServer) {
+            return 'The background service that reads uploaded documents is not running, so extraction will be queued and wait. '
+                .'Your upload will still be stored safely. Start it with "php artisan queue:work" — in development, '
+                .'"composer run dev" starts it alongside the web server.';
+        }
+
+        return 'The service that reads uploaded documents is not running at the moment, so extraction will wait in a queue. '
+            .'You can still upload: your document will be stored safely and read as soon as the service is back. '
+            .'If it stays this way, please let the ScholarNest Team know.';
     }
 }

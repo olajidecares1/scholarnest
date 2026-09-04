@@ -46,13 +46,13 @@ test('super admin can create, update, and delete a page', function () {
 
 test('super admin can create a blog post as its author', function () {
     $this->actingAs($this->superAdmin)->post(route('super-admin.cms.blog-posts.store'), [
-        'title' => 'Welcome to EduNest',
+        'title' => 'Welcome to ScholarNest',
         'excerpt' => 'An introduction.',
         'body' => 'Full content here.',
         'is_published' => '1',
     ])->assertRedirect();
 
-    $post = BlogPost::where('title', 'Welcome to EduNest')->firstOrFail();
+    $post = BlogPost::where('title', 'Welcome to ScholarNest')->firstOrFail();
     expect($post->author_id)->toBe($this->superAdmin->id);
     expect($post->published_at)->not->toBeNull();
 });
@@ -61,7 +61,7 @@ test('super admin can manage testimonials', function () {
     $this->actingAs($this->superAdmin)->post(route('super-admin.cms.testimonials.store'), [
         'name' => 'Jane Doe',
         'role' => 'Principal',
-        'quote' => 'EduNest transformed our school.',
+        'quote' => 'ScholarNest transformed our school.',
         'sort_order' => 1,
         'is_active' => '1',
     ])->assertRedirect();
@@ -87,7 +87,7 @@ test('super admin can manage team members', function () {
     $this->actingAs($this->superAdmin)->post(route('super-admin.cms.team-members.store'), [
         'name' => 'John Smith',
         'role' => 'CEO',
-        'bio' => 'Founder of EduNest.',
+        'bio' => 'Founder of ScholarNest.',
         'sort_order' => 1,
         'is_active' => '1',
     ])->assertRedirect();

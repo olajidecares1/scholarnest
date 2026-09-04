@@ -194,6 +194,77 @@
             </div>
         </div>
 
+        {{-- Payment and invoice history.
+
+             Deliberately one table rather than two. An invoice, the payment
+             against it and the Super Admin who approved that payment are the
+             same story, and splitting them across "invoices" and "payments"
+             tabs makes answering "was this paid, and who signed it off?"
+             a matter of cross-referencing two screens by date. --}}
+        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Payments &amp; Invoices</h3>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Every invoice raised against this school, with its payment and approval.</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
+                        <tr>
+                            <th class="px-5 py-3 font-semibold">Invoice</th>
+                            <th class="px-5 py-3 font-semibold">Date</th>
+                            <th class="px-5 py-3 font-semibold">Plan</th>
+                            <th class="px-5 py-3 font-semibold">Licences</th>
+                            <th class="px-5 py-3 font-semibold">Amount</th>
+                            <th class="px-5 py-3 font-semibold">Reference</th>
+                            <th class="px-5 py-3 font-semibold">Status</th>
+                            <th class="px-5 py-3 font-semibold">Approved</th>
+                            <th class="px-5 py-3 font-semibold"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @forelse ($invoices as $invoice)
+                            <tr>
+                                <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">{{ $invoice->number }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->issued_at->format('M j, Y') }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">
+                                    {{ $invoice->plan_name }}
+                                    @if ($invoice->subscription_top_up_id)
+                                        <span class="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-gray-600 dark:bg-gray-700 dark:text-gray-300">Top-up</span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->licences ? number_format($invoice->licences) : '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->formattedTotal() }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->payment_reference ?: '—' }}</td>
+                                <td class="px-5 py-3">
+                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $invoice->statusBadgeClasses() }}">{{ $invoice->paymentStatus() }}</span>
+                                </td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">
+                                    {{-- Who approved it, not just that somebody did. "Approved"
+                                         with no name against it is not an audit trail. --}}
+                                    @if ($invoice->approvedAt())
+                                        {{ $invoice->approvedAt()->format('M j, Y') }}
+                                        @if ($invoice->approvedBy())
+                                            <span class="block text-xs text-gray-500 dark:text-gray-400">by {{ $invoice->approvedBy()->name }}</span>
+                                        @endif
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3">
+                                    <a href="{{ route('invoices.download', $invoice) }}" class="text-primary-500 hover:text-primary-600">Download</a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No invoices yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <a href="{{ route('super-admin.schools.index') }}" class="inline-block text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">&larr; Back to Schools</a>
     </div>
 </x-super-admin-layout>

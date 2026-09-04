@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\Gender;
 use App\Enums\StaffRole;
 use App\Enums\TeacherAssignmentType;
+use App\Models\Concerns\HasProtectedPhoto;
+use App\Models\Concerns\HasSignature;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\StaffFactory;
 use Illuminate\Auth\Authenticatable;
@@ -17,13 +19,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class Staff extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     /** @use HasFactory<StaffFactory> */
-    use Authenticatable, CanResetPassword, HasApiTokens, HasFactory, HasUuidRouteKey, Notifiable;
+    use Authenticatable, CanResetPassword, HasApiTokens, HasFactory, HasSignature, HasUuidRouteKey, Notifiable;
+
+    use HasProtectedPhoto;
 
     /**
      * The table associated with the model.
@@ -200,24 +203,6 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
     public function fullName(): string
     {
         return "{$this->first_name} {$this->last_name}";
-    }
-
-    public function photoUrl(): ?string
-    {
-        return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
-    }
-
-    /**
-     * Absolute local filesystem path to the photo, for use only in dompdf
-     * views - dompdf's `enable_remote` option is off, so it can never fetch
-     * photoUrl()'s http(s) URL, but it can read local files within its
-     * configured chroot directly.
-     */
-    public function photoAbsolutePath(): ?string
-    {
-        return $this->photo_path && Storage::disk('public')->exists($this->photo_path)
-            ? Storage::disk('public')->path($this->photo_path)
-            : null;
     }
 
     public function age(): ?int

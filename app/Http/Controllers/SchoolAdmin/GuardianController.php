@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Guardian;
 use App\Models\Student;
+use App\Rules\NotDerivedFromIdentity;
 use App\Services\IdentifierGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -59,7 +60,13 @@ class GuardianController extends Controller
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', 'max:255', Rule::unique('guardians', 'email')->where('school_id', $school->id)],
             'phone' => ['nullable', 'string', 'max:30'],
-            'password' => ['nullable', 'string', Password::defaults()],
+            // The guardian does not exist yet, so the identity comes from what
+            // is being submitted for them plus the school they are joining.
+            'password' => ['nullable', 'string', Password::defaults(), new NotDerivedFromIdentity([
+                $school->name,
+                $request->input('name'),
+                $request->input('email'),
+            ])],
         ]);
 
         // The parent's ID, like every other login identifier, is the system's
@@ -125,7 +132,7 @@ class GuardianController extends Controller
         $this->authorizeGuardian($guardian);
 
         if ($guardian->photo_path) {
-            Storage::disk('public')->delete($guardian->photo_path);
+            Storage::disk('local')->delete($guardian->photo_path);
         }
 
         $name = $guardian->name;
@@ -148,7 +155,7 @@ class GuardianController extends Controller
         $this->authorizeGuardian($guardian);
 
         $validated = $request->validate([
-            'password' => ['required', 'string', Password::defaults()],
+            'password' => ['required', 'string', Password::defaults(), $this->identityRuleFor($guardian)],
         ]);
 
         $guardian->update(['password' => Hash::make($validated['password']), 'must_change_password' => false]);

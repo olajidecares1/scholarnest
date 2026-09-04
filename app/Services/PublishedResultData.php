@@ -7,6 +7,7 @@ use App\Models\ExaminationReport;
 use App\Models\ExaminationScore;
 use App\Models\ExaminationSubject;
 use App\Models\RepositoryResult;
+use App\Models\Signature;
 use App\Models\Staff;
 use App\Models\Student;
 use App\Models\TeacherAssignment;
@@ -95,6 +96,13 @@ class PublishedResultData
                 ? [
                     'name' => trim($card['classTeacher']->staff->first_name.' '.$card['classTeacher']->staff->last_name),
                     'staff_number' => $card['classTeacher']->staff->staff_number,
+
+                    // Snapshotted, unlike the school's crest and motto above.
+                    // A signature attests to a particular moment: the teacher
+                    // who signed this card signed THIS card, and replacing
+                    // their signature later - or leaving the school - must not
+                    // rewrite what was already published.
+                    'signature_path' => $card['classTeacher']->staff->signature?->path,
                 ]
                 : null,
         ];
@@ -300,6 +308,17 @@ class PublishedResultData
             'staff_number' => $payload['staff_number'] ?? null,
         ]);
         $staff->exists = true;
+
+        // Set as the relation the templates actually read, so a published card
+        // prints the signature it was published with. Absent from cards
+        // published before signatures existed, which then print an unsigned
+        // line - correct, because they were.
+        $staff->setRelation(
+            'signature',
+            ($payload['signature_path'] ?? null)
+                ? tap(new Signature(['path' => $payload['signature_path']]), fn (Signature $s) => $s->exists = true)
+                : null,
+        );
 
         $assignment = new TeacherAssignment;
         $assignment->exists = true;

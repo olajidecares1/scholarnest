@@ -41,13 +41,13 @@
         </button>
 
         <div class="text-center">
-            <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'EduNest') }}" class="mx-auto h-10 w-10 rounded-[9px]">
+            <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'ScholarNest') }}" class="mx-auto h-10 w-10 rounded-[9px]">
 
             <h2 id="super-admin-login-title" class="mt-3.5 text-[17px] font-bold tracking-tight text-[#0F2A5C]">
-                EduNest
+                ScholarNest
             </h2>
             <p class="mt-0.5 flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary-500">
-                <i class="fa-solid fa-user-shield text-[10px]"></i> EduNest Team
+                <i class="fa-solid fa-user-shield text-[10px]"></i> ScholarNest Team
             </p>
         </div>
 
@@ -126,7 +126,11 @@
 
                 {{-- The same reset flow School Admins use: both roles are on
                      the "web" guard, so one implementation serves them both. --}}
-                <a href="{{ route('admin.password-reset.request') }}" class="text-[11.5px] font-semibold text-primary-500 transition hover:text-primary-600">
+                {{-- password.request, not the old admin.password-reset.request.
+                     Both flows reset a web-guard account; the parallel one was
+                     deleted because nothing linked to it except this dialog,
+                     and the sign-in page pointed at the other. --}}
+                <a href="{{ route('password.request') }}" class="text-[11.5px] font-semibold text-primary-500 transition hover:text-primary-600">
                     Forgot password?
                 </a>
             </div>

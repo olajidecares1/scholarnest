@@ -15,14 +15,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>Register your school - {{ config('app.name', 'EduNest') }}</title>
+        <title>Register your school - {{ config('app.name', 'ScholarNest') }}</title>
 
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-        @if ($platformSettings->favicon_path)
-            <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($platformSettings->favicon_path) }}">
-        @endif
+        <x-favicon />
 
         {{-- Inter, in the weights this page actually uses: 400 body, 500/600
              labels, 700/800 headings. Loading only these keeps the request
@@ -102,30 +97,30 @@
             <div class="grid min-h-dvh w-full bg-white lg:h-full lg:min-h-0 lg:grid-cols-2">
 
                 {{-- ── Left: brand panel ─────────────────────────────────── --}}
-                <div class="relative flex flex-col overflow-hidden bg-gradient-to-b from-[#EAF2FF] to-white">
+                <div class="relative flex flex-col overflow-hidden bg-white">
                     <div class="shrink-0 px-8 pt-5 sm:px-10 sm:pt-6">
-                        {{-- The logo mark is the click target for the hidden
-                             Super Admin sign-in, so it must not navigate - the
-                             first click would leave the page and the sequence
-                             could never reach five. The wordmark beside it
-                             keeps the link home. Nothing here announces
-                             itself: no title, no cursor change. --}}
-                        <div class="flex items-center gap-2.5">
-                            <img
-                                src="{{ $logoUrl }}"
-                                alt="{{ config('app.name', 'EduNest') }}"
-                                @click="registerClick()"
-                                class="h-8 w-8 shrink-0 select-none rounded-[8px]"
-                            >
-                            <a href="{{ url('/') }}" class="text-[22px] font-bold leading-none tracking-tight text-[#0F2A5C]">EduNest</a>
-                        </div>
+                        {{-- The logo alone, top-left. No wordmark beside it:
+                             the mark already carries "ScholarNest", and setting
+                             the name twice within 200px reads as a mistake.
 
-                        <h1 class="mt-5 text-[26px] font-extrabold leading-[1.15] tracking-tight text-[#0F2A5C] sm:text-[30px]">
+                             It is also the click target for the hidden Super
+                             Admin sign-in, so it must not navigate - the first
+                             click would leave the page and the sequence could
+                             never reach five. Nothing here announces itself:
+                             no title, no cursor change. --}}
+                        <img
+                            src="{{ $logoUrl }}"
+                            alt="{{ config('app.name', 'ScholarNest') }}"
+                            @click="registerClick()"
+                            class="h-20 w-20 shrink-0 select-none rounded-[10px] object-contain"
+                        >
+
+                        <h1 class="mt-4 text-[26px] font-extrabold leading-[1.15] tracking-tight text-[#0F2A5C] sm:text-[30px]">
                             Create Your<br>School Account
                         </h1>
 
                         <p class="mt-3 max-w-sm text-[12.5px] leading-[1.65] text-[#5B7099]">
-                            Join thousands of schools using EduNest to manage operations, engage students, and grow together.
+                            Join thousands of schools using ScholarNest to manage operations, engage students, and grow together.
                         </p>
                     </div>
 
@@ -194,6 +189,7 @@
 
                         <form method="POST" action="{{ route('register') }}" class="mt-3 space-y-[8px]" x-data="{ submitting: false }" @submit="submitting = true">
                             @csrf
+                            <x-honeypot />
 
                             @foreach ([
                                 ['school_name', 'School Name', 'text', 'Enter your school name', 'organization', 'M4 21h16M6 21V8l6-4 6 4v13M10 21v-4h4v4', true],
@@ -275,6 +271,26 @@
                                 </div>
                             @endforeach
 
+                            {{-- The agreement.
+
+                                 THE LINKS OPEN IN A NEW TAB, deliberately. This
+                                 form is long, and sending someone away from it
+                                 to read the Terms would lose everything they
+                                 have typed - which is how an agreement checkbox
+                                 ends up being ticked without being read.
+
+                                 rel="noopener" because target="_blank" otherwise
+                                 hands the opened page a reference back to this
+                                 one through window.opener.
+
+                                 The `required` attribute below is a courtesy to
+                                 the person filling the form in, NOT the rule.
+                                 The rule is 'terms' => ['accepted'] in
+                                 RegisterSchoolRequest, which runs on the server
+                                 and rejects a submission with the box unticked,
+                                 absent, or set to anything other than a true
+                                 value - including one made with the attribute
+                                 stripped out or the form posted directly. --}}
                             <div class="pt-0.5">
                                 <label class="flex items-start gap-2 text-[11.5px] leading-[1.55] text-[#3D5378]">
                                     <input
@@ -286,10 +302,11 @@
                                         class="mt-[1px] w-[15px] shrink-0 text-primary-500"
                                     >
                                     <span>
-                                        I agree to the
-                                        <a href="#" class="font-medium text-primary-500 hover:underline">Terms &amp; Conditions</a>,
-                                        <a href="#" class="font-medium text-primary-500 hover:underline">Privacy Policy</a> and
-                                        <a href="#" class="font-medium text-primary-500 hover:underline">Data Protection Policy</a>.
+                                        I have read and agree to the
+                                        <a href="{{ route('legal.show', 'terms') }}" target="_blank" rel="noopener" class="font-medium text-primary-500 hover:underline">Terms &amp; Conditions</a>,
+                                        the <a href="{{ route('legal.show', 'privacy') }}" target="_blank" rel="noopener" class="font-medium text-primary-500 hover:underline">Privacy Policy</a> and
+                                        the <a href="{{ route('legal.show', 'cookies') }}" target="_blank" rel="noopener" class="font-medium text-primary-500 hover:underline">Cookie Policy</a>,
+                                        and I confirm I am authorised to accept them for this school.
                                         <span class="text-red-500">*</span>
                                     </span>
                                 </label>
@@ -309,6 +326,27 @@
                                 <span x-show="submitting" x-cloak>Creating your account&hellip;</span>
                             </button>
                         </form>
+
+                        {{-- The way back in.
+
+                             This page had no sign-in link at all, which is how
+                             two schools ended up entering perfectly good
+                             credentials into the ScholarNest Team dialog: they
+                             had already registered, came back here, found
+                             nothing to click, and went looking. The one login
+                             form on this page was the hidden one.
+
+                             Goes to the finder, not to a login form: a school
+                             names itself, then picks the portal it wants from
+                             the ones its plan includes. route('login') would
+                             have redirected straight back to this page. --}}
+                        <p class="mt-3 text-center text-[12px] text-[#64789F]">
+                            Already registered?
+                            <a
+                                href="{{ route('portal.find.show') }}"
+                                class="font-bold text-primary-500 underline-offset-2 hover:text-primary-600 hover:underline"
+                            >Go to your school's portal</a>
+                        </p>
 
                         <p class="mt-2.5 flex items-center justify-center gap-1.5 text-[10.5px] text-[#8194B3]">
                             <svg class="h-[13px] w-[13px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
-use App\Enums\PlanKey;
 use App\Enums\SubscriptionTopUpStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Subscriptions\StoreTopUpRequest;
 use App\Models\AuditLog;
 use App\Models\SubscriptionTopUp;
 use App\Notifications\NewSubscriptionTopUpSubmittedNotification;
+use App\Notifications\SubscriptionInvoiceIssuedNotification;
 use App\Services\PaymentReceiptScreening;
 use App\Services\ReceiptUploadService;
 use App\Services\StudentLicenceAllocation;
+use App\Services\SubscriptionInvoiceIssuer;
 use App\Services\TeamNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +32,14 @@ class SubscriptionTopUpController extends Controller
         $school = auth()->user()->school;
         $subscription = $school->activeSubscription;
 
-        abort_unless($school->hasPlanAccess(PlanKey::Basic), 403, 'Student slot top-ups are only available on the Basic plan.');
+        // Basic AND Standard, both sold per student. Asked of the plan rather
+        // than named here, so a plan cannot end up capped in one place and
+        // unable to buy more in another.
+        abort_unless(
+            $school->activeSubscription?->plan?->key?->isSoldPerStudent() && $school->hasActiveSubscription(),
+            403,
+            'Student slot top-ups are only available on plans priced per student.',
+        );
 
         return view('school-admin.subscriptions.top-up', [
             'plan' => $subscription->plan,
@@ -59,7 +67,14 @@ class SubscriptionTopUpController extends Controller
         $school = auth()->user()->school;
         $subscription = $school->activeSubscription;
 
-        abort_unless($school->hasPlanAccess(PlanKey::Basic), 403, 'Student slot top-ups are only available on the Basic plan.');
+        // Basic AND Standard, both sold per student. Asked of the plan rather
+        // than named here, so a plan cannot end up capped in one place and
+        // unable to buy more in another.
+        abort_unless(
+            $school->activeSubscription?->plan?->key?->isSoldPerStudent() && $school->hasActiveSubscription(),
+            403,
+            'Student slot top-ups are only available on plans priced per student.',
+        );
 
         $validated = $request->validated();
 
@@ -102,6 +117,17 @@ class SubscriptionTopUpController extends Controller
 
         AuditLog::record('subscription.topup.submitted', "Requested {$topUp->additional_students_count} additional student slots.", $topUp);
 
+        // A top-up is a payment, so it gets an invoice like any other - on the
+        // same numbering sequence, which is why both call sites go through
+        // App\Services\SubscriptionInvoiceIssuer rather than minting their own.
+        $invoice = app(SubscriptionInvoiceIssuer::class)->issueForTopUp($topUp);
+
+        $school->users()->each(
+            fn ($user) => $user->notify(new SubscriptionInvoiceIssuedNotification($invoice))
+        );
+
+        AuditLog::record('invoice.issued', "Issued invoice {$invoice->number} to {$school->name}.", $invoice);
+
         // One request, one notification, claimed against the top-up itself.
         app(TeamNotifier::class)->once(
             'subscription.top-up.submitted:'.$topUp->uuid,
@@ -109,6 +135,6 @@ class SubscriptionTopUpController extends Controller
         );
 
         return redirect()->route('students.index')
-            ->with('status', "Your request for {$topUp->additional_students_count} additional student slots was submitted and is awaiting EduNest Team approval.");
+            ->with('status', "Your request for {$topUp->additional_students_count} additional student slots was submitted and is awaiting ScholarNest Team approval.");
     }
 }

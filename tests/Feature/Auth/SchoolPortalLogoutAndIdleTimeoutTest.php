@@ -171,9 +171,30 @@ test('logging out never lands on the registration page', function () {
 
     $response = $this->actingAs($admin)->post(route('logout'));
 
+    // The school is identified by its OPAQUE PORTAL KEY, not its slug. This
+    // used to assert the slug was in the redirect, which was a reasonable
+    // proxy for "it went to this school's own login" while the slug was in
+    // the URL - and became exactly the wrong assertion once it stopped being.
     expect($response->headers->get('Location'))
-        ->toContain($this->school->slug)
+        ->toContain($this->school->portal_key)
         ->not->toBe(route('register'));
+});
+
+test('a portal address never names the school it belongs to', function () {
+    // The point of the portal key. A teacher's, pupil's or parent's link
+    // lands in bookmarks, browser history and referrer headers; there is no
+    // reason for any of them to carry the school's name.
+    $school = School::factory()->create(['name' => 'Greenfield College']);
+    activateSchool($school);
+
+    foreach (['web', 'staff', 'student', 'guardian'] as $guard) {
+        $url = $school->portalLoginUrl($guard);
+
+        expect($url)->toContain($school->portal_key)
+            ->not->toContain($school->slug)
+            ->not->toContain('greenfield')
+            ->not->toContain('/schools/');
+    }
 });
 
 // -----------------------------------------------------------------------------
@@ -196,6 +217,11 @@ test('a signed-out user cannot reach the dashboard again', function () {
 
     $this->actingAs($admin)->post(route('logout'));
 
-    $this->get(route('dashboard'))->assertRedirect(route('login'));
+    // The unified sign-in, not route('login') - that name redirects on to
+    // registration, so this used to prove a signed-out admin was invited to
+    // register the school they had just been running. A real browser gets
+    // their own school's portal login, from the cookie written at sign-in;
+    // there is none here because actingAs() fires no Login event.
+    $this->get(route('dashboard'))->assertRedirect(route('portal.show'));
     $this->assertGuest();
 });

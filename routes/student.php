@@ -34,7 +34,25 @@ use Illuminate\Support\Facades\Route;
 
 // Student Portal — school-slug-scoped, readable by design (same convention as the
 // public marketing site above), separate from the obfuscated staff dashboard URLs.
-Route::prefix('schools/{school:slug}/portal')->name('student.')->group(function () {
+/*
+ * THE SCHOOL IS IDENTIFIED BY AN OPAQUE KEY, NOT ITS SLUG.
+ *
+ * This prefix used to read schools/{school:slug}/portal, which put the
+ * school's public name into every portal link a pupil ever received - and into
+ * every bookmark, browser history and referrer header those links produced.
+ * The slug is not a secret, but a private portal address has no reason to
+ * announce whose portal it is.
+ *
+ * The parameter is still called "school" and still resolves to a School, so
+ * every controller signature and every route() call is unchanged; only the
+ * column it binds on has moved. See the add_portal_key_to_schools_table
+ * migration.
+ *
+ * "p" is a literal prefix rather than nothing at all, deliberately: a bare
+ * {school:portal_key} would be another wildcard in the root namespace, which
+ * this application works hard to keep clear (see routes/school-links.php).
+ */
+Route::prefix('p/{school:portal_key}/portal')->name('student.')->group(function () {
     Route::middleware(['guest:student', 'portal_token'])->group(function () {
         Route::get('{token}/login', [StudentAuthenticatedSessionController::class, 'create'])->name('login');
         Route::post('{token}/login', [StudentAuthenticatedSessionController::class, 'store']);

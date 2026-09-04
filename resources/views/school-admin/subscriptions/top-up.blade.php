@@ -14,7 +14,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Request Additional Student/Pupil Spaces</h2>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                Your request is reviewed by a EduNest Team before your capacity increases — this is not automatic,
+                Your request is reviewed by a ScholarNest Team before your capacity increases — this is not automatic,
                 and the spaces cannot be used until it is approved.
             </p>
 
@@ -79,7 +79,7 @@
 
                     <dl class="mt-3 space-y-2 rounded-[5px] bg-gray-50 p-4 text-sm dark:bg-gray-900/40 lg:rounded-[10px]">
                         <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Bank Name</dt><dd class="font-semibold text-gray-900 dark:text-white">GTBank</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Account Name</dt><dd class="font-semibold text-gray-900 dark:text-white">EduNest Technologies Ltd</dd></div>
+                        <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Account Name</dt><dd class="font-semibold text-gray-900 dark:text-white">ScholarNest Technologies Ltd</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Account Number</dt><dd class="font-semibold text-gray-900 dark:text-white">0123456789</dd></div>
                     </dl>
                     <input type="hidden" name="payment_method" value="bank_transfer">

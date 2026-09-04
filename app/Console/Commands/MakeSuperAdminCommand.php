@@ -25,7 +25,7 @@ class MakeSuperAdminCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a EduNest Team account. There is no public registration route for this role by design.';
+    protected $description = 'Create a ScholarNest Team account. There is no public registration route for this role by design.';
 
     /**
      * Execute the console command.
@@ -64,13 +64,21 @@ class MakeSuperAdminCommand extends Command
         $user = User::create([
             'name' => $name,
             'email' => $email,
+            'username' => User::generateUniqueUsernameFromEmail($email),
             'password' => Hash::make($password),
             'role' => UserRole::SuperAdmin,
             'school_id' => null,
-            'email_verified_at' => now(),
         ]);
 
-        $this->components->info("EduNest Team \"{$user->name}\" ({$user->email}) created successfully.");
+        // forceFill, because `email_verified_at` is not fillable and was being
+        // silently dropped from the create() above - every account this
+        // command has ever made came out unverified. Nothing depends on it
+        // for a Super Admin today, since no super-admin route carries the
+        // `verified` middleware, but an account created "verified" that is
+        // not is a trap set for whoever adds that middleware later.
+        $user->forceFill(['email_verified_at' => now()])->save();
+
+        $this->components->info("ScholarNest Team \"{$user->name}\" ({$user->email}) created successfully.");
 
         return self::SUCCESS;
     }

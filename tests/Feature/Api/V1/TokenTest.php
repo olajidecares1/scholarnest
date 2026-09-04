@@ -261,9 +261,11 @@ test('a token stops working the moment the school is deactivated', function () {
 });
 
 test('a guardian and a staff member can also sign in', function () {
+    // The app signs a parent in the same way the portal does: Parent ID or
+    // phone number, not email.
     $guardian = Guardian::factory()->create([
         'school_id' => $this->school->id,
-        'email' => 'parent@example.com',
+        'guardian_number' => 'GRN001-PAR-001',
         'password' => Hash::make('Correct-Horse1!'),
         'must_change_password' => false,
     ]);
@@ -277,7 +279,7 @@ test('a guardian and a staff member can also sign in', function () {
 
     $this->postJson('/api/v1/tokens', tokenPayload([
         'role' => 'guardian',
-        'login' => 'parent@example.com',
+        'login' => 'GRN001-PAR-001',
     ]))->assertCreated()->assertJsonPath('account.role', 'guardian');
 
     $this->postJson('/api/v1/tokens', tokenPayload([

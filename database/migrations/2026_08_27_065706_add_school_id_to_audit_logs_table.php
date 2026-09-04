@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Audit entries never recorded which school they belonged to.
  *
- * That was survivable while the only thing reading them was the EduNest Team's
+ * That was survivable while the only thing reading them was the ScholarNest Team's
  * platform-wide log, which wants every school's entries anyway. The moment a
  * School Admin's dashboard tried to show its own recent activity there was no
  * column to filter on - and no way to show a school its history without
  * showing it everyone else's.
  *
  * Nullable, because plenty of entries are genuinely platform-level: the
- * EduNest Team editing CBT question banks or plan pricing belongs to no school.
+ * ScholarNest Team editing CBT question banks or plan pricing belongs to no school.
  */
 return new class extends Migration
 {
@@ -30,7 +30,7 @@ return new class extends Migration
         });
 
         // Backfill what can be known. A School Admin's entries belong to their
-        // school; entries by the EduNest Team, and by actors recorded only by
+        // school; entries by the ScholarNest Team, and by actors recorded only by
         // name, stay null rather than being guessed at.
         // Written as a correlated subquery rather than an UPDATE ... JOIN so
         // that it runs identically on MySQL and on the SQLite the suite uses.

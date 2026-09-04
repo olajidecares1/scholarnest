@@ -18,11 +18,11 @@ test('super admin can view the settings page', function () {
 
 test('super admin can update general settings', function () {
     $response = $this->actingAs($this->superAdmin)->put(route('super-admin.settings.update'), [
-        'site_name' => 'EduNest Platform',
-        'support_email' => 'help@edunest.test',
+        'site_name' => 'ScholarNest Platform',
+        'support_email' => 'help@scholarnest.test',
         'support_phone' => '+2348012345678',
-        'notification_from_name' => 'EduNest Notifications',
-        'notification_from_email' => 'notify@edunest.test',
+        'notification_from_name' => 'ScholarNest Notifications',
+        'notification_from_email' => 'notify@scholarnest.test',
         'maintenance_mode' => '0',
         'maintenance_message' => null,
     ]);
@@ -30,8 +30,8 @@ test('super admin can update general settings', function () {
     $response->assertRedirect();
 
     $settings = Setting::current()->fresh();
-    expect($settings->site_name)->toBe('EduNest Platform');
-    expect($settings->support_email)->toBe('help@edunest.test');
+    expect($settings->site_name)->toBe('ScholarNest Platform');
+    expect($settings->support_email)->toBe('help@scholarnest.test');
     expect($settings->maintenance_mode)->toBeFalse();
 });
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Guardian;
 
 use App\Models\School;
+use App\Support\GuardianLoginIdentifier;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -33,7 +34,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'login' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ];
     }
@@ -47,11 +48,28 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited($school);
 
-        // email is only unique per-school, not globally, so the credential
-        // lookup must always be scoped to the school the guardian is logging
-        // in through - mirrors the same constraint on student login.
+        // A parent signs in with their Parent ID or their phone number - never
+        // their email. Which of the two they typed is worked out by
+        // GuardianLoginIdentifier, scoped to this school, because neither is
+        // unique across schools.
+        $identifier = GuardianLoginIdentifier::resolve($school, $this->string('login')->toString());
+
+        if ($identifier->ambiguous) {
+            RateLimiter::hit($this->throttleKey($school), self::LOCKOUT_DECAY_SECONDS);
+
+            // More than one parent at this school has that phone number, so it
+            // does not say who is signing in. Their Parent ID does.
+            throw ValidationException::withMessages([
+                'login' => 'That phone number is registered to more than one parent at this school. Please sign in with your Parent ID instead.',
+            ]);
+        }
+
+        // Authenticating by primary key: the identifier has already decided
+        // WHO this is, and the password check below decides whether they are
+        // really them. Passing the id keeps that decision in one place rather
+        // than re-running the match inside the user provider.
         $credentials = [
-            'email' => $this->string('email')->toString(),
+            'id' => $identifier->guardian?->id ?? 0,
             'password' => $this->string('password')->toString(),
             'school_id' => $school->id,
         ];
@@ -60,7 +78,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey($school), self::LOCKOUT_DECAY_SECONDS);
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'login' => trans('auth.failed'),
             ]);
         }
 
@@ -70,7 +88,7 @@ class LoginRequest extends FormRequest
             Auth::guard('guardian')->logout();
 
             throw ValidationException::withMessages([
-                'email' => 'This account has been deactivated. Please contact your school.',
+                'login' => 'This account has been deactivated. Please contact your school.',
             ]);
         }
 
@@ -95,7 +113,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey($school));
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            'login' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -105,13 +123,22 @@ class LoginRequest extends FormRequest
     /**
      * Get the rate limiting throttle key for the request.
      *
-     * Scoped by school_id, not just the email, because a guardian's email
-     * is only unique per-school - without this, a parent at one school
-     * could be locked out by failed attempts against an identically-emailed
-     * guardian at a completely different school sharing the same IP address.
+     * Scoped by school_id, not just the identifier, because a Parent ID and a
+     * phone number are only unique per-school - without this, a parent at one
+     * school could be locked out by failed attempts against an
+     * identically-numbered parent at a completely different school sharing the
+     * same IP address.
+     *
+     * Keyed on the NORMALISED phone where the input is one, so that
+     * "08031234567" and "+234 803 123 4567" count against the same allowance.
+     * Keyed on the raw input otherwise. Without that, reformatting the same
+     * number would hand out a fresh five attempts each time.
      */
     public function throttleKey(School $school): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$school->id.'|'.$this->ip());
+        $login = $this->string('login')->toString();
+        $identifier = GuardianLoginIdentifier::normalisePhone($login) ?? Str::lower($login);
+
+        return Str::transliterate($identifier.'|'.$school->id.'|'.$this->ip());
     }
 }

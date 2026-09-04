@@ -7,6 +7,7 @@ use App\Models\Guardian;
 use App\Models\School;
 use App\Models\Staff;
 use App\Models\Student;
+use App\Rules\NotDerivedFromIdentity;
 use App\Services\CredentialShareMessage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -36,6 +37,30 @@ use Illuminate\Validation\Rules\Password;
 trait SetsPortalCredentials
 {
     /**
+     * What this account is publicly known by, and therefore must not be
+     * protected with.
+     *
+     * The school's name, the person's own name, the id they sign in with and
+     * their email address - the four things a stranger holding a school
+     * newsletter already has. Read from the ACCOUNT rather than from the
+     * request, so the check cannot be sidestepped by submitting a different
+     * school name alongside the password.
+     */
+    protected function identityRuleFor(Model $account): NotDerivedFromIdentity
+    {
+        return new NotDerivedFromIdentity([
+            $account->school?->name,
+            $account->name ?? null,
+            $account->first_name ?? null,
+            $account->last_name ?? null,
+            $account->email ?? null,
+            $account->staff_number ?? null,
+            $account->admission_number ?? null,
+            $account->guardian_number ?? null,
+        ]);
+    }
+
+    /**
      * Set the login username and password for one portal account.
      *
      * @param  string  $usernameColumn  staff_number, admission_number or guardian_number
@@ -52,7 +77,17 @@ trait SetsPortalCredentials
         // to show but the controller would still honour is not read-only, it
         // is read-only-looking.
         $validated = $request->validate([
-            'password' => ['required', 'string', 'confirmed', Password::defaults()],
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                Password::defaults(),
+
+                // Not made out of the account it protects. See the rule -
+                // "Greenfield2026!" passes every complexity check and is the
+                // first guess anybody makes against Greenfield College.
+                $this->identityRuleFor($account),
+            ],
         ], [
             'password.confirmed' => 'The two passwords do not match.',
         ]);
@@ -101,7 +136,12 @@ trait SetsPortalCredentials
     ): void {
         // The password alone. The ID belongs to the system.
         $validated = $request->validate([
-            'login_password' => ['nullable', 'string', Password::defaults()],
+            'login_password' => [
+                'nullable',
+                'string',
+                Password::defaults(),
+                $this->identityRuleFor($account),
+            ],
         ], [], [
             'login_password' => 'password',
         ]);

@@ -7,7 +7,12 @@ import { registerDraggableResizable } from './directives/draggable-resizable';
 import pageBuilder from './page-builder';
 import { generateColorScale, normalizeCssColorToHex } from './color-scale';
 import { registerIdCardPreviewStore } from './id-card-preview-modal';
+import galleryViewer from './gallery-viewer';
+import marqueeList from './marquee-list';
+import reportEvidence from './report-evidence';
 import { registerResultPreviewStore } from './result-preview-modal';
+import initScrollAnimations from './scroll-reveal';
+import signaturePad from './signature-pad';
 import uploadProgressForm from './upload-progress-form';
 
 window.Alpine = Alpine;
@@ -18,8 +23,26 @@ window.normalizeCssColorToHex = normalizeCssColorToHex;
 registerDraggableResizable(Alpine);
 Alpine.data('cbtAttempt', cbtAttempt);
 Alpine.data('pageBuilder', pageBuilder);
+Alpine.data('marqueeList', marqueeList);
+Alpine.data('galleryViewer', galleryViewer);
+Alpine.data('reportEvidence', reportEvidence);
 Alpine.data('uploadProgressForm', uploadProgressForm);
+Alpine.data('signaturePad', signaturePad);
 registerIdCardPreviewStore(Alpine);
 registerResultPreviewStore(Alpine);
 
 Alpine.start();
+
+/*
+ * Scroll reveals, count-ups, the navbar's scrolled state and the parallax
+ * drift on the public school website.
+ *
+ * After Alpine, and guarded on readyState, because the observer measures what
+ * is on screen - and measuring before the document has finished parsing means
+ * observing a fraction of the elements that will exist a moment later.
+ */
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollAnimations);
+} else {
+    initScrollAnimations();
+}

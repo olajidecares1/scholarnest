@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Rules\NotDerivedFromIdentity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,19 @@ class PasswordController extends Controller
     {
         $validated = $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            'password' => [
+                'required',
+                Password::defaults(),
+                'confirmed',
+
+                // From the signed-in account, never from the form.
+                new NotDerivedFromIdentity([
+                    $request->user()->school?->name,
+                    $request->user()->name,
+                    $request->user()->email,
+                    $request->user()->username,
+                ]),
+            ],
         ]);
 
         $user = $request->user();

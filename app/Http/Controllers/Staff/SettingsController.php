@@ -4,16 +4,22 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Concerns\NotifiesSchoolOfProfileChanges;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\ProfileChangeRequest;
 use App\Models\School;
+use App\Services\ImageOptimizer;
+use App\Support\StoredUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class SettingsController extends Controller
 {
     use NotifiesSchoolOfProfileChanges;
+
+    public function __construct(private readonly ImageOptimizer $optimizer) {}
 
     public function index(Request $request, School $school): View
     {
@@ -65,5 +71,62 @@ class SettingsController extends Controller
         );
 
         return back()->with('status', 'Your details were updated. Your school has been notified.');
+    }
+
+    /**
+     * A teacher's own signature, appended to the results they sign.
+     *
+     * Uploaded here and nowhere else. A signature is the one thing on a report
+     * card that is supposed to mean a particular person saw it, so the school
+     * office cannot upload one on a teacher's behalf - if it could, the mark
+     * would prove nothing.
+     *
+     * The staff member is taken from the session, never from the request, so
+     * there is no id to swap for a colleague's.
+     */
+    public function updateSignature(Request $request, School $school): RedirectResponse
+    {
+        $staff = $request->user('staff');
+
+        $validated = $request->validate([
+            'signature' => ['nullable', 'image', 'max:2048'],
+            'remove_signature' => ['nullable', 'boolean'],
+        ]);
+
+        if ($request->boolean('remove_signature')) {
+            $staff->withdrawSignature();
+
+            AuditLog::record(
+                'signature.withdrawn',
+                $staff->fullName().' withdrew their signature.',
+                $staff,
+                actorName: $staff->fullName(),
+            );
+
+            return back()->with('status', 'Your signature was removed. Results generated from now on will show a blank line.');
+        }
+
+        if (! isset($validated['signature'])) {
+            return back()->with('status', 'Choose a signature image to upload.');
+        }
+
+        $file = $request->file('signature');
+        // Private, like every other signature. This upload path was the one
+        // that still wrote to the public disk after the rest moved - so a
+        // teacher who uploaded a photograph of their signature, rather than
+        // drawing it on the pad, published it at a public address.
+        $path = $file->storeAs('staff-signatures', StoredUpload::name($file), 'local');
+        $this->optimizer->optimize(Storage::disk('local')->path($path), (string) $file->getMimeType());
+
+        $staff->registerSignature($path);
+
+        AuditLog::record(
+            'signature.registered',
+            $staff->fullName().' uploaded their signature.',
+            $staff,
+            actorName: $staff->fullName(),
+        );
+
+        return back()->with('status', 'Your signature was saved. It will appear on the results you sign.');
     }
 }

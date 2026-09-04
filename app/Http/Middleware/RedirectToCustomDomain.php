@@ -56,7 +56,7 @@ class RedirectToCustomDomain
         // APP_URL, not whatever host the default-path request happened to arrive
         // on) - generate with a throwaway host, then keep only the path/query and
         // rebuild the URL against the real domain.
-        $generated = route($tenantRouteName, [...$params, 'tenantDomain' => 'edunest-placeholder-host.invalid']);
+        $generated = route($tenantRouteName, [...$params, 'tenantDomain' => 'scholarnest-placeholder-host.invalid']);
         $path = parse_url($generated, PHP_URL_PATH) ?? '/';
         $query = parse_url($generated, PHP_URL_QUERY);
 
@@ -86,6 +86,9 @@ class RedirectToCustomDomain
 
         $baseDomain = config('custom_domain.tenant_base_domain');
 
-        return $baseDomain && $school->hasPlanAccess(PlanKey::Standard) ? "{$school->slug}.{$baseDomain}" : null;
+        // The subdomain column, not the slug - it has no hyphens in it, and it
+        // must be the same value ResolveTenantFromCustomDomain looks up by, or
+        // this redirects to an address that then 404s.
+        return $baseDomain && $school->hasPlanAccess(PlanKey::Standard) ? "{$school->subdomain}.{$baseDomain}" : null;
     }
 }

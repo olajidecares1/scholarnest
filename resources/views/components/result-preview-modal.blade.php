@@ -1,4 +1,16 @@
-@props(['canSend' => true])
+{{-- Shared by the School Admin panel and the Class Teacher portal, which are
+     allowed different things. Each capability is a prop that defaults to
+     true - the admin's page says nothing and keeps everything, the teacher's
+     turns off what it must.
+
+     These props only decide what is DRAWN. What can be reached is decided by
+     the routes: the Class Teacher portal has no print route and no pdf route
+     to call, so passing canPrint here is a tidiness, not the control. --}}
+@props([
+    'canSend' => true,
+    'canPrint' => true,
+    'canDownload' => true,
+])
 
 <div
     x-data="{}"
@@ -105,30 +117,42 @@
             </div>
         </div>
 
-        <div class="flex flex-wrap justify-end gap-2 border-t border-gray-100 px-5 py-4 dark:border-gray-700" x-show="$store.resultPreview.tab === 'report-card' && !$store.resultPreview.loading && !$store.resultPreview.error">
-            <button
-                type="button"
-                @click="$store.resultPreview.print()"
-                :disabled="!$store.resultPreview.hasScores"
-                class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-            >
-                Print
-            </button>
-            <button
-                type="button"
-                @click="$store.resultPreview.download()"
-                :disabled="$store.resultPreview.downloading || !$store.resultPreview.hasScores"
-                class="flex min-w-[9rem] items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
-            >
-                <span x-show="$store.resultPreview.downloading">Downloading&hellip;</span>
-                <span x-show="!$store.resultPreview.downloading">Download PDF</span>
-            </button>
-        </div>
+        @if ($canPrint || $canDownload)
+            <div class="flex flex-wrap justify-end gap-2 border-t border-gray-100 px-5 py-4 dark:border-gray-700" x-show="$store.resultPreview.tab === 'report-card' && !$store.resultPreview.loading && !$store.resultPreview.error">
+                @if ($canPrint)
+                    <button
+                        type="button"
+                        @click="$store.resultPreview.print()"
+                        :disabled="!$store.resultPreview.hasScores"
+                        class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
+                        Print
+                    </button>
+                @endif
+
+                @if ($canDownload)
+                    <button
+                        type="button"
+                        @click="$store.resultPreview.download()"
+                        :disabled="$store.resultPreview.downloading || !$store.resultPreview.hasScores"
+                        class="flex min-w-[9rem] items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
+                    >
+                        <span x-show="$store.resultPreview.downloading">Downloading&hellip;</span>
+                        <span x-show="!$store.resultPreview.downloading">Download PDF</span>
+                    </button>
+                @endif
+            </div>
+        @endif
     </div>
 </div>
 
 {{-- Hidden print target: the Print button sets this iframe's src directly to
 the GET print URL, which auto-calls window.print() on load (same convention
 as id-cards/print.blade.php), so the system print dialog opens without
-navigating this page or opening a new tab. --}}
-<iframe id="result-print-frame" name="result-print-frame" style="position: absolute; width: 0; height: 0; border: 0;" title="Report card print frame"></iframe>
+navigating this page or opening a new tab.
+
+Left out entirely where printing is not offered - a page with no print
+capability should not carry the frame that performs one. --}}
+@if ($canPrint)
+    <iframe id="result-print-frame" name="result-print-frame" style="position: absolute; width: 0; height: 0; border: 0;" title="Report card print frame"></iframe>
+@endif

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasProtectedPhoto;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\GuardianFactory;
 use Illuminate\Auth\Authenticatable;
@@ -13,13 +14,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class Guardian extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     /** @use HasFactory<GuardianFactory> */
     use Authenticatable, CanResetPassword, HasApiTokens, HasFactory, HasUuidRouteKey, Notifiable;
+
+    use HasProtectedPhoto;
 
     /**
      * The attributes that are mass assignable.
@@ -77,10 +79,5 @@ class Guardian extends Model implements AuthenticatableContract, CanResetPasswor
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(Student::class, 'guardian_student')->withPivot('relationship');
-    }
-
-    public function photoUrl(): ?string
-    {
-        return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
     }
 }

@@ -1,6 +1,6 @@
 <x-super-admin-layout
     page-title="Plan Pricing"
-    page-subtitle="What each plan costs. The Basic plan's per-student price is the figure the student-licence system multiplies by."
+    page-subtitle="What each plan costs. The per-student price is the figure the student-licence system multiplies by for the Basic and Standard plans."
 >
     <div class="space-y-6">
         @if (session('status'))
@@ -37,14 +37,15 @@
                     <p class="field-hint mt-1">{{ $plan->tagline }}</p>
 
                     <div class="mt-4 space-y-3">
-                        {{-- Basic is sold per student; the other two are flat fee. Both
-                             sets of fields are shown for every plan so a plan's model
-                             can be changed without a code change, but the one that
-                             actually applies is highlighted. --}}
+                        {{-- Basic AND Standard are sold per student now - Standard's
+                             flat ₦200,000 term fee was replaced by a price per pupil.
+                             Both sets of fields are shown for every plan so a plan's
+                             model can be changed without a code change, but the one
+                             that actually applies is highlighted. --}}
                         <div>
-                            <label for="pps-{{ $plan->id }}" class="mb-1 block text-xs font-semibold {{ $plan->key === \App\Enums\PlanKey::Basic ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400' }}">
+                            <label for="pps-{{ $plan->id }}" class="mb-1 block text-xs font-semibold {{ $plan->key->isSoldPerStudent() ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400' }}">
                                 Price per student, per term (&#8358;)
-                                @if ($plan->key === \App\Enums\PlanKey::Basic)
+                                @if ($plan->key->isSoldPerStudent())
                                     <span class="font-normal text-blue-600 dark:text-blue-400">&mdash; used for student licences</span>
                                 @endif
                             </label>

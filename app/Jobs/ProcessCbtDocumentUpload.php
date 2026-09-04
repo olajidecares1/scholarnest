@@ -36,6 +36,14 @@ class ProcessCbtDocumentUpload implements ShouldQueue
     public int $tries = 3;
 
     /**
+     * An upload deleted before its job ran is not a failure - see the same
+     * note on ProcessCbtTestDocumentUpload. The job looks the record up again
+     * when it runs, so one that has since been removed would otherwise raise a
+     * failed job over somebody changing their mind.
+     */
+    public bool $deleteWhenMissingModels = true;
+
+    /**
      * @return list<int>
      */
     public function backoff(): array

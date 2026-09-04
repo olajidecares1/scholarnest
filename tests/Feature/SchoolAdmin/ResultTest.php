@@ -312,5 +312,10 @@ test('the report card shows the number of students in the class and the next ter
 
     $response->assertOk()
         ->assertSeeInOrder(['Number in Class', '4'])
-        ->assertSeeInOrder(['Next Term Begins', 'Jan 12, 2026']);
+
+        // The long ordinal form, as the supplied card design uses throughout -
+        // "12th January, 2026", not "Jan 12, 2026". Same date, and it now
+        // matches the date of birth two rows above it, which was already
+        // written this way.
+        ->assertSeeInOrder(['Next Term Begins', '12th January, 2026']);
 });

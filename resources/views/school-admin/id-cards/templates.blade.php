@@ -1,13 +1,90 @@
 @php
+    // A new template opens on the default card - the same colours and wording
+    // an untouched school already gets - so "edit this into our card" starts
+    // from what the school is looking at rather than from a blank form.
+    $defaults = \App\Support\IdCardDesign::newTemplateDefaults($school);
+
     $blankForm = [
         'uuid' => '', 'name' => '', 'type' => 'student', 'orientation' => 'portrait',
-        'primary_color' => '#1d4ed8', 'secondary_color' => '#111a35', 'instructions' => '',
+        'primary_color' => $defaults['primary_color'],
+        'secondary_color' => $defaults['secondary_color'],
+        'accent_color' => $defaults['accent_color'],
+        'instructions' => $defaults['instructions'],
         'show_blood_group' => false, 'show_dob' => false, 'is_default' => false,
     ];
 @endphp
 
 <x-dashboard-layout page-title="ID Card Templates" page-subtitle="Design templates used to generate student and staff ID cards.">
-    <div class="space-y-6" x-data="{ open: false, side: 'front', form: @js($blankForm) }">
+    <div
+        class="space-y-6"
+        x-data="{
+            open: false,
+            side: 'front',
+            form: @js($blankForm),
+
+            sampleFront: '',
+            sampleBack: '',
+            sampleLoading: false,
+            sampleTimer: null,
+
+            /*
+             * Ask the server to draw the specimen again.
+             *
+             * Debounced, because a colour input fires on every step as it is
+             * dragged, and each of those would otherwise be a request.
+             */
+            refreshSample() {
+                window.clearTimeout(this.sampleTimer);
+
+                this.sampleTimer = window.setTimeout(async () => {
+                    this.sampleLoading = true;
+
+                    const query = new URLSearchParams({
+                        type: this.form.type ?? 'student',
+                        orientation: this.form.orientation ?? 'portrait',
+                        primary_color: this.form.primary_color ?? '',
+                        secondary_color: this.form.secondary_color ?? '',
+                        accent_color: this.form.accent_color ?? '',
+                        instructions: this.form.instructions ?? '',
+                        show_blood_group: this.form.show_blood_group ? 1 : 0,
+                    });
+
+                    try {
+                        const response = await fetch('{{ route('id-cards.templates.sample') }}?' + query, {
+                            headers: { Accept: 'application/json' },
+                        });
+
+                        if (! response.ok) {
+                            throw new Error(String(response.status));
+                        }
+
+                        const card = await response.json();
+
+                        this.sampleFront = card.front;
+                        this.sampleBack = card.back;
+                    } catch {
+                        /*
+                         * Leave the last good specimen on screen rather than
+                         * blanking it. A dropped request is not a reason to
+                         * show a School Admin an empty box.
+                         */
+                    } finally {
+                        this.sampleLoading = false;
+                    }
+                }, 250);
+            },
+        }"
+        x-init="
+            refreshSample();
+            $watch('form.type', () => refreshSample());
+            $watch('form.orientation', () => refreshSample());
+            $watch('form.primary_color', () => refreshSample());
+            $watch('form.secondary_color', () => refreshSample());
+            $watch('form.accent_color', () => refreshSample());
+            $watch('form.instructions', () => refreshSample());
+            $watch('form.show_blood_group', () => refreshSample());
+        "
+    >
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}
@@ -54,6 +131,10 @@
                                     'orientation' => $template->orientation->value,
                                     'primary_color' => $template->primary_color,
                                     'secondary_color' => $template->secondary_color,
+                                    // A template saved before this colour existed has none,
+                                    // so the editor opens on the reference red rather than
+                                    // on black, which is what an empty colour input shows.
+                                    'accent_color' => $template->accent_color ?: \App\Support\IdCardDesign::ACCENT,
                                     'instructions' => $template->instructions ?? '',
                                     'show_blood_group' => $template->show_blood_group,
                                     'show_dob' => $template->show_dob,
@@ -111,14 +192,21 @@
                             </select>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-3 gap-3">
                             <div>
-                                <label class="field-label">Primary Color</label>
+                                <label class="field-label">Primary Colour</label>
                                 <input type="color" name="primary_color" x-model="form.primary_color" class="mt-1.5 w-full">
+                                <p class="field-hint">Staff badges.</p>
                             </div>
                             <div>
-                                <label class="field-label">Secondary Color</label>
+                                <label class="field-label">Secondary Colour</label>
                                 <input type="color" name="secondary_color" x-model="form.secondary_color" class="mt-1.5 w-full">
+                                <p class="field-hint">Masthead, footer, back panel.</p>
+                            </div>
+                            <div>
+                                <label class="field-label">Accent Colour</label>
+                                <input type="color" name="accent_color" x-model="form.accent_color" class="mt-1.5 w-full">
+                                <p class="field-hint">Stripe, tagline, student badge.</p>
                             </div>
                         </div>
 
@@ -175,77 +263,27 @@
                         <button type="button" @click="side = 'back'" :class="side === 'back' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'" class="rounded-[6px] px-3 py-1 text-xs font-semibold transition-colors duration-200">Back</button>
                     </div>
 
-                    <div x-show="side === 'front'" class="overflow-hidden rounded-[6px] border border-gray-300 bg-white text-gray-900 shadow-sm" :style="`width: ${form.orientation === 'landscape' ? '85.6mm' : '53.98mm'}; height: ${form.orientation === 'landscape' ? '53.98mm' : '85.6mm'}; ${form.background_preview ? 'background-image: url(' + form.background_preview + '); background-size: cover; background-position: center;' : ''}`">
-                        <div class="flex h-full flex-col" style="font-family: 'Inter', sans-serif;">
-                            <div class="shrink-0 px-2.5 py-1.5" :style="`background-image: linear-gradient(135deg, ${form.secondary_color}, ${form.primary_color})`">
-                                <div class="flex items-center gap-1.5">
-                                    @if (auth()->user()->school->logoUrl())
-                                        <img src="{{ auth()->user()->school->logoUrl() }}" class="h-6 w-6 shrink-0 rounded-full border border-white/60 object-cover">
-                                    @endif
-                                    <p class="truncate text-[8px] font-extrabold uppercase leading-tight text-white">{{ auth()->user()->school->name }}</p>
-                                </div>
-                            </div>
+                    {{-- The specimen is the REAL card, rendered by the real
+                         templates and fetched again whenever a colour or the
+                         card type changes.
 
-                            <div class="flex flex-1 gap-2 p-2" :class="form.orientation === 'landscape' ? 'flex-row items-center' : 'flex-col items-center text-center'">
-                                <div class="flex shrink-0 flex-col items-center gap-1">
-                                    <span class="flex h-14 w-14 items-center justify-center overflow-hidden rounded-[4px] border text-sm font-bold text-gray-400" :style="`border-color: ${form.primary_color}`">JD</span>
-                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[4px] bg-gray-100 text-[4.5px] font-semibold text-gray-400">QR</span>
-                                </div>
-
-                                <div class="min-w-0 flex-1 space-y-1" :class="form.orientation === 'landscape' ? '' : 'w-full'">
-                                    <p class="truncate text-[9px] leading-tight">
-                                        <span class="font-extrabold" :style="`color: ${form.secondary_color}`">Jane</span>
-                                        <span class="font-medium text-gray-500">Doe</span>
-                                    </p>
-                                    <div>
-                                        <p class="text-[5px] font-bold uppercase tracking-wide text-gray-400" x-text="form.type === 'student' ? 'Class' : 'Department'"></p>
-                                        <p class="truncate text-[7px] font-semibold text-gray-700" x-text="form.type === 'student' ? 'JSS 1' : 'Administration'"></p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[5px] font-bold uppercase tracking-wide text-gray-400" x-text="form.type === 'student' ? 'Adm No.' : 'Staff No.'"></p>
-                                        <p class="truncate text-[7px] font-semibold text-gray-700">SAMPLE-0001</p>
-                                    </div>
-                                    <p class="truncate text-[6px] text-gray-500" x-show="form.show_blood_group">Blood Group: O+</p>
-                                    <div class="flex gap-3" :class="form.orientation === 'landscape' ? '' : 'justify-center'" x-show="form.show_dob">
-                                        <div>
-                                            <p class="text-[5px] font-bold uppercase tracking-wide text-gray-400">DOB</p>
-                                            <p class="truncate text-[6.5px] font-semibold text-gray-700">01-01-2010</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-[5px] font-bold uppercase tracking-wide text-gray-400">Expires</p>
-                                            <p class="truncate text-[6.5px] font-semibold text-gray-700">31-07-2026</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex shrink-0 items-center justify-between px-2.5 py-1" :style="`background-image: linear-gradient(135deg, ${form.secondary_color}, ${form.primary_color})`">
-                                <p class="truncate text-[5.5px] font-semibold text-white/80">SAMPLE-CARD-000001</p>
-                            </div>
+                         It used to be a miniature drawn by hand here - a
+                         gradient header, a small photo box, an "Authorized
+                         Signature" line. None of it was the card. It was
+                         written once, the card moved on, and what a School
+                         Admin approved stopped resembling what printed. --}}
+                    <div class="relative" style="width: 53.98mm; min-height: 85.6mm;">
+                        <div x-show="sampleLoading" class="absolute inset-0 z-10 flex items-center justify-center rounded-[6px] bg-white/70 dark:bg-gray-900/70" style="display: none;">
+                            <i class="fa-solid fa-circle-notch fa-spin text-primary-500"></i>
                         </div>
+
+                        <div x-show="side === 'front'" x-html="sampleFront"></div>
+                        <div x-show="side === 'back'" style="display: none;" x-html="sampleBack"></div>
                     </div>
 
-                    <div x-show="side === 'back'" style="display: none;" class="overflow-hidden rounded-[6px] border border-gray-300 bg-white text-gray-900 shadow-sm" :style="`width: ${form.orientation === 'landscape' ? '85.6mm' : '53.98mm'}; height: ${form.orientation === 'landscape' ? '53.98mm' : '85.6mm'};`">
-                        <div class="flex h-full flex-col" style="font-family: 'Inter', sans-serif;">
-                            <div class="shrink-0 px-2.5 py-1.5 text-center" :style="`background-image: linear-gradient(135deg, ${form.secondary_color}, ${form.primary_color})`">
-                                <p class="text-[5.5px] font-semibold leading-tight text-white/80">If found, please return to</p>
-                                <p class="truncate text-[7px] font-extrabold uppercase leading-tight text-white">{{ auth()->user()->school->name }}</p>
-                            </div>
-                            <div class="flex flex-1 flex-col items-center justify-center gap-2 p-2 text-center">
-                                <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-[4px] bg-gray-100 text-[5px] font-semibold text-gray-400">QR</span>
-                                <div class="flex w-full items-end justify-between gap-2 border-t pt-1.5" :style="`border-color: ${form.primary_color}`">
-                                    <div class="flex-1 text-left">
-                                        <div class="border-b border-dashed border-gray-400" style="height: 10px;"></div>
-                                        <p class="mt-0.5 text-[5px] text-gray-400">Authorized Signature</p>
-                                    </div>
-                                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[3px] border border-dashed border-gray-300 text-center text-[4.5px] text-gray-400">Stamp</div>
-                                </div>
-                            </div>
-                            <div class="shrink-0 px-2.5 py-1" :style="`background-image: linear-gradient(135deg, ${form.secondary_color}, ${form.primary_color})`">
-                                <p class="truncate text-center text-[5px] text-white/70">SAMPLE-CARD-000001</p>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="text-center text-[11px] leading-snug text-gray-400 dark:text-gray-500">
+                        Sample details. Real cards use each pupil&rsquo;s or staff member&rsquo;s own record.
+                    </p>
                 </div>
             </div>
         </div>

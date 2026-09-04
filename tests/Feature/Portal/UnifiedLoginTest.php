@@ -66,12 +66,18 @@ test('a staff member can sign in through the unified portal on the default host 
 });
 
 test('a guardian can sign in through the unified portal on the default host using a school code', function () {
-    $guardian = Guardian::factory()->create(['school_id' => $this->school->id]);
+    // A parent's login is their Parent ID or phone number, never their email -
+    // and the unified form's own field is already called "login", so the
+    // guardian branch is no longer a special case here.
+    $guardian = Guardian::factory()->create([
+        'school_id' => $this->school->id,
+        'guardian_number' => 'PAR-UNIFIED-1',
+    ]);
 
     $response = $this->post(route('portal.attempt'), [
         'role' => 'guardian',
         'school_code' => $this->school->school_code,
-        'login' => $guardian->email,
+        'login' => 'PAR-UNIFIED-1',
         'password' => 'password',
     ]);
 
@@ -97,12 +103,12 @@ test('the default host requires a school code and rejects an unknown one without
 });
 
 test('the school code field is not required when the school is resolved from the tenant domain', function () {
-    config(['custom_domain.tenant_base_domain' => 'edunest-test.com']);
-    config(['app.url' => 'https://edunest-test.com']);
+    config(['custom_domain.tenant_base_domain' => 'scholarnest-test.com']);
+    config(['app.url' => 'https://scholarnest-test.com']);
 
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
 
-    $response = $this->post("http://{$this->school->slug}.edunest-test.com/portal/sign-in", [
+    $response = $this->post("http://{$this->school->subdomain}.scholarnest-test.com/portal/sign-in", [
         'role' => 'web',
         'login' => $admin->email,
         'password' => 'password',

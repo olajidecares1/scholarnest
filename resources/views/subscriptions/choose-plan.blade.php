@@ -21,23 +21,42 @@
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 @foreach ($plans as $plan)
+                    @php $available = $plan->key->isAvailableToSubscribe(); @endphp
+
                     <label
-                        class="relative flex cursor-pointer flex-col rounded-[8px] border-2 bg-white p-6 shadow-sm transition"
-                        :class="planId === {{ $plan->id }} ? 'border-primary-500 ring-2 ring-primary-100' : 'border-gray-200 hover:border-gray-300'"
+                        @class([
+                            'relative flex flex-col rounded-[8px] border-2 bg-white p-6 shadow-sm transition',
+                            'cursor-pointer' => $available,
+                            // Coming soon: visibly out of reach, and with no
+                            // radio inside it to select. The server refuses it
+                            // too - see PlanKey::isAvailableToSubscribe.
+                            'cursor-not-allowed border-gray-200 opacity-60' => ! $available,
+                        ])
+                        @if ($available)
+                            :class="planId === {{ $plan->id }} ? 'border-primary-500 ring-2 ring-primary-100' : 'border-gray-200 hover:border-gray-300'"
+                        @endif
                     >
-                        @if ($plan->is_popular)
+                        @if ($plan->is_popular && $available)
                             <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary-500 px-3 py-1 text-xs font-bold text-white">
                                 Most Popular
                             </span>
                         @endif
 
-                        <input
-                            type="radio"
-                            name="plan_id"
-                            value="{{ $plan->id }}"
-                            x-model.number="planId"
-                            class="sr-only"
-                        >
+                        @if (! $available)
+                            <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gray-800 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+                                Coming Soon
+                            </span>
+                        @endif
+
+                        @if ($available)
+                            <input
+                                type="radio"
+                                name="plan_id"
+                                value="{{ $plan->id }}"
+                                x-model.number="planId"
+                                class="sr-only"
+                            >
+                        @endif
 
                         <span class="flex h-12 w-12 items-center justify-center rounded-[5px] bg-primary-100 text-primary-600 lg:rounded-[10px]">
                             @if ($plan->key->value === 'basic')
@@ -60,31 +79,21 @@
                         <p class="mt-1 text-sm text-gray-600">{{ $plan->tagline }}</p>
 
                         <div class="mt-4 rounded-[5px] bg-gray-50 p-4 lg:rounded-[10px]">
-                            @if ($plan->has_custom_pricing)
-                                <p class="text-xl font-extrabold text-gray-900">Custom Pricing</p>
-                                <p class="text-xs text-gray-500">Contact Sales for Pricing</p>
-                            @elseif ($plan->key->value === 'basic')
+                            {{-- Basic and Standard are both priced per pupil
+                                 now - the same sentence, at each plan's own
+                                 rate, read from the plan record rather than
+                                 written here. Standard's ₦200,000-a-term fee
+                                 and its monthly/per-term toggle are gone with
+                                 it; there is one way to be billed. --}}
+                            @if (! $available)
+                                <p class="text-xl font-extrabold text-gray-900">Coming Soon</p>
+                                <p class="text-xs text-gray-500">Not yet available for subscription</p>
+                            @elseif ($plan->price_per_student_per_term)
                                 <p class="text-xl font-extrabold text-gray-900">&#8358;{{ number_format($plan->price_per_student_per_term, 0) }}</p>
                                 <p class="text-xs text-gray-500">Per Student / Per Term &mdash; Billed based on number of students</p>
                             @else
-                                <div x-show="planId === {{ $plan->id }}" x-cloak class="mb-3 flex rounded-[8px] bg-white p-1 text-xs font-semibold">
-                                    <button type="button" @click="billingCycle = 'monthly'" :class="billingCycle === 'monthly' ? 'bg-primary-500 text-white' : 'text-gray-500'" class="flex-1 rounded-[8px] px-3 py-1.5">Monthly</button>
-                                    <button type="button" @click="billingCycle = 'per_term'" :class="billingCycle === 'per_term' ? 'bg-primary-500 text-white' : 'text-gray-500'" class="flex-1 rounded-[8px] px-3 py-1.5">Per Term</button>
-                                </div>
-                                <input type="hidden" name="billing_cycle" :value="planId === {{ $plan->id }} ? billingCycle : ''">
-
-                                <template x-if="billingCycle === 'monthly'">
-                                    <div>
-                                        <p class="text-xl font-extrabold text-gray-900">&#8358;{{ number_format($plan->price_monthly, 0) }}</p>
-                                        <p class="text-xs text-gray-500">Per Month</p>
-                                    </div>
-                                </template>
-                                <template x-if="billingCycle === 'per_term'">
-                                    <div>
-                                        <p class="text-xl font-extrabold text-gray-900">&#8358;{{ number_format($plan->price_per_term, 0) }}</p>
-                                        <p class="text-xs text-gray-500">Per Term</p>
-                                    </div>
-                                </template>
+                                <p class="text-xl font-extrabold text-gray-900">Custom Pricing</p>
+                                <p class="text-xs text-gray-500">Contact Sales for Pricing</p>
                             @endif
                         </div>
 
@@ -99,13 +108,26 @@
                             @endforeach
                         </ul>
 
-                        <div
-                            class="mt-6 w-full rounded-[8px] border-2 px-4 py-2.5 text-center text-sm font-semibold transition"
-                            :class="planId === {{ $plan->id }} ? 'border-primary-500 bg-primary-500 text-white' : 'border-gray-200 text-gray-700'"
-                        >
-                            <span x-show="planId !== {{ $plan->id }}">Choose {{ $plan->name }}</span>
-                            <span x-show="planId === {{ $plan->id }}" x-cloak>Selected</span>
-                        </div>
+                        @if ($available)
+                            <div
+                                class="mt-6 w-full rounded-[8px] border-2 px-4 py-2.5 text-center text-sm font-semibold transition"
+                                :class="planId === {{ $plan->id }} ? 'border-primary-500 bg-primary-500 text-white' : 'border-gray-200 text-gray-700'"
+                            >
+                                <span x-show="planId !== {{ $plan->id }}">Choose {{ $plan->name }}</span>
+                                <span x-show="planId === {{ $plan->id }}" x-cloak>Selected</span>
+                            </div>
+                        @else
+                            {{-- A real disabled button, not a styled div: it
+                                 cannot be clicked, cannot be focused, and is
+                                 announced as unavailable. --}}
+                            <button
+                                type="button"
+                                disabled
+                                class="mt-6 w-full cursor-not-allowed rounded-[8px] border-2 border-gray-200 bg-gray-100 px-4 py-2.5 text-center text-sm font-semibold text-gray-500"
+                            >
+                                Coming Soon
+                            </button>
+                        @endif
                     </label>
                 @endforeach
             </div>

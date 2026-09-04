@@ -12,7 +12,7 @@ beforeEach(function () {
     $this->actingAs($this->admin)->post(route('website.publish'));
 });
 
-test('a school with no favicon renders an empty icon link, never EduNest\'s own favicon', function () {
+test('a school with no favicon renders an empty icon link, never ScholarNest\'s own favicon', function () {
     $this->get(route('public.school-website', $this->school))
         ->assertOk()
         ->assertSee('<link rel="icon" href="data:,">', false);

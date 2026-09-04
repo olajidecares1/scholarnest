@@ -77,9 +77,14 @@ class ResolveTenantFromCustomDomain
             return null;
         }
 
-        $slug = Str::beforeLast($host, ".{$baseDomain}");
+        $label = Str::beforeLast($host, ".{$baseDomain}");
 
-        $school = School::with('activeSubscription.plan')->where('slug', $slug)->first();
+        // Looked up by the subdomain column, which is what School::publicUrl()
+        // and RedirectToCustomDomain both build the address from. It is not the
+        // slug: the slug has hyphens and the address deliberately does not, so
+        // matching on it here would 404 every school with more than one word in
+        // its name.
+        $school = School::with('activeSubscription.plan')->where('subdomain', $label)->first();
 
         return $school && $school->is_active && $school->hasPlanAccess(PlanKey::Standard) ? $school : null;
     }

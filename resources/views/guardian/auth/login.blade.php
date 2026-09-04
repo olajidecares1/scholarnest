@@ -1,10 +1,10 @@
-<x-auth-layout :simple="true" :title="'Parent Portal · '.$school->name">
+<x-auth-layout :simple="true" :header="false" :title="'Parent Portal · '.$school->name">
     <x-auth-card>
         <div class="text-center">
             @if ($school->logoUrl())
-                <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="mx-auto h-14 w-14 rounded-[10px] object-cover shadow-md">
+                <img src="{{ $school->logoUrl() }}" alt="{{ $school->name }}" class="mx-auto h-20 w-20 rounded-[10px] object-cover shadow-md">
             @else
-                <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-primary-600 text-lg font-extrabold text-white shadow-md">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
+                <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-[10px] bg-primary-600 text-lg font-extrabold text-white shadow-md">{{ Str::of($school->name)->substr(0, 1)->upper() }}</span>
             @endif
             <h1 class="mt-3 text-lg font-bold text-gray-900">{{ $school->name }}</h1>
             <p class="text-xs font-semibold uppercase tracking-wide text-primary-500">Parent Portal</p>
@@ -15,18 +15,29 @@
         <form method="POST" action="{{ url()->current() }}" class="mt-6 space-y-2">
             @csrf
 
+            {{-- Phone number or Parent ID, never email. A parent may not have
+                 an email address, may share one with their spouse, or may
+                 change it; the Parent ID is issued by the school and the phone
+                 number is what the school already holds for them.
+
+                 type="text" rather than "tel", because this box takes a Parent
+                 ID too and a numeric keypad cannot type one. --}}
             <x-text-field
-                id="email"
-                name="email"
-                type="email"
-                label="Email Address"
-                icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
-                :value="old('email')"
+                id="login"
+                name="login"
+                type="text"
+                label="Phone Number or Parent ID"
+                icon="M6.5 3.5h11a1 1 0 011 1v15a1 1 0 01-1 1h-11a1 1 0 01-1-1v-15a1 1 0 011-1z"
+                :value="old('login')"
                 required
                 autofocus
                 autocomplete="username"
                 error-bag="default"
             />
+
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+                Use the phone number your child&rsquo;s school has on file, or the Parent ID they issued you.
+            </p>
 
             <x-auth-password-input
                 id="password"

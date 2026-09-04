@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Subscriptions;
 
 use App\Enums\BillingCycle;
-use App\Enums\PlanKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Subscriptions\ChoosePlanRequest;
 use App\Models\Plan;
@@ -29,36 +28,25 @@ class ChoosePlanController extends Controller
     {
         $plan = Plan::findOrFail($request->integer('plan_id'));
 
-        if ($plan->key === PlanKey::Exclusive) {
-            return redirect()->route('subscriptions.contact-sales');
-        }
-
-        if ($plan->key === PlanKey::Basic) {
-            // The quantity is asked for on its own step next, so only the plan
-            // is settled here. Anything already entered is left alone, so
-            // stepping back to change plan and returning does not silently
-            // wipe the number the school had typed.
-            $this->wizard->put([
-                'plan_id' => $plan->id,
-                'billing_cycle' => BillingCycle::PerStudentPerTerm->value,
+        // Exclusive is Coming Soon. Refused HERE as well as hidden on the
+        // page, because a disabled radio button is a suggestion and a posted
+        // plan_id is not - anything that only stopped the click would let a
+        // school onto a plan nobody is ready to sell by editing the form.
+        if (! $plan->key->isAvailableToSubscribe()) {
+            return back()->withErrors([
+                'plan_id' => $plan->key->label().' is coming soon and cannot be subscribed to yet.',
             ]);
-
-            return redirect()->route('subscriptions.students');
         }
 
-        // Standard: a flat fee, so the price is settled here and there is no
-        // student-quantity step to visit.
-        $billingCycle = BillingCycle::from($request->string('billing_cycle')->value());
-
+        // Basic AND Standard: both priced per student now, so both ask the
+        // quantity on its own step next and only the plan is settled here.
+        // Anything already entered is left alone, so stepping back to change
+        // plan and returning does not silently wipe the number a school typed.
         $this->wizard->put([
             'plan_id' => $plan->id,
-            'billing_cycle' => $billingCycle->value,
-            'students_count' => null,
-            'amount' => $billingCycle === BillingCycle::Monthly
-                ? (float) $plan->price_monthly
-                : (float) $plan->price_per_term,
+            'billing_cycle' => BillingCycle::PerStudentPerTerm->value,
         ]);
 
-        return redirect()->route('subscriptions.billing-details');
+        return redirect()->route('subscriptions.students');
     }
 }

@@ -1,4 +1,4 @@
-<x-dashboard-layout page-title="Communications" page-subtitle="Announcements sent to your school from EduNest.">
+<x-dashboard-layout page-title="Communications" page-subtitle="Announcements sent to your school from ScholarNest.">
     <div class="space-y-4">
         @forelse ($announcements as $announcement)
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
@@ -20,7 +20,7 @@
             </div>
         @empty
             <div class="rounded-[5px] border border-dashed border-gray-300 p-10 text-center text-sm text-gray-500 dark:border-gray-600 dark:text-gray-400 lg:rounded-[10px]">
-                No announcements yet. You&rsquo;ll see platform updates from EduNest here.
+                No announcements yet. You&rsquo;ll see platform updates from ScholarNest here.
             </div>
         @endforelse
 
