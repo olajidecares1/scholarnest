@@ -16,9 +16,15 @@
 
 @php
     $id = $attributes->get('id') ?? $name;
-    $errorMessages = $errors->getBag($errorBag)->get($name);
+    $bag = $errors->getBag($errorBag);
+    $errorMessages = $bag->get($name);
     $hasError = count($errorMessages) > 0;
-    $resolvedValue = old($name, $value);
+
+    // Only the form that failed repopulates from old input. See the note in
+    // x-text-field, which does the same thing for the same reason.
+    $repopulate = $errorBag === 'default' || $bag->isNotEmpty();
+
+    $resolvedValue = $repopulate ? old($name, $value) : $value;
 @endphp
 
 <div>

@@ -118,20 +118,40 @@
                     @csrf
                     @method('PUT')
 
+                    {{-- EVERY FIELD ID IS SCOPED TO ITS METHOD.
+
+                         This page renders one form per payment method, and the
+                         fields used to carry bare ids - so two inputs on the
+                         page were both id="account_number", and both
+                         <label for="account_number"> pointed at whichever came
+                         first. Clicking "Account Number" on the second card
+                         put the cursor in the FIRST card's field, and the
+                         Super Admin typed their new account number into the
+                         wrong form. It saved perfectly, to the wrong row, and
+                         every school carried on seeing the old details. --}}
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <x-text-field name="label" label="Name shown to schools" :value="$method->label" required />
-                        <x-text-field name="description" label="Short description" :value="$method->description" helper="Optional." />
-                        <x-text-field name="bank_name" label="Bank Name" :value="$method->detail('bank_name')" />
-                        <x-text-field name="account_name" label="Account Name" :value="$method->detail('account_name')" />
-                        <x-text-field name="account_number" label="Account Number" :value="$method->detail('account_number')" helper="Digits only." />
-                        <x-text-field name="sort_code" label="Sort Code" :value="$method->detail('sort_code')" helper="Optional." />
+                        <x-text-field :id="$method->key.'-label'" name="label" label="Name shown to schools" :value="$method->label" :error-bag="$method->key" required />
+                        <x-text-field :id="$method->key.'-description'" name="description" label="Short description" :value="$method->description" :error-bag="$method->key" helper="Optional." />
+
+                        {{-- Bank fields only where a school actually transfers
+                             money. Paystack collects it itself, so offering
+                             them there invites somebody to fill in a row
+                             nothing reads. --}}
+                        @if ($method->usesBankAccount())
+                            <x-text-field :id="$method->key.'-bank_name'" name="bank_name" label="Bank Name" :value="$method->detail('bank_name')" :error-bag="$method->key" />
+                            <x-text-field :id="$method->key.'-account_name'" name="account_name" label="Account Name" :value="$method->detail('account_name')" :error-bag="$method->key" />
+                            <x-text-field :id="$method->key.'-account_number'" name="account_number" label="Account Number" :value="$method->detail('account_number')" :error-bag="$method->key" helper="Digits only." />
+                            <x-text-field :id="$method->key.'-sort_code'" name="sort_code" label="Sort Code" :value="$method->detail('sort_code')" :error-bag="$method->key" helper="Optional." />
+                        @endif
                     </div>
 
                     <x-textarea-field
+                        :id="$method->key.'-instructions'"
                         name="instructions"
                         label="Instructions shown to schools"
                         :value="$method->instructions"
                         rows="3"
+                        :error-bag="$method->key"
                         helper="What the school should do to pay. Shown above the account details."
                     />
 

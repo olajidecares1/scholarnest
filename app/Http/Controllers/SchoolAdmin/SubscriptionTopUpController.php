@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Enums\PaymentMethod;
 use App\Enums\SubscriptionTopUpStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Subscriptions\StoreTopUpRequest;
 use App\Models\AuditLog;
+use App\Models\PaymentMethodSetting;
 use App\Models\SubscriptionTopUp;
 use App\Notifications\NewSubscriptionTopUpSubmittedNotification;
 use App\Notifications\SubscriptionInvoiceIssuedNotification;
@@ -44,6 +46,19 @@ class SubscriptionTopUpController extends Controller
         return view('school-admin.subscriptions.top-up', [
             'plan' => $subscription->plan,
             'subscription' => $subscription,
+
+            // The account a school transfers to, from Payment Settings - the
+            // same row the subscription wizard reads. This page used to carry
+            // the details in its own template, so the ScholarNest Team could
+            // change the account and every top-up page went on showing the
+            // placeholder that shipped with the migration.
+            //
+            // Null when the method has been disabled or never set up; the view
+            // says so rather than inventing an account.
+            'bankTransfer' => PaymentMethodSetting::query()
+                ->enabled()
+                ->where('key', PaymentMethod::BankTransfer->value)
+                ->first(),
 
             // Both read through the service that enforces the limit, so this
             // page cannot show the school a capacity the system would not

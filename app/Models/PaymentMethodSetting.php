@@ -118,6 +118,17 @@ class PaymentMethodSetting extends Model
     }
 
     /**
+     * Does this method take payment into a bank account?
+     *
+     * Decides whether the Payment Settings form offers bank fields at all.
+     * See App\Enums\PaymentMethod::usesBankAccount().
+     */
+    public function usesBankAccount(): bool
+    {
+        return $this->method()?->usesBankAccount() ?? false;
+    }
+
+    /**
      * Is this still the placeholder that shipped with the migration?
      *
      * The seeded values were the ones hard-coded into the template, kept so

@@ -55,7 +55,10 @@ class PaymentSettingsController extends Controller
      */
     public function update(Request $request, PaymentMethodSetting $method): RedirectResponse
     {
-        $validated = $request->validate([
+        // Into a bag named after the method, because this page carries one
+        // form per method and a shared bag puts Bank Transfer's error under
+        // Paystack's field as well.
+        $validated = $request->validateWithBag($method->key, [
             'label' => ['required', 'string', 'max:80'],
             'description' => ['nullable', 'string', 'max:150'],
             'instructions' => ['nullable', 'string', 'max:1000'],
@@ -73,20 +76,40 @@ class PaymentSettingsController extends Controller
             'sort_code.regex' => 'A sort code can only contain digits and dashes.',
         ]);
 
-        $method->update([
+        $attributes = [
             'label' => $validated['label'],
             'description' => $validated['description'] ?? null,
             'instructions' => $validated['instructions'] ?? null,
-            'details' => [
-                ...$method->details ?? [],
-                'bank_name' => $validated['bank_name'] ?? null,
-                'account_name' => $validated['account_name'] ?? null,
-                'account_number' => isset($validated['account_number'])
-                    ? preg_replace('/\s+/', '', $validated['account_number'])
-                    : null,
-                'sort_code' => $validated['sort_code'] ?? null,
-            ],
-        ]);
+        ];
+
+        /*
+         * Bank details are rewritten only for a method that HAS a bank
+         * account, and only from fields that were actually submitted.
+         *
+         * Both halves matter. Paystack's form carries no bank fields at all
+         * now, so without the first check saving it would blank the details
+         * on its row for no reason. And `$validated[x] ?? null` on a field
+         * the form did not send used to write null over a perfectly good
+         * account number - a form that omits one input for any reason would
+         * quietly wipe the account schools are told to pay into.
+         */
+        if ($method->usesBankAccount()) {
+            $details = $method->details ?? [];
+
+            foreach (['bank_name', 'account_name', 'account_number', 'sort_code'] as $field) {
+                if (! array_key_exists($field, $validated)) {
+                    continue;
+                }
+
+                $details[$field] = $field === 'account_number' && filled($validated[$field])
+                    ? preg_replace('/\s+/', '', $validated[$field])
+                    : ($validated[$field] ?: null);
+            }
+
+            $attributes['details'] = $details;
+        }
+
+        $method->update($attributes);
 
         AuditLog::record(
             'payment-method.updated',

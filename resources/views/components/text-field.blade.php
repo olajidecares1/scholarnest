@@ -30,9 +30,27 @@
 
 @php
     $id = $attributes->get('id') ?? $name;
-    $errorMessages = $errors->getBag($errorBag)->get($name);
+    $bag = $errors->getBag($errorBag);
+    $errorMessages = $bag->get($name);
     $hasError = count($errorMessages) > 0;
-    $resolvedValue = old($name, $value);
+
+    /*
+     * old() is keyed by field NAME and nothing else, so on a page carrying
+     * SEVERAL forms with the same field names - Payment Settings renders one
+     * per payment method - a failed save in one form repopulates every other
+     * form with the values that were just rejected.
+     *
+     * Repopulating is only ever wanted in the form that actually failed, and
+     * that form is the one whose error bag has something in it. A field in a
+     * named bag with no errors shows the stored value, which is what it is
+     * for.
+     *
+     * Fields in the default bag are unchanged: one form on a page is the
+     * ordinary case, and there old() is exactly right.
+     */
+    $repopulate = $errorBag === 'default' || $bag->isNotEmpty();
+
+    $resolvedValue = $repopulate ? old($name, $value) : $value;
 @endphp
 
 <div>

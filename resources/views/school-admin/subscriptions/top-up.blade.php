@@ -73,15 +73,41 @@
                     </dl>
                 </div>
 
-                <div>
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Bank Transfer Details</h3>
-                    <p class="field-hint mt-0.5">Make payment to the account below, then upload your receipt. Your limit increases once verified.</p>
+                {{-- THE ACCOUNT COMES FROM PAYMENT SETTINGS, not from here.
 
-                    <dl class="mt-3 space-y-2 rounded-[5px] bg-gray-50 p-4 text-sm dark:bg-gray-900/40 lg:rounded-[10px]">
-                        <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Bank Name</dt><dd class="font-semibold text-gray-900 dark:text-white">GTBank</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Account Name</dt><dd class="font-semibold text-gray-900 dark:text-white">ScholarNest Technologies Ltd</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Account Number</dt><dd class="font-semibold text-gray-900 dark:text-white">0123456789</dd></div>
-                    </dl>
+                     These three lines were typed into this template, so a
+                     school topping up was shown GTBank / ScholarNest
+                     Technologies Ltd / 0123456789 whatever the ScholarNest
+                     Team had actually saved - the placeholder that shipped
+                     with the migration, on every plan, for ever. The
+                     subscription wizard was moved onto the database and this
+                     page was missed, which is why updating Payment Settings
+                     appeared to change nothing here.
+
+                     Money transferred to a placeholder does not come back, so
+                     when no account has been entered this says so rather than
+                     inventing one. --}}
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $bankTransfer?->label ?? 'Bank Transfer' }} Details</h3>
+                    <p class="field-hint mt-0.5">
+                        {{ $bankTransfer?->instructions ?: 'Make payment to the account below, then upload your receipt. Your limit increases once verified.' }}
+                    </p>
+
+                    @if ($bankTransfer?->bankFields())
+                        <dl class="mt-3 space-y-2 rounded-[5px] bg-gray-50 p-4 text-sm dark:bg-gray-900/40 lg:rounded-[10px]">
+                            @foreach ($bankTransfer->bankFields() as $fieldLabel => $fieldValue)
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-500 dark:text-gray-400">{{ $fieldLabel }}</dt>
+                                    <dd class="font-semibold text-gray-900 dark:text-white">{{ $fieldValue }}</dd>
+                                </div>
+                            @endforeach
+                        </dl>
+                    @else
+                        <p class="mt-3 rounded-[5px] bg-amber-50 p-4 text-sm font-semibold text-amber-900 lg:rounded-[10px]">
+                            No payment account has been set up yet. Please contact ScholarNest before transferring anything.
+                        </p>
+                    @endif
+
                     <input type="hidden" name="payment_method" value="bank_transfer">
                 </div>
 
