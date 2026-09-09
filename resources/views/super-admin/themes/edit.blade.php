@@ -93,7 +93,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Favicon</h2>
-            <p class="field-hint mt-1">PNG or ICO. Max 512KB.</p>
+            <p class="field-hint mt-1">PNG or ICO. Max 2MB.</p>
 
             <div class="mt-4 flex items-center gap-4">
                 <span class="flex h-10 w-10 items-center justify-center rounded-[5px] border border-gray-200 bg-gray-50 p-1.5 dark:border-gray-700 dark:bg-gray-900 lg:rounded-[10px]">

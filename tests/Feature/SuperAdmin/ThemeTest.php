@@ -160,3 +160,61 @@ describe('the favicon actually changes', function () {
         expect(Favicon::for()->href)->toContain('?v=');
     });
 });
+
+/**
+ * The size limit, which was simply too small.
+ *
+ * 512KB was the tightest upload limit in the application - half what a SCHOOL
+ * is allowed for its own favicon, a quarter of the platform logo's - and a
+ * favicon legitimately exceeds it: a .ico carrying the usual 16/32/48/64/128/
+ * 256px set runs to several hundred KB, and a 512px PNG passes it alone. The
+ * file is stored once and served from cache, so there was nothing to buy by
+ * being mean about it.
+ */
+describe('the favicon size limit', function () {
+    test('a favicon between the old and new limits is accepted', function () {
+        // 800KB. Refused outright before, which is what "it says too large
+        // when it is not" actually was.
+        $this->actingAs($this->superAdmin)
+            ->post(route('super-admin.themes.favicon.update'), [
+                'favicon' => UploadedFile::fake()->create('favicon.ico', 800, 'image/vnd.microsoft.icon'),
+            ])
+            ->assertSessionHasNoErrors();
+
+        expect(Setting::current()->favicon_path)->toEndWith('.ico');
+    });
+
+    test('a genuinely oversized file is still refused, and told why', function () {
+        $this->actingAs($this->superAdmin)
+            ->post(route('super-admin.themes.favicon.update'), [
+                'favicon' => UploadedFile::fake()->create('favicon.png', 3000, 'image/png'),
+            ])
+            ->assertSessionHasErrors('favicon');
+
+        expect(session('errors')->first('favicon'))->toContain('larger than 2MB');
+    });
+
+    test('the form advertises the limit it actually enforces', function () {
+        // The hint said 512KB while the rule said 512KB - both wrong for a
+        // real favicon. They have to agree, and they have to be workable.
+        $this->actingAs($this->superAdmin)
+            ->get(route('super-admin.themes.index'))
+            ->assertOk()
+            ->assertSee('Max 2MB')
+            ->assertDontSee('Max 512KB');
+    });
+
+    test('an upload that never arrived is not blamed for its size', function () {
+        // Laravel reports a broken upload as "failed to upload" and never
+        // reaches the size rule, so the two cases stay distinguishable.
+        $file = UploadedFile::fake()->create('favicon.png', 4, 'image/png');
+
+        $this->actingAs($this->superAdmin)
+            ->post(route('super-admin.themes.favicon.update'), [
+                'favicon' => new UploadedFile($file->getPathname(), 'favicon.png', 'image/png', UPLOAD_ERR_PARTIAL, true),
+            ])
+            ->assertSessionHasErrors('favicon');
+
+        expect(session('errors')->first('favicon'))->not->toContain('larger than');
+    });
+});

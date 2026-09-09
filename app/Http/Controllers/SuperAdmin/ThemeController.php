@@ -45,6 +45,8 @@ class ThemeController extends Controller
             // that is silently rejected is how somebody spends an afternoon
             // wondering why their logo will not upload.
             'logo' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+        ], [
+            'logo.max' => 'The logo may not be larger than 2MB.',
         ]);
 
         $settings = Setting::current();
@@ -83,15 +85,25 @@ class ThemeController extends Controller
             'favicon' => [
                 'required',
                 'file',
+
                 // image/x-icon is what most browsers and editors write;
                 // image/vnd.microsoft.icon is the registered name, and which
                 // one finfo reports depends on the platform's magic database.
                 'mimetypes:image/png,image/x-icon,image/vnd.microsoft.icon',
-                'max:512',
+
+                // 2MB, matching the logo above rather than the 512KB this
+                // used to carry. That was the tightest limit in the whole
+                // application - half what a SCHOOL's own favicon is allowed -
+                // and it is genuinely too small: a .ico holding the usual
+                // 16/32/48/64/128/256px set runs to several hundred KB, and a
+                // 512px PNG passes 512KB on its own. The file is stored once
+                // and served from cache, so there is nothing to be gained by
+                // being mean about it.
+                'max:2048',
             ],
         ], [
             'favicon.mimetypes' => 'The favicon must be a PNG or ICO file.',
-            'favicon.max' => 'The favicon may not be larger than 512KB.',
+            'favicon.max' => 'The favicon may not be larger than 2MB.',
         ]);
 
         $settings = Setting::current();
