@@ -1,1 +1,1 @@
-<img src="{{ asset('images/logo-mark.png') }}" alt="ScholarNest" {{ $attributes }}>
+<img src="{{ asset('images/logo-mark.png') }}" alt="AkademicNest" {{ $attributes }}>

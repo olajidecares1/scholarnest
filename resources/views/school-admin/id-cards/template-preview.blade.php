@@ -20,7 +20,7 @@
                 @if ($template)
                     Showing your default template, &ldquo;{{ $template->name }}&rdquo;.
                 @else
-                    You have not saved a template for this card type yet, so this shows the ScholarNest default.
+                    You have not saved a template for this card type yet, so this shows the AkademicNest default.
                 @endif
             </p>
 

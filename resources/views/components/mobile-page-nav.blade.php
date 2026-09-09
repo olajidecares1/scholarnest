@@ -3,7 +3,7 @@
     'next' => null,
     'currentLabel' => null,
 
-    // The School Admin and ScholarNest Team layouts hide this above lg, where
+    // The School Admin and AkademicNest Team layouts hide this above lg, where
     // their sidebar takes over. The three portals have no desktop layout to
     // fall back to, so hiding it there would remove their prev/next
     // navigation on exactly the screens that still have it. Opt-in, so the

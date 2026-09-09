@@ -377,7 +377,7 @@ test('the review step says activation waits on the super admin', function () {
     $this->actingAs($user)
         ->get(route('subscriptions.review'))
         ->assertOk()
-        ->assertSee('Awaiting ScholarNest Team Approval');
+        ->assertSee('Awaiting AkademicNest Team Approval');
 });
 
 test('the price on the review step follows the configured plan price', function () {

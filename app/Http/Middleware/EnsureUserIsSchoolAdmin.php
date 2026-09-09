@@ -52,7 +52,7 @@ class EnsureUserIsSchoolAdmin
         // registration, and this message beside a "register your school" form
         // reads as an instruction to do exactly that.
         return redirect()->route('portal.show')->withErrors([
-            'login' => 'This school account is no longer available. Please contact ScholarNest support if you believe this is a mistake.',
+            'login' => 'This school account is no longer available. Please contact AkademicNest support if you believe this is a mistake.',
         ]);
     }
 }

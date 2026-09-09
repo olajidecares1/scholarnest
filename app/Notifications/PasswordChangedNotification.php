@@ -28,9 +28,9 @@ class PasswordChangedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your ScholarNest Password Was Changed')
+            ->subject('Your AkademicNest Password Was Changed')
             ->greeting('Hello '.$notifiable->name.',')
-            ->line('This is a confirmation that the password for your ScholarNest account was just changed.')
+            ->line('This is a confirmation that the password for your AkademicNest account was just changed.')
             ->line('IP address: '.$this->ipAddress)
             ->line('Time: '.now()->toDayDateTimeString())
             ->line('If you made this change, no further action is needed.')

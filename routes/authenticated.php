@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Signed-in ScholarNest accounts
+| Signed-in AkademicNest accounts
 |--------------------------------------------------------------------------
 |
 | The `web` guard: School Admins and the Super Admin. The two large areas

@@ -15,7 +15,7 @@
             Back to Uploads
         </a>
 
-        {{-- The ScholarNest Team CAN start a worker, so they are the audience that
+        {{-- The AkademicNest Team CAN start a worker, so they are the audience that
              gets told which command does it. --}}
         <x-upload-status-panel
             :upload="$upload"

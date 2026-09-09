@@ -14,7 +14,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Request Additional Student/Pupil Spaces</h2>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                Your request is reviewed by a ScholarNest Team before your capacity increases — this is not automatic,
+                Your request is reviewed by a AkademicNest Team before your capacity increases — this is not automatic,
                 and the spaces cannot be used until it is approved.
             </p>
 
@@ -76,8 +76,8 @@
                 {{-- THE ACCOUNT COMES FROM PAYMENT SETTINGS, not from here.
 
                      These three lines were typed into this template, so a
-                     school topping up was shown GTBank / ScholarNest
-                     Technologies Ltd / 0123456789 whatever the ScholarNest
+                     school topping up was shown GTBank / AkademicNest
+                     Technologies Ltd / 0123456789 whatever the AkademicNest
                      Team had actually saved - the placeholder that shipped
                      with the migration, on every plan, for ever. The
                      subscription wizard was moved onto the database and this
@@ -104,7 +104,7 @@
                         </dl>
                     @else
                         <p class="mt-3 rounded-[5px] bg-amber-50 p-4 text-sm font-semibold text-amber-900 lg:rounded-[10px]">
-                            No payment account has been set up yet. Please contact ScholarNest before transferring anything.
+                            No payment account has been set up yet. Please contact AkademicNest before transferring anything.
                         </p>
                     @endif
 

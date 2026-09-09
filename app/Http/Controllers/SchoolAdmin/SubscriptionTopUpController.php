@@ -49,7 +49,7 @@ class SubscriptionTopUpController extends Controller
 
             // The account a school transfers to, from Payment Settings - the
             // same row the subscription wizard reads. This page used to carry
-            // the details in its own template, so the ScholarNest Team could
+            // the details in its own template, so the AkademicNest Team could
             // change the account and every top-up page went on showing the
             // placeholder that shipped with the migration.
             //
@@ -150,6 +150,6 @@ class SubscriptionTopUpController extends Controller
         );
 
         return redirect()->route('students.index')
-            ->with('status', "Your request for {$topUp->additional_students_count} additional student slots was submitted and is awaiting ScholarNest Team approval.");
+            ->with('status', "Your request for {$topUp->additional_students_count} additional student slots was submitted and is awaiting AkademicNest Team approval.");
     }
 }

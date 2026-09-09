@@ -121,7 +121,7 @@ describe('the repair command', function () {
     test('it decodes until stable, so a triple encoding comes all the way back', function () {
         $school = School::factory()->create(['name' => 'Arise &amp;amp; Shine Int School']);
 
-        $this->artisan('scholarnest:normalise-encoded-text')->assertSuccessful();
+        $this->artisan('akademicnest:normalise-encoded-text')->assertSuccessful();
 
         expect($school->fresh()->getRawOriginal('name'))->toBe('Arise & Shine Int School');
     });
@@ -129,7 +129,7 @@ describe('the repair command', function () {
     test('it leaves ordinary text completely alone', function () {
         $untouched = School::factory()->create(['name' => "St. Mary's & Sons (Nigeria) Ltd."]);
 
-        $this->artisan('scholarnest:normalise-encoded-text')->assertSuccessful();
+        $this->artisan('akademicnest:normalise-encoded-text')->assertSuccessful();
 
         expect($untouched->fresh()->getRawOriginal('name'))->toBe("St. Mary's & Sons (Nigeria) Ltd.");
     });
@@ -137,7 +137,7 @@ describe('the repair command', function () {
     test('--dry-run writes nothing', function () {
         $school = School::factory()->create(['name' => 'Arise &amp;amp; Shine Int School']);
 
-        $this->artisan('scholarnest:normalise-encoded-text --dry-run')->assertSuccessful();
+        $this->artisan('akademicnest:normalise-encoded-text --dry-run')->assertSuccessful();
 
         expect($school->fresh()->getRawOriginal('name'))->toBe('Arise &amp;amp; Shine Int School');
     });

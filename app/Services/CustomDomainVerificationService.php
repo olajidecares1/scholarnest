@@ -13,11 +13,11 @@ class CustomDomainVerificationService
      * always names the specific thing that's actually wrong rather than a
      * single generic error:
      *
-     * 1. Ownership - a TXT record at the domain's "_scholarnest-verify"
+     * 1. Ownership - a TXT record at the domain's "_akademicnest-verify"
      *    subdomain containing its verification token. TXT-based ownership
      *    verification works for both root domains and subdomains, unlike
      *    CNAME which most registrars forbid at the zone apex.
-     * 2. Routing - the domain itself actually points at ScholarNest (a CNAME to
+     * 2. Routing - the domain itself actually points at AkademicNest (a CNAME to
      *    the configured target, or an A record to the configured IP for
      *    apex domains). Ownership alone isn't enough to actually serve
      *    traffic - without this check a school could pass verification
@@ -41,7 +41,7 @@ class CustomDomainVerificationService
         if (! $this->routingRecordsMatchTarget($cnameRecords, $aRecords, $cnameTarget, $aRecordIp)) {
             $this->fail($domain, empty($cnameRecords) && empty($aRecords)
                 ? "Domain ownership was confirmed, but {$domain->domain} has no CNAME record yet. Add a CNAME record for {$domain->domain} pointing to {$cnameTarget}."
-                : "Domain ownership was confirmed, but {$domain->domain} isn't pointing to ScholarNest yet. Make sure its CNAME record points to {$cnameTarget}.");
+                : "Domain ownership was confirmed, but {$domain->domain} isn't pointing to AkademicNest yet. Make sure its CNAME record points to {$cnameTarget}.");
 
             return false;
         }

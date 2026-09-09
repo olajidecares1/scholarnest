@@ -8,7 +8,7 @@ use App\Models\School;
 use App\Models\User;
 
 /**
- * The ScholarNest Team's editor for the platform's own legal documents.
+ * The AkademicNest Team's editor for the platform's own legal documents.
  *
  * These began as markdown files, which was right while they were being drafted
  * and wrong once they were published: a lawyer's amendment to the Privacy
@@ -66,7 +66,7 @@ describe('an edit reaches schools', function () {
             ->put(route('super-admin.legal.update', 'privacy'), [
                 'title' => 'Privacy Policy',
                 'summary' => 'How we handle your information.',
-                'body' => "## 1. Who we are\n\nScholarNest Ltd, of 12 Example Road, Lagos.",
+                'body' => "## 1. Who we are\n\nAkademicNest Ltd, of 12 Example Road, Lagos.",
                 'version' => '1.1',
                 'effective_date' => '1 October 2026',
                 'is_published' => '1',

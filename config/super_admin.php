@@ -6,7 +6,7 @@
 |--------------------------------------------------------------------------
 |
 | The Super Admin sign-in is not advertised anywhere in the public interface.
-| It is revealed by clicking the ScholarNest logo on the registration page a set
+| It is revealed by clicking the AkademicNest logo on the registration page a set
 | number of times in quick succession.
 |
 | This is obscurity, and obscurity is not security. It keeps the door out of

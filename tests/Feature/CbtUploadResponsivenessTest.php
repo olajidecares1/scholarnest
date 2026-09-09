@@ -30,7 +30,7 @@ function cbtDocument(int $kilobytes = 800): UploadedFile
     return UploadedFile::fake()->create('past-questions.pdf', $kilobytes, 'application/pdf');
 }
 
-test('the ScholarNest Team upload returns without waiting for extraction', function () {
+test('the AkademicNest Team upload returns without waiting for extraction', function () {
     Queue::fake();
 
     $team = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
@@ -200,7 +200,7 @@ test('the person told about a stalled queue is told something they can act on', 
 
     $health = app(QueueWorkerHealth::class);
 
-    // The ScholarNest Team can start a worker, so they are told how.
+    // The AkademicNest Team can start a worker, so they are told how.
     expect($health->stalledMessage(canOperateTheServer: true))->toContain('queue:work');
 
     // A teacher cannot, and should not be shown a shell command. They are told

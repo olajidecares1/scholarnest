@@ -5,7 +5,7 @@
 
 ## What happened
 
-A fresh Laravel 13 project was started in `C:\xampp\htdocs\ScholarNest`, which was
+A fresh Laravel 13 project was started in `C:\xampp\htdocs\AkademicNest`, which was
 an empty folder at the time, following the project brief's roadmap ("Stage 1 —
 Set up the Laravel 13 project").
 
@@ -16,10 +16,10 @@ with:
 SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'schools' already exists
 ```
 
-The `scholarnest` database already belonged to **this** application, which was
-alive and well in `Documents\ScholarNest`.
+The `akademicnest` database already belonged to **this** application, which was
+alive and well in `Documents\AkademicNest`.
 
-The empty `htdocs\ScholarNest` folder was misleading: this project used to live
+The empty `htdocs\AkademicNest` folder was misleading: this project used to live
 there and had been moved. The `public/storage` symlink still pointed back at the
 old location, which is a separate bug that came out of the same discovery (see
 below).
@@ -30,11 +30,11 @@ The failed `CREATE TABLE` was rejected by the database, so it wrote nothing.
 Verified afterwards:
 
 - no rows added to the `migrations` table
-- `scholarnest` still holds 99 tables and all its data
-- `Documents\ScholarNest` and `D:\ScholarNest` were never written to
+- `akademicnest` still holds 99 tables and all its data
+- `Documents\AkademicNest` and `D:\AkademicNest` were never written to
 
 The Laravel 13 experiment was then repointed at a separate database,
-`scholarnest_v13`, so it could not collide.
+`akademicnest_v13`, so it could not collide.
 
 ## The choice
 
@@ -47,7 +47,7 @@ The Laravel 13 experiment was then repointed at a separate database,
 ## Decision: C
 
 The brief reads as a greenfield specification, but it is better understood as a
-description of the standard ScholarNest should meet, not an instruction to start
+description of the standard AkademicNest should meet, not an instruction to start
 again.
 
 The deciding evidence was the state of this codebase:
@@ -75,19 +75,19 @@ and are tracked in [docs/SECURITY-AUDIT.md](../../SECURITY-AUDIT.md) and
 
 ## Consequences
 
-- Work continues in `Documents\ScholarNest`, on the `dev` branch.
+- Work continues in `Documents\AkademicNest`, on the `dev` branch.
 - The Laravel 12 → 13 and PHP 8.2 → 8.3 upgrade becomes a planned, staged task
   rather than a starting condition. PHP 8.3.33 is already installed at
   `C:\php83` for that purpose.
-- `C:\xampp\htdocs\ScholarNest` holds an abandoned Laravel 13 skeleton and the
-  `scholarnest_v13` database. Both can be deleted once confirmed unwanted.
-- `D:\ScholarNest` is a stale copy and should be removed once GitHub is set up, so
+- `C:\xampp\htdocs\AkademicNest` holds an abandoned Laravel 13 skeleton and the
+  `akademicnest_v13` database. Both can be deleted once confirmed unwanted.
+- `D:\AkademicNest` is a stale copy and should be removed once GitHub is set up, so
   there is no chance of editing the wrong one.
 
 ## Related fix
 
 The same investigation found that `public/storage` was a junction pointing at
-`C:\xampp\htdocs\ScholarNest\storage\app\public` — the old location, which is now
+`C:\xampp\htdocs\AkademicNest\storage\app\public` — the old location, which is now
 an unrelated empty project. Every uploaded student photo, staff photo and school
 logo on the site was a broken image.
 

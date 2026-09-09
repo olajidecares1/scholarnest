@@ -19,7 +19,7 @@ use Illuminate\View\View;
  *
  * THE ANSWER IS THE SAME WHETHER OR NOT THE ACCOUNT EXISTS. Laravel's default
  * returns "We can't find a user with that email address" when it does not,
- * which turns this form into a way to test whether somebody is a ScholarNest
+ * which turns this form into a way to test whether somebody is a AkademicNest
  * administrator - useful to anyone preparing a phishing email, and free to run.
  * Both outcomes now produce the identical sentence.
  */
@@ -28,7 +28,7 @@ class PasswordResetLinkController extends Controller
     /**
      * What every request is told, whether or not it matched an account.
      */
-    private const NEUTRAL_RESPONSE = 'If that email address has a ScholarNest account, a password reset link is on its way. Check your inbox, including your spam folder.';
+    private const NEUTRAL_RESPONSE = 'If that email address has a AkademicNest account, a password reset link is on its way. Check your inbox, including your spam folder.';
 
     public function create(): View
     {

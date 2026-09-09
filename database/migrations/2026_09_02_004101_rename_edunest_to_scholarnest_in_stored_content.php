@@ -12,20 +12,20 @@ use Illuminate\Support\Facades\Schema;
  * them back:
  *
  *   settings          The site name and the name notifications are sent from.
- *                     Both defaulted to "EduNest" and were stored, so every
+ *                     Both defaulted to "AkademicNest" and were stored, so every
  *                     page header and every email still says it.
  *
  *   legal_documents   Seeded from resources/legal and edited since through the
  *                     admin screen. The Terms name the operator roughly forty
  *                     times; a school reading them would still be agreeing with
- *                     EduNest.
+ *                     AkademicNest.
  *
  *   schools           Only where a school typed the platform's name into its
  *                     own content, which is nobody's business to rewrite - so
  *                     schools are deliberately NOT touched. See below.
  *
  * SCHOOL-OWNED CONTENT IS LEFT ALONE. A school's website text, news posts and
- * remarks belong to the school. If one of them mentions EduNest by name that is
+ * remarks belong to the school. If one of them mentions AkademicNest by name that is
  * their sentence, and silently rewriting a customer's own words - in documents
  * they may have had approved - is not a rename, it is an edit nobody asked for.
  * The schools that care will change it themselves.
@@ -61,7 +61,7 @@ return new class extends Migration
 
         // Read, replace in PHP, write back - rather than a SQL REPLACE().
         // MySQL's REPLACE() is case sensitive and would need three passes for
-        // "EduNest", "edunest" and "EDUNEST"; and SQLite, which the tests run
+        // "AkademicNest", "akademicnest" and "AKADEMICNEST"; and SQLite, which the tests run
         // on, has no multi-pass equivalent worth writing twice.
         DB::table($table)->orderBy('id')->chunkById(100, function ($rows) use ($table, $columns) {
             foreach ($rows as $row) {
@@ -73,8 +73,8 @@ return new class extends Migration
                     }
 
                     $updated = str_replace(
-                        ['EduNest', 'EDUNEST', 'edunest'],
-                        ['ScholarNest', 'SCHOLARNEST', 'scholarnest'],
+                        ['AkademicNest', 'AKADEMICNEST', 'akademicnest'],
+                        ['AkademicNest', 'AKADEMICNEST', 'akademicnest'],
                         $row->{$column},
                     );
 

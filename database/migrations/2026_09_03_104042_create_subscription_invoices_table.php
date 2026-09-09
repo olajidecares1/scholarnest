@@ -5,11 +5,11 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * ScholarNest's invoices to its schools.
+ * AkademicNest's invoices to its schools.
  *
  * NOT the `invoices` table, which is a school billing its own parents for
  * school fees. Two different documents that happen to share a word: one is a
- * school's business with a family, this one is ScholarNest's business with a
+ * school's business with a family, this one is AkademicNest's business with a
  * school. Keeping them apart means a change to fee billing can never quietly
  * alter what a school was charged for its subscription.
  *

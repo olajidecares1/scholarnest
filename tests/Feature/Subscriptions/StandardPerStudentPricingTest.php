@@ -42,7 +42,7 @@ describe('the price comes from the plan record, never from the page', function (
             ->and($standard->price_monthly)->toBeNull();
     });
 
-    test('the ScholarNest Team can change it, and the wizard follows', function () {
+    test('the AkademicNest Team can change it, and the wizard follows', function () {
         Plan::where('key', PlanKey::Standard)->update(['price_per_student_per_term' => 1500]);
 
         $this->actingAs($this->admin)->post(route('subscriptions.choose-plan.store'), [

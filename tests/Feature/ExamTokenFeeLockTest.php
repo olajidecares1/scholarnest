@@ -352,7 +352,7 @@ test('the result checker wears the school\'s logo, not the platform\'s', functio
     $school->update(['logo_path' => 'logos/marvel.png']);
 
     // A parent typing a token into their child's school's address was shown
-    // ScholarNest's badge, and the same badge whichever school the address
+    // AkademicNest's badge, and the same badge whichever school the address
     // belonged to - nothing on the page said whose result this was.
     $this->get($school->resultLinkUrl())
         ->assertOk()

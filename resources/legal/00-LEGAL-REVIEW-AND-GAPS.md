@@ -6,7 +6,7 @@ branch: dev
 status: Internal — not for publication
 ---
 
-# ScholarNest — Audit Summary, Implementation Gaps & Legal Review Flags
+# AkademicNest — Audit Summary, Implementation Gaps & Legal Review Flags
 
 **Audited 1 September 2026 against the `dev` branch.**
 Internal document. Not to be published alongside the policies.
@@ -15,7 +15,7 @@ Internal document. Not to be published alongside the policies.
 
 ## PART A — FINAL AUDIT SUMMARY
 
-### A. What ScholarNest collects
+### A. What AkademicNest collects
 
 **Schools**: name, slug, address, phone, email, logo, favicon, billing details,
 subscription plan, pupil capacity, payment records and proof-of-payment
@@ -71,7 +71,7 @@ IP and user-agent in result token logs; sessions; API tokens.
 
 | Party | Reach |
 | --- | --- |
-| ScholarNest Team (Super Admin) | All schools; can delete a school and everything in it. Granular roles exist |
+| AkademicNest Team (Super Admin) | All schools; can delete a school and everything in it. Granular roles exist |
 | School Administrator | Everything in their own school |
 | Staff | Their school, scoped by role and assignment |
 | Pupil | Own results, attendance, assignments, notices, timetable |
@@ -113,8 +113,8 @@ processors (Paystack is named in the interface but **not integrated**), CDNs.
 
 ### F. Sessions and cookies
 
-Cookies: `scholarnest-session` (necessary, HttpOnly, SameSite=Lax, 120 min),
-`XSRF-TOKEN` (necessary, JS-readable by design), `scholarnest_portal` (functional,
+Cookies: `akademicnest-session` (necessary, HttpOnly, SameSite=Lax, 120 min),
+`XSRF-TOKEN` (necessary, JS-readable by design), `akademicnest_portal` (functional,
 HttpOnly, 1 year, holds `schoolId:guard`), `remember_web_*` (functional, only if
 the box is ticked).
 
@@ -276,8 +276,8 @@ fails when a school-scoped controller lacks the check.
 ### GAP-11 · No two-factor authentication — **MEDIUM**
 
 **Why it matters**: a password is the only barrier to a school's entire pupil
-roll, or — for the ScholarNest Team — to every school.
-**Fix**: offer 2FA; consider requiring it for the ScholarNest Team.
+roll, or — for the AkademicNest Team — to every school.
+**Fix**: offer 2FA; consider requiring it for the AkademicNest Team.
 
 ### GAP-12 · Blood group collected without a basis — **MEDIUM**
 
@@ -324,7 +324,7 @@ which frustrates a rectification request.
 
 **Fix**: write a runbook with a named owner, regulator contacts and templates.
 
-### GAP-19 · No transparency to schools about ScholarNest Team access — **LOW**
+### GAP-19 · No transparency to schools about AkademicNest Team access — **LOW**
 
 **Why it matters**: team access is audit-logged but the school is never told and
 cannot review it.
@@ -365,7 +365,7 @@ cannot review it.
 14. **Dispute resolution and governing law** — both are placeholders.
 15. **Digital signatures** — their legal effect under Nigerian law, what a
     drawn signature on a report card constitutes, and liability for misuse.
-16. **Academic records** — statutory obligations on schools that ScholarNest's
+16. **Academic records** — statutory obligations on schools that AkademicNest's
     deletion behaviour must not defeat.
 17. **Breach notification** — statutory recipients and deadlines.
 18. **Visitor conduct reports** — a form that invites the public to report
@@ -381,21 +381,21 @@ cannot review it.
 ## PART D — NOTE ON WHAT THESE DOCUMENTS CAN DO
 
 The request that prompted this work asked for documents that would prevent
-ScholarNest being sued. **No Terms of Service or Privacy Policy can do that**, and
+AkademicNest being sued. **No Terms of Service or Privacy Policy can do that**, and
 none of these documents was written on that premise.
 
 What they can do:
 
 - record accurately what was agreed, so a dispute starts from a written position
   rather than two recollections;
-- allocate responsibility between ScholarNest and schools clearly enough that each
+- allocate responsibility between AkademicNest and schools clearly enough that each
   side knows what it owns;
 - demonstrate that data protection was considered — which regulators weigh, and
   which is worth real credit when something goes wrong;
 - set honest limits on the service, which are far more likely to hold than
   sweeping ones.
 
-What makes ScholarNest genuinely safer is **Part B**, not Part A. A policy saying
+What makes AkademicNest genuinely safer is **Part B**, not Part A. A policy saying
 children's photographs are protected does not protect them; moving them to
 private storage does. **The documents are worth publishing after the Critical
 gaps are closed, and not before** — publishing them first would create a written

@@ -65,7 +65,7 @@ class PlanSeeder extends Seeder
                     'Transport & Hostel Management',
                     'Computer-Based Testing (CBT)',
                     'Public School Website',
-                    'Subdomain (scholarnest.schoolname.com)',
+                    'Subdomain (akademicnest.schoolname.com)',
                     'ID Card Management',
                     'Hero Slider',
                     'Gallery (Photos & Videos)',

@@ -46,7 +46,7 @@ final class PortalLoginRedirect
      * it holds nothing the person does not already know - the id of their own
      * school and the name of the portal they use.
      */
-    public const COOKIE = 'scholarnest_portal';
+    public const COOKIE = 'akademicnest_portal';
 
     public const COOKIE_MINUTES = 60 * 24 * 365;
 

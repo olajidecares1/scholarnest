@@ -73,12 +73,12 @@ describe('the logo is 80px', function () {
     });
 
     test('on registration, with no wordmark beside it', function () {
-        // The mark already carries "ScholarNest". Setting the name twice within
+        // The mark already carries "AkademicNest". Setting the name twice within
         // 200px reads as a mistake rather than as branding.
         $html = $this->get(route('register'))->assertOk()->getContent();
 
         expect($html)->toContain('h-20 w-20')
-            ->not->toContain('tracking-tight text-[#0F2A5C]">ScholarNest</a>');
+            ->not->toContain('tracking-tight text-[#0F2A5C]">AkademicNest</a>');
     });
 
     test('80px is a standard class, not an arbitrary one', function () {

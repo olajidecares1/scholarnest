@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
  * Laravel's discovery of app/Listeners, once by hand in AppServiceProvider -
  * so every sign-in wrote its entry twice. Fixing the registration stops new
  * ones; it does nothing about the pairs already sitting in the log, and the
- * ScholarNest Team would go on seeing the same school name twice for every
+ * AkademicNest Team would go on seeing the same school name twice for every
  * historical sign-in.
  *
  * DELIBERATELY NARROW. Only 'login' and 'login.failed' are touched, because

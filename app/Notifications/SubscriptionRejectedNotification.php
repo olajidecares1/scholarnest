@@ -24,7 +24,7 @@ class SubscriptionRejectedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $message = (new MailMessage)
-            ->subject('Update on Your ScholarNest Subscription')
+            ->subject('Update on Your AkademicNest Subscription')
             ->greeting('Hello '.$notifiable->name.',')
             ->line('We were unable to verify the payment for your '.$this->subscription->plan->name.' subscription.')
             ->line('Reference: '.$this->subscription->reference);

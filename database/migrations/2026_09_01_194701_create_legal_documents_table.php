@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * ScholarNest's own legal documents, editable by the ScholarNest Team.
+ * AkademicNest's own legal documents, editable by the AkademicNest Team.
  *
  * They began as markdown files in resources/legal, which was right while they
  * were being drafted and wrong the moment they were published: a lawyer's
@@ -34,7 +34,7 @@ return new class extends Migration
         'terms' => [
             'file' => 'terms-and-conditions.md',
             'title' => 'Terms & Conditions',
-            'summary' => 'The agreement between ScholarNest and your school: what a subscription grants, what each side is responsible for, and how it ends.',
+            'summary' => 'The agreement between AkademicNest and your school: what a subscription grants, what each side is responsible for, and how it ends.',
         ],
         'privacy' => [
             'file' => 'privacy-policy.md',
@@ -44,7 +44,7 @@ return new class extends Migration
         'cookies' => [
             'file' => 'cookie-policy.md',
             'title' => 'Cookie & Browser Storage Policy',
-            'summary' => 'Every cookie and browser storage key ScholarNest uses, what each is for, and which can be turned off.',
+            'summary' => 'Every cookie and browser storage key AkademicNest uses, what each is for, and which can be turned off.',
         ],
         'data-retention' => [
             'file' => 'data-retention-and-deletion-policy.md',
@@ -59,7 +59,7 @@ return new class extends Migration
         'school-responsibilities' => [
             'file' => 'school-data-processing-framework.md',
             'title' => 'School Responsibilities Framework',
-            'summary' => 'Who is responsible for what: ScholarNest, the school, and individual users.',
+            'summary' => 'Who is responsible for what: AkademicNest, the school, and individual users.',
         ],
     ];
 

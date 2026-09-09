@@ -109,7 +109,7 @@
     {{-- No decorative sweep in the top corner. It sat behind the report
          card's own title block and read as a stray mark crowding it rather
          than as a flourish - the corner belongs to the title block. --}}
-    {{-- The watermark: this school's OWN crest, not an ScholarNest mark.
+    {{-- The watermark: this school's OWN crest, not an AkademicNest mark.
 
          Large enough to read as a watermark rather than a stray graphic, and
          faint enough that nothing printed over it becomes harder to read - the

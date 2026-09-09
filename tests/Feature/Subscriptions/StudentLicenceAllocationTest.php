@@ -778,7 +778,7 @@ test('a pending request is shown on the dashboard but never counted as capacity'
     // Told it is under review, and told in the same breath that the capacity
     // has not moved - a school that assumes otherwise finds out at the point
     // of registering a student.
-    $response->assertSee('awaiting ScholarNest Team approval', false)
+    $response->assertSee('awaiting AkademicNest Team approval', false)
         ->assertSee('Student/Pupil Capacity Reached');
 
     expect($response->viewData('capacity'))

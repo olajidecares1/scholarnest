@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\DB;
  */
 class NormaliseDoubleEncodedText extends Command
 {
-    protected $signature = 'scholarnest:normalise-encoded-text {--dry-run : Show what would change without writing anything}';
+    protected $signature = 'akademicnest:normalise-encoded-text {--dry-run : Show what would change without writing anything}';
 
     protected $description = 'Repair user text that was stored HTML-encoded by the old double-escaping form fields';
 

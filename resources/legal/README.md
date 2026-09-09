@@ -1,4 +1,4 @@
-# ScholarNest Legal Documents
+# AkademicNest Legal Documents
 
 Six documents, written from an audit of this codebase rather than from a
 template. Every factual claim in them was checked against the implementation on
@@ -11,7 +11,7 @@ the date below. They still need review by a qualified lawyer — see
 
 The markdown below seeded the `legal_documents` table when the
 `create_legal_documents_table` migration ran. **The table is what schools
-read.** Edit the live documents at **ScholarNest Team → Legal Documents**, which
+read.** Edit the live documents at **AkademicNest Team → Legal Documents**, which
 requires the `manage_legal` permission and writes an audit entry for every save.
 
 The files stay in the repository for two reasons: they are what a lawyer reviews
@@ -48,7 +48,7 @@ group as health data, the absent cookie banner) are still on the live pages.
 
 A separate "Data Protection Policy" was **not** written, even though the
 registration form names one. An internal data-protection policy governs how
-ScholarNest's own staff behave; it is not a public-facing document a school agrees
+AkademicNest's own staff behave; it is not a public-facing document a school agrees
 to, and publishing one as if it were a contract confuses the two. What a school
 actually needs to see is covered by the Privacy Policy (what is collected and
 why), the Security Statement (how it is protected) and the Processing Framework
@@ -71,14 +71,14 @@ name the three documents that exist.**
 3. Replace every `[TO BE PROVIDED]` placeholder. No address, telephone number,
    email address, registration number or DPO detail was invented.
 4. Have a qualified lawyer and a data-protection professional review the set,
-   in every jurisdiction where ScholarNest operates.
+   in every jurisdiction where AkademicNest operates.
 
 ## A note on what these documents can and cannot do
 
-They cannot make ScholarNest immune from being sued, and nothing in them was
+They cannot make AkademicNest immune from being sued, and nothing in them was
 written to imply otherwise. What a well-drafted set of terms does is narrower
 and still worth having: it records what was agreed, allocates responsibility
-between ScholarNest and the school, sets out the limits of the service honestly,
+between AkademicNest and the school, sets out the limits of the service honestly,
 and demonstrates that the platform's data handling was thought about rather
 than improvised. Clauses that overreach — a blanket exclusion of all liability,
 a waiver of rights that cannot be waived — tend to be struck out, and a

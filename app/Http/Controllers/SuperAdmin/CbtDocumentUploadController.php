@@ -32,7 +32,7 @@ class CbtDocumentUploadController extends Controller
         $examBodies = CbtExamBody::orderBy('name')->get();
 
         return view('super-admin.cbt.uploads.index', [
-            // The ScholarNest Team can start a worker, so they are the audience
+            // The AkademicNest Team can start a worker, so they are the audience
             // that gets told which command does it.
             'extractionWarning' => $availability->warning(canOperateTheServer: true),
             'uploads' => CbtDocumentUpload::with(['uploadedBy', 'examBody', 'subject'])

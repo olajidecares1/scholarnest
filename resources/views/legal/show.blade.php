@@ -8,7 +8,7 @@
     {{-- The document itself.
 
          {!! !!} rather than {{ }} because this is rendered markdown, not user
-         input: the source is written by the ScholarNest Team in the admin screens,
+         input: the source is written by the AkademicNest Team in the admin screens,
          and it was converted with raw HTML stripped. Nothing a school or a
          visitor types reaches this page.
 

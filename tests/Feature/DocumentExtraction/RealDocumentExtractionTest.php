@@ -85,7 +85,7 @@ function writeTestPdf(string $path, array $lines): string
 
 function scratchPath(string $name): string
 {
-    $dir = sys_get_temp_dir().'/scholarnest-extraction-tests';
+    $dir = sys_get_temp_dir().'/akademicnest-extraction-tests';
 
     if (! is_dir($dir)) {
         mkdir($dir, 0777, true);

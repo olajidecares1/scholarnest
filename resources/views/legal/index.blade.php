@@ -1,7 +1,7 @@
 <x-legal-layout
     title="Legal"
     heading="Legal documents"
-    summary="The agreement schools enter into with ScholarNest, and how the platform handles the information entrusted to it."
+    summary="The agreement schools enter into with AkademicNest, and how the platform handles the information entrusted to it."
 >
     <ul class="grid gap-3 sm:grid-cols-2">
         @foreach ($documents as $document)
@@ -23,7 +23,7 @@
     </ul>
 
     <p class="mt-8 text-[13px] leading-relaxed text-[#6E85AC]">
-        Questions about any of these, or about the information ScholarNest holds about you or your school, can be sent to our
+        Questions about any of these, or about the information AkademicNest holds about you or your school, can be sent to our
         privacy contact &mdash; the address is in each document.
     </p>
 </x-legal-layout>

@@ -89,7 +89,7 @@ class SchoolController extends Controller
             // Null means the plan is not sold per student.
             'capacity' => $licences->summary($school),
 
-            // Every invoice ScholarNest has raised against this school, and
+            // Every invoice AkademicNest has raised against this school, and
             // through each one its payment and who approved it. Eager-loaded
             // because the table reads the payment and the approver on every
             // row, and without this a school with a long history would issue

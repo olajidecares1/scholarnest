@@ -17,7 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * A specimen report card, for a School Admin or the ScholarNest Team to look at.
+ * A specimen report card, for a School Admin or the AkademicNest Team to look at.
  *
  * Deliberately the SAME array a real card is built from - see
  * ReportCardData::for() - so the preview renders the real template rather than

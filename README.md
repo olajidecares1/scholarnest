@@ -1,4 +1,4 @@
-# ScholarNest
+# AkademicNest
 
 A multi-tenant school management platform: one installation, many schools, each
 with its own staff, pupils, parents, records — and its own public website.

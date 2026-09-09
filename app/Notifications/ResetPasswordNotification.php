@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * The password-reset email, in ScholarNest's own words rather than Laravel's.
+ * The password-reset email, in AkademicNest's own words rather than Laravel's.
  *
  * THE LINK IS BUILT FROM APP_URL, NOT FROM THE REQUEST. That is the one thing
  * in this class that is a security control rather than presentation. Laravel's
@@ -44,18 +44,18 @@ class ResetPasswordNotification extends Notification
         $minutes = (int) config('auth.passwords.users.expire', 60);
 
         return (new MailMessage)
-            ->subject('Reset Your ScholarNest Password')
+            ->subject('Reset Your AkademicNest Password')
             ->greeting('Hello '.($notifiable->name ?: 'there').',')
-            ->line('We received a request to reset your ScholarNest account password. Click the button below to create a new password.')
+            ->line('We received a request to reset your AkademicNest account password. Click the button below to create a new password.')
             ->action('Reset Password', $this->resetUrl())
             ->line('You will be asked for this verification code:')
             ->line('**'.PasswordResetCode::for($this->token).'**')
             ->line("This link and code expire in {$minutes} minutes and can only be used once.")
             // Said plainly because the code is the second half of the reset:
             // anyone holding both it and the link can change the password.
-            ->line('Keep this code to yourself. ScholarNest staff will never ask you for it.')
+            ->line('Keep this code to yourself. AkademicNest staff will never ask you for it.')
             ->line('If you did not request a password reset, you can safely ignore this email — your password will not be changed.')
-            ->salutation('— ScholarNest Team');
+            ->salutation('— AkademicNest Team');
     }
 
     /**

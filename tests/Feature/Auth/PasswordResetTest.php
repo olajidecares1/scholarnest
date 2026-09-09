@@ -64,7 +64,7 @@ describe('requesting a link', function () {
 
     test('the answer never reveals whether the account exists', function () {
         // Laravel's default says "We can't find a user with that email address",
-        // which turns this form into a free way to test who is a ScholarNest
+        // which turns this form into a free way to test who is a AkademicNest
         // administrator - useful to anyone writing a phishing email.
         $real = $this->post(route('password.email'), ['email' => $this->admin->email]);
         $fake = $this->post(route('password.email'), ['email' => 'nobody@nowhere.test']);
@@ -101,18 +101,18 @@ describe('requesting a link', function () {
 });
 
 describe('the email', function () {
-    test('it is ScholarNest\'s, not Laravel\'s', function () {
+    test('it is AkademicNest\'s, not Laravel\'s', function () {
         $token = requestResetToken($this->admin);
 
         $mail = (new ResetPasswordNotification($token, $this->admin->email))->toMail($this->admin);
 
-        expect($mail->subject)->toBe('Reset Your ScholarNest Password')
+        expect($mail->subject)->toBe('Reset Your AkademicNest Password')
             ->and($mail->greeting)->toBe('Hello Adaeze Okonkwo,')
             ->and($mail->actionText)->toBe('Reset Password')
-            ->and($mail->salutation)->toBe('— ScholarNest Team');
+            ->and($mail->salutation)->toBe('— AkademicNest Team');
 
         expect(implode(' ', $mail->introLines))
-            ->toContain('We received a request to reset your ScholarNest account password');
+            ->toContain('We received a request to reset your AkademicNest account password');
 
         expect(implode(' ', $mail->outroLines))
             ->toContain('you can safely ignore this email');
@@ -128,12 +128,12 @@ describe('the email', function () {
         // The attack this closes: a forged Host header on the forgot-password
         // request would otherwise put the attacker's domain in the victim's
         // email, and the victim would hand over their token by clicking it.
-        config(['app.url' => 'https://scholarnest.com.ng']);
+        config(['app.url' => 'https://akademicnest.com']);
 
         $token = requestResetToken($this->admin);
         $mail = (new ResetPasswordNotification($token, $this->admin->email))->toMail($this->admin);
 
-        expect($mail->actionUrl)->toStartWith('https://scholarnest.com.ng/');
+        expect($mail->actionUrl)->toStartWith('https://akademicnest.com/');
     });
 
     test('it carries the code in the body and never in the link', function () {
@@ -381,7 +381,7 @@ describe('the routes are rate limited', function () {
         // The second layer, above the per-link attempt limit. Laravel's broker
         // already refuses a second link for the SAME address within 60 seconds;
         // this is what stops one address requesting links for hundreds of
-        // DIFFERENT accounts and getting ScholarNest's sending domain marked as
+        // DIFFERENT accounts and getting AkademicNest's sending domain marked as
         // spam.
         for ($i = 0; $i < 5; $i++) {
             $this->post(route('password.email'), ['email' => "person{$i}@example.test"]);

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * One invoice from ScholarNest to a school.
+ * One invoice from AkademicNest to a school.
  *
  * NOT App\Models\Invoice, which is a school billing a parent for school fees.
  * Same word, different business - see the migration for why they are kept

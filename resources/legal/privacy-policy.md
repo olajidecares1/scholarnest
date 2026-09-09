@@ -6,7 +6,7 @@ last_updated: 2026-09-01
 status: Awaiting legal review
 ---
 
-# ScholarNest Privacy Policy
+# AkademicNest Privacy Policy
 
 **Version 1.0 · Effective [TO BE PROVIDED] · Last updated 1 September 2026**
 
@@ -19,45 +19,45 @@ status: Awaiting legal review
 
 ## 1. Who we are
 
-ScholarNest is a school management platform operated by [TO BE PROVIDED — legal
+AkademicNest is a school management platform operated by [TO BE PROVIDED — legal
 entity name and registration number], of [TO BE PROVIDED — address].
 
 Data protection contact: [TO BE PROVIDED].
 Data Protection Officer: [TO BE PROVIDED — *see note in section 20 on whether
 one is required*].
 
-This policy explains what personal information passes through ScholarNest, why, and
+This policy explains what personal information passes through AkademicNest, why, and
 what happens to it. It covers the school portals, the public school websites and
 the mobile API.
 
 ## 2. The relationship, in plain terms
 
-Almost all the personal information in ScholarNest was put there by a **school**,
+Almost all the personal information in AkademicNest was put there by a **school**,
 about its own pupils, parents and staff. The school decides what to record, who
-may see it, how long to keep it and when to correct it. ScholarNest provides and
+may see it, how long to keep it and when to correct it. AkademicNest provides and
 runs the system in which that happens.
 
 In data protection language, for that information:
 
 - the **school** is the **controller** — it decides the purposes and means;
-- **ScholarNest** is a **processor** — we act on the school's instructions.
+- **AkademicNest** is a **processor** — we act on the school's instructions.
 
-For a smaller category — the information we need to run ScholarNest itself as a
-business — ScholarNest is the controller. Section 3 says which is which.
+For a smaller category — the information we need to run AkademicNest itself as a
+business — AkademicNest is the controller. Section 3 says which is which.
 
 <!-- internal:start -->
 > **For legal review.** This allocation is our reasoned view of the system as
 > built, not a settled legal conclusion, and there are edges where it is
 > genuinely arguable. The clearest is automated payment-receipt screening
-> (section 8): ScholarNest decides that screening happens, chooses the provider and
-> sets the criteria, which points towards ScholarNest being a controller for that
+> (section 8): AkademicNest decides that screening happens, chooses the provider and
+> sets the criteria, which points towards AkademicNest being a controller for that
 > processing rather than a processor. It should be confirmed by counsel.
 > The absence of a signed data processing agreement is noted in section 21.
 <!-- internal:end -->
 
 ## 3. What we collect, and in which role
 
-### 3.1 School and account information — *ScholarNest is controller*
+### 3.1 School and account information — *AkademicNest is controller*
 
 | Data | Source |
 | --- | --- |
@@ -67,7 +67,7 @@ business — ScholarNest is the controller. Section 3 says which is which.
 | Payment records, payment method, proof-of-payment documents, verification notes | Payment submission |
 | Support tickets and replies | Support requests |
 
-### 3.2 Pupil information — *school is controller, ScholarNest is processor*
+### 3.2 Pupil information — *school is controller, AkademicNest is processor*
 
 Full name, admission number, gender, date of birth, class, house, address,
 phone, email, photograph, admission date, free-text notes, active status,
@@ -118,7 +118,7 @@ cards.
   four attached files (photographs or short video). Contact details are
   deliberately *not* required.
 
-### 3.9 Technical information — *ScholarNest is controller*
+### 3.9 Technical information — *AkademicNest is controller*
 
 | Data | Where | Note |
 | --- | --- | --- |
@@ -133,7 +133,7 @@ cards.
 
 Very little of it is provided by the person it describes. Pupil and staff
 records are entered by the school. Parent records are created by the school.
-This matters: **the person whose information it is may not know it is in ScholarNest
+This matters: **the person whose information it is may not know it is in AkademicNest
 at all.** Telling them is the school's responsibility, not ours — see the
 *School Data Processing Framework*.
 
@@ -159,7 +159,7 @@ at all.** Telling them is the school's responsibility, not ours — see the
 
 ## 6. Legal basis
 
-For information where **ScholarNest is controller**, we rely on:
+For information where **AkademicNest is controller**, we rely on:
 
 - **Contract** — running accounts, subscriptions and payments.
 - **Legitimate interests** — security, fraud prevention, audit logging, and
@@ -168,19 +168,19 @@ For information where **ScholarNest is controller**, we rely on:
 
 For information where the **school is controller**, the school must identify its
 own basis. For a school this will commonly be a public task, a legal obligation,
-or the performance of its contract with parents. **ScholarNest does not obtain
+or the performance of its contract with parents. **AkademicNest does not obtain
 consent from pupils or parents and does not rely on consent for this
 processing.**
 
 <!-- internal:start -->
 > **For legal review.** Bases must be mapped against the NDPA specifically, and
 > the condition for processing blood group as health data must be established
-> before either the school or ScholarNest can safely continue to collect it.
+> before either the school or AkademicNest can safely continue to collect it.
 <!-- internal:end -->
 
 ## 7. Children's and pupils' information
 
-ScholarNest is a school platform, so a large part of what it holds is about
+AkademicNest is a school platform, so a large part of what it holds is about
 children. We treat this as the highest-risk area of the system.
 
 **What is held about a pupil**: name, admission number, gender, date of birth,
@@ -200,7 +200,7 @@ and any misconduct report a member of the public has filed about them.
 | Pupil | Their own results, attendance, assignments, notices and timetable |
 | Parent/guardian | Their linked children's records (Standard and above) |
 | Anyone with a result token | One pupil's result for one examination, limited uses |
-| ScholarNest Team | Technically able to reach it — see section 10 |
+| AkademicNest Team | Technically able to reach it — see section 10 |
 | Another school | **Never.** Enforced in the application |
 
 **Who can change it**: school administrators and, within limits, staff. Pupils
@@ -217,7 +217,7 @@ Statement* — **including its statement that pupil photographs and signature
 images are currently stored at publicly reachable addresses**, which is the most
 significant open issue affecting children's data on the platform.
 
-**Consent.** ScholarNest does not obtain parental consent. The school is responsible
+**Consent.** AkademicNest does not obtain parental consent. The school is responsible
 for having the authority and any required permission to record its pupils'
 information and to publish any photograph on its public website.
 
@@ -229,9 +229,9 @@ information and to publish any photograph on its public website.
 
 ## 8. Third parties
 
-ScholarNest uses few external services. Those it does use are:
+AkademicNest uses few external services. Those it does use are:
 
-### 8.1 Anthropic (payment receipt screening) — *personal data leaves ScholarNest*
+### 8.1 Anthropic (payment receipt screening) — *personal data leaves AkademicNest*
 
 When a school uploads proof of payment, **the receipt image or document is sent
 to Anthropic's API (`api.anthropic.com`) to be checked automatically** before a
@@ -243,7 +243,7 @@ person reviews it.
 - **Where**: Anthropic is based outside Nigeria. **This is a cross-border
   transfer of personal data.**
 - **Control**: once sent, the data is subject to Anthropic's own terms and
-  protections. ScholarNest does not control what happens to it there.
+  protections. AkademicNest does not control what happens to it there.
 - If the service is unavailable, the upload proceeds and is reviewed by a person
   with a note that the automatic check did not run.
 
@@ -285,10 +285,10 @@ disk unless the operator changes this.
 Verified absent from the codebase:
 
 - **No analytics service.** No Google Analytics, Tag Manager, Meta pixel,
-  Hotjar, Segment or similar. Page views are recorded in ScholarNest's own database.
+  Hotjar, Segment or similar. Page views are recorded in AkademicNest's own database.
 - **No advertising networks.**
 - **No card processor.** Paystack appears as an option in the interface but is
-  **not integrated**; no card details reach ScholarNest.
+  **not integrated**; no card details reach AkademicNest.
 - **No CDN** for application assets.
 - **We do not sell personal information, and we do not share it between
   schools.**
@@ -299,16 +299,16 @@ Beyond section 8, personal information is disclosed only:
 
 - to the users a school has authorised, within that school;
 - to a holder of a valid result token, for the single result it was issued for;
-- to the ScholarNest Team for support, security and payment verification;
+- to the AkademicNest Team for support, security and payment verification;
 - where required by law, or to establish or defend legal claims;
 - to a successor entity on a sale or reorganisation, on notice.
 
 **One school can never see another school's data.** Every request is checked
 against the acting user's school, and the check refuses rather than filters.
 
-## 10. ScholarNest Team access
+## 10. AkademicNest Team access
 
-Members of the ScholarNest Team with the appropriate role can, through the
+Members of the AkademicNest Team with the appropriate role can, through the
 administrative interface, reach school records and act on them — including
 deleting a school and everything in it. Administrative actions are recorded in
 an audit log with the actor, the action and the IP address.
@@ -362,9 +362,9 @@ information.
 **Where to direct a request:**
 
 - **Pupils, parents and staff** should contact **their school**, which decides
-  what is recorded about them and is the controller for it. ScholarNest cannot
+  what is recorded about them and is the controller for it. AkademicNest cannot
   action such a request on its own.
-- **School Administrators** may contact ScholarNest about their own account.
+- **School Administrators** may contact AkademicNest about their own account.
 - If a school asks us to help with a request it has received, we will.
 
 **Limits we will not pretend away:**
@@ -437,7 +437,7 @@ Administrators. The version number and date at the top will change.
 ## 20. Registration and DPO
 
 <!-- internal:start -->
-> **For legal review.** Whether ScholarNest is required to register with the Nigeria
+> **For legal review.** Whether AkademicNest is required to register with the Nigeria
 > Data Protection Commission, to file an annual audit return, or to appoint a
 > Data Protection Officer depends on how much personal data it processes and on
 > current NDPC thresholds and guidance. Given that the platform holds children's
@@ -450,7 +450,7 @@ Administrators. The version number and date at the top will change.
 <!-- internal:start -->
 > **For legal review.** No data processing agreement is currently offered to
 > schools, and none is in place with Anthropic for the receipt screening
-> described in section 8.1. Where ScholarNest acts as a processor, a written
+> described in section 8.1. Where AkademicNest acts as a processor, a written
 > agreement is normally a legal requirement rather than good practice. See the
 > *School Data Processing Framework*, which is drafted to serve as the basis for
 > one.
@@ -460,5 +460,5 @@ Administrators. The version number and date at the top will change.
 
 *This policy describes the platform as it was implemented on 1 September 2026.
 It should be reviewed and approved by a qualified data protection professional
-before publication, particularly because ScholarNest processes educational records,
+before publication, particularly because AkademicNest processes educational records,
 children's personal data and health information.*

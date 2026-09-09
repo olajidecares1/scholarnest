@@ -4,7 +4,7 @@ use App\Models\LegalDocument;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * ScholarNest's own legal documents, and the agreement that links to them.
+ * AkademicNest's own legal documents, and the agreement that links to them.
  *
  * Two things are being protected here.
  *
@@ -44,7 +44,7 @@ describe('the documents are readable without an account', function () {
 
     test('the version and date are shown, so an agreement can name what was agreed', function () {
         // The date comes from the row's own updated_at now, not from a line in
-        // the file - so it moves when the ScholarNest Team edits the document,
+        // the file - so it moves when the AkademicNest Team edits the document,
         // which is the whole point of it being on the page.
         $document = LegalDocument::published('terms');
 

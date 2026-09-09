@@ -19,7 +19,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ $title }} - {{ config('app.name', 'ScholarNest') }}</title>
+        <title>{{ $title }} - {{ config('app.name', 'AkademicNest') }}</title>
 
         <x-favicon />
 
@@ -35,7 +35,7 @@
             <header class="shrink-0 px-6 py-5 sm:px-10">
                 <div class="flex items-center gap-2.5">
                     <img src="{{ $logoUrl }}" alt="" class="h-8 w-8 shrink-0 rounded-[8px]">
-                    <span class="text-[19px] font-bold leading-none tracking-tight">ScholarNest</span>
+                    <span class="text-[19px] font-bold leading-none tracking-tight">AkademicNest</span>
                 </div>
             </header>
 

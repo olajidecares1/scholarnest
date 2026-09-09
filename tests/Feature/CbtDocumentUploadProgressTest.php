@@ -197,7 +197,7 @@ test('the status endpoint says so when nothing is working the queue', function (
 
         // The message used to read "Nothing is processing jobs" and stopped
         // there, which told the reader what was wrong and nothing about what
-        // to do. The ScholarNest Team can start a worker, so they are now told
+        // to do. The AkademicNest Team can start a worker, so they are now told
         // which command does it - that is what this asserts, rather than a
         // particular sentence.
         ->assertJsonPath('message', fn (string $message) => str_contains($message, 'queue:work'));
@@ -487,10 +487,10 @@ test('THE BUG: a teacher is not handed a shell command', function () {
         ->assertDontSee('composer run dev')
         // What they are told instead: the document is safe, and who to tell.
         ->assertSee('You do not need to upload it again', false)
-        ->assertSee('let the ScholarNest Team know', false);
+        ->assertSee('let the AkademicNest Team know', false);
 });
 
-test('but the ScholarNest Team is, because they can act on it', function () {
+test('but the AkademicNest Team is, because they can act on it', function () {
     stallTheQueue();
 
     $upload = CbtDocumentUpload::factory()->create(['status' => CbtDocumentUploadStatus::Pending]);
@@ -539,7 +539,7 @@ test('the pre-upload warning does not hand a teacher a shell command either', fu
     expect($availability->warning())
         ->not->toContain('php artisan queue:work')
         ->not->toContain('composer run dev')
-        ->toContain('let the ScholarNest Team know');
+        ->toContain('let the AkademicNest Team know');
 
     expect($availability->warning(canOperateTheServer: true))
         ->toContain('php artisan queue:work');

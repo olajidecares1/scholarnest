@@ -19,7 +19,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ $title ?? 'Legal' }} &middot; {{ config('app.name', 'ScholarNest') }}</title>
+        <title>{{ $title ?? 'Legal' }} &middot; {{ config('app.name', 'AkademicNest') }}</title>
         @if ($summary)
             <meta name="description" content="{{ \Illuminate\Support\Str::limit($summary, 160) }}">
         @endif
@@ -38,7 +38,7 @@
             <div class="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
                 <a href="{{ route('legal.index') }}" class="flex items-center gap-2.5">
                     <img src="{{ $logoUrl }}" alt="" class="h-7 w-7 rounded-[6px] object-contain">
-                    <span class="text-[15px] font-extrabold tracking-tight">{{ config('app.name', 'ScholarNest') }}</span>
+                    <span class="text-[15px] font-extrabold tracking-tight">{{ config('app.name', 'AkademicNest') }}</span>
                 </a>
 
                 {{-- Back to registration, because that is where most people
@@ -55,7 +55,7 @@
             @if ($heading)
                 <div class="mb-8 border-b border-[#DBE4F3] pb-7">
                     <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-primary-600">
-                        {{ config('app.name', 'ScholarNest') }} Legal
+                        {{ config('app.name', 'AkademicNest') }} Legal
                     </p>
                     <h1 class="mt-2 text-[28px] font-extrabold leading-tight tracking-tight sm:text-[34px]">
                         {{ $heading }}
@@ -82,7 +82,7 @@
         <footer class="border-t border-[#DBE4F3] bg-white">
             <div class="mx-auto max-w-4xl px-5 py-6 sm:px-8">
                 <p class="text-[12px] text-[#6E85AC]">
-                    &copy; {{ now()->year }} {{ config('app.name', 'ScholarNest') }}.
+                    &copy; {{ now()->year }} {{ config('app.name', 'AkademicNest') }}.
                     <a href="{{ route('legal.index') }}" class="font-semibold text-primary-600 hover:underline">All legal documents</a>
                 </p>
             </div>

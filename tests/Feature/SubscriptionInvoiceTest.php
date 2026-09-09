@@ -16,7 +16,7 @@ use Database\Seeders\PlanSeeder;
 use Illuminate\Support\Facades\URL;
 
 /**
- * ScholarNest's invoices to its schools.
+ * AkademicNest's invoices to its schools.
  *
  * Distinct from App\Models\Invoice, which is a school billing a parent for
  * school fees. Same word, unrelated business - and the separation is the point
@@ -275,7 +275,7 @@ describe('the printed invoice', function () {
 test('a subscription invoice is not a school fee invoice', function () {
     app(SubscriptionInvoiceIssuer::class)->issueForSubscription(invoicedSubscription());
 
-    // Two tables, two models, one word. Raising ScholarNest's invoice must
+    // Two tables, two models, one word. Raising AkademicNest's invoice must
     // never put a row in the table a school uses to bill its parents.
     expect(SubscriptionInvoice::count())->toBe(1)
         ->and(Invoice::count())->toBe(0);

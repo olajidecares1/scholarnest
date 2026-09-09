@@ -28,7 +28,7 @@ test('visiting the super admin panel is excluded from public traffic analytics',
 });
 
 test('a referrer from a search engine is classified as search traffic', function () {
-    $this->withHeaders(['referer' => 'https://www.google.com/search?q=scholarnest'])
+    $this->withHeaders(['referer' => 'https://www.google.com/search?q=akademicnest'])
         ->get(route('login'));
 
     $view = PageView::where('path', route('login', absolute: false))->latest()->first();

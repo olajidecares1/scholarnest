@@ -15,7 +15,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>Register your school - {{ config('app.name', 'ScholarNest') }}</title>
+        <title>Register your school - {{ config('app.name', 'AkademicNest') }}</title>
 
         <x-favicon />
 
@@ -100,7 +100,7 @@
                 <div class="relative flex flex-col overflow-hidden bg-white">
                     <div class="shrink-0 px-8 pt-5 sm:px-10 sm:pt-6">
                         {{-- The logo alone, top-left. No wordmark beside it:
-                             the mark already carries "ScholarNest", and setting
+                             the mark already carries "AkademicNest", and setting
                              the name twice within 200px reads as a mistake.
 
                              It is also the click target for the hidden Super
@@ -110,7 +110,7 @@
                              no title, no cursor change. --}}
                         <img
                             src="{{ $logoUrl }}"
-                            alt="{{ config('app.name', 'ScholarNest') }}"
+                            alt="{{ config('app.name', 'AkademicNest') }}"
                             @click="registerClick()"
                             class="h-20 w-20 shrink-0 select-none rounded-[10px] object-contain"
                         >
@@ -120,7 +120,7 @@
                         </h1>
 
                         <p class="mt-3 max-w-sm text-[12.5px] leading-[1.65] text-[#5B7099]">
-                            Join thousands of schools using ScholarNest to manage operations, engage students, and grow together.
+                            Join thousands of schools using AkademicNest to manage operations, engage students, and grow together.
                         </p>
                     </div>
 
@@ -331,7 +331,7 @@
 
                              This page had no sign-in link at all, which is how
                              two schools ended up entering perfectly good
-                             credentials into the ScholarNest Team dialog: they
+                             credentials into the AkademicNest Team dialog: they
                              had already registered, came back here, found
                              nothing to click, and went looking. The one login
                              form on this page was the hidden one.

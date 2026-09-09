@@ -50,7 +50,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $pageTitle }} - {{ config('app.name', 'ScholarNest') }} ScholarNest Team</title>
+        <title>{{ $pageTitle }} - {{ config('app.name', 'AkademicNest') }} AkademicNest Team</title>
 
         <x-favicon />
 
@@ -81,11 +81,11 @@
         >
             <div class="flex items-center gap-2 px-5 py-5">
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-white p-1.5 shadow-sm transition-transform duration-300 ease-out hover:scale-105 hover:rotate-3">
-                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'ScholarNest') }}" class="h-full w-full object-contain">
+                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'AkademicNest') }}" class="h-full w-full object-contain">
                 </span>
                 <div>
-                    <p class="text-lg font-bold leading-tight">ScholarNest</p>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-100">ScholarNest Team</p>
+                    <p class="text-lg font-bold leading-tight">AkademicNest</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-primary-100">AkademicNest Team</p>
                 </div>
             </div>
 
@@ -286,7 +286,7 @@
             </nav>
 
             <div class="m-3 rounded-[8px] bg-white/10 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
-                <p class="text-sm font-semibold">ScholarNest Team</p>
+                <p class="text-sm font-semibold">AkademicNest Team</p>
                 <p class="mt-1 text-xs text-primary-50">You have full access to all platform features.</p>
                 <a
                     href="{{ route('super-admin.settings.index') }}"
@@ -296,7 +296,7 @@
                 </a>
             </div>
 
-            <p class="px-5 pb-5 text-xs text-primary-100">&copy; {{ now()->year }} ScholarNest. All rights reserved.</p>
+            <p class="px-5 pb-5 text-xs text-primary-100">&copy; {{ now()->year }} AkademicNest. All rights reserved.</p>
         </aside>
 
         {{-- The desktop sidebar. White, Font Awesome, and permission-gated by
@@ -307,11 +307,11 @@
         <aside class="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-gray-200 bg-white shadow-sm print:hidden lg:flex dark:border-gray-800 dark:bg-gray-900">
             <div class="flex items-center gap-2.5 px-4 py-5">
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-white p-1.5 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'ScholarNest') }}" class="h-full w-full object-contain">
+                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'AkademicNest') }}" class="h-full w-full object-contain">
                 </span>
                 <div class="min-w-0">
-                    <h4 class="truncate text-sm font-bold leading-tight text-gray-900 dark:text-white">ScholarNest</h4>
-                    <small class="block truncate text-[11px] font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">ScholarNest Team</small>
+                    <h4 class="truncate text-sm font-bold leading-tight text-gray-900 dark:text-white">AkademicNest</h4>
+                    <small class="block truncate text-[11px] font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">AkademicNest Team</small>
                 </div>
             </div>
 

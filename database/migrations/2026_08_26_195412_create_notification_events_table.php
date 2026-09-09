@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * One row per thing the ScholarNest Team has already been told about.
+ * One row per thing the AkademicNest Team has already been told about.
  *
  * Removing the duplicate listener that caused the reported double-up fixes
  * that particular fault. It does not stop the next one: a double-clicked form,

@@ -85,7 +85,7 @@
         @endif
 
         <p class="mt-6 text-center text-xs text-gray-500">
-            Not sure of the exact name? Ask your school for the name they registered with ScholarNest.
+            Not sure of the exact name? Ask your school for the name they registered with AkademicNest.
         </p>
     </x-auth-card>
 </x-auth-layout>

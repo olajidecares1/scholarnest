@@ -42,7 +42,7 @@ class SidebarMeta
         'super-admin.document-templates.index' => ['fa-solid fa-file-invoice', 'Report card and ID card templates'],
         'super-admin.users.index' => ['fa-solid fa-users', 'Platform accounts'],
         'super-admin.roles.index' => ['fa-solid fa-user-shield', 'Roles and permissions'],
-        'super-admin.schools.index' => ['fa-solid fa-school', 'Every school on ScholarNest'],
+        'super-admin.schools.index' => ['fa-solid fa-school', 'Every school on AkademicNest'],
 
         // --- Academic --------------------------------------------------
         'academics.index' => ['fa-solid fa-layer-group', 'Levels, classes and terms'],

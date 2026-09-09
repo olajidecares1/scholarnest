@@ -6,7 +6,7 @@ use App\Models\LegalDocument;
 use Illuminate\View\View;
 
 /**
- * ScholarNest's own legal documents, open to anyone.
+ * AkademicNest's own legal documents, open to anyone.
  *
  * Deliberately unauthenticated. These are linked from the registration form,
  * which nobody has an account on yet - a school being asked to agree to terms

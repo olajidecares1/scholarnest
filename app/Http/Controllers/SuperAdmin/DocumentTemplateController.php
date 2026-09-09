@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
- * The ScholarNest Team's view of the documents schools hand out.
+ * The AkademicNest Team's view of the documents schools hand out.
  *
  * Both previews render the REAL templates - the same Blade files that produce
  * a printed report card and a printed ID card - from specimen data. Nothing

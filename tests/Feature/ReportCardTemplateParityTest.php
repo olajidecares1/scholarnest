@@ -60,7 +60,7 @@ test('both cards use the same accent colour', function () {
 });
 
 test('both cards carry the school\'s own watermark', function () {
-    // Each school's OWN crest, not one ScholarNest mark for everybody.
+    // Each school's OWN crest, not one AkademicNest mark for everybody.
     $screen = view('school-admin.results._report-card', ReportCardSample::for($this->school))->render();
 
     // No logo uploaded: the watermark is skipped rather than drawn as a box.

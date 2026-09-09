@@ -6,7 +6,7 @@ last_updated: 2026-09-01
 status: Awaiting legal review
 ---
 
-# ScholarNest Terms & Conditions
+# AkademicNest Terms & Conditions
 
 **Version 1.0 · Effective [TO BE PROVIDED] · Last updated 1 September 2026**
 
@@ -19,24 +19,24 @@ status: Awaiting legal review
 
 ## 1. Introduction
 
-These Terms govern the use of ScholarNest, a school management platform operated by
-[TO BE PROVIDED — legal entity name and registration number] ("**ScholarNest**",
+These Terms govern the use of AkademicNest, a school management platform operated by
+[TO BE PROVIDED — legal entity name and registration number] ("**AkademicNest**",
 "we", "us").
 
-ScholarNest provides schools with a hosted environment for managing pupils, staff,
+AkademicNest provides schools with a hosted environment for managing pupils, staff,
 academic records, results, attendance and related school operations, together
 with a public website for the school. Access is by subscription.
 
 By registering a school, creating an account, signing in, or using any part of
-the platform, you agree to these Terms. If you do not agree, do not use ScholarNest.
+the platform, you agree to these Terms. If you do not agree, do not use AkademicNest.
 
 ## 2. Definitions
 
 | Term | Meaning |
 | --- | --- |
-| **Platform** | The ScholarNest software, infrastructure, source code, design, architecture and branding. |
+| **Platform** | The AkademicNest software, infrastructure, source code, design, architecture and branding. |
 | **School Environment** | The area of the Platform allocated to a subscribing School, including its records and its public website. |
-| **School** | An educational institution that has registered for and subscribes to ScholarNest. |
+| **School** | An educational institution that has registered for and subscribes to AkademicNest. |
 | **School Administrator** | The account that registers a School and administers its Environment. |
 | **Portal User** | A member of staff, pupil or parent/guardian given access to a School's portals by that School. |
 | **Visitor** | Anyone using a School's public website without signing in. |
@@ -54,7 +54,7 @@ the acts and omissions of every user it creates.
 
 ## 4. Eligibility
 
-ScholarNest is offered to educational institutions and to the individuals those
+AkademicNest is offered to educational institutions and to the individuals those
 institutions authorise. It is **not** offered directly to members of the public,
 and pupils and parents cannot register themselves — their accounts are created
 by their School.
@@ -65,7 +65,7 @@ section 25 and the *School Data Processing Framework*.
 
 ## 5. Ownership of the Platform
 
-ScholarNest owns and retains all right, title and interest in the Platform,
+AkademicNest owns and retains all right, title and interest in the Platform,
 including its software, source code, database design, system architecture,
 infrastructure, user interface, visual design, features and branding — except
 for third-party and open-source components, which remain with their owners and
@@ -78,7 +78,7 @@ of time.
 
 ## 6. What a Subscription grants
 
-Subject to these Terms and to a valid, active Subscription, ScholarNest grants the
+Subject to these Terms and to a valid, active Subscription, AkademicNest grants the
 School a **limited, non-exclusive, non-transferable, non-sublicensable and
 revocable right** to access and use the Platform and its allocated School
 Environment for the ordinary administration of that School, for as long as the
@@ -98,7 +98,7 @@ A School is responsible for:
 - keeping credentials confidential and instructing its users to do the same;
 - having lawful authority to record the personal information it enters,
   including that of children;
-- promptly telling ScholarNest of any suspected unauthorised access to its
+- promptly telling AkademicNest of any suspected unauthorised access to its
   Environment.
 
 ## 8. User account responsibilities
@@ -116,7 +116,7 @@ password by the user before the portal can be used for anything else.
 
 ## 9. Acceptable use
 
-ScholarNest may be used for the administration of a School and the operation of its
+AkademicNest may be used for the administration of a School and the operation of its
 public website. Anything materially outside that is not permitted.
 
 ## 10. Prohibited activities
@@ -142,7 +142,7 @@ You must not:
 
 ## 11. Subscription plans
 
-ScholarNest currently offers three plans. **The plan a School is on determines what
+AkademicNest currently offers three plans. **The plan a School is on determines what
 it can access; this is enforced in the software, not merely described here.**
 
 ### Basic Plan
@@ -166,7 +166,7 @@ Everything in Standard, plus connecting the School's own custom domain.
 > This will change without these Terms necessarily changing; the plan selection
 > screen is authoritative on what can be bought today.
 
-ScholarNest may change what a plan includes. Where a change removes something
+AkademicNest may change what a plan includes. Where a change removes something
 material from a plan a School is already on, we will give reasonable notice.
 
 ## 12. Payments
@@ -174,10 +174,10 @@ material from a plan a School is already on, we will give reasonable notice.
 - Fees are stated in the plan selection screens at the time of subscribing.
 - **Payment is currently by bank transfer with proof of payment uploaded to the
   Platform.** Card payment is named in the interface but is **not yet
-  operational**, and no card details are collected or stored by ScholarNest.
+  operational**, and no card details are collected or stored by AkademicNest.
 - An uploaded receipt is screened automatically for obvious problems and then
   **reviewed by a person**. Passing the automatic screen is not approval.
-- A Subscription becomes active only when the ScholarNest Team approves it. Until
+- A Subscription becomes active only when the AkademicNest Team approves it. Until
   then the School's administrative features remain locked.
 - Fees are stated exclusive of any taxes or bank charges unless said otherwise.
 
@@ -204,7 +204,7 @@ or replace it. Top-ups follow the same manual review as the original payment.
 
 ## 15. Suspension
 
-ScholarNest may suspend a School's access, in whole or in part, where:
+AkademicNest may suspend a School's access, in whole or in part, where:
 
 - the Subscription has lapsed, been rejected or not yet been approved;
 - payment has not been received or cannot be verified;
@@ -217,9 +217,9 @@ it right. Suspension does not by itself delete anything.
 
 ## 16. Termination
 
-- A School may stop using ScholarNest at any time and may ask for its Environment
+- A School may stop using AkademicNest at any time and may ask for its Environment
   to be removed.
-- ScholarNest may terminate for material breach that is not remedied after notice,
+- AkademicNest may terminate for material breach that is not remedied after notice,
   or immediately where continuing would be unlawful or would endanger the
   Platform or its users.
 - On termination the right of access in section 6 ends.
@@ -231,11 +231,11 @@ in section 35.
 
 ## 17. School Content and data
 
-A School retains its rights in School Content. ScholarNest does not claim ownership
+A School retains its rights in School Content. AkademicNest does not claim ownership
 of a School's records, its pupils' information, its logo, its photographs or its
 website text.
 
-ScholarNest holds and processes School Content in order to provide the service:
+AkademicNest holds and processes School Content in order to provide the service:
 storing it, displaying it to the users the School has authorised, generating
 documents from it (report cards, ID cards, results), backing it up, and
 troubleshooting problems. The permission a School gives us is limited to that.
@@ -244,7 +244,7 @@ troubleshooting problems. The permission a School gives us is limited to that.
 
 Information about individual users — staff, pupils, parents — is dealt with in
 the Privacy Policy and the *School Data Processing Framework*. In summary: the
-School decides what is recorded about its people and who may see it; ScholarNest
+School decides what is recorded about its people and who may see it; AkademicNest
 provides and operates the system in which that happens.
 
 ## 19. Intellectual property
@@ -253,17 +253,17 @@ Sections 5, 6 and 10 set out the position. In addition:
 
 - Feedback and suggestions you give us may be used to improve the Platform
   without obligation or payment, unless we agree otherwise in writing.
-- ScholarNest's name and marks may not be used without permission, except to say
-  factually that your School uses ScholarNest.
+- AkademicNest's name and marks may not be used without permission, except to say
+  factually that your School uses AkademicNest.
 
 ## 20. School Content licence
 
-To operate the service, a School grants ScholarNest a non-exclusive, worldwide,
+To operate the service, a School grants AkademicNest a non-exclusive, worldwide,
 royalty-free licence to host, store, reproduce, adapt in format, transmit and
 display School Content **solely to provide, secure, support and maintain the
 service** for that School, and to comply with law.
 
-This licence does not permit ScholarNest to use School Content for advertising, to
+This licence does not permit AkademicNest to use School Content for advertising, to
 sell it, or to make it available to any other school. It ends when the content
 is deleted, subject only to backups and legal holds described in the *Data
 Retention & Deletion Policy*.
@@ -290,11 +290,11 @@ anyone holding the file's address. See the *Security & Data Handling Statement*.
 ## 22. Academic records
 
 Results, scores, grades, remarks, attendance, report cards and examination
-records are entered by the School and belong to it. ScholarNest does not alter
+records are entered by the School and belong to it. AkademicNest does not alter
 academic content, does not decide grades, and does not verify accuracy.
 
 **A School is responsible for the correctness of every result it publishes.**
-ScholarNest calculates totals, positions and grades from the values and grading
+AkademicNest calculates totals, positions and grades from the values and grading
 bands the School configures; if those inputs are wrong, the output will be.
 
 ## 23. Public school websites
@@ -304,7 +304,7 @@ Its content — text, news, events, images, contact details, branding — is cho
 by the School, which is responsible for it, including for having the right to
 publish any photograph of any person on it.
 
-The website is served from ScholarNest infrastructure at an ScholarNest address, or, on
+The website is served from AkademicNest infrastructure at an AkademicNest address, or, on
 Exclusive, at the School's own domain. Hosting a School's website does not make
 its content ours.
 
@@ -319,14 +319,14 @@ and a form for reporting a pupil's conduct outside school.
   administrators.
 - Do not send anything through these forms that you would not want the School
   to read.
-- Reports about pupils' conduct are handled by the School, not by ScholarNest. We
+- Reports about pupils' conduct are handled by the School, not by AkademicNest. We
   do not investigate them and take no position on their content.
 
 ## 25. Privacy
 
 The Privacy Policy explains what personal information the Platform handles and
 why. The *School Data Processing Framework* explains how responsibility for it
-divides between ScholarNest and the School.
+divides between AkademicNest and the School.
 
 ## 26. Cookies
 
@@ -347,13 +347,13 @@ begin with a shared or reused password rather than with a flaw in the software.
 
 The Platform relies on a small number of external services, listed in the
 Privacy Policy. Where information is passed to one of them, that provider's own
-terms and protections apply to it and **ScholarNest does not control what happens to
+terms and protections apply to it and **AkademicNest does not control what happens to
 it inside their systems**. We choose providers with care; we cannot guarantee
 their conduct.
 
 ## 29. Service availability
 
-ScholarNest is provided on a reasonable-efforts basis. **We do not commit to a
+AkademicNest is provided on a reasonable-efforts basis. **We do not commit to a
 particular uptime percentage in these Terms**, and no service level agreement
 forms part of them unless separately agreed in writing.
 
@@ -380,8 +380,8 @@ Subject to the paragraph below:
 
 - Neither party is liable for indirect or consequential loss, or for loss of
   profit, revenue, goodwill or anticipated savings.
-- ScholarNest's total liability arising out of or in connection with these Terms in
-  any twelve-month period is limited to the fees paid by the School to ScholarNest
+- AkademicNest's total liability arising out of or in connection with these Terms in
+  any twelve-month period is limited to the fees paid by the School to AkademicNest
   in that period.
 
 **These limits do not apply to** death or personal injury caused by negligence,
@@ -391,7 +391,7 @@ may include certain liabilities under data protection law.
 
 <!-- internal:start -->
 > **For counsel.** The cap and the carve-outs both need review against Nigerian
-> law and against the law of any other jurisdiction ScholarNest operates in. A cap
+> law and against the law of any other jurisdiction AkademicNest operates in. A cap
 > at twelve months' fees is a common commercial position, but for a platform
 > holding children's personal data it may be judged unreasonable, and a cap a
 > court finds unreasonable may be disapplied in its entirety.
@@ -399,21 +399,21 @@ may include certain liabilities under data protection law.
 
 ## 33. Indemnification
 
-A School will indemnify ScholarNest against claims arising from:
+A School will indemnify AkademicNest against claims arising from:
 
 - School Content it uploaded that it had no right to upload;
 - its publication of material on its public website;
 - its use of the Platform in breach of these Terms or of applicable law;
 - its failure to obtain a permission or consent it was required to obtain.
 
-This does not extend to anything caused by ScholarNest's own breach, negligence or
+This does not extend to anything caused by AkademicNest's own breach, negligence or
 unlawful act.
 
 ## 34. Account termination and closure
 
 - A School Administrator may deactivate the School's own users at any time.
 - **A School cannot presently delete its own account or Environment from within
-  the Platform.** Removal is carried out by the ScholarNest Team on request. See
+  the Platform.** Removal is carried out by the AkademicNest Team on request. See
   the *Data Retention & Deletion Policy*.
 
 ## 35. Data retention
@@ -424,7 +424,7 @@ need to be kept for longer than a Subscription lasts — a school leaver may
 request a transcript years later — and a School should decide its own retention
 period rather than assume ours.
 
-> **Limitation you should know about.** ScholarNest does not currently provide a
+> **Limitation you should know about.** AkademicNest does not currently provide a
 > feature for a School to export its records in bulk. A School that wants a copy
 > of its data before leaving should contact us to arrange it, and should allow
 > time for that. This is a gap we intend to close.
@@ -433,7 +433,7 @@ period rather than assume ours.
 
 Deletion rights and their limits are in the *Data Retention & Deletion Policy*.
 In summary: deletion of a School Environment is permanent and is not reversible
-by ScholarNest once carried out; requests from individuals about their own
+by AkademicNest once carried out; requests from individuals about their own
 information are normally handled by the School rather than by us.
 
 ## 37. Changes to the Platform
@@ -447,7 +447,7 @@ appropriate, a pro-rata refund of the affected period.
 We may update these Terms. The version number and "last updated" date at the
 top will change. Material changes will be notified through the Platform or by
 email to School Administrators before they take effect. Continuing to use
-ScholarNest after that constitutes acceptance.
+AkademicNest after that constitutes acceptance.
 
 <!-- internal:start -->
 > **For counsel.** The Platform does not currently record which version of the
@@ -486,7 +486,7 @@ user from complaining to a data protection authority.
 - **Severability.** If a provision is held unenforceable, the rest stands.
 - **No waiver.** Not enforcing a right on one occasion does not waive it.
 - **Assignment.** A School may not assign these Terms without our consent.
-  ScholarNest may assign on a sale or reorganisation of its business, on notice.
+  AkademicNest may assign on a sale or reorganisation of its business, on notice.
 - **Force majeure.** Neither party is liable for failure caused by events
   genuinely beyond its reasonable control.
 - **Survival.** Sections 5, 10, 17, 19, 20, 31, 32, 33, 39 and 40 survive
@@ -495,5 +495,5 @@ user from complaining to a data protection authority.
 ---
 
 *These Terms should be reviewed and approved by a qualified lawyer before
-publication, particularly because ScholarNest processes educational records and the
+publication, particularly because AkademicNest processes educational records and the
 personal information of children.*

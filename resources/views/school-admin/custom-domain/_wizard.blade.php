@@ -18,7 +18,7 @@
                 </svg>
             </span>
             <h3 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Connect Your Own Domain</h3>
-            <p class="mx-auto mt-1 max-w-md text-sm text-gray-600 dark:text-gray-300">Serve your school's website at your own branded domain (e.g. www.schoolname.com) instead of the default ScholarNest link. Custom Domain is available on the Exclusive plan.</p>
+            <p class="mx-auto mt-1 max-w-md text-sm text-gray-600 dark:text-gray-300">Serve your school's website at your own branded domain (e.g. www.schoolname.com) instead of the default AkademicNest link. Custom Domain is available on the Exclusive plan.</p>
             <a
                 href="{{ route('subscriptions.choose-plan') }}"
                 class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-emerald-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg"
@@ -36,7 +36,7 @@
 
         @if (! $primary)
             <div class="rounded-[5px] border border-dashed border-gray-300 p-10 text-center dark:border-gray-700 lg:rounded-[10px]">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Connect your school's own web address instead of the default ScholarNest link (e.g. www.schoolname.com).</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Connect your school's own web address instead of the default AkademicNest link (e.g. www.schoolname.com).</p>
                 <button
                     type="button"
                     @click="editing = null; open = true"
@@ -109,7 +109,7 @@
                     </div>
                 @else
                     <div class="mt-5 rounded-[8px] bg-blue-50 p-4 text-xs text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
-                        Saving a domain doesn't connect it right away — it's still managed wherever you registered it (Namecheap, GoDaddy, Cloudflare, Hostinger, Squarespace Domains, Porkbun, and similar). Follow the steps below to point it at ScholarNest.
+                        Saving a domain doesn't connect it right away — it's still managed wherever you registered it (Namecheap, GoDaddy, Cloudflare, Hostinger, Squarespace Domains, Porkbun, and similar). Follow the steps below to point it at AkademicNest.
                     </div>
 
                     <div class="mt-4 space-y-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
@@ -180,8 +180,8 @@
                 @if ($primary->status === CustomDomainStatus::Verified)
                     <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
                         <div>
-                            <p class="text-sm font-bold text-gray-900 dark:text-white">Redirect the default ScholarNest link</p>
-                            <p class="field-hint mt-0.5">Visitors to your default ScholarNest web address are redirected to {{ $primary->domain }}.</p>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white">Redirect the default AkademicNest link</p>
+                            <p class="field-hint mt-0.5">Visitors to your default AkademicNest web address are redirected to {{ $primary->domain }}.</p>
                         </div>
                         <form method="POST" action="{{ route('custom-domain.toggle-redirect', $primary) }}">
                             @csrf

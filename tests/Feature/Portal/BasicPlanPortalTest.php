@@ -284,7 +284,7 @@ test('a school whose name produces an empty slug still gets a usable one', funct
 });
 
 // -----------------------------------------------------------------------------
-// The finder must not become a way to list ScholarNest's customers
+// The finder must not become a way to list AkademicNest's customers
 // -----------------------------------------------------------------------------
 
 test('like wildcards typed into the box are treated as literal text', function () {

@@ -79,7 +79,7 @@
         <title>{{ $title ? "{$title} · {$school->name}" : $school->name }}</title>
         {{-- An empty data URI (not an omitted tag) deliberately stops the browser's
         automatic /favicon.ico fallback request, which would otherwise silently
-        resolve to ScholarNest's own favicon rather than this school's (or none). --}}
+        resolve to AkademicNest's own favicon rather than this school's (or none). --}}
         <x-favicon :school="$school" :platform-fallback="false" />
         @if ($metaDescription)
             <meta name="description" content="{{ Str::limit($metaDescription, 160) }}">
@@ -440,7 +440,7 @@
             </div>
 
             <div class="border-t border-white/10 px-4 py-4 text-center text-xs text-gray-500 sm:px-6">
-                &copy; {{ now()->year }} {{ $school->name }}. Powered by {{ config('app.name', 'ScholarNest') }}.
+                &copy; {{ now()->year }} {{ $school->name }}. Powered by {{ config('app.name', 'AkademicNest') }}.
             </div>
         </footer>
     </body>

@@ -8,7 +8,7 @@ return [
     |
     | The host a school's custom domain must CNAME to (or, for apex domains
     | whose registrar has no ALIAS/ANAME/CNAME-flattening option, the IP a
-    | plain A record must point to) for traffic to actually reach ScholarNest.
+    | plain A record must point to) for traffic to actually reach AkademicNest.
     | Defaults to this application's own host so it never needs to be set
     | explicitly in local/staging environments.
     |
@@ -28,14 +28,14 @@ return [
     |
     */
     /*
-     * DELIBERATELY STILL "_edunest-verify", after the rename to ScholarNest.
+     * DELIBERATELY STILL "_edunest-verify", after the rename to AkademicNest.
      *
      * This is a DNS record schools have already created at their own registrar.
      * Changing it does not rename anything - it un-verifies every custom domain
      * on the platform until each school notices and edits its own DNS.
      *
      * It is env-overridable, so a deployment with no verified domains yet can
-     * set CUSTOM_DOMAIN_TXT_PREFIX=_scholarnest-verify freely. Changing the
+     * set CUSTOM_DOMAIN_TXT_PREFIX=_akademicnest-verify freely. Changing the
      * default is a migration, not a rename.
      */
     'txt_verification_prefix' => env('CUSTOM_DOMAIN_TXT_PREFIX', '_edunest-verify'),

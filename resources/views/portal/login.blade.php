@@ -1,4 +1,4 @@
-<x-auth-layout :simple="true" :header="false" :title="$school ? $school->name.' Portal' : 'ScholarNest Portal'">
+<x-auth-layout :simple="true" :header="false" :title="$school ? $school->name.' Portal' : 'AkademicNest Portal'">
     <x-auth-card>
         <div class="text-center">
             @if ($school)
@@ -10,7 +10,7 @@
                 <h1 class="mt-3 text-lg font-bold text-gray-900">{{ $school->name }}</h1>
             @else
                 <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-[10px] bg-primary-600 text-lg font-extrabold text-white shadow-md">S</span>
-                <h1 class="mt-3 text-lg font-bold text-gray-900">ScholarNest Portal</h1>
+                <h1 class="mt-3 text-lg font-bold text-gray-900">AkademicNest Portal</h1>
             @endif
             <p class="text-xs font-semibold uppercase tracking-wide text-primary-500">Sign in to continue</p>
         </div>

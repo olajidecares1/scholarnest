@@ -34,7 +34,7 @@
                     @endif
                     <div class="flex-1">
                         <input type="file" name="favicon" accept=".png,.jpg,.jpeg,.webp" class="w-full">
-                        <p class="field-hint mt-1">Browser tab icon for your public website (optional, square PNG recommended). Your school's own icon is never replaced with ScholarNest's.</p>
+                        <p class="field-hint mt-1">Browser tab icon for your public website (optional, square PNG recommended). Your school's own icon is never replaced with AkademicNest's.</p>
                     </div>
                 </div>
 
@@ -159,7 +159,7 @@
                 <div class="border-t border-gray-100 pt-6 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Principal</h2>
                     <p class="field-hint mt-1">
-                        You are your school&rsquo;s Principal on ScholarNest. Register the signature itself
+                        You are your school&rsquo;s Principal on AkademicNest. Register the signature itself
                         under <strong>Principal&rsquo;s Signature</strong> at the foot of this page.
                     </p>
 
@@ -278,7 +278,7 @@
 
                 <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Identification Numbers</h3>
-                    <p class="field-hint mt-0.5">Configure a school code and let ScholarNest generate unique Admission Numbers and Staff IDs automatically instead of typing them by hand.</p>
+                    <p class="field-hint mt-0.5">Configure a school code and let AkademicNest generate unique Admission Numbers and Staff IDs automatically instead of typing them by hand.</p>
 
                     <div class="mt-4 space-y-4">
                         <x-text-field name="school_code" label="School Code" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" :value="old('school_code', $school->school_code)" placeholder="e.g. MIS" helper="Used as the prefix for every generated Admission Number and Staff ID." />

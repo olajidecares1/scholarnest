@@ -1,16 +1,16 @@
 ---
-title: ScholarNest Team Technical Runbook
-audience: Authorised ScholarNest technical and support personnel only
+title: AkademicNest Team Technical Runbook
+audience: Authorised AkademicNest technical and support personnel only
 version: 1.0
 last_updated: 2026-09-01
 classification: Internal
 ---
 
-# ScholarNest Team Technical Runbook
+# AkademicNest Team Technical Runbook
 
 **Version 1.0 · 1 September 2026 · Internal**
 
-For authorised ScholarNest technical and support staff. **Not to be shared with
+For authorised AkademicNest technical and support staff. **Not to be shared with
 schools.** The school-facing book is `school-runbook.md`; nothing here should be
 quoted to a school user.
 
@@ -458,7 +458,7 @@ you removed.
 
 Bank transfer only. `PaymentMethod::Paystack` exists in the enum but **is not
 integrated** — `StoreTopUpRequest` accepts bank transfer alone. No card data
-reaches ScholarNest.
+reaches AkademicNest.
 
 ```
 School submits → receipt to local disk (EXIF stripped) →
@@ -648,7 +648,7 @@ what the role could reach.
 
 ## 12.4 — Suspected breach
 
-Follow 12.1. **The school notifies its own parents and staff** — ScholarNest is the
+Follow 12.1. **The school notifies its own parents and staff** — AkademicNest is the
 processor for that data and notifies the school. Do not contact a school's
 parents directly.
 
@@ -734,7 +734,7 @@ Support staff should know these exist so they are not diagnosed as new faults.
 | Query around a suspected breach before preserving | You contaminate the audit trail you will need |
 | Delete an account involved in an incident | It is the evidence |
 | Fix by hand what a school can fix themselves | You will do it again next term, and they still will not know how |
-| Contact a school's parents directly | ScholarNest is the processor. The school notifies its own people |
+| Contact a school's parents directly | AkademicNest is the processor. The school notifies its own people |
 
 ---
 

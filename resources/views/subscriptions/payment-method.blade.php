@@ -8,13 +8,13 @@
 
             @if ($paymentMethods->isEmpty())
                 {{-- Not an empty list of radios above a button that cannot
-                     succeed. The ScholarNest Team has turned everything off, and
+                     succeed. The AkademicNest Team has turned everything off, and
                      the honest thing is to say so and offer the way back. --}}
                 <div class="mt-6 rounded-[10px] border border-amber-200 bg-amber-50 p-6 text-center">
                     <p class="text-sm font-bold text-amber-900">No payment methods are available right now</p>
                     <p class="mx-auto mt-1.5 max-w-md text-[12.5px] leading-[1.7] text-amber-800">
-                        The ScholarNest Team has not enabled any way to pay at the moment. Your plan choice has been
-                        saved &mdash; please try again shortly, or contact the ScholarNest Team.
+                        The AkademicNest Team has not enabled any way to pay at the moment. Your plan choice has been
+                        saved &mdash; please try again shortly, or contact the AkademicNest Team.
                     </p>
 
                     <a
@@ -29,7 +29,7 @@
                 @csrf
 
                 {{-- Every option comes from the payment_methods table. A method
-                     the ScholarNest Team disables is not here AND is refused by
+                     the AkademicNest Team disables is not here AND is refused by
                      PaymentMethodRequest, which is the half that matters. --}}
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     @foreach ($paymentMethods as $paymentMethod)

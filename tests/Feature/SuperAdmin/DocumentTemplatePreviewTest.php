@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Support\IdCardDesign;
 
 /**
- * The ScholarNest Team's preview must be the real template, not a drawing of it.
+ * The AkademicNest Team's preview must be the real template, not a drawing of it.
  * The ID card editor learnt that the expensive way: its preview was a
  * hand-built miniature that drifted until what was approved bore no relation
  * to what printed.

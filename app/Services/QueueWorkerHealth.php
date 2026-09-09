@@ -110,7 +110,7 @@ class QueueWorkerHealth
      * What to tell someone whose document is waiting on a queue that is not
      * running.
      *
-     * Two audiences, because the useful sentence differs. The ScholarNest Team can
+     * Two audiences, because the useful sentence differs. The AkademicNest Team can
      * start a worker, so they are told which command does it. A teacher cannot
      * and should not be shown a shell command - they are told plainly that the
      * document is safe and who can fix it, which is the difference between an
@@ -125,7 +125,7 @@ class QueueWorkerHealth
 
         return 'Extraction has not started yet because the extraction service is not running. '
             .'Your document has been saved - it will be processed once the service is back, '
-            .'and you do not need to upload it again. Please tell the ScholarNest Team if it stays this way.';
+            .'and you do not need to upload it again. Please tell the AkademicNest Team if it stays this way.';
     }
 
     /**

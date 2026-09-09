@@ -26,7 +26,7 @@ require __DIR__.'/auth.php';
 | A school's own result-checking address
 |--------------------------------------------------------------------------
 |
-| scholarnest.com/hT4wLpZs3H8Kq2mV/result
+| akademicnest.com/hT4wLpZs3H8Kq2mV/result
 |
 | The link a school hands to parents. It carries no secret of its own - a
 | result token is still required to see anything - but it does decide WHICH
@@ -65,7 +65,7 @@ Route::prefix('{school:result_link_slug}/result')->name('school-result.')->group
 
 // The Basic-plan school landing, on the same opaque key as everything else.
 //
-// It used to be scholarnest.com/greenfield-college - a single readable segment at
+// It used to be akademicnest.com/greenfield-college - a single readable segment at
 // the root, which is why this file carried so much machinery to stop a school
 // slug colliding with a reserved path. The key retires all of it: 20 mixed-case
 // alphanumerics cannot be "login" or "dashboard" or "legal", so there is no

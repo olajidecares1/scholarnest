@@ -245,28 +245,28 @@ test('routingRecordsMatchTarget matches a CNAME record pointing at the configure
     $service = new CustomDomainVerificationService;
 
     expect($service->routingRecordsMatchTarget(
-        [['target' => 'scholarnest.example.com']],
+        [['target' => 'akademicnest.example.com']],
         [],
-        'scholarnest.example.com',
+        'akademicnest.example.com',
         null,
     ))->toBeTrue();
 
     // Trailing dots (a fully-qualified DNS name) shouldn't cause a false mismatch.
     expect($service->routingRecordsMatchTarget(
-        [['target' => 'scholarnest.example.com.']],
+        [['target' => 'akademicnest.example.com.']],
         [],
-        'scholarnest.example.com',
+        'akademicnest.example.com',
         null,
     ))->toBeTrue();
 
     expect($service->routingRecordsMatchTarget(
         [['target' => 'somewhere-else.com']],
         [],
-        'scholarnest.example.com',
+        'akademicnest.example.com',
         null,
     ))->toBeFalse();
 
-    expect($service->routingRecordsMatchTarget([], [], 'scholarnest.example.com', null))->toBeFalse();
+    expect($service->routingRecordsMatchTarget([], [], 'akademicnest.example.com', null))->toBeFalse();
 });
 
 test('routingRecordsMatchTarget falls back to an A record when a target IP is configured', function () {
@@ -275,14 +275,14 @@ test('routingRecordsMatchTarget falls back to an A record when a target IP is co
     expect($service->routingRecordsMatchTarget(
         [],
         [['ip' => '203.0.113.10']],
-        'scholarnest.example.com',
+        'akademicnest.example.com',
         '203.0.113.10',
     ))->toBeTrue();
 
     expect($service->routingRecordsMatchTarget(
         [],
         [['ip' => '203.0.113.99']],
-        'scholarnest.example.com',
+        'akademicnest.example.com',
         '203.0.113.10',
     ))->toBeFalse();
 
@@ -290,7 +290,7 @@ test('routingRecordsMatchTarget falls back to an A record when a target IP is co
     expect($service->routingRecordsMatchTarget(
         [],
         [['ip' => '203.0.113.10']],
-        'scholarnest.example.com',
+        'akademicnest.example.com',
         null,
     ))->toBeFalse();
 });

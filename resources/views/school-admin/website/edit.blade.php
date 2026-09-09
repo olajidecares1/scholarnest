@@ -311,7 +311,7 @@
                         </div>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <x-text-field name="topbar_link_text" label="Portal Link Text" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" :value="$website->topbar_link_text" placeholder="School Portal" helper="Optional. The wording of the link on the right of the strip — where parents and staff sign in." />
-                            <x-text-field name="topbar_link_url" label="Portal Link URL" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" :value="$website->topbar_link_url" placeholder="{{ route('login') }}" helper="Optional. Where that link goes. Leave blank to use your ScholarNest login page." />
+                            <x-text-field name="topbar_link_url" label="Portal Link URL" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" :value="$website->topbar_link_url" placeholder="{{ route('login') }}" helper="Optional. Where that link goes. Leave blank to use your AkademicNest login page." />
                         </div>
 
                         <div>

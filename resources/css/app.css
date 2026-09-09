@@ -3,7 +3,7 @@
 /* Font Awesome, bundled rather than fetched from a CDN.
  *
  * It used to be a <link> to cdnjs in each layout, which meant two things: the
- * icons vanished on any network that could not reach cdnjs, and the ScholarNest
+ * icons vanished on any network that could not reach cdnjs, and the AkademicNest
  * Team's layout - which never had that link - rendered no icons at all. Every
  * page loads this stylesheet, so importing it here is what makes "the icons
  * are loaded" true everywhere instead of true in four templates out of five. */
@@ -17,7 +17,7 @@
  * desktop layout behind them - so the things that break on a real handset are
  * handled here rather than left to whichever page happens to get them right.
  * Scoped to .edn-portal-main and .edn-bottom-nav so the School Admin and
- * ScholarNest Team dashboards are untouched. */
+ * AkademicNest Team dashboards are untouched. */
 
 .edn-portal-main {
     /* A long surname, a subject title or an email address must wrap rather

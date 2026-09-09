@@ -25,7 +25,7 @@
 
     // A page that belongs to one school rather than to the platform - the
     // result checker, chiefly. Given one, the header wears that school's badge
-    // and name instead of ScholarNest's, because a parent checking their child's
+    // and name instead of AkademicNest's, because a parent checking their child's
     // result should see their child's school.
     'school' => null,
 ])
@@ -50,7 +50,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $title ?? config('app.name', 'ScholarNest') }}</title>
+        <title>{{ $title ?? config('app.name', 'AkademicNest') }}</title>
 
         <x-favicon />
 
@@ -112,7 +112,7 @@
                     <a href="{{ url('/') }}" class="pointer-events-auto inline-block">
                         <img
                             src="{{ $logoUrl }}"
-                            alt="{{ config('app.name', 'ScholarNest') }}"
+                            alt="{{ config('app.name', 'AkademicNest') }}"
                             class="h-20 w-20 select-none rounded-[10px] object-contain"
                         >
                     </a>
@@ -151,20 +151,20 @@
                         <div class="flex items-center gap-2">
                             <img
                                 src="{{ $logoUrl }}"
-                                alt="{{ config('app.name', 'ScholarNest') }}"
+                                alt="{{ config('app.name', 'AkademicNest') }}"
                                 @click="registerClick()"
                                 class="h-20 w-20 shrink-0 select-none rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
                             >
-                            <a href="{{ url('/') }}" class="text-lg font-bold text-gray-900">Scholar<span class="text-primary-500">Nest</span></a>
+                            <a href="{{ url('/') }}" class="text-lg font-bold text-gray-900">Akademic<span class="text-primary-500">Nest</span></a>
                         </div>
                     @else
                         <a href="{{ url('/') }}" class="flex items-center gap-2">
                             <img
                                 src="{{ $logoUrl }}"
-                                alt="{{ config('app.name', 'ScholarNest') }}"
+                                alt="{{ config('app.name', 'AkademicNest') }}"
                                 class="h-20 w-20 shrink-0 rounded-[5px] shadow-md shadow-primary-500/30 lg:rounded-[10px]"
                             >
-                            <span class="text-lg font-bold text-gray-900">Scholar<span class="text-primary-500">Nest</span></span>
+                            <span class="text-lg font-bold text-gray-900">Akademic<span class="text-primary-500">Nest</span></span>
                         </a>
                     @endif
 
@@ -216,7 +216,7 @@
 
             <footer class="border-t border-gray-200 bg-white">
                 <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-sm text-gray-500 sm:flex-row sm:px-6 lg:px-8">
-                    <span>&copy; {{ now()->year }} ScholarNest. All rights reserved.</span>
+                    <span>&copy; {{ now()->year }} AkademicNest. All rights reserved.</span>
                     <div class="flex items-center gap-4">
                         <a href="#" class="hover:text-primary-500">Privacy Policy</a>
                         <a href="#" class="hover:text-primary-500">Terms of Service</a>

@@ -27,7 +27,7 @@ beforeEach(function () {
 test('Font Awesome is bundled, not fetched from a CDN', function () {
     // The brief asked for the loading problem to be fixed rather than the class
     // names changed around it. It was a <link> to cdnjs in four templates and
-    // absent from the fifth, so the ScholarNest Team's pages rendered no icons at
+    // absent from the fifth, so the AkademicNest Team's pages rendered no icons at
     // all and everyone's icons vanished without that host.
     $bundle = collect(glob(public_path('build/assets/app-*.css')))
         ->sortByDesc(fn (string $path) => filemtime($path))

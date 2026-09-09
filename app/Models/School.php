@@ -96,7 +96,7 @@ class School extends Model
     /**
      * Would this slug be mistaken for the Basic-plan portal token?
      *
-     * The portal lives at the root of the site - scholarnest.com/{32-char token} -
+     * The portal lives at the root of the site - akademicnest.com/{32-char token} -
      * and so do school slugs. The token route is registered first and therefore
      * wins, which means a school whose slug happened to be 32 unbroken
      * alphanumeric characters would be permanently unreachable: every request
@@ -117,7 +117,7 @@ class School extends Model
         static::creating(function (self $school) {
             if (! $school->slug) {
                 // The slug is also the school's address at the root of the
-                // platform - scholarnest.com/greenfield-college - so it competes
+                // platform - akademicnest.com/greenfield-college - so it competes
                 // for names with the application's own top-level paths. A
                 // school that managed to claim "login" or "dashboard" would
                 // be a genuine problem, so those names are skipped here as
@@ -371,7 +371,7 @@ class School extends Model
     }
 
     /**
-     * ScholarNest's invoices to this school - subscriptions and top-ups both.
+     * AkademicNest's invoices to this school - subscriptions and top-ups both.
      *
      * Not $this->invoices(), which is this school's own fee invoices to its
      * parents. Two unrelated documents that share a word.
@@ -603,7 +603,7 @@ class School extends Model
     }
 
     /**
-     * This school's result-checking address: scholarnest.com/greenfield-college/result
+     * This school's result-checking address: akademicnest.com/greenfield-college/result
      *
      * The one thing a Basic school hands to parents. It carries no secret - a
      * token is still required to see anything - so it is deliberately readable
@@ -742,7 +742,7 @@ class School extends Model
     /**
      * The label this school's website sits at on the platform's own domain.
      *
-     *     vincentmartinscollege.scholarnest.com.ng
+     *     vincentmartinscollege.akademicnest.com
      *
      * NO HYPHENS, unlike the slug. A subdomain is read aloud, typed from
      * memory and printed on things, and "vincent-martins-college" is three
@@ -1288,7 +1288,7 @@ class School extends Model
      *
      *   BASIC        the portal landing at the site root, /{portal_key},
      *                reached through the shared token finder. No website.
-     *   STANDARD     its own subdomain, greenfield.scholarnest.com.ng.
+     *   STANDARD     its own subdomain, greenfield.akademicnest.com.
      *   EXCLUSIVE    its own domain, once verified; its subdomain until then.
      *
      * A Standard school that has not published a website yet falls back to
@@ -1345,7 +1345,7 @@ class School extends Model
         }
 
         $tenantRouteName = 'tenant.'.Str::after($routeName, 'public.');
-        $generated = route($tenantRouteName, [...$params, 'tenantDomain' => 'scholarnest-placeholder-host.invalid']);
+        $generated = route($tenantRouteName, [...$params, 'tenantDomain' => 'akademicnest-placeholder-host.invalid']);
         $path = parse_url($generated, PHP_URL_PATH) ?? '/';
         $query = parse_url($generated, PHP_URL_QUERY);
 

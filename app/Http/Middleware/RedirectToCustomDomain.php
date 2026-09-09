@@ -56,7 +56,7 @@ class RedirectToCustomDomain
         // APP_URL, not whatever host the default-path request happened to arrive
         // on) - generate with a throwaway host, then keep only the path/query and
         // rebuild the URL against the real domain.
-        $generated = route($tenantRouteName, [...$params, 'tenantDomain' => 'scholarnest-placeholder-host.invalid']);
+        $generated = route($tenantRouteName, [...$params, 'tenantDomain' => 'akademicnest-placeholder-host.invalid']);
         $path = parse_url($generated, PHP_URL_PATH) ?? '/';
         $query = parse_url($generated, PHP_URL_QUERY);
 

@@ -1,10 +1,10 @@
-<x-dashboard-layout page-title="Invoices" page-subtitle="Your ScholarNest subscription invoices and their payment status.">
+<x-dashboard-layout page-title="Invoices" page-subtitle="Your AkademicNest subscription invoices and their payment status.">
     <div class="space-y-6">
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Billing History</h2>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Every invoice ScholarNest has issued to your school. Download any of them as a PDF.
+                    Every invoice AkademicNest has issued to your school. Download any of them as a PDF.
                 </p>
             </div>
 
@@ -36,7 +36,7 @@
                                          amber badge: a school waiting on approval needs to know
                                          that nothing more is required of them. --}}
                                     @unless ($invoice->isPaid())
-                                        <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">Awaiting ScholarNest approval</span>
+                                        <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">Awaiting AkademicNest approval</span>
                                     @endunless
                                 </td>
                                 <td class="px-5 py-3">

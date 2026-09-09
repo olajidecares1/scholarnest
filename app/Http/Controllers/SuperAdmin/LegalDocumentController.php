@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * The ScholarNest Team's editor for the platform's own legal documents.
+ * The AkademicNest Team's editor for the platform's own legal documents.
  *
  * These are not blog posts. Each one is a document a school has agreed to, and
  * changing it changes the terms of a live contract - so this screen is

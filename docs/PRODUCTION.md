@@ -19,7 +19,7 @@ running, locking you out of the fix.
 | `APP_ENV` | `production` | Turns on the check below, and forces https URL generation. |
 | `APP_DEBUG` | `false` | Debug pages print stack traces containing database credentials to whoever triggered the error. **Enforced.** |
 | `APP_KEY` | a generated key | `php artisan key:generate`. Sessions and every `encrypted` cast depend on it — see the warning under Backups. |
-| `APP_URL` | `https://scholarnest.com.ng` | Every link `route()` generates, every link in an email, the host stray traffic is redirected to, and the default target for custom domains. **Enforced** — an http, local or missing value is refused. |
+| `APP_URL` | `https://akademicnest.com` | Every link `route()` generates, every link in an email, the host stray traffic is redirected to, and the default target for custom domains. **Enforced** — an http, local or missing value is refused. |
 | `SESSION_SECURE_COOKIE` | `true` | Without it the cookie that *is* the session is sent over plain http. **Enforced.** |
 | `SESSION_ENCRYPT` | `true` | Session payloads are otherwise readable wherever they are stored. **Enforced.** |
 
@@ -45,11 +45,11 @@ rather than the boot check refusing them.
 ### What the DNS has to look like
 
 ```
-scholarnest.com.ng          A      <server IP>     the platform itself
-*.scholarnest.com.ng        A      <server IP>     every Standard school
+akademicnest.com          A      <server IP>     the platform itself
+*.akademicnest.com        A      <server IP>     every Standard school
 ```
 
-**The wildcard needs a wildcard TLS certificate to match** (`*.scholarnest.com.ng`).
+**The wildcard needs a wildcard TLS certificate to match** (`*.akademicnest.com`).
 Without one, every Standard school's website shows a certificate warning — which
 is worse than not offering subdomains at all. Leave `TENANT_BASE_DOMAIN` blank
 until the certificate exists; turning it on later is additive and breaks no
@@ -61,7 +61,7 @@ create comes from `CUSTOM_DOMAIN_A_RECORD_IP` and `CUSTOM_DOMAIN_CNAME_TARGET`.
 ### One value that must not be renamed
 
 `CUSTOM_DOMAIN_TXT_PREFIX` is still `_edunest-verify` after the rename to
-ScholarNest, deliberately. Schools have already created that TXT record at their
+AkademicNest, deliberately. Schools have already created that TXT record at their
 own registrar. Changing it does not rename anything — it un-verifies every live
 custom domain until each school notices and edits its own DNS. Change it only on
 a deployment that has no verified domains yet.
@@ -88,11 +88,11 @@ CBT extraction is queued. With no worker, uploads sit at "Pending" forever —
 `App\Services\QueueWorkerHealth` detects this and says so on the page, but
 detecting it is not the same as fixing it.
 
-`deploy/supervisor/scholarnest-worker.conf` is the supervisor program that keeps
+`deploy/supervisor/akademicnest-worker.conf` is the supervisor program that keeps
 one up. Install it, then:
 
 ```
-supervisorctl reread && supervisorctl update && supervisorctl start scholarnest-worker:*
+supervisorctl reread && supervisorctl update && supervisorctl start akademicnest-worker:*
 ```
 
 Restart the workers on every deploy (`php artisan queue:restart`), or they go

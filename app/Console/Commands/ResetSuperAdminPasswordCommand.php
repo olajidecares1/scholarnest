@@ -15,7 +15,7 @@ use function Laravel\Prompts\password;
 use function Laravel\Prompts\select;
 
 /**
- * Set a new password for a ScholarNest Team account, from the server.
+ * Set a new password for a AkademicNest Team account, from the server.
  *
  * The last door. Every other account on the platform has somebody who can let
  * it back in - a School Admin reissues a teacher's or a parent's password, and
@@ -38,7 +38,7 @@ class ResetSuperAdminPasswordCommand extends Command
 {
     protected $signature = 'super-admin:reset-password {email? : The account to reset}';
 
-    protected $description = 'Set a new password for a ScholarNest Team account that has been locked out';
+    protected $description = 'Set a new password for a AkademicNest Team account that has been locked out';
 
     public function handle(): int
     {
@@ -78,12 +78,12 @@ class ResetSuperAdminPasswordCommand extends Command
         // server rather than to a user - nobody was signed in to do this.
         AuditLog::record(
             'password.reset',
-            "Password reset from the console for ScholarNest Team {$user->name}.",
+            "Password reset from the console for AkademicNest Team {$user->name}.",
             $user,
             actorName: 'Console',
         );
 
-        $this->components->info('Password updated. Sign in at the ScholarNest Team dialog.');
+        $this->components->info('Password updated. Sign in at the AkademicNest Team dialog.');
 
         if (! $user->is_active) {
             $this->components->warn(
@@ -106,7 +106,7 @@ class ResetSuperAdminPasswordCommand extends Command
         $accounts = User::where('role', UserRole::SuperAdmin)->orderBy('id')->get();
 
         if ($accounts->isEmpty()) {
-            $this->components->error('There are no ScholarNest Team accounts. Run `php artisan make:super-admin` instead.');
+            $this->components->error('There are no AkademicNest Team accounts. Run `php artisan make:super-admin` instead.');
 
             return null;
         }
@@ -115,7 +115,7 @@ class ResetSuperAdminPasswordCommand extends Command
             $user = $accounts->firstWhere('email', $email);
 
             if (! $user) {
-                $this->components->error("No ScholarNest Team account with the email [{$email}].");
+                $this->components->error("No AkademicNest Team account with the email [{$email}].");
 
                 return null;
             }

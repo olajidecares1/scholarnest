@@ -10,7 +10,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Raising ScholarNest's invoice to a school.
+ * Raising AkademicNest's invoice to a school.
  *
  * One place, because an invoice is raised from two quite different events -
  * a school subscribing, and a school buying more student licences - and the

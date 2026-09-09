@@ -12,8 +12,8 @@ status: Awaiting legal review — intended as the basis for a Data Processing Ag
 
 <!-- internal:start -->
 > **Draft.** This is written to serve as the basis for a **Data Processing
-> Agreement** between ScholarNest and each subscribing school. **No such agreement
-> currently exists**, and where ScholarNest acts as a processor one is normally a
+> Agreement** between AkademicNest and each subscribing school. **No such agreement
+> currently exists**, and where AkademicNest acts as a processor one is normally a
 > legal requirement. This needs a lawyer's attention before it is offered to
 > schools.
 <!-- internal:end -->
@@ -22,43 +22,43 @@ status: Awaiting legal review — intended as the basis for a Data Processing Ag
 
 ## 1. Why this document exists
 
-A school using ScholarNest and ScholarNest itself both handle personal information about
+A school using AkademicNest and AkademicNest itself both handle personal information about
 the same people — pupils, parents, staff. If it is not written down who is
 responsible for what, then in practice nobody is, and when something goes wrong
 each side assumes the other was handling it.
 
 This document allocates responsibility. It is deliberately **not** an attempt to
-push ScholarNest's own obligations onto schools; a processor has direct duties of
-its own, and the ones ScholarNest owes are set out in section 5 rather than
+push AkademicNest's own obligations onto schools; a processor has direct duties of
+its own, and the ones AkademicNest owes are set out in section 5 rather than
 disclaimed.
 
 ## 2. The roles
 
 | Category | Controller | Processor |
 | --- | --- | --- |
-| Pupil records | **The school** | ScholarNest |
-| Parent/guardian records | **The school** | ScholarNest |
-| Staff records | **The school** | ScholarNest |
-| Academic records, results, attendance | **The school** | ScholarNest |
-| Digital signatures | **The school** | ScholarNest |
-| Website content and visitor submissions | **The school** | ScholarNest |
-| School Administrator accounts | **ScholarNest** | — |
-| Subscription and payment records | **ScholarNest** | — |
-| Support tickets | **ScholarNest** | — |
-| Audit logs, page views, security logs | **ScholarNest** | — |
+| Pupil records | **The school** | AkademicNest |
+| Parent/guardian records | **The school** | AkademicNest |
+| Staff records | **The school** | AkademicNest |
+| Academic records, results, attendance | **The school** | AkademicNest |
+| Digital signatures | **The school** | AkademicNest |
+| Website content and visitor submissions | **The school** | AkademicNest |
+| School Administrator accounts | **AkademicNest** | — |
+| Subscription and payment records | **AkademicNest** | — |
+| Support tickets | **AkademicNest** | — |
+| Audit logs, page views, security logs | **AkademicNest** | — |
 
 **Controller** = decides why and how information is processed.
 **Processor** = processes it on the controller's instructions.
 
 ### Where this is genuinely arguable
 
-- **Payment receipts.** ScholarNest decides that automated screening happens, chooses
+- **Payment receipts.** AkademicNest decides that automated screening happens, chooses
   the provider and sets the criteria. That looks like controller behaviour, even
-  though the receipt concerns the school's payment. Treated here as **ScholarNest
+  though the receipt concerns the school's payment. Treated here as **AkademicNest
   acting as controller** for the screening, which is the more demanding reading.
-- **Security logs recording school users' activity.** ScholarNest decides to keep
-  them, for its own purposes. Treated as **ScholarNest as controller**.
-- **Website content.** A school publishes it, but ScholarNest supplies the template
+- **Security logs recording school users' activity.** AkademicNest decides to keep
+  them, for its own purposes. Treated as **AkademicNest as controller**.
+- **Website content.** A school publishes it, but AkademicNest supplies the template
   and hosts it. Treated as **school as controller** for the content and any
   personal information in it.
 
@@ -68,9 +68,9 @@ disclaimed.
 > carry its own requirements.
 <!-- internal:end -->
 
-## 3. What ScholarNest processes, and on what instruction
+## 3. What AkademicNest processes, and on what instruction
 
-ScholarNest processes personal information on behalf of a school only to:
+AkademicNest processes personal information on behalf of a school only to:
 
 1. provide the Platform and the school's Environment;
 2. store, display and organise records the school enters;
@@ -81,23 +81,23 @@ ScholarNest processes personal information on behalf of a school only to:
 7. investigate and fix faults, including at the school's request;
 8. comply with a legal obligation.
 
-**The subscription agreement is the instruction.** ScholarNest will not process a
+**The subscription agreement is the instruction.** AkademicNest will not process a
 school's personal information for any other purpose, and specifically:
 
 - **not** to train or improve machine learning models;
 - **not** for advertising or marketing to a school's pupils, parents or staff;
 - **not** to sell, rent or license it;
 - **not** to share it with any other school;
-- **not** for ScholarNest's own analytics beyond the operational logging disclosed
+- **not** for AkademicNest's own analytics beyond the operational logging disclosed
   in the Privacy Policy.
 
-If ScholarNest is legally required to process a school's data in some other way, we
+If AkademicNest is legally required to process a school's data in some other way, we
 will tell the school first unless the law forbids it.
 
 ## 4. School responsibilities
 
-A school using ScholarNest is responsible for the following. These are things only
-the school can do — they are not ScholarNest obligations relabelled.
+A school using AkademicNest is responsible for the following. These are things only
+the school can do — they are not AkademicNest obligations relabelled.
 
 ### 4.1 Lawful basis and authority
 Establishing its own legal basis for recording each category of information, and
@@ -105,21 +105,21 @@ having the authority to enter it. This includes deciding whether it needs
 parental permission for anything it records or publishes about a pupil.
 
 ### 4.2 Accuracy
-Everything entered is entered by the school. **ScholarNest does not verify any of
+Everything entered is entered by the school. **AkademicNest does not verify any of
 it.** Grades are computed from the scores and grading bands the school
 configures; wrong inputs produce wrong report cards, and the school is
 responsible for that.
 
 ### 4.3 Telling people
-Most people in ScholarNest never entered their own information. **Telling pupils,
+Most people in AkademicNest never entered their own information. **Telling pupils,
 parents and staff that their information is held, why, and what their rights
-are, is the school's job** — ScholarNest has no relationship with them and cannot
+are, is the school's job** — AkademicNest has no relationship with them and cannot
 do it.
 
 ### 4.4 Managing users and access
 Creating accounts, assigning roles, and — importantly — **removing access
 promptly when someone leaves**. A teacher who has left with an active account
-can still see pupil records. ScholarNest cannot know they have left.
+can still see pupil records. AkademicNest cannot know they have left.
 
 ### 4.5 Credentials
 Keeping administrator credentials secure, not sharing accounts, and instructing
@@ -134,12 +134,12 @@ ID cards once printed — the platform's protections end at the printer.
 
 ### 4.7 Data subject requests
 Handling requests from pupils, parents and staff about their own information,
-since the school is the controller. ScholarNest will assist where a school needs
+since the school is the controller. AkademicNest will assist where a school needs
 help.
 
 ### 4.8 Retention
 Deciding how long to keep records, in line with the school's own legal
-obligations. **ScholarNest does not delete a school's records on its own initiative**
+obligations. **AkademicNest does not delete a school's records on its own initiative**
 and does not know a school's retention obligations.
 
 ### 4.9 Website content
@@ -149,14 +149,14 @@ published on a public website is available to anyone in the world.**
 
 ### 4.10 Visitor submissions
 Handling contact enquiries and pupil conduct reports appropriately, including
-anything a member of the public reports about a child. ScholarNest does not
+anything a member of the public reports about a child. AkademicNest does not
 investigate these and takes no position on them.
 
 ### 4.11 Compliance
 Complying with education law, data protection law and any other law applicable
-to the school. ScholarNest provides a tool; it does not make a school compliant.
+to the school. AkademicNest provides a tool; it does not make a school compliant.
 
-## 5. ScholarNest responsibilities
+## 5. AkademicNest responsibilities
 
 Not disclaimed, and not conditional on the school doing its part.
 
@@ -166,7 +166,7 @@ As set out in section 3.
 ### 5.2 Security
 Implementing appropriate technical and organisational measures — described,
 including their current shortcomings, in the *Security & Data Handling
-Statement*. **The known gaps in that document are ScholarNest's to fix, not the
+Statement*. **The known gaps in that document are AkademicNest's to fix, not the
 school's to work around.**
 
 ### 5.3 Confidentiality
@@ -181,7 +181,7 @@ Material changes to this list will be notified in advance.
 
 ### 5.5 Assisting the school
 Helping, so far as reasonably possible, with data subject requests, impact
-assessments and regulator enquiries relating to data ScholarNest processes for the
+assessments and regulator enquiries relating to data AkademicNest processes for the
 school.
 
 ### 5.6 Breach notification
@@ -194,7 +194,7 @@ On termination, deleting or returning the school's personal data as the school
 directs, subject to legal retention obligations and to backups.
 
 > **Currently constrained.** Bulk export is not implemented, so "return" means
-> arranging a copy manually. This limits what ScholarNest can honour under 5.7 and
+> arranging a copy manually. This limits what AkademicNest can honour under 5.7 and
 > should be built.
 
 ### 5.8 Records and audit
@@ -220,15 +220,15 @@ Staff, pupils and parents are responsible for:
 | Should this pupil be in the system at all? | **School** |
 | Who may see a pupil's results? | **School**, within the Platform's options |
 | Have parents been told their data is held? | **School** |
-| Is the database protected against intrusion? | **ScholarNest** |
-| Are passwords stored safely? | **ScholarNest** |
-| Can School A see School B's pupils? | **ScholarNest** — prevented in the software |
+| Is the database protected against intrusion? | **AkademicNest** |
+| Are passwords stored safely? | **AkademicNest** |
+| Can School A see School B's pupils? | **AkademicNest** — prevented in the software |
 | Has a leaver's account been disabled? | **School** |
-| How long are academic records kept? | **School** decides; **ScholarNest** provides deletion |
+| How long are academic records kept? | **School** decides; **AkademicNest** provides deletion |
 | Who answers a parent's access request? | **School** |
-| Who notifies a breach of the platform? | **ScholarNest** notifies the school; the **school** notifies its people |
+| Who notifies a breach of the platform? | **AkademicNest** notifies the school; the **school** notifies its people |
 | Who chose the photograph on the public website? | **School** |
-| Where do payment receipts go? | **ScholarNest** decides — see Privacy Policy §8.1 |
+| Where do payment receipts go? | **AkademicNest** decides — see Privacy Policy §8.1 |
 
 ## 8. Changes
 

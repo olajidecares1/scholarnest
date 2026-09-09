@@ -29,7 +29,7 @@ test('audit entries carry the school they belong to', function () {
 test('an entry about a school record belongs to that school, whoever acted', function () {
     $student = Student::factory()->create(['school_id' => $this->school->id]);
 
-    // Acting as the ScholarNest Team, who belong to no school themselves.
+    // Acting as the AkademicNest Team, who belong to no school themselves.
     $team = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
 
     $this->actingAs($team);

@@ -40,7 +40,7 @@ class CbtExtractionAvailability
      * not running delays extraction, it never loses the file.
      *
      * TWO AUDIENCES, for the same reason as
-     * QueueWorkerHealth::stalledMessage(): the ScholarNest Team can start a worker
+     * QueueWorkerHealth::stalledMessage(): the AkademicNest Team can start a worker
      * and should be told which command does it, and a teacher cannot and
      * should never be shown a shell command. This returned one message with
      * "php artisan queue:work" in it to both, so a teacher about to upload was
@@ -66,6 +66,6 @@ class CbtExtractionAvailability
 
         return 'The service that reads uploaded documents is not running at the moment, so extraction will wait in a queue. '
             .'You can still upload: your document will be stored safely and read as soon as the service is back. '
-            .'If it stays this way, please let the ScholarNest Team know.';
+            .'If it stays this way, please let the AkademicNest Team know.';
     }
 }

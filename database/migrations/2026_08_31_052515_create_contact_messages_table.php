@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  * and did nothing, which is worse than not having one, because a parent who
  * fills it in believes they have been in touch.
  *
- * Kept separate from support tickets: a ticket is the school asking ScholarNest
+ * Kept separate from support tickets: a ticket is the school asking AkademicNest
  * for help, this is a stranger asking the school a question. Same shape,
  * entirely different audience, and merging them would put a parent's enquiry
  * in front of our support staff.

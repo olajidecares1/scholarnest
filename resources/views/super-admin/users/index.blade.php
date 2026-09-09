@@ -39,7 +39,7 @@
                 <div class="w-full sm:w-48">
                     <x-select-field
                         name="role"
-                        :options="['' => 'All Roles', 'school_admin' => 'School Admin', 'super_admin' => 'ScholarNest Team']"
+                        :options="['' => 'All Roles', 'school_admin' => 'School Admin', 'super_admin' => 'AkademicNest Team']"
                         :selected="request('role')"
                     />
                 </div>

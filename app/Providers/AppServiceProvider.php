@@ -120,7 +120,7 @@ class AppServiceProvider extends ServiceProvider
          *
          * A school's User carries the school's name, and registering signs the
          * new admin straight in, so one registration put "School ABC logged
-         * in." in front of the ScholarNest Team twice. LogPasswordReset was never
+         * in." in front of the AkademicNest Team twice. LogPasswordReset was never
          * listed here and appeared exactly once, which is what the other two
          * now do.
          */

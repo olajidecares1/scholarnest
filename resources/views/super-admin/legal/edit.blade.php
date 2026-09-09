@@ -189,7 +189,7 @@
             </div>
 
             <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-8">
-                <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-primary-600">{{ config('app.name', 'ScholarNest') }} Legal</p>
+                <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-primary-600">{{ config('app.name', 'AkademicNest') }} Legal</p>
                 <h2 class="mt-2 text-[26px] font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white">{{ $document->title }}</h2>
                 <div class="mt-3 flex flex-wrap gap-x-6 gap-y-1 border-b border-gray-200 pb-5 text-[12px] text-gray-500 dark:border-gray-700 dark:text-gray-400">
                     <span>Version <strong class="font-semibold text-gray-700 dark:text-gray-200">{{ $document->version }}</strong></span>

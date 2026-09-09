@@ -45,11 +45,11 @@ function schoolAtPaymentStep(): User
 // Nothing is hard-coded any more
 // ---------------------------------------------------------------------------
 
-test('the payment page shows the account details the ScholarNest Team entered', function () {
+test('the payment page shows the account details the AkademicNest Team entered', function () {
     $this->bankTransfer->update([
         'details' => [
             'bank_name' => 'Zenith Bank',
-            'account_name' => 'ScholarNest Nigeria Ltd',
+            'account_name' => 'AkademicNest Nigeria Ltd',
             'account_number' => '1234509876',
         ],
     ]);
@@ -58,7 +58,7 @@ test('the payment page shows the account details the ScholarNest Team entered', 
         ->get(route('subscriptions.payment-method'))
         ->assertOk()
         ->assertSee('Zenith Bank')
-        ->assertSee('ScholarNest Nigeria Ltd')
+        ->assertSee('AkademicNest Nigeria Ltd')
         ->assertSee('1234509876')
 
         // The values that used to be typed into the template.
@@ -71,7 +71,7 @@ test('changing the details changes what the next school sees', function () {
         ->put(route('super-admin.payment-settings.update', $this->bankTransfer), [
             'label' => 'Bank Transfer',
             'bank_name' => 'First Bank',
-            'account_name' => 'ScholarNest Ltd',
+            'account_name' => 'AkademicNest Ltd',
             'account_number' => '3011223344',
         ])
         ->assertSessionHasNoErrors();
@@ -214,7 +214,7 @@ test('the shipped placeholder is flagged until it is replaced', function () {
     $this->actingAs($this->team)
         ->get(route('super-admin.payment-settings.index'))
         ->assertOk()
-        ->assertSee('placeholder details that shipped with ScholarNest');
+        ->assertSee('placeholder details that shipped with AkademicNest');
 
     $this->bankTransfer->update([
         'details' => ['bank_name' => 'Zenith Bank', 'account_number' => '1234509876'],
@@ -223,7 +223,7 @@ test('the shipped placeholder is flagged until it is replaced', function () {
     $this->actingAs($this->team)
         ->get(route('super-admin.payment-settings.index'))
         ->assertOk()
-        ->assertDontSee('placeholder details that shipped with ScholarNest');
+        ->assertDontSee('placeholder details that shipped with AkademicNest');
 });
 
 /**
@@ -290,7 +290,7 @@ describe('the two forms on the page stay separate', function () {
 describe('saving one method never damages another, or itself', function () {
     test('saving Paystack leaves the bank account alone', function () {
         $this->bankTransfer->update([
-            'details' => ['bank_name' => 'Zenith Bank', 'account_name' => 'ScholarNest Ltd', 'account_number' => '1234509876'],
+            'details' => ['bank_name' => 'Zenith Bank', 'account_name' => 'AkademicNest Ltd', 'account_number' => '1234509876'],
         ]);
 
         $this->actingAs($this->team)
@@ -307,7 +307,7 @@ describe('saving one method never damages another, or itself', function () {
         // account number, so any submit missing an input silently blanked the
         // account schools are told to pay into.
         $this->bankTransfer->update([
-            'details' => ['bank_name' => 'Zenith Bank', 'account_name' => 'ScholarNest Ltd', 'account_number' => '1234509876'],
+            'details' => ['bank_name' => 'Zenith Bank', 'account_name' => 'AkademicNest Ltd', 'account_number' => '1234509876'],
         ]);
 
         $this->actingAs($this->team)
@@ -329,7 +329,7 @@ describe('saving one method never damages another, or itself', function () {
             ->put(route('super-admin.payment-settings.update', $this->bankTransfer), [
                 'label' => 'Bank Transfer',
                 'bank_name' => 'Access Bank',
-                'account_name' => 'ScholarNest Nigeria',
+                'account_name' => 'AkademicNest Nigeria',
                 'account_number' => '0987654321',
             ])
             ->assertSessionHasNoErrors();
@@ -346,10 +346,10 @@ describe('saving one method never damages another, or itself', function () {
 /**
  * The top-up page shows the SAME account as everywhere else.
  *
- * It carried the bank details in its own template, so the ScholarNest Team
+ * It carried the bank details in its own template, so the AkademicNest Team
  * could change the account in Payment Settings and every "Add More Students"
  * page went on showing the placeholder that shipped with the migration -
- * GTBank / ScholarNest Technologies Ltd / 0123456789 - on every plan.
+ * GTBank / AkademicNest Technologies Ltd / 0123456789 - on every plan.
  */
 describe('adding student places shows the real account', function () {
     /**
@@ -381,7 +381,7 @@ describe('adding student places shows the real account', function () {
             ->assertSee('0121750252')
 
             // The values that were typed into the template.
-            ->assertDontSee('ScholarNest Technologies Ltd')
+            ->assertDontSee('AkademicNest Technologies Ltd')
             ->assertDontSee('0123456789');
     });
 

@@ -6,7 +6,7 @@ last_updated: 2026-09-01
 status: Awaiting legal review
 ---
 
-# ScholarNest Data Retention & Deletion Policy
+# AkademicNest Data Retention & Deletion Policy
 
 **Version 1.0 · Effective [TO BE PROVIDED] · Last updated 1 September 2026**
 
@@ -21,19 +21,19 @@ status: Awaiting legal review
 
 ## 1. Scope
 
-How long information in ScholarNest is kept, what happens when a subscription ends,
+How long information in AkademicNest is kept, what happens when a subscription ends,
 and how deletion works — including what deletion cannot undo.
 
 Two different parties decide retention:
 
 - **The school** decides how long to keep its pupils' and staff's records. It is
   the controller and may have its own legal obligations.
-- **ScholarNest** decides how long to keep the operational records it holds as
+- **AkademicNest** decides how long to keep the operational records it holds as
   controller — audit logs, page views, payment records.
 
 ## 2. Current state — read this first
 
-**As implemented today, ScholarNest deletes almost nothing automatically.**
+**As implemented today, AkademicNest deletes almost nothing automatically.**
 
 | | Status |
 | --- | --- |
@@ -45,10 +45,10 @@ Two different parties decide retention:
 | Soft deletes / recycle bin | **Not implemented anywhere.** Deletion is immediate and permanent |
 | Uploaded files after a record is deleted | **Frequently left on disk.** Some paths delete the file; deleting a whole school does not |
 | Bulk export before deletion | **Not implemented** |
-| Self-service account deletion | **Not implemented.** Only the ScholarNest Team can delete a school |
+| Self-service account deletion | **Not implemented.** Only the AkademicNest Team can delete a school |
 
 Section 3 is therefore the **intended** schedule. It requires the work in the
-gap report to become true. Until then, ScholarNest should state its retention as
+gap report to become true. Until then, AkademicNest should state its retention as
 "held for as long as the subscription is active and until deletion is
 requested", which is accurate.
 
@@ -111,7 +111,7 @@ not explicitly deleted it **remains on disk** even though the record is gone.
 
 ### 4.2 Deleting a school
 
-Carried out by the ScholarNest Team on request, and requires typing the school's
+Carried out by the AkademicNest Team on request, and requires typing the school's
 name to confirm. It removes:
 
 - the school and, by cascade, its pupils, staff, guardians, academic records,
@@ -137,8 +137,8 @@ its history remain, which is usually what a school wants for a leaver. Say
 
 ### 5.1 A pupil, parent or member of staff
 
-**Contact your school, not ScholarNest.** The school decides what is recorded about
-you and can act on the request directly. ScholarNest cannot delete an individual's
+**Contact your school, not AkademicNest.** The school decides what is recorded about
+you and can act on the request directly. AkademicNest cannot delete an individual's
 records at their own request without the school's instruction, because doing so
 would mean altering a school's records against its wishes.
 
@@ -147,11 +147,11 @@ particular.
 
 ### 5.2 A school
 
-Contact ScholarNest at [TO BE PROVIDED]. We will verify that the request comes from
+Contact AkademicNest at [TO BE PROVIDED]. We will verify that the request comes from
 an authorised person before acting.
 
 **Before requesting deletion, obtain a copy of anything you need.** Deletion is
-permanent and ScholarNest cannot restore it. Because bulk export is not yet a
+permanent and AkademicNest cannot restore it. Because bulk export is not yet a
 feature, allow time to arrange a copy.
 
 ### 5.3 Response times
@@ -184,12 +184,12 @@ deleted since, so restores are done only for genuine disaster recovery.
 its records in bulk from within the Platform.
 
 What does exist: report cards and ID cards can be generated and printed, results
-can be downloaded through a result token, and the ScholarNest Team can export a
+can be downloaded through a result token, and the AkademicNest Team can export a
 subscriptions list. None of these amounts to a school getting its data out.
 
 A self-service export should be built. It matters for portability rights, and it
 matters practically — a school should never be in a position where leaving
-ScholarNest means losing its records.
+AkademicNest means losing its records.
 
 ## 8. Contact
 

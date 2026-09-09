@@ -14,7 +14,7 @@
      fills, for the same reason the upload form drops its percentage.
 
      TWO AUDIENCES. A stalled queue is one fact with two useful sentences: the
-     ScholarNest Team can start a worker and should be told which command does it,
+     AkademicNest Team can start a worker and should be told which command does it,
      while a teacher cannot and should never be shown a shell command. This
      panel used to print the command to both - so a teacher whose upload was
      waiting was handed `php artisan queue:work` and left to wonder what to do
@@ -156,7 +156,7 @@
                      server, but telling somebody is a real action, and knowing
                      the document is safe is the part that matters to them. --}}
                 <p class="mt-2 text-xs text-amber-800/80 dark:text-amber-400/80">
-                    You do not need to upload it again. If it stays this way, please let the ScholarNest Team know.
+                    You do not need to upload it again. If it stays this way, please let the AkademicNest Team know.
                 </p>
             @endif
 

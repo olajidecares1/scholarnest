@@ -103,12 +103,12 @@ test('the default host requires a school code and rejects an unknown one without
 });
 
 test('the school code field is not required when the school is resolved from the tenant domain', function () {
-    config(['custom_domain.tenant_base_domain' => 'scholarnest-test.com']);
-    config(['app.url' => 'https://scholarnest-test.com']);
+    config(['custom_domain.tenant_base_domain' => 'akademicnest-test.com']);
+    config(['app.url' => 'https://akademicnest-test.com']);
 
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
 
-    $response = $this->post("http://{$this->school->subdomain}.scholarnest-test.com/portal/sign-in", [
+    $response = $this->post("http://{$this->school->subdomain}.akademicnest-test.com/portal/sign-in", [
         'role' => 'web',
         'login' => $admin->email,
         'password' => 'password',

@@ -6,7 +6,7 @@ last_updated: 2026-09-01
 status: Awaiting legal review
 ---
 
-# ScholarNest Security & Data Handling Statement
+# AkademicNest Security & Data Handling Statement
 
 **Version 1.0 · Effective [TO BE PROVIDED] · Last updated 1 September 2026**
 
@@ -22,7 +22,7 @@ status: Awaiting legal review
 
 ## 1. Purpose
 
-What ScholarNest actually does to protect the information it holds, verified
+What AkademicNest actually does to protect the information it holds, verified
 against the code on 1 September 2026. Nothing here is aspirational: where a
 protection does not exist, it is listed in section 10 instead.
 
@@ -31,7 +31,7 @@ protection does not exist, it is listed in section 10 instead.
 **Passwords**
 
 - Hashed with **bcrypt at 12 rounds**. Never stored in readable form and not
-  recoverable by anyone, including the ScholarNest Team.
+  recoverable by anyone, including the AkademicNest Team.
 - Minimum **8 characters, with upper and lower case, a number and a symbol**,
   applied consistently to registration, password change and reset.
 - An account created by a school with a temporary password **must** have a new
@@ -97,7 +97,7 @@ be caught by anything. See section 10.
 - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
   `Referrer-Policy: strict-origin-when-cross-origin`.
 - **Permissions-Policy** disables camera, microphone, geolocation, payment and
-  USB. Nothing in ScholarNest uses them, so nothing embedded in it can ask.
+  USB. Nothing in AkademicNest uses them, so nothing embedded in it can ask.
 
 ## 5. Common web attacks
 
@@ -112,7 +112,7 @@ be caught by anything. See section 10.
 
 ## 6. File uploads
 
-- The **stored filename is chosen by ScholarNest** — a random UUID. The uploader's
+- The **stored filename is chosen by AkademicNest** — a random UUID. The uploader's
   filename is discarded.
 - The **extension is derived from the file's actual content**, not its name, and
   checked against an allowlist. Anything not on the list is stored as `.bin`.
@@ -278,11 +278,11 @@ checks. Consider a test that fails when a school-scoped controller lacks one.
 
 ### MEDIUM — No two-factor authentication
 
-Not available for any account, including School Administrators and the ScholarNest
+Not available for any account, including School Administrators and the AkademicNest
 Team — accounts that can read every pupil record in a school, or delete a school
 entirely.
 
-*Fix:* offer 2FA, and consider requiring it for the ScholarNest Team.
+*Fix:* offer 2FA, and consider requiring it for the AkademicNest Team.
 
 ### MEDIUM — CSP permits inline and evaluated scripts
 

@@ -41,7 +41,7 @@ describe('every field on the builder is described', function () {
             ->toContain('A short greeting on the left of the strip')
             ->toContain('A small highlighted pill for a short announcement')
             ->toContain('where parents and staff sign in')
-            ->toContain('Leave blank to use your ScholarNest login page')
+            ->toContain('Leave blank to use your AkademicNest login page')
             ->toContain('used only when the Hero Slider below is empty')
             ->toContain('fade from one to the next')
             ->toContain('lists your next few events from the Events page automatically');

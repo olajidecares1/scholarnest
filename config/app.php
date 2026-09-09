@@ -13,7 +13,10 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    // The fallback is the brand, not Laravel's stock placeholder: a
+    // deployment that forgets APP_NAME should still say AkademicNest rather
+    // than announce the framework to a school.
+    'name' => env('APP_NAME', 'AkademicNest'),
 
     /*
     |--------------------------------------------------------------------------

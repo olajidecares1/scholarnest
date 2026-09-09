@@ -4,7 +4,7 @@
             :photo-url="auth()->user()->photoUrl()"
             :initials="Str::of(auth()->user()->name)->substr(0, 1)->upper()"
             :name="auth()->user()->name"
-            role-label="ScholarNest Team"
+            role-label="AkademicNest Team"
             subtitle="Here's the platform at a glance."
         />
 

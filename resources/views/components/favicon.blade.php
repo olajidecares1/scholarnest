@@ -15,6 +15,6 @@
 @else
     {{-- A school's public website with no favicon of its own shows none.
          An empty data URI, rather than no tag at all, so the browser does
-         not go looking for /favicon.ico and find ScholarNest's. --}}
+         not go looking for /favicon.ico and find AkademicNest's. --}}
     <link rel="icon" href="data:,">
 @endif

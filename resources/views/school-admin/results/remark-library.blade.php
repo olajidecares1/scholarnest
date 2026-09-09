@@ -20,7 +20,7 @@
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Write a new remark</h2>
             <p class="field-hint mt-0.5">
                 Saved to your school&rsquo;s library and available on every pupil&rsquo;s result.
-                You are your school&rsquo;s Principal on ScholarNest, so these are your remarks.
+                You are your school&rsquo;s Principal on AkademicNest, so these are your remarks.
             </p>
 
             <form method="POST" action="{{ route('results.remark-library.store') }}" class="mt-4 space-y-3">

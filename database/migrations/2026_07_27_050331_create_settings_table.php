@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->string('site_name')->default('ScholarNest');
+            $table->string('site_name')->default('AkademicNest');
             $table->string('support_email')->nullable();
             $table->string('support_phone')->nullable();
-            $table->string('notification_from_name')->default('ScholarNest');
+            $table->string('notification_from_name')->default('AkademicNest');
             $table->string('notification_from_email')->nullable();
             $table->boolean('maintenance_mode')->default(false);
             $table->text('maintenance_message')->nullable();

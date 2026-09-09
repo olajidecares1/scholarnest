@@ -119,7 +119,7 @@ test('two schools that collide once hyphens are gone get different addresses', f
 });
 
 test('a school cannot claim a subdomain the platform uses itself', function () {
-    // www.scholarnest.com.ng belonging to a school would be a convincing place
+    // www.akademicnest.com belonging to a school would be a convincing place
     // to run a phishing page from.
     expect(School::factory()->create(['name' => 'WWW'])->subdomain)->not->toBe('www');
     expect(School::factory()->create(['name' => 'Mail'])->subdomain)->not->toBe('mail');

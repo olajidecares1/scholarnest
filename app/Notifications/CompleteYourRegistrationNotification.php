@@ -32,14 +32,14 @@ class CompleteYourRegistrationNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Finish Setting Up '.$this->school->name.' On ScholarNest')
+            ->subject('Finish Setting Up '.$this->school->name.' On AkademicNest')
             ->greeting('Welcome back, '.$this->school->name.'!')
-            ->line('We noticed your ScholarNest registration was never completed, so your school is not live yet.')
+            ->line('We noticed your AkademicNest registration was never completed, so your school is not live yet.')
             ->line('Your account exists and everything you entered has been kept. What is still outstanding is choosing a plan and submitting your payment for approval.')
             ->line('It takes a few minutes, and you can pick up exactly where you stopped.')
             ->action('Complete My Registration', $this->url())
             ->line('If you have already completed this, or you no longer wish to continue, you can ignore this email - we will not send another.')
-            ->salutation('— ScholarNest Team');
+            ->salutation('— AkademicNest Team');
     }
 
     /**

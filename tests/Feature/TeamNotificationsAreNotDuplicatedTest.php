@@ -14,7 +14,7 @@ beforeEach(function () {
     $this->team = User::factory()->create([
         'role' => UserRole::SuperAdmin,
         'school_id' => null,
-        'name' => 'ScholarNest Team',
+        'name' => 'AkademicNest Team',
     ]);
 });
 
@@ -51,7 +51,7 @@ test('one sign-in writes one audit entry, not two', function () {
     // The listener was registered twice - once by Laravel's discovery of
     // app/Listeners and once by hand in AppServiceProvider - so every login
     // wrote its entry twice. A school's User carries the school's name, which
-    // is why the ScholarNest Team saw the same school name appear twice.
+    // is why the AkademicNest Team saw the same school name appear twice.
     $user = User::factory()->create([
         'role' => UserRole::SchoolAdmin,
         'name' => 'School ABC',
@@ -215,8 +215,8 @@ test('every notification to the team is claimed under an event key', function ()
     expect($offenders)->toBe([]);
 });
 
-test('the team is called the ScholarNest Team, not the Super Admin', function () {
-    expect(UserRole::SuperAdmin->label())->toBe('ScholarNest Team');
+test('the team is called the AkademicNest Team, not the Super Admin', function () {
+    expect(UserRole::SuperAdmin->label())->toBe('AkademicNest Team');
 
     $this->actingAs($this->team)
         ->get(route('super-admin.dashboard'))

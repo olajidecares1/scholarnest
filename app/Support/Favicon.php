@@ -51,9 +51,9 @@ final class Favicon
      * $platformFallback is false on a school's PUBLIC WEBSITE, and only
      * there. That site is the school's own presence on the internet, so a
      * school that has uploaded no favicon shows none - it must never end up
-     * flying ScholarNest's flag on its own front page. Everywhere else the
+     * flying AkademicNest's flag on its own front page. Everywhere else the
      * platform's icon is the honest answer, because those pages ARE
-     * ScholarNest, wearing the school's colours.
+     * AkademicNest, wearing the school's colours.
      */
     public static function for(?School $school = null, bool $platformFallback = true): ?self
     {

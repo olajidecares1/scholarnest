@@ -1,6 +1,6 @@
 # Password reset and account recovery policy
 
-Who is allowed to reset a password in ScholarNest, and how that restriction is
+Who is allowed to reset a password in AkademicNest, and how that restriction is
 enforced.
 
 ---
@@ -56,7 +56,7 @@ Laravel's own password broker, with one addition.
 ```
 Forgot password?  ->  enter email  ->  always the same answer
                                         ↓
-                          email: "Reset Your ScholarNest Password"
+                          email: "Reset Your AkademicNest Password"
                           [ Reset Password ]  +  6-digit code
                                         ↓
                       reset page: code + new password + confirm
@@ -83,7 +83,7 @@ read the email body, not merely acquire the URL from it.
 **What the request endpoint never reveals.** The answer is the same sentence
 whether the address has an account, has no account, or asked too recently.
 Laravel's default says "We can't find a user with that email address", which
-turns the form into a free way to test who is a ScholarNest administrator.
+turns the form into a free way to test who is a AkademicNest administrator.
 
 **Where the link points.** The URL is built from `APP_URL`, not from the request.
 Laravel's `route()` takes its host from the incoming request, so a forged Host

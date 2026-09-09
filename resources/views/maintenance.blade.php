@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Under Maintenance - {{ config('app.name', 'ScholarNest') }}</title>
+        <title>Under Maintenance - {{ config('app.name', 'AkademicNest') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
@@ -20,7 +20,7 @@
             </span>
             <h1 class="mt-6 text-2xl font-extrabold">We&rsquo;ll be right back</h1>
             <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                {{ $message ?: 'ScholarNest is currently undergoing scheduled maintenance. Please check back shortly.' }}
+                {{ $message ?: 'AkademicNest is currently undergoing scheduled maintenance. Please check back shortly.' }}
             </p>
         </div>
     </body>

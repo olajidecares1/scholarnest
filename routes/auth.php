@@ -45,7 +45,7 @@ Route::middleware('guest')->group(function () {
     // Laravel's password broker already refuses to send a second link for the
     // SAME email address within 60 seconds. What it does not stop is one
     // address requesting links for thousands of DIFFERENT accounts, which
-    // would spray reset emails at a school's users and get ScholarNest's sending
+    // would spray reset emails at a school's users and get AkademicNest's sending
     // domain marked as spam.
     //
     // The same limit protects password.store from having reset tokens guessed.

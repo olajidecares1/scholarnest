@@ -52,9 +52,9 @@ class SubscriptionInvoiceIssuedNotification extends Notification
         $invoice = $this->invoice;
 
         $message = (new MailMessage)
-            ->subject('Your ScholarNest Invoice '.$invoice->number)
+            ->subject('Your AkademicNest Invoice '.$invoice->number)
             ->greeting('Hello '.$invoice->billed_to_name.',')
-            ->line('Thank you for choosing ScholarNest. Your invoice is below, and a PDF copy is attached.')
+            ->line('Thank you for choosing AkademicNest. Your invoice is below, and a PDF copy is attached.')
             ->line('**Invoice number:** '.$invoice->number)
             ->line('**Invoice date:** '.$invoice->issued_at->format('j F Y'))
             ->line('**Plan:** '.$invoice->plan_name.($invoice->billing_cycle ? ' ('.$invoice->billing_cycle.')' : ''));
@@ -73,7 +73,7 @@ class SubscriptionInvoiceIssuedNotification extends Notification
 
         if (! $invoice->isPaid()) {
             $message->line(
-                'Your account is **awaiting approval**. A ScholarNest administrator '
+                'Your account is **awaiting approval**. A AkademicNest administrator '
                 .'reviews every payment before an account is activated, and we will '
                 .'email you the moment yours is approved.'
             );
@@ -83,7 +83,7 @@ class SubscriptionInvoiceIssuedNotification extends Notification
 
         return $message
             ->action('View Invoice', $this->url())
-            ->salutation('— ScholarNest Team')
+            ->salutation('— AkademicNest Team')
             ->attachData(
                 $document->render($invoice),
                 $document->filename($invoice),

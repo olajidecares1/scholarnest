@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Where the ScholarNest Team says how schools may pay, and what to pay into.
+ * Where the AkademicNest Team says how schools may pay, and what to pay into.
  *
  * These values used to be typed into a Blade template. Changing the account a
  * school transfers to meant editing a view and deploying, and until somebody

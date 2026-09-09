@@ -52,7 +52,7 @@ class AuditLog extends Model
      * Entries belonging to one school, newest first.
      *
      * A School Admin must never be shown another school's history, and the
-     * platform-level entries with no school (the ScholarNest Team editing plan
+     * platform-level entries with no school (the AkademicNest Team editing plan
      * pricing, say) are nobody's business but the Team's - so a null school_id
      * is excluded here rather than treated as "matches everyone".
      *
@@ -106,10 +106,10 @@ class AuditLog extends Model
      *
      * 1. The subject. If the entry is about a school's own record - a pupil, a
      *    result token, an invoice - then that record's school is the answer,
-     *    and it stays right even when the ScholarNest Team is the one acting.
+     *    and it stays right even when the AkademicNest Team is the one acting.
      * 2. The acting user, across every guard. Staff, students and guardians
      *    are all bound to a school; a School Admin's user row carries one too.
-     * 3. Null, for entries that genuinely belong to no school: the ScholarNest
+     * 3. Null, for entries that genuinely belong to no school: the AkademicNest
      *    Team editing CBT question banks, plan pricing or the marketing site.
      *
      * Null is a real answer, not a failure. Those entries stay in the Team's

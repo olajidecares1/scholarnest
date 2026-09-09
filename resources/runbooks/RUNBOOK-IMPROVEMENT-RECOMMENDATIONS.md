@@ -83,7 +83,7 @@ step, and its absence looks identical to the parent.
 ### C5 — Deletion is permanent with no recovery — 🔴 Critical
 
 No soft deletes anywhere. A mis-click on a pupil destroys their academic history
-with no undo, and §3.6 can only tell a school to contact ScholarNest and hope.
+with no undo, and §3.6 can only tell a school to contact AkademicNest and hope.
 
 *Fix:* soft deletes on pupils, staff and guardians, with a 30-day restore window.
 This is the highest-value change in this document.

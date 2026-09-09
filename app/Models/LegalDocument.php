@@ -9,10 +9,10 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * One of ScholarNest's own legal documents - the Terms, the Privacy Policy, and the
+ * One of AkademicNest's own legal documents - the Terms, the Privacy Policy, and the
  * four that go with them.
  *
- * Edited by the ScholarNest Team, read by anyone. The markdown files in
+ * Edited by the AkademicNest Team, read by anyone. The markdown files in
  * resources/legal seeded this table and remain in the repository as the
  * reviewed original; the row is what schools actually see.
  *
@@ -128,7 +128,7 @@ class LegalDocument extends Model
     /**
      * The document behind a public URL.
      *
-     * Unpublished counts as absent: a document the ScholarNest Team has taken down
+     * Unpublished counts as absent: a document the AkademicNest Team has taken down
      * must 404 rather than half-render, because a page that exists but is not
      * ready is worse than one that is honestly missing.
      *
@@ -161,7 +161,7 @@ class LegalDocument extends Model
     /**
      * Rendered with the internal passages LEFT IN.
      *
-     * Only for the ScholarNest Team's own preview, where seeing exactly what is in
+     * Only for the AkademicNest Team's own preview, where seeing exactly what is in
      * the document - including the notes to counsel - is the point.
      */
     public function renderedHtmlForReview(): string

@@ -326,7 +326,7 @@ test('a portal on a wide screen stays an app rather than stretching', function (
         ->and($html)->toContain('overflow-x-hidden');
 });
 
-test('the School Admin and ScholarNest Team dashboards keep their desktop layout', function () {
+test('the School Admin and AkademicNest Team dashboards keep their desktop layout', function () {
     // The brief is explicit that these two are not part of the change. If a
     // later edit sweeps their sidebar away with the portals', this fails.
     foreach (['dashboard-layout', 'super-admin-layout'] as $layout) {

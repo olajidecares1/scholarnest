@@ -1,4 +1,4 @@
-# ScholarNest roadmap
+# AkademicNest roadmap
 
 What is built, what is not, and what to do next. Updated 26 August 2026.
 
@@ -162,9 +162,9 @@ The audit was a first pass. It never looked at:
 
 ## Known local issues
 
-- [ ] `C:\xampp\htdocs\ScholarNest` holds an abandoned Laravel 13 skeleton from a
-      false start, on the separate `scholarnest_v13` database. Safe to delete once
+- [ ] `C:\xampp\htdocs\AkademicNest` holds an abandoned Laravel 13 skeleton from a
+      false start, on the separate `akademicnest_v13` database. Safe to delete once
       you are sure nothing there is wanted. See
       [docs/architecture/decisions/0001-two-codebases.md](docs/architecture/decisions/0001-two-codebases.md).
-- [ ] `D:\ScholarNest` is a stale copy from 21 August. Once GitHub is set up it
+- [ ] `D:\AkademicNest` is a stale copy from 21 August. Once GitHub is set up it
       becomes redundant and should be removed, so nobody edits the wrong one.

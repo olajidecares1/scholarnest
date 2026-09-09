@@ -111,7 +111,7 @@
                 <p class="mt-0.5 text-sm text-amber-700 dark:text-amber-400">
                     You have {{ number_format($capacity['remaining']) }} of {{ number_format($capacity['allocated']) }}
                     approved student/pupil {{ \Illuminate\Support\Str::plural('space', $capacity['allocated']) }} left.
-                    Additional spaces need a payment and ScholarNest Team approval, so it is worth starting before you run out.
+                    Additional spaces need a payment and AkademicNest Team approval, so it is worth starting before you run out.
                 </p>
             </div>
         </div>
@@ -125,7 +125,7 @@
             <i class="fa-solid fa-clock mt-0.5 text-amber-600 dark:text-amber-400"></i>
             <p class="text-sm text-amber-800 dark:text-amber-300">
                 <span class="font-semibold">{{ number_format($capacity['pending']) }} additional student/pupil
-                {{ \Illuminate\Support\Str::plural('space', $capacity['pending']) }} awaiting ScholarNest Team approval.</span>
+                {{ \Illuminate\Support\Str::plural('space', $capacity['pending']) }} awaiting AkademicNest Team approval.</span>
                 These spaces cannot be used until the payment is verified and approved &mdash; your capacity is still
                 {{ number_format($capacity['allocated']) }}.
             </p>

@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
  * How schools may pay, and what they are told to pay into.
  *
  * The bank details were written into the Blade template: GTBank, an account
- * number, a sort code. Changing where ScholarNest is paid meant editing a view and
+ * number, a sort code. Changing where AkademicNest is paid meant editing a view and
  * deploying, and until somebody did, every school on the subscription page was
  * being asked to transfer money to whatever the template said.
  *
@@ -32,7 +32,7 @@ return new class extends Migration
 
             // Matches App\Enums\PaymentMethod, which is what the wizard stores
             // against a payment. The enum stays the vocabulary; this table
-            // holds what the ScholarNest Team can change about each one.
+            // holds what the AkademicNest Team can change about each one.
             $table->string('key')->unique();
 
             $table->string('label');
@@ -70,7 +70,7 @@ return new class extends Migration
                     .'Your subscription will be activated after verification.',
                 'details' => json_encode([
                     'bank_name' => 'GTBank',
-                    'account_name' => 'ScholarNest Technologies Ltd',
+                    'account_name' => 'AkademicNest Technologies Ltd',
                     'account_number' => '0123456789',
                     'sort_code' => '058152052',
                 ]),
@@ -86,7 +86,7 @@ return new class extends Migration
 
                 // Off, because it is not integrated. The page used to print
                 // "Soon" beside a radio nobody could choose; now the same fact
-                // is a row the ScholarNest Team can see and turn on when it works.
+                // is a row the AkademicNest Team can see and turn on when it works.
                 'is_enabled' => false,
                 'requires_receipt' => false,
                 'instructions' => null,

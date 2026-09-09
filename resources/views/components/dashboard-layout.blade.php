@@ -27,7 +27,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $pageTitle }} - {{ config('app.name', 'ScholarNest') }}</title>
+        <title>{{ $pageTitle }} - {{ config('app.name', 'AkademicNest') }}</title>
 
         <x-favicon />
 
@@ -246,7 +246,7 @@
                 </div>
             </div>
 
-            <p class="px-5 pb-4 text-xs text-gray-500 dark:text-gray-400">&copy; {{ now()->year }} {{ config('app.name', 'ScholarNest') }}. All rights reserved.</p>
+            <p class="px-5 pb-4 text-xs text-gray-500 dark:text-gray-400">&copy; {{ now()->year }} {{ config('app.name', 'AkademicNest') }}. All rights reserved.</p>
             </div>
         </aside>
 
@@ -363,7 +363,7 @@
                 <div class="flex items-center gap-2.5 rounded-[8px] border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-900">
                     {{-- Messages and conduct reports from the school's own
                          website. Its own icon rather than a badge on the
-                         support one: a ticket is the school asking ScholarNest
+                         support one: a ticket is the school asking AkademicNest
                          for help, this is the public writing to the school. --}}
                     <a
                         href="{{ route('inbox.index') }}"

@@ -11,7 +11,7 @@ Standard and Exclusive schools each have an address of their own:
 
 | Plan | Where the school lives |
 | ---- | ---------------------- |
-| Standard | `greenfield.scholarnest.com` — its own subdomain |
+| Standard | `greenfield.akademicnest.com` — its own subdomain |
 | Exclusive | `greenfieldschool.com` — its own domain |
 | **Basic** | **nothing of its own** |
 
@@ -27,7 +27,7 @@ which asks which school you belong to and forwards you there.
 ## The flow
 
 ```
-  scholarnest.com/{32-character token}
+  akademicnest.com/{32-character token}
                  |
                  |   "Enter your school name"
                  v
@@ -35,7 +35,7 @@ which asks which school you belong to and forwards you there.
                  |
                  |   matched against Basic-plan schools only
                  v
-  scholarnest.com/greenfield-college
+  akademicnest.com/greenfield-college
                  |
                  v
    the school's sign-in choices:
@@ -57,7 +57,7 @@ Three outcomes when a name is submitted:
 The 32-character token in the URL comes from `BASIC_PORTAL_TOKEN` in `.env`.
 
 ```
-scholarnest.com/6219db402a20f65b63358972bd5274cd
+akademicnest.com/6219db402a20f65b63358972bd5274cd
 ```
 
 **It is not a password.** Every Basic school shares it, and it identifies
@@ -78,7 +78,7 @@ secret store.
 
 **With no token set, every Basic portal URL returns 404.** That is deliberate:
 failing closed is safer than shipping a predictable default that would be
-identical on every ScholarNest installation in the world.
+identical on every AkademicNest installation in the world.
 
 A wrong token also returns **404, never 403**. A 403 would confirm that
 something real sits at that path and invite guessing at it.
@@ -100,7 +100,7 @@ even if its name is typed exactly. Two reasons:
 
 1. It would break the separation — those schools are reached directly.
 2. It would leak information. Confirming a school exists but is "not available
-   here" tells an outsider both that ScholarNest has that customer and roughly what
+   here" tells an outsider both that AkademicNest has that customer and roughly what
    they pay for.
 
 If someone reaches `/{slug}` for a Standard or Exclusive school anyway, they are
@@ -111,7 +111,7 @@ entry point from the platform root.
 
 ## The root-level route, and why it is safe
 
-`scholarnest.com/greenfield-college` puts a school slug at the root of the site, in
+`akademicnest.com/greenfield-college` puts a school slug at the root of the site, in
 the same namespace as every top-level path the application owns. A school that
 claimed `login` or `dashboard` would be a serious problem.
 
@@ -135,10 +135,10 @@ phishing from a trusted domain.
 The exclusion is anchored per word:
 
 ```php
-'(?!(?:portal|login|...|scholarnest)$)[a-z0-9]+(?:-[a-z0-9]+)*'
+'(?!(?:portal|login|...|akademicnest)$)[a-z0-9]+(?:-[a-z0-9]+)*'
 ```
 
-The `(?: ... )$` grouping matters. Written as `(?!portal|login|...|scholarnest$)`
+The `(?: ... )$` grouping matters. Written as `(?!portal|login|...|akademicnest$)`
 the anchor would apply only to the *last* alternative, and any slug merely
 *starting* with a reserved word would 404 — quietly breaking a legitimate school
 called "Newspaper College". There is a regression test for exactly that.

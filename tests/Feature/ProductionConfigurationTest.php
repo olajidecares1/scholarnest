@@ -19,7 +19,7 @@ function withProductionConfig(array $overrides = []): void
         // looked only at debug and session settings - and stopped being fine
         // the moment APP_URL joined them, because a platform whose every
         // generated link points at localhost is not correctly configured.
-        'app.url' => 'https://scholarnest.com.ng',
+        'app.url' => 'https://akademicnest.com',
 
         ...$overrides,
     ]);

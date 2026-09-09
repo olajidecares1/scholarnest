@@ -6,12 +6,12 @@ last_updated: 2026-09-01
 status: Awaiting legal review
 ---
 
-# ScholarNest Cookie & Browser Storage Policy
+# AkademicNest Cookie & Browser Storage Policy
 
 **Version 1.0 · Effective [TO BE PROVIDED] · Last updated 1 September 2026**
 
 <!-- internal:start -->
-> **Draft.** Not yet reviewed by a lawyer. Note in particular that **ScholarNest has
+> **Draft.** Not yet reviewed by a lawyer. Note in particular that **AkademicNest has
 > no cookie consent mechanism**, which section 6 addresses honestly rather than
 > quietly.
 <!-- internal:end -->
@@ -20,42 +20,42 @@ status: Awaiting legal review
 
 ## 1. Scope
 
-This policy covers everything ScholarNest stores in a browser: the signed-in school
-portals, the public school websites and the ScholarNest marketing site.
+This policy covers everything AkademicNest stores in a browser: the signed-in school
+portals, the public school websites and the AkademicNest marketing site.
 
-It is short for a good reason. **ScholarNest sets no analytics cookies, no
+It is short for a good reason. **AkademicNest sets no analytics cookies, no
 advertising cookies and no third-party tracking cookies.** Every item below is
 there to make the application work.
 
 ## 2. Cookies
 
-### 2.1 `scholarnest-session`
+### 2.1 `akademicnest-session`
 
 | | |
 | --- | --- |
 | **Purpose** | Identifies your browsing session so the server knows who you are between page loads. Signing in is impossible without it. |
 | **Type** | Strictly necessary · first-party |
-| **Contains** | A session identifier only. The session's contents are held server-side in ScholarNest's database, not in the cookie. |
+| **Contains** | A session identifier only. The session's contents are held server-side in AkademicNest's database, not in the cookie. |
 | **Duration** | 120 minutes by default, refreshed as you use the site. School portal sessions end sooner — see section 4. |
 | **Flags** | `HttpOnly` (JavaScript cannot read it) · `SameSite=Lax` · `Secure` in production over HTTPS |
 | **Can it be disabled?** | Not while using the Platform. Blocking it makes signing in impossible. |
 
 > The name is derived from the application name, so a differently branded
 > deployment will show a different name. On the standard deployment it is
-> `scholarnest-session`.
+> `akademicnest-session`.
 
 ### 2.2 `XSRF-TOKEN`
 
 | | |
 | --- | --- |
-| **Purpose** | Protects against cross-site request forgery — stops another website from making your browser submit a form to ScholarNest using your signed-in session. |
+| **Purpose** | Protects against cross-site request forgery — stops another website from making your browser submit a form to AkademicNest using your signed-in session. |
 | **Type** | Strictly necessary · first-party |
 | **Contains** | An encrypted anti-forgery token. No personal information. |
 | **Duration** | Same as the session cookie |
 | **Flags** | Readable by JavaScript **by design**, so the page can attach the token to requests · `SameSite=Lax` · `Secure` in production |
 | **Can it be disabled?** | No. Blocking it causes form submissions to be rejected. |
 
-### 2.3 `scholarnest_portal`
+### 2.3 `akademicnest_portal`
 
 | | |
 | --- | --- |
@@ -82,7 +82,7 @@ there to make the application work.
 
 ## 3. Browser storage (not cookies)
 
-These are stored by the browser and **never sent to ScholarNest's servers**.
+These are stored by the browser and **never sent to AkademicNest's servers**.
 
 | Key | Where | Purpose | Duration |
 | --- | --- | --- | --- |
@@ -99,9 +99,9 @@ to their defaults.
 - **School portals are much stricter: three minutes of inactivity ends the
   session.** This applies to School Administrators, staff, pupils and
   parents/guardians, and exists because these accounts hold pupil records and
-  are often used on shared devices. Members of the ScholarNest Team are not subject
+  are often used on shared devices. Members of the AkademicNest Team are not subject
   to it.
-- Sessions are stored **server-side in ScholarNest's database**, not in the browser.
+- Sessions are stored **server-side in AkademicNest's database**, not in the browser.
 - Signing out ends the session, regenerates the identifier and invalidates it
   server-side.
 - Signing in regenerates the session identifier, so a session identifier
@@ -112,8 +112,8 @@ to their defaults.
 
 ## 5. Third-party requests
 
-ScholarNest does not embed third-party cookies. Two external services are contacted
-by your browser, and while they set no cookies through ScholarNest, **the request
+AkademicNest does not embed third-party cookies. Two external services are contacted
+by your browser, and while they set no cookies through AkademicNest, **the request
 itself discloses your IP address and browser details to them**:
 
 | Service | Where | What it serves |
@@ -132,12 +132,12 @@ font causes no request to Google at all.
 
 ## 6. Consent — stated plainly
 
-**ScholarNest does not currently display a cookie banner or offer cookie controls.**
+**AkademicNest does not currently display a cookie banner or offer cookie controls.**
 
 The reasoning, which should be tested by counsel rather than assumed correct:
-every cookie ScholarNest sets is either strictly necessary (session, CSRF) or
+every cookie AkademicNest sets is either strictly necessary (session, CSRF) or
 functional and set only in response to something the user did (`remember_web_*`
-is set only if you tick the box; `scholarnest_portal` is set only when you sign in).
+is set only if you tick the box; `akademicnest_portal` is set only when you sign in).
 There are no analytics or advertising cookies, which is what consent
 requirements are usually aimed at.
 
@@ -153,7 +153,7 @@ That reasoning does not cover everything:
 ## 7. Managing cookies yourself
 
 Every major browser lets you view, block and delete cookies and site data,
-usually under Settings → Privacy. Blocking cookies for ScholarNest will prevent you
+usually under Settings → Privacy. Blocking cookies for AkademicNest will prevent you
 from signing in.
 
 ## 8. Changes

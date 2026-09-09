@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 // School Portal — single entry point per school linking out to all four
 // role-specific logins above, so a school's public website never has to
-// send anyone to the shared global ScholarNest login. Same school-slug-scoped,
+// send anyone to the shared global AkademicNest login. Same school-slug-scoped,
 // readable-by-design convention as the three portals above. Available on
 // every plan (login itself has never been plan-gated for any portal - only
 // the post-login dashboards are, via "portal_access").
@@ -57,7 +57,7 @@ Route::prefix('p/{school:portal_key}/portal')->name('portal.')->group(function (
 //
 // Throttled on the POST for the same reason it always was: the search runs
 // against school names, and an unthrottled one is a way to enumerate
-// ScholarNest's customer list.
+// AkademicNest's customer list.
 Route::get('/portal', [BasicSchoolFinderController::class, 'show'])->name('portal.find.show');
 Route::post('/portal', [BasicSchoolFinderController::class, 'find'])
     ->middleware(['throttle:20,1', 'honeypot'])
@@ -80,7 +80,7 @@ Route::post('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'st
 // flow is entirely separate from the two portals above and shares no route,
 // controller or view with them. See docs/BASIC-PLAN-PORTAL.md.
 //
-// The token sits alone at the root - scholarnest.com/6219db402a20f65b63358972bd5274cd
+// The token sits alone at the root - akademicnest.com/6219db402a20f65b63358972bd5274cd
 // - so the address gives away nothing at all about the application's shape.
 // There is no "/portal" segment to notice, and nothing to strip off and probe.
 //
@@ -95,7 +95,7 @@ Route::post('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'st
 // elsewhere in this file are 128 characters, not 32.
 //
 // Throttled because the POST is a lookup against school names, and an
-// unthrottled one would let anyone enumerate ScholarNest's customer list.
+// unthrottled one would let anyone enumerate AkademicNest's customer list.
 Route::middleware(['basic_portal_token', 'throttle:20,1'])
     ->where(['token' => '[A-Za-z0-9]{32}'])
     ->name('basic-portal.')

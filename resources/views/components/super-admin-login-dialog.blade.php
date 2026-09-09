@@ -41,13 +41,13 @@
         </button>
 
         <div class="text-center">
-            <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'ScholarNest') }}" class="mx-auto h-10 w-10 rounded-[9px]">
+            <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'AkademicNest') }}" class="mx-auto h-10 w-10 rounded-[9px]">
 
             <h2 id="super-admin-login-title" class="mt-3.5 text-[17px] font-bold tracking-tight text-[#0F2A5C]">
-                ScholarNest
+                AkademicNest
             </h2>
             <p class="mt-0.5 flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary-500">
-                <i class="fa-solid fa-user-shield text-[10px]"></i> ScholarNest Team
+                <i class="fa-solid fa-user-shield text-[10px]"></i> AkademicNest Team
             </p>
         </div>
 

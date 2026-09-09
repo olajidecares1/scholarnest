@@ -25,7 +25,7 @@ class MakeSuperAdminCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a ScholarNest Team account. There is no public registration route for this role by design.';
+    protected $description = 'Create a AkademicNest Team account. There is no public registration route for this role by design.';
 
     /**
      * Execute the console command.
@@ -78,7 +78,7 @@ class MakeSuperAdminCommand extends Command
         // not is a trap set for whoever adds that middleware later.
         $user->forceFill(['email_verified_at' => now()])->save();
 
-        $this->components->info("ScholarNest Team \"{$user->name}\" ({$user->email}) created successfully.");
+        $this->components->info("AkademicNest Team \"{$user->name}\" ({$user->email}) created successfully.");
 
         return self::SUCCESS;
     }

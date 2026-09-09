@@ -25,7 +25,7 @@ function productionSafeConfig(): void
         'app.debug' => false,
         'session.secure' => true,
         'session.encrypt' => true,
-        'app.url' => 'https://scholarnest.com.ng',
+        'app.url' => 'https://akademicnest.com',
     ]);
 }
 
@@ -48,7 +48,7 @@ describe('production refuses to serve with a wrong platform address', function (
         // Production forces https on every generated link, so an http APP_URL
         // disagrees with what is actually served.
         productionSafeConfig();
-        config(['app.url' => 'http://scholarnest.com.ng']);
+        config(['app.url' => 'http://akademicnest.com']);
 
         expect(fn () => ProductionConfiguration::verify(true, false))
             ->toThrow(RuntimeException::class, 'must use https');
@@ -57,7 +57,7 @@ describe('production refuses to serve with a wrong platform address', function (
     test('a local address is refused, however plausible it looks', function () {
         // These are the values that survive a copied .env, which is exactly how
         // they reach production.
-        foreach (['https://localhost', 'https://127.0.0.1', 'https://lvh.me', 'https://scholarnest.test'] as $url) {
+        foreach (['https://localhost', 'https://127.0.0.1', 'https://lvh.me', 'https://akademicnest.test'] as $url) {
             productionSafeConfig();
             config(['app.url' => $url]);
 
@@ -113,9 +113,9 @@ describe('the readiness report', function () {
 
     test('it passes and names every tier when everything is set', function () {
         config([
-            'app.url' => 'https://scholarnest.com.ng',
+            'app.url' => 'https://akademicnest.com',
             'basic_portal.token' => str_repeat('a', 32),
-            'custom_domain.tenant_base_domain' => 'scholarnest.com.ng',
+            'custom_domain.tenant_base_domain' => 'akademicnest.com',
             'custom_domain.a_record_ip' => '203.0.113.10',
         ]);
 
@@ -128,7 +128,7 @@ describe('the readiness report', function () {
     });
 
     test('a missing Basic token is reported as fatal, because it locks a whole tier out', function () {
-        config(['app.url' => 'https://scholarnest.com.ng', 'basic_portal.token' => '']);
+        config(['app.url' => 'https://akademicnest.com', 'basic_portal.token' => '']);
 
         $this->artisan('production:urls')
             ->expectsOutputToContain('BASIC_PORTAL_TOKEN')
@@ -138,7 +138,7 @@ describe('the readiness report', function () {
     test('a token of the wrong shape is caught, not just a missing one', function () {
         // The route pattern requires exactly 32 alphanumerics. Anything else
         // 404s just as thoroughly as an empty value, but looks configured.
-        config(['app.url' => 'https://scholarnest.com.ng', 'basic_portal.token' => 'too-short']);
+        config(['app.url' => 'https://akademicnest.com', 'basic_portal.token' => 'too-short']);
 
         $this->artisan('production:urls')->assertExitCode(1);
     });
@@ -147,7 +147,7 @@ describe('the readiness report', function () {
         // Standard schools fall back to /p/{key} paths. Not what was sold, but
         // it works - so it must not block a deploy.
         config([
-            'app.url' => 'https://scholarnest.com.ng',
+            'app.url' => 'https://akademicnest.com',
             'basic_portal.token' => str_repeat('a', 32),
             'custom_domain.tenant_base_domain' => '',
         ]);

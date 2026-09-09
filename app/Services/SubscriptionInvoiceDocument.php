@@ -9,7 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
  * The printable invoice.
  *
  * One renderer, used by the download route and by the email that attaches it,
- * so a school's copy and ScholarNest's copy are the same document rather than
+ * so a school's copy and AkademicNest's copy are the same document rather than
  * two views that drift apart.
  */
 class SubscriptionInvoiceDocument

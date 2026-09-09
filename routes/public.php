@@ -140,7 +140,7 @@ Route::get('continue-registration/{school}', RegistrationResumeController::class
     ->middleware('signed')
     ->name('registration.resume');
 
-// ScholarNest's own legal documents. Open to anyone, and readable BEFORE
+// AkademicNest's own legal documents. Open to anyone, and readable BEFORE
 // registering: they are linked from the agreement checkbox on the registration
 // form, and a school cannot meaningfully agree to terms it can only read after
 // it has an account.

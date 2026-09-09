@@ -108,7 +108,7 @@ class User extends Authenticatable
     }
 
     /**
-     * ScholarNest's own reset email, not Laravel's default.
+     * AkademicNest's own reset email, not Laravel's default.
      *
      * Overridden here rather than configured with ResetPassword::toMailUsing()
      * in a service provider, because this is the only model that has a reset

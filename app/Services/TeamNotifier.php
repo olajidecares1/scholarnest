@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Telling the ScholarNest Team something, exactly once.
+ * Telling the AkademicNest Team something, exactly once.
  *
  * Every notification to the team goes through here, and every one of them
  * names the EVENT it is about - "school.registered:<uuid>", not "a
@@ -51,7 +51,7 @@ class TeamNotifier
         // is a platform with no Super Admin account, which looks exactly like
         // a broken notification until somebody checks.
         if ($recipients->isEmpty()) {
-            Log::warning('No ScholarNest Team account to notify.', ['event' => $eventKey]);
+            Log::warning('No AkademicNest Team account to notify.', ['event' => $eventKey]);
 
             return true;
         }

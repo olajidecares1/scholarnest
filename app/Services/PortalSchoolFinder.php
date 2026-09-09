@@ -171,7 +171,7 @@ class PortalSchoolFinder
      *
      * Without this, typing "%" would match every school on the platform, and
      * "_" would match any single character - turning the finder into a way to
-     * enumerate ScholarNest's customers.
+     * enumerate AkademicNest's customers.
      */
     private function escapeLike(string $value): string
     {

@@ -69,7 +69,7 @@
                                  A published document still carrying notes to
                                  counsel has unresolved legal questions inside
                                  it, and one still carrying [TO BE PROVIDED] is
-                                 telling schools that ScholarNest's own address is
+                                 telling schools that AkademicNest's own address is
                                  yet to be decided. Both are easy to forget once
                                  the page renders and looks finished. --}}
                             @if ($document->internalNoteCount() > 0 || $document->placeholderCount() > 0)

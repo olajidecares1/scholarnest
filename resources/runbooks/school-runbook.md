@@ -1,18 +1,18 @@
 ---
-title: ScholarNest School Operational Runbook
+title: AkademicNest School Operational Runbook
 audience: School Admin, Principal, Teachers, Class Teachers, Staff, Students, Parents/Guardians
 version: 1.0
 last_updated: 2026-09-01
 ---
 
-# ScholarNest School Operational Runbook
+# AkademicNest School Operational Runbook
 
 **Version 1.0 · 1 September 2026**
 
 Find your problem. Do the steps. If it still does not work, the entry tells you
-exactly what to send the ScholarNest Team.
+exactly what to send the AkademicNest Team.
 
-Every step in this book was checked against how ScholarNest actually behaves. Where
+Every step in this book was checked against how AkademicNest actually behaves. Where
 something is not possible on your plan, it says so rather than sending you
 looking for a button that is not there.
 
@@ -32,7 +32,7 @@ looking for a button that is not there.
 
 | | Meaning | Response |
 | --- | --- | --- |
-| 🔴 **Critical** | Security breach, unauthorised access, data loss, nobody can use ScholarNest | **Stop and contact ScholarNest immediately.** Do not troubleshoot. |
+| 🔴 **Critical** | Security breach, unauthorised access, data loss, nobody can use AkademicNest | **Stop and contact AkademicNest immediately.** Do not troubleshoot. |
 | 🟠 **High** | A whole feature is down for the whole school | Work through the entry. Escalate within the day if unresolved. |
 | 🟡 **Medium** | One person or one feature affected, a workaround exists | Work through the entry. Escalate if it repeats. |
 | 🟢 **Low** | Wrong text, a picture that has not appeared, a cosmetic problem | Fix it yourself. Escalate only if it will not save. |
@@ -46,15 +46,15 @@ should refuse:
 - Run commands on a server
 - Edit configuration or `.env` files
 - Turn off a security setting
-- Share a password with anyone, including the ScholarNest Team
+- Share a password with anyone, including the AkademicNest Team
 
-**The ScholarNest Team will never ask for your password.**
+**The AkademicNest Team will never ask for your password.**
 
 ---
 
 ## The three facts behind most problems
 
-Most confusion in ScholarNest comes down to one of these. Read them once and half
+Most confusion in AkademicNest comes down to one of these. Read them once and half
 this book becomes obvious.
 
 ### 1. Your plan decides what exists
@@ -70,7 +70,7 @@ feature and the plan that includes it. **This is enforced by the server**, so
 typing the address directly will not get you in. That is not a fault.
 
 > **The Exclusive plan cannot currently be bought.** It is built and it works,
-> but ScholarNest is not accepting new Exclusive subscriptions yet. Custom domains
+> but AkademicNest is not accepting new Exclusive subscriptions yet. Custom domains
 > are therefore not available at the moment. The plan selection screen is
 > always right about what can be purchased today.
 
@@ -105,7 +105,7 @@ go to [section 20](#20-security-incidents) and stop.
 **In order of likelihood:**
 
 **Step 1 — Are you on the right portal?**
-ScholarNest has four separate sign-in pages, and **an account only works on its
+AkademicNest has four separate sign-in pages, and **an account only works on its
 own**. A teacher's details will never work on the student portal, however
 correct they are.
 
@@ -136,7 +136,7 @@ asked to choose your own the first time you sign in (see 1.5).
 **If it continues:** more than one person at the school cannot sign in →
 escalate.
 
-**Send ScholarNest:** school name, the affected role, how many people are affected,
+**Send AkademicNest:** school name, the affected role, how many people are affected,
 the **exact wording** of the message, and the date and time. **Never send the
 password.**
 
@@ -146,14 +146,14 @@ password.**
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟡 Medium
 
-**What happened:** ScholarNest locks an account after **5 failed attempts** and
+**What happened:** AkademicNest locks an account after **5 failed attempts** and
 holds the lock for **15 minutes**. This is deliberate — it is what stops someone
 guessing their way into your pupils' records.
 
 **Steps:**
 
 1. **Wait.** The message tells you how long. Nobody can shorten it — not your
-   School Admin, not the ScholarNest Team.
+   School Admin, not the AkademicNest Team.
 2. Do **not** keep trying. Each attempt can extend the wait.
 3. While waiting, work out the correct details (see 1.1).
 4. After the wait, try **once**, carefully.
@@ -181,7 +181,7 @@ The account exists and the password was right. The school has switched it off.
 1. Open the staff, student or guardian record.
 2. Check whether it is marked inactive.
 3. **Before reactivating a student, check your capacity.** Reactivating uses a
-   pupil place, and ScholarNest will refuse if you are full. See 3.5.
+   pupil place, and AkademicNest will refuse if you are full. See 3.5.
 4. Reactivate, then have the person try again.
 
 **If it was deactivated on purpose** (a pupil who left, a teacher who resigned),
@@ -219,7 +219,7 @@ been doing it.
 
 **Affected:** staff, students, guardians · **Plans:** all · **Severity:** 🟢 Low
 
-Your School Admin set a temporary password. ScholarNest will not let you use the
+Your School Admin set a temporary password. AkademicNest will not let you use the
 portal until you replace it — the person who typed it in should not go on
 knowing it.
 
@@ -241,7 +241,7 @@ can reset it again if you forget; they never need to know it.
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟢 Low
 
-The page had been open too long before you submitted it. ScholarNest deliberately
+The page had been open too long before you submitted it. AkademicNest deliberately
 sends you back **with what you typed still in the boxes** rather than losing it.
 
 **Steps:**
@@ -346,7 +346,7 @@ It is off unless you tick it.
 
 1. Staff → add a new member.
 2. Fill in name, role (Teacher), and contact details.
-3. ScholarNest issues a staff number, or you enter one if your school sets its own.
+3. AkademicNest issues a staff number, or you enter one if your school sets its own.
 4. Set a temporary password. **They will be forced to change it** on first
    sign-in (see 1.5).
 5. Give them the staff portal link (1.7) and their staff number.
@@ -363,7 +363,7 @@ and subjects.** That is step 2.2, and skipping it causes most of section 2.
 **Cause, almost always:** no assignment. A teacher sees exactly the classes and
 subjects they have been assigned to, and nothing else.
 
-**ScholarNest has two kinds of assignment and they do different things:**
+**AkademicNest has two kinds of assignment and they do different things:**
 
 | Assignment | What it grants |
 | --- | --- |
@@ -379,7 +379,7 @@ subjects they have been assigned to, and nothing else.
    - Teaches Maths to JSS 1A, 1B and 1C → **three Subject Teacher assignments**,
      one per class. One assignment does not cover three classes.
 4. Check the class name matches your class list **exactly**. "JSS 1A" and
-   "JSS1A" are two different classes to ScholarNest — one of them will be empty.
+   "JSS1A" are two different classes to AkademicNest — one of them will be empty.
 5. Have the teacher sign out and back in.
 
 **Expected result:** the teacher sees their classes on their dashboard.
@@ -425,7 +425,7 @@ teacher editing marks for a subject they do not teach.
 
 **Do not delete** a teacher who has already entered results or signed report
 cards unless you are certain. Deactivating stops access and keeps the record.
-**Deletion in ScholarNest is permanent and cannot be undone.**
+**Deletion in AkademicNest is permanent and cannot be undone.**
 
 ---
 
@@ -520,7 +520,7 @@ class. Say which pupil, which examination, and what the correct class is.
 **Affected:** School Admin · **Plans:** Basic, Standard · **Severity:** 🟠 High
 
 Basic and Standard are priced per pupil. Your subscription includes a set number
-of places, and **ScholarNest will refuse to go past it.** This is not a bug.
+of places, and **AkademicNest will refuse to go past it.** This is not a bug.
 
 **Step 1 — Free up places you are not using.**
 Capacity counts **active** pupils only. Deactivating a pupil who has left
@@ -536,7 +536,7 @@ releases their place immediately, and keeps their records.
 1. Subscription → add student capacity.
 2. Choose how many.
 3. Pay by bank transfer and upload the receipt.
-4. Wait for the ScholarNest Team to approve it. **This is a manual review, not
+4. Wait for the AkademicNest Team to approve it. **This is a manual review, not
    instant.**
 5. Approved top-ups **add** to your existing allocation — they never replace it.
 
@@ -551,15 +551,15 @@ permanently, and it cannot be recovered.
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🔴 Critical for that pupil
 
-**Deletion in ScholarNest is immediate and permanent.** There is no recycle bin, no
-undo, and the ScholarNest Team cannot restore one pupil.
+**Deletion in AkademicNest is immediate and permanent.** There is no recycle bin, no
+undo, and the AkademicNest Team cannot restore one pupil.
 
 **Steps:**
 
 1. **Stop.** Do not delete anything else.
 2. Write down: the pupil's name, admission number, class, and roughly when it
    happened.
-3. **Contact the ScholarNest Team immediately.** The sooner you ask, the more chance
+3. **Contact the AkademicNest Team immediately.** The sooner you ask, the more chance
    there is — recovery depends on backups, is not guaranteed, and would restore
    far more than the one pupil.
 4. Meanwhile, gather any printed report cards or exported records you hold.
@@ -649,7 +649,7 @@ understand why.
 - A blank box is not zero. If a pupil scored nothing, type **0**.
 
 **Step 2 — Enter both marks.**
-ScholarNest expects a **test score and an examination score** for each subject. One
+AkademicNest expects a **test score and an examination score** for each subject. One
 without the other will block publishing later even if it saves now.
 
 **Step 3 — Watch the 3-minute timeout.**
@@ -670,7 +670,7 @@ are trying to enter.
 
 **Affected:** School Admin, class teacher · **Plans:** all · **Severity:** 🟡 Medium
 
-**ScholarNest calculates these from what you entered and how you configured
+**AkademicNest calculates these from what you entered and how you configured
 grading.** It does not invent them. A wrong output means a wrong input.
 
 **Step 1 — Check the marks.** Open the pupil's result and check each test and
@@ -699,7 +699,7 @@ a screenshot of your grade bands.
 
 **Affected:** School Admin, class teacher · **Plans:** all · **Severity:** 🟡 Medium
 
-**This is ScholarNest protecting you.** A parent who opens a report card with three
+**This is AkademicNest protecting you.** A parent who opens a report card with three
 subjects and comes back to find nine was not given a corrected result — they
 were given an unfinished one and told it was final.
 
@@ -732,9 +732,9 @@ a refusal.
 **Step 1 — Check for unpaid fees. This is the most common cause and it surprises
 everyone.**
 
-> **ScholarNest withholds a result while the pupil owes the school money.**
+> **AkademicNest withholds a result while the pupil owes the school money.**
 > The gate only closes on a balance **your school itself raised** — a school with
-> no fees recorded on ScholarNest owes nothing and nothing is withheld.
+> no fees recorded on AkademicNest owes nothing and nothing is withheld.
 
 **School Admin:**
 1. Open the pupil's fees and check the outstanding balance.
@@ -818,9 +818,9 @@ cosmetic bug.
    evidence.
 3. Note: which pupil saw it, whose result it was, how they reached it (portal,
    token, printed card), the date and time.
-4. **Contact the ScholarNest Team immediately.** Mark it 🔴 Critical.
+4. **Contact the AkademicNest Team immediately.** Mark it 🔴 Critical.
 5. If it reached a parent, follow your school's own data-protection procedure —
-   you are the one who must notify them, not ScholarNest.
+   you are the one who must notify them, not AkademicNest.
 6. Do not attempt to investigate the cause yourself.
 
 **Common innocent explanation, still worth checking first:** two pupils with the
@@ -852,7 +852,7 @@ already sent.
 
 **Affected:** School Admin, class teacher · **Plans:** all · **Severity:** 🟡 Medium
 
-1. Use the **print or PDF** option in ScholarNest, not the browser's own print.
+1. Use the **print or PDF** option in AkademicNest, not the browser's own print.
 2. If it is cut off, set the printer to **A4** and margins to default.
 3. If the logo or signature is missing, see 10.5 — that is a separate problem.
 4. If the page is blank, check the result is complete (4.5).
@@ -912,7 +912,7 @@ A parent seeing a child who is not theirs is a data protection incident.
 
 1. Screenshot it. Do not delete anything.
 2. Note which parent, which child, and when.
-3. **Contact the ScholarNest Team immediately.**
+3. **Contact the AkademicNest Team immediately.**
 4. Check first whether somebody simply linked the wrong child by hand — two
    pupils with similar names. If so, unlink it, note what happened, and tell the
    parent. Still record it; it is still a disclosure.
@@ -925,7 +925,7 @@ A parent seeing a child who is not theirs is a data protection incident.
 
 **Affected:** teacher · **Plans:** all · **Severity:** 🟡 Medium
 
-1. **Check the date.** ScholarNest will not accept attendance for a **future
+1. **Check the date.** AkademicNest will not accept attendance for a **future
    date**. Today or earlier only.
 2. Check the teacher is Class Teacher of that class (2.2).
 3. Check the class has active pupils in it.
@@ -990,7 +990,7 @@ Almost always a class name that does not match.
 
 **Affected:** teacher, School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟠 High
 
-**Your document is safe.** ScholarNest reads uploaded documents in the background,
+**Your document is safe.** AkademicNest reads uploaded documents in the background,
 and the background service has stopped. The upload succeeded; the reading has
 not started.
 
@@ -1009,11 +1009,11 @@ not started.
 
 1. Wait 5 minutes and reload. Extraction of a large PDF is genuinely slow.
 2. **Do not upload it again.** A second copy makes two jobs, not a faster one.
-3. If it is still "Waiting to start…" after 15 minutes, **contact the ScholarNest
+3. If it is still "Waiting to start…" after 15 minutes, **contact the AkademicNest
    Team.** Only they can restart the service.
 4. When it comes back your document is read automatically. You do not re-upload.
 
-**Send ScholarNest:** school name, who uploaded, the file name, when, and the status
+**Send AkademicNest:** school name, who uploaded, the file name, when, and the status
 shown. Say clearly: *"CBT extraction stuck at Waiting to start."*
 
 ---
@@ -1037,7 +1037,7 @@ The document was read and could not be understood.
 4. **Try a smaller batch.** Twenty questions to test the format before uploading
    two hundred.
 5. If a clean, plainly formatted document still fails, escalate and **attach the
-   document** — the ScholarNest Team cannot diagnose it without the file.
+   document** — the AkademicNest Team cannot diagnose it without the file.
 
 ---
 
@@ -1045,7 +1045,7 @@ The document was read and could not be understood.
 
 **Affected:** teacher, School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟢 Low
 
-Extraction worked. ScholarNest could not tell what the questions belong to.
+Extraction worked. AkademicNest could not tell what the questions belong to.
 
 1. Open the upload.
 2. Choose the exam body (WAEC, JAMB, NECO…) and the subject.
@@ -1132,7 +1132,7 @@ They share one troubleshooting path:
 
 # 10. DIGITAL SIGNATURES
 
-## 10.1 — What a signature is in ScholarNest
+## 10.1 — What a signature is in AkademicNest
 
 **Affected:** School Admin, class teacher · **Plans:** all · **Severity:** —
 
@@ -1175,7 +1175,7 @@ printed on report cards and ID cards.
 
 **Affected:** anyone signing · **Plans:** all · **Severity:** 🟡 Medium
 
-ScholarNest only accepts what the pad itself produces, and it checks the picture is
+AkademicNest only accepts what the pad itself produces, and it checks the picture is
 sensible before keeping it.
 
 1. **Draw something.** An empty pad has nothing to save.
@@ -1381,7 +1381,7 @@ phone.
 
 **Affected:** School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟠 High
 
-**Messages do not go to your email. They arrive inside ScholarNest.**
+**Messages do not go to your email. They arrive inside AkademicNest.**
 
 1. Sign in as School Admin → check your messages.
 2. Check notifications.
@@ -1395,7 +1395,7 @@ it and what you typed.
 
 **Conduct reports** from members of the public arrive the same way, with any
 photographs attached. These concern children — handle them under your school's
-own safeguarding procedure. ScholarNest does not read or investigate them.
+own safeguarding procedure. AkademicNest does not read or investigate them.
 
 ---
 
@@ -1433,7 +1433,7 @@ check in a private window if unsure.
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High
 
 **Activation is not automatic.** Every payment is checked by a person at
-ScholarNest. Until they approve it, your administrative features stay locked.
+AkademicNest. Until they approve it, your administrative features stay locked.
 
 ```
 Did you complete the plan selection?
@@ -1447,14 +1447,14 @@ Was the receipt accepted when you uploaded it?
        → Go to 14.2.
    YES ↓
 Does your dashboard say the subscription is under review?
-   YES → It is with the ScholarNest Team. Allow reasonable time.
+   YES → It is with the AkademicNest Team. Allow reasonable time.
    NO  → Escalate.
 ```
 
 **While waiting:** you can sign in, but content features stay locked. This is
 expected.
 
-**Send ScholarNest:** school name, plan chosen, number of pupil places, date and
+**Send AkademicNest:** school name, plan chosen, number of pupil places, date and
 time of transfer, the amount, and confirmation that you uploaded the receipt.
 **Never send card details or bank passwords.**
 
@@ -1493,7 +1493,7 @@ escalating** — most "missing feature" reports are plan limits.
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High
 
-Administrative features lock. **Your records are not deleted** — ScholarNest does
+Administrative features lock. **Your records are not deleted** — AkademicNest does
 not delete a school's records because a subscription lapsed.
 
 1. Renew from your subscription screen.
@@ -1501,7 +1501,7 @@ not delete a school's records because a subscription lapsed.
 3. Wait for approval.
 4. Access returns.
 
-**If you are leaving ScholarNest**, ask for a copy of your data *before* asking for
+**If you are leaving AkademicNest**, ask for a copy of your data *before* asking for
 anything to be deleted. Deletion is permanent and there is currently no
 self-service export — allow time to arrange it.
 
@@ -1516,7 +1516,7 @@ self-service export — allow time to arrange it.
 1. Choose your plan and pupil places.
 2. **Transfer to the bank details shown.** Card payment appears in the interface
    but is **not yet working** — bank transfer is the only method that operates.
-   ScholarNest never collects or stores card details.
+   AkademicNest never collects or stores card details.
 3. Upload your receipt.
 4. It is checked automatically for obvious problems — a screenshot that is not a
    receipt, an amount well below the price.
@@ -1526,7 +1526,7 @@ self-service export — allow time to arrange it.
 > **When you upload a receipt, the file is sent to an automated document-reading
 > service outside Nigeria to be checked.** Receipts often show a payer's name and
 > bank details. If your school would rather that did not happen, contact the
-> ScholarNest Team before uploading.
+> AkademicNest Team before uploading.
 
 ---
 
@@ -1559,7 +1559,7 @@ the transfer.
 2. Check you **uploaded the receipt**. Paying is not enough — nothing starts
    until the receipt is uploaded.
 3. Check your subscription screen for the status.
-4. If it says under review, it is with the ScholarNest Team.
+4. If it says under review, it is with the AkademicNest Team.
 5. **Do not pay again.**
 
 ---
@@ -1569,9 +1569,9 @@ the transfer.
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟡 Medium
 
 1. Do not submit another receipt.
-2. Contact the ScholarNest Team with both transfer dates, both amounts and both
+2. Contact the AkademicNest Team with both transfer dates, both amounts and both
    references.
-3. Only the ScholarNest Team can resolve this. Nothing in your dashboard can.
+3. Only the AkademicNest Team can resolve this. Nothing in your dashboard can.
 
 ---
 
@@ -1581,7 +1581,7 @@ the transfer.
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟡 Medium
 
-1. **Check inside ScholarNest first.** Notifications appear on the bell in your
+1. **Check inside AkademicNest first.** Notifications appear on the bell in your
    dashboard, not by email.
 2. Reload the page — the bell updates on load, not continuously.
 3. Check you are signed in as the right account. Notifications go to the account
@@ -1616,7 +1616,7 @@ the transfer.
 | CBT documents | Word (.docx) or PDF |
 | Conduct report attachments | Photographs or short video, **max 4 files, 5MB each** |
 
-**Not accepted anywhere: SVG.** It can carry hidden code, so ScholarNest refuses it
+**Not accepted anywhere: SVG.** It can carry hidden code, so AkademicNest refuses it
 on purpose.
 
 **iPhone HEIC photographs are not accepted.** Set your camera to "Most
@@ -1716,17 +1716,17 @@ than the stored one. It fixes most "I changed it and nothing happened" reports.
 
 **Level 2 — Private/incognito window.**
 Loads with no stored data. **If it works here, the problem is your browser's
-stored copy, not ScholarNest.**
+stored copy, not AkademicNest.**
 
 **Level 3 — Clear data for this site only.**
-Browser settings → Privacy → site settings → find ScholarNest → clear.
+Browser settings → Privacy → site settings → find AkademicNest → clear.
 **Do not clear all browsing data.** You will sign yourself out of everything
 else for no reason.
 
 **Level 4 — Another browser.** Chrome, Edge, Firefox or Safari, kept up to date.
 
 **Level 5 — Another device or network.** Try a phone on mobile data. If it works
-there, your school network or that computer is the problem — not ScholarNest.
+there, your school network or that computer is the problem — not AkademicNest.
 
 **Level 6 — Escalate**, saying which levels you tried and what happened at each.
 
@@ -1739,7 +1739,7 @@ there, your school network or that computer is the problem — not ScholarNest.
 ## The rule
 
 ```
-STOP  →  SECURE THE ACCOUNT  →  DO NOT DELETE ANYTHING  →  CONTACT SCHOLARNEST
+STOP  →  SECURE THE ACCOUNT  →  DO NOT DELETE ANYTHING  →  CONTACT AKADEMICNEST
 ```
 
 **Do not investigate it yourself.** Trying to reproduce a security problem can
@@ -1758,7 +1758,7 @@ the record. It is the evidence.
 - A sign-in you cannot account for
 - A password was written somewhere others could see it
 - Records changed and nobody will say by whom
-- A suspicious file or message inside ScholarNest
+- A suspicious file or message inside AkademicNest
 
 ## 20.2 — What to do, in order
 
@@ -1771,10 +1771,10 @@ the record. It is the evidence.
    sharing outside your school.
 5. **Write down**: what was seen, who saw it, when, which page, what they were
    doing.
-6. **Contact the ScholarNest Team and say "security incident".** That routes it
+6. **Contact the AkademicNest Team and say "security incident".** That routes it
    properly.
 7. **Do not delete anything.**
-8. **Tell your school's data protection lead.** Your school — not ScholarNest — is
+8. **Tell your school's data protection lead.** Your school — not AkademicNest — is
    the one who must notify parents if pupils' information was disclosed.
 
 ## 20.3 — Compromised account
@@ -1783,13 +1783,13 @@ the record. It is the evidence.
 2. Deactivate the account if you are unsure who has it.
 3. Check what that account could reach — a School Admin account reaches every
    pupil record in the school.
-4. Contact the ScholarNest Team. They can see when the account was used and from
+4. Contact the AkademicNest Team. They can see when the account was used and from
    where.
 5. Do not delete the account. It is the record.
 
 ## 20.4 — A result token was shared publicly
 
-1. Tell the ScholarNest Team, who can revoke it.
+1. Tell the AkademicNest Team, who can revoke it.
 2. Ask your School Admin to check the token's access log — you can see how often
    and when it was used.
 3. Issue a fresh token to the family.
@@ -1798,16 +1798,16 @@ the record. It is the evidence.
 no access to any portal, any other pupil or any other examination. Serious, but
 contained.
 
-## 20.5 — What ScholarNest will never ask you for
+## 20.5 — What AkademicNest will never ask you for
 
-The ScholarNest Team will **never** ask for:
+The AkademicNest Team will **never** ask for:
 
 - Your password, or anyone else's
 - A result token
 - Bank or card details
 - Pupils' records "for testing"
 
-**A message asking for any of these is not from ScholarNest.** Do not reply. Report
+**A message asking for any of these is not from AkademicNest.** Do not reply. Report
 it as a security incident.
 
 ---
@@ -1824,23 +1824,23 @@ resetting passwords for your own users · deactivating and reactivating accounts
 drawing and replacing signatures · brand colour, fonts and website settings ·
 deactivating pupils to free capacity
 
-## Only the ScholarNest Team can fix
+## Only the AkademicNest Team can fix
 
 Approving a subscription or a capacity top-up · verifying or refunding a payment ·
 restarting the background service that reads CBT documents · anything affecting
 more than one school · a security incident · recovering deleted data · a plan
 entitlement that is wrong after payment · revoking a token across the platform ·
-anything where ScholarNest itself is down or erroring
+anything where AkademicNest itself is down or erroring
 
 ## Escalate immediately, without troubleshooting
 
 🔴 Any security incident · data belonging to another school appearing ·
 accidental deletion of a pupil or staff member · a result published to the wrong
-family · ScholarNest completely unreachable
+family · AkademicNest completely unreachable
 
 ---
 
-# 22. CONTACTING THE SCHOLARNEST TEAM
+# 22. CONTACTING THE AKADEMICNEST TEAM
 
 ## Send this
 
@@ -1871,7 +1871,7 @@ family · ScholarNest completely unreachable
 
 | Say | When |
 | --- | --- |
-| 🔴 **Critical** | Security, data loss, nobody can use ScholarNest |
+| 🔴 **Critical** | Security, data loss, nobody can use AkademicNest |
 | 🟠 **High** | A whole feature down for the whole school |
 | 🟡 **Medium** | One person or one feature, workaround exists |
 | 🟢 **Low** | Cosmetic or content |
@@ -1903,7 +1903,7 @@ family · ScholarNest completely unreachable
 | **That is not a signature image** | The pad produced nothing usable | 10.4 |
 | **Access denied (403)** | Not permitted, or not on your plan | 18, then escalate |
 | **Too many requests (429)** | Rate limited for safety | Wait, then try once |
-| **Server error (500)** | A fault at ScholarNest's end. **Not your fault** | Note the time and escalate |
+| **Server error (500)** | A fault at AkademicNest's end. **Not your fault** | Note the time and escalate |
 
 ---
 
@@ -1924,13 +1924,13 @@ family · ScholarNest completely unreachable
 | Website not loading | Published? Ctrl+F5 | Private window; another device | Fails in private window too |
 | Change not showing | Ctrl+F5 | Private window | Still old in a private window |
 | Image not showing | Check type (JPG/PNG/WebP) | Re-upload; Ctrl+F5 | Re-upload also fails |
-| CBT stuck "Waiting" | Wait 5 min; do **not** re-upload | Wait 15 min | Still waiting — ScholarNest restarts it |
+| CBT stuck "Waiting" | Wait 5 min; do **not** re-upload | Wait 15 min | Still waiting — AkademicNest restarts it |
 | Signature missing | Has the person drawn one? | Right class teacher assigned? Reprint | Drawn and assigned, still absent |
-| Contact form silent | Check messages **in ScholarNest** | Send yourself a test | Your own test does not arrive |
+| Contact form silent | Check messages **in AkademicNest** | Send yourself a test | Your own test does not arrive |
 | Saw another school's data | **STOP** | Screenshot, do not delete | 🔴 **Immediately** |
 
 ---
 
-*This runbook describes ScholarNest as it behaved on 1 September 2026. If something
-in it no longer matches what you see, tell the ScholarNest Team — a runbook that is
+*This runbook describes AkademicNest as it behaved on 1 September 2026. If something
+in it no longer matches what you see, tell the AkademicNest Team — a runbook that is
 wrong is worse than no runbook.*

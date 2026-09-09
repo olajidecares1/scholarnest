@@ -50,7 +50,7 @@ class SuperAdminSessionController extends Controller
             // weaker copy of them written just for this door.
             $request->authenticate();
         } catch (ValidationException $exception) {
-            $this->log('super-admin.login-failed', "Failed ScholarNest Team sign-in attempt for '{$login}'.", $login);
+            $this->log('super-admin.login-failed', "Failed AkademicNest Team sign-in attempt for '{$login}'.", $login);
 
             throw $exception;
         }
@@ -79,7 +79,7 @@ class SuperAdminSessionController extends Controller
 
             $this->log(
                 'super-admin.login-refused',
-                "Refused ScholarNest Team sign-in for '{$login}': the account is not a ScholarNest Team.",
+                "Refused AkademicNest Team sign-in for '{$login}': the account is not a AkademicNest Team.",
                 $login,
             );
 
@@ -87,13 +87,13 @@ class SuperAdminSessionController extends Controller
             // back to the registration page, which is where they started.
             return redirect()->route('portal.find.show')->with(
                 'status',
-                'That was the ScholarNest Team sign-in. Your details are correct - please sign in to your school here instead.',
+                'That was the AkademicNest Team sign-in. Your details are correct - please sign in to your school here instead.',
             );
         }
 
         $request->session()->regenerate();
 
-        AuditLog::record('super-admin.login', "ScholarNest Team {$user->name} signed in.", $user);
+        AuditLog::record('super-admin.login', "AkademicNest Team {$user->name} signed in.", $user);
 
         return redirect()->intended(route('super-admin.dashboard', absolute: false));
     }
