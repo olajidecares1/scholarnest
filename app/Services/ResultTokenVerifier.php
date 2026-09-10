@@ -61,7 +61,7 @@ class ResultTokenVerifier
     ): ?ResultCheckingPinUsage {
         $hash = ResultCheckingPin::hashToken($plainToken);
 
-        return DB::transaction(function () use ($school, $hash, $request, $forStudent, $forExamination, $redeemedBy): ?ResultCheckingPinUsage {
+        return DB::transaction(function () use ($school, $hash, $plainToken, $request, $forStudent, $forExamination, $redeemedBy): ?ResultCheckingPinUsage {
             // Scoped to this school as well as the hash. Without the school
             // clause a token would work from any school's check-result page,
             // which leaks nothing by itself but blurs a boundary worth keeping
@@ -71,6 +71,18 @@ class ResultTokenVerifier
                 ->where('token_hash', $hash)
                 ->lockForUpdate()
                 ->first();
+
+            // A token printed before the format changed was hashed from its
+            // upper-cased form, so a parent typing one exactly as it appears
+            // on their slip would miss. Tried only after the exact match
+            // fails, so a current mixed-case token is never matched loosely.
+            if ($token === null) {
+                $token = ResultCheckingPin::query()
+                    ->forSchool($school)
+                    ->where('token_hash', ResultCheckingPin::legacyHashToken($plainToken))
+                    ->lockForUpdate()
+                    ->first();
+            }
 
             if ($token === null) {
                 $this->log($school, null, ResultTokenAccessOutcome::NotFound, $request, $hash);

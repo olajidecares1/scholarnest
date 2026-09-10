@@ -303,10 +303,14 @@ test('a token is not derived from anything about the student', function () {
     // that is where the comparison is made.
     expect($tokens->unique())->toHaveCount(5);
     foreach ($tokens as $token) {
+        // Twelve random characters, and nothing derivable in them. The token
+        // used to open with the session and term - 26271... - which is gone:
+        // the whole string is randomness now, and none of it is the student.
         expect($token)->toHaveLength(ResultCheckingPin::TOKEN_LENGTH)
-            ->and($token)->toStartWith('26271')
-            ->and(substr($token, 5))->not->toContain((string) $student->id)
-            ->and(substr($token, 5))->not->toContain($student->admission_number);
+            ->and($token)->toMatch('/^[A-Za-z0-9]{12}$/')
+            ->and($token)->not->toContain((string) $student->id)
+            ->and($token)->not->toContain($student->admission_number)
+            ->and($token)->not->toStartWith('2627');
     }
 
     // And the random half really is the random half.
@@ -641,7 +645,8 @@ test('a school admin issues a token from the dashboard and is shown it once', fu
     $admin = schoolAdminFor($school);
     $response = $this->actingAs($admin)->post(route('result-pins.store'), [
         'student_id' => $student->id,
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ]);
     $response->assertRedirect();
     $token = ResultCheckingPin::latest('id')->first();
@@ -662,23 +667,36 @@ test('a school admin cannot issue a token for another school student', function 
     $this->actingAs($admin)
         ->post(route('result-pins.store'), [
             'student_id' => $studentB->id,
-            'examination_id' => $examinationA->id,
+            'session' => $examinationA->session,
+            'term' => $examinationA->term->value,
         ])
         ->assertSessionHasErrors('student_id');
     expect(ResultCheckingPin::count())->toBe(0);
 });
 
-test('a school admin cannot issue a token against another school examination', function () {
+test('a school admin cannot reach another school\'s examination', function () {
     [$schoolA, , $studentA] = schoolWithResult();
-    [, $examinationB] = schoolWithResult();
+    [$schoolB, $examinationB] = schoolWithResult();
+
     $admin = schoolAdminFor($schoolA);
+
+    // There is no examination field to point elsewhere any more. The
+    // examination is resolved from the acting school, the year, the term and
+    // the student's own class - so even naming school B's exact year, term and
+    // class produces school A's examination, never school B's.
     $this->actingAs($admin)
         ->post(route('result-pins.store'), [
             'student_id' => $studentA->id,
-            'examination_id' => $examinationB->id,
+            'session' => $examinationB->session,
+            'term' => $examinationB->term->value,
         ])
-        ->assertSessionHasErrors('examination_id');
-    expect(ResultCheckingPin::count())->toBe(0);
+        ->assertSessionHasNoErrors();
+
+    $issued = ResultCheckingPin::with('examination')->sole();
+
+    expect($issued->school_id)->toBe($schoolA->id)
+        ->and($issued->examination->school_id)->toBe($schoolA->id)
+        ->and($issued->examination_id)->not->toBe($examinationB->id);
 });
 
 test('a school admin bulk-issues tokens for a class from the dashboard', function () {
@@ -692,9 +710,11 @@ test('a school admin bulk-issues tokens for a class from the dashboard', functio
     $this->actingAs($admin)
         ->post(route('result-pins.store-bulk'), [
             // The class is chosen from the school's own list now, not implied
-            // by whichever examination was picked.
+            // by whichever examination was picked - and the examination is
+            // resolved from the three together.
             'class_name' => $examination->class_name,
-            'examination_id' => $examination->id,
+            'session' => $examination->session,
+            'term' => $examination->term->value,
         ])
         ->assertRedirect();
     // Three students in the class, so three tokens - each bound to its own.

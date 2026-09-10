@@ -72,35 +72,63 @@ function oweFees(Student $student, float $amount = 25000): void
 // The token itself
 // -----------------------------------------------------------------------------
 
-test('every exam token is exactly fifteen characters', function (string $session, ExamTerm $term) {
-    $token = ResultCheckingPin::generatePlainToken($session, $term);
+test('every exam token is exactly twelve characters', function () {
+    $token = ResultCheckingPin::generatePlainToken();
 
-    expect($token)->toHaveLength(15)
-        ->and(ResultCheckingPin::TOKEN_LENGTH)->toBe(15);
-})->with([
-    'standard session' => ['2025/2026', ExamTerm::First],
-    'hyphenated' => ['2024-2025', ExamTerm::Second],
-    'single year' => ['2026', ExamTerm::Third],
-    // A session is free text on the examination, so it may be anything at all.
-    // The length is a promise regardless.
-    'nonsense' => ['not a session', ExamTerm::First],
-    'empty' => ['', ExamTerm::Second],
-]);
-
-test('a token carries its own academic year and term', function () {
-    expect(ResultCheckingPin::generatePlainToken('2025/2026', ExamTerm::First))->toStartWith('25261')
-        ->and(ResultCheckingPin::generatePlainToken('2025/2026', ExamTerm::Second))->toStartWith('25262')
-        ->and(ResultCheckingPin::generatePlainToken('2025/2026', ExamTerm::Third))->toStartWith('25263')
-        ->and(ResultCheckingPin::generatePlainToken('2026/2027', ExamTerm::First))->toStartWith('26271');
+    expect($token)->toHaveLength(12)
+        ->and(ResultCheckingPin::TOKEN_LENGTH)->toBe(12);
 });
 
-test('the random half of a token is not guessable from the term it belongs to', function () {
-    // Two tokens for the same term share their first five characters by
-    // design. If they shared any more than that, the term would be the token.
-    $tokens = collect(range(1, 40))->map(fn () => ResultCheckingPin::generatePlainToken('2025/2026', ExamTerm::First));
+test('a token carries upper case, lower case and digits', function () {
+    // Not a lucky draw: asserted across enough tokens that a generator which
+    // only sometimes produced all three would fail.
+    collect(range(1, 60))->each(function (): void {
+        $token = ResultCheckingPin::generatePlainToken();
 
-    expect($tokens->unique())->toHaveCount(40)
-        ->and($tokens->map(fn (string $token) => substr($token, 5))->unique())->toHaveCount(40);
+        expect($token)->toMatch('/[A-Z]/')
+            ->and($token)->toMatch('/[a-z]/')
+            ->and($token)->toMatch('/\d/')
+            ->and($token)->toMatch('/^[A-Za-z0-9]{12}$/');
+    });
+});
+
+test('a token reveals nothing about the session or term it belongs to', function () {
+    // The old format spent its first five characters on exactly that -
+    // 25263QK7M92XP4Q announced "2025/2026, Third Term" to anyone holding it,
+    // and two tokens side by side gave away the whole scheme.
+    //
+    // Nothing is passed in to encode any more, and nothing comes out: 200
+    // tokens share no common prefix beyond the first character, which is all
+    // chance allows across a 56-character alphabet.
+    $tokens = collect(range(1, 200))->map(fn () => ResultCheckingPin::generatePlainToken());
+
+    expect($tokens->map(fn (string $t) => substr($t, 0, 2))->unique()->count())
+        ->toBeGreaterThan(20);
+
+    foreach (['2526', '2025', '2026', '1', '2', '3'] as $leak) {
+        expect($tokens->filter(fn (string $t) => str_starts_with($t, $leak))->count())
+            ->toBeLessThan($tokens->count());
+    }
+});
+
+test('tokens do not repeat', function () {
+    $tokens = collect(range(1, 200))->map(fn () => ResultCheckingPin::generatePlainToken());
+
+    expect($tokens->unique())->toHaveCount(200);
+});
+
+test('the confusable characters are left out, so a printed token can be typed back', function () {
+    // 0/O/o and 1/l/I are what get misread off a slip and misheard down a
+    // telephone, and a parent who mistypes one has spent an attempt against
+    // the rate limiter for nothing.
+    $tokens = collect(range(1, 200))->map(fn () => ResultCheckingPin::generatePlainToken())->implode('');
+
+    expect($tokens)->not->toContain('0')
+        ->and($tokens)->not->toContain('O')
+        ->and($tokens)->not->toContain('o')
+        ->and($tokens)->not->toContain('1')
+        ->and($tokens)->not->toContain('l')
+        ->and($tokens)->not->toContain('I');
 });
 
 test('a school issues its own tokens on every plan', function (PlanKey $planKey) {
@@ -112,7 +140,8 @@ test('a school issues its own tokens on every plan', function (PlanKey $planKey)
     $this->actingAs($admin)
         ->post(route('result-pins.store'), [
             'student_id' => $student->id,
-            'examination_id' => $examination->id,
+            'session' => $examination->session,
+            'term' => $examination->term->value,
         ])
         ->assertRedirect();
 

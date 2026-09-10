@@ -172,7 +172,8 @@ test('the complete Basic-plan workflow runs end to end', function () {
     // --- School Admin issues the result token -------------------------------
     $this->actingAs($admin)->post(route('result-pins.store'), [
         'student_id' => $student->id,
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ])->assertSessionHasNoErrors();
 
     $token = collect(session('issued_tokens'))->first()['token'];

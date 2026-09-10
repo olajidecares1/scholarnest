@@ -12,6 +12,7 @@ use App\Models\ResultCheckingPin;
 use App\Models\ResultTokenAccessLog;
 use App\Models\School;
 use App\Models\Student;
+use App\Services\ExaminationResolver;
 use App\Services\ResultAccessPolicy;
 use App\Services\ResultTokenIssuer;
 use Illuminate\Http\RedirectResponse;
@@ -36,6 +37,7 @@ class ResultCheckingPinController extends Controller
     public function __construct(
         private readonly ResultTokenIssuer $issuer,
         private readonly ResultAccessPolicy $access,
+        private readonly ExaminationResolver $examinations,
     ) {}
 
     public function index(Request $request): View
@@ -64,7 +66,28 @@ class ResultCheckingPinController extends Controller
             // School Admin thinks in at the end of a term. The examinations
             // are filtered down from these in the browser, but every choice is
             // re-checked on the server when the form is submitted.
-            'sessions' => $examinations->pluck('session')->unique()->sortDesc()->values(),
+            //
+            // THE SCHOOL'S OWN ACADEMIC YEAR IS ALWAYS OFFERED, whether or not
+            // an examination has been recorded in it yet. The list used to be
+            // the sessions found on examinations alone, so a school that had
+            // just moved to 2026/2027 in Settings could not select it here
+            // until it had already created an examination - and the form
+            // defaulted to whatever year its newest examination happened to
+            // be in, which is not the year the school is in.
+            //
+            // Historical sessions stay in the list, because generating tokens
+            // for a past term is a thing schools legitimately need to do.
+            'sessions' => $examinations->pluck('session')
+                ->push($school->currentSession())
+                ->filter()
+                ->unique()
+                ->sortDesc()
+                ->values(),
+
+            // Read from Settings on every request, so changing the academic
+            // year there changes what this form defaults to immediately -
+            // never hard-coded, and never inferred from the data.
+            'currentSession' => $school->currentSession(),
             'terms' => ExamTerm::cases(),
             'students' => $school->students()->where('is_active', true)->orderBy('last_name')->get(),
 
@@ -112,14 +135,29 @@ class ResultCheckingPinController extends Controller
         $school = $request->user()->school;
 
         $validated = $request->validate([
-            // Both are scoped to this school in the rule itself, so a swapped
+            // Scoped to this school in the rule itself, so a swapped
             // identifier fails validation rather than reaching the issuer.
             'student_id' => ['required', Rule::exists('students', 'id')->where('school_id', $school->id)],
-            'examination_id' => ['required', Rule::exists('examinations', 'id')->where('school_id', $school->id)],
+
+            // The examination is no longer asked for: the year, the term and
+            // the student's own class name it completely. See
+            // App\Services\ExaminationResolver.
+            'session' => ['required', 'string', 'max:20'],
+            'term' => ['required', Rule::enum(ExamTerm::class)],
         ]);
 
         $student = Student::findOrFail($validated['student_id']);
-        $examination = Examination::findOrFail($validated['examination_id']);
+
+        // The CLASS COMES FROM THE STUDENT RECORD, never from the request. A
+        // class submitted alongside the student could disagree with the one
+        // they are actually in, and the token would bind to an examination
+        // that is not theirs.
+        $examination = $this->examinations->forTokens(
+            $school,
+            $validated['session'],
+            ExamTerm::from($validated['term']),
+            (string) $student->class_name,
+        );
 
         try {
             $issued = $this->issuer->issue($school, $student, $examination, $request->user());
@@ -159,26 +197,45 @@ class ResultCheckingPinController extends Controller
         // Science", producing a batch of nothing and no obvious reason why.
         $validated = $request->validate([
             'class_name' => ['required', 'string', Rule::in($school->configuredClassNames())],
-            'examination_id' => ['required', Rule::exists('examinations', 'id')->where('school_id', $school->id)],
+
+            // The examination is no longer asked for - the three fields below
+            // name it. See App\Services\ExaminationResolver.
+            'session' => ['required', 'string', 'max:20'],
+            'term' => ['required', Rule::enum(ExamTerm::class)],
         ], [
             'class_name.in' => 'Choose a class from your school\'s own class list.',
         ]);
 
-        $examination = Examination::findOrFail($validated['examination_id']);
-
-        // The examination has a class of its own, and it has to be the one
-        // chosen - otherwise the class dropdown would be decoration over
-        // whatever the examination said.
-        if ($examination->class_name !== $validated['class_name']) {
-            return back()
-                ->withErrors(['examination_id' => 'That examination is not for the class you selected.'])
-                ->withInput();
-        }
+        // Resolved from the year, term and class the admin chose, so the
+        // examination can no longer disagree with the class - it is built from
+        // it. The check that used to be needed here is gone with the mismatch
+        // it guarded against.
+        $examination = $this->examinations->forTokens(
+            $school,
+            $validated['session'],
+            ExamTerm::from($validated['term']),
+            $validated['class_name'],
+        );
 
         $issued = $this->issuer->issueForExamination($school, $examination, $request->user());
 
         if ($issued->isEmpty()) {
-            return back()->with('status', "Every student in {$examination->class_name} already has a token for this result.");
+            // TWO DIFFERENT THINGS, and they were being reported as one.
+            //
+            // Nothing issued means either that everybody already holds a
+            // token, or that the class has nobody in it. A school with an
+            // empty class was told "every student already has a token" while
+            // holding none at all - which is not merely unhelpful, it is
+            // untrue, and it sent them looking for tokens that were never
+            // generated.
+            $roll = $school->students()
+                ->where('is_active', true)
+                ->where('class_name', $examination->class_name)
+                ->count();
+
+            return back()->with('status', $roll === 0
+                ? "No active students in {$examination->class_name} yet, so there was nobody to issue a token to. Add students to the class first."
+                : "Every student in {$examination->class_name} already has a token for this result.");
         }
 
         AuditLog::record(

@@ -154,7 +154,11 @@
                 <div
                     class="mt-4 space-y-3"
                     x-data="{
-                        session: @js(old('session', $sessions->first())),
+                        {{-- The school's academic year from Settings, not the
+                             newest examination's. A school that has moved on
+                             in Settings was still being defaulted to the year
+                             its last examination was filed under. --}}
+                        session: @js(old('session', $currentSession)),
                         term: @js(old('term', '')),
                         examinations: @js($examinations->map(fn ($exam) => [
                             'id' => $exam->id,
@@ -190,18 +194,11 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label for="examination_id" class="field-label mb-1">Examination</label>
-                        <select id="examination_id" name="examination_id" required class="w-full">
-                            <option value="">Choose an examination…</option>
-                            <template x-for="exam in available" :key="exam.id">
-                                <option :value="exam.id" x-text="exam.label"></option>
-                            </template>
-                        </select>
-                        <p class="field-hint mt-1" x-show="available.length === 0" x-cloak>
-                            No examinations recorded for that year and term yet.
-                        </p>
-                    </div>
+                    {{-- No Examination field. The year, the term and the
+                         student's own class name it completely, so the server
+                         works it out - see App\Services\ExaminationResolver.
+                         Asking for it here meant a school with none recorded
+                         met an empty dropdown and could issue nothing. --}}
 
                     <div>
                         <label for="student_id" class="field-label mb-1">Student / Pupil</label>
@@ -252,7 +249,11 @@
                     class="mt-4 space-y-3"
                     x-data="{
                         className: @js(old('class_name', '')),
-                        session: @js(old('session', $sessions->first())),
+                        {{-- The school's academic year from Settings, not the
+                             newest examination's. A school that has moved on
+                             in Settings was still being defaulted to the year
+                             its last examination was filed under. --}}
+                        session: @js(old('session', $currentSession)),
                         term: @js(old('term', '')),
                         classCounts: @js($classCounts),
                         examinations: @js($examinations->map(fn ($exam) => [
@@ -308,18 +309,8 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label for="bulk_examination_id" class="field-label mb-1">Examination</label>
-                        <select id="bulk_examination_id" name="examination_id" required class="w-full">
-                            <option value="">Choose an examination…</option>
-                            <template x-for="exam in available" :key="exam.id">
-                                <option :value="exam.id" x-text="exam.label"></option>
-                            </template>
-                        </select>
-                        <p class="field-hint mt-1" x-show="className !== '' && available.length === 0" x-cloak>
-                            No examination recorded for that class in the selected year and term.
-                        </p>
-                    </div>
+                    {{-- No Examination field here either: class, year and term
+                         name it. See App\Services\ExaminationResolver. --}}
                 </div>
 
                 <button type="submit" class="mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">

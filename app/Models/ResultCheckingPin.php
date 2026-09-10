@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\ExamTerm;
 use App\Enums\ResultCheckingPinStatus;
 use App\Enums\ResultTokenAccessOutcome;
 use App\Support\HasUuidRouteKey;
@@ -35,35 +34,34 @@ class ResultCheckingPin extends Model
     use HasFactory, HasUuidRouteKey;
 
     /**
-     * Excludes visually ambiguous characters (0/O, 1/I) so a printed or
-     * read-aloud token cannot be misheard into a different valid one.
+     * Upper case, lower case and digits - with the six characters nobody can
+     * reliably tell apart left out.
+     *
+     * 0/O/o and 1/l/I are the pairs that get misread off a printed slip and
+     * misheard down a telephone, and a parent who mistypes one has spent an
+     * attempt against the rate limiter for nothing. Dropping them leaves 56
+     * characters and 56^12 - about 69 bits - which is far past guessable.
      */
-    private const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    private const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
 
     /**
-     * Exactly fifteen characters: session, term, then randomness.
+     * Exactly twelve characters, and every one of them random.
      *
-     *   2526  3  QK7M92XP4Q      ->  25263QK7M92XP4Q
-     *   ----  -  ----------
-     *   year  |  10 random characters
-     *         term (1, 2 or 3)
+     *   aB7xQ2mP9kL4
      *
-     * The leading five are not a secret and are not treated as one - they are
-     * there so a school looking at a slip of paper can tell at a glance which
-     * term it belongs to. The security is the ten random characters: 32^10 is
-     * about 50 bits, which is far past guessable against a rate limiter, and
-     * a token still only opens the one result it was issued against.
+     * NOTHING IS ENCODED IN IT. The previous format spent its first five
+     * characters on the session and the term - 25263QK7M92XP4Q - so a token
+     * announced on sight which term it belonged to, and anyone holding two
+     * tokens could read off how the scheme worked.
      *
-     * The previous format was EDU-7K92-XP41-8ZQD-M3VH - 23 characters, with
-     * nothing in it to say what it was for.
+     * Removing that costs nothing, because the token never decided what it
+     * opened in the first place: validity comes from the row, which is bound
+     * to one examination, and an examination IS one class in one term of one
+     * session. A First Term token cannot open Second Term because it points
+     * at a different examination - not because of anything in the string.
+     * See ResultTokenVerifier.
      */
-    private const YEAR_LENGTH = 4;
-
-    private const TERM_LENGTH = 1;
-
-    public const TOKEN_LENGTH = 15;
-
-    private const RANDOM_LENGTH = self::TOKEN_LENGTH - self::YEAR_LENGTH - self::TERM_LENGTH;
+    public const TOKEN_LENGTH = 12;
 
     /**
      * @var list<string>
@@ -286,48 +284,41 @@ class ResultCheckingPin extends Model
      * would be guessable by whoever knows those things, which for a school
      * record is a great many people.
      */
-    public static function generatePlainToken(string $session, ExamTerm $term): string
+    public static function generatePlainToken(): string
     {
         $alphabetLength = strlen(self::CODE_ALPHABET);
 
-        $random = collect(range(1, self::RANDOM_LENGTH))
-            ->map(fn (): string => self::CODE_ALPHABET[random_int(0, $alphabetLength - 1)])
-            ->implode('');
+        do {
+            $token = '';
 
-        return self::sessionSegment($session).self::termSegment($term).$random;
+            for ($i = 0; $i < self::TOKEN_LENGTH; $i++) {
+                $token .= self::CODE_ALPHABET[random_int(0, $alphabetLength - 1)];
+            }
+
+            // Drawn again until all three character classes are present, which
+            // is what the format promises. Rejecting is the correct way round:
+            // placing one of each at fixed positions and shuffling the rest
+            // would make those positions predictable, which is the one thing a
+            // token must not be. A draw of twelve misses a class about once in
+            // every few thousand attempts, so this loops almost never.
+        } while (! self::hasEveryCharacterClass($token));
+
+        return $token;
     }
 
     /**
-     * "2025/2026" -> "2526". Four digits, whatever shape the school writes its
-     * sessions in, so the token length never depends on that.
-     *
-     * Falls back to the digits it can find, and pads, because a session is a
-     * free-text field on the examination and a school may have typed anything
-     * into it. A token must still come out fifteen characters long.
+     * Upper case, lower case and a digit - all three, as the format requires.
      */
-    private static function sessionSegment(string $session): string
+    private static function hasEveryCharacterClass(string $token): bool
     {
-        preg_match_all('/\d{4}/', $session, $matches);
-
-        $years = collect($matches[0])->map(fn (string $year) => substr($year, -2));
-
-        if ($years->count() >= 2) {
-            return $years->first().$years->get(1);
-        }
-
-        $digits = preg_replace('/\D/', '', $session) ?? '';
-
-        return str_pad(substr($digits, 0, self::YEAR_LENGTH), self::YEAR_LENGTH, '0', STR_PAD_LEFT);
+        return preg_match('/[A-Z]/', $token) === 1
+            && preg_match('/[a-z]/', $token) === 1
+            && preg_match('/\d/', $token) === 1;
     }
 
-    private static function termSegment(ExamTerm $term): string
-    {
-        return match ($term) {
-            ExamTerm::First => '1',
-            ExamTerm::Second => '2',
-            ExamTerm::Third => '3',
-        };
-    }
+    // sessionSegment() and termSegment() are gone with the format they built.
+    // A token no longer carries the session or the term, so there is nothing
+    // to derive from either.
 
     /**
      * The lookup value for a plain token.
@@ -344,12 +335,33 @@ class ResultCheckingPin extends Model
     }
 
     /**
-     * Tidies up what someone typed: trims, upper-cases, and strips the spaces
-     * people insert around the hyphens when reading a token off paper.
+     * Tidies up what someone typed: trims and strips the spaces people insert
+     * when reading a token off paper.
+     *
+     * IT NO LONGER UPPER-CASES, and it cannot. The token alphabet is mixed
+     * case now, so "aB7xQ2mP9kL4" and "AB7XQ2MP9KL4" are different tokens -
+     * upper-casing would have stored a token nobody was ever given and
+     * hashed every attempt to the wrong value.
+     *
+     * Tokens issued under the old upper-case-only format still verify: see
+     * legacyHashToken(), which the verifier falls back to so a parent holding
+     * a printed token from last term is not turned away.
      */
     public static function normaliseToken(string $plain): string
     {
-        return strtoupper(preg_replace('/\s+/', '', trim($plain)) ?? '');
+        return preg_replace('/\s+/', '', trim($plain)) ?? '';
+    }
+
+    /**
+     * The hash an OLD token would have had, when the format was upper case
+     * only and what somebody typed was upper-cased before hashing.
+     *
+     * Only ever consulted after the exact hash misses. Every token issued
+     * from now on is mixed case and matches exactly.
+     */
+    public static function legacyHashToken(string $plain): string
+    {
+        return hash('sha256', strtoupper(self::normaliseToken($plain)));
     }
 
     /**

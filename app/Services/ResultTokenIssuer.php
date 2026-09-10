@@ -62,14 +62,17 @@ class ResultTokenIssuer
     ): array {
         $this->assertBindingIsValid($school, $student, $examination);
 
-        $plain = ResultCheckingPin::generatePlainToken($examination->session, $examination->term);
+        // No session or term is passed any more: a token encodes nothing about
+        // what it opens. The examination it is bound to below is what decides
+        // that, and always was.
+        $plain = ResultCheckingPin::generatePlainToken();
 
         $token = DB::transaction(function () use ($school, $student, $examination, $issuedBy, $maxUses, &$plain) {
-            // A collision is vanishingly unlikely at 80 bits, but "unlikely"
+            // A collision is vanishingly unlikely at 69 bits, but "unlikely"
             // is not "impossible" and the column is unique, so retry rather
             // than fail the school's whole batch on a freak clash.
             while (ResultCheckingPin::where('token_hash', ResultCheckingPin::hashToken($plain))->exists()) {
-                $plain = ResultCheckingPin::generatePlainToken($examination->session, $examination->term);
+                $plain = ResultCheckingPin::generatePlainToken();
             }
 
             return ResultCheckingPin::create([

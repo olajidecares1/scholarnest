@@ -80,14 +80,15 @@ test('the class comes from the school\'s own list, and cannot be typed', functio
     $this->actingAs($admin)
         ->post(route('result-pins.store-bulk'), [
             'class_name' => 'SSS1 Science',
-            'examination_id' => $examination->id,
+            'session' => $examination->session,
+            'term' => $examination->term->value,
         ])
         ->assertSessionHasErrors('class_name');
 
     expect(ResultCheckingPin::count())->toBe(0);
 });
 
-test('the chosen class must be the examination\'s class', function () {
+test('the examination follows the class, so the two can never disagree', function () {
     [$school, $admin, $examination] = tokenClassSchool();
 
     $otherLevel = AcademicLevel::factory()->create(['school_id' => $school->id]);
@@ -97,16 +98,26 @@ test('the chosen class must be the examination\'s class', function () {
         'name' => 'JSS 1',
     ]);
 
-    // Both are real classes; they are not the same class. A dropdown that did
-    // not have to agree with the examination would be decoration.
+    Student::factory()->create(['school_id' => $school->id, 'class_name' => 'JSS 1', 'is_active' => true]);
+
+    // This used to be a guard: the form offered an Examination separately, so
+    // it had to be refused when it named a different class from the one
+    // chosen. The examination is now DERIVED from the class, year and term,
+    // so a mismatch is not something to reject - it cannot be expressed.
     $this->actingAs($admin)
         ->post(route('result-pins.store-bulk'), [
             'class_name' => 'JSS 1',
-            'examination_id' => $examination->id,
+            'session' => $examination->session,
+            'term' => $examination->term->value,
         ])
-        ->assertSessionHasErrors('examination_id');
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
 
-    expect(ResultCheckingPin::count())->toBe(0);
+    $issued = ResultCheckingPin::with('examination')->get();
+
+    expect($issued)->toHaveCount(1)
+        ->and($issued->first()->examination->class_name)->toBe('JSS 1')
+        ->and($issued->first()->examination->id)->not->toBe($examination->id);
 });
 
 test('every class the school uses is offered, including one never entered into the academic structure', function () {
@@ -143,7 +154,8 @@ test('choosing a class generates one token per student in it', function () {
     $this->actingAs($admin)
         ->post(route('result-pins.store-bulk'), [
             'class_name' => 'SSS 1 Science',
-            'examination_id' => $examination->id,
+            'session' => $examination->session,
+            'term' => $examination->term->value,
         ])
         ->assertRedirect();
 
@@ -153,7 +165,7 @@ test('choosing a class generates one token per student in it', function () {
         ->and(ResultCheckingPin::pluck('bound_student_id')->unique())->toHaveCount(30)
         ->and(ResultCheckingPin::pluck('token_hash')->unique())->toHaveCount(30);
 
-    // And each is still 15 characters, still bound to one student.
+    // And each is still twelve characters, still bound to one student.
     expect(ResultCheckingPin::pluck('bound_student_id')->sort()->values()->all())
         ->toBe($roll->pluck('id')->sort()->values()->all());
 });
@@ -163,7 +175,8 @@ test('running it again tops the class up rather than duplicating it', function (
 
     $issue = fn () => $this->actingAs($admin)->post(route('result-pins.store-bulk'), [
         'class_name' => 'SSS 1 Science',
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ]);
 
     $issue();
@@ -196,12 +209,56 @@ test('a class with no students generates nothing and says so', function () {
         'session' => '2025/2026',
     ]);
 
+    // THE WORDING IS THE POINT, not merely that something was said. This
+    // asserted only that a status existed, and passed for two years while the
+    // message read "Every student in Creche already has a token for this
+    // result" - to a school holding no tokens at all, for a class holding no
+    // students. A school reading that goes looking for tokens that were never
+    // generated.
     $this->actingAs($admin)
-        ->post(route('result-pins.store-bulk'), ['class_name' => 'Creche', 'examination_id' => $examination->id])
+        ->post(route('result-pins.store-bulk'), ['class_name' => 'Creche', 'session' => $examination->session, 'term' => $examination->term->value])
         ->assertRedirect()
-        ->assertSessionHas('status');
+        ->assertSessionHas('status', fn (string $status) => str_contains($status, 'No active students in Creche')
+            && ! str_contains($status, 'already has a token'));
 
     expect(ResultCheckingPin::count())->toBe(0);
+});
+
+test('a class where everyone already holds one says THAT, and not the other thing', function () {
+    [$school, $admin, $examination] = tokenClassSchool('SSS 1 Science', 2);
+
+    $payload = [
+        'class_name' => 'SSS 1 Science',
+        'session' => $examination->session,
+        'term' => $examination->term->value,
+    ];
+
+    $this->actingAs($admin)->post(route('result-pins.store-bulk'), $payload);
+
+    expect(ResultCheckingPin::count())->toBe(2);
+
+    // Run again with nobody new. This is the case the old message described,
+    // and it is the only case that should get it.
+    $this->actingAs($admin)
+        ->post(route('result-pins.store-bulk'), $payload)
+        ->assertSessionHas('status', fn (string $status) => str_contains($status, 'already has a token')
+            && ! str_contains($status, 'No active students'));
+
+    expect(ResultCheckingPin::count())->toBe(2);
+});
+
+test('a class with students reports how many tokens were issued', function () {
+    [$school, $admin, $examination] = tokenClassSchool('SSS 1 Science', 5);
+
+    $this->actingAs($admin)
+        ->post(route('result-pins.store-bulk'), [
+            'class_name' => 'SSS 1 Science',
+            'session' => $examination->session,
+            'term' => $examination->term->value,
+        ])
+        ->assertSessionHas('status', fn (string $status) => str_contains($status, '5 result token'));
+
+    expect(ResultCheckingPin::count())->toBe(5);
 });
 
 // -----------------------------------------------------------------------------
@@ -213,7 +270,8 @@ test('the school can see how many tokens are used and how many are not', functio
 
     $this->actingAs($admin)->post(route('result-pins.store-bulk'), [
         'class_name' => 'SSS 1 Science',
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ]);
 
     // Two of the four use theirs.
@@ -250,7 +308,8 @@ test('a student with no token yet shows as a gap, not as an absence', function (
 
     $this->actingAs($admin)->post(route('result-pins.store-bulk'), [
         'class_name' => 'SSS 1 Science',
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ]);
 
     // Admitted after the batch. Built from the students rather than from the
@@ -280,7 +339,8 @@ test('the school sees which guardian used a token, and when', function () {
 
     $this->actingAs($admin)->post(route('result-pins.store-bulk'), [
         'class_name' => 'SSS 1 Science',
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ]);
 
     $guardian = Guardian::factory()->create(['school_id' => $school->id, 'is_active' => true, 'name' => 'Ngozi Adeyemi']);
@@ -306,7 +366,8 @@ test('a token redeemed from the public result link records no signed-in user', f
 
     $this->actingAs($admin)->post(route('result-pins.store-bulk'), [
         'class_name' => 'SSS 1 Science',
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ]);
 
     $plain = ResultCheckingPin::where('bound_student_id', $roll->first()->id)->firstOrFail()->plainToken();
@@ -349,7 +410,8 @@ test('a batch covers the chosen class and nobody else', function () {
 
     $this->actingAs($admin)->post(route('result-pins.store-bulk'), [
         'class_name' => 'SSS 1 Science',
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ])->assertSessionHasNoErrors();
 
     $holders = $school->resultCheckingPins()->pluck('bound_student_id');
@@ -361,7 +423,11 @@ test('a batch covers the chosen class and nobody else', function () {
 test('a student who joins after the batch is picked up by the next run', function () {
     [$school, $admin, $examination] = tokenClassSchool('SSS 1 Science', 3);
 
-    $payload = ['class_name' => 'SSS 1 Science', 'examination_id' => $examination->id];
+    $payload = [
+        'class_name' => 'SSS 1 Science',
+        'session' => $examination->session,
+        'term' => $examination->term->value,
+    ];
     $this->actingAs($admin)->post(route('result-pins.store-bulk'), $payload);
 
     Student::factory()->create([
@@ -382,7 +448,8 @@ test('every token in a class batch is fifteen characters and unique', function (
 
     $this->actingAs($admin)->post(route('result-pins.store-bulk'), [
         'class_name' => 'SSS 1 Science',
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ]);
 
     $tokens = collect(session('issued_tokens'))->pluck('token');
@@ -391,10 +458,12 @@ test('every token in a class batch is fifteen characters and unique', function (
         ->and($tokens->unique())->toHaveCount(6);
 
     foreach ($tokens as $token) {
-        // The same format as a single issue: session, term, then randomness.
-        // A class batch is not a different kind of token.
+        // The same format as a single issue: twelve random characters. A class
+        // batch is not a different kind of token, and none of them announces
+        // the term the batch was generated for.
         expect($token)->toHaveLength(ResultCheckingPin::TOKEN_LENGTH)
-            ->and($token)->toStartWith('25262');
+            ->and($token)->toMatch('/^[A-Za-z0-9]{12}$/')
+            ->and($token)->not->toStartWith('2526');
     }
 });
 
@@ -403,7 +472,8 @@ test('the tracking panel never reprints the tokens themselves', function () {
 
     $this->actingAs($admin)->post(route('result-pins.store-bulk'), [
         'class_name' => 'SSS 1 Science',
-        'examination_id' => $examination->id,
+        'session' => $examination->session,
+        'term' => $examination->term->value,
     ]);
 
     $issued = collect(session('issued_tokens'))->pluck('token');
@@ -437,7 +507,8 @@ test('class token generation works the same on every plan', function (PlanKey $p
     $this->actingAs($admin)
         ->post(route('result-pins.store-bulk'), [
             'class_name' => 'SSS 1 Science',
-            'examination_id' => $examination->id,
+            'session' => $examination->session,
+            'term' => $examination->term->value,
         ])
         ->assertSessionHasNoErrors();
 
