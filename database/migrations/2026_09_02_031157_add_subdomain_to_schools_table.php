@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Schema;
 /**
  * The label a Standard school's website lives at, with no hyphens in it.
  *
- *     vincent-martins-college.akademicnest.com
- *     vincentmartinscollege.akademicnest.com
+ *     vincent-martins-college.akademicanest.com
+ *     vincentmartinscollege.akademicanest.com
  *
  * A COLUMN RATHER THAN A COMPUTED VALUE, and that is the whole reason this
  * migration exists instead of a one-line str_replace in the model. Two things

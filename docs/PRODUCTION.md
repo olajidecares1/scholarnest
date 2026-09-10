@@ -19,7 +19,7 @@ running, locking you out of the fix.
 | `APP_ENV` | `production` | Turns on the check below, and forces https URL generation. |
 | `APP_DEBUG` | `false` | Debug pages print stack traces containing database credentials to whoever triggered the error. **Enforced.** |
 | `APP_KEY` | a generated key | `php artisan key:generate`. Sessions and every `encrypted` cast depend on it — see the warning under Backups. |
-| `APP_URL` | `https://akademicnest.com` | Every link `route()` generates, every link in an email, the host stray traffic is redirected to, and the default target for custom domains. **Enforced** — an http, local or missing value is refused. |
+| `APP_URL` | `https://akademicanest.com` | Every link `route()` generates, every link in an email, the host stray traffic is redirected to, and the default target for custom domains. **Enforced** — an http, local or missing value is refused. |
 | `SESSION_SECURE_COOKIE` | `true` | Without it the cookie that *is* the session is sent over plain http. **Enforced.** |
 | `SESSION_ENCRYPT` | `true` | Session payloads are otherwise readable wherever they are stored. **Enforced.** |
 
@@ -45,11 +45,11 @@ rather than the boot check refusing them.
 ### What the DNS has to look like
 
 ```
-akademicnest.com          A      <server IP>     the platform itself
-*.akademicnest.com        A      <server IP>     every Standard school
+akademicanest.com          A      <server IP>     the platform itself
+*.akademicanest.com        A      <server IP>     every Standard school
 ```
 
-**The wildcard needs a wildcard TLS certificate to match** (`*.akademicnest.com`).
+**The wildcard needs a wildcard TLS certificate to match** (`*.akademicanest.com`).
 Without one, every Standard school's website shows a certificate warning — which
 is worse than not offering subdomains at all. Leave `TENANT_BASE_DOMAIN` blank
 until the certificate exists; turning it on later is additive and breaks no
@@ -58,13 +58,17 @@ existing link.
 Exclusive schools point their own domain at the server. What they are told to
 create comes from `CUSTOM_DOMAIN_A_RECORD_IP` and `CUSTOM_DOMAIN_CNAME_TARGET`.
 
-### One value that must not be renamed
+### The ownership TXT record, and the old names it still answers to
 
-`CUSTOM_DOMAIN_TXT_PREFIX` is still `_edunest-verify` after the rename to
-AkademicNest, deliberately. Schools have already created that TXT record at their
-own registrar. Changing it does not rename anything — it un-verifies every live
-custom domain until each school notices and edits its own DNS. Change it only on
-a deployment that has no verified domains yet.
+`CUSTOM_DOMAIN_TXT_PREFIX` is `_akademicnest-verify`. That is the only prefix a
+school is ever shown.
+
+A TXT record lives at the school's own registrar, on a domain this platform does
+not control, so renaming the prefix alone would silently un-verify every domain
+that was verified under an older name. Verification therefore also accepts
+`config('custom_domain.legacy_txt_verification_prefixes')` — currently
+`_edunest-verify` and `_scholarnest-verify` — without advertising them. Empty
+that list once no verified domain relies on an old prefix.
 
 ## Strongly recommended
 

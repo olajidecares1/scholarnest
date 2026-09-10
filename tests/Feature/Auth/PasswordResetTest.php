@@ -128,12 +128,12 @@ describe('the email', function () {
         // The attack this closes: a forged Host header on the forgot-password
         // request would otherwise put the attacker's domain in the victim's
         // email, and the victim would hand over their token by clicking it.
-        config(['app.url' => 'https://akademicnest.com']);
+        config(['app.url' => 'https://akademicanest.com']);
 
         $token = requestResetToken($this->admin);
         $mail = (new ResetPasswordNotification($token, $this->admin->email))->toMail($this->admin);
 
-        expect($mail->actionUrl)->toStartWith('https://akademicnest.com/');
+        expect($mail->actionUrl)->toStartWith('https://akademicanest.com/');
     });
 
     test('it carries the code in the body and never in the link', function () {

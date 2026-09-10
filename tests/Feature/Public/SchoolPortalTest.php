@@ -72,48 +72,48 @@ test('a school\'s tokens stay the same across requests, not regenerated on refre
 });
 
 test('the portal hub is also reachable via the school\'s subdomain', function () {
-    config(['custom_domain.tenant_base_domain' => 'ednumest.com']);
+    config(['custom_domain.tenant_base_domain' => 'akademicanest.com']);
     $school = School::factory()->create(['is_active' => true]);
     activateSchool($school, PlanKey::Standard);
 
-    $this->get("http://{$school->subdomain}.ednumest.com/portal")
+    $this->get("http://{$school->subdomain}.akademicanest.com/portal")
         ->assertOk()
         ->assertSee($school->name);
 });
 
 test('all four tokenized logins are reachable via the school\'s subdomain, not just the default path', function () {
-    config(['custom_domain.tenant_base_domain' => 'ednumest.com']);
+    config(['custom_domain.tenant_base_domain' => 'akademicanest.com']);
     $school = School::factory()->create(['is_active' => true]);
     activateSchool($school, PlanKey::Standard);
 
-    $this->get("http://{$school->subdomain}.ednumest.com/portal/admin/{$school->portal_admin_token}/login")->assertOk();
-    $this->get("http://{$school->subdomain}.ednumest.com/staff-portal/{$school->portal_staff_token}/login")->assertOk();
-    $this->get("http://{$school->subdomain}.ednumest.com/portal/{$school->portal_student_token}/login")->assertOk();
-    $this->get("http://{$school->subdomain}.ednumest.com/parent-portal/{$school->portal_guardian_token}/login")->assertOk();
+    $this->get("http://{$school->subdomain}.akademicanest.com/portal/admin/{$school->portal_admin_token}/login")->assertOk();
+    $this->get("http://{$school->subdomain}.akademicanest.com/staff-portal/{$school->portal_staff_token}/login")->assertOk();
+    $this->get("http://{$school->subdomain}.akademicanest.com/portal/{$school->portal_student_token}/login")->assertOk();
+    $this->get("http://{$school->subdomain}.akademicanest.com/parent-portal/{$school->portal_guardian_token}/login")->assertOk();
 });
 
 test('the portal hub\'s links point at the subdomain with the correct tokens when the school has one', function () {
-    config(['custom_domain.tenant_base_domain' => 'ednumest.com']);
-    config(['app.url' => 'https://ednumest.com']);
+    config(['custom_domain.tenant_base_domain' => 'akademicanest.com']);
+    config(['app.url' => 'https://akademicanest.com']);
     $school = School::factory()->create(['is_active' => true]);
     activateSchool($school, PlanKey::Standard);
 
-    $this->get("http://{$school->subdomain}.ednumest.com/portal")
+    $this->get("http://{$school->subdomain}.akademicanest.com/portal")
         ->assertOk()
-        ->assertSee("https://{$school->subdomain}.ednumest.com/portal/admin/{$school->portal_admin_token}/login", false)
-        ->assertSee("https://{$school->subdomain}.ednumest.com/staff-portal/{$school->portal_staff_token}/login", false)
-        ->assertSee("https://{$school->subdomain}.ednumest.com/portal/{$school->portal_student_token}/login", false)
-        ->assertSee("https://{$school->subdomain}.ednumest.com/parent-portal/{$school->portal_guardian_token}/login", false);
+        ->assertSee("https://{$school->subdomain}.akademicanest.com/portal/admin/{$school->portal_admin_token}/login", false)
+        ->assertSee("https://{$school->subdomain}.akademicanest.com/staff-portal/{$school->portal_staff_token}/login", false)
+        ->assertSee("https://{$school->subdomain}.akademicanest.com/portal/{$school->portal_student_token}/login", false)
+        ->assertSee("https://{$school->subdomain}.akademicanest.com/parent-portal/{$school->portal_guardian_token}/login", false);
 });
 
 test('logging out of a session started on the subdomain returns there, not the default path', function () {
-    config(['custom_domain.tenant_base_domain' => 'ednumest.com']);
-    config(['app.url' => 'https://ednumest.com']);
+    config(['custom_domain.tenant_base_domain' => 'akademicanest.com']);
+    config(['app.url' => 'https://akademicanest.com']);
     $school = School::factory()->create(['is_active' => true]);
     activateSchool($school, PlanKey::Standard);
     $admin = schoolAdminUser($school, ['email' => 'admin@subdomain-school.test']);
 
-    $this->post("http://{$school->subdomain}.ednumest.com/portal/admin/{$school->portal_admin_token}/login", [
+    $this->post("http://{$school->subdomain}.akademicanest.com/portal/admin/{$school->portal_admin_token}/login", [
         'login' => 'admin@subdomain-school.test',
         'password' => 'password',
     ]);
@@ -121,7 +121,7 @@ test('logging out of a session started on the subdomain returns there, not the d
 
     $response = $this->post(route('portal.admin.logout', $school));
 
-    $response->assertRedirect("https://{$school->subdomain}.ednumest.com/portal/admin/{$school->portal_admin_token}/login");
+    $response->assertRedirect("https://{$school->subdomain}.akademicanest.com/portal/admin/{$school->portal_admin_token}/login");
 });
 
 test('a school admin can log in through their own school\'s portal', function () {

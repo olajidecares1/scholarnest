@@ -65,7 +65,9 @@ class PlanSeeder extends Seeder
                     'Transport & Hostel Management',
                     'Computer-Based Testing (CBT)',
                     'Public School Website',
-                    'Subdomain (akademicnest.schoolname.com)',
+                    // The school is the label and the platform is the domain,
+                    // not the other way about - this is what the app issues.
+                    'Subdomain (schoolname.akademicanest.com)',
                     'ID Card Management',
                     'Hero Slider',
                     'Gallery (Photos & Videos)',

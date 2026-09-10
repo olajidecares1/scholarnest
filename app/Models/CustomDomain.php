@@ -70,6 +70,23 @@ class CustomDomain extends Model
         return config('custom_domain.txt_verification_prefix').".{$this->domain}";
     }
 
+    /**
+     * The same host under the prefixes this platform used before it was
+     * renamed. Checked during verification, never shown to a school: a domain
+     * verified under the old name must not fall over because the brand
+     * changed, but nobody new should be told to create one.
+     *
+     * @return list<string>
+     */
+    public function legacyVerificationRecordHosts(): array
+    {
+        return collect(config('custom_domain.legacy_txt_verification_prefixes', []))
+            ->map(fn (string $prefix) => "{$prefix}.{$this->domain}")
+            ->reject(fn (string $host) => $host === $this->verificationRecordHost())
+            ->values()
+            ->all();
+    }
+
     public function isVerifiedAndActive(): bool
     {
         return $this->status === CustomDomainStatus::Verified;

@@ -12,7 +12,7 @@ beforeEach(function () {
     // Pinned rather than left to whatever APP_URL happens to be in the local
     // .env, so the redirect test's https-with-no-port expectation is
     // deterministic and doesn't depend on the developer's own setup.
-    config(['app.url' => 'https://ednumest.com']);
+    config(['app.url' => 'https://akademicanest.com']);
 });
 
 function exclusiveSchoolWithCustomDomain(string $domain, CustomDomainStatus $status = CustomDomainStatus::Verified): School

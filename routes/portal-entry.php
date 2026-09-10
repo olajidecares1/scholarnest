@@ -80,7 +80,7 @@ Route::post('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'st
 // flow is entirely separate from the two portals above and shares no route,
 // controller or view with them. See docs/BASIC-PLAN-PORTAL.md.
 //
-// The token sits alone at the root - akademicnest.com/6219db402a20f65b63358972bd5274cd
+// The token sits alone at the root - akademicanest.com/6219db402a20f65b63358972bd5274cd
 // - so the address gives away nothing at all about the application's shape.
 // There is no "/portal" segment to notice, and nothing to strip off and probe.
 //

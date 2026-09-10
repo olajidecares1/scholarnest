@@ -25,9 +25,7 @@ class CustomDomainVerificationService
      */
     public function verify(CustomDomain $domain): bool
     {
-        $txtRecords = $this->lookupRecords($domain->verificationRecordHost(), DNS_TXT);
-
-        if (! $this->recordsContainToken($txtRecords, $domain->verification_token)) {
+        if (! $this->ownershipProven($domain)) {
             $this->fail($domain, "We couldn't find a TXT record at {$domain->verificationRecordHost()} containing your verification token yet. DNS changes can take a few minutes to a few hours to propagate - if you just added the record, please try again shortly.");
 
             return false;
@@ -56,6 +54,27 @@ class CustomDomainVerificationService
         ProvisionCustomDomainSsl::dispatch($domain);
 
         return true;
+    }
+
+    /**
+     * Whether the school's TXT record proves it owns the domain.
+     *
+     * The current prefix first, then the ones this platform used before it was
+     * renamed - a domain verified under the old name keeps working without the
+     * school having to touch its DNS again. Only the current prefix is ever
+     * shown to anybody, so nothing new is created under an old name.
+     */
+    private function ownershipProven(CustomDomain $domain): bool
+    {
+        $hosts = array_merge([$domain->verificationRecordHost()], $domain->legacyVerificationRecordHosts());
+
+        foreach ($hosts as $host) {
+            if ($this->recordsContainToken($this->lookupRecords($host, DNS_TXT), $domain->verification_token)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -113,9 +132,13 @@ class CustomDomainVerificationService
     }
 
     /**
+     * The one place this class touches the network. Protected rather than
+     * private so a test can answer DNS itself and assert on which hosts were
+     * asked - the real lookup is unusable in a test suite.
+     *
      * @return list<array<string, mixed>>
      */
-    private function lookupRecords(string $host, int $type): array
+    protected function lookupRecords(string $host, int $type): array
     {
         $records = @dns_get_record($host, $type);
 

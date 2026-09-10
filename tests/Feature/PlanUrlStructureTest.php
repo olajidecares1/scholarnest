@@ -71,17 +71,17 @@ describe('Basic plan', function () {
 
 describe('Standard plan', function () {
     beforeEach(function () {
-        config(['custom_domain.tenant_base_domain' => 'akademicnest.com']);
+        config(['custom_domain.tenant_base_domain' => 'akademicanest.com']);
     });
 
     test('its website is its own subdomain', function () {
         $school = addressedSchoolOn(PlanKey::Standard, withPublishedWebsite: true);
 
-        expect($school->websiteUrl())->toContain('greenfieldcollege.akademicnest.com');
+        expect($school->websiteUrl())->toContain('greenfieldcollege.akademicanest.com');
     });
 
     test('the subdomain has no hyphens, whatever the school is called', function () {
-        config(['custom_domain.tenant_base_domain' => 'akademicnest.com']);
+        config(['custom_domain.tenant_base_domain' => 'akademicanest.com']);
 
         $school = activateSchool(
             School::factory()->create(['name' => "Vincent Martin's College"]),
@@ -89,14 +89,14 @@ describe('Standard plan', function () {
         )->fresh();
 
         expect($school->subdomain)->toBe('vincentmartinscollege')
-            ->and($school->resolvedPublicHost())->toBe('vincentmartinscollege.akademicnest.com');
+            ->and($school->resolvedPublicHost())->toBe('vincentmartinscollege.akademicanest.com');
     });
 
     test('its portals move onto the subdomain', function () {
         $school = addressedSchoolOn(PlanKey::Standard, withPublishedWebsite: true);
 
         expect($school->portalLoginUrl('staff'))
-            ->toContain('greenfieldcollege.akademicnest.com/staff-portal/')
+            ->toContain('greenfieldcollege.akademicanest.com/staff-portal/')
             ->not->toContain('/p/'.$school->portal_key);
     });
 
@@ -108,7 +108,7 @@ describe('Standard plan', function () {
         // never guessing which kind of school they are dealing with.
         expect($school->resultLinkUrl())
             ->toContain('/'.$school->result_link_slug.'/result')
-            ->not->toContain('greenfieldcollege.akademicnest.com');
+            ->not->toContain('greenfieldcollege.akademicanest.com');
     });
 
     test('with no website published yet it falls back to the portal landing', function () {
@@ -132,7 +132,7 @@ describe('Standard plan', function () {
 });
 
 test('a school that drops to Basic stops advertising the website it kept', function () {
-    config(['custom_domain.tenant_base_domain' => 'akademicnest.com']);
+    config(['custom_domain.tenant_base_domain' => 'akademicanest.com']);
 
     $school = addressedSchoolOn(PlanKey::Standard, withPublishedWebsite: true);
 

@@ -27,7 +27,7 @@
                     :value="old('email')"
                     required
                     autocomplete="email"
-                    placeholder="admin@akademicnest.com"
+                    placeholder="admin@akademicanest.com"
                 />
 
                 <x-select-field

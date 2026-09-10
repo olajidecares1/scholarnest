@@ -14,45 +14,45 @@ function standardSchoolWithSubdomain(): School
 }
 
 beforeEach(function () {
-    config(['custom_domain.tenant_base_domain' => 'ednumest.com']);
+    config(['custom_domain.tenant_base_domain' => 'akademicanest.com']);
     // Pinned rather than left to whatever APP_URL happens to be in the local
     // .env, so this test's https-with-no-port expectations are deterministic
     // and don't accidentally pass/fail based on the developer's own setup.
-    config(['app.url' => 'https://ednumest.com']);
+    config(['app.url' => 'https://akademicanest.com']);
 });
 
 test('a standard-plan school\'s subdomain serves its public website', function () {
     $school = standardSchoolWithSubdomain();
 
-    $this->get("http://{$school->subdomain}.ednumest.com/")
+    $this->get("http://{$school->subdomain}.akademicanest.com/")
         ->assertOk()
         ->assertSee($school->name);
 });
 
-test('an exclusive-plan school does not resolve as an ednumest.com subdomain', function () {
+test('an exclusive-plan school does not resolve as an akademicanest.com subdomain', function () {
     $school = School::factory()->create(['is_active' => true]);
     activateSchool($school, PlanKey::Exclusive);
     $school->website()->create(['is_published' => true]);
 
-    $this->get("http://{$school->subdomain}.ednumest.com/")->assertNotFound();
+    $this->get("http://{$school->subdomain}.akademicanest.com/")->assertNotFound();
 });
 
 test('an unknown slug on the subdomain pattern returns 404', function () {
-    $this->get('http://totally-unknown-school.ednumest.com/')->assertNotFound();
+    $this->get('http://totally-unknown-school.akademicanest.com/')->assertNotFound();
 });
 
 test('an inactive standard-plan school does not resolve on its subdomain', function () {
     $school = standardSchoolWithSubdomain();
     $school->update(['is_active' => false]);
 
-    $this->get("http://{$school->subdomain}.ednumest.com/")->assertNotFound();
+    $this->get("http://{$school->subdomain}.akademicanest.com/")->assertNotFound();
 });
 
 test('the default path redirects to the subdomain for a standard-plan school', function () {
     $school = standardSchoolWithSubdomain();
 
     $this->get(route('public.school-website', $school))
-        ->assertRedirect("https://{$school->subdomain}.ednumest.com/");
+        ->assertRedirect("https://{$school->subdomain}.akademicanest.com/");
 });
 
 test('an unconfigured tenant base domain leaves the default path working as before', function () {
@@ -60,7 +60,7 @@ test('an unconfigured tenant base domain leaves the default path working as befo
     $school = standardSchoolWithSubdomain();
 
     $this->get(route('public.school-website', $school))->assertOk();
-    $this->get("http://{$school->subdomain}.ednumest.com/")->assertNotFound();
+    $this->get("http://{$school->subdomain}.akademicanest.com/")->assertNotFound();
 });
 
 test('the subdomain redirect and public URL use this app\'s own scheme and port, not a hardcoded https', function () {
@@ -76,10 +76,10 @@ test('the subdomain redirect and public URL use this app\'s own scheme and port,
     $school = standardSchoolWithSubdomain();
 
     $this->get(route('public.school-website', $school))
-        ->assertRedirect("http://{$school->subdomain}.ednumest.com:8081/");
+        ->assertRedirect("http://{$school->subdomain}.akademicanest.com:8081/");
 
     expect($school->publicUrl('public.school-website'))
-        ->toBe("http://{$school->subdomain}.ednumest.com:8081/");
+        ->toBe("http://{$school->subdomain}.akademicanest.com:8081/");
 });
 
 // -----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ test('two schools that collide once hyphens are gone get different addresses', f
 });
 
 test('a school cannot claim a subdomain the platform uses itself', function () {
-    // www.akademicnest.com belonging to a school would be a convincing place
+    // www.akademicanest.com belonging to a school would be a convincing place
     // to run a phishing page from.
     expect(School::factory()->create(['name' => 'WWW'])->subdomain)->not->toBe('www');
     expect(School::factory()->create(['name' => 'Mail'])->subdomain)->not->toBe('mail');

@@ -11,7 +11,7 @@ Standard and Exclusive schools each have an address of their own:
 
 | Plan | Where the school lives |
 | ---- | ---------------------- |
-| Standard | `greenfield.akademicnest.com` — its own subdomain |
+| Standard | `greenfield.akademicanest.com` — its own subdomain |
 | Exclusive | `greenfieldschool.com` — its own domain |
 | **Basic** | **nothing of its own** |
 
@@ -27,7 +27,7 @@ which asks which school you belong to and forwards you there.
 ## The flow
 
 ```
-  akademicnest.com/{32-character token}
+  akademicanest.com/{32-character token}
                  |
                  |   "Enter your school name"
                  v
@@ -35,7 +35,7 @@ which asks which school you belong to and forwards you there.
                  |
                  |   matched against Basic-plan schools only
                  v
-  akademicnest.com/greenfield-college
+  akademicanest.com/greenfield-college
                  |
                  v
    the school's sign-in choices:
@@ -57,7 +57,7 @@ Three outcomes when a name is submitted:
 The 32-character token in the URL comes from `BASIC_PORTAL_TOKEN` in `.env`.
 
 ```
-akademicnest.com/6219db402a20f65b63358972bd5274cd
+akademicanest.com/6219db402a20f65b63358972bd5274cd
 ```
 
 **It is not a password.** Every Basic school shares it, and it identifies
@@ -111,7 +111,7 @@ entry point from the platform root.
 
 ## The root-level route, and why it is safe
 
-`akademicnest.com/greenfield-college` puts a school slug at the root of the site, in
+`akademicanest.com/greenfield-college` puts a school slug at the root of the site, in
 the same namespace as every top-level path the application owns. A school that
 claimed `login` or `dashboard` would be a serious problem.
 

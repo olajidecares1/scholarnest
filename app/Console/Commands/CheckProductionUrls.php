@@ -216,9 +216,11 @@ class CheckProductionUrls extends Command
         $this->good('CUSTOM_DOMAIN_CNAME_TARGET', $cname !== '' ? $cname : ($host ?: 'unset'));
         $this->good('CUSTOM_DOMAIN_TXT_PREFIX', $txt);
 
-        if ($txt === '_edunest-verify') {
-            $this->line('    <fg=gray>Still the pre-rename value, deliberately: schools have already created</>');
-            $this->line('    <fg=gray>this DNS record. Changing it un-verifies every live custom domain.</>');
+        $legacy = (array) config('custom_domain.legacy_txt_verification_prefixes', []);
+
+        if ($legacy !== []) {
+            $this->line('    <fg=gray>Also accepted, never advertised: '.implode(', ', $legacy).'</>');
+            $this->line('    <fg=gray>so a domain verified before the rename keeps working untouched.</>');
         }
 
         $this->newLine();

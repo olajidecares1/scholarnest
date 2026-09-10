@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * When a school's public site is reached via the default /schools/{slug}
  * path but a better tenant domain applies - a verified Exclusive custom
- * domain with redirects enabled, or a Standard school's free ednumest.com
+ * domain with redirects enabled, or a Standard school's free akademicanest.com
  * subdomain - permanently redirect to the equivalent page there instead of
  * rendering the default-path page.
  */

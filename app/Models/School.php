@@ -96,7 +96,7 @@ class School extends Model
     /**
      * Would this slug be mistaken for the Basic-plan portal token?
      *
-     * The portal lives at the root of the site - akademicnest.com/{32-char token} -
+     * The portal lives at the root of the site - akademicanest.com/{32-char token} -
      * and so do school slugs. The token route is registered first and therefore
      * wins, which means a school whose slug happened to be 32 unbroken
      * alphanumeric characters would be permanently unreachable: every request
@@ -117,7 +117,7 @@ class School extends Model
         static::creating(function (self $school) {
             if (! $school->slug) {
                 // The slug is also the school's address at the root of the
-                // platform - akademicnest.com/greenfield-college - so it competes
+                // platform - akademicanest.com/greenfield-college - so it competes
                 // for names with the application's own top-level paths. A
                 // school that managed to claim "login" or "dashboard" would
                 // be a genuine problem, so those names are skipped here as
@@ -603,7 +603,7 @@ class School extends Model
     }
 
     /**
-     * This school's result-checking address: akademicnest.com/greenfield-college/result
+     * This school's result-checking address: akademicanest.com/greenfield-college/result
      *
      * The one thing a Basic school hands to parents. It carries no secret - a
      * token is still required to see anything - so it is deliberately readable
@@ -742,7 +742,7 @@ class School extends Model
     /**
      * The label this school's website sits at on the platform's own domain.
      *
-     *     vincentmartinscollege.akademicnest.com
+     *     vincentmartinscollege.akademicanest.com
      *
      * NO HYPHENS, unlike the slug. A subdomain is read aloud, typed from
      * memory and printed on things, and "vincent-martins-college" is three
@@ -1217,9 +1217,9 @@ class School extends Model
 
     /**
      * The host this school's public website is actually reachable at, if
-     * anything other than the default ednumest.com/schools/{slug} path
+     * anything other than the default akademicanest.com/schools/{slug} path
      * applies: an Exclusive school's verified custom domain, or a Standard
-     * school's free ednumest.com subdomain (once TENANT_BASE_DOMAIN is
+     * school's free akademicanest.com subdomain (once TENANT_BASE_DOMAIN is
      * configured). Null means "use the default path" - the caller decides
      * what that means for its context (render vs. redirect).
      */
@@ -1288,7 +1288,7 @@ class School extends Model
      *
      *   BASIC        the portal landing at the site root, /{portal_key},
      *                reached through the shared token finder. No website.
-     *   STANDARD     its own subdomain, greenfield.akademicnest.com.
+     *   STANDARD     its own subdomain, greenfield.akademicanest.com.
      *   EXCLUSIVE    its own domain, once verified; its subdomain until then.
      *
      * A Standard school that has not published a website yet falls back to

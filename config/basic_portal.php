@@ -46,7 +46,7 @@ return [
     | Reserved first-path segments
     |--------------------------------------------------------------------------
     |
-    | A Basic school is reached at the root of the site: akademicnest.com/greenfield-
+    | A Basic school is reached at the root of the site: akademicanest.com/greenfield-
     | college. That means a school slug occupies the same namespace as the
     | application's own top-level paths, so a school must never be allowed a
     | slug that collides with one.
@@ -87,17 +87,13 @@ return [
 
         // Company pages
         'about', 'contact', 'help', 'support', 'docs', 'blog', 'news', 'careers',
-        // "akademicnest" stays alongside the new name. The list exists to stop a
-        // school claiming a word the platform uses as its own, and the old name
-        // is still worth denying - a school called "AkademicNest Academy" taking
-        // that slug would be confusing whichever name the platform goes by.
-        // EVERY name this platform has traded under, not just the current one.
-        // The list exists to stop a school claiming a word the platform uses
-        // as its own, and a school taking "scholarnest" or "edunest" would be
-        // just as confusing now as it would have been then - old links and old
-        // printed material still carry those names.
+        // EVERY name this platform has traded under, and both spellings of the
+        // current one: the brand is AkademicNest and the domain is
+        // akademicanest.com, so a school could otherwise claim whichever of
+        // the two this list forgot. Old links and old printed material still
+        // carry the earlier names, so those stay denied too.
         'legal', 'privacy', 'terms', 'press', 'partners',
-        'akademicnest', 'scholarnest', 'edunest',
+        'akademicnest', 'akademicanest', 'scholarnest', 'edunest',
     ],
 
 ];

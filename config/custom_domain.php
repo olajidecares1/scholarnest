@@ -27,18 +27,21 @@ return [
     | before we route traffic to it or issue an SSL certificate for it.
     |
     */
+    'txt_verification_prefix' => env('CUSTOM_DOMAIN_TXT_PREFIX', '_akademicnest-verify'),
+
     /*
-     * DELIBERATELY STILL "_edunest-verify", after the rename to AkademicNest.
+     * Prefixes from before the rename, still ACCEPTED but never advertised.
      *
-     * This is a DNS record schools have already created at their own registrar.
-     * Changing it does not rename anything - it un-verifies every custom domain
-     * on the platform until each school notices and edits its own DNS.
+     * The prefix above is what a school is told to create. These are what
+     * schools created under the platform's old names, at their own registrar,
+     * on domains this application does not control. Renaming the prefix alone
+     * would silently un-verify every one of them until somebody noticed and
+     * edited their own DNS, so verification tries these too and the wizard
+     * shows only the current one.
      *
-     * It is env-overridable, so a deployment with no verified domains yet can
-     * set CUSTOM_DOMAIN_TXT_PREFIX=_akademicnest-verify freely. Changing the
-     * default is a migration, not a rename.
+     * Safe to empty once no verified domain relies on an old prefix.
      */
-    'txt_verification_prefix' => env('CUSTOM_DOMAIN_TXT_PREFIX', '_edunest-verify'),
+    'legacy_txt_verification_prefixes' => ['_edunest-verify', '_scholarnest-verify'],
 
     /*
     |--------------------------------------------------------------------------
@@ -58,7 +61,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | The base domain Standard-plan schools are given a free subdomain under
-    | (e.g. "ednumest.com" -> "greenhill.ednumest.com"). Left unset in local/
+    | (e.g. "akademicanest.com" -> "greenhill.akademicanest.com"). Left unset in local/
     | staging environments so ResolveTenantFromCustomDomain and
     | RedirectToCustomDomain never try to resolve or redirect to a domain
     | that doesn't actually point at this app - the feature only activates

@@ -9,7 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 /**
- * A Basic school's own page: akademicnest.com/greenfield-college
+ * A Basic school's own page: akademicanest.com/greenfield-college
  *
  * This is where the school finder sends people, and it is the closest thing a
  * Basic school has to a home page. Basic does not include a public website, so
