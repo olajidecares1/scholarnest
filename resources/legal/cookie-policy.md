@@ -163,7 +163,7 @@ the top will change.
 
 ## 9. Contact
 
-Questions about this policy: [TO BE PROVIDED].
+Questions about this policy: support@akademicanest.com.
 
 ---
 

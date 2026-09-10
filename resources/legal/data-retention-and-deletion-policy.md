@@ -147,7 +147,7 @@ particular.
 
 ### 5.2 A school
 
-Contact AkademicNest at [TO BE PROVIDED]. We will verify that the request comes from
+Contact AkademicNest at support@akademicanest.com. We will verify that the request comes from
 an authorised person before acting.
 
 **Before requesting deletion, obtain a copy of anything you need.** Deletion is
@@ -195,8 +195,8 @@ AkademicNest means losing its records.
 
 | | |
 | --- | --- |
-| Deletion and retention requests | [TO BE PROVIDED] |
-| Data protection enquiries | [TO BE PROVIDED] |
+| Deletion and retention requests | support@akademicanest.com |
+| Data protection enquiries | support@akademicanest.com |
 
 ---
 

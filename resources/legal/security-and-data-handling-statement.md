@@ -354,15 +354,15 @@ provider we rely on suffers a breach, we will:
 an incident that cannot be met during one is worse than none. Statutory
 deadlines apply regardless.
 
-To report a vulnerability or a suspected incident: **[TO BE PROVIDED]**. We ask
+To report a vulnerability or a suspected incident: **support@akademicanest.com**. We ask
 that you report rather than explore, and we will not pursue good-faith reports.
 
 ## 12. Contact
 
 | | |
 | --- | --- |
-| Security reports | [TO BE PROVIDED] |
-| Data protection enquiries | [TO BE PROVIDED] |
+| Security reports | support@akademicanest.com |
+| Data protection enquiries | support@akademicanest.com |
 
 ---
 

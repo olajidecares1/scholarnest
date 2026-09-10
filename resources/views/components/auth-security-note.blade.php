@@ -4,9 +4,11 @@
     </svg>
     <p>
         <span class="font-medium text-gray-700">Your data is protected with enterprise-grade security.</span>
+        {{-- These were href="#". Asking somebody to agree to terms while
+             giving them no way to read them is not consent to anything. --}}
         By continuing, you agree to our
-        <a href="#" class="text-primary-500 hover:text-primary-600">Terms of Service</a>
+        <a href="{{ route('legal.show', 'terms') }}" class="text-primary-500 hover:text-primary-600">Terms of Service</a>
         and
-        <a href="#" class="text-primary-500 hover:text-primary-600">Privacy Policy</a>.
+        <a href="{{ route('legal.show', 'privacy') }}" class="text-primary-500 hover:text-primary-600">Privacy Policy</a>.
     </p>
 </div>

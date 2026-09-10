@@ -238,9 +238,9 @@ Material changes will be notified to School Administrators before taking effect.
 
 | | |
 | --- | --- |
-| Data protection enquiries | [TO BE PROVIDED] |
+| Data protection enquiries | support@akademicanest.com |
 | Data Protection Officer | [TO BE PROVIDED] |
-| Support | [TO BE PROVIDED] |
+| Support | support@akademicanest.com |
 
 ---
 

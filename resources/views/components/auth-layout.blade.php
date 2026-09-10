@@ -218,9 +218,11 @@
                 <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-sm text-gray-500 sm:flex-row sm:px-6 lg:px-8">
                     <span>&copy; {{ now()->year }} AkademicNest. All rights reserved.</span>
                     <div class="flex items-center gap-4">
-                        <a href="#" class="hover:text-primary-500">Privacy Policy</a>
-                        <a href="#" class="hover:text-primary-500">Terms of Service</a>
-                        <a href="#" class="hover:text-primary-500">Help Center</a>
+                        {{-- All three were href="#", on the page where a
+                             school signs up. --}}
+                        <a href="{{ route('legal.show', 'privacy') }}" class="hover:text-primary-500">Privacy Policy</a>
+                        <a href="{{ route('legal.show', 'terms') }}" class="hover:text-primary-500">Terms of Service</a>
+                        <a href="mailto:{{ \App\Models\Setting::supportEmail() }}" class="hover:text-primary-500">Help</a>
                     </div>
                 </div>
             </footer>

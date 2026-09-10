@@ -48,7 +48,25 @@ class Setting extends Model
 
     public static function current(): self
     {
-        return self::query()->firstOrCreate([], ['site_name' => config('app.name', 'AkademicNest')]);
+        return self::query()->firstOrCreate([], [
+            'site_name' => config('app.name', 'AkademicNest'),
+            'support_email' => config('mail.from.address'),
+            'notification_from_name' => config('app.name', 'AkademicNest'),
+            'notification_from_email' => config('mail.from.address'),
+        ]);
+    }
+
+    /**
+     * Where to tell somebody to write for help.
+     *
+     * Read-only and creates nothing, so it is safe on a public page. Falls back
+     * to the address mail is sent from, which is the one that certainly exists:
+     * a "Contact Support" button that goes nowhere is worse than a plain
+     * sentence, and this page shipped with href="#".
+     */
+    public static function supportEmail(): ?string
+    {
+        return self::query()->value('support_email') ?: config('mail.from.address');
     }
 
     /**

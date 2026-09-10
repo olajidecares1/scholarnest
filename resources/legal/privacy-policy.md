@@ -22,7 +22,7 @@ status: Awaiting legal review
 AkademicNest is a school management platform operated by [TO BE PROVIDED — legal
 entity name and registration number], of [TO BE PROVIDED — address].
 
-Data protection contact: [TO BE PROVIDED].
+Data protection contact: support@akademicanest.com.
 Data Protection Officer: [TO BE PROVIDED — *see note in section 20 on whether
 one is required*].
 
@@ -430,7 +430,7 @@ Administrators. The version number and date at the top will change.
 | --- | --- |
 | Operator | [TO BE PROVIDED] |
 | Address | [TO BE PROVIDED] |
-| Privacy enquiries | [TO BE PROVIDED] |
+| Privacy enquiries | support@akademicanest.com |
 | Data Protection Officer | [TO BE PROVIDED] |
 | Supervisory authority (Nigeria) | Nigeria Data Protection Commission |
 

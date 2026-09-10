@@ -22,6 +22,16 @@
             <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
                 {{ $message ?: 'AkademicNest is currently undergoing scheduled maintenance. Please check back shortly.' }}
             </p>
+
+            {{-- The one page where somebody is certain to want to ask what is
+                 going on, and the only channel that still works while the
+                 platform does not. --}}
+            @if ($supportEmail = \App\Models\Setting::supportEmail())
+                <p class="mt-4 text-xs text-gray-500 dark:text-gray-500">
+                    Need help in the meantime?
+                    <a href="mailto:{{ $supportEmail }}" class="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400">{{ $supportEmail }}</a>
+                </p>
+            @endif
         </div>
     </body>
 </html>

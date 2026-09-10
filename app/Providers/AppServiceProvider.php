@@ -12,12 +12,15 @@ use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Throwable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -154,5 +157,47 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(60)->by($key);
         });
+
+        $this->applyNotificationSender();
+    }
+
+    /**
+     * Make the Super Admin's "notification sender" settings mean something.
+     *
+     * Both columns have existed, been editable and been validated since the
+     * settings screen was built, and NOTHING HAS EVER READ THEM. A Super Admin
+     * could set the sender, save, see it saved, and every email would still go
+     * out under whatever MAIL_FROM_ADDRESS happened to be - a setting that
+     * lies is worse than one that is missing, because nobody goes looking.
+     *
+     * Only a set value overrides, so this can never blank out a working
+     * mail configuration. It is skipped when the table is not there yet
+     * (a fresh install mid-migration) and when the database is unreachable,
+     * because failing to boot the whole application over the FROM line on an
+     * email is out of all proportion.
+     */
+    private function applyNotificationSender(): void
+    {
+        if ($this->app->runningUnitTests()) {
+            return;
+        }
+
+        try {
+            if (! Schema::hasTable('settings')) {
+                return;
+            }
+
+            $settings = DB::table('settings')->first();
+        } catch (Throwable) {
+            return;
+        }
+
+        if ($address = $settings?->notification_from_email ?? null) {
+            config(['mail.from.address' => $address]);
+        }
+
+        if ($name = $settings?->notification_from_name ?? null) {
+            config(['mail.from.name' => $name]);
+        }
     }
 }

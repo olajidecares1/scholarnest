@@ -70,9 +70,18 @@
                     </ul>
                 </div>
                 <div class="rounded-[5px] border border-gray-200 p-4 lg:rounded-[10px]">
+                    @php($supportEmail = \App\Models\Setting::supportEmail())
+
                     <p class="text-sm font-bold text-gray-900">Need Help?</p>
                     <p class="mt-2 text-xs text-gray-600">If you have any questions, our support team is here to help you.</p>
-                    <a href="#" class="mt-3 inline-block rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700">Contact Support</a>
+
+                    {{-- This button shipped as href="#". Somebody who has just
+                         paid and wants to ask about it deserves a real
+                         address, not a link that does nothing. --}}
+                    @if ($supportEmail)
+                        <a href="mailto:{{ $supportEmail }}" class="mt-3 inline-block rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary-400 hover:text-primary-700">Contact Support</a>
+                        <small class="mt-2 block text-[11px] text-gray-500">{{ $supportEmail }}</small>
+                    @endif
                 </div>
             </div>
 

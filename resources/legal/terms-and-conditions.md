@@ -476,8 +476,8 @@ user from complaining to a data protection authority.
 | Operator | [TO BE PROVIDED] |
 | Registered address | [TO BE PROVIDED] |
 | Registration number | [TO BE PROVIDED] |
-| General enquiries | [TO BE PROVIDED] |
-| Privacy enquiries | [TO BE PROVIDED] |
+| General enquiries | support@akademicanest.com |
+| Privacy enquiries | support@akademicanest.com |
 
 ## 42. General
 

@@ -28,7 +28,11 @@
 
             <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a
-                    href="mailto:sales@akademicnest.com?subject=Exclusive%20Plan%20Enquiry"
+                    {{-- The confirmed mailbox, with the subject kept so these
+                         can still be filtered. This read "sales@" - an address
+                         nobody has said exists, on the page selling the most
+                         expensive plan. Change it back once that mailbox does. --}}
+                    href="mailto:{{ \App\Models\Setting::supportEmail() }}?subject=Exclusive%20Plan%20Enquiry"
                     class="inline-flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
                 >
                     Email Our Sales Team
