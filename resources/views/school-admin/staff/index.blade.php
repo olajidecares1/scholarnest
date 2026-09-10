@@ -266,10 +266,15 @@
 
                     <x-text-field name="qualification" label="Qualification" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" x-model="editing ? editing.qualification : ''" helper="E.g. B.Sc, B.Ed, M.Sc, NCE." />
 
-                    <div>
-                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full">
-                        <p class="field-hint mt-1">Photo (optional). Leave blank to keep the existing one when editing.</p>
-                    </div>
+                    {{-- Camera or upload. Same component as the pupil form, so
+                         a staff photograph cannot end up going through a
+                         different path with different rules. --}}
+                    <x-photo-field
+                        name="photo"
+                        id="staff_photo"
+                        label="Passport Photograph"
+                        helper="Optional. Take one with the camera or upload a JPG, PNG or WebP up to 5MB. Leave blank to keep the existing one when editing."
+                    />
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <x-text-field name="phone" label="Phone" type="tel" icon="M6.5 4.5h2l1.2 4-1.8 1.5a11 11 0 005.1 5.1l1.5-1.8 4 1.2v2a1.5 1.5 0 01-1.6 1.5A15 15 0 015 6.1a1.5 1.5 0 011.5-1.6z" x-model="editing ? editing.phone : ''" />

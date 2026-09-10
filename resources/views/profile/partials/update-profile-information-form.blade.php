@@ -17,14 +17,15 @@
         @csrf
         @method('patch')
 
-        <div class="flex items-center gap-4">
-            @if ($user->photoUrl())
-                <img src="{{ $user->photoUrl() }}" class="h-16 w-16 rounded-full object-cover">
-            @else
-                <span class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-xl font-bold text-primary-700">{{ Str::of($user->name)->substr(0, 1)->upper() }}</span>
-            @endif
-            <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" >
-        </div>
+        {{-- The same field the student and staff forms use, so every
+             photograph on the platform arrives by one path. --}}
+        <x-photo-field
+            name="photo"
+            id="account_photo"
+            label="Profile Photograph"
+            :existing="$user->photoUrl()"
+            helper="Optional. Take one with the camera or upload a JPG, PNG or WebP up to 5MB. Leave blank to keep the one you have."
+        />
 
         <x-text-field
             id="name"

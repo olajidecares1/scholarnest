@@ -264,10 +264,16 @@
                         <x-text-field name="house" label="House" icon="M4 10.5L12 4l8 6.5V19a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1v-8.5z" x-model="editing ? editing.house : ''" placeholder="e.g. Blue House" />
                     </div>
 
-                    <div>
-                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="w-full">
-                        <p class="field-hint mt-1">Photo (optional). Leave blank to keep the existing one when editing.</p>
-                    </div>
+                    {{-- Camera or upload, previewed either way, and nothing
+                         attached until it is confirmed. Bound to whichever
+                         pupil this form saves - there is no id in the field
+                         for a photograph to follow to the wrong record. --}}
+                    <x-photo-field
+                        name="photo"
+                        id="student_photo"
+                        label="Passport Photograph"
+                        helper="Optional. Take one with the camera or upload a JPG, PNG or WebP up to 5MB. Leave blank to keep the existing one when editing."
+                    />
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <x-text-field name="guardian_name" label="Guardian Name" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" x-model="editing ? editing.guardian_name : ''" />
