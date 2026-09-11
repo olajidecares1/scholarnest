@@ -55,6 +55,12 @@ final class PortalNavigation
                 ['staff.attendance.index', 'Attendance', $isTeacher],
                 ['staff.exams.index', 'Test/Exam Score', $isTeacher],
                 ['staff.results.index', 'Report Cards', $isTeacher],
+
+                // Every member of staff, on every plan - not $isTeacher and
+                // not $premium. Sending a class its notes is the school's own
+                // teaching work rather than an outward-facing extra, and a
+                // Basic school's staff use it exactly as any other school's.
+                ['staff.class-notes.index', 'Class Note', true],
                 ['staff.cbt.tests.index', 'CBT', $isTeacher && $premium],
                 ['staff.diary.index', 'Diary', $isTeacher && $premium],
                 ['staff.timetable', 'My Timetable', $premium],
@@ -98,6 +104,11 @@ final class PortalNavigation
                 ['student.cbt-practice.index', 'CBT', true],
                 ['student.attendance.index', 'Attendance', true],
                 ['student.assignments.index', 'Assignments', true],
+
+                // Only ever reached on Standard and Exclusive: this whole menu
+                // belongs to the student portal, which Basic does not have.
+                ['student.class-notes.index', 'Class Notes', true],
+
                 ['student.subjects', 'My Subjects', true],
                 ['student.timetable', 'Timetable', true],
                 ['student.library.index', 'Library', true],

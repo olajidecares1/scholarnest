@@ -5,6 +5,7 @@ use App\Http\Controllers\Staff\Auth\AuthenticatedSessionController as StaffAuthe
 use App\Http\Controllers\Staff\Cbt\DocumentUploadController as StaffCbtDocumentUploadController;
 use App\Http\Controllers\Staff\Cbt\QuestionController as StaffCbtQuestionController;
 use App\Http\Controllers\Staff\Cbt\TestController as StaffCbtTestController;
+use App\Http\Controllers\Staff\ClassNoteController as StaffClassNoteController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DiaryController as StaffDiaryController;
 use App\Http\Controllers\Staff\ExaminationController as StaffExaminationController;
@@ -84,6 +85,22 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
             Route::middleware(['staff_is_teacher', 'plan_feature:diary'])->name('diary.')->prefix('diary')->group(function () {
                 Route::get('/', [StaffDiaryController::class, 'index'])->name('index');
                 Route::post('/', [StaffDiaryController::class, 'store'])->name('store');
+            });
+
+            // Class notes: a Word document sent to one or several classes.
+            //
+            // EVERY MEMBER OF STAFF, ON EVERY PLAN. No staff_is_teacher and no
+            // plan_feature here, both deliberately: the staff portal is open
+            // on all three plans and this is the school's own teaching work.
+            // What Basic lacks is a STUDENT portal for the note to arrive in,
+            // which is a fact about that plan rather than a rule about this
+            // route - see routes/student.php, where the pupil's side sits
+            // behind portal_access and is therefore absent on Basic.
+            Route::name('class-notes.')->prefix('class-notes')->group(function () {
+                Route::get('/', [StaffClassNoteController::class, 'index'])->name('index');
+                Route::post('/', [StaffClassNoteController::class, 'store'])->name('store');
+                Route::get('/{note}/document', [StaffClassNoteController::class, 'download'])->name('download');
+                Route::delete('/{note}', [StaffClassNoteController::class, 'destroy'])->name('destroy');
             });
 
             Route::middleware('staff_is_teacher')->name('attendance.')->prefix('attendance')->group(function () {

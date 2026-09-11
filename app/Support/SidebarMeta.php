@@ -72,6 +72,8 @@ class SidebarMeta
         // --- Work set and done -----------------------------------------
         'assignments.index' => ['fa-solid fa-list-check', 'Homework set to classes'],
         'student.assignments.index' => ['fa-solid fa-list-check', 'Your homework'],
+        'staff.class-notes.index' => ['fa-solid fa-file-word', 'Send notes to your classes'],
+        'student.class-notes.index' => ['fa-solid fa-file-word', 'Notes from your teachers'],
         'guardian.children.assignments' => ['fa-solid fa-list-check', "Your child's homework"],
 
         // --- CBT -------------------------------------------------------

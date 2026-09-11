@@ -58,7 +58,10 @@ class StoredUpload
         // never served as an image.
         'jpg', 'jpeg', 'png', 'bmp', 'gif', 'webp', 'ico',
         'mp4', 'mov', 'webm',
-        'pdf', 'docx',
+        // 'doc' is the legacy Word format, accepted by the Class Note upload.
+        // Not executable by any server configuration, and these are written to
+        // the private disk and served only through a controller.
+        'pdf', 'doc', 'docx',
     ];
 
     /**

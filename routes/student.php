@@ -5,6 +5,7 @@ use App\Http\Controllers\Student\AttendanceController as StudentAttendanceContro
 use App\Http\Controllers\Student\Auth\AuthenticatedSessionController as StudentAuthenticatedSessionController;
 use App\Http\Controllers\Student\CbtAttemptController as StudentCbtAttemptController;
 use App\Http\Controllers\Student\CbtPracticeController as StudentCbtPracticeController;
+use App\Http\Controllers\Student\ClassNoteController as StudentClassNoteController;
 use App\Http\Controllers\Student\CoCurricularController as StudentCoCurricularController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\HelpController as StudentHelpController;
@@ -70,6 +71,19 @@ Route::prefix('p/{school:portal_key}/portal')->name('student.')->group(function 
 
             Route::name('assignments.')->prefix('assignments')->group(function () {
                 Route::get('/', [StudentAssignmentController::class, 'index'])->name('index');
+            });
+
+            // Class notes a teacher sent to this pupil's class.
+            //
+            // Inside `portal_access` with everything else, which is what keeps
+            // this off Basic: that plan has no student portal, so there is no
+            // student-side Class Note on it and none is created here. The
+            // controller scopes every query to the pupil's own school AND
+            // their own class - see the class docblock for why both.
+            Route::name('class-notes.')->prefix('class-notes')->group(function () {
+                Route::get('/', [StudentClassNoteController::class, 'index'])->name('index');
+                Route::get('/{note}', [StudentClassNoteController::class, 'show'])->name('show');
+                Route::get('/{note}/document', [StudentClassNoteController::class, 'download'])->name('download');
             });
 
             Route::name('results.')->prefix('results')->group(function () {
