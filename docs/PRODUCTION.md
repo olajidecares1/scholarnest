@@ -118,6 +118,29 @@ php artisan storage:link
 `public/storage`, and a link pointing at a path from another machine is how
 every image on the site ends up broken.
 
+## On Laravel Cloud, four of those are different
+
+Everything above describes one server you control. Laravel Cloud is not that,
+and four of the instructions invert:
+
+| On a server | On Laravel Cloud |
+| --- | --- |
+| supervisor runs the queue | A **Worker cluster** runs it. Do not add `queue:restart` to the deploy commands — Cloud restarts workers itself after every deploy. |
+| `storage:link` publishes uploads | **Do not run it.** The filesystem is ephemeral: it is reset by every deploy, each replica has its own, and the link would not survive. Both disks must be object storage — see the uploaded-files section of `.env.production.example`. |
+| `config:cache` after deploying | Runs in the **build** command, not the deploy command. Deploy commands run on a filesystem that is thrown away. |
+| `A` records to a server IP | Laravel Cloud shows the exact origin records to create. There is no server IP to point at, so **`CUSTOM_DOMAIN_A_RECORD_IP` stays empty** and Exclusive schools are given the CNAME target instead. |
+
+Two consequences worth knowing before selling a plan:
+
+- **Every Exclusive school's domain must be added in the Cloud dashboard** for
+  Cloud to route it and issue its certificate. Pointing DNS alone is not
+  enough. Custom domains are capped per plan (Starter includes 10) and billed
+  beyond that.
+- **The Standard plan's wildcard needs pre-verification.** A wildcard
+  certificate requires the DCV delegation `CNAME` under `_acme-challenge` to
+  stay in place permanently, or renewal fails silently months later. Leave
+  `TENANT_BASE_DOMAIN` blank until the wildcard is verified.
+
 ## Backups
 
 Two things, and losing either alone loses the data:
