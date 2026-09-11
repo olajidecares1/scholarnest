@@ -6,6 +6,7 @@ import cbtAttempt from './cbt-attempt';
 import { registerDraggableResizable } from './directives/draggable-resizable';
 import pageBuilder from './page-builder';
 import photoField from './photo-field';
+import initPortalInstall from './pwa';
 import { generateColorScale, normalizeCssColorToHex } from './color-scale';
 import { registerIdCardPreviewStore } from './id-card-preview-modal';
 import galleryViewer from './gallery-viewer';
@@ -48,3 +49,12 @@ if (document.readyState === 'loading') {
 } else {
     initScrollAnimations();
 }
+
+/*
+ * Installing a school portal.
+ *
+ * Only ever does anything on a page that declared itself installable - see
+ * the x-pwa component, which writes the per-school settings this reads. On
+ * every other page it returns immediately.
+ */
+initPortalInstall();

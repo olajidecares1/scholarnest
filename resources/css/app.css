@@ -1665,3 +1665,104 @@
 .dark .legal-prose th { background: #1B2436; border-bottom-color: #33415F; color: #C7D6EE; }
 .dark .legal-prose td { border-bottom-color: #253148; }
 .dark .legal-prose hr { border-top-color: #2A3853; }
+
+/* ==========================================================================
+   Install this portal
+   ==========================================================================
+
+   The banner the install prompt puts on screen. Plain CSS rather than utility
+   classes because the element is built in JavaScript, at a point where the
+   Tailwind scan has long since decided which classes exist.
+
+   Anchored to the bottom, above the portals' own bottom navigation bar, and
+   clear of the home indicator on a phone with no physical button. */
+
+.pwa-install-banner {
+    position: fixed;
+    z-index: 60;
+    left: 12px;
+    right: 12px;
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    background: #FFFFFF;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+    animation: pwa-install-rise 0.28s ease-out;
+}
+
+@media (min-width: 640px) {
+    .pwa-install-banner {
+        left: auto;
+        right: 20px;
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        max-width: 380px;
+    }
+}
+
+@keyframes pwa-install-rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pwa-install-banner { animation: none; }
+}
+
+.pwa-install-banner__text { min-width: 0; flex: 1; }
+
+.pwa-install-banner__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    color: #0F172A;
+}
+
+.pwa-install-banner__body {
+    margin: 2px 0 0;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #64748B;
+}
+
+.pwa-install-banner__actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 6px;
+}
+
+.pwa-install-banner__install {
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--color-primary-600, #4F46E5);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pwa-install-banner__install:hover { background: var(--color-primary-700, #4338CA); }
+
+.pwa-install-banner__dismiss {
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pwa-install-banner__dismiss:hover { color: #0F172A; }
+
+.dark .pwa-install-banner { background: #1B2436; border-color: #2A3853; }
+.dark .pwa-install-banner__title { color: #EEF3FB; }
+.dark .pwa-install-banner__body { color: #94A3B8; }
+.dark .pwa-install-banner__dismiss { color: #94A3B8; }
+.dark .pwa-install-banner__dismiss:hover { color: #EEF3FB; }

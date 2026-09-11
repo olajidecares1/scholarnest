@@ -31,6 +31,14 @@
 
         <x-favicon />
 
+        {{-- Installable, like the other three portals. The School Admin's
+             pages are obfuscated root paths with no school in them, so this
+             app opens at the school's own admin login - which goes straight
+             through to the dashboard when a session already exists. --}}
+        @if ($school)
+            <x-pwa :school="$school" portal="admin" />
+        @endif
+
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
