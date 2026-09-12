@@ -94,10 +94,26 @@
              phone, so the page keeps its natural height there - pinning it to
              the viewport would clip the submit button off the bottom. --}}
         <div class="relative min-h-dvh w-full lg:h-dvh lg:min-h-0">
-            <div class="grid min-h-dvh w-full bg-white lg:h-full lg:min-h-0 lg:grid-cols-2">
+            {{-- THREE CELLS, PLACED DIFFERENTLY BY WIDTH: brand panel, form,
+                 feature band.
+
+                 Below "lg" they stack in source order, so the band comes AFTER
+                 the form and is the last thing on the page. It used to sit
+                 inside the brand panel, which put a block of marketing between
+                 the heading and the first field - a school on a phone had to
+                 scroll past it to start registering. The middle row takes any
+                 spare height, so on a screen taller than the page the band is
+                 still pinned to the bottom rather than floating mid-screen.
+
+                 From "lg" up the band is placed back under the brand panel in
+                 the left column, and the form spans both rows on the right -
+                 the desktop layout is unchanged. minmax(0,1fr) rather than 1fr
+                 lets the top row shrink on a short window instead of pushing
+                 the band below the fold. --}}
+            <div class="grid min-h-dvh w-full grid-rows-[auto_1fr_auto] bg-white lg:h-full lg:min-h-0 lg:grid-cols-2 lg:grid-rows-[minmax(0,1fr)_auto]">
 
                 {{-- ── Left: brand panel ─────────────────────────────────── --}}
-                <div class="relative flex flex-col overflow-hidden bg-white">
+                <div class="relative flex flex-col overflow-hidden bg-white lg:col-start-1 lg:row-start-1">
                     <div class="shrink-0 px-8 pt-5 sm:px-10 sm:pt-6">
                         {{-- The logo alone, top-left. No wordmark beside it:
                              the mark already carries "AkademicNest", and setting
@@ -132,28 +148,6 @@
                     <div class="mt-3 flex min-h-0 flex-1 items-center justify-center overflow-hidden px-6 sm:px-8">
                         <x-auth-panel-illustration />
                     </div>
-
-                    {{-- Feature band. Sits flush to the bottom of the panel so
-                         it reads as a footer to the illustration above it. --}}
-                    <div class="mt-auto shrink-0 bg-primary-500 px-6 py-4 text-white sm:px-8">
-                        <div class="grid grid-cols-3 gap-4 text-center">
-                            @foreach ([
-                                ['Secure &amp; Safe', 'Your data is protected with enterprise-grade security.', 'M12 3l7 3v6c0 4.4-3 8.2-7 9-4-.8-7-4.6-7-9V6l7-3z'],
-                                ['Built for Schools', 'Everything you need to manage your school in one place.', 'M9 11a3 3 0 100-6 3 3 0 000 6zM3 20c0-3 2.7-5 6-5s6 2 6 5M17 20c0-2.3-.9-4-2.5-5M16 11a3 3 0 000-6'],
-                                ['Smart &amp; Reliable', 'Powerful tools to help you make better decisions.', 'M7 16V9M12 16V5M17 16v-4'],
-                            ] as [$title, $body, $path])
-                                <div class="flex flex-col items-center">
-                                    <span class="flex h-9 w-9 items-center justify-center rounded-full border-[1.5px] border-white/60">
-                                        <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="{{ $path }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
-                                    </span>
-                                    <p class="mt-2 text-[11.5px] font-bold leading-tight">{!! $title !!}</p>
-                                    <p class="mt-1 text-[10px] leading-[1.45] text-white/85">{{ $body }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
                 </div>
 
                 {{-- ── Right: the form ───────────────────────────────────── --}}
@@ -162,7 +156,7 @@
                      1366x600, a phone in landscape - where the alternative
                      would be clipping the submit button. no-scrollbar hides
                      the bar itself, so the safety net never shows. --}}
-                <div class="no-scrollbar flex items-center justify-center overflow-y-auto px-6 py-4 sm:px-10 sm:py-5">
+                <div class="no-scrollbar flex items-center justify-center overflow-y-auto px-6 py-4 sm:px-10 sm:py-5 lg:col-start-2 lg:row-span-2 lg:row-start-1">
                     <div class="my-auto w-full max-w-[370px]">
                         <div class="text-center">
                             <span class="mx-auto flex h-[44px] w-[44px] items-center justify-center rounded-full bg-[#EAF2FF]">
@@ -356,6 +350,30 @@
                             Your information is safe with us. We never share your data.
                         </p>
 
+                    </div>
+                </div>
+
+                {{-- ── Feature band ──────────────────────────────────────── --}}
+                {{-- Last on a phone, under the form. From "lg" up it sits flush
+                     to the bottom of the left column, reading as a footer to
+                     the illustration above it. --}}
+                <div class="bg-primary-500 px-6 py-4 text-white sm:px-8 lg:col-start-1 lg:row-start-2">
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        @foreach ([
+                            ['Secure &amp; Safe', 'Your data is protected with enterprise-grade security.', 'M12 3l7 3v6c0 4.4-3 8.2-7 9-4-.8-7-4.6-7-9V6l7-3z'],
+                            ['Built for Schools', 'Everything you need to manage your school in one place.', 'M9 11a3 3 0 100-6 3 3 0 000 6zM3 20c0-3 2.7-5 6-5s6 2 6 5M17 20c0-2.3-.9-4-2.5-5M16 11a3 3 0 000-6'],
+                            ['Smart &amp; Reliable', 'Powerful tools to help you make better decisions.', 'M7 16V9M12 16V5M17 16v-4'],
+                        ] as [$title, $body, $path])
+                            <div class="flex flex-col items-center">
+                                <span class="flex h-9 w-9 items-center justify-center rounded-full border-[1.5px] border-white/60">
+                                    <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="{{ $path }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </span>
+                                <p class="mt-2 text-[11.5px] font-bold leading-tight">{!! $title !!}</p>
+                                <p class="mt-1 text-[10px] leading-[1.45] text-white/85">{{ $body }}</p>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
