@@ -19,6 +19,15 @@
     // the way back to sign-in.
     'header' => true,
 
+    // Where the logo goes on a page with no header: 'corner' or 'above'.
+    //
+    // 'corner' is absolutely positioned and takes no height - but it is 80px
+    // square at 16px from the edge, and on a phone the card is full-width and
+    // starts about 40-60px down, so the logo lands ON the card's top-left
+    // corner. 'above' puts it in the flow, centred over the card, where it
+    // cannot collide with anything. Only meaningful with a simple layout.
+    'logoPlacement' => 'corner',
+
     // Opt-in, page by page. Only the registration page turns this on, so the
     // click sequence does not quietly exist on every auth screen in the app.
     'superAdminAccess' => false,
@@ -100,7 +109,7 @@
                 @keydown.escape.window="close()"
             @endif
         >
-            @unless ($header)
+            @if (! $header && $logoPlacement === 'corner')
                 {{-- No header bar: the logo alone, in the top-left corner.
 
                      Absolute rather than in the flow, so it takes no height
@@ -117,7 +126,7 @@
                         >
                     </a>
                 </div>
-            @endunless
+            @endif
 
             @if ($header)
             <header class="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur">
@@ -204,6 +213,19 @@
 
                 @if ($simple)
                     <div class="relative mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+                        @if (! $header && $logoPlacement === 'above')
+                            {{-- In the flow, centred, with its own margin - so the
+                                 card starts below it at every width instead of
+                                 underneath it. --}}
+                            <a href="{{ url('/') }}" class="mb-6 inline-block">
+                                <img
+                                    src="{{ $logoUrl }}"
+                                    alt="{{ config('app.name', 'AkademicNest') }}"
+                                    class="h-20 w-20 select-none rounded-[10px] object-contain"
+                                >
+                            </a>
+                        @endif
+
                         {{ $slot }}
                     </div>
                 @else

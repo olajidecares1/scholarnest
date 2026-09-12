@@ -103,3 +103,25 @@ describe('pages that still need a header keep one', function () {
             ->assertSee('Greenfield College');
     });
 });
+
+describe('the school finder puts its logo above the card', function () {
+    // The corner logo is 80px square at 16px from the edge. On a phone the card
+    // is full-width and starts about 60px down, so on this page the logo sat on
+    // the card's top-left corner. Here it is in the flow instead.
+    test('it has no corner logo', function () {
+        expect($this->get(route('portal.find.show'))->assertOk()->getContent())
+            ->not->toContain('absolute left-4 top-4');
+    });
+
+    test('the logo comes before the card, still 80px', function () {
+        $html = $this->get(route('portal.find.show'))->getContent();
+
+        $logo = strpos($html, 'mb-6 inline-block');
+        $card = strpos($html, 'Find your school</h1>');
+
+        expect($logo)->not->toBeFalse()
+            ->and($card)->not->toBeFalse()
+            ->and($logo)->toBeLessThan($card)
+            ->and($html)->toContain('h-20 w-20');
+    });
+});

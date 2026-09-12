@@ -1,7 +1,12 @@
-<x-auth-layout :simple="true" :header="false" title="Find your school">
+{{-- The logo sits above the card, not in the corner: on a phone the corner
+     logo landed on the card's top-left edge. --}}
+<x-auth-layout :simple="true" :header="false" logo-placement="above" title="Find your school">
     <x-auth-card>
         <div class="text-center">
-            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-[10px] bg-primary-600 text-2xl text-white shadow-md">
+            {{-- A pale badge rather than a solid one. The logo directly above the
+                 card is already a solid blue square, and two of them stacked
+                 compete for the eye; this one only has to say "search". --}}
+            <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-lg text-primary-600">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </span>
             <h1 class="mt-3 text-xl font-bold text-gray-900">Find your school</h1>
