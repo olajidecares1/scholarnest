@@ -2,14 +2,17 @@
     $settings = \App\Models\Setting::current();
 
     // dompdf cannot fetch a URL - enable_remote is off - so the logo is
-    // embedded from a local path, the same way ID cards and report cards do it.
-    $logoPath = $settings->logo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($settings->logo_path)
-        ? \Illuminate\Support\Facades\Storage::disk('public')->path($settings->logo_path)
-        : public_path('images/logo-mark.png');
+    // embedded as a data URI. The uploaded one is read from the database copy
+    // (see App\Models\BrandingImage): the disk file does not survive a deploy
+    // in production, so reading only the disk printed the bundled mark.
+    $uploadedLogo = $settings->logo_path ? \App\Models\BrandingImage::contents($settings->logo_path) : null;
+    $bundledLogo = public_path('images/logo-mark.png');
 
-    $logo = is_file($logoPath)
-        ? 'data:'.(pathinfo($logoPath, PATHINFO_EXTENSION) === 'png' ? 'image/png' : 'image/jpeg').';base64,'.base64_encode(file_get_contents($logoPath))
-        : null;
+    $logo = match (true) {
+        $uploadedLogo !== null => 'data:'.\App\Models\BrandingImage::typeFor($settings->logo_path).';base64,'.base64_encode($uploadedLogo),
+        is_file($bundledLogo) => 'data:image/png;base64,'.base64_encode(file_get_contents($bundledLogo)),
+        default => null,
+    };
 
     $money = fn ($amount) => $invoice->currency.' '.number_format((float) $amount, 2);
 

@@ -295,3 +295,19 @@ test('a school admin sees their own billing history and nobody else\'s', functio
         ->assertSee($mine->number)
         ->assertDontSee($theirs->number);
 });
+
+test('the invoice embeds the uploaded logo even when its disk file is gone', function () {
+    // In production the disk copy does not survive a deploy; the database copy
+    // does. Reading only the disk printed the bundled mark on every invoice.
+    \App\Models\BrandingImage::create([
+        'path' => 'branding/logo-invoice.png',
+        'mime_type' => 'image/png',
+        'data' => base64_encode('UPLOADED-LOGO-BYTES'),
+    ]);
+    \App\Models\Setting::current()->update(['logo_path' => 'branding/logo-invoice.png']);
+
+    $invoice = app(SubscriptionInvoiceIssuer::class)->issueForSubscription(invoicedSubscription());
+    $html = view('invoices.pdf.subscription-invoice', ['invoice' => $invoice])->render();
+
+    expect($html)->toContain('data:image/png;base64,'.base64_encode('UPLOADED-LOGO-BYTES'));
+});

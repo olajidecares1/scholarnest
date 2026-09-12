@@ -4,11 +4,13 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\BrandingImage;
 use App\Models\Setting;
 use App\Support\StoredUpload;
 use App\Support\ThemePreset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -51,14 +53,17 @@ class ThemeController extends Controller
 
         $settings = Setting::current();
 
-        if ($settings->logo_path) {
-            Storage::disk('public')->delete($settings->logo_path);
-        }
+        $previous = $settings->logo_path;
 
         $file = $request->file('logo');
-        $path = $file->storeAs('branding', StoredUpload::name($file, 'logo-'.Str::random(8)), 'public');
+        $path = $this->storeBrandingImage($file, 'logo');
 
         $settings->update(['logo_path' => $path]);
+
+        if ($previous && $previous !== $path) {
+            Storage::disk('public')->delete($previous);
+            BrandingImage::forget($previous);
+        }
 
         AuditLog::record('theme.logo_updated', 'Updated platform logo.', $settings);
 
@@ -111,7 +116,7 @@ class ThemeController extends Controller
         $previous = $settings->favicon_path;
 
         $file = $request->file('favicon');
-        $path = $file->storeAs('branding', StoredUpload::name($file, 'favicon-'.Str::random(8)), 'public');
+        $path = $this->storeBrandingImage($file, 'favicon');
 
         $settings->update(['favicon_path' => $path]);
 
@@ -121,10 +126,33 @@ class ThemeController extends Controller
         // favicon that 404s.
         if ($previous && $previous !== $path) {
             Storage::disk('public')->delete($previous);
+            BrandingImage::forget($previous);
         }
 
         AuditLog::record('theme.favicon_updated', 'Updated platform favicon.', $settings);
 
         return back()->with('status', 'Favicon updated.');
+    }
+
+    /**
+     * Store a logo or favicon and return the path the setting records.
+     *
+     * THE DATABASE COPY IS THE ONE THAT COUNTS. Pages load these images from
+     * BrandingImageController, which reads the database, because in production
+     * the public disk is a directory that is not served at /storage and is
+     * wiped by every deploy - an upload that lived only there reported success
+     * and never appeared anywhere. The disk copy is still written, for the
+     * subscription invoice PDF on a server where it survives, but nothing
+     * depends on the write succeeding.
+     */
+    private function storeBrandingImage(UploadedFile $file, string $kind): string
+    {
+        $path = BrandingImage::DIRECTORY.'/'.StoredUpload::name($file, $kind.'-'.Str::random(8));
+
+        Storage::disk('public')->putFileAs(BrandingImage::DIRECTORY, $file, basename($path));
+
+        BrandingImage::remember($path, $file);
+
+        return $path;
     }
 }

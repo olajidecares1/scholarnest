@@ -31,6 +31,7 @@ require __DIR__.'/public.php';
 
 // Before school-links.php claims the root namespace - /sw.js lives there too.
 require __DIR__.'/pwa.php';
+require __DIR__.'/branding.php';
 
 require __DIR__.'/student.php';
 require __DIR__.'/guardian.php';

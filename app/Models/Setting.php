@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class Setting extends Model
 {
@@ -73,19 +72,17 @@ class Setting extends Model
     /**
      * The platform logo's address, or a bundled mark when none is uploaded.
      *
-     * FROM THE PUBLIC DISK, because that is the disk ThemeController writes
-     * the logo to. Nine templates used to build this address with
-     * Storage::url(), which asks the DEFAULT disk - the private one. On a
-     * single server the two happen to produce the same "/storage/..." string,
-     * so it looked right. Once the public disk is object storage they part
-     * company: the file is in the bucket and every page points at a /storage
-     * path that does not exist, so the logo renders broken everywhere while the
-     * favicon, which already asked the right disk, works.
+     * SERVED BY THE APPLICATION, from the database - see BrandingImage. Every
+     * template used to point straight at the disk, first through Storage::url()
+     * on the wrong disk and then through the right one, and neither survived
+     * production: that disk is a directory that is not served at /storage and
+     * is wiped by every deploy, so the logo was broken on every page however it
+     * was addressed.
      */
     public function logoUrl(string $fallback = 'images/logo-icon-dark.png'): string
     {
         return $this->logo_path
-            ? Storage::disk('public')->url($this->logo_path)
+            ? BrandingImage::url($this->logo_path)
             : asset($fallback);
     }
 

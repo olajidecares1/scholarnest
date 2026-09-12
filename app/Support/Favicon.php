@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\BrandingImage;
 use App\Models\School;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
@@ -59,8 +60,14 @@ final class Favicon
     {
         $path = $school?->favicon_path;
 
+        // The platform's icon is served by the application, from the database,
+        // because the disk it was uploaded to is not reachable in production -
+        // see BrandingImage. A school's own icon still comes from the disk.
+        $address = $path ? Storage::disk('public')->url($path) : null;
+
         if (! $path && $platformFallback) {
             $path = Setting::current()->favicon_path;
+            $address = $path ? BrandingImage::url($path) : null;
         }
 
         if (! $path) {
@@ -73,7 +80,7 @@ final class Favicon
             // favicon; a school's does not, and browsers cache favicons hard
             // enough that without this a school re-uploading a corrected icon
             // would keep seeing the old one for days.
-            Storage::disk('public')->url($path).'?v='.substr(hash('sha256', $path), 0, 8),
+            $address.'?v='.substr(hash('sha256', $path), 0, 8),
             self::typeFor($path),
         );
     }

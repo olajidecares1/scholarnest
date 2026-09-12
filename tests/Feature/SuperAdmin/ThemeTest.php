@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\BrandingImage;
 use App\Models\Setting;
 use App\Models\User;
 use App\Support\Favicon;
@@ -220,44 +221,125 @@ describe('the favicon size limit', function () {
 });
 
 /**
- * The logo is uploaded to the "public" disk, so its address has to come from
- * that disk too.
+ * The platform logo and favicon are served by the application, from the
+ * database - not from the disk.
  *
- * Nine templates built it with Storage::url(), which asks the DEFAULT disk -
- * the private one. On a single server both say "/storage/...", so nothing
- * looked wrong. In production the public disk is object storage with its own
- * address, and every page pointed at a /storage path that was never there.
- * The fake disk below is given a CDN address to stand in for that.
+ * In production the "public" disk is a directory Laravel Cloud does not serve
+ * at /storage and wipes on every deploy. Uploads reported success and every
+ * page showed a broken image, however the address was built. These tests
+ * delete the disk copy after uploading, which is what a deploy does, and expect
+ * the image anyway.
  */
-describe('the logo is addressed on the disk it is stored on', function () {
-    beforeEach(function () {
-        Storage::fake('public', ['url' => 'https://cdn.example.test']);
-        Storage::disk('public')->put('branding/logo-test.png', 'png');
-        Setting::current()->update(['logo_path' => 'branding/logo-test.png']);
+describe('the logo and favicon survive losing the disk', function () {
+    test('an uploaded logo is still served once its disk copy is gone', function () {
+        $upload = UploadedFile::fake()->image('logo.png', 40, 40);
+        $bytes = file_get_contents($upload->getRealPath());
+
+        $this->actingAs($this->superAdmin)
+            ->post(route('super-admin.themes.logo.update'), ['logo' => $upload])
+            ->assertSessionHasNoErrors();
+
+        $path = Setting::current()->logo_path;
+        Storage::disk('public')->delete($path);
+
+        $url = Setting::current()->logoUrl();
+        expect($url)->toBe('/branding/'.basename($path));
+
+        $response = $this->get($url)
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/png')
+            ->assertHeader('X-Content-Type-Options', 'nosniff');
+
+        expect($response->getContent())->toBe($bytes)
+            ->and($response->headers->get('Cache-Control'))->toContain('immutable');
     });
 
-    test('public pages use the public disk address', function () {
+    test('an uploaded favicon is still served once its disk copy is gone', function () {
+        $this->actingAs($this->superAdmin)
+            ->post(route('super-admin.themes.favicon.update'), ['favicon' => UploadedFile::fake()->image('favicon.png', 32, 32)])
+            ->assertSessionHasNoErrors();
+
+        $path = Setting::current()->favicon_path;
+        Storage::disk('public')->delete($path);
+
+        $href = Favicon::for()->href;
+        expect($href)->toStartWith('/branding/'.basename($path).'?v=');
+
+        $this->get($href)->assertOk()->assertHeader('Content-Type', 'image/png');
+    });
+
+    test('pages point at the served address, never at /storage', function () {
+        $this->actingAs($this->superAdmin)
+            ->post(route('super-admin.themes.logo.update'), ['logo' => UploadedFile::fake()->image('logo.png')]);
+        $this->actingAs($this->superAdmin)
+            ->post(route('super-admin.themes.favicon.update'), ['favicon' => UploadedFile::fake()->image('favicon.png')]);
+
+        $logo = '/branding/'.basename(Setting::current()->logo_path);
+        $favicon = '/branding/'.basename(Setting::current()->favicon_path);
+
+        $staffPages = [route('super-admin.dashboard'), route('super-admin.themes.index')];
+
+        foreach ($staffPages as $url) {
+            $this->actingAs($this->superAdmin)->get($url)
+                ->assertOk()
+                ->assertSee($logo, false)
+                ->assertSee($favicon, false)
+                ->assertDontSee('/storage/branding/', false);
+        }
+
+        auth()->logout();
+
         foreach ([route('portal.find.show'), route('register')] as $url) {
             $this->get($url)
                 ->assertOk()
-                ->assertSee('https://cdn.example.test/branding/logo-test.png', false)
-                ->assertDontSee('/storage/branding/logo-test.png', false);
+                ->assertSee($logo, false)
+                ->assertSee($favicon, false)
+                ->assertDontSee('/storage/branding/', false);
         }
     });
 
-    test('the super admin layout and the theme page use it too', function () {
-        foreach ([route('super-admin.dashboard'), route('super-admin.themes.index')] as $url) {
-            $this->actingAs($this->superAdmin)
-                ->get($url)
-                ->assertOk()
-                ->assertSee('https://cdn.example.test/branding/logo-test.png', false);
-        }
+    test('replacing the logo removes the old copy from the database as well', function () {
+        $this->actingAs($this->superAdmin)
+            ->post(route('super-admin.themes.logo.update'), ['logo' => UploadedFile::fake()->image('first.png')]);
+        $first = Setting::current()->logo_path;
+
+        $this->actingAs($this->superAdmin)
+            ->post(route('super-admin.themes.logo.update'), ['logo' => UploadedFile::fake()->image('second.png')]);
+
+        expect(BrandingImage::where('path', $first)->exists())->toBeFalse()
+            ->and(BrandingImage::where('path', Setting::current()->logo_path)->exists())->toBeTrue();
+
+        $this->get('/branding/'.basename($first))->assertNotFound();
+    });
+
+    test('a logo uploaded before the database copy existed still loads from the disk', function () {
+        // A laptop, or a server where the file survived: nothing to re-upload.
+        Storage::disk('public')->put('branding/logo-legacy.png', 'legacy-bytes');
+        Setting::current()->update(['logo_path' => 'branding/logo-legacy.png']);
+
+        expect($this->get('/branding/logo-legacy.png')->assertOk()->getContent())->toBe('legacy-bytes');
+    });
+
+    test('nothing but a stored image is ever served', function () {
+        $this->get('/branding/logo-missing.png')->assertNotFound();
+
+        // Not an image type, so not served - even if something put it there.
+        Storage::disk('public')->put('branding/page.html', '<script>alert(1)</script>');
+        $this->get('/branding/page.html')->assertNotFound();
+
+        // One path segment only: nothing outside branding/ can be named.
+        $this->get('/branding/..%2F..%2F.env')->assertNotFound();
     });
 
     test('with no logo uploaded the bundled mark stands in', function () {
-        Setting::current()->update(['logo_path' => null]);
-
         expect(Setting::current()->logoUrl())->toBe(asset('images/logo-icon-dark.png'))
             ->and(Setting::current()->logoUrl('images/logo-mark.png'))->toBe(asset('images/logo-mark.png'));
+    });
+
+    test('the logo form no longer offers SVG, which is refused', function () {
+        $this->actingAs($this->superAdmin)
+            ->get(route('super-admin.themes.index'))
+            ->assertSee('PNG or JPG. Max 2MB.')
+            ->assertDontSee('accept=".png,.jpg,.jpeg,.svg"', false);
     });
 });
