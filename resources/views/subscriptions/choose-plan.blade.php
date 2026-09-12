@@ -19,6 +19,23 @@
             <x-input-error :messages="$errors->get('plan_id')" class="mb-4" />
             <x-input-error :messages="$errors->get('billing_cycle')" class="mb-4" />
 
+            {{-- Never a blank page. With no plans there is nothing to choose
+                 and Continue can never be pressed, so say so instead of
+                 leaving the school looking at an empty screen. --}}
+            @if ($plans->isEmpty())
+                <div class="rounded-[8px] border border-amber-300 bg-amber-50 p-6 text-center text-sm text-amber-900">
+                    <p class="font-bold">No subscription plans are available right now.</p>
+                    <p class="mt-1">
+                        Please try again shortly, or contact
+                        @if ($supportEmail = \App\Models\Setting::supportEmail())
+                            <a href="mailto:{{ $supportEmail }}" class="font-semibold underline">{{ $supportEmail }}</a>.
+                        @else
+                            AkademicNest support.
+                        @endif
+                    </p>
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 @foreach ($plans as $plan)
                     @php $available = $plan->key->isAvailableToSubscribe(); @endphp
