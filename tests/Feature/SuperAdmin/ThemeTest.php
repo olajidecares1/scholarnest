@@ -218,3 +218,46 @@ describe('the favicon size limit', function () {
         expect(session('errors')->first('favicon'))->not->toContain('larger than');
     });
 });
+
+/**
+ * The logo is uploaded to the "public" disk, so its address has to come from
+ * that disk too.
+ *
+ * Nine templates built it with Storage::url(), which asks the DEFAULT disk -
+ * the private one. On a single server both say "/storage/...", so nothing
+ * looked wrong. In production the public disk is object storage with its own
+ * address, and every page pointed at a /storage path that was never there.
+ * The fake disk below is given a CDN address to stand in for that.
+ */
+describe('the logo is addressed on the disk it is stored on', function () {
+    beforeEach(function () {
+        Storage::fake('public', ['url' => 'https://cdn.example.test']);
+        Storage::disk('public')->put('branding/logo-test.png', 'png');
+        Setting::current()->update(['logo_path' => 'branding/logo-test.png']);
+    });
+
+    test('public pages use the public disk address', function () {
+        foreach ([route('portal.find.show'), route('register')] as $url) {
+            $this->get($url)
+                ->assertOk()
+                ->assertSee('https://cdn.example.test/branding/logo-test.png', false)
+                ->assertDontSee('/storage/branding/logo-test.png', false);
+        }
+    });
+
+    test('the super admin layout and the theme page use it too', function () {
+        foreach ([route('super-admin.dashboard'), route('super-admin.themes.index')] as $url) {
+            $this->actingAs($this->superAdmin)
+                ->get($url)
+                ->assertOk()
+                ->assertSee('https://cdn.example.test/branding/logo-test.png', false);
+        }
+    });
+
+    test('with no logo uploaded the bundled mark stands in', function () {
+        Setting::current()->update(['logo_path' => null]);
+
+        expect(Setting::current()->logoUrl())->toBe(asset('images/logo-icon-dark.png'))
+            ->and(Setting::current()->logoUrl('images/logo-mark.png'))->toBe(asset('images/logo-mark.png'));
+    });
+});

@@ -5,7 +5,7 @@
 
 @php
     $platformSettings = \App\Models\Setting::current();
-    $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-icon-dark.png');
+    $logoUrl = $platformSettings->logoUrl();
     $school = auth()->user()->school;
     // The approved subscription when there is one, otherwise the latest
     // application - so a school waiting on approval still sees the plan it

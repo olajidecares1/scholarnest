@@ -1,8 +1,6 @@
 @php
     $platformSettings = \App\Models\Setting::current();
-    $logoUrl = $platformSettings->logo_path
-        ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path)
-        : asset('images/logo-icon-dark.png');
+    $logoUrl = $platformSettings->logoUrl();
 @endphp
 
 {{-- The hidden Super Admin sign-in.

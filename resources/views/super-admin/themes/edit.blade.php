@@ -69,7 +69,7 @@
             <div class="mt-4 flex items-center gap-4">
                 <span class="flex h-16 w-16 items-center justify-center rounded-[5px] border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900 lg:rounded-[10px]">
                     <img
-                        src="{{ $settings->logo_path ? \Illuminate\Support\Facades\Storage::url($settings->logo_path) : asset('images/logo-mark.png') }}"
+                        src="{{ $settings->logoUrl('images/logo-mark.png') }}"
                         alt="Current logo"
                         class="h-full w-full object-contain"
                     >

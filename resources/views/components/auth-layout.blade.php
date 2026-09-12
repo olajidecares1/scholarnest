@@ -41,7 +41,7 @@
 
 @php
     $platformSettings = \App\Models\Setting::current();
-    $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-icon-dark.png');
+    $logoUrl = $platformSettings->logoUrl();
 
     // The school's own logo, or its name alone if it has not uploaded one.
     // Never a stand-in from somewhere else: a default logo here would be a

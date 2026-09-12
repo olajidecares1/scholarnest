@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Setting extends Model
 {
@@ -67,6 +68,25 @@ class Setting extends Model
     public static function supportEmail(): ?string
     {
         return self::query()->value('support_email') ?: config('mail.from.address');
+    }
+
+    /**
+     * The platform logo's address, or a bundled mark when none is uploaded.
+     *
+     * FROM THE PUBLIC DISK, because that is the disk ThemeController writes
+     * the logo to. Nine templates used to build this address with
+     * Storage::url(), which asks the DEFAULT disk - the private one. On a
+     * single server the two happen to produce the same "/storage/..." string,
+     * so it looked right. Once the public disk is object storage they part
+     * company: the file is in the bucket and every page points at a /storage
+     * path that does not exist, so the logo renders broken everywhere while the
+     * favicon, which already asked the right disk, works.
+     */
+    public function logoUrl(string $fallback = 'images/logo-icon-dark.png'): string
+    {
+        return $this->logo_path
+            ? Storage::disk('public')->url($this->logo_path)
+            : asset($fallback);
     }
 
     /**

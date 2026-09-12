@@ -5,7 +5,7 @@
 
 @php
     $platformSettings = \App\Models\Setting::current();
-    $logoUrl = $platformSettings->logo_path ? \Illuminate\Support\Facades\Storage::url($platformSettings->logo_path) : asset('images/logo-mark.png');
+    $logoUrl = $platformSettings->logoUrl('images/logo-mark.png');
     $canManageCbt = auth()->user()->hasPermission('manage_cbt');
     $cbtExamBodies = $canManageCbt ? \App\Models\CbtExamBody::orderBy('name')->get() : collect();
     $canManageResultPins = auth()->user()->hasPermission('manage_result_pins');
