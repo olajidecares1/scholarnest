@@ -45,6 +45,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // TLS ends at the load balancer, not at PHP. Until the proxy is
+        // trusted Laravel ignores X-Forwarded-Proto, every request looks
+        // insecure, and RedirectToHttps answers each https request with a
+        // 301 to itself until the browser gives up. See the commit message.
+        $middleware->trustProxies(at: '*');
+
         // One call, because Middleware::alias() ASSIGNS rather than merges - a
         // second call anywhere in this closure silently discards every alias
         // above it, and the first thing you see is "Target class
