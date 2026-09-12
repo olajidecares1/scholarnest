@@ -920,6 +920,35 @@
     --field-disabled-bg: #111827;
 }
 
+/* NO FIELD BELOW 16PX ON A TOUCH SCREEN.
+
+   iOS zooms the page into any field whose text is smaller than 16px the
+   moment it is tapped, and leaves the page zoomed after the keyboard closes.
+   At 12.5px every field in the application tripped it, on every iPhone and
+   iPad. 16px is the threshold, so this is the smallest size that stops it -
+   without taking pinch-zoom away, which maximum-scale=1 in the viewport tag
+   would do on Android.
+
+   Touch screens only: a mouse and keyboard never zoom, so the desktop keeps
+   the 12.5px the registration page was designed at. The variable carries the
+   placeholder and the file-picker button along with the text.
+
+   Deliberately OUTSIDE @layer. An unlayered rule outranks every layer, so it
+   beats both the base rules below and a text-sm or text-[12.5px] utility on
+   an individual field - which would otherwise quietly bring the zoom back on
+   that one field. */
+@media (pointer: coarse), (hover: none) {
+    :root {
+        --field-font-size: 16px;
+    }
+
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"], [type="submit"], [type="button"], [type="reset"], [type="image"]),
+    select,
+    textarea {
+        font-size: var(--field-font-size);
+    }
+}
+
 @layer base {
     /* Everything a person types into. Buttons, checkboxes, radios, ranges,
        colours and file pickers are excluded: they are controls of a different
