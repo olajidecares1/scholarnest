@@ -17,6 +17,15 @@ class ImageOptimizer
      */
     public function optimize(string $absolutePath, string $mimeType): array
     {
+        // Only a file on THIS machine can be re-encoded in place. With the disk
+        // on object storage, Storage::disk(...)->path() returns the object key,
+        // not a file - and filesize() on it raised a warning that Laravel turns
+        // into a 500, failing an upload that had already been stored. Skipped
+        // instead; every caller already reads 0 as "unknown".
+        if (! is_file($absolutePath)) {
+            return ['width' => 0, 'height' => 0, 'size' => 0];
+        }
+
         $image = match ($mimeType) {
             'image/jpeg' => @imagecreatefromjpeg($absolutePath),
             'image/png' => @imagecreatefrompng($absolutePath),
