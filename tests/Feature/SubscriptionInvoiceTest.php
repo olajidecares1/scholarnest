@@ -11,9 +11,9 @@ use App\Models\School;
 use App\Models\Subscription;
 use App\Models\SubscriptionInvoice;
 use App\Models\User;
+use App\Notifications\SubscriptionInvoiceIssuedNotification;
 use App\Services\SubscriptionInvoiceIssuer;
 use Database\Seeders\PlanSeeder;
-use Illuminate\Support\Facades\URL;
 
 /**
  * AkademicNest's invoices to its schools.
@@ -59,6 +59,16 @@ function invoicedSubscription(?School $school = null, int $students = 120, float
     ]);
 
     return $subscription;
+}
+
+/**
+ * The invoice link exactly as the billing email carries it - not one built
+ * here. Signing a URL in the test signed the ABSOLUTE address while the email
+ * signs a RELATIVE one, so the tests passed and the real link answered 403.
+ */
+function invoiceLinkFromEmail(SubscriptionInvoice $invoice): string
+{
+    return (new SubscriptionInvoiceIssuedNotification($invoice))->toArray($invoice)['url'];
 }
 
 describe('what an invoice records', function () {
@@ -205,11 +215,7 @@ describe('who may fetch an invoice', function () {
 
         // The link in the billing email. Whoever opens it is often a bursar
         // with no account here, so it cannot depend on a session.
-        $url = URL::temporarySignedRoute(
-            'invoices.view',
-            now()->addDays(90),
-            $invoice,
-        );
+        $url = invoiceLinkFromEmail($invoice);
 
         $this->assertGuest();
 
@@ -225,11 +231,7 @@ describe('who may fetch an invoice', function () {
     test('an expired link stops working', function () {
         $invoice = app(SubscriptionInvoiceIssuer::class)->issueForSubscription(invoicedSubscription());
 
-        $url = URL::temporarySignedRoute(
-            'invoices.view',
-            now()->addDays(90),
-            $invoice,
-        );
+        $url = invoiceLinkFromEmail($invoice);
 
         $this->travel(91)->days();
 
@@ -310,4 +312,24 @@ test('the invoice embeds the uploaded logo even when its disk file is gone', fun
     $html = view('invoices.pdf.subscription-invoice', ['invoice' => $invoice])->render();
 
     expect($html)->toContain('data:image/png;base64,'.base64_encode('UPLOADED-LOGO-BYTES'));
+});
+
+test('opening the invoice from the notification bell shows the invoice', function () {
+    // The path a School Admin actually takes: the invoice notification in the
+    // bell redirects to the link stored in it. That link is signed relative,
+    // and plain `signed` middleware checked it as absolute - 403 Invalid
+    // signature, every time.
+    $invoice = app(SubscriptionInvoiceIssuer::class)->issueForSubscription(invoicedSubscription());
+
+    $this->admin->notify(new SubscriptionInvoiceIssuedNotification($invoice));
+    $notification = $this->admin->notifications()->firstOrFail();
+
+    $redirect = $this->actingAs($this->admin)
+        ->get(route('notifications.read', $notification))
+        ->assertRedirect();
+
+    $this->actingAs($this->admin)
+        ->get($redirect->headers->get('Location'))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf');
 });

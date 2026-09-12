@@ -130,14 +130,21 @@ Route::get('media/{subject}/{uuid}', [ProtectedMediaController::class, 'photo'])
 // email is commonly opened by a bursar or a proprietor who has no account on
 // this platform, and an invoice they cannot open has not really been sent.
 // The signature expires - see App\Notifications\SubscriptionInvoiceIssuedNotification.
+//
+// signed:RELATIVE, for this link and the next. Both emails sign only the path
+// and query (absolute: false) and put config('app.url') in front, so a forged
+// Host header can never choose where the link points. Plain `signed` checks an
+// ABSOLUTE signature - scheme and host included - which such a link can never
+// match: every one of them answered 403 Invalid signature. The photo route
+// above is signed absolutely and keeps plain `signed`.
 Route::get('invoices/{invoice}', [SubscriptionInvoiceController::class, 'view'])
-    ->middleware('signed')
+    ->middleware('signed:relative')
     ->name('invoices.view');
 
 // "Continue your registration", from the reminder email. Signed, and
 // deliberately not a sign-in - see App\Http\Controllers\RegistrationResumeController.
 Route::get('continue-registration/{school}', RegistrationResumeController::class)
-    ->middleware('signed')
+    ->middleware('signed:relative')
     ->name('registration.resume');
 
 // AkademicNest's own legal documents. Open to anyone, and readable BEFORE

@@ -133,15 +133,24 @@ test('a dry run reports without sending or marking anything', function () {
     expect($school->fresh()->registration_reminder_sent_at)->toBeNull();
 });
 
+/**
+ * The link exactly as the reminder email carries it - not one built here.
+ *
+ * These tests used to sign their own URL with URL::temporarySignedRoute(),
+ * which signs the ABSOLUTE address. The email signs a RELATIVE one, so the
+ * tests passed while every real "Complete My Registration" button answered
+ * 403 Invalid signature.
+ */
+function resumeLinkFromEmail(School $school): string
+{
+    return (new CompleteYourRegistrationNotification($school))->toArray($school->users->first())['url'];
+}
+
 describe('the link in the reminder', function () {
     test('it does not sign anybody in', function () {
         $school = abandonedSchool();
 
-        $url = URL::temporarySignedRoute(
-            'registration.resume',
-            now()->addDays(14),
-            $school,
-        );
+        $url = resumeLinkFromEmail($school);
 
         // A forwarded email must not be a way into the account. The signature
         // proves the link came from us and nothing about who holds it, so the
@@ -161,11 +170,7 @@ describe('the link in the reminder', function () {
     test('the school that owns it lands on the step they stopped at', function () {
         $school = abandonedSchool();
 
-        $url = URL::temporarySignedRoute(
-            'registration.resume',
-            now()->addDays(14),
-            $school,
-        );
+        $url = resumeLinkFromEmail($school);
 
         $this->actingAs($school->users->first())
             ->get($url)
@@ -187,11 +192,7 @@ describe('the link in the reminder', function () {
             'status' => SubscriptionStatus::Active,
         ]);
 
-        $url = URL::temporarySignedRoute(
-            'registration.resume',
-            now()->addDays(14),
-            $school,
-        );
+        $url = resumeLinkFromEmail($school);
 
         $this->actingAs($school->users->first())
             ->get($url)
