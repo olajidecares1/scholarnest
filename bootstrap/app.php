@@ -109,6 +109,14 @@ return Application::configure(basePath: dirname(__DIR__))
         // RedirectToHttps runs first so a plaintext request is turned away
         // before anything else looks at it.
         $middleware->prepend([
+             // TrustProxies first, and that order is the whole point: prepends
+             // land AHEAD of the default global stack, Laravel's own TrustProxies
+             // included. Without this line RedirectToHttps reads the scheme before
+             // X-Forwarded-Proto is trusted, sees plain http behind the load
+             // balancer, and redirects https to itself until the browser gives up.
+             // array_unique in getGlobalMiddleware keeps this copy and drops the
+             // default one, so it still runs exactly once.
+             \Illuminate\Http\Middleware\TrustProxies::class,
             RedirectToHttps::class,
 
             // After the scheme is settled and before anything reads the
