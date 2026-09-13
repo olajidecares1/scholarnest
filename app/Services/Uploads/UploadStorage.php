@@ -2,6 +2,7 @@
 
 namespace App\Services\Uploads;
 
+use App\Support\Storage\DatabaseStorageFallback;
 use App\Support\StoredUpload;
 use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\UploadedFile;
@@ -155,6 +156,8 @@ class UploadStorage
      */
     public static function publicUrl(?string $path): ?string
     {
+        DatabaseStorageFallback::ensure();
+
         return $path ? Storage::disk('public')->url($path) : null;
     }
 
@@ -169,6 +172,8 @@ class UploadStorage
      */
     public function localPath(string $disk, ?string $path): ?string
     {
+        DatabaseStorageFallback::ensure();
+
         if (! $path) {
             return null;
         }
@@ -224,6 +229,10 @@ class UploadStorage
      */
     public static function isPersistent(string $disk): bool
     {
+        // Switch a disk Laravel Cloud would wipe to the database first, so the
+        // answer is about where the file will really go.
+        DatabaseStorageFallback::ensure();
+
         return ! (laravel_cloud() && config("filesystems.disks.{$disk}.driver") === 'local');
     }
 

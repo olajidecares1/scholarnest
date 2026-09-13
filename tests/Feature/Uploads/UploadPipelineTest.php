@@ -9,6 +9,7 @@ use App\Models\NewsPost;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Staff;
+use App\Models\StoredFile;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\Uploads\ImageProcessor;
@@ -364,37 +365,39 @@ describe('one school can never reach another school\'s files', function () {
 });
 
 describe('production storage', function () {
-    test('if a disk were ever still a local directory on Laravel Cloud, the upload is refused, not silently lost', function () {
-        // A safety net only. On Laravel Cloud such a disk is switched to the
-        // database at boot (DatabaseStorageFallback) - this runs without that
-        // switch, to prove nothing can reach a deploy-wiped directory regardless.
+    test('on Laravel Cloud a disk still a local directory at the moment of upload is switched to the database, not refused', function () {
+        // What a school admin met in production on the stamp and the signature:
+        // "File uploads are not available yet". Here the disks are left as
+        // local directories on Laravel Cloud, as that request found them, and
+        // the upload must land in the database instead.
         $_SERVER['LARAVEL_CLOUD'] = '1';
+        config(['filesystems.disks.public.driver' => 'local', 'filesystems.disks.local.driver' => 'local']);
 
         $this->actingAs($this->admin)
             ->put(route('settings.update'), uploadSettings($this->school, ['logo' => UploadFixtures::transparentPng()]))
-            ->assertSessionHasErrors('logo');
+            ->assertSessionHasNoErrors();
 
-        expect(session('errors')->first('logo'))->toContain('File uploads are not available yet');
-
-        expect($this->school->fresh()->logo_path)->toBeNull()
-            ->and(Storage::disk('public')->allFiles())->toBe([]);
+        expect(config('filesystems.disks.public.driver'))->toBe('database')
+            ->and(StoredFile::locate('public', $this->school->fresh()->logo_path))->not->toBeNull();
     });
 
-    test('a disk backed by object storage counts as persistent on Laravel Cloud', function () {
+    test('on Laravel Cloud every upload disk counts as persistent, because none is left a directory', function () {
         $_SERVER['LARAVEL_CLOUD'] = '1';
 
-        config(['filesystems.disks.public.driver' => 's3']);
+        config(['filesystems.disks.public.driver' => 's3', 'filesystems.disks.local.driver' => 'local']);
 
         expect(UploadStorage::isPersistent('public'))->toBeTrue()
-            ->and(UploadStorage::isPersistent('local'))->toBeFalse();
+            ->and(UploadStorage::isPersistent('local'))->toBeTrue()
+            ->and(config('filesystems.disks.public.driver'))->toBe('s3')
+            ->and(config('filesystems.disks.local.driver'))->toBe('database');
     });
 
-    test('uploads:check passes here and fails for a local directory on Laravel Cloud', function () {
+    test('uploads:check passes here and on Laravel Cloud', function () {
         $this->artisan('uploads:check')->assertExitCode(0);
 
         $_SERVER['LARAVEL_CLOUD'] = '1';
 
-        $this->artisan('uploads:check')->assertExitCode(1);
+        $this->artisan('uploads:check')->assertExitCode(0);
     });
 
     test('addresses are built from the disk configuration at display time, never stored', function () {

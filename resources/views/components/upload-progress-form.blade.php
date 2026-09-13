@@ -80,8 +80,29 @@
         </p>
 
         <div x-show="phase === 'failed'" x-cloak class="flex flex-wrap items-center gap-2">
+            {{-- Signed out: signing in is the fix, not trying again. --}}
+            <a
+                x-show="signInUrl"
+                :href="signInUrl"
+                class="flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-600"
+            >
+                <i class="fa-solid fa-right-to-bracket text-[11px]"></i>
+                Sign in again
+            </a>
+
             <button
                 type="button"
+                x-show="needsReload"
+                x-on:click="window.location.reload()"
+                class="flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-600"
+            >
+                <i class="fa-solid fa-rotate-right text-[11px]"></i>
+                Reload page
+            </button>
+
+            <button
+                type="button"
+                x-show="! signInUrl && ! needsReload"
                 x-on:click="reset()"
                 class="flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >

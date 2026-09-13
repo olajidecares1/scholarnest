@@ -3,6 +3,9 @@
 use App\Enums\PlanKey;
 use App\Enums\StaffRole;
 use App\Enums\UserRole;
+use App\Models\CbtDocumentUpload;
+use App\Models\CbtTest;
+use App\Models\CbtTestDocumentUpload;
 use App\Models\ClassNote;
 use App\Models\NewsPost;
 use App\Models\PageView;
@@ -15,6 +18,7 @@ use App\Models\User;
 use App\Services\Uploads\UploadStorage;
 use App\Support\Storage\DatabaseStorageFallback;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -333,5 +337,126 @@ describe('attaching buckets later', function () {
         expect(StoredFile::count())->toBe(0)
             ->and(file_get_contents($buckets['public'].'/'.$path))->toBe($bytes)
             ->and($this->school->fresh()->logoUrl())->toBe('https://bucket.example.test/public/'.$path);
+    });
+});
+
+/*
+ * Exactly what was reported from production: the School Admin's stamp, the
+ * School Admin's and a teacher's drawn signatures, and CBT documents, each
+ * refused with "File uploads are not available yet". Each runs here on Laravel
+ * Cloud with the disks left as local directories - the state that request
+ * found them in - and must land in the database.
+ */
+function dbStampPhoto(): UploadedFile
+{
+    $image = imagecreatetruecolor(240, 240);
+    imagefill($image, 0, 0, imagecolorallocate($image, 255, 255, 255));
+    imagesetthickness($image, 6);
+    imageellipse($image, 120, 120, 120, 120, imagecolorallocate($image, 20, 30, 120));
+
+    ob_start();
+    imagepng($image);
+
+    return UploadedFile::fake()->createWithContent('stamp.png', (string) ob_get_clean());
+}
+
+function dbDrawnSignature(): string
+{
+    $image = imagecreatetruecolor(240, 90);
+    imagesavealpha($image, true);
+    imagefill($image, 0, 0, imagecolorallocatealpha($image, 0, 0, 0, 127));
+    imageline($image, 10, 60, 230, 30, imagecolorallocate($image, 17, 24, 39));
+
+    ob_start();
+    imagepng($image);
+
+    return 'data:image/png;base64,'.base64_encode((string) ob_get_clean());
+}
+
+describe('the uploads reported failing in production', function () {
+    beforeEach(function () {
+        $_SERVER['LARAVEL_CLOUD'] = '1';
+
+        foreach (['public', 'local'] as $disk) {
+            config(["filesystems.disks.{$disk}" => ['driver' => 'local', 'root' => storage_path("framework/testing/stale-{$disk}")]]);
+        }
+
+        Storage::forgetDisk(['public', 'local']);
+
+        $this->teacher = Staff::factory()->create(['school_id' => $this->school->id, 'role' => StaffRole::Teacher, 'is_active' => true]);
+    });
+
+    test('the School Admin official stamp', function () {
+        $this->actingAs($this->admin)
+            ->put(route('settings.update'), ['name' => $this->school->name, 'timezone' => 'Africa/Lagos', 'stamp' => dbStampPhoto()])
+            ->assertSessionHasNoErrors();
+
+        $school = $this->school->fresh();
+
+        expect($school->stamp_path)->not->toBeNull()
+            ->and(StoredFile::locate('local', $school->stamp_path))->not->toBeNull()
+            ->and($school->hasStamp())->toBeTrue()
+            ->and($school->stampDataUri())->toStartWith('data:image/png;base64,');
+    });
+
+    test('the School Admin drawn signature', function () {
+        $this->actingAs($this->admin)
+            ->postJson(route('signature.store'), ['signature' => dbDrawnSignature()])
+            ->assertOk()
+            ->assertJsonPath('message', 'Your signature was registered.');
+
+        $signature = $this->admin->fresh()->signature;
+
+        expect(StoredFile::locate('local', $signature->path))->not->toBeNull()
+            ->and($signature->dataUri())->toStartWith('data:image/png;base64,');
+    });
+
+    test('a teacher drawn signature, from a phone', function () {
+        $this->actingAs($this->teacher, 'staff')
+            ->withHeaders(['User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1'])
+            ->postJson(route('staff.settings.signature.store', $this->school), ['signature' => dbDrawnSignature()])
+            ->assertOk();
+
+        $signature = $this->teacher->fresh()->signature;
+
+        expect(StoredFile::locate('local', $signature->path))->not->toBeNull()
+            ->and($signature->absolutePath())->not->toBeNull();
+    });
+
+    test('a teacher uploaded signature photograph', function () {
+        $this->actingAs($this->teacher, 'staff')
+            ->post(route('staff.settings.update-signature', $this->school), ['signature' => UploadFixtures::transparentPng(400, 150, 'my-signature.png')])
+            ->assertSessionHasNoErrors();
+
+        expect(StoredFile::locate('local', $this->teacher->fresh()->signature->path))->not->toBeNull();
+    });
+
+    test('a teacher CBT document', function () {
+        Bus::fake();
+
+        $test = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
+
+        $this->actingAs($this->teacher, 'staff')
+            ->postJson(route('staff.cbt.tests.uploads.store', [$this->school, $test]), ['file' => dbWordDocument()])
+            ->assertCreated();
+
+        $upload = CbtTestDocumentUpload::sole();
+
+        expect(StoredFile::locate('local', $upload->path))->not->toBeNull()
+            // The extraction job will get a real file to read.
+            ->and(is_file($upload->absolutePath()))->toBeTrue();
+    });
+
+    test('a Super Admin CBT document', function () {
+        Bus::fake();
+
+        $this->actingAs(User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]))
+            ->postJson(route('super-admin.cbt.uploads.store'), ['file' => dbWordDocument()])
+            ->assertCreated();
+
+        $upload = CbtDocumentUpload::sole();
+
+        expect(StoredFile::locate('local', $upload->path))->not->toBeNull()
+            ->and(is_file($upload->absolutePath()))->toBeTrue();
     });
 });

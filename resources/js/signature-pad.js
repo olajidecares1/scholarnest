@@ -17,8 +17,13 @@
  * Pointer events cover mouse, touch and stylus in one code path, so a stylus
  * is not a special case that nobody tested.
  */
+import { keepSessionAlive, SIGNED_OUT_MESSAGE } from './session-keep-alive';
+
 export default function signaturePad({ action, destroyAction, current }) {
     return {
+        /** Where to sign in again, when the session ended while drawing. */
+        signInUrl: null,
+
         showing: false,
         saving: false,
         hasDrawing: false,
@@ -35,7 +40,12 @@ export default function signaturePad({ action, destroyAction, current }) {
 
         open() {
             this.modalError = '';
+            this.signInUrl = null;
             this.showing = true;
+
+            // Opening the pad is activity; drawing is too (pointer events are
+            // counted by session-keep-alive.js).
+            keepSessionAlive();
 
             // The canvas has no size until it is on screen, so it can only be
             // set up after the modal renders.
@@ -177,6 +187,7 @@ export default function signaturePad({ action, destroyAction, current }) {
 
             this.saving = true;
             this.modalError = '';
+            this.signInUrl = null;
 
             try {
                 const response = await fetch(action, {
@@ -196,6 +207,22 @@ export default function signaturePad({ action, destroyAction, current }) {
                 });
 
                 const payload = await response.json().catch(() => ({}));
+
+                // Signed out while drawing: say so, and offer the way back.
+                // The drawing stays on the pad in case they sign in in
+                // another tab and come back to save it.
+                if (response.status === 401) {
+                    this.signInUrl = payload.redirect || window.location.href;
+                    this.modalError = SIGNED_OUT_MESSAGE;
+
+                    return;
+                }
+
+                if (response.status === 419) {
+                    this.modalError = 'This page was open too long and has expired. Reload the page, then draw your signature again.';
+
+                    return;
+                }
 
                 if (! response.ok) {
                     this.modalError = payload.message ?? 'Your signature could not be saved. Please try again.';

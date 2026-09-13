@@ -20,6 +20,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        {{-- Using the page counts as activity: see resources/js/session-keep-alive.js. --}}
+        <meta name="session-keep-alive" content="{{ route('session.keep-alive', absolute: false) }}">
 
         <title>{{ $pageTitle }} - {{ $school->name }}</title>
 

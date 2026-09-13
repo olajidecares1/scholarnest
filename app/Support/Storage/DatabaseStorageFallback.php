@@ -4,6 +4,7 @@ namespace App\Support\Storage;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\Filesystem;
 
@@ -74,6 +75,38 @@ final class DatabaseStorageFallback
         }
 
         return $switched;
+    }
+
+    /**
+     * Make sure, at the moment it matters, that no upload disk is a directory
+     * Laravel Cloud will wipe.
+     *
+     * Called by UploadStorage before every write and before every answer to
+     * "is this disk persistent". apply() at boot should already have switched
+     * both disks - but a production school admin met "File uploads are not
+     * available yet" on the stamp and the signature, both on the private disk,
+     * while the public disk served uploads from the database. Rather than
+     * depend on boot order, the check is repeated where the file is written,
+     * and a disk still found wanting is switched then - and reported, so the
+     * cause can be found in the logs.
+     */
+    public static function ensure(): void
+    {
+        $switched = self::apply();
+
+        if ($switched === []) {
+            return;
+        }
+
+        if (app()->resolved('filesystem')) {
+            Storage::forgetDisk($switched);
+        }
+
+        if (app()->isBooted()) {
+            Log::warning('Upload disks were still local directories on Laravel Cloud after boot and have been switched to the database now.', [
+                'disks' => $switched,
+            ]);
+        }
     }
 
     /**

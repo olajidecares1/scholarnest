@@ -104,6 +104,16 @@
 
             <p x-show="modalError" x-cloak x-text="modalError" class="mt-3 text-xs font-semibold text-red-600"></p>
 
+            <a
+                x-show="signInUrl"
+                x-cloak
+                :href="signInUrl"
+                class="mt-2 inline-flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-600"
+            >
+                <i class="fa-solid fa-right-to-bracket text-[11px]"></i>
+                Sign in again
+            </a>
+
             <div class="mt-4 flex flex-wrap items-center justify-end gap-2">
                 <button type="button" x-on:click="close()" class="rounded-[8px] px-4 py-2 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400">Cancel</button>
                 <button type="button" x-on:click="clear()" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300">Clear</button>

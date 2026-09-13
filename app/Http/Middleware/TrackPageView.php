@@ -21,7 +21,7 @@ class TrackPageView
      * - a school logo, a photograph, an icon - and counting each one recorded
      * several "page views" for every page anybody opened.
      */
-    private const EXCLUDED_ROUTE_NAME_PREFIXES = ['super-admin.', 'notifications.', 'stored-files.', 'branding.', 'media.', 'pwa.'];
+    private const EXCLUDED_ROUTE_NAME_PREFIXES = ['super-admin.', 'notifications.', 'stored-files.', 'branding.', 'media.', 'pwa.', 'session.'];
 
     /**
      * Handle an incoming request.

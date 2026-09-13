@@ -50,6 +50,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Again once every provider has registered, so nothing a later
+        // provider did can leave an upload disk a directory Laravel Cloud
+        // wipes - every read of a photo, signature or stamp goes through here.
+        DatabaseStorageFallback::ensure();
+
         // Refuses to serve a request from a production environment configured
         // to leak - APP_DEBUG on, or a session cookie that is not secure and
         // encrypted. Outside production, and for console commands, it does

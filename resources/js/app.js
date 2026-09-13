@@ -11,6 +11,7 @@ import { generateColorScale, normalizeCssColorToHex } from './color-scale';
 import { registerIdCardPreviewStore } from './id-card-preview-modal';
 import galleryViewer from './gallery-viewer';
 import { installImageUploadPrep } from './image-upload-prep';
+import { installActivityKeepAlive } from './session-keep-alive';
 import marqueeList from './marquee-list';
 import reportEvidence from './report-evidence';
 import { registerResultPreviewStore } from './result-preview-modal';
@@ -37,6 +38,9 @@ registerResultPreviewStore(Alpine);
 
 // Large photographs in any form are shrunk and made upright before sending.
 installImageUploadPrep();
+
+// Using a signed-in page counts as activity for the portal idle timeout.
+installActivityKeepAlive();
 
 Alpine.start();
 

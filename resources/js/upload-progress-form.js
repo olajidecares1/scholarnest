@@ -15,10 +15,18 @@
  * up to 100% while the server was still working would make a long wait look
  * like a failed one.
  */
+import { keepSessionAlive, SIGNED_OUT_MESSAGE } from './session-keep-alive';
+
 export default function uploadProgressForm({ maxMb = 21 } = {}) {
     return {
         /** idle | uploading | processing | done | failed */
         phase: 'idle',
+
+        /** Where to sign in again, when the session has ended. */
+        signInUrl: null,
+
+        /** True when reloading the page is the fix (an expired form token). */
+        needsReload: false,
 
         /** Percent complete, or null when no honest number exists. */
         percent: null,
@@ -44,7 +52,7 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
             }[this.phase] ?? 'fa-arrow-up-from-bracket';
         },
 
-        send(form) {
+        async send(form) {
             const file = form.querySelector('input[type="file"]')?.files?.[0];
 
             if (!file) {
@@ -55,6 +63,19 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
             // uploading something the server is bound to reject.
             if (file.size > maxMb * 1024 * 1024) {
                 this.fail(`That file is ${this.formatBytes(file.size)}. The limit is ${maxMb}MB.`);
+
+                return;
+            }
+
+            // Confirm the session is still alive BEFORE sending the bytes.
+            // Choosing a document on a phone can take longer than the portal's
+            // idle limit, and the upload used to travel all the way to the
+            // server only to come back "error 401". This also counts as
+            // activity, so the upload that follows is not the one that expires.
+            const session = await keepSessionAlive({ force: true });
+
+            if (session.expired) {
+                this.signedOut(session.redirect);
 
                 return;
             }
@@ -105,6 +126,30 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
 
                 if (xhr.status === 413) {
                     this.fail(`The server rejected the file for being too large. The limit is ${maxMb}MB.`);
+
+                    return;
+                }
+
+                // Signed out while the file was on its way.
+                if (xhr.status === 401) {
+                    let redirect = null;
+
+                    try {
+                        redirect = JSON.parse(xhr.responseText).redirect ?? null;
+                    } catch {
+                        // No body to read; reloading still reaches the login.
+                    }
+
+                    this.signedOut(redirect);
+
+                    return;
+                }
+
+                // The form's security token expired - a page left open for
+                // hours. Reloading gives it a fresh one.
+                if (xhr.status === 419) {
+                    this.needsReload = true;
+                    this.fail('This page was open too long and has expired. Reload the page, then upload the document again.');
 
                     return;
                 }
@@ -226,6 +271,11 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
             }
         },
 
+        signedOut(redirect) {
+            this.signInUrl = redirect || window.location.href;
+            this.fail(SIGNED_OUT_MESSAGE);
+        },
+
         fail(message) {
             this.stopPolling();
             this.phase = 'failed';
@@ -258,6 +308,8 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
 
         reset() {
             this.stopPolling();
+            this.signInUrl = null;
+            this.needsReload = false;
             this.phase = 'idle';
             this.percent = null;
             this.sentBytes = 0;
