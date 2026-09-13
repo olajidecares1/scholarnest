@@ -53,9 +53,15 @@
                 class="pointer-events-none absolute left-0 top-0 flex w-9 items-center justify-center text-[#9AAAC4] transition-colors peer-focus:text-primary-500 dark:text-gray-500"
                 style="height: var(--field-height);"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="{{ $icon }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                {{-- A Font Awesome class ("fa-briefcase") or an SVG path, whichever
+                     the caller passes: the recruitment forms use Font Awesome. --}}
+                @if (str_starts_with($icon, 'fa-'))
+                    <i class="fa-solid {{ $icon }} text-[13px]" aria-hidden="true"></i>
+                @else
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="{{ $icon }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                @endif
             </span>
         @endif
     </div>

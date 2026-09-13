@@ -106,7 +106,7 @@ class SidebarMeta
         'facilities.index' => ['fa-solid fa-building', 'What your school offers'],
         'events.index' => ['fa-solid fa-calendar-days', 'School calendar entries'],
         'news.index' => ['fa-solid fa-newspaper', 'Posts for your website'],
-        'careers.index' => ['fa-solid fa-briefcase', 'Job postings'],
+        'careers.index' => ['fa-solid fa-briefcase', 'Job portal and applicants'],
         'testimonials.index' => ['fa-solid fa-quote-left', 'What parents say'],
 
         // --- Money -----------------------------------------------------

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PlanFeature;
 use App\Enums\PlanKey;
 use App\Models\NewsPost;
 use App\Models\School;
 use App\Models\SchoolWebsite;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class PublicSchoolWebsiteController extends Controller
@@ -33,7 +35,9 @@ class PublicSchoolWebsiteController extends Controller
             // not on the site at all. Twelve fills four groups of three.
             'upcomingEvents' => $school->events()->where('starts_at', '>=', now())->orderBy('starts_at')->take(12)->get(),
             'latestNews' => $school->newsPosts()->where('is_published', true)->orderByDesc('published_at')->take(12)->get(),
-            'openJobs' => $school->jobPostings()->where('is_active', true)->orderByDesc('posted_at')->take(3)->get(),
+            'openJobs' => $school->canUseFeature(PlanFeature::Careers)
+                ? $school->jobPostings()->open()->orderByDesc('published_at')->take(3)->get()
+                : collect(),
             'testimonials' => $school->testimonials()->where('is_active', true)->orderBy('sort_order')->take(6)->get(),
             'facilities' => $school->facilities()->take(6)->get(),
         ]);
@@ -116,15 +120,13 @@ class PublicSchoolWebsiteController extends Controller
         ]);
     }
 
-    public function careers(School $school): View
+    /**
+     * The old careers page. Vacancies live on the school's Job Portal now, so
+     * every link to /careers - on a website, in an old message - lands there.
+     */
+    public function careers(School $school): RedirectResponse
     {
-        $website = $this->publishedWebsite($school);
-
-        return view('public.school-careers-index', [
-            'school' => $school,
-            'website' => $website,
-            'jobs' => $school->jobPostings()->where('is_active', true)->orderByDesc('posted_at')->paginate(12),
-        ]);
+        return redirect()->to($school->publicUrl('public.jobs.index'), 301);
     }
 
     public function gallery(School $school): View

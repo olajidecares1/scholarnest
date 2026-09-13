@@ -3,6 +3,7 @@
 use App\Http\Controllers\CheckResultController;
 use App\Http\Controllers\Guardian\Auth\AuthenticatedSessionController as GuardianAuthenticatedSessionController;
 use App\Http\Controllers\IdCardVerificationController;
+use App\Http\Controllers\JobPortalController;
 use App\Http\Controllers\LegalDocumentController;
 use App\Http\Controllers\Portal\AuthenticatedSessionController as PortalAuthenticatedSessionController;
 use App\Http\Controllers\ProtectedMediaController;
@@ -49,6 +50,19 @@ Route::group([
     Route::get('/news/{post}', [PublicSchoolWebsiteController::class, 'newsShow'])->name('school-news.show');
     Route::get('/events', [PublicSchoolWebsiteController::class, 'events'])->name('school-events.index');
     Route::get('/careers', [PublicSchoolWebsiteController::class, 'careers'])->name('school-careers.index');
+
+    // The Job Portal - see App\Http\Controllers\JobPortalController. Each
+    // vacancy at its own unguessable token; applications rate limited and
+    // honeypotted, like every other open form. 30 an hour per address rather
+    // than a handful, because applicants on one mobile network commonly share
+    // a single public IP.
+    Route::get('/jobs', [JobPortalController::class, 'index'])->name('jobs.index');
+    Route::get('/jobs/{token}', [JobPortalController::class, 'show'])->where('token', '[A-Za-z0-9]{16,64}')->name('jobs.show');
+    Route::get('/jobs/{token}/preview.jpg', [JobPortalController::class, 'previewImage'])->where('token', '[A-Za-z0-9]{16,64}')->name('jobs.preview-image');
+    Route::middleware(['throttle:30,60', 'honeypot'])
+        ->post('/jobs/{token}/apply', [JobPortalController::class, 'apply'])
+        ->where('token', '[A-Za-z0-9]{16,64}')
+        ->name('jobs.apply');
     Route::get('/gallery', [PublicSchoolWebsiteController::class, 'gallery'])->name('school-gallery.index');
     Route::get('/admissions', [PublicSchoolWebsiteController::class, 'admissions'])->name('school-admissions.index');
     Route::get('/facilities', [PublicSchoolWebsiteController::class, 'facilities'])->name('school-facilities.index');
@@ -174,6 +188,15 @@ Route::middleware('redirect_to_custom_domain')->name('public.')->group(function 
     Route::get('/p/{school:portal_key}/news/{post}', [PublicSchoolWebsiteController::class, 'newsShow'])->name('school-news.show');
     Route::get('/p/{school:portal_key}/events', [PublicSchoolWebsiteController::class, 'events'])->name('school-events.index');
     Route::get('/p/{school:portal_key}/careers', [PublicSchoolWebsiteController::class, 'careers'])->name('school-careers.index');
+
+    // The Job Portal at the default path, for a school without its own domain.
+    Route::get('/p/{school:portal_key}/jobs', [JobPortalController::class, 'index'])->name('jobs.index');
+    Route::get('/p/{school:portal_key}/jobs/{token}', [JobPortalController::class, 'show'])->where('token', '[A-Za-z0-9]{16,64}')->name('jobs.show');
+    Route::get('/p/{school:portal_key}/jobs/{token}/preview.jpg', [JobPortalController::class, 'previewImage'])->where('token', '[A-Za-z0-9]{16,64}')->name('jobs.preview-image');
+    Route::middleware(['throttle:30,60', 'honeypot'])
+        ->post('/p/{school:portal_key}/jobs/{token}/apply', [JobPortalController::class, 'apply'])
+        ->where('token', '[A-Za-z0-9]{16,64}')
+        ->name('jobs.apply');
     Route::get('/p/{school:portal_key}/gallery', [PublicSchoolWebsiteController::class, 'gallery'])->name('school-gallery.index');
     Route::get('/p/{school:portal_key}/admissions', [PublicSchoolWebsiteController::class, 'admissions'])->name('school-admissions.index');
     Route::get('/p/{school:portal_key}/facilities', [PublicSchoolWebsiteController::class, 'facilities'])->name('school-facilities.index');

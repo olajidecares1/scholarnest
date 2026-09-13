@@ -548,11 +548,11 @@
                     <div>
                         <div class="flex items-center justify-between">
                             <h2 class="text-sm font-bold uppercase tracking-wide text-gray-500">Job Portal</h2>
-                            <a href="{{ route('public.school-careers.index', $school) }}" class="text-xs font-semibold text-primary-700 hover:text-primary-800">View All Jobs</a>
+                            <a href="{{ $school->publicUrl('public.jobs.index') }}" class="text-xs font-semibold text-primary-700 hover:text-primary-800">View All Jobs</a>
                         </div>
                         <div class="mt-4 overflow-hidden rounded-[10px] border border-gray-200 bg-white shadow-sm">
                             @foreach ($openJobs as $job)
-                                <a href="{{ route('public.school-careers.index', $school) }}" class="flex items-center justify-between gap-3 border-b border-gray-100 p-4 transition-colors duration-150 last:border-b-0 hover:bg-gray-50">
+                                <a href="{{ $job->setRelation('school', $school)->publicUrl() }}" class="flex items-center justify-between gap-3 border-b border-gray-100 p-4 transition-colors duration-150 last:border-b-0 hover:bg-gray-50">
                                     <div class="min-w-0">
                                         <p class="truncate text-sm font-bold text-gray-900">{{ $job->title }}</p>
                                         <p class="text-xs text-gray-500">{{ $job->employment_type->label() }}@if ($job->location) &middot; {{ $job->location }} @endif</p>

@@ -21,6 +21,7 @@ use App\Http\Controllers\SchoolAdmin\IdCardController;
 use App\Http\Controllers\SchoolAdmin\IdCardTemplateController;
 use App\Http\Controllers\SchoolAdmin\InboxController;
 use App\Http\Controllers\SchoolAdmin\IssuedIdCardController;
+use App\Http\Controllers\SchoolAdmin\JobApplicationController;
 use App\Http\Controllers\SchoolAdmin\JobPostingController;
 use App\Http\Controllers\SchoolAdmin\LibraryController;
 use App\Http\Controllers\SchoolAdmin\MisconductReportController;
@@ -408,12 +409,33 @@ Route::middleware('plan_feature:news')->name('news.')->group(function () {
     Route::put(R::uri('news.update').'/{post}', [NewsController::class, 'update'])->name('update');
     Route::delete(R::uri('news.destroy').'/{post}', [NewsController::class, 'destroy'])->name('destroy');
 });
+// The Job Portal and recruitment. Standard and Exclusive alike - PlanFeature::Careers.
+// Every route here is named careers.*, so the plan gate and the sidebar agree.
 Route::middleware('plan_feature:careers')->name('careers.')->group(function () {
     Route::get(R::uri('careers.index'), [JobPostingController::class, 'index'])->name('index');
+    Route::get(R::uri('careers.create'), [JobPostingController::class, 'create'])->name('create');
     Route::post(R::uri('careers.index'), [JobPostingController::class, 'store'])->name('store');
+    Route::get(R::uri('careers.show').'/{job}', [JobPostingController::class, 'show'])->name('show');
+    Route::get(R::uri('careers.edit').'/{job}', [JobPostingController::class, 'edit'])->name('edit');
     Route::put(R::uri('careers.update').'/{job}', [JobPostingController::class, 'update'])->name('update');
+    Route::get(R::uri('careers.preview').'/{job}', [JobPostingController::class, 'preview'])->name('preview');
+    Route::get(R::uri('careers.share-image').'/{job}', [JobPostingController::class, 'shareImage'])->name('share-image');
+    Route::post(R::uri('careers.publish').'/{job}', [JobPostingController::class, 'publish'])->name('publish');
+    Route::post(R::uri('careers.unpublish').'/{job}', [JobPostingController::class, 'unpublish'])->name('unpublish');
+    Route::post(R::uri('careers.close').'/{job}', [JobPostingController::class, 'close'])->name('close');
+    Route::post(R::uri('careers.reopen').'/{job}', [JobPostingController::class, 'reopen'])->name('reopen');
+    Route::post(R::uri('careers.extend').'/{job}', [JobPostingController::class, 'extendDeadline'])->name('extend');
+    Route::post(R::uri('careers.archive').'/{job}', [JobPostingController::class, 'archive'])->name('archive');
     Route::delete(R::uri('careers.destroy').'/{job}', [JobPostingController::class, 'destroy'])->name('destroy');
-    Route::post(R::uri('careers.toggle-active').'/{job}', [JobPostingController::class, 'toggleActive'])->name('toggle-active');
+
+    Route::name('applications.')->group(function () {
+        Route::get(R::uri('careers.applications.index'), [JobApplicationController::class, 'index'])->name('index');
+        Route::get(R::uri('careers.applications.show').'/{application}', [JobApplicationController::class, 'show'])->name('show');
+        Route::put(R::uri('careers.applications.status').'/{application}', [JobApplicationController::class, 'updateStatus'])->name('status');
+        Route::post(R::uri('careers.applications.interview').'/{application}', [JobApplicationController::class, 'inviteToInterview'])->name('interview');
+        Route::get(R::uri('careers.applications.cv').'/{application}', [JobApplicationController::class, 'downloadCv'])->name('cv');
+        Route::get(R::uri('careers.applications.document').'/{document}', [JobApplicationController::class, 'downloadDocument'])->name('document');
+    });
 });
 Route::middleware('plan_feature:testimonials')->name('testimonials.')->group(function () {
     Route::get(R::uri('testimonials.index'), [TestimonialController::class, 'index'])->name('index');

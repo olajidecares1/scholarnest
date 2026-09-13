@@ -24,7 +24,7 @@ test('the public homepage shows published news, events, and jobs', function () {
     NewsPost::factory()->create(['school_id' => $this->school->id, 'title' => 'Big Announcement', 'is_published' => true]);
     NewsPost::factory()->create(['school_id' => $this->school->id, 'title' => 'Hidden Draft', 'is_published' => false]);
     SchoolEvent::factory()->create(['school_id' => $this->school->id, 'title' => 'Sports Day', 'starts_at' => now()->addWeek()]);
-    JobPosting::factory()->create(['school_id' => $this->school->id, 'title' => 'Science Teacher', 'is_active' => true]);
+    JobPosting::factory()->create(['school_id' => $this->school->id, 'title' => 'Science Teacher']);
 
     $this->get(route('public.school-website', $this->school))
         ->assertOk()
@@ -80,11 +80,14 @@ test('the public events index lists upcoming events', function () {
         ->assertDontSee('Past Event');
 });
 
-test('the public careers index only lists open job postings', function () {
-    JobPosting::factory()->create(['school_id' => $this->school->id, 'title' => 'Open Role', 'is_active' => true]);
-    JobPosting::factory()->create(['school_id' => $this->school->id, 'title' => 'Closed Role', 'is_active' => false]);
+test('the old careers address sends visitors to the Job Portal, which lists only open vacancies', function () {
+    JobPosting::factory()->create(['school_id' => $this->school->id, 'title' => 'Open Role']);
+    JobPosting::factory()->closed()->create(['school_id' => $this->school->id, 'title' => 'Closed Role']);
 
     $this->get(route('public.school-careers.index', $this->school))
+        ->assertRedirect($this->school->publicUrl('public.jobs.index'));
+
+    $this->get(route('public.jobs.index', $this->school))
         ->assertOk()
         ->assertSee('Open Role')
         ->assertDontSee('Closed Role');
@@ -99,7 +102,8 @@ test('public marketing pages 404 when the website is unpublished', function () {
 
     $this->get(route('public.school-news.index', $unpublishedSchool))->assertNotFound();
     $this->get(route('public.school-events.index', $unpublishedSchool))->assertNotFound();
-    $this->get(route('public.school-careers.index', $unpublishedSchool))->assertNotFound();
+    // The Job Portal needs no website, but it does need a plan that includes it.
+    $this->get(route('public.jobs.index', $unpublishedSchool))->assertNotFound();
     $this->get(route('public.school-gallery.index', $unpublishedSchool))->assertNotFound();
     $this->get(route('public.school-admissions.index', $unpublishedSchool))->assertNotFound();
     $this->get(route('public.school-facilities.index', $unpublishedSchool))->assertNotFound();
