@@ -3,7 +3,10 @@
     'id' => null,
     'label' => 'Passport Photograph',
     'existing' => null,
-    'helper' => 'JPG, PNG or WebP, up to 5MB.',
+    'helper' => 'JPG, PNG or WebP, up to 10MB. Large phone photos are resized automatically.',
+
+    // Kept in step with App\Support\Uploads\ImageProfile::Portrait.
+    'maxKb' => \App\Support\Uploads\ImageProfile::Portrait->maxKilobytes(),
 ])
 
 @php($fieldId = $id ?? $name)
@@ -21,7 +24,7 @@
     it for anybody to change.
 --}}
 <div
-    x-data="photoField({ inputId: '{{ $fieldId }}', existing: @js($existing) })"
+    x-data="photoField({ inputId: '{{ $fieldId }}', existing: @js($existing), maxKb: {{ (int) $maxKb }} })"
     x-on:beforeunload.window="destroy()"
     class="space-y-2"
 >
@@ -35,6 +38,21 @@
         class="sr-only"
         x-ref="file"
         x-on:change="chooseFile($event)"
+    >
+
+    {{-- The phone's own camera app, for when the in-page camera cannot run
+         (an in-app browser, a refused permission). No name, so it is never
+         submitted: what it captures is written into the input above. --}}
+    <input
+        type="file"
+        accept="image/*"
+        capture
+        class="sr-only"
+        tabindex="-1"
+        aria-hidden="true"
+        data-no-image-prep
+        x-ref="capture"
+        x-on:change="captureFromNativeCamera($event)"
     >
 
     {{-- What is currently attached, or a placeholder. --}}
@@ -63,10 +81,11 @@
                 <button
                     type="button"
                     x-on:click="$refs.file.click()"
-                    class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-gray-600 dark:text-gray-200"
+                    x-bind:disabled="preparing"
+                    class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
                 >
                     <i class="fa-solid fa-upload text-[13px]" aria-hidden="true"></i>
-                    <span x-text="preview ? 'Replace Photo' : 'Upload Photo'"></span>
+                    <span x-text="preparing ? 'Preparing photo…' : (preview ? 'Replace Photo' : 'Upload Photo')"></span>
                 </button>
 
                 <button
@@ -85,6 +104,17 @@
 
             <template x-if="error">
                 <small class="block text-[11.5px] font-semibold text-red-700" x-text="error"></small>
+            </template>
+
+            <template x-if="offerNativeCamera">
+                <button
+                    type="button"
+                    x-on:click="openNativeCamera()"
+                    class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-gray-600 dark:text-gray-200"
+                >
+                    <i class="fa-solid fa-mobile-screen text-[13px]" aria-hidden="true"></i>
+                    Use Phone Camera
+                </button>
             </template>
 
             @error($name)<small class="block text-[11.5px] font-semibold text-red-700">{{ $message }}</small>@enderror

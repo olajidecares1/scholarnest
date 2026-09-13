@@ -9,9 +9,10 @@ use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Staff;
+use App\Rules\UploadedImage;
 use App\Services\IdentifierGenerator;
-use App\Services\ImageOptimizer;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -27,7 +28,7 @@ class StaffController extends Controller
     use SetsPortalCredentials;
 
     public function __construct(
-        private readonly ImageOptimizer $optimizer,
+        private readonly UploadStorage $uploads,
         private readonly IdentifierGenerator $identifiers,
     ) {}
 
@@ -120,10 +121,18 @@ class StaffController extends Controller
         // honour is not read-only.
         unset($validated['staff_number']);
 
+        $previousPhoto = $member->photo_path;
+        $newPhoto = $this->storePhoto($request);
+
         $member->update([
             ...Arr::except($validated, 'photo'),
-            'photo_path' => $this->storePhoto($request) ?: $member->photo_path,
+            'photo_path' => $newPhoto ?: $member->photo_path,
         ]);
+
+        // The replaced photograph is removed once nothing points at it.
+        if ($newPhoto && $previousPhoto && $previousPhoto !== $newPhoto) {
+            $this->uploads->delete('local', $previousPhoto);
+        }
 
         $this->applyCredentialFields($request, $member, 'staff_number', 'Staff ID');
 
@@ -222,7 +231,7 @@ class StaffController extends Controller
             'phone' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
             'notes' => ['nullable', 'string', 'max:2000'],
-            'photo' => ['nullable', 'image', 'max:5120'],
+            'photo' => UploadedImage::rules(ImageProfile::Portrait),
         ];
     }
 
@@ -232,12 +241,7 @@ class StaffController extends Controller
             return null;
         }
 
-        $file = $request->file('photo');
-        $path = $file->storeAs('staff', StoredUpload::name($file), 'local');
-
-        $this->optimizer->optimize(Storage::disk('local')->path($path), (string) $file->getMimeType());
-
-        return $path;
+        return $this->uploads->storeImage($request->file('photo'), 'local', 'staff', ImageProfile::Portrait, 'photo')->path;
     }
 
     private function authorizeStaff(Staff $member): void

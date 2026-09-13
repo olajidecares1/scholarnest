@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Media;
 use App\Models\Setting;
-use App\Services\ImageOptimizer;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -21,7 +21,7 @@ class MediaController extends Controller
 
     private const VIDEO_MIMES = ['mp4', 'mov', 'webm'];
 
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(private readonly UploadStorage $uploads) {}
 
     public function index(Request $request): View
     {
@@ -79,35 +79,20 @@ class MediaController extends Controller
         ]);
 
         $file = $validated['file'] ?? $request->file('file');
-        // Image or video, not the filename - that comes from the content
-        // (StoredUpload). The mimes: rule above has already restricted this
-        // to the lists at the top of the class.
-        $extension = strtolower((string) $file->getClientOriginalExtension());
-        $type = in_array($extension, self::VIDEO_MIMES, true) ? MediaType::Video : MediaType::Image;
-
-        Storage::disk($media->disk)->delete($media->path);
-
-        $path = $file->storeAs('media', StoredUpload::name($file), 'public');
-        $width = null;
-        $height = null;
-        $size = Storage::disk('public')->size($path);
-
-        if ($type === MediaType::Image) {
-            $optimized = $this->optimizer->optimize(Storage::disk('public')->path($path), $file->getMimeType());
-            $width = $optimized['width'] ?: null;
-            $height = $optimized['height'] ?: null;
-            $size = $optimized['size'] ?: $size;
-        }
+        $previousDisk = $media->disk;
+        $previousPath = $media->path;
 
         $media->update([
-            'type' => $type,
-            'path' => $path,
-            'original_filename' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType(),
-            'size' => $size,
-            'width' => $width,
-            'height' => $height,
+            ...$this->storeFileAttributes($file),
+            'disk' => 'public',
         ]);
+
+        // The old file goes only once the row points at the new one. It used
+        // to be deleted first, so a failed upload left the item pointing at
+        // nothing.
+        if ($previousPath !== $media->path) {
+            $this->uploads->delete($previousDisk, $previousPath);
+        }
 
         AuditLog::record('media.replaced', "Replaced file for media \"{$media->name}\".", $media);
 
@@ -161,36 +146,53 @@ class MediaController extends Controller
 
     private function storeUploadedFile(UploadedFile $file, ?string $name): Media
     {
-        // Image or video, not the filename - that comes from the content
-        // (StoredUpload). The mimes: rule above has already restricted this
-        // to the lists at the top of the class.
-        $extension = strtolower((string) $file->getClientOriginalExtension());
-        $type = in_array($extension, self::VIDEO_MIMES, true) ? MediaType::Video : MediaType::Image;
-
-        $path = $file->storeAs('media', StoredUpload::name($file), 'public');
-
-        $width = null;
-        $height = null;
-        $size = Storage::disk('public')->size($path);
-
-        if ($type === MediaType::Image) {
-            $optimized = $this->optimizer->optimize(Storage::disk('public')->path($path), $file->getMimeType());
-            $width = $optimized['width'] ?: null;
-            $height = $optimized['height'] ?: null;
-            $size = $optimized['size'] ?: $size;
-        }
-
         return Media::create([
+            ...$this->storeFileAttributes($file),
             'uploaded_by' => auth()->id(),
             'name' => $name ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-            'type' => $type,
             'disk' => 'public',
-            'path' => $path,
-            'original_filename' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType(),
-            'size' => $size,
-            'width' => $width,
-            'height' => $height,
         ]);
+    }
+
+    /**
+     * Store an image or a video and describe what was stored.
+     *
+     * Image or video is decided from the CONTENT (finfo), not the extension
+     * the uploader's filename happens to carry - the mimes: rule has already
+     * restricted what arrives to the lists at the top of the class. Images go
+     * through the processor, so what is recorded is the size and dimensions
+     * of the stored file, not of the upload.
+     *
+     * @return array<string, mixed>
+     */
+    private function storeFileAttributes(UploadedFile $file): array
+    {
+        $isVideo = str_starts_with((string) $file->getMimeType(), 'video/');
+
+        if ($isVideo) {
+            $path = $this->uploads->storeFile($file, 'public', 'media', 'file');
+
+            return [
+                'type' => MediaType::Video,
+                'path' => $path,
+                'original_filename' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'size' => (int) $file->getSize(),
+                'width' => null,
+                'height' => null,
+            ];
+        }
+
+        $image = $this->uploads->storeImage($file, 'public', 'media', ImageProfile::Library, 'file');
+
+        return [
+            'type' => MediaType::Image,
+            'path' => $image->path,
+            'original_filename' => $file->getClientOriginalName(),
+            'mime_type' => $image->mimeType,
+            'size' => $image->size,
+            'width' => $image->width,
+            'height' => $image->height,
+        ];
     }
 }

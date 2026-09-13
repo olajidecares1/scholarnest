@@ -10,6 +10,7 @@ import initPortalInstall from './pwa';
 import { generateColorScale, normalizeCssColorToHex } from './color-scale';
 import { registerIdCardPreviewStore } from './id-card-preview-modal';
 import galleryViewer from './gallery-viewer';
+import { installImageUploadPrep } from './image-upload-prep';
 import marqueeList from './marquee-list';
 import reportEvidence from './report-evidence';
 import { registerResultPreviewStore } from './result-preview-modal';
@@ -33,6 +34,9 @@ Alpine.data('uploadProgressForm', uploadProgressForm);
 Alpine.data('signaturePad', signaturePad);
 registerIdCardPreviewStore(Alpine);
 registerResultPreviewStore(Alpine);
+
+// Large photographs in any form are shrunk and made upright before sending.
+installImageUploadPrep();
 
 Alpine.start();
 

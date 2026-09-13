@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Storage;
+use App\Services\Uploads\UploadStorage;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -58,7 +58,7 @@ class SignatureImage
 
         $path = trim($directory, '/').'/'.Str::uuid().'.png';
 
-        Storage::disk('local')->put($path, $png);
+        app(UploadStorage::class)->putContents('local', $path, $png);
 
         return $path;
     }

@@ -4,12 +4,12 @@ namespace App\Models;
 
 use App\Enums\IdCardHolderType;
 use App\Enums\IdCardOrientation;
+use App\Services\Uploads\UploadStorage;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\IdCardTemplateFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class IdCardTemplate extends Model
 {
@@ -62,6 +62,6 @@ class IdCardTemplate extends Model
 
     public function backgroundUrl(): ?string
     {
-        return $this->background_path ? Storage::disk('public')->url($this->background_path) : null;
+        return UploadStorage::publicUrl($this->background_path);
     }
 }

@@ -7,12 +7,11 @@ use App\Models\School;
 use App\Models\Staff;
 use App\Models\Student;
 use App\Notifications\NewClassNotePosted;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
@@ -32,7 +31,10 @@ use Throwable;
  */
 class ClassNotePublisher
 {
-    public function __construct(private CbtDocxTextExtractor $extractor) {}
+    public function __construct(
+        private CbtDocxTextExtractor $extractor,
+        private UploadStorage $uploads,
+    ) {}
 
     /**
      * Store the document, record the classes, notify the pupils.
@@ -56,11 +58,7 @@ class ClassNotePublisher
 
         abort_if($permitted === [], 422);
 
-        $path = $document->storeAs(
-            ClassNote::DIRECTORY,
-            StoredUpload::name($document),
-            ClassNote::DISK,
-        );
+        $path = $this->uploads->storeFile($document, ClassNote::DISK, ClassNote::DIRECTORY, 'document');
 
         $note = DB::transaction(function () use ($school, $staff, $document, $path, $permitted, $title, $subject, $description) {
             $note = ClassNote::create([
@@ -158,8 +156,9 @@ class ClassNotePublisher
     private function readText(string $path): ?string
     {
         try {
-            $absolute = Storage::disk(ClassNote::DISK)->path($path);
-            $text = trim($this->extractor->extract($absolute)['text'] ?? '');
+            // A real local file from whichever disk holds the note.
+            $absolute = $this->uploads->localPath(ClassNote::DISK, $path);
+            $text = $absolute === null ? '' : trim($this->extractor->extract($absolute)['text'] ?? '');
 
             return $text === '' ? null : $text;
         } catch (Throwable $e) {

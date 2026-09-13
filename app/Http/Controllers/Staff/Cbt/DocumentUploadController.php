@@ -10,7 +10,7 @@ use App\Models\CbtTest;
 use App\Models\CbtTestDocumentUpload;
 use App\Models\School;
 use App\Services\QueueWorkerHealth;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,7 +34,7 @@ class DocumentUploadController extends Controller
         // stored name comes from the content (StoredUpload). The validation
         // rule above has already restricted this to the two we read.
         $extension = strtolower((string) $file->getClientOriginalExtension());
-        $path = $file->storeAs('cbt-test-uploads/documents', StoredUpload::name($file), 'local');
+        $path = app(UploadStorage::class)->storeFile($file, 'local', 'cbt-test-uploads/documents', 'file');
 
         $upload = $test->documentUploads()->create([
             'staff_id' => $request->user('staff')->id,

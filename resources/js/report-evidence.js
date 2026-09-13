@@ -15,6 +15,8 @@
  * count, size and type again on arrival, and a reporter with JavaScript off
  * still gets a working form and honest server-side errors.
  */
+import { prepareImageFile } from './image-upload-prep';
+
 export default function reportEvidence(min = 1, max = 8, maxBytes = 5 * 1024 * 1024) {
     return {
         min,
@@ -38,14 +40,19 @@ export default function reportEvidence(min = 1, max = 8, maxBytes = 5 * 1024 * 1
          * somebody who picked nine photographs and one huge one needs to know
          * which of the two stopped them.
          */
-        add(fileList) {
+        async add(fileList) {
             const rejected = { big: 0, type: 0, over: 0 };
 
-            for (const file of Array.from(fileList)) {
+            for (const original of Array.from(fileList)) {
                 if (this.files.length >= this.max) {
                     rejected.over++;
                     continue;
                 }
+
+                // A photograph straight off a phone is often over 5MB. It is
+                // shrunk and made upright first, so it is judged by what will
+                // actually be sent. A video passes through untouched.
+                const file = await prepareImageFile(original);
 
                 if (file.size > this.maxBytes) {
                     rejected.big++;

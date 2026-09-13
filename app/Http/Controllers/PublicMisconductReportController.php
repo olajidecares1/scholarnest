@@ -7,11 +7,11 @@ use App\Models\MisconductReport;
 use App\Models\School;
 use App\Models\User;
 use App\Notifications\MisconductReportSubmittedNotification;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Anyone can post here, which decides almost everything about it.
@@ -155,17 +155,27 @@ class PublicMisconductReportController extends Controller
         // see App\Support\StoredUpload. The reporter's own filename is never
         // written to disk, only recorded, so a school can see what they
         // called it.
-        $path = $file->storeAs(
-            'misconduct-reports/'.$report->uuid,
-            StoredUpload::name($file),
-            'local',
-        );
+        //
+        // A photograph goes through the image processor, which removes its
+        // EXIF - a phone photo carries the GPS position it was taken at, and
+        // a reporter's location is exactly what they may need kept from the
+        // school - and stores it upright. A video is stored as it arrived.
+        $uploads = app(UploadStorage::class);
+        $directory = 'misconduct-reports/'.$report->uuid;
+
+        if (str_starts_with((string) $file->getMimeType(), 'image/')) {
+            $image = $uploads->storeImage($file, 'local', $directory, ImageProfile::Website, 'attachments');
+            [$path, $mime, $size] = [$image->path, $image->mimeType, $image->size];
+        } else {
+            $path = $uploads->storeFile($file, 'local', $directory, 'attachments');
+            [$mime, $size] = [(string) $file->getMimeType(), (int) $file->getSize()];
+        }
 
         $report->attachments()->create([
             'path' => $path,
             'original_name' => mb_substr($file->getClientOriginalName(), 0, 180),
-            'mime_type' => (string) $file->getMimeType(),
-            'size_bytes' => (int) Storage::disk('local')->size($path),
+            'mime_type' => $mime,
+            'size_bytes' => $size,
         ]);
     }
 }

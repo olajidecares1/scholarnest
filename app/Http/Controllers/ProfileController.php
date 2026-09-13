@@ -3,18 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Services\ImageOptimizer;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(private readonly UploadStorage $uploads) {}
 
     /**
      * Display the user's profile form.
@@ -40,14 +39,17 @@ class ProfileController extends Controller
             $user->email_verified_at = null;
         }
 
+        $previousPhoto = $user->photo_path;
+
         if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            $photoPath = $file->storeAs('users', StoredUpload::name($file), 'local');
-            $this->optimizer->optimize(Storage::disk('local')->path($photoPath), (string) $file->getMimeType());
-            $user->photo_path = $photoPath;
+            $user->photo_path = $this->uploads->storeImage($request->file('photo'), 'local', 'users', ImageProfile::Portrait, 'photo')->path;
         }
 
         $user->save();
+
+        if ($previousPhoto && $previousPhoto !== $user->photo_path) {
+            $this->uploads->delete('local', $previousPhoto);
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -46,15 +45,15 @@ class BrandingImage extends Model
     ];
 
     /**
-     * Keep a copy of an upload that has just been stored at $path.
+     * Keep the stored bytes of a logo or favicon under $path.
      */
-    public static function remember(string $path, UploadedFile $file): void
+    public static function remember(string $path, string $bytes): void
     {
         self::query()->updateOrCreate(
             ['path' => $path],
             [
                 'mime_type' => self::typeFor($path),
-                'data' => base64_encode((string) file_get_contents($file->getRealPath())),
+                'data' => base64_encode($bytes),
             ],
         );
     }

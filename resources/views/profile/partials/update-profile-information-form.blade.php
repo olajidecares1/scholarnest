@@ -24,7 +24,7 @@
             id="account_photo"
             label="Profile Photograph"
             :existing="$user->photoUrl()"
-            helper="Optional. Take one with the camera or upload a JPG, PNG or WebP up to 5MB. Leave blank to keep the one you have."
+            helper="Optional. Take one with the camera or upload a JPG, PNG or WebP up to 10MB. Leave blank to keep the one you have."
         />
 
         <x-text-field

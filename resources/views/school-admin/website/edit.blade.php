@@ -365,7 +365,7 @@
                                 <label class="flex cursor-pointer items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                                     Add Slide
-                                    <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" required class="hidden" onchange="this.form.submit()">
+                                    <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" required class="hidden" onchange="this.form.requestSubmit()">
                                 </label>
                             </form>
                         </div>

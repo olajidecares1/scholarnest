@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\CbtTest;
 use App\Models\CbtTestQuestion;
 use App\Models\School;
-use App\Services\ImageOptimizer;
-use App\Support\StoredUpload;
+use App\Rules\UploadedImage;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class QuestionController extends Controller
 {
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(private readonly UploadStorage $uploads) {}
 
     public function store(Request $request, School $school, CbtTest $test): RedirectResponse
     {
@@ -85,7 +86,7 @@ class QuestionController extends Controller
     {
         return $request->validate([
             'question_text' => ['required', 'string'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => UploadedImage::rules(ImageProfile::Question),
             'options' => ['required', 'array', 'min:2', 'max:5'],
             'options.*' => ['required', 'string', 'max:1000'],
             'correct_index' => [
@@ -107,12 +108,7 @@ class QuestionController extends Controller
             return null;
         }
 
-        $file = $request->file('image');
-        $path = $file->storeAs('cbt-test-questions', StoredUpload::name($file), 'public');
-
-        $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
-
-        return $path;
+        return $this->uploads->storeImage($request->file('image'), 'public', 'cbt-test-questions', ImageProfile::Question, 'image')->path;
     }
 
     /**

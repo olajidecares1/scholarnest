@@ -3,59 +3,36 @@
 namespace App\Services;
 
 use App\Models\School;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class ReceiptUploadService
 {
+    public function __construct(private readonly UploadStorage $uploads) {}
+
     /**
-     * Stores a payment receipt for a school, stripping EXIF metadata from
-     * image uploads for privacy before it ever touches disk.
+     * Stores a payment receipt for a school, on the private disk.
+     *
+     * A photographed receipt goes through the image processor, which removes
+     * its EXIF metadata (a phone photo carries GPS coordinates) and - unlike
+     * the stripping this used to do - applies its orientation first, so a
+     * receipt photographed upright is not stored sideways and unreadable.
+     * A PDF is stored exactly as uploaded.
      *
      * @return array{path: string, original_name: string}
      */
     public function store(School $school, UploadedFile $receipt): array
     {
-        $filename = StoredUpload::name($receipt);
-        $path = "receipts/{$school->id}/{$filename}";
+        $directory = 'receipts/'.$school->id;
 
-        if (str_starts_with((string) $receipt->getMimeType(), 'image/')) {
-            $stripped = $this->stripExifData($receipt->getRealPath(), $receipt->getMimeType());
-            Storage::disk('local')->put($path, $stripped);
-        } else {
-            $receipt->storeAs('receipts/'.$school->id, $filename, 'local');
-        }
+        $path = str_starts_with((string) $receipt->getMimeType(), 'image/')
+            ? $this->uploads->storeImage($receipt, 'local', $directory, ImageProfile::Receipt, 'receipt')->path
+            : $this->uploads->storeFile($receipt, 'local', $directory, 'receipt');
 
         return [
             'path' => $path,
             'original_name' => $receipt->getClientOriginalName(),
         ];
-    }
-
-    private function stripExifData(string $path, ?string $mimeType): string
-    {
-        $image = match ($mimeType) {
-            'image/jpeg' => @imagecreatefromjpeg($path),
-            'image/png' => @imagecreatefrompng($path),
-            default => null,
-        };
-
-        if (! $image) {
-            return file_get_contents($path);
-        }
-
-        ob_start();
-
-        if ($mimeType === 'image/png') {
-            imagepng($image);
-        } else {
-            imagejpeg($image, null, 90);
-        }
-
-        $contents = ob_get_clean();
-        imagedestroy($image);
-
-        return $contents;
     }
 }

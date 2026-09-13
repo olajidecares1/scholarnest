@@ -7,11 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\ProfileChangeRequest;
 use App\Models\School;
-use App\Services\ImageOptimizer;
-use App\Support\StoredUpload;
+use App\Rules\UploadedImage;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
@@ -19,7 +19,7 @@ class SettingsController extends Controller
 {
     use NotifiesSchoolOfProfileChanges;
 
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(private readonly UploadStorage $uploads) {}
 
     public function index(Request $request, School $school): View
     {
@@ -89,7 +89,7 @@ class SettingsController extends Controller
         $staff = $request->user('staff');
 
         $validated = $request->validate([
-            'signature' => ['nullable', 'image', 'max:2048'],
+            'signature' => UploadedImage::rules(ImageProfile::Signature),
             'remove_signature' => ['nullable', 'boolean'],
         ]);
 
@@ -110,13 +110,11 @@ class SettingsController extends Controller
             return back()->with('status', 'Choose a signature image to upload.');
         }
 
-        $file = $request->file('signature');
         // Private, like every other signature. This upload path was the one
         // that still wrote to the public disk after the rest moved - so a
         // teacher who uploaded a photograph of their signature, rather than
         // drawing it on the pad, published it at a public address.
-        $path = $file->storeAs('staff-signatures', StoredUpload::name($file), 'local');
-        $this->optimizer->optimize(Storage::disk('local')->path($path), (string) $file->getMimeType());
+        $path = $this->uploads->storeImage($request->file('signature'), 'local', 'staff-signatures', ImageProfile::Signature, 'signature')->path;
 
         $staff->registerSignature($path);
 

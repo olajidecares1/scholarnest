@@ -171,9 +171,12 @@ describe('what it will accept', function () {
     });
 
     test('it refuses one that is too large', function () {
+        // The limit is 15MB now, not 5MB: a photograph straight off a modern
+        // phone is often over 5MB, and it is scaled down on arrival, so what
+        // is stored is far smaller than what was sent. See ImageProfile.
         $this->actingAs($this->admin)
             ->post(route('website.news-events-card-background'), [
-                'background_image' => UploadedFile::fake()->image('huge.jpg', 3000, 2000)->size(6000),
+                'background_image' => UploadedFile::fake()->image('huge.jpg', 3000, 2000)->size(16000),
             ])
             ->assertSessionHasErrors('background_image');
     });

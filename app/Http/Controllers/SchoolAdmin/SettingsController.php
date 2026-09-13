@@ -4,21 +4,23 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\School;
-use App\Services\ImageOptimizer;
+use App\Rules\UploadedImage;
 use App\Services\StampImage;
-use App\Support\StoredUpload;
+use App\Services\Uploads\ImageProcessor;
+use App\Services\Uploads\ImageRejected;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use DateTimeZone;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SettingsController extends Controller
 {
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(private readonly UploadStorage $uploads) {}
 
     public function edit(Request $request): View
     {
@@ -73,11 +75,11 @@ class SettingsController extends Controller
             // school column and an account record free to disagree.
             'principal_name' => ['nullable', 'string', 'max:150'],
 
-            'logo' => ['nullable', 'image', 'max:5120'],
-            'favicon' => ['nullable', 'image', 'max:1024'],
+            'logo' => UploadedImage::rules(ImageProfile::Logo),
+            'favicon' => UploadedImage::rules(ImageProfile::Favicon),
 
             // The official stamp. On every plan - see School::hasStamp().
-            'stamp' => ['nullable', 'image', 'max:5120'],
+            'stamp' => UploadedImage::rules(ImageProfile::Signature),
             'remove_stamp' => ['nullable', 'boolean'],
             'school_code' => [
                 $wantsAutoGeneration ? 'required' : 'nullable',
@@ -97,19 +99,15 @@ class SettingsController extends Controller
         $validated['auto_generate_admission_numbers'] = $request->boolean('auto_generate_admission_numbers');
         $validated['auto_generate_staff_ids'] = $request->boolean('auto_generate_staff_ids');
 
-        $logoPath = null;
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $logoPath = $file->storeAs('school-logos', StoredUpload::name($file), 'public');
-            $this->optimizer->optimize(Storage::disk('public')->path($logoPath), (string) $file->getMimeType());
-        }
+        // Processed before storage - upright, within size, transparency kept,
+        // metadata removed - see App\Services\Uploads\ImageProcessor.
+        $logoPath = $request->hasFile('logo')
+            ? $this->uploads->storeImage($request->file('logo'), 'public', 'school-logos', ImageProfile::Logo, 'logo')->path
+            : null;
 
-        $faviconPath = null;
-        if ($request->hasFile('favicon')) {
-            $file = $request->file('favicon');
-            $faviconPath = $file->storeAs('school-favicons', StoredUpload::name($file), 'public');
-            $this->optimizer->optimize(Storage::disk('public')->path($faviconPath), (string) $file->getMimeType());
-        }
+        $faviconPath = $request->hasFile('favicon')
+            ? $this->uploads->storeImage($request->file('favicon'), 'public', 'school-favicons', ImageProfile::Favicon, 'favicon')->path
+            : null;
 
         // The stamp is lifted off its paper before it is stored - see
         // App\Services\StampImage - and lands on the PRIVATE disk, like a
@@ -130,12 +128,26 @@ class SettingsController extends Controller
             }
         }
 
+        $previousLogo = $school->logo_path;
+        $previousFavicon = $school->favicon_path;
+
         $school->update([
             ...collect($validated)->except(['logo', 'favicon', 'stamp', 'remove_stamp'])->all(),
             'logo_path' => $logoPath ?: $school->logo_path,
             'favicon_path' => $faviconPath ?: $school->favicon_path,
             'stamp_path' => $stampPath,
         ]);
+
+        // A replaced logo or favicon used to stay on disk for ever. Removed
+        // only after the row points at its replacement, so a failure between
+        // the two can never leave the school pointing at a deleted file.
+        if ($logoPath && $previousLogo && $previousLogo !== $logoPath) {
+            $this->uploads->delete('public', $previousLogo);
+        }
+
+        if ($faviconPath && $previousFavicon && $previousFavicon !== $faviconPath) {
+            $this->uploads->delete('public', $previousFavicon);
+        }
 
         return back()->with('status', 'Your school settings were updated.');
     }
@@ -155,19 +167,23 @@ class SettingsController extends Controller
      */
     private function storeStamp(School $school, UploadedFile $file): string
     {
-        $png = app(StampImage::class)->extract(
-            (string) file_get_contents($file->getRealPath())
-        );
+        // Upright first: a stamp photographed on a phone arrives with its
+        // rotation in EXIF, and the ink detection reads raw pixels.
+        try {
+            $upright = app(ImageProcessor::class)->process((string) $file->getRealPath(), ImageProfile::Signature)->bytes;
+        } catch (ImageRejected $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
+
+        $png = app(StampImage::class)->extract($upright);
 
         $path = 'school-stamps/'.Str::uuid().'.png';
 
-        Storage::disk('local')->put($path, $png);
+        $this->uploads->putContents('local', $path, $png);
 
         // Only once the replacement is safely written. Deleting first would
         // leave a school with no stamp at all if the new one failed.
-        if ($school->stamp_path) {
-            Storage::disk('local')->delete($school->stamp_path);
-        }
+        $this->uploads->delete('local', $school->stamp_path);
 
         return $path;
     }

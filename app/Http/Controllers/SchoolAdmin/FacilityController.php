@@ -5,8 +5,9 @@ namespace App\Http\Controllers\SchoolAdmin;
 use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\SchoolFacility;
-use App\Services\ImageOptimizer;
-use App\Support\StoredUpload;
+use App\Rules\UploadedImage;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,7 @@ class FacilityController extends Controller
 {
     use AuthorizesSchoolOwnership;
 
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(private readonly UploadStorage $uploads) {}
 
     public function index(Request $request): View
     {
@@ -79,7 +80,7 @@ class FacilityController extends Controller
             'name' => ['required', 'string', 'max:150'],
             'category' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => UploadedImage::rules(ImageProfile::Website),
         ];
     }
 
@@ -89,12 +90,7 @@ class FacilityController extends Controller
             return null;
         }
 
-        $file = $request->file('image');
-        $path = $file->storeAs('facilities', StoredUpload::name($file), 'public');
-
-        $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
-
-        return $path;
+        return $this->uploads->storeImage($request->file('image'), 'public', 'facilities', ImageProfile::Website, 'image')->path;
     }
 
     private function authorizeFacility(SchoolFacility $facility): void

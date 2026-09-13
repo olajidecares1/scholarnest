@@ -339,7 +339,7 @@ describe('the logo and favicon survive losing the disk', function () {
     test('the logo form no longer offers SVG, which is refused', function () {
         $this->actingAs($this->superAdmin)
             ->get(route('super-admin.themes.index'))
-            ->assertSee('PNG or JPG. Max 2MB.')
+            ->assertSee('PNG, JPG or WebP. Max 10MB.')
             ->assertDontSee('accept=".png,.jpg,.jpeg,.svg"', false);
     });
 });

@@ -4,10 +4,12 @@ use App\Enums\PaymentStatus;
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
+use App\Models\BrandingImage;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\School;
+use App\Models\Setting;
 use App\Models\Subscription;
 use App\Models\SubscriptionInvoice;
 use App\Models\User;
@@ -301,12 +303,12 @@ test('a school admin sees their own billing history and nobody else\'s', functio
 test('the invoice embeds the uploaded logo even when its disk file is gone', function () {
     // In production the disk copy does not survive a deploy; the database copy
     // does. Reading only the disk printed the bundled mark on every invoice.
-    \App\Models\BrandingImage::create([
+    BrandingImage::create([
         'path' => 'branding/logo-invoice.png',
         'mime_type' => 'image/png',
         'data' => base64_encode('UPLOADED-LOGO-BYTES'),
     ]);
-    \App\Models\Setting::current()->update(['logo_path' => 'branding/logo-invoice.png']);
+    Setting::current()->update(['logo_path' => 'branding/logo-invoice.png']);
 
     $invoice = app(SubscriptionInvoiceIssuer::class)->issueForSubscription(invoicedSubscription());
     $html = view('invoices.pdf.subscription-invoice', ['invoice' => $invoice])->render();

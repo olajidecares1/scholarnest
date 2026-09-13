@@ -7,7 +7,8 @@ use App\Models\Report;
 use App\Models\School;
 use App\Notifications\NewReportNotification;
 use App\Services\TeamNotifier;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -33,9 +34,13 @@ class ReportController extends Controller
 
         if ($request->hasFile('media')) {
             $media = $request->file('media');
-            $filename = StoredUpload::name($media);
-            $path = "reports/{$report->id}/{$filename}";
-            $media->storeAs("reports/{$report->id}", $filename, 'local');
+            $uploads = app(UploadStorage::class);
+
+            // A photo is processed - upright, GPS metadata removed; a video
+            // is stored as it arrived.
+            $path = str_starts_with((string) $media->getMimeType(), 'image/')
+                ? $uploads->storeImage($media, 'local', "reports/{$report->id}", ImageProfile::Website, 'media')->path
+                : $uploads->storeFile($media, 'local', "reports/{$report->id}", 'media');
 
             $report->update([
                 'media_path' => $path,

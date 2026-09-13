@@ -5,7 +5,7 @@ namespace App\Support;
 use App\Models\BrandingImage;
 use App\Models\School;
 use App\Models\Setting;
-use Illuminate\Support\Facades\Storage;
+use App\Services\Uploads\UploadStorage;
 
 /**
  * Which icon a browser tab should show, and at what address.
@@ -63,7 +63,7 @@ final class Favicon
         // The platform's icon is served by the application, from the database,
         // because the disk it was uploaded to is not reachable in production -
         // see BrandingImage. A school's own icon still comes from the disk.
-        $address = $path ? Storage::disk('public')->url($path) : null;
+        $address = $path ? UploadStorage::publicUrl($path) : null;
 
         if (! $path && $platformFallback) {
             $path = Setting::current()->favicon_path;

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CbtDocumentUploadStatus;
+use App\Services\Uploads\UploadStorage;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\CbtTestDocumentUploadFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -78,7 +79,10 @@ class CbtTestDocumentUpload extends Model
 
     public function absolutePath(): string
     {
-        return Storage::disk($this->disk)->path($this->path);
+        // A real local file even when the disk is object storage - the
+        // extractors need one. See UploadStorage::localPath().
+        return app(UploadStorage::class)->localPath($this->disk, $this->path)
+            ?? Storage::disk($this->disk)->path($this->path);
     }
 
     /**
@@ -87,7 +91,7 @@ class CbtTestDocumentUpload extends Model
     public function extractedImageUrls(): array
     {
         return collect($this->extracted_images ?? [])
-            ->map(fn (string $path) => Storage::disk('public')->url($path))
+            ->map(fn (string $path) => UploadStorage::publicUrl($path))
             ->all();
     }
 }

@@ -12,10 +12,25 @@
  * until Use This Photo is pressed - so closing the camera, or changing their
  * mind, leaves the record exactly as it was.
  */
-export default function photoField({ inputId, existing = null } = {}) {
+import { isHeic, markPrepared, prepareImageFile, setInputFiles } from './image-upload-prep';
+
+/** Longest edge a portrait is sent at. The server keeps 1600; see ImageProfile. */
+const PORTRAIT_MAX_EDGE = 1600;
+
+export default function photoField({ inputId, existing = null, maxKb = 10240 } = {}) {
     return {
         /** 'idle' | 'camera' | 'review' */
         mode: 'idle',
+
+        /** True while a chosen photograph is being prepared for upload. */
+        preparing: false,
+
+        /**
+         * Offered when the in-page camera cannot run - an in-app browser, a
+         * refused permission, plain http. The phone's own camera app, opened
+         * through a capture input, needs none of what getUserMedia needs.
+         */
+        offerNativeCamera: false,
 
         /** The photograph currently attached to the form, as an object URL. */
         preview: existing,
@@ -45,10 +60,13 @@ export default function photoField({ inputId, existing = null } = {}) {
         async openCamera() {
             this.error = null
 
+            this.offerNativeCamera = false
+
             if (!this.cameraSupported) {
-                this.error = window.isSecureContext === false
-                    ? 'The camera needs a secure (https) connection. Upload a photograph instead.'
-                    : 'This device or browser has no camera available. Upload a photograph instead.'
+                // No in-page camera here (an in-app browser, plain http). On a
+                // phone the device's own camera still works through a capture
+                // input, and this click is still the person's own gesture.
+                this.openNativeCamera()
 
                 return
             }
@@ -79,8 +97,12 @@ export default function photoField({ inputId, existing = null } = {}) {
                 // Refusing permission is a choice, not a fault, and it reads
                 // differently from a device that has no camera at all.
                 this.error = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')
-                    ? 'Permission to use the camera was refused. Allow it in your browser settings, or upload a photograph instead.'
-                    : 'The camera could not be started. Upload a photograph instead.'
+                    ? 'Permission to use the camera was refused. Allow it in your browser settings, use your phone\'s camera app below, or upload a photograph instead.'
+                    : 'The camera could not be started. Use your phone\'s camera app below, or upload a photograph instead.'
+
+                // A second tap opens the device camera app instead - a new
+                // gesture, which a file dialog needs.
+                this.offerNativeCamera = true
             } finally {
                 this.busy = false
             }
@@ -137,7 +159,9 @@ export default function photoField({ inputId, existing = null } = {}) {
 
                     this.pending = {
                         url: URL.createObjectURL(blob),
-                        file: new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' }),
+                        // Already upright and camera-sized, so the form's
+                        // image preparation leaves it alone.
+                        file: markPrepared(new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' })),
                     }
 
                     this.mode = 'review'
@@ -172,34 +196,88 @@ export default function photoField({ inputId, existing = null } = {}) {
             this.mode = 'idle'
         },
 
-        /** A file chosen from the device, previewed but not yet committed. */
-        chooseFile(event) {
+        /**
+         * A file chosen from the device, or taken with the phone's camera app.
+         *
+         * Prepared before anything is checked: a 9MB photograph straight off a
+         * phone is shrunk to a few hundred kilobytes and made upright here, so
+         * it is judged by what will actually be sent. It used to be refused
+         * outright for being over 5MB.
+         */
+        async chooseFile(event) {
             const file = event.target.files && event.target.files[0]
 
             this.error = null
+            this.offerNativeCamera = false
 
             if (!file) {
                 return
             }
 
-            if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+            const type = (file.type || '').toLowerCase()
+
+            // An EMPTY type is let through: several Android camera and file
+            // apps report none. The server identifies every upload from its
+            // content, whatever the browser said.
+            if (type && !['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(type) && !isHeic(file)) {
                 this.error = 'Choose a JPG, PNG or WebP photograph.'
                 this.clear()
 
                 return
             }
 
-            if (file.size > 5 * 1024 * 1024) {
-                this.error = 'That photograph is larger than 5MB. Choose a smaller one.'
+            this.preparing = true
+
+            let chosen = file
+
+            try {
+                chosen = await prepareImageFile(file, { maxEdge: PORTRAIT_MAX_EDGE })
+            } finally {
+                this.preparing = false
+            }
+
+            // Still HEIC means this browser could not read it, so it cannot be
+            // previewed and this server cannot promise to either.
+            if (isHeic(chosen)) {
+                this.error = 'This photo is in Apple\'s HEIC format, which this browser cannot open. On an iPhone, choose it in Safari, or set Settings > Camera > Formats to "Most Compatible".'
                 this.clear()
 
                 return
             }
 
-            // Already in the input - the browser put it there - so this only
-            // has to show it. The server re-checks the type from the file's
-            // content regardless of what the browser reported here.
-            this.setPreview(URL.createObjectURL(file))
+            if (chosen.size > maxKb * 1024) {
+                this.error = `That photograph is larger than ${Math.round(maxKb / 1024)}MB, even after resizing. Choose a smaller one.`
+                this.clear()
+
+                return
+            }
+
+            if (chosen !== file) {
+                this.writeToInput(chosen)
+            }
+
+            this.setPreview(URL.createObjectURL(chosen))
+        },
+
+        /** The phone's own camera app, through a capture input. */
+        openNativeCamera() {
+            this.error = null
+            this.offerNativeCamera = false
+            this.$refs.capture?.click()
+        },
+
+        /** A photo returned by the camera app, handled like a chosen file. */
+        async captureFromNativeCamera(event) {
+            const file = event.target.files && event.target.files[0]
+
+            if (!file) {
+                return
+            }
+
+            this.writeToInput(file)
+            event.target.value = ''
+
+            await this.chooseFile({ target: this.input })
         },
 
         /** Take the photograph off the form again. */
@@ -239,9 +317,7 @@ export default function photoField({ inputId, existing = null } = {}) {
                 return
             }
 
-            const transfer = new DataTransfer()
-            transfer.items.add(file)
-            input.files = transfer.files
+            setInputFiles(input, [file])
         },
 
         setPreview(url) {

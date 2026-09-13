@@ -5,8 +5,9 @@ namespace App\Http\Controllers\SchoolAdmin;
 use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\NewsPost;
-use App\Services\ImageOptimizer;
-use App\Support\StoredUpload;
+use App\Rules\UploadedImage;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,7 @@ class NewsController extends Controller
 {
     use AuthorizesSchoolOwnership;
 
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(private readonly UploadStorage $uploads) {}
 
     public function index(Request $request): View
     {
@@ -92,7 +93,7 @@ class NewsController extends Controller
             'body' => ['required', 'string', 'max:20000'],
             'category' => ['nullable', 'string', 'max:100'],
             'published_at' => ['nullable', 'date'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => UploadedImage::rules(ImageProfile::Website),
         ];
     }
 
@@ -102,12 +103,7 @@ class NewsController extends Controller
             return null;
         }
 
-        $file = $request->file('image');
-        $path = $file->storeAs('news', StoredUpload::name($file), 'public');
-
-        $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
-
-        return $path;
+        return $this->uploads->storeImage($request->file('image'), 'public', 'news', ImageProfile::Website, 'image')->path;
     }
 
     private function authorizePost(NewsPost $post): void

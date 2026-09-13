@@ -7,9 +7,10 @@ use App\Enums\IdCardOrientation;
 use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\IdCardTemplate;
-use App\Services\ImageOptimizer;
+use App\Rules\UploadedImage;
+use App\Services\Uploads\UploadStorage;
 use App\Support\IdCardSample;
-use App\Support\StoredUpload;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class IdCardTemplateController extends Controller
 {
     use AuthorizesSchoolOwnership;
 
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(private readonly UploadStorage $uploads) {}
 
     /**
      * The specimen card shown beside the editor.
@@ -143,7 +144,7 @@ class IdCardTemplateController extends Controller
             'show_blood_group' => ['nullable', 'boolean'],
             'show_dob' => ['nullable', 'boolean'],
             'is_default' => ['nullable', 'boolean'],
-            'background' => ['nullable', 'image', 'max:5120'],
+            'background' => UploadedImage::rules(ImageProfile::Website),
         ];
     }
 
@@ -153,12 +154,7 @@ class IdCardTemplateController extends Controller
             return null;
         }
 
-        $file = $request->file('background');
-        $path = $file->storeAs('id-card-templates', StoredUpload::name($file), 'public');
-
-        $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
-
-        return $path;
+        return $this->uploads->storeImage($request->file('background'), 'public', 'id-card-templates', ImageProfile::Website, 'background')->path;
     }
 
     private function authorizeTemplate(IdCardTemplate $template): void

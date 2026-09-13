@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Uploads\UploadStorage;
 use App\Support\HasUuidRouteKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -79,10 +80,7 @@ class Signature extends Model
      */
     public function absolutePath(): ?string
     {
-        $disk = Storage::disk('local');
-
-        return $this->path && $disk->exists($this->path)
-            ? $disk->path($this->path)
-            : null;
+        // A real file from whichever disk holds it - see UploadStorage::localPath().
+        return app(UploadStorage::class)->localPath('local', $this->path);
     }
 }

@@ -9,10 +9,11 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Guardian;
 use App\Models\Student;
+use App\Rules\UploadedImage;
 use App\Services\IdentifierGenerator;
-use App\Services\ImageOptimizer;
 use App\Services\StudentLicenceAllocation;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ class StudentController extends Controller
     use SetsPortalCredentials;
 
     public function __construct(
-        private readonly ImageOptimizer $optimizer,
+        private readonly UploadStorage $uploads,
         private readonly IdentifierGenerator $identifiers,
         private readonly StudentLicenceAllocation $licences,
     ) {}
@@ -127,10 +128,18 @@ class StudentController extends Controller
             unset($validated['admission_number']);
         }
 
+        $previousPhoto = $student->photo_path;
+        $newPhoto = $this->storePhoto($request);
+
         $student->update([
             ...Arr::except($validated, 'photo'),
-            'photo_path' => $this->storePhoto($request) ?: $student->photo_path,
+            'photo_path' => $newPhoto ?: $student->photo_path,
         ]);
+
+        // The replaced photograph is removed once nothing points at it.
+        if ($newPhoto && $previousPhoto && $previousPhoto !== $newPhoto) {
+            $this->uploads->delete('local', $previousPhoto);
+        }
 
         $this->applyCredentialFields($request, $student, 'admission_number', 'Admission Number');
 
@@ -342,7 +351,7 @@ class StudentController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'admission_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:2000'],
-            'photo' => ['nullable', 'image', 'max:5120'],
+            'photo' => UploadedImage::rules(ImageProfile::Portrait),
         ];
     }
 
@@ -352,12 +361,7 @@ class StudentController extends Controller
             return null;
         }
 
-        $file = $request->file('photo');
-        $path = $file->storeAs('students', StoredUpload::name($file), 'local');
-
-        $this->optimizer->optimize(Storage::disk('local')->path($path), (string) $file->getMimeType());
-
-        return $path;
+        return $this->uploads->storeImage($request->file('photo'), 'local', 'students', ImageProfile::Portrait, 'photo')->path;
     }
 
     private function authorizeStudent(Student $student): void

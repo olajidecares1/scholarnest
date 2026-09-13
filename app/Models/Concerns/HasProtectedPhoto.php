@@ -6,6 +6,7 @@ use App\Models\Guardian;
 use App\Models\Staff;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\Uploads\UploadStorage;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -34,6 +35,9 @@ trait HasProtectedPhoto
      */
     public const PHOTO_URL_MINUTES = 30;
 
+    /** The private disk. Named once so no model can put a person back on "public". */
+    public const PHOTO_DISK = 'local';
+
     /**
      * The URL a browser should fetch this photograph from, or null when there
      * is none to fetch.
@@ -60,14 +64,15 @@ trait HasProtectedPhoto
      * reads local files within its chroot instead. That is why moving these off
      * the public disk did not break a single PDF: nothing in a PDF ever fetched
      * the URL.
+     *
+     * A real file whichever disk holds the photograph: on object storage a
+     * temporary local copy - see UploadStorage::localPath(). This used to be
+     * $disk->path(), which names a file that does not exist once photographs
+     * live in a bucket, and every report card and ID card lost its photo.
      */
     public function photoAbsolutePath(): ?string
     {
-        $disk = $this->photoDisk();
-
-        return $this->photo_path && $disk->exists($this->photo_path)
-            ? $disk->path($this->photo_path)
-            : null;
+        return app(UploadStorage::class)->localPath(self::PHOTO_DISK, $this->photo_path);
     }
 
     /**
@@ -75,7 +80,7 @@ trait HasProtectedPhoto
      */
     public function photoDisk(): Filesystem
     {
-        return Storage::disk('local');
+        return Storage::disk(self::PHOTO_DISK);
     }
 
     /**

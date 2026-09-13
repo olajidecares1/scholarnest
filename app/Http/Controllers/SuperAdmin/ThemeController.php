@@ -6,13 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\BrandingImage;
 use App\Models\Setting;
+use App\Rules\UploadedImage;
+use App\Services\Uploads\ImageProcessor;
+use App\Services\Uploads\ImageRejected;
+use App\Services\Uploads\UploadStorage;
 use App\Support\StoredUpload;
 use App\Support\ThemePreset;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ThemeController extends Controller
@@ -46,9 +52,7 @@ class ThemeController extends Controller
             // it refuses SVG unless allow_svg is passed. Advertising a format
             // that is silently rejected is how somebody spends an afternoon
             // wondering why their logo will not upload.
-            'logo' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
-        ], [
-            'logo.max' => 'The logo may not be larger than 2MB.',
+            'logo' => UploadedImage::rules(ImageProfile::Logo, required: true),
         ]);
 
         $settings = Setting::current();
@@ -56,7 +60,7 @@ class ThemeController extends Controller
         $previous = $settings->logo_path;
 
         $file = $request->file('logo');
-        $path = $this->storeBrandingImage($file, 'logo');
+        $path = $this->storeBrandingImage($file, 'logo', ImageProfile::Logo, 'logo');
 
         $settings->update(['logo_path' => $path]);
 
@@ -116,7 +120,14 @@ class ThemeController extends Controller
         $previous = $settings->favicon_path;
 
         $file = $request->file('favicon');
-        $path = $this->storeBrandingImage($file, 'favicon');
+        // A PNG is processed like any image; an ICO holds several sizes in one
+        // file and is kept exactly as uploaded.
+        $path = $this->storeBrandingImage(
+            $file,
+            'favicon',
+            $file->getMimeType() === 'image/png' ? ImageProfile::Favicon : null,
+            'favicon',
+        );
 
         $settings->update(['favicon_path' => $path]);
 
@@ -145,13 +156,32 @@ class ThemeController extends Controller
      * subscription invoice PDF on a server where it survives, but nothing
      * depends on the write succeeding.
      */
-    private function storeBrandingImage(UploadedFile $file, string $kind): string
+    private function storeBrandingImage(UploadedFile $file, string $kind, ?ImageProfile $profile, string $field): string
     {
-        $path = BrandingImage::DIRECTORY.'/'.StoredUpload::name($file, $kind.'-'.Str::random(8));
+        $stem = $kind.'-'.Str::random(8);
 
-        Storage::disk('public')->putFileAs(BrandingImage::DIRECTORY, $file, basename($path));
+        if ($profile === null) {
+            $path = BrandingImage::DIRECTORY.'/'.StoredUpload::name($file, $stem);
+            $bytes = (string) file_get_contents((string) $file->getRealPath());
+        } else {
+            // Upright, within size, transparency kept, metadata removed - the
+            // same processing every other image upload gets.
+            try {
+                $image = app(ImageProcessor::class)->process((string) $file->getRealPath(), $profile);
+            } catch (ImageRejected $e) {
+                throw ValidationException::withMessages([$field => $e->getMessage()]);
+            }
 
-        BrandingImage::remember($path, $file);
+            $path = BrandingImage::DIRECTORY.'/'.$stem.'.'.$image->extension;
+            $bytes = $image->bytes;
+        }
+
+        // The disk copy is a convenience, written only where it will last.
+        if (UploadStorage::isPersistent('public')) {
+            Storage::disk('public')->put($path, $bytes);
+        }
+
+        BrandingImage::remember($path, $bytes);
 
         return $path;
     }

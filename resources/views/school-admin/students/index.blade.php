@@ -272,7 +272,7 @@
                         name="photo"
                         id="student_photo"
                         label="Passport Photograph"
-                        helper="Optional. Take one with the camera or upload a JPG, PNG or WebP up to 5MB. Leave blank to keep the existing one when editing."
+                        helper="Optional. Take one with the camera or upload a JPG, PNG or WebP up to 10MB. Leave blank to keep the existing one when editing."
                     />
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">

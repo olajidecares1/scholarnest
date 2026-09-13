@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PlanFeature;
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
+use App\Services\Uploads\UploadStorage;
 use App\Support\AcademicSession;
 use App\Support\HasUuidRouteKey;
 use App\Support\PrincipalSignature;
@@ -274,12 +275,12 @@ class School extends Model
 
     public function logoUrl(): ?string
     {
-        return $this->logo_path ? Storage::disk('public')->url($this->logo_path) : null;
+        return UploadStorage::publicUrl($this->logo_path);
     }
 
     public function faviconUrl(): ?string
     {
-        return $this->favicon_path ? Storage::disk('public')->url($this->favicon_path) : null;
+        return UploadStorage::publicUrl($this->favicon_path);
     }
 
     /**
@@ -318,7 +319,8 @@ class School extends Model
      */
     public function stampAbsolutePath(): ?string
     {
-        return $this->hasStamp() ? Storage::disk('local')->path($this->stamp_path) : null;
+        // A real file from whichever disk holds it - see UploadStorage::localPath().
+        return $this->hasStamp() ? app(UploadStorage::class)->localPath('local', $this->stamp_path) : null;
     }
 
     /**
@@ -341,9 +343,8 @@ class School extends Model
      */
     public function logoAbsolutePath(): ?string
     {
-        return $this->logo_path && Storage::disk('public')->exists($this->logo_path)
-            ? Storage::disk('public')->path($this->logo_path)
-            : null;
+        // A real file from whichever disk holds it - see UploadStorage::localPath().
+        return app(UploadStorage::class)->localPath('public', $this->logo_path);
     }
 
     /**

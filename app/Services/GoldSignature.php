@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\Uploads\UploadStorage;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -107,7 +108,8 @@ class GoldSignature
     {
         $path = $this->pathFor($sourcePath);
 
-        return $path ? Storage::disk('local')->path($path) : null;
+        // A real file from whichever disk holds it - see UploadStorage::localPath().
+        return $path ? app(UploadStorage::class)->localPath('local', $path) : null;
     }
 
     /**

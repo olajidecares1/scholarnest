@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use App\Services\Uploads\UploadStorage;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\SchoolGalleryImageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class SchoolGalleryImage extends Model
 {
@@ -36,6 +36,6 @@ class SchoolGalleryImage extends Model
 
     public function imageUrl(): string
     {
-        return Storage::disk('public')->url($this->image_path);
+        return UploadStorage::publicUrl($this->image_path);
     }
 }

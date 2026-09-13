@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Storage;
+use App\Services\Uploads\UploadStorage;
 use Illuminate\Support\Str;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Table;
@@ -110,7 +110,7 @@ class CbtDocxTextExtractor
             }
 
             $path = $destinationDir.'/'.(string) Str::uuid().'.'.$extension;
-            Storage::disk('public')->put($path, $contents);
+            app(UploadStorage::class)->putContents('public', $path, $contents);
             $extracted[] = $path;
         }
 

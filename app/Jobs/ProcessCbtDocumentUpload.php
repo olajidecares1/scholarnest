@@ -9,6 +9,7 @@ use App\Models\CbtSubject;
 use App\Services\CbtDocumentImportService;
 use App\Services\DocumentExtraction\ExtractionResult;
 use App\Services\DocumentExtraction\QuestionExtractionProvider;
+use App\Services\Uploads\UploadStorage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -98,6 +99,10 @@ class ProcessCbtDocumentUpload implements ShouldQueue
                 'Document extraction failed. Please check the document format and try again. '
                 .'The file is stored safely — it does not need to be uploaded again.'
             );
+        } finally {
+            // A worker does not end between jobs, so the temporary local copy
+            // of a document held in object storage is removed here.
+            UploadStorage::releaseLocalCopies();
         }
     }
 

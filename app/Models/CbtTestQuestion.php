@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Services\Uploads\UploadStorage;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\CbtTestQuestionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 class CbtTestQuestion extends Model
 {
@@ -74,6 +74,6 @@ class CbtTestQuestion extends Model
 
     public function imageUrl(): ?string
     {
-        return $this->image_path ? Storage::disk('public')->url($this->image_path) : null;
+        return UploadStorage::publicUrl($this->image_path);
     }
 }

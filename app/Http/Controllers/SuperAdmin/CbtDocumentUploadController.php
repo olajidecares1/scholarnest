@@ -13,7 +13,7 @@ use App\Models\CbtSubject;
 use App\Services\CbtDocumentImportService;
 use App\Services\CbtExtractionAvailability;
 use App\Services\QueueWorkerHealth;
-use App\Support\StoredUpload;
+use App\Services\Uploads\UploadStorage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,7 +58,7 @@ class CbtDocumentUploadController extends Controller
         // stored name comes from the content (StoredUpload). The validation
         // rule above has already restricted this to the two we read.
         $extension = strtolower((string) $file->getClientOriginalExtension());
-        $path = $file->storeAs('cbt-uploads/documents', StoredUpload::name($file), 'local');
+        $path = app(UploadStorage::class)->storeFile($file, 'local', 'cbt-uploads/documents', 'file');
 
         $upload = CbtDocumentUpload::create([
             'uploaded_by' => $request->user()->id,

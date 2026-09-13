@@ -66,7 +66,7 @@
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Logo</h2>
             {{-- No SVG: ThemeController refuses it, so offering it here only
                  sends somebody to a validation error. --}}
-            <p class="field-hint mt-1">PNG or JPG. Max 2MB.</p>
+            <p class="field-hint mt-1">PNG, JPG or WebP. Max 10MB.</p>
 
             <div class="mt-4 flex items-center gap-4">
                 <span class="flex h-16 w-16 items-center justify-center rounded-[5px] border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900 lg:rounded-[10px]">
@@ -82,7 +82,7 @@
                     <input
                         type="file"
                         name="logo"
-                        accept=".png,.jpg,.jpeg"
+                        accept=".png,.jpg,.jpeg,.webp"
                         required
                         class="flex-1"
                     >

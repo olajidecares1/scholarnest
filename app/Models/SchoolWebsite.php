@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use App\Services\Uploads\UploadStorage;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\SchoolWebsiteFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class SchoolWebsite extends Model
 {
@@ -109,12 +109,12 @@ class SchoolWebsite extends Model
 
     public function heroImageUrl(): ?string
     {
-        return $this->hero_image_path ? Storage::disk('public')->url($this->hero_image_path) : null;
+        return UploadStorage::publicUrl($this->hero_image_path);
     }
 
     public function aboutImageUrl(): ?string
     {
-        return $this->about_image_path ? Storage::disk('public')->url($this->about_image_path) : null;
+        return UploadStorage::publicUrl($this->about_image_path);
     }
 
     /**
@@ -125,7 +125,7 @@ class SchoolWebsite extends Model
      */
     public function newsEventsCardImageUrl(): ?string
     {
-        return $this->news_events_card_image_path ? Storage::disk('public')->url($this->news_events_card_image_path) : null;
+        return UploadStorage::publicUrl($this->news_events_card_image_path);
     }
 
     /**
@@ -134,7 +134,7 @@ class SchoolWebsite extends Model
      */
     public function academicsCardImageUrl(): ?string
     {
-        return $this->academics_card_image_path ? Storage::disk('public')->url($this->academics_card_image_path) : null;
+        return UploadStorage::publicUrl($this->academics_card_image_path);
     }
 
     /**
@@ -145,12 +145,12 @@ class SchoolWebsite extends Model
      */
     public function aboutCardImageUrl(): ?string
     {
-        return $this->about_card_image_path ? Storage::disk('public')->url($this->about_card_image_path) : null;
+        return UploadStorage::publicUrl($this->about_card_image_path);
     }
 
     public function principalPhotoUrl(): ?string
     {
-        return $this->principal_photo_path ? Storage::disk('public')->url($this->principal_photo_path) : null;
+        return UploadStorage::publicUrl($this->principal_photo_path);
     }
 
     public function campusVideoEmbedUrl(): ?string

@@ -9,8 +9,9 @@ use App\Models\HeroSlide;
 use App\Models\NavLink;
 use App\Models\School;
 use App\Models\SchoolGalleryImage;
-use App\Services\ImageOptimizer;
-use App\Support\StoredUpload;
+use App\Rules\UploadedImage;
+use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use App\Support\WebsiteTypography;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class WebsiteController extends Controller
 
     private const PAGES = ['home', 'about', 'admissions', 'contact', 'footer'];
 
-    public function __construct(private readonly ImageOptimizer $optimizer) {}
+    public function __construct(private readonly UploadStorage $uploads) {}
 
     public function edit(Request $request): View
     {
@@ -164,7 +165,7 @@ class WebsiteController extends Controller
             'topbar_link_url' => ['nullable', 'string', 'max:255'],
             'whats_happening_title' => ['nullable', 'string', 'max:100'],
             'show_whats_happening' => ['boolean'],
-            'hero_image' => ['nullable', 'image', 'max:5120'],
+            'hero_image' => UploadedImage::rules(ImageProfile::Website),
         ]);
 
         $validated['show_whats_happening'] = $request->boolean('show_whats_happening', true);
@@ -194,7 +195,7 @@ class WebsiteController extends Controller
             'mission' => ['nullable', 'string', 'max:500'],
             'vision' => ['nullable', 'string', 'max:500'],
             'values' => ['nullable', 'string', 'max:500'],
-            'about_image' => ['nullable', 'image', 'max:5120'],
+            'about_image' => UploadedImage::rules(ImageProfile::Website),
 
             // The Principal's Desk and the Quote of the Week. The columns were
             // here all along - the section that showed them was removed and
@@ -202,14 +203,14 @@ class WebsiteController extends Controller
             'principal_name' => ['nullable', 'string', 'max:150'],
             'principal_title' => ['nullable', 'string', 'max:120'],
             'principal_message' => ['nullable', 'string', 'max:2000'],
-            'principal_photo' => ['nullable', 'image', 'max:5120'],
+            'principal_photo' => UploadedImage::rules(ImageProfile::Portrait),
             'quote_text' => ['nullable', 'string', 'max:500'],
             'quote_author' => ['nullable', 'string', 'max:150'],
             'quote_author_role' => ['nullable', 'string', 'max:120'],
         ]);
 
         $aboutImagePath = $this->storeImage($request, 'about_image', 'website');
-        $principalPhotoPath = $this->storeImage($request, 'principal_photo', 'website');
+        $principalPhotoPath = $this->storeImage($request, 'principal_photo', 'website', ImageProfile::Portrait);
 
         $website->update([
             ...collect($validated)->except(['about_image', 'principal_photo'])->all(),
@@ -257,7 +258,7 @@ class WebsiteController extends Controller
         $school = $request->user()->school;
 
         $validated = $request->validate([
-            'image' => ['required', 'image', 'max:5120'],
+            'image' => UploadedImage::rules(ImageProfile::Website, required: true),
             'caption' => ['nullable', 'string', 'max:150'],
         ]);
 
@@ -287,7 +288,7 @@ class WebsiteController extends Controller
         $school = $request->user()->school;
 
         $request->validate([
-            'image' => ['required', 'image', 'max:8192'],
+            'image' => UploadedImage::rules(ImageProfile::Website, required: true),
         ]);
 
         $path = $this->storeImage($request, 'image', 'hero-slides');
@@ -488,11 +489,10 @@ class WebsiteController extends Controller
             // 1400px section is being blown up more than twice, and no amount
             // of care elsewhere makes an upscaled photograph look sharp - it
             // just looks soft, which is exactly how the first one did.
-            'background_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120', 'dimensions:min_width=1200,min_height=500'],
+            'background_image' => [...UploadedImage::rules(ImageProfile::Website), 'dimensions:min_width=1200,min_height=500'],
             'remove' => ['nullable', 'boolean'],
         ], [
             'background_image.dimensions' => 'That image is too small to stay sharp across the full width of the page. Please choose one at least 1200 by 500 pixels — wider is better.',
-            'background_image.max' => 'That image is larger than 5MB. Please choose a smaller one.',
         ]);
 
         if ($request->boolean('remove')) {
@@ -526,17 +526,12 @@ class WebsiteController extends Controller
         return back()->with('status', $savedMessage);
     }
 
-    private function storeImage(Request $request, string $field, string $folder): ?string
+    private function storeImage(Request $request, string $field, string $folder, ImageProfile $profile = ImageProfile::Website): ?string
     {
         if (! $request->hasFile($field)) {
             return null;
         }
 
-        $file = $request->file($field);
-        $path = $file->storeAs($folder, StoredUpload::name($file), 'public');
-
-        $this->optimizer->optimize(Storage::disk('public')->path($path), (string) $file->getMimeType());
-
-        return $path;
+        return $this->uploads->storeImage($request->file($field), 'public', $folder, $profile, $field)->path;
     }
 }
