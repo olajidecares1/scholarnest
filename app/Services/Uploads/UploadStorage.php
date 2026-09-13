@@ -25,10 +25,11 @@ use Illuminate\Validation\ValidationException;
  *              evidence. Served only by controllers that check who is asking.
  *
  * On a laptop both are directories under storage/. On Laravel Cloud the
- * filesystem is wiped by every deploy and differs between instances, so both
- * must be object storage - see config/filesystems.php and docs/PRODUCTION.md.
- * Nothing here assumes either: every write and read goes through the disk,
- * never through a filesystem path, so the same code is correct on both.
+ * filesystem is wiped by every deploy and differs between instances, so each
+ * disk is an object storage bucket when one is attached, and the DATABASE when
+ * not (App\Support\Storage\DatabaseStorageFallback). Nothing here assumes any
+ * of the three: every write and read goes through the disk, never through a
+ * filesystem path, so the same code is correct on all of them.
  *
  * WHAT USED TO GO WRONG, and why this class exists:
  *
@@ -37,8 +38,9 @@ use Illuminate\Validation\ValidationException;
  *    and the optimiser destroyed PNG transparency and left phone photographs
  *    sideways. Images now go through ImageProcessor BEFORE they are written.
  *  - On Laravel Cloud without object storage, uploads reported success and
- *    were never reachable again. Now the upload is refused, with a message,
- *    until storage is configured - a clear failure instead of a silent one.
+ *    were never reachable again. They now go to the database there. Should a
+ *    disk ever still be a local directory on Laravel Cloud regardless, the
+ *    upload is refused with a message - a clear failure, never a silent one.
  *  - PDFs and ID cards read images through ->path(), which does not exist on
  *    object storage. localPath() now provides a real file from either kind.
  */
@@ -216,7 +218,9 @@ class UploadStorage
      *
      * False only on Laravel Cloud with a local-directory disk: that directory
      * is wiped by the next deploy, differs between instances, and is not
-     * served. Everywhere else a local disk is a real, lasting directory.
+     * served. Everywhere else a local disk is a real, lasting directory - and
+     * on Laravel Cloud such a disk is switched to the database at boot, so in
+     * practice this is a safety net that should never be false there.
      */
     public static function isPersistent(string $disk): bool
     {

@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\StoredFile;
 use App\Services\Uploads\UploadStorage;
+use App\Support\Storage\DatabaseStorageFallback;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -102,6 +104,15 @@ class CheckUploadStorage extends Command
 
         if (! $persistent) {
             $this->components->warn("  The \"{$disk}\" disk is a directory Laravel Cloud wipes on every deploy. Attach an object storage bucket with the disk name \"{$disk}\", then redeploy.");
+        }
+
+        $inDatabase = Schema::hasTable('stored_files') ? StoredFile::where('disk', $disk)->count() : 0;
+
+        if ($driver === DatabaseStorageFallback::DRIVER) {
+            $this->components->twoColumnDetail('  files kept in the database', (string) $inDatabase);
+            $this->line('    No bucket is attached, so uploads are kept in the database. That works; attach a bucket named "'.$disk.'" when you can, then run uploads:move-to-buckets.');
+        } elseif ($inDatabase > 0) {
+            $this->components->warn("  {$inDatabase} file(s) for this disk are still in the database from before a bucket was attached. Run `php artisan uploads:move-to-buckets`.");
         }
 
         $probe = '.upload-check/'.Str::uuid().'.txt';

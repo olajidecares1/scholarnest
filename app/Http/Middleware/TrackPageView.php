@@ -16,7 +16,12 @@ class TrackPageView
      *
      * @var list<string>
      */
-    private const EXCLUDED_ROUTE_NAME_PREFIXES = ['super-admin.', 'notifications.'];
+    /**
+     * Routes that are not pages. The file routes serve images a page asks for
+     * - a school logo, a photograph, an icon - and counting each one recorded
+     * several "page views" for every page anybody opened.
+     */
+    private const EXCLUDED_ROUTE_NAME_PREFIXES = ['super-admin.', 'notifications.', 'stored-files.', 'branding.', 'media.', 'pwa.'];
 
     /**
      * Handle an incoming request.

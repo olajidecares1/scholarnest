@@ -364,7 +364,10 @@ describe('one school can never reach another school\'s files', function () {
 });
 
 describe('production storage', function () {
-    test('on Laravel Cloud with no bucket attached an upload is refused, not silently lost', function () {
+    test('if a disk were ever still a local directory on Laravel Cloud, the upload is refused, not silently lost', function () {
+        // A safety net only. On Laravel Cloud such a disk is switched to the
+        // database at boot (DatabaseStorageFallback) - this runs without that
+        // switch, to prove nothing can reach a deploy-wiped directory regardless.
         $_SERVER['LARAVEL_CLOUD'] = '1';
 
         $this->actingAs($this->admin)
@@ -386,7 +389,7 @@ describe('production storage', function () {
             ->and(UploadStorage::isPersistent('local'))->toBeFalse();
     });
 
-    test('uploads:check passes here and fails on Laravel Cloud without buckets', function () {
+    test('uploads:check passes here and fails for a local directory on Laravel Cloud', function () {
         $this->artisan('uploads:check')->assertExitCode(0);
 
         $_SERVER['LARAVEL_CLOUD'] = '1';

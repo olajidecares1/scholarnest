@@ -7,6 +7,7 @@ use App\Services\DocumentExtraction\QuestionExtractionProvider;
 use App\Services\QueueWorkerHealth;
 use App\Support\PortalLoginRedirect;
 use App\Support\ProductionConfiguration;
+use App\Support\Storage\DatabaseStorageFallback;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -35,6 +36,13 @@ class AppServiceProvider extends ServiceProvider
         // swapped in later by changing one line, without the local extractor
         // ever ceasing to be the default that works on its own.
         $this->app->bind(QuestionExtractionProvider::class, LocalQuestionExtractor::class);
+
+        // Uploads live in the database on Laravel Cloud until object storage
+        // buckets are attached, instead of on a filesystem every deploy wipes.
+        // Here, in register(), so it is settled before anything resolves a
+        // disk - and after Laravel has already applied any attached bucket.
+        DatabaseStorageFallback::registerDriver($this->app);
+        DatabaseStorageFallback::apply();
     }
 
     /**
