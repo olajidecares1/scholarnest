@@ -76,18 +76,20 @@ that list once no verified domain relies on an old prefix.
 | --- | --- | --- |
 | `SESSION_DRIVER` | `redis` (or `database`) | `file` does not survive more than one web node. |
 | `CACHE_STORE` | `redis` | Same reason. |
-| `QUEUE_CONNECTION` | `redis` (or `database`) | Must not be `sync`: CBT extraction would then run inside the web request. |
+| `QUEUE_CONNECTION` | `redis` (or `database`) | Used by a worker when one is running. CBT extraction works without one. |
 | `MAIL_MAILER` | a real transport | Password resets, result notices and credential handovers all go by mail. |
 | `LOG_LEVEL` | `warning` | `debug` writes request detail to disk indefinitely. |
 
-## A queue worker must be running
+## A queue worker is optional
 
-CBT extraction is queued. With no worker, uploads sit at "Pending" forever,
-`App\Services\QueueWorkerHealth` detects this and says so on the page, but
-detecting it is not the same as fixing it.
+CBT extraction does not need one. `App\Services\CbtExtractionRunner` sends a
+paper to the queue only when a worker's heartbeat shows one is alive. With no
+worker, the web server reads the paper straight after sending the page back,
+and the upload page reads anything still waiting when it is opened or polled.
 
-`deploy/supervisor/akademicnest-worker.conf` is the supervisor program that keeps
-one up. Install it, then:
+A worker is still worth running on a busy server, so large PDFs are read away
+from the web processes. `deploy/supervisor/akademicnest-worker.conf` is the
+supervisor program that keeps one up. Install it, then:
 
 ```
 supervisorctl reread && supervisorctl update && supervisorctl start akademicnest-worker:*

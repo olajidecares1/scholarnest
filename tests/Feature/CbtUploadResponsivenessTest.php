@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Services\QueueWorkerHealth;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
@@ -212,12 +213,17 @@ test('the person told about a stalled queue is told something they can act on', 
 });
 
 test('both uploaders report a stall rather than spinning', function () {
+    // The page reads a waiting upload itself; faked here so the upload stays
+    // waiting long enough to be reported.
+    Bus::fake();
+
     $team = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
 
     $upload = CbtDocumentUpload::factory()->create([
         'uploaded_by' => $team->id,
         'status' => CbtDocumentUploadStatus::Pending,
     ]);
+    $upload->forceFill(['updated_at' => now()->subMinutes(5)])->saveQuietly();
 
     DB::table('jobs')->insert([
         'queue' => 'default',

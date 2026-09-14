@@ -123,9 +123,8 @@ class QueueWorkerHealth
                 ."Start a worker with \"php artisan queue:work\" (or run \"composer run dev\", which starts one alongside the server). {$this->pendingJobs()} job(s) are waiting.";
         }
 
-        return 'Extraction has not started yet because the extraction service is not running. '
-            .'Your document has been saved. It will be processed once the service is back, '
-            .'and you do not need to upload it again. Please tell the AkademicNest Team if it stays this way.';
+        return 'Your document has been saved, but it has not been read yet. Press Try again to read it now. '
+            .'You do not need to upload it again. Please tell the AkademicNest Team if it stays this way.';
     }
 
     /**
@@ -135,6 +134,17 @@ class QueueWorkerHealth
     public function forget(): void
     {
         Cache::forget(self::CACHE_KEY);
+    }
+
+    /**
+     * Whether a worker has stamped its heartbeat recently.
+     *
+     * The question the extraction runner asks before trusting the queue with a
+     * document. On the sync driver there is no worker by definition.
+     */
+    public function hasLiveWorker(): bool
+    {
+        return config('queue.default') !== 'sync' && $this->heartbeatIsRecent();
     }
 
     private function heartbeatIsRecent(): bool

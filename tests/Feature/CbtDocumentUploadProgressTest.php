@@ -175,32 +175,116 @@ test('the status endpoint reports a document that is still being read', function
         ]);
 });
 
-test('the status endpoint says so when nothing is working the queue', function () {
+test('THE BUG: with no worker running, a waiting upload is read when its status is checked', function () {
+    // Production had no queue worker, so an upload sat at "Extraction has not
+    // started" for ever and "Queue it again" only wrote another job nothing
+    // would run. Now the page reads it itself.
+    Bus::fake();
     config(['queue.default' => 'database']);
-    app(QueueWorkerHealth::class)->forget();
-
-    DB::table('jobs')->insert([
-        'queue' => 'default',
-        'payload' => '{}',
-        'attempts' => 0,
-        'reserved_at' => null,
-        'available_at' => now()->subHour()->timestamp,
-        'created_at' => now()->subHour()->timestamp,
-    ]);
 
     $upload = CbtDocumentUpload::factory()->create(['status' => CbtDocumentUploadStatus::Pending]);
+    $upload->forceFill(['updated_at' => now()->subMinute()])->saveQuietly();
+
+    $this->actingAs(User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]))
+        ->getJson(route('super-admin.cbt.uploads.status', $upload))
+        ->assertOk();
+
+    Bus::assertDispatchedSync(ProcessCbtDocumentUpload::class, fn ($job) => $job->upload->is($upload));
+});
+
+test('an upload still waiting long after it was tried is reported as stalled', function () {
+    Bus::fake();
+    config(['queue.default' => 'database']);
+
+    $upload = CbtDocumentUpload::factory()->create(['status' => CbtDocumentUploadStatus::Pending]);
+    $upload->forceFill(['updated_at' => now()->subMinutes(5)])->saveQuietly();
 
     $this->actingAs(User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]))
         ->getJson(route('super-admin.cbt.uploads.status', $upload))
         ->assertOk()
-        ->assertJson(['stalled' => true, 'in_progress' => true])
+        ->assertJson(['stalled' => true, 'in_progress' => true]);
+});
 
-        // The message used to read "Nothing is processing jobs" and stopped
-        // there, which told the reader what was wrong and nothing about what
-        // to do. The AkademicNest Team can start a worker, so they are now told
-        // which command does it, that is what this asserts, rather than a
-        // particular sentence.
-        ->assertJsonPath('message', fn (string $message) => str_contains($message, 'queue:work'));
+test('with no worker running, a new upload is read straight after the page is sent', function () {
+    Bus::fake();
+    Storage::fake('local');
+    config(['queue.default' => 'database']);
+
+    $test = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->postJson(route('staff.cbt.tests.uploads.store', [$this->school, $test]), [
+            'file' => UploadedFile::fake()->create('questions.pdf', 100, 'application/pdf'),
+        ])
+        ->assertCreated();
+
+    Bus::assertDispatchedAfterResponse(ProcessCbtTestDocumentUpload::class);
+});
+
+test('with a worker running, a new upload goes to the queue', function () {
+    Bus::fake();
+    Storage::fake('local');
+    config(['queue.default' => 'database']);
+    QueueWorkerHealth::heartbeat();
+
+    $test = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->postJson(route('staff.cbt.tests.uploads.store', [$this->school, $test]), [
+            'file' => UploadedFile::fake()->create('questions.pdf', 100, 'application/pdf'),
+        ])
+        ->assertCreated();
+
+    Bus::assertDispatched(ProcessCbtTestDocumentUpload::class);
+    Bus::assertNotDispatchedAfterResponse(ProcessCbtTestDocumentUpload::class);
+});
+
+test('an upload is actually read with no worker at all, end to end', function () {
+    Storage::fake('local');
+    config(['queue.default' => 'database']);
+
+    $test = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->postJson(route('staff.cbt.tests.uploads.store', [$this->school, $test]), [
+            'file' => UploadedFile::fake()->create('questions.pdf', 100, 'application/pdf'),
+        ])
+        ->assertCreated();
+
+    // Not a readable paper, so it fails, but it was read: nothing is left
+    // waiting for a worker that does not exist.
+    expect(CbtTestDocumentUpload::firstOrFail()->status)->not->toBe(CbtDocumentUploadStatus::Pending);
+});
+
+test('an upload stuck reading far longer than any document takes is released to try again', function () {
+    config(['queue.default' => 'database']);
+
+    $test = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
+    $upload = CbtTestDocumentUpload::factory()->create([
+        'cbt_test_id' => $test->id,
+        'staff_id' => $this->teacher->id,
+        'status' => CbtDocumentUploadStatus::Processing,
+    ]);
+    $upload->forceFill(['updated_at' => now()->subMinutes(20)])->saveQuietly();
+
+    $this->actingAs($this->teacher, 'staff')
+        ->getJson(route('staff.cbt.tests.uploads.status', [$this->school, $test, $upload]))
+        ->assertOk()
+        ->assertJson(['status' => 'failed', 'in_progress' => false])
+        ->assertJsonPath('error', fn (string $error) => str_contains($error, 'interrupted'));
+});
+
+test('a job a worker picks up after the page already read the paper does nothing', function () {
+    $test = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
+    $upload = CbtTestDocumentUpload::factory()->create([
+        'cbt_test_id' => $test->id,
+        'staff_id' => $this->teacher->id,
+        'status' => CbtDocumentUploadStatus::Completed,
+    ]);
+
+    app()->call([new ProcessCbtTestDocumentUpload($upload), 'handle']);
+
+    expect($upload->fresh()->status)->toBe(CbtDocumentUploadStatus::Completed);
 });
 
 test('the status endpoint reports a finished document as no longer in progress', function () {
@@ -391,45 +475,21 @@ test('extraction needs no API key at all', function () {
         ->and(app(CbtExtractionAvailability::class)->isReady())->toBeTrue();
 });
 
-test('a stalled queue is reported', function () {
-    config(['queue.default' => 'database']);
-    app(QueueWorkerHealth::class)->forget();
+test('no worker is no longer a reason to warn before uploading', function () {
+    stallTheQueue();
 
-    DB::table('jobs')->insert([
-        'queue' => 'default',
-        'payload' => '{}',
-        'attempts' => 0,
-        'reserved_at' => null,
-        'available_at' => now()->subHour()->timestamp,
-        'created_at' => now()->subHour()->timestamp,
-    ]);
-
-    // The command belongs to the audience that can run it. This used to call
-    // warning() with no argument and expect the shell command back, which is
-    // exactly the behaviour that handed a teacher "php artisan queue:work".
-    $operatorWarning = app(CbtExtractionAvailability::class)->warning(canOperateTheServer: true);
-
-    expect($operatorWarning)->toContain('queue:work')
-        ->and($operatorWarning)->toContain('stored safely');
+    expect(app(CbtExtractionAvailability::class)->warning(canOperateTheServer: true))->toBeNull()
+        ->and(app(CbtExtractionAvailability::class)->warning())->toBeNull()
+        ->and(app(CbtExtractionAvailability::class)->isReady())->toBeTrue();
 });
 
-test('the Super Admin upload page warns when nothing is working the queue', function () {
-    config(['queue.default' => 'database']);
-    app(QueueWorkerHealth::class)->forget();
-
-    DB::table('jobs')->insert([
-        'queue' => 'default',
-        'payload' => '{}',
-        'attempts' => 0,
-        'reserved_at' => null,
-        'available_at' => now()->subHour()->timestamp,
-        'created_at' => now()->subHour()->timestamp,
-    ]);
+test('the Super Admin upload page does not warn when no worker is running', function () {
+    stallTheQueue();
 
     $this->actingAs(User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]))
         ->get(route('super-admin.cbt.uploads.index'))
         ->assertOk()
-        ->assertSee('queue:work');
+        ->assertDontSee('is not running');
 });
 
 test('a healthy server shows no warning on the upload page', function () {
@@ -515,7 +575,7 @@ test('both are told the document is safe and offered a retry', function () {
         ->get(route('staff.cbt.tests.uploads.show', [$this->school, $test, $upload]))
         ->assertOk()
         ->assertSee('Nothing has been lost', false)
-        ->assertSee('Queue it again', false);
+        ->assertSee('Try again', false);
 });
 
 test('the panel shows no shell command unless it is told to', function () {
@@ -534,15 +594,9 @@ test('the pre-upload warning does not hand a teacher a shell command either', fu
     // one; this is the notice shown BEFORE uploading, on the test page.
     stallTheQueue();
 
-    $availability = app(CbtExtractionAvailability::class);
-
-    expect($availability->warning())
-        ->not->toContain('php artisan queue:work')
-        ->not->toContain('composer run dev')
-        ->toContain('let the AkademicNest Team know');
-
-    expect($availability->warning(canOperateTheServer: true))
-        ->toContain('php artisan queue:work');
+    // There is no warning left to leak a command through: extraction no longer
+    // depends on a worker, so nothing is shown before uploading.
+    expect(app(CbtExtractionAvailability::class)->warning())->toBeNull();
 });
 
 test('and says nothing at all when a worker is running', function () {

@@ -73,6 +73,12 @@ class ProcessCbtTestDocumentUpload implements ShouldQueue
             return;
         }
 
+        // Read by the web server when no worker is running: give it the same
+        // time a worker would have, rather than the web request's default.
+        if (! app()->runningInConsole()) {
+            @set_time_limit($this->timeout);
+        }
+
         try {
             $test = $this->upload->test;
 
@@ -143,7 +149,10 @@ class ProcessCbtTestDocumentUpload implements ShouldQueue
         return DB::transaction(function (): bool {
             $fresh = CbtTestDocumentUpload::where('id', $this->upload->id)->lockForUpdate()->first();
 
-            if ($fresh === null || $fresh->status === CbtDocumentUploadStatus::Processing) {
+            // Only a waiting upload is taken. A paper the web server has already
+            // read must not be read again, and its questions replaced, by a job
+            // a worker picks up later.
+            if ($fresh === null || $fresh->status !== CbtDocumentUploadStatus::Pending) {
                 return false;
             }
 

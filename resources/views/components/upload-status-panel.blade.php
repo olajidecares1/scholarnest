@@ -139,9 +139,8 @@
             </div>
 
             <p class="mt-2 text-xs text-amber-800 dark:text-amber-400">
-                The document uploaded successfully and is safely stored, but the background service that reads it is not
-                currently running, so extraction is queued and waiting. Nothing has been lost. It will run as soon as the
-                service is started.
+                The document uploaded successfully and is safely stored, but it has not been read yet.
+                Nothing has been lost. Press Try again to read it now.
             </p>
 
             @if ($canOperateTheServer)
@@ -164,7 +163,7 @@
                 @csrf
                 <button type="submit" class="flex items-center gap-1.5 rounded-[8px] border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 dark:border-amber-700 dark:bg-transparent dark:text-amber-300">
                     <i class="fa-solid fa-rotate-right text-[11px]"></i>
-                    Queue it again
+                    Try again
                 </button>
             </form>
         </div>

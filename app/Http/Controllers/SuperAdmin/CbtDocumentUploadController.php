@@ -12,6 +12,7 @@ use App\Models\CbtExamBody;
 use App\Models\CbtSubject;
 use App\Services\CbtDocumentImportService;
 use App\Services\CbtExtractionAvailability;
+use App\Services\CbtExtractionRunner;
 use App\Services\QueueWorkerHealth;
 use App\Services\Uploads\UploadStorage;
 use Illuminate\Http\JsonResponse;
@@ -45,7 +46,7 @@ class CbtDocumentUploadController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse|JsonResponse
+    public function store(Request $request, CbtExtractionRunner $runner): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'file' => $this->documentRules(),
@@ -71,7 +72,7 @@ class CbtDocumentUploadController extends Controller
             'status' => CbtDocumentUploadStatus::Pending,
         ]);
 
-        ProcessCbtDocumentUpload::dispatch($upload);
+        $runner->start(new ProcessCbtDocumentUpload($upload));
 
         AuditLog::record('cbt.document.uploaded', "Uploaded \"{$upload->original_filename}\" for CBT extraction.", $upload);
 
@@ -83,11 +84,13 @@ class CbtDocumentUploadController extends Controller
         }
 
         return redirect()->route('super-admin.cbt.uploads.show', $upload)
-            ->with('status', 'Document uploaded. Extraction is running in the background.');
+            ->with('status', 'Document uploaded. Reading the questions now.');
     }
 
-    public function show(CbtDocumentUpload $upload, QueueWorkerHealth $queue): View
+    public function show(CbtDocumentUpload $upload, CbtExtractionRunner $runner): View
     {
+        $runner->catchUp($upload, new ProcessCbtDocumentUpload($upload));
+
         $upload->load([
             'examBody',
             'subject',
@@ -95,7 +98,7 @@ class CbtDocumentUploadController extends Controller
         ]);
 
         return view('super-admin.cbt.uploads.show', [
-            'stalled' => $upload->status === CbtDocumentUploadStatus::Pending && ! $queue->isRunning(),
+            'stalled' => $runner->isStalled($upload),
             'upload' => $upload,
             'examBodies' => CbtExamBody::orderBy('name')->get(),
             'subjects' => CbtSubject::orderBy('name')->get(),
@@ -145,9 +148,11 @@ class CbtDocumentUploadController extends Controller
      * Deliberately thin: a status, a message, and whether to keep asking. The
      * page decides how to draw it.
      */
-    public function status(CbtDocumentUpload $upload, QueueWorkerHealth $queue): JsonResponse
+    public function status(CbtDocumentUpload $upload, CbtExtractionRunner $runner, QueueWorkerHealth $queue): JsonResponse
     {
-        $stalled = $upload->status === CbtDocumentUploadStatus::Pending && ! $queue->isRunning();
+        $runner->catchUp($upload, new ProcessCbtDocumentUpload($upload));
+
+        $stalled = $runner->isStalled($upload);
 
         return response()->json([
             'status' => $upload->status->value,
@@ -171,16 +176,15 @@ class CbtDocumentUploadController extends Controller
      * written for, where nothing was wrong with the upload and the queue
      * simply was not running.
      */
-    public function retry(CbtDocumentUpload $upload, QueueWorkerHealth $queue): RedirectResponse
+    public function retry(CbtDocumentUpload $upload, CbtExtractionRunner $runner): RedirectResponse
     {
         $upload->update([
             'status' => CbtDocumentUploadStatus::Pending,
             'error_message' => null,
         ]);
 
-        ProcessCbtDocumentUpload::dispatch($upload);
-        $queue->forget();
+        $runner->start(new ProcessCbtDocumentUpload($upload));
 
-        return back()->with('status', 'Extraction has been queued again.');
+        return back()->with('status', 'Reading the document again.');
     }
 }
