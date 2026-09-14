@@ -152,10 +152,10 @@ test('a person with the same details at two schools is asked which school, and s
     $this->assertAuthenticatedAs($atSecond, 'staff');
 });
 
-test('a school that was not offered cannot be chosen', function () {
+test('a school where these details open no account cannot be chosen', function () {
     $other = School::factory()->create(['is_active' => true]);
     activateSchool($other);
-    Staff::factory()->create(['school_id' => $other->id, 'staff_number' => 'TCH-200']);
+    Staff::factory()->create(['school_id' => $this->school->id, 'staff_number' => 'TCH-200']);
 
     $this->post(route('portal.attempt'), [
         'role' => 'staff',

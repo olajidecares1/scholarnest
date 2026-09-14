@@ -3,7 +3,10 @@
 namespace App\Http\Requests\Api\V1;
 
 use App\Http\Requests\Portal\LoginRequest;
+use App\Models\School;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
 /**
@@ -16,11 +19,12 @@ use Illuminate\Validation\Rule;
  * An API that reimplemented four guards' worth of sign-in would be four more
  * places for the rules to drift apart.
  *
- * Two differences from the web form:
+ * No school code is needed. As on the shared web sign-in, the school is found
+ * from the account itself. Two differences from the web form:
  *
- *   school_code is always required. On the web a Standard school is resolved
- *   from the domain the request arrived on; an API client has no domain to be
- *   recognised by, so it names its school every time.
+ *   When the same details open accounts at more than one school, the choice is
+ *   returned in the response rather than kept in a session, because an API
+ *   client has none. The client sends the same details again with "school".
  *
  *   The School Admin guard is not offered. There are no administrative
  *   endpoints yet, and a token that can be minted but not used is surface for
@@ -42,11 +46,24 @@ class IssueTokenRequest extends LoginRequest
             ...parent::rules(),
 
             'role' => ['required', Rule::in(self::API_GUARDS)],
-            'school_code' => ['required', 'string', 'max:20'],
 
             // Named so a person can recognise the entry in a list of their
             // own sessions and revoke the one they no longer have.
             'device_name' => ['required', 'string', 'max:100'],
         ];
+    }
+
+    /**
+     * @param  Collection<int, School>  $schools
+     */
+    protected function offerSchoolChoice(Collection $schools): never
+    {
+        throw new HttpResponseException(response()->json([
+            'message' => self::CHOICE_MESSAGE,
+            'errors' => ['school' => [self::CHOICE_MESSAGE]],
+            'schools' => $schools
+                ->map(fn (School $school) => ['school' => $school->portal_key, 'name' => $school->name])
+                ->values(),
+        ], 422));
     }
 }

@@ -40,7 +40,7 @@
                     <legend class="px-1 text-[11px] font-bold uppercase tracking-wide text-primary-700">Choose your school</legend>
                     @error('school')<p class="mb-2 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
                     <div class="space-y-2">
-                        @foreach ($schoolChoices['schools'] ?? [] as $key => $name)
+                        @foreach ($schoolChoices as $key => $name)
                             <label class="flex cursor-pointer items-center gap-2 rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 has-[:checked]:border-primary-500 has-[:checked]:text-primary-700">
                                 <input type="radio" name="school" value="{{ $key }}" class="text-primary-600" {{ old('school') === $key ? 'checked' : '' }} required>
                                 {{ $name }}

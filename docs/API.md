@@ -32,7 +32,6 @@ Content-Type: application/json
 
 {
   "role": "student",
-  "school_code": "GRN001",
   "login": "GRN001/001",
   "password": "…",
   "device_name": "Ada's phone"
@@ -42,7 +41,7 @@ Content-Type: application/json
 | Field | Notes |
 | --- | --- |
 | `role` | `student`, `guardian` or `staff` |
-| `school_code` | Always required. There is no domain for the API to recognise a school by, so a client names its school every time. |
+| `school` | Not needed on a first attempt. The school is found from the account. Send it only after a **422** that lists `schools`: the same details open accounts at more than one school, and the person picks one. |
 | `login` | Admission Number or email (student), email (guardian), Staff Number or email (staff) |
 | `device_name` | Shown to the person when they review their own sessions |
 

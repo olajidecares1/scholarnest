@@ -41,7 +41,6 @@ function tokenPayload(array $overrides = []): array
 {
     return [
         'role' => 'student',
-        'school_code' => 'GRN001',
         'login' => 'GRN001/001',
         'password' => 'Correct-Horse1!',
         'device_name' => "Ada's phone",
@@ -87,6 +86,53 @@ test('the token expires rather than lasting forever', function () {
 
     expect($expiry)->not->toBeNull()
         ->and(Carbon\Carbon::parse($expiry))->toBeBetween(now()->addDays(59), now()->addDays(61));
+});
+
+test('no school code is needed to get a token', function () {
+    $payload = tokenPayload();
+
+    expect($payload)->not->toHaveKey('school_code');
+
+    $this->postJson('/api/v1/tokens', $payload)
+        ->assertCreated()
+        ->assertJsonPath('account.role', 'student');
+});
+
+test('details that open accounts at two schools are answered with the choice, then a token', function () {
+    $second = School::factory()->create(['name' => 'Second School']);
+    $plan = Plan::where('key', PlanKey::Standard)->firstOrFail();
+    Subscription::factory()->create(['school_id' => $second->id, 'plan_id' => $plan->id, 'status' => SubscriptionStatus::Active]);
+
+    $twin = Student::factory()->create([
+        'school_id' => $second->id,
+        'admission_number' => 'GRN001/001',
+        'password' => Hash::make('Correct-Horse1!'),
+        'must_change_password' => false,
+    ]);
+
+    $choice = $this->postJson('/api/v1/tokens', tokenPayload())
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('school')
+        ->json('schools');
+
+    expect(collect($choice)->pluck('name')->sort()->values()->all())
+        ->toBe(collect([$this->school->name, 'Second School'])->sort()->values()->all());
+
+    $this->postJson('/api/v1/tokens', tokenPayload(['school' => $second->portal_key]))
+        ->assertCreated();
+
+    expect($twin->fresh()->tokens)->toHaveCount(1)
+        ->and($this->student->fresh()->tokens)->toHaveCount(0);
+});
+
+test('a school where the details open no account cannot be chosen', function () {
+    $other = School::factory()->create();
+
+    $this->postJson('/api/v1/tokens', tokenPayload(['school' => $other->portal_key]))
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('login');
+
+    expect($this->student->fresh()->tokens)->toHaveCount(0);
 });
 
 test('a wrong password is refused', function () {

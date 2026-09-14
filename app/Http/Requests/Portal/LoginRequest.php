@@ -6,6 +6,7 @@ use App\Models\School;
 use App\Services\PortalSchoolResolver;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -21,6 +22,8 @@ class LoginRequest extends FormRequest
      * attempt that found them and the one that picks one.
      */
     public const CHOICES_SESSION_KEY = 'portal_school_choices';
+
+    public const CHOICE_MESSAGE = 'Your details match an account at more than one school. Choose the school you want to sign in to.';
 
     private const MAX_ATTEMPTS = 5;
 
@@ -82,10 +85,6 @@ class LoginRequest extends FormRequest
                 ?? $this->refuse();
         }
 
-        if ($this->filled('school')) {
-            return $this->chosenSchool();
-        }
-
         $this->ensureIsNotRateLimited();
 
         $schools = app(PortalSchoolResolver::class)->schoolsFor(
@@ -102,6 +101,14 @@ class LoginRequest extends FormRequest
 
         RateLimiter::clear($this->throttleKey());
 
+        // A school picked from the list offered earlier. It is only accepted if
+        // these same details, password included, open an account there, so
+        // nothing about the choice is taken on trust.
+        if ($this->filled('school')) {
+            return $schools->firstWhere('portal_key', $this->string('school')->toString())
+                ?? $this->refuse();
+        }
+
         $active = $schools->where('is_active', true)->values();
 
         if ($schools->count() === 1 || $active->count() <= 1) {
@@ -111,50 +118,34 @@ class LoginRequest extends FormRequest
         // The same person, with the same password, at more than one school.
         // They have proved who they are, so they are shown only those schools
         // and asked which one they mean.
-        $this->session()->put(self::CHOICES_SESSION_KEY, [
-            'fingerprint' => $this->accountFingerprint(),
-            'schools' => $active->mapWithKeys(fn (School $school) => [$school->portal_key => $school->name])->all(),
-        ]);
-
-        throw ValidationException::withMessages([
-            'school' => 'Your details match an account at more than one school. Choose the school you want to sign in to.',
-        ]);
+        $this->offerSchoolChoice($active);
     }
 
     /**
-     * The school picked from the list shown after an earlier attempt, only if
-     * that list was offered to this same person for this same account.
+     * Ask which of these schools the person means.
+     *
+     * The browser keeps the list in the session to draw it on the page.
+     *
+     * @param  Collection<int, School>  $schools
      *
      * @throws ValidationException
      */
-    private function chosenSchool(): School
+    protected function offerSchoolChoice(Collection $schools): never
     {
-        $choices = $this->session()->get(self::CHOICES_SESSION_KEY);
-        $key = $this->string('school')->toString();
+        $this->session()->put(
+            self::CHOICES_SESSION_KEY,
+            $schools->mapWithKeys(fn (School $school) => [$school->portal_key => $school->name])->all(),
+        );
 
-        if (! is_array($choices)
-            || ($choices['fingerprint'] ?? null) !== $this->accountFingerprint()
-            || ! array_key_exists($key, $choices['schools'] ?? [])) {
-            $this->session()->forget(self::CHOICES_SESSION_KEY);
-
-            $this->refuse();
-        }
-
-        return School::where('portal_key', $key)->first() ?? $this->refuse();
-    }
-
-    /**
-     * The account type and login a list of schools was offered for.
-     */
-    private function accountFingerprint(): string
-    {
-        return hash('sha256', $this->string('role')->toString().'|'.Str::lower(trim($this->string('login')->toString())));
+        throw ValidationException::withMessages([
+            'school' => self::CHOICE_MESSAGE,
+        ]);
     }
 
     /**
      * @throws ValidationException
      */
-    private function refuse(): never
+    protected function refuse(): never
     {
         // The same message a wrong password produces, so nothing about the
         // response says whether the account, the school or the password was
@@ -211,6 +202,8 @@ class LoginRequest extends FormRequest
             'guardian' => \App\Http\Requests\Guardian\LoginRequest::createFrom($this)->authenticate($school),
         };
 
-        $this->session()->forget(self::CHOICES_SESSION_KEY);
+        if ($this->hasSession()) {
+            $this->session()->forget(self::CHOICES_SESSION_KEY);
+        }
     }
 }
