@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Sanctum tokens are polymorphic, so `auth:sanctum` alone answers "is this a
  * valid token?" and nothing else. A student's token is a perfectly valid token
  * at /guardian/children, and without this it would be accepted there and then
- * fall over somewhere further in - or worse, not fall over.
+ * fall over somewhere further in, or worse, not fall over.
  *
  * Written as a route parameter (api.actor:student) rather than one class per
  * role, for the reason the plan-feature gate was rewritten: near-identical

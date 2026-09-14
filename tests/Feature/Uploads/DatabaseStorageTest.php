@@ -32,7 +32,7 @@ use Tests\Support\UploadFixtures;
  * That is production today: the disks are directories every deploy wipes, so
  * every upload was lost and every school logo was a broken image. Uploads are
  * now kept in the database instead. These tests run the application exactly
- * as it runs there - Laravel Cloud, no buckets - and follow each file to what
+ * as it runs there, Laravel Cloud, no buckets, and follow each file to what
  * the browser receives, including after a simulated redeploy.
  */
 function onLaravelCloudWithoutBuckets(): void
@@ -116,7 +116,7 @@ describe('the database disk behaves like any other', function () {
     });
 
     test('every chunk fits in a 1MB database packet once encoded', function () {
-        // SQLite, which this suite runs on, has no packet limit - so without
+        // SQLite, which this suite runs on, has no packet limit, so without
         // this the chunk size could creep back up and fail only on MySQL, as a
         // 1MB chunk did against XAMPP's MariaDB (max_allowed_packet = 1MB).
         Storage::disk('local')->put('documents/sized.bin', random_bytes(StoredFile::CHUNK_BYTES * 2));
@@ -344,8 +344,8 @@ describe('attaching buckets later', function () {
  * Exactly what was reported from production: the School Admin's stamp, the
  * School Admin's and a teacher's drawn signatures, and CBT documents, each
  * refused with "File uploads are not available yet". Each runs here on Laravel
- * Cloud with the disks left as local directories - the state that request
- * found them in - and must land in the database.
+ * Cloud with the disks left as local directories, the state that request
+ * found them in, and must land in the database.
  */
 function dbStampPhoto(): UploadedFile
 {

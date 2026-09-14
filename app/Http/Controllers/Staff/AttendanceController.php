@@ -62,7 +62,7 @@ class AttendanceController extends Controller
         $className = $validated['class_name'];
         $date = Carbon::parse($validated['date'])->toDateString();
 
-        // Scoped to the teacher's own assigned class - a class teacher
+        // Scoped to the teacher's own assigned class, a class teacher
         // cannot mark attendance for students outside their class, even by
         // crafting a request with a different student_id.
         $students = $school->students()->where('class_name', $className)->whereIn('id', array_keys($validated['records']))->get()->keyBy('id');

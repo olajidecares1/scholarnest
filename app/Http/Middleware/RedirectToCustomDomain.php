@@ -14,9 +14,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * When a school's public site is reached via the default /schools/{slug}
- * path but a better tenant domain applies - a verified Exclusive custom
+ * path but a better tenant domain applies, a verified Exclusive custom
  * domain with redirects enabled, or a Standard school's free akademicanest.com
- * subdomain - permanently redirect to the equivalent page there instead of
+ * subdomain, permanently redirect to the equivalent page there instead of
  * rendering the default-path page.
  */
 class RedirectToCustomDomain
@@ -54,7 +54,7 @@ class RedirectToCustomDomain
         // route() infers scheme/port from how the CURRENT request arrived, which is
         // wrong here (tenant domains use this app's configured scheme/port from
         // APP_URL, not whatever host the default-path request happened to arrive
-        // on) - generate with a throwaway host, then keep only the path/query and
+        // on), generate with a throwaway host, then keep only the path/query and
         // rebuild the URL against the real domain.
         $generated = route($tenantRouteName, [...$params, 'tenantDomain' => 'akademicnest-placeholder-host.invalid']);
         $path = parse_url($generated, PHP_URL_PATH) ?? '/';
@@ -69,7 +69,7 @@ class RedirectToCustomDomain
      * Unlike Exclusive's custom domain (which has an explicit
      * redirect_default_domain toggle, since a school may want to verify it
      * works before forcing visitors over), a Standard school's subdomain has
-     * no such opt-out - it's the only address it has, so the redirect is
+     * no such opt-out, it's the only address it has, so the redirect is
      * unconditional once TENANT_BASE_DOMAIN is configured.
      */
     private function resolveRedirectHost(School $school): ?string
@@ -86,7 +86,7 @@ class RedirectToCustomDomain
 
         $baseDomain = config('custom_domain.tenant_base_domain');
 
-        // The subdomain column, not the slug - it has no hyphens in it, and it
+        // The subdomain column, not the slug, it has no hyphens in it, and it
         // must be the same value ResolveTenantFromCustomDomain looks up by, or
         // this redirects to an address that then 404s.
         return $baseDomain && $school->hasPlanAccess(PlanKey::Standard) ? "{$school->subdomain}.{$baseDomain}" : null;

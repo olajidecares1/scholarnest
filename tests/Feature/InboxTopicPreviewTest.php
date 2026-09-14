@@ -17,7 +17,7 @@ use Illuminate\Http\UploadedFile;
  * for one had to read all of them.
  *
  * Nothing is dropped to achieve that. Every word is still stored and still
- * shown - on its own page, where there is room for it.
+ * shown, on its own page, where there is room for it.
  */
 beforeEach(function () {
     $this->school = activateSchool(School::factory()->create(), PlanKey::Standard);
@@ -31,7 +31,7 @@ describe('the topic a row is listed under', function () {
     });
 
     test('is the first sentence when it was not', function () {
-        // Both public forms make the subject optional on purpose - a parent
+        // Both public forms make the subject optional on purpose, a parent
         // asking about fees should not have to summarise first.
         expect(SubmissionTopic::from(null, 'Two pupils were fighting at the bus stop. I saw it from my shop.'))
             ->toBe('Two pupils were fighting at the bus stop');

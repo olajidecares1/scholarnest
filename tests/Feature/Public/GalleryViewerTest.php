@@ -166,7 +166,7 @@ describe('there is no way out of the page', function () {
         $html = gallery();
 
         expect($html)->toContain('x-on:click="openAt(0, $event)"')
-            // A button, not a link - nothing to follow, nothing to reload.
+            // A button, not a link, nothing to follow, nothing to reload.
             ->toContain('<button')
             ->toContain('Gallery image viewer');
     });

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
  * Turns whatever someone types into the portal's "Enter your school name" box
  * into the school they meant.
  *
- * Any school on any plan, provided its subscription is active - see
+ * Any school on any plan, provided its subscription is active, see
  * findableSchools() for why this stopped being Basic-only. A Standard or
  * Exclusive school still has its own subdomain; this is simply the way in for
  * anybody who does not have that address to hand.
@@ -29,8 +29,8 @@ class PortalSchoolFinder
      * The character that escapes a wildcard inside the LIKE patterns below.
      *
      * Deliberately '!' rather than the more usual backslash. MySQL and SQLite
-     * disagree about backslashes inside string literals - MySQL unescapes
-     * them, SQLite takes them literally - so `ESCAPE '\\'` means one character
+     * disagree about backslashes inside string literals, MySQL unescapes
+     * them, SQLite takes them literally, so `ESCAPE '\\'` means one character
      * to one engine and two to the other, and the second rejects it outright.
      * '!' is special to neither, so the same SQL behaves identically in
      * production (MySQL) and in the test suite (SQLite).
@@ -52,10 +52,10 @@ class PortalSchoolFinder
      * Matching runs from most precise to least, and stops at the first tier
      * that produces anything:
      *
-     *   1. the school's code, slug, or exact name  - an unambiguous answer
-     *   2. names starting with what was typed      - "greenfield" finds
+     *   1. the school's code, slug, or exact name, an unambiguous answer
+     *   2. names starting with what was typed, "greenfield" finds
      *                                                "Greenfield College"
-     *   3. names containing what was typed         - the last resort
+     *   3. names containing what was typed, the last resort
      *
      * Tiering matters: without it, a school named exactly "Kings College"
      * would be buried among every other school with "college" in its name.
@@ -170,7 +170,7 @@ class PortalSchoolFinder
      * Neutralise the wildcards inside a LIKE pattern.
      *
      * Without this, typing "%" would match every school on the platform, and
-     * "_" would match any single character - turning the finder into a way to
+     * "_" would match any single character, turning the finder into a way to
      * enumerate AkademicNest's customers.
      */
     private function escapeLike(string $value): string

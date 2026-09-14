@@ -3,7 +3,7 @@
      The dimensions are not here: height, radius, border, typography, padding
      and the focus state all come from the base rules in app.css, which every
      field in the application shares. This component adds only what is specific
-     to a labelled field — the label above it, room for an icon or a trailing
+     to a labelled field, the label above it, room for an icon or a trailing
      button, and the message underneath.
 
      That split matters. A field written by hand on some future page gets the
@@ -36,8 +36,8 @@
 
     /*
      * old() is keyed by field NAME and nothing else, so on a page carrying
-     * SEVERAL forms with the same field names - Payment Settings renders one
-     * per payment method - a failed save in one form repopulates every other
+     * SEVERAL forms with the same field names, Payment Settings renders one
+     * per payment method, a failed save in one form repopulates every other
      * form with the values that were just rejected.
      *
      * Repopulating is only ever wanted in the form that actually failed, and
@@ -123,7 +123,7 @@
         {{-- <small>, not <p>: this is small print ABOUT the control above it,
              which is what the element means. It also makes every hint in the
              application the same tag, so the ones written by hand next to file
-             pickers and textareas - controls this component cannot wrap - match
+             pickers and textareas, controls this component cannot wrap, match
              the ones it renders. --}}
         <small class="field-hint mt-1">{{ $helper }}</small>
     @endif

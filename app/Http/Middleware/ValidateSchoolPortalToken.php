@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Gatekeeps the four school-scoped portal login pages behind a long, per-
- * school, per-portal token baked into the URL itself - knowing a school's
+ * school, per-portal token baked into the URL itself, knowing a school's
  * public slug/subdomain is no longer enough to reach its login forms.
  */
 class ValidateSchoolPortalToken
@@ -23,11 +23,11 @@ class ValidateSchoolPortalToken
     {
         // The default-path routes bind {school:slug} as "school"; the
         // tenant-domain mirrors resolve it onto "tenantDomain" instead (see
-        // ResolveTenantFromCustomDomain) - exactly one of these is set for
+        // ResolveTenantFromCustomDomain), exactly one of these is set for
         // any request this middleware runs on.
         $school = $request->route('school') ?? $request->route('tenantDomain');
 
-        // Keyed off the controller action, not the route name - only the GET
+        // Keyed off the controller action, not the route name, only the GET
         // half of each login pair is actually named ("student.login" etc.),
         // the POST half isn't, so getName() would be null for every submit.
         $action = (string) $request->route()?->getActionName();

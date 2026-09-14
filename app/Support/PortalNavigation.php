@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 /**
  * What each portal offers its user, grouped the way a phone app groups things.
  *
- * The three portals used to define their own navigation inline - once for the
+ * The three portals used to define their own navigation inline, once for the
  * sidebar, again for the bottom bar, and a third time for the "More" sheet,
  * each with its own copy of the plan and role rules. Three copies of a rule is
  * three chances for one of them to drift, and the one that drifts is the one
@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\Route;
  * 1. The route must exist. A link to a route that was never registered is a
  *    500 waiting for someone to tap it.
  * 2. The school's plan and the user's role must permit it. Hiding a link is
- *    not access control - the routes enforce that themselves - but showing a
+ *    not access control, the routes enforce that themselves, but showing a
  *    link that refuses the tap is a broken portal, so both must agree.
  */
 final class PortalNavigation
@@ -46,7 +46,7 @@ final class PortalNavigation
 
         // CBT, ID cards, the diary and the timetable are Standard and
         // Exclusive features. The staff portal itself is open to every plan,
-        // so a Basic school reaches the portal but not these - and their
+        // so a Basic school reaches the portal but not these, and their
         // routes say so with a 403.
         $premium = $school->hasPlanAccess(PlanKey::Standard, PlanKey::Exclusive);
 
@@ -56,7 +56,7 @@ final class PortalNavigation
                 ['staff.exams.index', 'Test/Exam Score', $isTeacher],
                 ['staff.results.index', 'Report Cards', $isTeacher],
 
-                // Every member of staff, on every plan - not $isTeacher and
+                // Every member of staff, on every plan, not $isTeacher and
                 // not $premium. Sending a class its notes is the school's own
                 // teaching work rather than an outward-facing extra, and a
                 // Basic school's staff use it exactly as any other school's.

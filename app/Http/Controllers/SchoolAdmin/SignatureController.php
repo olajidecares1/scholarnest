@@ -8,7 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * The School Admin's own signature - which is the school's Principal
+ * The School Admin's own signature, which is the school's Principal
  * signature.
  *
  * School Admin is the Principal on this platform. There is no separate
@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
  * authoritative signature per school, resolved by
  * App\Support\PrincipalSignature.
  *
- * The signer comes from the web session and from nowhere else - see
+ * The signer comes from the web session and from nowhere else, see
  * RegistersSignatures for why there is no id to swap.
  */
 class SignatureController extends Controller

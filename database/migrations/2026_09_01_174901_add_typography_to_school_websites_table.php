@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * the difference matters the day those defaults change. The website falls back
  * when they are null rather than being backfilled with a guess.
  *
- * The FAMILY is a name, not a stylesheet URL - it is validated against the
+ * The FAMILY is a name, not a stylesheet URL, it is validated against the
  * curated list in config/website_fonts.php before it is stored, so nothing a
  * school types can put an arbitrary font host into every visitor's page.
  */

@@ -165,7 +165,7 @@ class JobPosting extends Model
     }
 
     /**
-     * This vacancy's own address on its school's Job Portal - the school's
+     * This vacancy's own address on its school's Job Portal, the school's
      * custom domain or subdomain where it has one, the platform path where
      * not. The link a school shares, and the only way in for an applicant.
      */

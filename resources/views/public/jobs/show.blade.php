@@ -26,7 +26,7 @@
     @if ($preview)
         <div class="sticky top-0 z-30 bg-amber-400 px-4 py-2 text-center text-[13px] font-bold text-amber-950">
             <i class="fa-solid fa-eye mr-1" aria-hidden="true"></i>
-            Preview - this is how applicants see this vacancy. Status: {{ $job->status->label() }}.
+            Preview: this is how applicants see this vacancy. Status: {{ $job->status->label() }}.
             <a href="{{ route('careers.show', $job) }}" class="ml-2 underline">Back to dashboard</a>
         </div>
     @endif
@@ -192,7 +192,7 @@
                             <label for="documents" class="field-label"><i class="fa-solid fa-paperclip mr-1 text-primary-500" aria-hidden="true"></i>Supporting documents</label>
                             <input id="documents" type="file" name="documents[]" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="mt-1 w-full @error('documents') field-invalid @enderror @error('documents.*') field-invalid @enderror">
                             @error('documents')<p class="mt-1 text-[11px] font-medium text-red-600">{{ $message }}</p>@enderror
-                            @error('documents.*')<p class="mt-1 text-[11px] font-medium text-red-600">{{ $message }}</p>@else<small class="field-hint mt-1">Optional. Certificates or references - up to 5 files, 5MB each.</small>@enderror
+                            @error('documents.*')<p class="mt-1 text-[11px] font-medium text-red-600">{{ $message }}</p>@else<small class="field-hint mt-1">Optional. Certificates or references, up to 5 files of 5MB each.</small>@enderror
                         </div>
                     </div>
 

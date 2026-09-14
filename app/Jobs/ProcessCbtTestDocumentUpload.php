@@ -17,7 +17,7 @@ use Throwable;
 /**
  * Turn a teacher's uploaded question paper into CBT questions.
  *
- * Extraction happens locally - PHPWord for .docx, smalot/pdfparser for .pdf,
+ * Extraction happens locally, PHPWord for .docx, smalot/pdfparser for .pdf,
  * and a PHP parser for the questions themselves. Nothing here reaches the
  * network, so an unpaid API bill or an outage cannot stop a teacher preparing
  * a test.
@@ -44,8 +44,8 @@ class ProcessCbtTestDocumentUpload implements ShouldQueue
      * An upload deleted before its job ran is not a failure.
      *
      * The job holds the model by id and looks it up again when it runs, so a
-     * document somebody uploaded and then removed - while nothing was working
-     * the queue - left a job pointing at a row that no longer exists. It threw
+     * document somebody uploaded and then removed, while nothing was working
+     * the queue, left a job pointing at a row that no longer exists. It threw
      * ModelNotFoundException and landed in failed_jobs, which is a real alarm
      * raised over somebody changing their mind.
      *
@@ -98,7 +98,7 @@ class ProcessCbtTestDocumentUpload implements ShouldQueue
             }
 
             // A document that mostly failed to read is not a test with some bad
-            // questions in it - it is the wrong file, or one whose layout the
+            // questions in it, it is the wrong file, or one whose layout the
             // extractor could not follow. Importing it would hand a teacher a
             // CBT that looks finished and is not.
             if (! $questions->isAcceptable()) {
@@ -123,7 +123,7 @@ class ProcessCbtTestDocumentUpload implements ShouldQueue
 
             $this->fail(
                 'Document extraction failed. Please check the document format and try again. '
-                .'The file is stored safely — you do not need to upload it again.'
+                .'The file is stored safely, so you do not need to upload it again.'
             );
         } finally {
             // A worker does not end between jobs, so the temporary local copy

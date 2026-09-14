@@ -6,7 +6,7 @@
      intended.
 
      A search rather than a dropdown because a dropdown of every pupil in the
-     school stops being usable at about the third class - and an unusable
+     school stops being usable at about the third class, and an unusable
      picker is how the wrong child gets linked to the wrong parent.
 
      The list comes from a school-scoped endpoint. The filtering here is a

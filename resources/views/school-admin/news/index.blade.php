@@ -6,14 +6,14 @@
             </div>
         @endif
 
-        {{-- The background sits behind BOTH Latest News and Upcoming Events -
-             they are one card - so it is set once, here, and the Events page
+        {{-- The background sits behind BOTH Latest News and Upcoming Events,
+             they are one card, so it is set once, here, and the Events page
              points at this rather than repeating the control. --}}
         <x-card-background-field
             :action="route('website.news-events-card-background')"
             :current="$website?->newsEventsCardImageUrl()"
             title="News & Events card background"
-            description="One image sits behind both Latest News and Upcoming Events on your website - they share a card. Leave it empty for the plain background."
+            description="One image sits behind both Latest News and Upcoming Events on your website because they share a card. Leave it empty for the plain background."
         />
 
         <div class="flex flex-wrap items-center justify-between gap-3">
@@ -44,7 +44,7 @@
                         @forelse ($posts as $post)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $post->title }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $post->category ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $post->category ?? 'N/A' }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $post->published_at->format('M j, Y') }}</td>
                                 <td class="px-6 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $post->is_published ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
@@ -111,7 +111,7 @@
                         <x-text-field name="published_at" label="Publish Date" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" x-model="editing ? editing.published_at : ''" />
                     </div>
 
-                    <x-text-field name="excerpt" label="Excerpt" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" x-model="editing ? editing.excerpt : ''" helper="Short summary shown in the news list. Optional — falls back to the start of the body." />
+                    <x-text-field name="excerpt" label="Excerpt" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" x-model="editing ? editing.excerpt : ''" helper="Short summary shown in the news list. Optional. Falls back to the start of the body." />
 
                     <x-textarea-field name="body" label="Full Story" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="6" x-model="editing ? editing.body : ''" required />
 

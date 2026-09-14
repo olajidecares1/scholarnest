@@ -55,14 +55,14 @@ class ResultCheckingPinController extends Controller
         return view('school-admin.result-pins.index', [
             'school' => $school,
 
-            // The address parents use. Half of the pair - the token is the
-            // other half - so it belongs on the same screen as the tokens.
+            // The address parents use. Half of the pair, the token is the
+            // other half, so it belongs on the same screen as the tokens.
             'resultLinkUrl' => $school->resultLinkUrl(),
             'tokens' => $tokens,
             'examinations' => $examinations = $school->examinations()->orderByDesc('exam_date')->get(),
             'statuses' => ResultCheckingPinStatus::cases(),
 
-            // The picker is session, then term, then student - the order a
+            // The picker is session, then term, then student, the order a
             // School Admin thinks in at the end of a term. The examinations
             // are filtered down from these in the browser, but every choice is
             // re-checked on the server when the form is submitted.
@@ -71,7 +71,7 @@ class ResultCheckingPinController extends Controller
             // an examination has been recorded in it yet. The list used to be
             // the sessions found on examinations alone, so a school that had
             // just moved to 2026/2027 in Settings could not select it here
-            // until it had already created an examination - and the form
+            // until it had already created an examination, and the form
             // defaulted to whatever year its newest examination happened to
             // be in, which is not the year the school is in.
             //
@@ -85,7 +85,7 @@ class ResultCheckingPinController extends Controller
                 ->values(),
 
             // Read from Settings on every request, so changing the academic
-            // year there changes what this form defaults to immediately -
+            // year there changes what this form defaults to immediately,
             // never hard-coded, and never inferred from the data.
             'currentSession' => $school->currentSession(),
             'terms' => ExamTerm::cases(),
@@ -96,7 +96,7 @@ class ResultCheckingPinController extends Controller
             'classNames' => $school->configuredClassNames(),
 
             // How many active students sit in each class, so the form can say
-            // "30 students - one token each" before anything is generated.
+            // "30 students, one token each" before anything is generated.
             'classCounts' => $school->students()
                 ->where('is_active', true)
                 ->selectRaw('class_name, COUNT(*) as total')
@@ -198,7 +198,7 @@ class ResultCheckingPinController extends Controller
         $validated = $request->validate([
             'class_name' => ['required', 'string', Rule::in($school->configuredClassNames())],
 
-            // The examination is no longer asked for - the three fields below
+            // The examination is no longer asked for, the three fields below
             // name it. See App\Services\ExaminationResolver.
             'session' => ['required', 'string', 'max:20'],
             'term' => ['required', Rule::enum(ExamTerm::class)],
@@ -207,7 +207,7 @@ class ResultCheckingPinController extends Controller
         ]);
 
         // Resolved from the year, term and class the admin chose, so the
-        // examination can no longer disagree with the class - it is built from
+        // examination can no longer disagree with the class, it is built from
         // it. The check that used to be needed here is gone with the mismatch
         // it guarded against.
         $examination = $this->examinations->forTokens(
@@ -225,7 +225,7 @@ class ResultCheckingPinController extends Controller
             // Nothing issued means either that everybody already holds a
             // token, or that the class has nobody in it. A school with an
             // empty class was told "every student already has a token" while
-            // holding none at all - which is not merely unhelpful, it is
+            // holding none at all, which is not merely unhelpful, it is
             // untrue, and it sent them looking for tokens that were never
             // generated.
             $roll = $school->students()
@@ -357,7 +357,7 @@ class ResultCheckingPinController extends Controller
      *
      * For a link that has spread further than the school meant it to. The old
      * address is retired permanently rather than released, so it can never be
-     * handed to another school - a parent still holding it gets nothing, not
+     * handed to another school, a parent still holding it gets nothing, not
      * somebody else's token prompt.
      *
      * Every token the school has already issued keeps working: tokens are tied
@@ -407,9 +407,9 @@ class ResultCheckingPinController extends Controller
      * Release, or re-withhold, one student's results for one term.
      *
      * The school's own decision, and recorded as one: who released it, when,
-     * and why. This is the "appropriate process" a withheld result waits for -
+     * and why. This is the "appropriate process" a withheld result waits for,
      * a bursary being processed, a payment plan, a balance the office knows is
-     * wrong - and it must not be a switch nobody can account for afterwards.
+     * wrong, and it must not be a switch nobody can account for afterwards.
      *
      * Scoped to a term rather than an examination because that is the unit a
      * bursar clears: a student cleared for Second Term is cleared for every
@@ -515,7 +515,7 @@ class ResultCheckingPinController extends Controller
                 'used' => $rows->filter(fn (array $row) => $row['used'])->count(),
                 'unused' => $rows->filter(fn (array $row) => $row['token'] !== null && ! $row['used'])->count(),
 
-                // Students in the class with no token at all - the ones a
+                // Students in the class with no token at all, the ones a
                 // "generate for this class" run would pick up next.
                 'missing' => $rows->filter(fn (array $row) => $row['token'] === null)->count(),
             ],
@@ -525,7 +525,7 @@ class ResultCheckingPinController extends Controller
     /**
      * Which tokens on this page point at a withheld result.
      *
-     * Asked of the policy in bulk - two queries for the page - rather than
+     * Asked of the policy in bulk, two queries for the page, rather than
      * once per token, which is how a screen listing a class ends up running
      * sixty queries it does not need.
      *

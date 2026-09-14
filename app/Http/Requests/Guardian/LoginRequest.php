@@ -48,7 +48,7 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited($school);
 
-        // A parent signs in with their Parent ID or their phone number - never
+        // A parent signs in with their Parent ID or their phone number, never
         // their email. Which of the two they typed is worked out by
         // GuardianLoginIdentifier, scoped to this school, because neither is
         // unique across schools.
@@ -124,7 +124,7 @@ class LoginRequest extends FormRequest
      * Get the rate limiting throttle key for the request.
      *
      * Scoped by school_id, not just the identifier, because a Parent ID and a
-     * phone number are only unique per-school - without this, a parent at one
+     * phone number are only unique per-school, without this, a parent at one
      * school could be locked out by failed attempts against an
      * identically-numbered parent at a completely different school sharing the
      * same IP address.

@@ -10,8 +10,8 @@ use App\Models\User;
  * Every control in the website builder says what it does.
  *
  * The person using this page runs a school, not a design studio. Half these
- * controls are named after CSS properties - letter spacing, opacity, text
- * transform, corner radius - and a label alone tells someone who does not
+ * controls are named after CSS properties, letter spacing, opacity, text
+ * transform, corner radius, and a label alone tells someone who does not
  * already know the term precisely nothing.
  *
  * The descriptions are written in terms of WHAT A VISITOR WILL SEE, never in
@@ -60,8 +60,8 @@ describe('every field on the builder is described', function () {
     test('the about photograph says where it actually shows', function () {
         // It no longer sits beside the About text; that card is gone. It sits
         // on the About tab and feeds the CONTACT section, which is confusing
-        // enough that it now says so twice - once in the label and once at the
-        // top of the hint - and names the field somebody was actually looking
+        // enough that it now says so twice, once in the label and once at the
+        // top of the hint, and names the field somebody was actually looking
         // for when they found this one.
         expect($this->html)->toContain('Photograph for the <strong>Contact</strong> section')
             ->toContain('This is not the About background')

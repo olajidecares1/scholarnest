@@ -66,7 +66,7 @@
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3">
                                     <a href="{{ route('super-admin.schools.show', $school) }}" class="font-semibold text-gray-900 transition-colors duration-200 hover:text-primary-500 dark:text-white dark:hover:text-primary-400">{{ $school->name }}</a>
-                                    <p class="field-hint">{{ $school->billing_email ?? '—' }}</p>
+                                    <p class="field-hint">{{ $school->billing_email ?? 'N/A' }}</p>
                                 </td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $school->subscriptionForDisplay()?->plan?->name ?? 'No plan yet' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $school->users->count() }}</td>
@@ -75,7 +75,7 @@
                                     {{-- The authoritative state, not `is_active`.
                                          `is_active` only means "not suspended" and defaults to
                                          true, so reading it here labelled every school "Active"
-                                         the moment it registered - before any payment had been
+                                         the moment it registered, before any payment had been
                                          reviewed and while it could reach nothing. Suspension is
                                          reported separately below, because a suspended school and
                                          an unapproved one are different problems. --}}

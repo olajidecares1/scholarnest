@@ -9,7 +9,7 @@
 {{-- A signature pad: draw it here, it is saved against you, nobody else.
 
      Everything below is presentation. Ownership is decided on the server from
-     the session - see App\Http\Controllers\Concerns\RegistersSignatures - and
+     the session, see App\Http\Controllers\Concerns\RegistersSignatures, and
      this form has no field naming a signer, because there is nothing here that
      could be trusted to.
 

@@ -134,7 +134,7 @@ test('the icons take the school\'s own colour', function () {
 
 test('the dashboard no longer duplicates the sidebar', function () {
     // Asserted on the template rather than the response, because the sidebar
-    // legitimately links to Transport and Hostel on the very same page - the
+    // legitimately links to Transport and Hostel on the very same page, the
     // claim is that the DASHBOARD stopped repeating them, not that the words
     // vanished from the document.
     $dashboard = file_get_contents(resource_path('views/dashboard.blade.php'));

@@ -37,7 +37,7 @@
                     <p class="field-hint mt-1">{{ $plan->tagline }}</p>
 
                     <div class="mt-4 space-y-3">
-                        {{-- Basic AND Standard are sold per student now - Standard's
+                        {{-- Basic AND Standard are sold per student now, Standard's
                              flat ₦200,000 term fee was replaced by a price per pupil.
                              Both sets of fields are shown for every plan so a plan's
                              model can be changed without a code change, but the one

@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
  *
  * which named the school in every link a teacher, pupil or parent ever
  * received, in every bookmark, and in every referrer header those pages sent.
- * The slug is not a secret - it is on the public website - but there is no
+ * The slug is not a secret, it is on the public website, but there is no
  * reason for a private portal address to announce whose portal it is.
  *
  * This column replaces it:
@@ -24,7 +24,7 @@ use Illuminate\Support\Str;
  *
  * It is NOT a second password. The portal token already gates the sign-in page
  * and the session already gates everything behind it; this only stops the URL
- * naming the school. Treating it as a secret would be a mistake - it is an
+ * naming the school. Treating it as a secret would be a mistake, it is an
  * opaque handle, and the security is elsewhere.
  *
  * Separate from the four portal tokens on purpose. Those are per portal and

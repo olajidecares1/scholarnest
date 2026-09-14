@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
  * the same site, and that is not merely untidy:
  *
  *   A SESSION COOKIE BELONGS TO ONE HOST. Sign in at 127.0.0.1:8000, then click
- *   any link the application generated - route() builds those from APP_URL, so
- *   they point at lvh.me - and the browser sends no cookie, because that is a
+ *   any link the application generated, route() builds those from APP_URL, so
+ *   they point at lvh.me, and the browser sends no cookie, because that is a
  *   different host. You are signed out, with nothing on screen explaining why.
  *
  *   The obfuscated admin paths make it harder to spot, not easier: the address
@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * ONLY BARE IP ADDRESSES ARE REDIRECTED, and that narrowness is the whole
  * design. An unrecognised DOMAIN is not a wrong way of reaching this
- * application - it is a domain somebody has pointed here, which the tenant
+ * application, it is a domain somebody has pointed here, which the tenant
  * routing answers with a 404 on purpose, and which this must not turn into a
  * redirect that confirms what is running at that address.
  *
@@ -71,7 +71,7 @@ class RedirectToCanonicalHost
             return $next($request);
         }
 
-        // Nothing to send them to: APP_URL is unparseable, or is itself an IP -
+        // Nothing to send them to: APP_URL is unparseable, or is itself an IP,
         // which is a legitimate way to run this on a private network, and
         // redirecting 127.0.0.1 to another IP would help nobody.
         if ($canonical === null || $this->reachedByAddressRatherThanName(parse_url((string) config('app.url'), PHP_URL_HOST))) {
@@ -94,7 +94,7 @@ class RedirectToCanonicalHost
      *
      * BARE IPs ONLY. "localhost" is deliberately not included: it is a real
      * hostname that plenty of setups use as APP_URL, and redirecting away from
-     * it would be a surprise rather than a correction. An IP has no such claim -
+     * it would be a surprise rather than a correction. An IP has no such claim,
      * nobody configures 127.0.0.1 as the address they want people to see.
      */
     private function reachedByAddressRatherThanName(?string $host): bool
@@ -103,13 +103,13 @@ class RedirectToCanonicalHost
             return false;
         }
 
-        // Symfony wraps IPv6 hosts in brackets - [::1] - which filter_var does
+        // Symfony wraps IPv6 hosts in brackets, [::1], which filter_var does
         // not recognise as an IP until they are removed.
         return filter_var(trim($host, '[]'), FILTER_VALIDATE_IP) !== false;
     }
 
     /**
-     * APP_URL's host and port, shaped the way getHttpHost() returns them - the
+     * APP_URL's host and port, shaped the way getHttpHost() returns them, the
      * port omitted when it is the default for the scheme, so "http://lvh.me"
      * and a request to lvh.me on port 80 compare equal.
      */

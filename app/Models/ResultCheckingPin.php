@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * class, term and session, that binding is what makes "one token, one student,
  * one term" true rather than merely intended. A token issued for John Doe's
  * First Term cannot open his Second Term, his sibling's result, or anyone
- * else's - not because the interface hides those, but because the token simply
+ * else's, not because the interface hides those, but because the token simply
  * does not point at them.
  *
  * The token itself is never stored. `token_hash` is what verification looks up;
@@ -34,13 +34,13 @@ class ResultCheckingPin extends Model
     use HasFactory, HasUuidRouteKey;
 
     /**
-     * Upper case, lower case and digits - with the six characters nobody can
+     * Upper case, lower case and digits, with the six characters nobody can
      * reliably tell apart left out.
      *
      * 0/O/o and 1/l/I are the pairs that get misread off a printed slip and
      * misheard down a telephone, and a parent who mistypes one has spent an
      * attempt against the rate limiter for nothing. Dropping them leaves 56
-     * characters and 56^12 - about 69 bits - which is far past guessable.
+     * characters and 56^12, about 69 bits, which is far past guessable.
      */
     private const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
 
@@ -50,7 +50,7 @@ class ResultCheckingPin extends Model
      *   aB7xQ2mP9kL4
      *
      * NOTHING IS ENCODED IN IT. The previous format spent its first five
-     * characters on the session and the term - 25263QK7M92XP4Q - so a token
+     * characters on the session and the term, 25263QK7M92XP4Q, so a token
      * announced on sight which term it belonged to, and anyone holding two
      * tokens could read off how the scheme worked.
      *
@@ -58,7 +58,7 @@ class ResultCheckingPin extends Model
      * opened in the first place: validity comes from the row, which is bound
      * to one examination, and an examination IS one class in one term of one
      * session. A First Term token cannot open Second Term because it points
-     * at a different examination - not because of anything in the string.
+     * at a different examination, not because of anything in the string.
      * See ResultTokenVerifier.
      */
     public const TOKEN_LENGTH = 12;
@@ -275,12 +275,12 @@ class ResultCheckingPin extends Model
     /**
      * A fresh token, in plain text.
      *
-     * The caller must hand this straight to the school and then forget it - it
+     * The caller must hand this straight to the school and then forget it, it
      * is only recoverable afterwards through the encrypted column.
      *
      * random_int is used rather than rand or mt_rand because it draws from the
      * operating system's cryptographic source. A token derived from anything
-     * about the student - their id, admission number, name or date of birth -
+     * about the student, their id, admission number, name or date of birth,
      * would be guessable by whoever knows those things, which for a school
      * record is a great many people.
      */
@@ -307,7 +307,7 @@ class ResultCheckingPin extends Model
     }
 
     /**
-     * Upper case, lower case and a digit - all three, as the format requires.
+     * Upper case, lower case and a digit, all three, as the format requires.
      */
     private static function hasEveryCharacterClass(string $token): bool
     {
@@ -339,7 +339,7 @@ class ResultCheckingPin extends Model
      * when reading a token off paper.
      *
      * IT NO LONGER UPPER-CASES, and it cannot. The token alphabet is mixed
-     * case now, so "aB7xQ2mP9kL4" and "AB7XQ2MP9KL4" are different tokens -
+     * case now, so "aB7xQ2mP9kL4" and "AB7XQ2MP9KL4" are different tokens,
      * upper-casing would have stored a token nobody was ever given and
      * hashed every attempt to the wrong value.
      *

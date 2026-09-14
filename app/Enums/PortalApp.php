@@ -7,7 +7,7 @@ use App\Models\School;
 /**
  * The four portals, as installable applications.
  *
- * A school does not have "an app" - it has four, one per audience, and they
+ * A school does not have "an app", it has four, one per audience, and they
  * are genuinely different products: a parent's app opens on their children's
  * results, a teacher's on the classes they take. Installing one must never
  * land somebody in another, and installing the same portal for two different
@@ -56,7 +56,7 @@ enum PortalApp: string
      * The short name, for the few characters a home screen actually shows.
      *
      * A launcher gives roughly twelve before it truncates, and "Greenfield
-     * College - Student Portal" truncated is indistinguishable from the same
+     * College, Student Portal" truncated is indistinguishable from the same
      * school's parent app. The portal is the distinguishing half, so the
      * portal is what goes here.
      */
@@ -75,7 +75,7 @@ enum PortalApp: string
      *
      * The DASHBOARD, not the login page, for the three portals that have one:
      * somebody with a live session goes straight in, and somebody without is
-     * redirected to their own school's login by the auth middleware - see
+     * redirected to their own school's login by the auth middleware, see
      * App\Support\PortalLoginRedirect, which resolves the school from the
      * /p/{portal_key}/ segment that is right there in this URL.
      *
@@ -119,7 +119,7 @@ enum PortalApp: string
      * A stable identity for the installed app.
      *
      * Without this a browser identifies an app by its start URL, and two
-     * schools' student portals differ only by an opaque key deep in the path -
+     * schools' student portals differ only by an opaque key deep in the path,
      * close enough that a changed start URL later would be read as the same
      * app moving rather than a different one. The id never changes, so an
      * installed app survives a change of entry point.
@@ -131,7 +131,7 @@ enum PortalApp: string
 
     /**
      * Strip everything after the last segment: /p/k/portal/dashboard becomes
-     * /p/k/portal/. The trailing slash matters - a scope without one matches
+     * /p/k/portal/. The trailing slash matters, a scope without one matches
      * by string prefix, so "/p/k/portal" would also claim "/p/k/portal-x".
      */
     private function parentPath(string $path): string

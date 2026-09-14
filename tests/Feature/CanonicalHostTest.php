@@ -9,7 +9,7 @@ use App\Models\SchoolWebsite;
 /**
  * The application answers at the address in APP_URL.
  *
- * Reaching it by IP served the same site at a different host - and a session
+ * Reaching it by IP served the same site at a different host, and a session
  * cookie belongs to one host. Sign in at 127.0.0.1:8000, click any link the
  * application generated (route() builds those from APP_URL, so they point at
  * the real host) and the browser sends no cookie. You are signed out, with
@@ -97,7 +97,7 @@ describe('what is deliberately left alone', function () {
 
     test('a POST is never redirected, because that would drop the body', function () {
         // The form that sent it came from a page on this host anyway, so there
-        // is nothing to correct - and a redirect here would silently discard
+        // is nothing to correct, and a redirect here would silently discard
         // whatever was being submitted.
         $this->post('http://127.0.0.1/legal')->assertStatus(405);
     });

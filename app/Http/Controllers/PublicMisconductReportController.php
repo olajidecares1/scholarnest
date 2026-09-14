@@ -47,7 +47,7 @@ class PublicMisconductReportController extends Controller
      *
      * A written report with nothing attached left the school investigating a
      * paragraph. Asking for a photograph is the difference between "somebody
-     * says something happened" and something the school can act on - and
+     * says something happened" and something the school can act on, and
      * anybody close enough to report a pupil's conduct is close enough to
      * photograph it.
      */
@@ -151,15 +151,15 @@ class PublicMisconductReportController extends Controller
      */
     private function attach(MisconductReport $report, UploadedFile $file): void
     {
-        // Named by us, with an extension decided from the file's CONTENT -
+        // Named by us, with an extension decided from the file's CONTENT,
         // see App\Support\StoredUpload. The reporter's own filename is never
         // written to disk, only recorded, so a school can see what they
         // called it.
         //
         // A photograph goes through the image processor, which removes its
-        // EXIF - a phone photo carries the GPS position it was taken at, and
+        // EXIF, a phone photo carries the GPS position it was taken at, and
         // a reporter's location is exactly what they may need kept from the
-        // school - and stores it upright. A video is stored as it arrived.
+        // school, and stores it upright. A video is stored as it arrived.
         $uploads = app(UploadStorage::class);
         $directory = 'misconduct-reports/'.$report->uuid;
 

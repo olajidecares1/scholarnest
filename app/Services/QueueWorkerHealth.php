@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Is anything actually running the queue?
  *
- * CBT extraction is queued, which is right - parsing a 20MB PDF inside a web
+ * CBT extraction is queued, which is right, parsing a 20MB PDF inside a web
  * request would block it for a minute or more. But queued work only happens if
  * a worker is running, and `php artisan serve` on its own does not start one
  * (`composer run dev` does). When none is running the upload succeeds, the job
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  *
  * This used to be inferred: a job that had sat unclaimed for two minutes was
  * taken as evidence nothing was collecting. That inference is sound but slow,
- * and slow is the whole complaint - a freshly queued job is not yet old, so
+ * and slow is the whole complaint, a freshly queued job is not yet old, so
  * someone who uploaded a document with no worker running watched "Waiting to
  * start" for over two minutes before being told anything was wrong.
  *
@@ -68,7 +68,7 @@ class QueueWorkerHealth
         return Cache::remember(self::CACHE_KEY, now()->addSeconds(5), function (): bool {
             // Only the database driver can be inspected this way. On sync
             // there is no queue to stall, and on a remote broker the job table
-            // is not ours to read - in both cases, assume it is fine rather
+            // is not ours to read, in both cases, assume it is fine rather
             // than warn about something we cannot see.
             if (config('queue.default') !== 'database') {
                 return true;
@@ -88,7 +88,7 @@ class QueueWorkerHealth
             }
 
             // No heartbeat. Either no worker, or one that has only just been
-            // started - so a short grace before calling it stalled.
+            // started, so a short grace before calling it stalled.
             return (now()->timestamp - (int) $oldestUnclaimed) < self::STALE_AFTER_SECONDS;
         });
     }
@@ -112,7 +112,7 @@ class QueueWorkerHealth
      *
      * Two audiences, because the useful sentence differs. The AkademicNest Team can
      * start a worker, so they are told which command does it. A teacher cannot
-     * and should not be shown a shell command - they are told plainly that the
+     * and should not be shown a shell command, they are told plainly that the
      * document is safe and who can fix it, which is the difference between an
      * outage they can act on and one they can only stare at.
      */
@@ -124,12 +124,12 @@ class QueueWorkerHealth
         }
 
         return 'Extraction has not started yet because the extraction service is not running. '
-            .'Your document has been saved - it will be processed once the service is back, '
+            .'Your document has been saved. It will be processed once the service is back, '
             .'and you do not need to upload it again. Please tell the AkademicNest Team if it stays this way.';
     }
 
     /**
-     * Forget the cached answer - used the moment a worker's absence would
+     * Forget the cached answer, used the moment a worker's absence would
      * change what a page says.
      */
     public function forget(): void

@@ -6,7 +6,7 @@
 
      Saving a sentence here does NOT change any result. What lands on a report
      card is copied onto that pupil's own record, so rewording an entry later
-     never rewrites cards already issued - which is the only way a remark can
+     never rewrites cards already issued, which is the only way a remark can
      mean what it said on the day it was written. --}}
 <x-dashboard-layout page-title="Principal's Remark Library" page-subtitle="Reusable remarks you can assign to any pupil's result.">
     <div class="space-y-6">
@@ -59,7 +59,7 @@
                         @method('PUT')
 
                         {{-- Shown italic here because that is how it prints on
-                             a report card - what you see saved is what a
+                             a report card, what you see saved is what a
                              parent reads. --}}
                         <textarea
                             name="body"

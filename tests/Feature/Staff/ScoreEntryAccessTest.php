@@ -66,8 +66,8 @@ function scoreEntryExamination(School $school): Examination
 
 test('a class teacher can enter scores for every subject in their own class', function () {
     // Compiling the class's results is what being its class teacher means. A
-    // teacher who taught no individual subject - the ordinary arrangement in a
-    // primary class - previously saw an empty page and no way forward.
+    // teacher who taught no individual subject, the ordinary arrangement in a
+    // primary class, previously saw an empty page and no way forward.
     [$school, $teacher] = scoreEntrySchool();
 
     TeacherAssignment::create([
@@ -417,7 +417,7 @@ test('an existing mark can be changed, and the total follows', function () {
         'exam_scores' => [$student->id => 40],
     ])->assertRedirect();
 
-    // Corrected afterwards, which is the ordinary case - a mark was misread.
+    // Corrected afterwards, which is the ordinary case, a mark was misread.
     $this->actingAs($teacher, 'staff')->put($url, [
         'test_scores' => [$student->id => 35],
         'exam_scores' => [$student->id => 55],

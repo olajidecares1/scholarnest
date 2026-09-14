@@ -176,7 +176,7 @@ class JobPostingController extends Controller
             'archived_at' => null,
         ]);
 
-        return redirect()->route('careers.show', $job)->with('status', "\"{$job->title}\" was {$done}. It is live on your Job Portal - share its link to start receiving applications.");
+        return redirect()->route('careers.show', $job)->with('status', "\"{$job->title}\" was {$done}. It is live on your Job Portal. Share its link to start receiving applications.");
     }
 
     public function unpublish(JobPosting $job): RedirectResponse
@@ -237,7 +237,7 @@ class JobPostingController extends Controller
         $this->authorizeSchoolOwnership($job);
 
         if ($job->applications()->exists()) {
-            return back()->with('error', "\"{$job->title}\" has applications, so it cannot be deleted. Archive it instead - the applications are kept.");
+            return back()->with('error', "\"{$job->title}\" has applications, so it cannot be deleted. Archive it instead and the applications are kept.");
         }
 
         $title = $job->title;

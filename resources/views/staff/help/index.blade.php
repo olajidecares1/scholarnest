@@ -13,7 +13,7 @@
                 </div>
                 <div>
                     <p class="font-semibold text-gray-900 dark:text-white">My personal details need updating.</p>
-                    <p class="mt-1 text-gray-500 dark:text-gray-400">Contact the school office — they manage your staff record on your behalf.</p>
+                    <p class="mt-1 text-gray-500 dark:text-gray-400">Contact the school office. They manage your staff record on your behalf.</p>
                 </div>
             </div>
         </div>
@@ -21,9 +21,9 @@
         <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Contact {{ $school->name }}</h2>
             <dl class="mt-4 space-y-3 text-sm">
-                <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $website?->contact_phone ?? '—' }}</dd></div>
-                <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $website?->contact_email ?? '—' }}</dd></div>
-                <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-right font-medium text-gray-900 dark:text-white">{{ $website?->contact_address ?? '—' }}</dd></div>
+                <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $website?->contact_phone ?? 'N/A' }}</dd></div>
+                <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $website?->contact_email ?? 'N/A' }}</dd></div>
+                <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-right font-medium text-gray-900 dark:text-white">{{ $website?->contact_address ?? 'N/A' }}</dd></div>
             </dl>
         </div>
     </div>

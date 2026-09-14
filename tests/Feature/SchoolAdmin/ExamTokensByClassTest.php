@@ -20,7 +20,7 @@ use App\Models\User;
  *
  * A School Admin at the end of term is not thinking about thirty individual
  * tokens; they are thinking about SSS 1 Science. They pick the class from
- * their own class list - never typing it - and the system works out how many
+ * their own class list, never typing it, and the system works out how many
  * students are in it and issues that many. Then they need to see who has used
  * theirs and who has not.
  */
@@ -74,7 +74,7 @@ test('the class comes from the school\'s own list, and cannot be typed', functio
     [$school, $admin, $examination] = tokenClassSchool();
 
     // A class the school does not have. Refused by the server, not merely
-    // absent from the dropdown - otherwise a batch could be issued against
+    // absent from the dropdown, otherwise a batch could be issued against
     // "SSS1 Science" while every student is filed under "SSS 1 Science",
     // producing nothing and no obvious reason why.
     $this->actingAs($admin)
@@ -103,7 +103,7 @@ test('the examination follows the class, so the two can never disagree', functio
     // This used to be a guard: the form offered an Examination separately, so
     // it had to be refused when it named a different class from the one
     // chosen. The examination is now DERIVED from the class, year and term,
-    // so a mismatch is not something to reject - it cannot be expressed.
+    // so a mismatch is not something to reject, it cannot be expressed.
     $this->actingAs($admin)
         ->post(route('result-pins.store-bulk'), [
             'class_name' => 'JSS 1',
@@ -123,7 +123,7 @@ test('the examination follows the class, so the two can never disagree', functio
 test('every class the school uses is offered, including one never entered into the academic structure', function () {
     [$school, $admin] = tokenClassSchool();
 
-    // A class with students but no SchoolClass row - a school that imported
+    // A class with students but no SchoolClass row, a school that imported
     // its students, or whose records predate the academic structure. A picker
     // that cannot offer the class you need is worse than the free-text field
     // it replaced.
@@ -159,7 +159,7 @@ test('choosing a class generates one token per student in it', function () {
         ])
         ->assertRedirect();
 
-    // Thirty students, thirty tokens - the School Admin created none of them
+    // Thirty students, thirty tokens, the School Admin created none of them
     // by hand.
     expect(ResultCheckingPin::count())->toBe(30)
         ->and(ResultCheckingPin::pluck('bound_student_id')->unique())->toHaveCount(30)
@@ -212,7 +212,7 @@ test('a class with no students generates nothing and says so', function () {
     // THE WORDING IS THE POINT, not merely that something was said. This
     // asserted only that a status existed, and passed for two years while the
     // message read "Every student in Creche already has a token for this
-    // result" - to a school holding no tokens at all, for a class holding no
+    // result", to a school holding no tokens at all, for a class holding no
     // students. A school reading that goes looking for tokens that were never
     // generated.
     $this->actingAs($admin)
@@ -313,7 +313,7 @@ test('a student with no token yet shows as a gap, not as an absence', function (
     ]);
 
     // Admitted after the batch. Built from the students rather than from the
-    // tokens, so "2 issued of 3 students" is visible - which it would not be
+    // tokens, so "2 issued of 3 students" is visible, which it would not be
     // in a list that only contained tokens.
     $latecomer = Student::factory()->create([
         'school_id' => $school->id,
@@ -374,8 +374,8 @@ test('a token redeemed from the public result link records no signed-in user', f
     identifyForResultCheck($school, $roll->first());
     $this->post(route('check-result.verify', $school), ['code' => $plain]);
 
-    // Nobody is signed in on that page by design - the token IS the
-    // credential - so the honest record is that there was no sign-in, not an
+    // Nobody is signed in on that page by design, the token IS the
+    // credential, so the honest record is that there was no sign-in, not an
     // invented identity.
     $this->actingAs($admin)
         ->get(route('result-pins.index', ['track_examination_id' => $examination->id]))
@@ -438,7 +438,7 @@ test('a student who joins after the batch is picked up by the next run', functio
 
     $this->actingAs($admin)->post(route('result-pins.store-bulk'), $payload);
 
-    // Four students, four tokens - the three who already held one were
+    // Four students, four tokens, the three who already held one were
     // skipped rather than reissued.
     expect($school->resultCheckingPins()->count())->toBe(4);
 });

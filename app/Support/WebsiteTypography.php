@@ -16,7 +16,7 @@ use App\Models\SchoolWebsite;
  * SAFETY IS THE POINT of validating here rather than trusting the column. The
  * family is written into every visitor's stylesheet, so a value that reached
  * the page unchecked would be a way to point the site at an arbitrary font
- * host - or worse, to break out of the declaration. Nothing is emitted that is
+ * host, or worse, to break out of the declaration. Nothing is emitted that is
  * not a key of the curated list in config/website_fonts.php, and a stored value
  * that has since been removed from that list falls back rather than rendering.
  */
@@ -31,8 +31,8 @@ final class WebsiteTypography
      *
      * TWO SOURCES, one list. The Google families are fetched; the system ones
      * are only declared, and render where the visitor already has them. The
-     * picker should not care which is which - a school choosing a font is
-     * choosing a look, not a delivery mechanism - so they are merged here and
+     * picker should not care which is which, a school choosing a font is
+     * choosing a look, not a delivery mechanism, so they are merged here and
      * separated again only where the difference actually matters, which is the
      * two methods below.
      *
@@ -81,7 +81,7 @@ final class WebsiteTypography
      * A school can pick Montserrat at 800, then switch to PT Sans, which only
      * ships 400 and 700. Asking Google for a weight a family does not have
      * gets a stylesheet that omits it and a browser that synthesises the
-     * difference - fake bold, visibly worse than the real thing. So the stored
+     * difference, fake bold, visibly worse than the real thing. So the stored
      * number is snapped to the nearest weight the family really has.
      */
     public static function weightFor(?SchoolWebsite $website): int
@@ -109,8 +109,8 @@ final class WebsiteTypography
     /**
      * The font-family declaration for the page.
      *
-     * The fallback stack is not decoration: a webfont that fails to load - a
-     * blocked request, a flaky connection - would otherwise leave the page in
+     * The fallback stack is not decoration: a webfont that fails to load, a
+     * blocked request, a flaky connection, would otherwise leave the page in
      * whatever the browser defaults to, which on some systems is a serif.
      */
     public static function stackFor(?SchoolWebsite $website): string
@@ -120,7 +120,7 @@ final class WebsiteTypography
         // A system family brings its OWN fallbacks, and they are chosen to
         // match: Georgia falls back to a serif, Courier New to a monospace,
         // Algerian to another heavy display face. The generic sans-serif stack
-        // below would answer every one of them with the same wrong thing - a
+        // below would answer every one of them with the same wrong thing, a
         // school that picked a typewriter face and got Helvetica would
         // reasonably think the setting had failed.
         if (self::isSystemFamily($family)) {

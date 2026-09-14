@@ -33,7 +33,7 @@ class EnsureUserIsSchoolAdmin
      *
      * `users.school_id` is nullable and SET NULL on delete, so an account can
      * outlive its school. Every school-side page reaches for the school on its
-     * first line - the layout reads its name, logo and plan - so such an
+     * first line, the layout reads its name, logo and plan, so such an
      * account produced a fatal error on whatever it opened rather than a
      * refusal.
      *
@@ -48,7 +48,7 @@ class EnsureUserIsSchoolAdmin
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // The unified sign-in, not route('login') - that name redirects on to
+        // The unified sign-in, not route('login'), that name redirects on to
         // registration, and this message beside a "register your school" form
         // reads as an instruction to do exactly that.
         return redirect()->route('portal.show')->withErrors([

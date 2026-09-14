@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
  * Everything that could push a school over its allocation goes through
  * withCapacity(). That matters more than it sounds: the limit is not one check
  * in one controller, it is a rule about the whole system, and there are at
- * least two ways to break it that a single check misses -
+ * least two ways to break it that a single check misses,
  *
  *   Two requests at once. Counting students and then creating one is two
  *   separate statements. Two simultaneous submissions can both count 99
@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\DB;
  *   enough to do it by accident.
  *
  *   Reactivating. A school at 100/100 can deactivate a student, add a new one,
- *   then reactivate the old one - 101 active students, with every individual
+ *   then reactivate the old one, 101 active students, with every individual
  *   step passing a naive check.
  *
  * withCapacity() closes both by taking a database lock and re-counting inside
@@ -59,7 +59,7 @@ class StudentLicenceAllocation
 
     /**
      * Licences still available, or null when the plan is uncapped. Never
-     * negative - an over-allocation caused by a plan change reads as 0 rather
+     * negative, an over-allocation caused by a plan change reads as 0 rather
      * than as a negative number that would confuse the interface.
      */
     public function remaining(School $school): ?int
@@ -93,7 +93,7 @@ class StudentLicenceAllocation
 
     /**
      * What the school was allocated at activation, before any additional
-     * request - the figure every approved addition was added to.
+     * request, the figure every approved addition was added to.
      *
      * Read back off the first request's "previous" snapshot rather than stored
      * separately, so it cannot drift from the additions that followed it.
@@ -132,7 +132,7 @@ class StudentLicenceAllocation
      * One method because these figures are only ever meaningful together, and
      * because every screen that shows them must show the same ones. Total is
      * the initial allocation plus every APPROVED addition, and remaining is
-     * that total minus the students actually on record - both read from the
+     * that total minus the students actually on record, both read from the
      * database at the moment of asking, never from anything the browser sent.
      *
      * @return array{initial: int, allocated: int, used: int, remaining: int, pending: int, runningLow: bool}|null
@@ -176,7 +176,7 @@ class StudentLicenceAllocation
         }
 
         // Within a tenth of the allocation, or five licences, whichever is
-        // larger - so a 30-student school is warned at 5 rather than at 3.
+        // larger, so a 30-student school is warned at 5 rather than at 3.
         return $remaining <= max(5, (int) ceil($allocated * 0.1));
     }
 

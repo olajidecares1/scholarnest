@@ -50,7 +50,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ $pageTitle }} - {{ config('app.name', 'AkademicNest') }} Team</title>
+        <title>{{ $pageTitle }} | {{ config('app.name', 'AkademicNest') }} Team</title>
 
         <x-favicon />
 
@@ -300,7 +300,7 @@
         </aside>
 
         {{-- The desktop sidebar. White, Font Awesome, and permission-gated by
-             exactly the $sidebarItems the mobile page-nav reads - a redesign
+             exactly the $sidebarItems the mobile page-nav reads, a redesign
              must not become a second answer to "what may this person open?".
 
              The mobile drawer above is a separate element and is unchanged. --}}

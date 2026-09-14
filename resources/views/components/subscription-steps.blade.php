@@ -17,8 +17,8 @@
     $perStudent ??= app(App\Services\SubscriptionWizardService::class)->isPerStudent();
 
     // Labels only. Each step once carried a "description" that nothing
-    // rendered - the bar shows Completed / In Progress / Pending underneath
-    // instead - so those were data that looked meaningful while changing
+    // rendered, the bar shows Completed / In Progress / Pending underneath
+    // instead, so those were data that looked meaningful while changing
     // nothing on screen.
     //
     // "Students & Amount" is its own step because for a Basic school that
@@ -42,7 +42,7 @@
 @endphp
 
 {{-- Six steps do not fit across a phone, and the answer is not to shrink them
-     until the labels collide - it is to let the bar be wider than the screen
+     until the labels collide, it is to let the bar be wider than the screen
      and slide.
 
      So each step keeps a real width below "sm" and the row scrolls; from "sm"
@@ -72,8 +72,8 @@
     x-init="$nextTick(() => centreCurrentStep())"
 >
     {{-- A plain "Step 3 of 6" above the rail. On a narrow screen part of the
-         bar is always off-screen, so the one fact the school most needs -
-         where they are, and how much is left - is stated in words that never
+         bar is always off-screen, so the one fact the school most needs,
+         where they are, and how much is left, is stated in words that never
          scroll away. --}}
     <div class="mb-3 flex items-baseline justify-between gap-3 sm:hidden">
         <p class="text-[11px] font-bold uppercase tracking-wide text-primary-600">

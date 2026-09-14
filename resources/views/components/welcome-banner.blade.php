@@ -6,7 +6,7 @@
     'subtitle' => null,
 
     // The three portals are phone interfaces, where this banner was costing
-    // roughly 190px - a third of a small screen - before the first thing a
+    // roughly 190px, a third of a small screen, before the first thing a
     // teacher came to do. Compact halves that and grows back on a tablet.
     // Opt-in, so the School Admin and AkademicNest Team dashboards that share this
     // component keep the banner they had.

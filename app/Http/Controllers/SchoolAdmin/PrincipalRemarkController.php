@@ -15,7 +15,7 @@ use Illuminate\View\View;
  * The Principal's library of reusable remarks.
  *
  * SCOPING IS THE WHOLE SECURITY STORY HERE. The school is always
- * $request->user()->school - taken from the session, never from the request -
+ * $request->user()->school, taken from the session, never from the request,
  * and every read and write is scoped to it. The route model binding resolves
  * a remark by uuid, and authorizeSchoolOwnership() then refuses one belonging
  * to anybody else, so a Principal who guesses another school's uuid is turned

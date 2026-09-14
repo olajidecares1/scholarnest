@@ -11,8 +11,8 @@ Standard and Exclusive schools each have an address of their own:
 
 | Plan | Where the school lives |
 | ---- | ---------------------- |
-| Standard | `greenfield.akademicanest.com` — its own subdomain |
-| Exclusive | `greenfieldschool.com` — its own domain |
+| Standard | `greenfield.akademicanest.com` its own subdomain |
+| Exclusive | `greenfieldschool.com` its own domain |
 | **Basic** | **nothing of its own** |
 
 Basic does not include a public website or a subdomain. That is the plan's main
@@ -72,7 +72,7 @@ php artisan basic-portal:token          # generate a new one
 php artisan basic-portal:token --show   # print the current portal URL
 ```
 
-The command deliberately does not write to `.env` itself — that file also holds
+The command deliberately does not write to `.env` itself, that file also holds
 database credentials, and on a live server the value belongs in the deployment's
 secret store.
 
@@ -93,12 +93,12 @@ The three portals share no route, controller or view.
 | --- | --- | --- |
 | Entry point | `/{token}` | Their own subdomain or domain |
 | Controller | `Portal\Basic\SchoolFinderController` | `PublicSchoolWebsiteController` |
-| School page | `/{slug}` — portal sign-in choices | `/` on their own host — a full website |
+| School page | `/{slug}` portal sign-in choices | `/` on their own host, a full website |
 
 **A Standard or Exclusive school cannot be found through the Basic finder**,
 even if its name is typed exactly. Two reasons:
 
-1. It would break the separation — those schools are reached directly.
+1. It would break the separation, those schools are reached directly.
 2. It would leak information. Confirming a school exists but is "not available
    here" tells an outsider both that AkademicNest has that customer and roughly what
    they pay for.
@@ -127,7 +127,7 @@ Laravel matches the first route that fits, so every real route wins.
 
 ### 2. The pattern excludes reserved words
 
-`config('basic_portal.reserved_slugs')` lists every name a school may not take —
+`config('basic_portal.reserved_slugs')` lists every name a school may not take,
 application paths, infrastructure names, environment names, and the mail-related
 names (`mail`, `webmail`, `noreply`) that would otherwise enable convincing
 phishing from a trusted domain.
@@ -140,7 +140,7 @@ The exclusion is anchored per word:
 
 The `(?: ... )$` grouping matters. Written as `(?!portal|login|...|akademicnest$)`
 the anchor would apply only to the *last* alternative, and any slug merely
-*starting* with a reserved word would 404 — quietly breaking a legitimate school
+*starting* with a reserved word would 404, quietly breaking a legitimate school
 called "Newspaper College". There is a regression test for exactly that.
 
 ### 3. Reserved slugs cannot be created
@@ -155,9 +155,9 @@ named "Login" becomes `login-2`. The collision cannot exist in the first place.
 `App\Services\BasicPortalSchoolFinder` runs three tiers and stops at the first
 that produces anything:
 
-1. **Exact** — school code, slug, or exact name (case-insensitive)
-2. **Prefix** — names starting with what was typed
-3. **Contains** — names containing it
+1. **Exact**: school code, slug, or exact name (case-insensitive)
+2. **Prefix**: names starting with what was typed
+3. **Contains**: names containing it
 
 Tiering matters. Without it, a school named exactly "Kings College" would be
 buried in a list alongside every other school with "college" in its name.
@@ -170,14 +170,14 @@ as a SQL join, so there is only one definition of "is on the Basic plan".
 
 The finder is a lookup against customer names, so two things guard it:
 
-- **Rate limiting** — `throttle:20,1` on both routes.
-- **Wildcard escaping** — `%` and `_` typed into the box are escaped, so they
+- **Rate limiting**: `throttle:20,1` on both routes.
+- **Wildcard escaping**: `%` and `_` typed into the box are escaped, so they
   match literally. Without this, submitting `%` would return every Basic school
   on the platform.
 
   The escape character is `!`, not the usual backslash. MySQL and SQLite
   disagree about backslashes in string literals, so `ESCAPE '\\'` means one
-  character to one engine and two to the other — and the second rejects it.
+  character to one engine and two to the other, and the second rejects it.
   `!` is special to neither, so production (MySQL) and the test suite (SQLite)
   behave identically.
 
@@ -211,6 +211,6 @@ a second copy of the same list of login buttons.
   would be unreachable.
 - **Adding a new top-level path?** Add it to `reserved_slugs` too, or a school
   could already own that name.
-- Run `tests/Feature/Portal/BasicPlanPortalTest.php` after touching routing —
+- Run `tests/Feature/Portal/BasicPlanPortalTest.php` after touching routing,
   it asserts that `/portal/sign-in` and `/up` still resolve to the application
   rather than being swallowed by the school route.

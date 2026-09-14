@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * A Word document a teacher sent to one or more classes.
  *
- * The file is stored ONCE, on the private disk, whichever classes receive it -
+ * The file is stored ONCE, on the private disk, whichever classes receive it,
  * the classes are rows in class_note_classes, not copies of the document. It
  * is never given a URL: every read goes through a controller that has checked
  * the school first, and for a pupil the class as well.
@@ -118,7 +118,7 @@ class ClassNote extends Model
     public function scopeForClass(Builder $query, ?string $className): void
     {
         // A pupil with no class recorded receives nothing, rather than
-        // everything - which is what an unfiltered query would do.
+        // everything, which is what an unfiltered query would do.
         if ($className === null || trim($className) === '') {
             $query->whereRaw('1 = 0');
 

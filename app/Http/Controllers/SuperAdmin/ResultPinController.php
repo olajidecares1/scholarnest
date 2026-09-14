@@ -18,7 +18,7 @@ use Illuminate\View\View;
  * Super Admin oversight of result tokens.
  *
  * Schools issue their own tokens now, so this is no longer a place where work
- * gets done on their behalf - it is where the platform can see what is being
+ * gets done on their behalf, it is where the platform can see what is being
  * issued and redeemed across every school, and step in when something looks
  * wrong.
  *
@@ -118,7 +118,7 @@ class ResultPinController extends Controller
      * Change the defaults that newly issued tokens inherit.
      *
      * Applies at issue, not at redemption, so tightening these never breaks a
-     * token a parent is already holding - it only shapes what schools mint
+     * token a parent is already holding, it only shapes what schools mint
      * from here on.
      */
     public function updateSettings(Request $request): RedirectResponse

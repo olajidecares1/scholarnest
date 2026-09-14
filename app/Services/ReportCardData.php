@@ -15,7 +15,7 @@ class ReportCardData
 {
     /**
      * Everything the report card (screen preview, print page, and PDF) needs
-     * for one student's examination - the single source of truth shared by
+     * for one student's examination, the single source of truth shared by
      * every portal's report-card controller, so School Admin, Teacher,
      * Student, and Guardian always render the exact same data.
      *
@@ -65,7 +65,7 @@ class ReportCardData
      *
      * The school clause is not redundant defensiveness. A student belongs to
      * one school, so filtering by student ALREADY confines this to that
-     * school's records - but only for as long as that stays true. Stating it
+     * school's records, but only for as long as that stays true. Stating it
      * makes "one school's attendance never reaches another school's results"
      * a property of this query rather than a consequence of an invariant kept
      * somewhere else.
@@ -75,7 +75,7 @@ class ReportCardData
     private static function attendanceSummaryFor(Student $student, ?AcademicTerm $term): ?array
     {
         // No term dates recorded, so there is no window to count within. The
-        // card says so rather than guessing at one - see termDatesMissing.
+        // card says so rather than guessing at one, see termDatesMissing.
         if (! $term) {
             return null;
         }

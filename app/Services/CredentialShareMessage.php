@@ -7,15 +7,15 @@ use App\Models\School;
 /**
  * The message a School Admin sends when handing over someone's login details.
  *
- * Built at the one moment the password exists in readable form - immediately
- * after it is set - and never stored. It is flashed to the session for the
+ * Built at the one moment the password exists in readable form, immediately
+ * after it is set, and never stored. It is flashed to the session for the
  * length of one page view and is gone after that, which is why the "Share via
  * WhatsApp" button appears only on the response to saving credentials.
  *
  * On the logo: a wa.me link carries text, not attachments, so the school's
  * logo cannot be embedded in the message itself. What goes in instead is the
  * login link, which WhatsApp renders as a preview card showing the school's
- * own sign-in page - branding included. Its address is in the message too, for
+ * own sign-in page, branding included. Its address is in the message too, for
  * clients that do not preview.
  */
 class CredentialShareMessage
@@ -43,7 +43,7 @@ class CredentialShareMessage
         // Only when there is one to send. A password exists in readable form
         // for the single page view after it is set and never again, so a share
         // sent later carries the ID and the link, and says where the password
-        // comes from - rather than a "Password:" line with nothing after it.
+        // comes from, rather than a "Password:" line with nothing after it.
         $lines[] = $password === null
             ? '*Password:* issued separately by the school office.'
             : "*Password:* {$password}";
@@ -56,7 +56,7 @@ class CredentialShareMessage
         }
 
         $lines[] = '';
-        $lines[] = 'Please keep these details private. If you lose your password, ask the school office for a new one — it cannot be looked up.';
+        $lines[] = 'Please keep these details private. If you lose your password, ask the school office for a new one. It cannot be looked up.';
 
         $message = implode("\n", $lines);
 
@@ -71,7 +71,7 @@ class CredentialShareMessage
     /**
      * wa.me with a number opens the chat with that person; without one it opens
      * WhatsApp's contact picker. The second is the sensible fallback rather
-     * than hiding the button - a school that has not recorded a phone number
+     * than hiding the button, a school that has not recorded a phone number
      * can still choose the right chat.
      */
     private function shareUrl(string $message, ?string $phone): string

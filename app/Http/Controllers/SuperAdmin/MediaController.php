@@ -158,7 +158,7 @@ class MediaController extends Controller
      * Store an image or a video and describe what was stored.
      *
      * Image or video is decided from the CONTENT (finfo), not the extension
-     * the uploader's filename happens to carry - the mimes: rule has already
+     * the uploader's filename happens to carry, the mimes: rule has already
      * restricted what arrives to the lists at the top of the class. Images go
      * through the processor, so what is recorded is the size and dimensions
      * of the stored file, not of the upload.

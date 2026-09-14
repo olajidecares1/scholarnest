@@ -13,7 +13,7 @@
                                 <p class="field-hint">{{ $entry->class_name }}@if ($entry->room) &middot; {{ $entry->room }} @endif</p>
                             </div>
                             <span class="shrink-0 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                                {{ \Illuminate\Support\Carbon::parse($entry->start_time)->format('h:i A') }} – {{ \Illuminate\Support\Carbon::parse($entry->end_time)->format('h:i A') }}
+                                {{ \Illuminate\Support\Carbon::parse($entry->start_time)->format('h:i A') }} to {{ \Illuminate\Support\Carbon::parse($entry->end_time)->format('h:i A') }}
                             </span>
                         </div>
                     @empty

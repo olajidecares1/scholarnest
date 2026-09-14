@@ -38,7 +38,7 @@ class IdCardController extends Controller
 
     /**
      * Renders the full preview page for a normal navigation (a graceful
-     * fallback for middle-click/"open in new tab") - but when the request is
+     * fallback for middle-click/"open in new tab"), but when the request is
      * an in-page fetch() from the ID card preview modal ("Accept:
      * application/json"), returns the same card's front/back markup as JSON
      * instead, so the modal never has to duplicate the card's rendering.

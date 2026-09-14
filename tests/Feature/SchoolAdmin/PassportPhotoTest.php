@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
  * A passport photograph, however it was taken.
  *
  * The camera and the file picker both end at the SAME file input, so a
- * captured photograph reaches the server as an ordinary upload - identical
+ * captured photograph reaches the server as an ordinary upload, identical
  * validation, identical optimisation, identical private-disk storage. These
  * tests exercise that one path, because there is only one.
  *
@@ -185,7 +185,7 @@ describe('what arrives is stored privately and bound to its own record', functio
  * Everywhere a photograph is printed, it is read off the record being printed.
  *
  * The URL carries the holder's own uuid, so a page showing one person can never
- * address another person's file - there is no id in the markup to change.
+ * address another person's file, there is no id in the markup to change.
  */
 describe('the record decides whose face is shown', function () {
     test('a pupil page shows that pupil and nobody else', function () {

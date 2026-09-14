@@ -61,7 +61,7 @@ class SubscriptionApprovalController extends Controller
      * One subscription, reviewed from inside the Super Admin panel.
      *
      * This exists because the only "view" for a subscription used to be
-     * subscriptions.confirmation - the last step of the SCHOOL's signup
+     * subscriptions.confirmation, the last step of the SCHOOL's signup
      * wizard. Sending a Super Admin there to review a payment showed them a
      * progress bar and "Thank You! Your Payment Has Been Received", as though
      * they were the school that had just paid, and dropped them out of their
@@ -160,7 +160,7 @@ class SubscriptionApprovalController extends Controller
                     $subscription->plan->name,
                     $subscription->billing_cycle->label(),
                     $subscription->amount,
-                    $subscription->latestPayment?->method?->label() ?? '—',
+                    $subscription->latestPayment?->method?->label() ?? 'N/A',
                     $subscription->status->label(),
                     $subscription->reference,
                     $subscription->created_at->format('Y-m-d H:i'),
@@ -246,7 +246,7 @@ class SubscriptionApprovalController extends Controller
             ]);
         });
 
-        // The welcome email, and this is the only place it is sent from - see
+        // The welcome email, and this is the only place it is sent from, see
         // the notification for why it belongs here and nowhere earlier.
         //
         // $subscription is re-read so the email quotes the dates the

@@ -3,7 +3,7 @@
         @php
             // Which doors this school actually has.
             //
-            // Every plan gets the School Admin and the Staff/Teacher portals -
+            // Every plan gets the School Admin and the Staff/Teacher portals,
             // the staff portal is where attendance and marks are entered, which
             // is core academic work rather than a premium extra.
             //
@@ -11,7 +11,7 @@
             // Basic school has no accounts for families at all, so listing
             // those two here would offer a Basic parent a door that opens onto
             // the "locked" page. Parents on Basic are not shut out of results
-            // though - they use a result token, which needs no account, so that
+            // though, they use a result token, which needs no account, so that
             // is what takes the place of those two entries.
             $hasFamilyPortals = $school->hasPlanAccess(\App\Enums\PlanKey::Standard, \App\Enums\PlanKey::Exclusive);
         @endphp

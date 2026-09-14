@@ -10,7 +10,7 @@ use Symfony\Component\Mailer\Exception\UnsupportedSchemeException;
  * .env.production.example shipped MAIL_SCHEME=tls. It reads like an encryption
  * setting and is not one: the scheme is handed to Symfony's SMTP transport,
  * which accepts "smtp" and "smtps" and throws on anything else. Nothing fails
- * at boot - the exception waits for the first email, which in production is a
+ * at boot, the exception waits for the first email, which in production is a
  * parent's password reset.
  *
  * Building the transport is enough to prove it. The scheme is checked when the

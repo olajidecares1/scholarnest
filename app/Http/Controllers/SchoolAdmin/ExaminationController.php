@@ -122,7 +122,7 @@ class ExaminationController extends Controller
      * the four things the administrator already knows.
      *
      * Unlike a teacher, an administrator is not restricted to classes or
-     * subjects assigned to them - they are responsible for all of them - so
+     * subjects assigned to them, they are responsible for all of them, so
      * there is no assignment check here, only the school boundary.
      */
     public function scoreEntry(Request $request): View
@@ -305,7 +305,7 @@ class ExaminationController extends Controller
                     // The two marks are what a teacher enters. The total is
                     // their sum, worked out here rather than accepted from the
                     // form, so a total can never disagree with the marks it
-                    // came from - and the grade and remark are derived from it
+                    // came from, and the grade and remark are derived from it
                     // on read, against this school's own bands.
                     'test_score' => $testScore,
                     'exam_score' => $examScore,

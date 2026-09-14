@@ -10,7 +10,7 @@ use App\Models\School;
  *
  *   BASIC       everything on the platform host. A shared token front door,
  *               a landing page at /{portal_key}, portals under
- *               /p/{portal_key}/..., and NO public website at all.
+ *               /p/{portal_key}/... and NO public website at all.
  *
  *   STANDARD    its own subdomain. The website and all four portals move
  *               onto it.
@@ -37,8 +37,8 @@ describe('Basic plan', function () {
 
         // publicUrl() will happily build /p/{portal_key} for any school, and
         // PublicSchoolWebsiteController answers that with 404 below Standard.
-        // The application was handing that address out - to the dashboard's
-        // "School Website" button and to production:urls - as though it were
+        // The application was handing that address out, to the dashboard's
+        // "School Website" button and to production:urls, as though it were
         // real. A school with no website produces no website URL.
         expect($school->hasPublicWebsite())->toBeFalse()
             ->and($school->websiteUrl())->toBeNull();
@@ -138,7 +138,7 @@ test('a school that drops to Basic stops advertising the website it kept', funct
 
     expect($school->websiteUrl())->not->toBeNull();
 
-    // Downgraded. The published website ROW survives - nothing deletes it -
+    // Downgraded. The published website ROW survives, nothing deletes it,
     // and without the plan check this would go on handing out an address the
     // public site now refuses to serve.
     $school->subscriptions()->delete();

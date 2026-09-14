@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * A signature, re-drawn in gold and thickened.
  *
- * The rule is that a Principal's signature appears in gold, bold, everywhere -
+ * The rule is that a Principal's signature appears in gold, bold, everywhere,
  * report cards, ID cards, certificates, previews, on screen and in print. That
  * cannot be done with CSS. A signature is a PNG of near-black strokes on
  * transparency, and:
@@ -16,12 +16,12 @@ use Illuminate\Support\Facades\Storage;
  *   - `filter: sepia() hue-rotate()` approximates a colour rather than setting
  *     one, and lands somewhere different for every source image;
  *   - dompdf ignores CSS filters entirely, so the printed card would come out
- *     black while the screen preview showed gold - exactly the preview/output
+ *     black while the screen preview showed gold, exactly the preview/output
  *     drift this project keeps eliminating;
  *   - `font-weight` means nothing to an image.
  *
- * So the pixels are rewritten instead. The alpha channel IS the signature -
- * where the pen went - and everything else is thrown away: every visible pixel
+ * So the pixels are rewritten instead. The alpha channel IS the signature,
+ * where the pen went, and everything else is thrown away: every visible pixel
  * becomes the same gold, whatever colour it was drawn in. That is also what
  * makes the rule enforceable rather than aspirational: a signature drawn in
  * blue, or scanned from blue ink, comes out gold like every other.
@@ -84,7 +84,7 @@ class GoldSignature
 
     /**
      * Inline, not a URL. The gold rendering is a second copy of a signature and
-     * was kept on the public disk beside the original - so moving the original
+     * was kept on the public disk beside the original, so moving the original
      * to private storage without moving this would have left the exposure
      * exactly where it was, one directory across.
      */
@@ -108,7 +108,7 @@ class GoldSignature
     {
         $path = $this->pathFor($sourcePath);
 
-        // A real file from whichever disk holds it - see UploadStorage::localPath().
+        // A real file from whichever disk holds it, see UploadStorage::localPath().
         return $path ? app(UploadStorage::class)->localPath('local', $path) : null;
     }
 
@@ -191,7 +191,7 @@ class GoldSignature
      *
      * This is the "bold": a stroke grows outwards by a pixel on every side,
      * so a thin pen line reads as a confident one at the sizes a signature is
-     * printed - about 28px tall on a report card, 15px on an ID card.
+     * printed, about 28px tall on a report card, 15px on an ID card.
      *
      * @param  array<int, array<int, int>>  $opacity
      */

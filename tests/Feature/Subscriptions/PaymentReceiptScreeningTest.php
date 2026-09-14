@@ -16,55 +16,57 @@ use Database\Seeders\PlanSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Tests\Support\UploadFixtures;
 
 // The wizard reads real plan records to price the subscription, and the
 // end-to-end tests below walk it. Harmless for the rest.
 beforeEach(function () {
     $this->seed(PlanSeeder::class);
+
+    // Screening runs on our own servers. Any outside request is a failure.
+    Http::preventStrayRequests();
 });
 
 /**
- * Fake one screening response and run a receipt through it.
- *
- * @param  array<string, mixed>  $assessment
  * @return array{passed: bool, reason: ?string, notes: ?string}
  */
-function screenReceipt(array $assessment, float $required = 50000.0): array
+function screenReceipt(UploadedFile $receipt, float $required = 50000.0): array
 {
-    config(['services.anthropic.key' => 'test-key']);
-
-    Http::fake(['api.anthropic.com/*' => Http::response([
-        'content' => [[
-            'type' => 'tool_use',
-            'name' => 'record_receipt_assessment',
-            'input' => $assessment,
-        ]],
-    ], 200)]);
-
-    return app(PaymentReceiptScreening::class)->screen(
-        UploadedFile::fake()->image('receipt.jpg'),
-        $required,
-        'Greenfield College',
-    );
+    return app(PaymentReceiptScreening::class)->screen($receipt, $required, 'Greenfield College');
 }
 
 // -----------------------------------------------------------------------------
 // Turning away what is not a receipt.
 // -----------------------------------------------------------------------------
 
-test('a file that is not a payment document is refused', function () {
-    $result = screenReceipt([
-        'is_payment_receipt' => false,
-        'what_it_looks_like' => 'a photograph of a building',
-    ]);
+test('a blank image is refused', function () {
+    $result = screenReceipt(UploadFixtures::blankPng());
 
     expect($result['passed'])->toBeFalse()
         ->and($result['reason'])->toContain('Payment Verification Failed')
-        ->and($result['reason'])->toContain('a photograph of a building');
+        ->and($result['reason'])->toContain('appears to be blank');
+});
+
+test('an image too small to read is refused', function () {
+    $result = screenReceipt(UploadedFile::fake()->image('tiny.jpg', 60, 60));
+
+    expect($result['passed'])->toBeFalse()
+        ->and($result['reason'])->toContain('too small to read');
+});
+
+test('a PDF that is plainly not a payment is refused', function () {
+    $result = screenReceipt(UploadFixtures::textPdf([
+        'Mathematics Examination',
+        'Answer all questions in section A.',
+        'Question 1: Solve for x in 2x + 4 = 10.',
+    ]));
+
+    expect($result['passed'])->toBeFalse()
+        ->and($result['reason'])->toContain('does not look like a proof of payment');
 });
 
 test('the refusal says what a good upload looks like', function () {
-    $result = screenReceipt(['is_payment_receipt' => false]);
+    $result = screenReceipt(UploadFixtures::blankPng());
 
     expect($result['reason'])->toContain('bank transfer receipt')
         ->and($result['reason'])->toContain('transaction reference');
@@ -75,10 +77,11 @@ test('the refusal says what a good upload looks like', function () {
 // -----------------------------------------------------------------------------
 
 test('a receipt for clearly less than the plan costs is refused', function () {
-    $result = screenReceipt([
-        'is_payment_receipt' => true,
-        'amount' => 5000,
-    ], required: 50000.0);
+    $result = screenReceipt(UploadFixtures::textPdf([
+        'Transfer Successful',
+        'Amount: NGN 5,000.00',
+        'Reference: TRF/2026/00912',
+    ]), required: 50000.0);
 
     expect($result['passed'])->toBeFalse()
         ->and($result['reason'])->toContain('Insufficient Payment')
@@ -87,34 +90,45 @@ test('a receipt for clearly less than the plan costs is refused', function () {
 });
 
 test('a receipt for the exact amount passes', function () {
-    $result = screenReceipt([
-        'is_payment_receipt' => true,
-        'amount' => 50000,
-    ], required: 50000.0);
+    $result = screenReceipt(UploadFixtures::textPdf([
+        'Transfer Successful',
+        'Amount: ₦50,000.00',
+    ]), required: 50000.0);
 
     expect($result['passed'])->toBeTrue();
 });
 
 test('a receipt a shade under the amount still reaches a person', function () {
-    // A misread digit on a photographed receipt must not turn away a school
-    // that actually paid.
-    $result = screenReceipt([
-        'is_payment_receipt' => true,
-        'amount' => 49500,
-    ], required: 50000.0);
+    $result = screenReceipt(UploadFixtures::textPdf([
+        'Transfer Successful',
+        'Amount: NGN 49,500.00',
+    ]), required: 50000.0);
 
     expect($result['passed'])->toBeTrue();
 });
 
-test('an unreadable amount is not treated as a shortfall', function () {
-    // Plenty of genuine receipts photograph badly, and a person can read what
-    // the screening could not.
-    $result = screenReceipt([
-        'is_payment_receipt' => true,
-        'amount' => null,
-    ], required: 50000.0);
+test('a statement that also shows a larger balance is not treated as a shortfall', function () {
+    $result = screenReceipt(UploadFixtures::textPdf([
+        'Account Statement',
+        'Debit Transfer to AkademicNest N50,000.00',
+        'Balance N1,250,000.00',
+    ]), required: 50000.0);
 
     expect($result['passed'])->toBeTrue();
+});
+
+test('an image receipt has no readable amount, so it is never refused for one', function () {
+    $result = screenReceipt(UploadFixtures::receiptPng(), required: 50000.0);
+
+    expect($result['passed'])->toBeTrue()
+        ->and($result['notes'])->toContain('Image receipt');
+});
+
+test('a scanned or protected PDF goes to a person rather than being refused', function () {
+    $result = screenReceipt(UploadedFile::fake()->create('statement.pdf', 40, 'application/pdf'));
+
+    expect($result['passed'])->toBeTrue()
+        ->and($result['notes'])->toContain('no readable text');
 });
 
 // -----------------------------------------------------------------------------
@@ -124,89 +138,44 @@ test('an unreadable amount is not treated as a shortfall', function () {
 test('a receipt that passes every check is still only sent for review', function () {
     // The whole point. A carefully edited receipt passes anything that can be
     // written here, so passing must never read as "verified".
-    $result = screenReceipt([
-        'is_payment_receipt' => true,
-        'amount' => 50000,
-        'reference' => 'TRF/2026/00912',
-        'payer' => 'Greenfield College',
-        'bank' => 'GTBank',
-    ]);
+    $result = screenReceipt(UploadFixtures::textPdf([
+        'GTBank Transfer Receipt',
+        'Transaction Reference: TRF/2026/00912',
+        'Amount: NGN 50,000.00',
+        'Sender: Greenfield College',
+        'Date: '.now()->format('d/m/Y'),
+    ]));
 
     expect($result['passed'])->toBeTrue()
         ->and($result['notes'])->toContain('Not verified')
-        ->and($result['notes'])->toContain('confirm against the bank record')
-        ->and($result['notes'])->toContain('TRF/2026/00912');
+        ->and($result['notes'])->toContain('Confirm against the bank record')
+        ->and($result['notes'])->toContain('TRF/2026/00912')
+        ->and($result['notes'])->toContain('₦50,000.00')
+        ->and($result['notes'])->toContain('GTBank')
+        ->and($result['notes'])->toContain("Mentions the school's name");
 });
 
-test('concerns are passed to the reviewer rather than used to refuse', function () {
-    $result = screenReceipt([
-        'is_payment_receipt' => true,
-        'amount' => 50000,
-        'concerns' => ['The date appears to be from two years ago.'],
-    ]);
+test('an old date is passed to the reviewer rather than used to refuse', function () {
+    $result = screenReceipt(UploadFixtures::textPdf([
+        'Transfer Successful',
+        'Amount: NGN 50,000.00',
+        'Date: '.now()->subYears(2)->format('d/m/Y'),
+    ]));
 
     expect($result['passed'])->toBeTrue()
-        ->and($result['notes'])->toContain('two years ago');
+        ->and($result['notes'])->toContain('more than six months old');
 });
 
-// -----------------------------------------------------------------------------
-// Our outage is not the school's problem.
-// -----------------------------------------------------------------------------
+test('screening sends nothing to any outside service', function () {
+    screenReceipt(UploadFixtures::receiptPng());
+    screenReceipt(UploadFixtures::textPdf(['Transfer Successful', 'Amount: NGN 50,000.00']));
 
-test('a school is not blocked when the screening service is down', function () {
-    // A school that has paid must not be turned away because our own billing
-    // lapsed. The upload goes through, flagged for manual attention.
-    config(['services.anthropic.key' => 'test-key']);
-
-    Http::fake(['api.anthropic.com/*' => Http::response([
-        'error' => ['type' => 'invalid_request_error', 'message' => 'Your credit balance is too low.'],
-    ], 400)]);
-
-    $result = app(PaymentReceiptScreening::class)->screen(
-        UploadedFile::fake()->image('receipt.jpg'),
-        50000.0,
-        'Greenfield College',
-    );
-
-    expect($result['passed'])->toBeTrue()
-        ->and($result['notes'])->toContain('Automatic screening did not run')
-        ->and($result['notes'])->toContain('Review this receipt manually');
-});
-
-test('an unconfigured screening service does not block uploads either', function () {
-    config(['services.anthropic.key' => null]);
-
-    $result = app(PaymentReceiptScreening::class)->screen(
-        UploadedFile::fake()->image('receipt.jpg'),
-        50000.0,
-        'Greenfield College',
-    );
-
-    expect($result['passed'])->toBeTrue()
-        ->and($result['notes'])->toContain('did not run');
+    Http::assertNothingSent();
 });
 
 // -----------------------------------------------------------------------------
 // Both doors, end to end.
 // -----------------------------------------------------------------------------
-
-/**
- * Make every screening call answer with this assessment.
- *
- * @param  array<string, mixed>  $assessment
- */
-function fakeScreening(array $assessment): void
-{
-    config(['services.anthropic.key' => 'test-key']);
-
-    Http::fake(['api.anthropic.com/*' => Http::response([
-        'content' => [[
-            'type' => 'tool_use',
-            'name' => 'record_receipt_assessment',
-            'input' => $assessment,
-        ]],
-    ], 200)]);
-}
 
 test('registration refuses a file that is not a receipt, and stores nothing', function () {
     Storage::fake('local');
@@ -221,14 +190,9 @@ test('registration refuses a file that is not a receipt, and stores nothing', fu
         'billing_address' => '1 School Road',
     ]);
 
-    fakeScreening([
-        'is_payment_receipt' => false,
-        'what_it_looks_like' => 'a selfie',
-    ]);
-
     $this->actingAs($user)->post(route('subscriptions.payment-method.store'), [
         'payment_method' => 'bank_transfer',
-        'receipt' => UploadedFile::fake()->image('not-a-receipt.jpg'),
+        'receipt' => UploadFixtures::blankPng(),
     ])->assertSessionHasErrors('receipt');
 
     // Refused at the door: nothing written to disk, and the wizard has not
@@ -249,15 +213,9 @@ test('registration lets a plausible receipt through to review', function () {
         'billing_address' => '1 School Road',
     ]);
 
-    fakeScreening([
-        'is_payment_receipt' => true,
-        'amount' => 50000,
-        'reference' => 'TRF/2026/00912',
-    ]);
-
     $this->actingAs($user)->post(route('subscriptions.payment-method.store'), [
         'payment_method' => 'bank_transfer',
-        'receipt' => UploadedFile::fake()->image('receipt.jpg'),
+        'receipt' => UploadFixtures::receiptPng(),
     ])->assertRedirect(route('subscriptions.review'));
 });
 
@@ -276,11 +234,9 @@ test('screening never activates a subscription on its own', function () {
         'billing_address' => '1 School Road',
     ]);
 
-    fakeScreening(['is_payment_receipt' => true, 'amount' => 50000, 'reference' => 'TRF/1']);
-
     $this->actingAs($user)->post(route('subscriptions.payment-method.store'), [
         'payment_method' => 'bank_transfer',
-        'receipt' => UploadedFile::fake()->image('receipt.jpg'),
+        'receipt' => UploadFixtures::receiptPng(),
     ]);
 
     $this->actingAs($user)->post(route('subscriptions.review.store'));
@@ -290,7 +246,7 @@ test('screening never activates a subscription on its own', function () {
     expect($subscription->status)->toBe(SubscriptionStatus::PendingVerification)
         ->and($subscription->status)->not->toBe(SubscriptionStatus::Active);
 
-    // And what screening read is on the payment as notes for the reviewer.
+    // And what screening found is on the payment as notes for the reviewer.
     $payment = Payment::where('subscription_id', $subscription->id)->firstOrFail();
 
     expect($payment->notes)->toContain('Not verified')
@@ -333,12 +289,10 @@ test('a top-up refuses a file that is not a receipt', function () {
     Storage::fake('local');
     [$admin] = topUpSchoolAdmin();
 
-    fakeScreening(['is_payment_receipt' => false, 'what_it_looks_like' => 'a blank page']);
-
     $this->actingAs($admin)->post(route('subscription-top-up.store'), [
         'additional_students_count' => 20,
         'payment_method' => 'bank_transfer',
-        'receipt' => UploadedFile::fake()->image('blank.jpg'),
+        'receipt' => UploadFixtures::blankPng(),
     ])->assertSessionHasErrors('receipt');
 
     expect(SubscriptionTopUp::count())->toBe(0)
@@ -351,12 +305,10 @@ test('a top-up refuses a receipt for less than the slots cost', function () {
     Storage::fake('local');
     [$admin] = topUpSchoolAdmin();
 
-    fakeScreening(['is_payment_receipt' => true, 'amount' => 900]);
-
     $this->actingAs($admin)->post(route('subscription-top-up.store'), [
         'additional_students_count' => 20,
         'payment_method' => 'bank_transfer',
-        'receipt' => UploadedFile::fake()->image('short.jpg'),
+        'receipt' => UploadFixtures::textPdf(['Transfer Successful', 'Amount: NGN 900.00']),
     ])->assertSessionHasErrors('receipt');
 
     expect(SubscriptionTopUp::count())->toBe(0);
@@ -366,12 +318,10 @@ test('a top-up with a matching receipt is recorded, still pending verification',
     Storage::fake('local');
     [$admin] = topUpSchoolAdmin();
 
-    fakeScreening(['is_payment_receipt' => true, 'amount' => 10000, 'reference' => 'TRF/77']);
-
     $this->actingAs($admin)->post(route('subscription-top-up.store'), [
         'additional_students_count' => 20,
         'payment_method' => 'bank_transfer',
-        'receipt' => UploadedFile::fake()->image('receipt.jpg'),
+        'receipt' => UploadFixtures::textPdf(['Transfer Successful', 'Amount: NGN 10,000.00', 'Reference: TRF/77AB12']),
     ])->assertRedirect();
 
     $topUp = SubscriptionTopUp::firstOrFail();

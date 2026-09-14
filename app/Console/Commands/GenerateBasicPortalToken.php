@@ -63,7 +63,7 @@ class GenerateBasicPortalToken extends Command
         // command risks mangling a file that also holds database credentials,
         // and on a live server the change belongs in the deployment's secret
         // store rather than in a file this process happens to be able to write.
-        $this->line('  '.Str::of('This command never edits .env for you - paste the line above yourself.')->toString());
+        $this->line('  '.Str::of('This command never edits .env for you. Paste the line above yourself.')->toString());
 
         return self::SUCCESS;
     }

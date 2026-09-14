@@ -3,7 +3,7 @@
  *
  * The problem this solves: a CBT document upload has two phases that feel like
  * one long freeze. Sending the bytes is measurable. Extracting questions from
- * the document is not - the extractor gives no interim signal, and a large
+ * the document is not, the extractor gives no interim signal, and a large
  * scanned PDF can take a minute. A plain form post shows neither, so the page
  * simply hangs and the upload looks broken.
  *
@@ -104,7 +104,7 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
             });
 
             // The bytes have all been sent, but the server has not answered
-            // yet - it is storing the file and queueing the work. This is the
+            // yet, it is storing the file and queueing the work. This is the
             // exact moment a naive implementation would sit at 100%, so the
             // percentage is dropped here instead.
             xhr.upload.addEventListener('load', () => {
@@ -145,7 +145,7 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
                     return;
                 }
 
-                // The form's security token expired - a page left open for
+                // The form's security token expired, a page left open for
                 // hours. Reloading gives it a fresh one.
                 if (xhr.status === 419) {
                     this.needsReload = true;
@@ -220,7 +220,7 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
                     this.message = state.message;
 
                     // The queue is not running. Say so plainly instead of
-                    // spinning forever - this is recoverable, and the person
+                    // spinning forever, this is recoverable, and the person
                     // watching can do something about it.
                     if (state.stalled) {
                         this.heading = 'Waiting to start';
@@ -248,7 +248,7 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
 
                     if (this.pollFailures >= 5) {
                         this.stopPolling();
-                        this.message = 'Lost contact with the server. The document is still being processed — reload to check.';
+                        this.message = 'Lost contact with the server. The document is still being processed. Reload to check.';
                     }
                 }
             }, 2000);

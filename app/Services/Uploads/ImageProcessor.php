@@ -29,14 +29,14 @@ use Imagick;
  *  - The pixel count is checked against memory before anything is decoded, so
  *    a 200-megapixel file is a clear message rather than a crashed request.
  *  - EXIF orientation is applied, so the stored pixels are upright.
- *  - The image is scaled down to its profile's longest edge - never up.
+ *  - The image is scaled down to its profile's longest edge, never up.
  *  - Metadata (EXIF with GPS, XMP, IPTC, comments) is removed.
  *  - WHEN NOTHING NEEDS CHANGING, THE PIXELS ARE NOT RE-ENCODED. Metadata is cut
  *    out of the file structure losslessly, so an image that already fits is
  *    stored at exactly the quality it was uploaded at. Compressing it again
  *    would only make it worse.
  *  - When it does need re-encoding: JPEG at quality 90, PNG losslessly, WebP at
- *    90 - each keeping its own format, so transparency survives.
+ *    90, each keeping its own format, so transparency survives.
  */
 class ImageProcessor
 {
@@ -159,7 +159,7 @@ class ImageProcessor
         $needsRotate = $orientation > 1;
 
         // An animated GIF cannot be resized frame by frame with GD. It is kept
-        // exactly as uploaded - GIF carries no EXIF to strip.
+        // exactly as uploaded, GIF carries no EXIF to strip.
         if ($mime === 'image/gif' && $this->isAnimatedGif($bytes)) {
             return new ProcessedImage($bytes, 'image/gif', 'gif', $width, $height);
         }
@@ -493,7 +493,7 @@ class ImageProcessor
      * Kept: JFIF (APP0), the ICC colour profile (APP2 "ICC_PROFILE"), Adobe
      * (APP14, needed to decode CMYK correctly), and every segment that carries
      * the image itself. Dropped: EXIF and XMP (APP1), IPTC (APP13), other
-     * vendor APPn blocks, comments - and anything after the image ends, which
+     * vendor APPn blocks, comments, and anything after the image ends, which
      * is where phones append depth maps and where a hidden payload would sit.
      *
      * Returns null when the structure cannot be followed; the caller then
@@ -556,7 +556,7 @@ class ImageProcessor
 
             // Entropy-coded data follows a start-of-scan until the next real
             // marker. 0xFF00 is an escaped byte and 0xFFD0-D7 are restart
-            // markers - both part of the data. Progressive JPEGs have several
+            // markers, both part of the data. Progressive JPEGs have several
             // scans, so parsing resumes at whatever marker ends this one.
             $start = $pos;
 

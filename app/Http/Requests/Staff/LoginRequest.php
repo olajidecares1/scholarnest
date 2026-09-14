@@ -51,7 +51,7 @@ class LoginRequest extends FormRequest
 
         // staff_number/email are only unique per-school, not globally, so the
         // credential lookup must always be scoped to the school the staff member
-        // is logging in through - mirrors the same constraint on student login.
+        // is logging in through, mirrors the same constraint on student login.
         $credentials = [
             $field => $this->string('login')->toString(),
             'password' => $this->string('password')->toString(),
@@ -108,7 +108,7 @@ class LoginRequest extends FormRequest
      * Get the rate limiting throttle key for the request.
      *
      * Scoped by school_id, not just the login string, because
-     * staff_number/email are only unique per-school - without this, a
+     * staff_number/email are only unique per-school, without this, a
      * staff member at one school could be locked out by failed attempts
      * against an identically-numbered/named staff member at a completely
      * different school sharing the same IP address.

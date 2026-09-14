@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * What a school says about itself on its own front page.
  *
- * The About section had one field - a block of prose - and the design calls
+ * The About section had one field, a block of prose, and the design calls
  * for five things: a headline, a photograph, and the three statements a
  * school is actually asked for when a parent is deciding.
  *

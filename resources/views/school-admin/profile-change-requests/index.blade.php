@@ -42,11 +42,11 @@
                                 </td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $changeRequest->field_label }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">
-                                    <span class="line-through opacity-60">{{ $changeRequest->current_value ?: '—' }}</span>
+                                    <span class="line-through opacity-60">{{ $changeRequest->current_value ?: 'N/A' }}</span>
                                     &rarr;
                                     <span class="font-semibold text-gray-900 dark:text-white">{{ $changeRequest->requested_value }}</span>
                                 </td>
-                                <td class="max-w-xs truncate px-5 py-3 text-gray-500 dark:text-gray-400">{{ $changeRequest->reason ?: '—' }}</td>
+                                <td class="max-w-xs truncate px-5 py-3 text-gray-500 dark:text-gray-400">{{ $changeRequest->reason ?: 'N/A' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $changeRequest->created_at->format('M j, Y') }}</td>
                                 <td class="px-5 py-3">
                                     <span @class([

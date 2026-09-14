@@ -4,7 +4,7 @@
     Frontend half of the 3-minute inactivity timeout (the server-side half
     is App\Http\Middleware\LogsOutIdleUsers, which enforces the same cutoff
     independently of this script). This component only exists to give the
-    user a predictable, immediate experience - a warning at 2:30 and a real
+    user a predictable, immediate experience, a warning at 2:30 and a real
     logout form submission (not just a client-side redirect) at 3:00, so the
     session is actually terminated server-side rather than merely hidden.
 --}}

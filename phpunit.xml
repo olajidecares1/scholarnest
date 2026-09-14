@@ -22,7 +22,7 @@
 
         <!--
             The host the test HTTP client actually uses. Without this the suite
-            inherited APP_URL from whatever .env the developer happens to have -
+            inherited APP_URL from whatever .env the developer happens to have,
             so a machine set up with lvh.me ran every test against a request to
             localhost while the application generated links to lvh.me, and
             RedirectToCanonicalHost correctly redirected all of them.
@@ -31,14 +31,13 @@
         -->
         <env name="APP_URL" value="http://localhost"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
-        <env name="ANTHROPIC_API_KEY" value="test-key-fake-for-http-fake"/>
         <!--
             Passwords are hashed with cheap bcrypt in tests, not with the
             application's real driver.
 
             config/hashing.php defaults to argon2id at 64MB memory cost, and
             without this line the suite ran that for every hash and every
-            verification - thousands of times, each asking the allocator for
+            verification, thousands of times, each asking the allocator for
             64MB inside one long-lived PHP process.
 
             When that allocation fails, password_verify() does not raise. It
@@ -68,7 +67,7 @@
         <env name="SESSION_DRIVER" value="array"/>
         <!-- Forced empty so a developer's local .env (set for real subdomain
              testing via "php artisan serve") can never leak into the test
-             suite and redirect/404 requests that tests don't expect - tests
+             suite and redirect/404 requests that tests don't expect, tests
              that specifically exercise subdomain behavior set this via
              config() themselves instead. -->
         <env name="TENANT_BASE_DOMAIN" value=""/>

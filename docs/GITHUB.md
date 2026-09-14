@@ -161,7 +161,7 @@ something. `git log --oneline` is only useful if the messages are.
 ## Things worth knowing
 
 **Never commit `.env`.** If it ever happens, changing the file later is not
-enough — the old version stays in the history forever. You would need to rewrite
+enough, the old version stays in the history forever. You would need to rewrite
 history *and* change every password and key it contained.
 
 **Committing is not backing up.** A commit only saves to this laptop. `git push`
@@ -171,5 +171,5 @@ is what sends it to GitHub. Push at the end of every session.
 branch you are on and what has changed.
 
 **Never use `git reset --hard` unless you are certain.** It permanently discards
-uncommitted work. If you are not sure, commit first — a messy commit can always
+uncommitted work. If you are not sure, commit first, a messy commit can always
 be tidied up later, but discarded work is gone.

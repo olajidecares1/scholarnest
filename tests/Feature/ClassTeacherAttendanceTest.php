@@ -22,7 +22,7 @@ use App\Services\ReportCardData;
  * The class teacher's register, and where it ends up.
  *
  * Taking attendance is part of running a school's own academics, so it is on
- * every plan - a Basic school's teachers need it exactly as much as anyone
+ * every plan, a Basic school's teachers need it exactly as much as anyone
  * else's. What the teacher records is then counted onto the report card
  * automatically: they enter presence, never a percentage.
  */
@@ -147,7 +147,7 @@ test('the register a teacher takes appears on the report card as a percentage', 
         'ends_on' => now()->toDateString(),
     ]);
 
-    // Eight present, two absent - the teacher records presence, never a
+    // Eight present, two absent, the teacher records presence, never a
     // percentage.
     foreach (range(1, 10) as $day) {
         $this->actingAs($teacher, 'staff')->post(route('staff.attendance.store', $school), [

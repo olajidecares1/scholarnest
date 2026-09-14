@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Photographs of people, and signatures, are not public files.
  *
- * They used to be. /storage/students/<uuid>.jpg had no access control at all -
+ * They used to be. /storage/students/<uuid>.jpg had no access control at all,
  * the name was unguessable, and that was the entire protection. Anyone who ever
  * obtained an address could fetch that child's photograph for ever, from any
  * network, signed in or not.
@@ -22,12 +22,12 @@ use Illuminate\Support\Facades\Storage;
  * The two now differ on purpose:
  *
  *   PHOTOGRAPHS get a short-lived signed URL. Two pages that legitimately show
- *   one have no session - a parent opening a result with a token, and somebody
- *   scanning the QR on a printed ID card - so the authority has to travel in
+ *   one have no session, a parent opening a result with a token, and somebody
+ *   scanning the QR on a printed ID card, so the authority has to travel in
  *   the link rather than in a cookie.
  *
  *   SIGNATURES get no URL at all. They are a few kilobytes, appear once per
- *   document, and are embedded inline - so there is no address to leak and
+ *   document, and are embedded inline, so there is no address to leak and
  *   nothing to expire.
  */
 beforeEach(function () {
@@ -167,7 +167,7 @@ describe('signatures have no URL at all', function () {
     });
 
     test('the model no longer offers a url at all', function () {
-        // Not 'the URL is protected' - there is no method to call. A signature
+        // Not 'the URL is protected', there is no method to call. A signature
         // on a document is a claim that a named person signed it, and a
         // downloadable copy is what lets somebody else make that claim.
         expect(method_exists(Signature::class, 'url'))->toBeFalse();
@@ -228,7 +228,7 @@ describe('every write path lands in private storage, not just the ones that move
      * Moving the existing files and changing where documents READ from is only
      * half of it. A single upload path still writing to the public disk puts
      * the exposure straight back, one file at a time, and nothing about the
-     * page would look wrong - which is exactly what had happened to the
+     * page would look wrong, which is exactly what had happened to the
      * teacher's own signature upload.
      */
     test("a teacher's uploaded signature is private, like a drawn one", function () {

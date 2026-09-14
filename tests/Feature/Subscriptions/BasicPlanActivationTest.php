@@ -19,8 +19,8 @@ use Illuminate\Support\Facades\Notification;
  * Super Admin approves, does every part of the app immediately agree that the
  * school is active, without a re-login, a cache clear, or a second approval?
  *
- * The status is never cached anywhere - the dashboard re-reads it from the
- * database on every request - so the risk is not staleness but disagreement:
+ * The status is never cached anywhere, the dashboard re-reads it from the
+ * database on every request, so the risk is not staleness but disagreement:
  * two places deciding "active" by different rules. Each test below checks one
  * of those places against the same approval.
  */
@@ -113,7 +113,7 @@ test('the awaiting-activation message is gone on the very next page load', funct
 
     $this->actingAs(platformAdmin())->post(route('super-admin.subscriptions.approve', $subscription));
 
-    // The same admin session as before - no re-login, no cache clear. The
+    // The same admin session as before, no re-login, no cache clear. The
     // dashboard re-reads the status from the database on every request, so the
     // next load is enough.
     $this->actingAs($admin)
@@ -179,7 +179,7 @@ test('a suspended school is not shown as awaiting activation', function () {
     $this->actingAs(platformAdmin())->post(route('super-admin.subscriptions.approve', $subscription));
 
     // Suspension is the school being switched off, which is a different thing
-    // from a subscription nobody has reviewed - and must read differently.
+    // from a subscription nobody has reviewed, and must read differently.
     $school->update(['is_active' => false]);
 
     $this->actingAs($admin)

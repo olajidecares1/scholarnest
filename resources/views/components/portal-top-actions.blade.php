@@ -7,7 +7,7 @@
 
 {{-- Notifications and messages in the top bar, where a phone app puts them.
 
-     Each is rendered only when its route actually exists for that portal - the
+     Each is rendered only when its route actually exists for that portal, the
      staff portal has neither, and a bell that goes nowhere is worse than no
      bell. The count is shown only where the application genuinely tracks read
      state; where it does not, the icon appears without a number rather than

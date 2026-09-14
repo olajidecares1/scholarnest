@@ -26,7 +26,7 @@ class AcademicSession
 
     /**
      * A couple of years either side of today, so schools recording past
-     * exams or planning ahead both find their session - not just the
+     * exams or planning ahead both find their session, not just the
      * current one.
      *
      * @return list<string>

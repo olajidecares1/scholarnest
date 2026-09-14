@@ -31,7 +31,7 @@ class IdCardTemplateController extends Controller
      * School Admin approves here is the card that prints. The editor asks for
      * this again whenever a colour or the card type changes, which is why the
      * colours arrive as query parameters rather than being read from a saved
-     * template - nothing has been saved yet.
+     * template, nothing has been saved yet.
      *
      * Nothing is written: IdCardSample builds unsaved models.
      */

@@ -1,11 +1,11 @@
 @php
     $brandPrimary = $school->website?->brand_primary_color ?? '#1d4ed8';
     $brandSecondary = $school->website?->brand_secondary_color ?? '#111a35';
-    // See _report-card.blade.php - the tagline and the values are two lines.
+    // See _report-card.blade.php, the tagline and the values are two lines.
     $schoolMotto = \App\Support\SchoolMotto::for($school);
     $motto = $schoolMotto->tagline;
 
-    // The letterhead address - see _report-card.blade.php.
+    // The letterhead address, see _report-card.blade.php.
     $letterhead = \App\Support\SchoolContact::for($school);
 
     // The card's third colour, matching the on-screen template exactly. Both
@@ -16,7 +16,7 @@
 
     // The same gold, darkened for text on a WHITE ground.
     //
-    // #c8a34a is 2.39:1 on white - unreadable as small italic type,
+    // #c8a34a is 2.39:1 on white, unreadable as small italic type,
     // and a report card is a document people photocopy. It stays as it
     // is on the navy footer bar (7.19:1 there) and on the rules, which
     // are shapes rather than words. Only the tagline moves, to 5.06:1.
@@ -32,7 +32,7 @@
 
     // The watermark: this school's OWN crest, faded and centred behind the
     // page. Baked at that opacity rather than faded with CSS, because dompdf
-    // ignores opacity on an image - done the CSS way it looks right on screen
+    // ignores opacity on an image, done the CSS way it looks right on screen
     // and prints at full strength over the marks. See
     // CodeImageGenerator::watermarkDataUri().
     //
@@ -56,7 +56,7 @@
     $examMaxLabel = $subjects->first()?->examMaxScore() ?? 60;
     $subjectMaxLabel = $subjects->first()?->max_score ?? 100;
 
-    $overallGrade = $summary['average'] === null ? '—' : \App\Models\GradeBand::resolve($school, $summary['average']);
+    $overallGrade = $summary['average'] === null ? 'N/A' : \App\Models\GradeBand::resolve($school, $summary['average']);
     $overallDescription = $summary['average'] === null ? null : \App\Models\GradeBand::describe($school, $summary['average']);
 
     $position = $summary['position'] ?? null;
@@ -66,7 +66,7 @@
         $position % 10 === 2 => 'nd',
         $position % 10 === 3 => 'rd',
         default => 'th',
-    } : '—';
+    } : 'N/A';
 
     $gradeKey = ($school->gradeBands->isNotEmpty()
         ? $school->gradeBands->sortBy('position')->map(fn ($band) => ['min_percent' => $band->min_percent, 'max_percent' => $band->max_percent, 'letter' => $band->letter, 'description' => $band->description])
@@ -74,13 +74,13 @@
 
     // A best-to-worst color scale (green through red) applied by the grade
     // band's rank rather than its letter, since a school's configured bands
-    // can use any letters/count - this keeps the "green = best" visual
+    // can use any letters/count, this keeps the "green = best" visual
     // language from the reference design working for any grading scale.
     //
     // Each shade is one step darker than the obvious Tailwind 600, because
     // the 600s do not clear 4.5:1 on white at the size a grade letter is
     // printed: green was 3.3:1 and amber 3.19:1. The letter on a report
-    // card is the one character a parent looks for first, and it is 11px -
+    // card is the one character a parent looks for first, and it is 11px,
     // too small to qualify for the large-text allowance. These run 5.02:1
     // to 6.47:1 and keep the same green-through-red order.
     $gradeColors = ['#15803d', '#1d4ed8', '#b45309', '#c2410c', '#b91c1c'];
@@ -104,24 +104,24 @@
     $photoPath = $student->photoAbsolutePath();
     // The Principal's signature: School Admin is the Principal, so this is
     // their own registered signature, in gold, resolved from THIS school's
-    // admin account - see App\Support\PrincipalSignature. Gold is baked into
+    // admin account, see App\Support\PrincipalSignature. Gold is baked into
     // the image because dompdf ignores CSS filters, so a screen preview and a
     // printed card cannot disagree about the colour.
     $principalSignature = \App\Support\PrincipalSignature::for($school);
     $signaturePath = $principalSignature?->absolutePath();
     $stampPath = $school->stampAbsolutePath();
 
-    // The class teacher's own signature, from their staff record - theirs to
+    // The class teacher's own signature, from their staff record, theirs to
     // upload, not the school's to supply on their behalf.
     $teacherSignaturePath = $classTeacher?->staff?->signatureAbsolutePath();
 
     // dompdf does not render raw inline <svg> tags mixed into the HTML flow,
-    // but it does render an <img> whose src is an SVG data URI - so contact
+    // but it does render an <img> whose src is an SVG data URI, so contact
     // icons are built as data URIs here rather than inlined as <svg> markup.
     // Each one a white glyph on a filled disc in the school's colour, the same
     // mark the on-screen letterhead draws. The glyph is scaled and centred
     // into the disc from its own viewBox, because the paths below are not all
-    // the same shape - a phone is square, a map pin is tall - and a fixed
+    // the same shape, a phone is square, a map pin is tall, and a fixed
     // transform would leave one of them off-centre or clipped.
     $svgIcon = function (string $path, string $viewBox = '0 0 512 512') use ($brandSecondary) {
         [, , $width, $height] = array_map('floatval', explode(' ', $viewBox));
@@ -179,7 +179,7 @@
             <tr>
                 <td style="padding: 10px;">
 
-                    {{-- SEGMENT 1 - the letterhead. Mirrors _report-card.blade.php:
+                    {{-- SEGMENT 1, the letterhead. Mirrors _report-card.blade.php:
                     crest, school name, tagline in the accent colour, contact
                     lines behind round marks, and the title block on the right.
                     Built from tables because dompdf has no flexbox. --}}
@@ -240,7 +240,7 @@
                         </tr>
                     </table>
 
-                    {{-- SEGMENT 2 - who the card is about. --}}
+                    {{-- SEGMENT 2, who the card is about. --}}
                     @php
                         $studentFacts = [
                             ['Student Name', $student->fullName()],
@@ -284,7 +284,7 @@
                                                                 </td>
                                                             @else
                                                                 <td style="width: 104px; padding: 2px 0; font-size: 8.5px; font-weight: bold; text-transform: uppercase; color: {{ $brandSecondary }}; vertical-align: middle;">{{ $label }}:</td>
-                                                                <td style="padding: 2px 0; font-size: 9.5px; font-weight: bold; color: #111827;">{{ filled($value) ? $value : '—' }}</td>
+                                                                <td style="padding: 2px 0; font-size: 9.5px; font-weight: bold; color: #111827;">{{ filled($value) ? $value : 'N/A' }}</td>
                                                             @endif
                                                         </tr>
                                                     @endforeach
@@ -297,7 +297,7 @@
                         </tr>
                     </table>
 
-                    {{-- SEGMENT 3 - the marks. Mirrors _report-card.blade.php:
+                    {{-- SEGMENT 3, the marks. Mirrors _report-card.blade.php:
                     navy heading, navy column header row with white text, and
                     the grade in the grade's own colour. --}}
                     <table style="border: 1.5px solid {{ $brandSecondary }}; border-radius: 6px; margin-bottom: 10px;">
@@ -337,12 +337,12 @@
                                             <tr style="background-color: {{ $loop->even ? $rowStriped : $rowPlain }};">
                                                 <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $loop->iteration }}</td>
                                                 <td style="border: 1px solid #e5e7eb; padding: 4px 6px; font-weight: bold; color: #111827;">{{ $subject->name }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $score?->test_score !== null ? rtrim(rtrim($score->test_score, '0'), '.') : '—' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $score?->exam_score !== null ? rtrim(rtrim($score->exam_score, '0'), '.') : '—' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; font-weight: bold; color: #111827;">{{ $score ? rtrim(rtrim($score->score, '0'), '.') : '—' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $percentage !== null ? $percentage.'%' : '—' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; font-size: 11px; font-weight: bold; color: {{ $colorForPercentage($percentage) }};">{{ $score ? $score->grade() : '—' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $percentage !== null ? \App\Models\GradeBand::describe($school, $percentage) : '—' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $score?->test_score !== null ? rtrim(rtrim($score->test_score, '0'), '.') : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $score?->exam_score !== null ? rtrim(rtrim($score->exam_score, '0'), '.') : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; font-weight: bold; color: #111827;">{{ $score ? rtrim(rtrim($score->score, '0'), '.') : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $percentage !== null ? $percentage.'%' : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; font-size: 11px; font-weight: bold; color: {{ $colorForPercentage($percentage) }};">{{ $score ? $score->grade() : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $percentage !== null ? \App\Models\GradeBand::describe($school, $percentage) : 'N/A' }}</td>
                                             </tr>
                                         @endforeach
                                         <tr style="background-color: {{ $brandSecondary }}12;">
@@ -350,7 +350,7 @@
                                             <td style="border: 1px solid #d1d5db; padding: 5px 4px; text-align: center; font-weight: bold; color: {{ $brandSecondary }};">{{ rtrim(rtrim((string) $totalTest, '0'), '.') }}</td>
                                             <td style="border: 1px solid #d1d5db; padding: 5px 4px; text-align: center; font-weight: bold; color: {{ $brandSecondary }};">{{ rtrim(rtrim((string) $totalExam, '0'), '.') }}</td>
                                             <td style="border: 1px solid #d1d5db; padding: 5px 4px; text-align: center; font-weight: bold; color: {{ $brandSecondary }};">{{ rtrim(rtrim((string) $totalScore, '0'), '.') }}/{{ $totalMax }}</td>
-                                            <td style="border: 1px solid #d1d5db; padding: 5px 4px; text-align: center; font-weight: bold; color: {{ $brandSecondary }};">{{ $summary['average'] !== null ? $summary['average'].'%' : '—' }}</td>
+                                            <td style="border: 1px solid #d1d5db; padding: 5px 4px; text-align: center; font-weight: bold; color: {{ $brandSecondary }};">{{ $summary['average'] !== null ? $summary['average'].'%' : 'N/A' }}</td>
                                             <td style="border: 1px solid #d1d5db; padding: 5px 4px; text-align: center; font-size: 11px; font-weight: bold; color: {{ $overallColor }};">{{ $overallGrade }}</td>
                                             <td style="border: 1px solid #d1d5db; padding: 5px 4px;"></td>
                                         </tr>
@@ -360,17 +360,17 @@
                         </tr>
                     </table>
 
-                    {{-- SEGMENT 4 - three panels reading the same result three
+                    {{-- SEGMENT 4, three panels reading the same result three
                     ways: the headline figures, the school's OWN grade bands,
                     and the term's register. --}}
                     @php
                         $summaryRows = [
                             ['Total Marks Obtained', rtrim(rtrim((string) $totalScore, '0'), '.').' / '.$totalMax, false, null],
-                            ['Average Score', $summary['average'] !== null ? $summary['average'].'%' : '—', false, null],
+                            ['Average Score', $summary['average'] !== null ? $summary['average'].'%' : 'N/A', false, null],
                             ['Overall Grade', $overallGrade.($overallDescription ? ' ('.strtoupper($overallDescription).')' : ''), false, $overallColor],
                             ['Position in Class', $positionLabel, false, null],
                             ['Number in Class', (string) $numberInClass, false, null],
-                            ['Attendance Percentage', $attendance && $attendance['percent'] !== null ? $attendance['percent'].'%' : '—', true, null],
+                            ['Attendance Percentage', $attendance && $attendance['percent'] !== null ? $attendance['percent'].'%' : 'N/A', true, null],
                         ];
 
                         $attendanceRows = $attendance ? [
@@ -379,7 +379,7 @@
                             ['Days Absent', (string) $attendance['absent'], false, null],
                             ['Days Late', (string) $attendance['late'], false, null],
                             ['Excused Absences', (string) $attendance['excused'], false, null],
-                            ['Attendance Percentage', $attendance['percent'] !== null ? $attendance['percent'].'%' : '—', true, null],
+                            ['Attendance Percentage', $attendance['percent'] !== null ? $attendance['percent'].'%' : 'N/A', true, null],
                         ] : [];
                     @endphp
 
@@ -436,7 +436,7 @@
                         </tr>
                     </table>
 
-                    {{-- SEGMENT 5 - the two remarks written by people. --}}
+                    {{-- SEGMENT 5, the two remarks written by people. --}}
                     <table style="border: 1.5px solid {{ $brandSecondary }}; border-radius: 6px; margin-bottom: 10px;">
                         <tr>
                             <td style="background-color: {{ $brandSecondary }}; color: #ffffff; font-size: 11px; font-weight: bold; text-transform: uppercase; text-align: center; padding: 5px; letter-spacing: 0.5px;">Remarks</td>
@@ -447,7 +447,7 @@
                                     @foreach ([["Class Teacher's Remark", $report->teacher_remark], ["Principal's Remark", $report->principal_remark]] as $index => [$label, $remark])
                                         <tr style="background-color: {{ $index === 0 ? $rowPlain : $rowStriped }};">
                                             <td style="width: 150px; border: 1px solid #e5e7eb; padding: 6px; font-size: 8.5px; font-weight: bold; text-transform: uppercase; color: {{ $brandSecondary }}; vertical-align: top;">{{ $label }}:</td>
-                                            <td style="border: 1px solid #e5e7eb; padding: 6px; font-size: 9px; font-style: italic; color: #111827;">{{ $remark ?: '—' }}</td>
+                                            <td style="border: 1px solid #e5e7eb; padding: 6px; font-size: 9px; font-style: italic; color: #111827;">{{ $remark ?: 'N/A' }}</td>
                                         </tr>
                                     @endforeach
                                 </table>
@@ -455,7 +455,7 @@
                         </tr>
                     </table>
 
-                    {{-- SEGMENT 6 - the hands that sign it, with the school's
+                    {{-- SEGMENT 6, the hands that sign it, with the school's
                     approval stamp between them and the parent's line left for
                     them to complete.
 
@@ -498,7 +498,7 @@
                                         </div>
                                         <div style="border-bottom: 1px solid {{ $brandSecondary }}66; font-size: 0; line-height: 0;">&nbsp;</div>
                                         <div style="height: 18px; font-size: 7px; font-weight: bold; text-transform: uppercase; line-height: 1.25; color: {{ $brandSecondary }}; margin-top: 3px;">{{ $role }}</div>
-                                        <div style="height: 11px; font-size: 8.5px; font-weight: bold; line-height: 11px; color: #111827;">{{ $name ?: '—' }}</div>
+                                        <div style="height: 11px; font-size: 8.5px; font-weight: bold; line-height: 11px; color: #111827;">{{ $name ?: 'N/A' }}</div>
                                         <div style="font-size: 7px; font-weight: bold; color: #111827;">Date: {{ $date ?: '________________' }}</div>
                                     @endif
                                 </td>

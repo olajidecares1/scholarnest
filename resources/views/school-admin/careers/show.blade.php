@@ -162,7 +162,7 @@
                     @unless ($shareable)
                         <p class="mt-2 rounded-[8px] bg-amber-50 p-3 text-[12.5px] text-amber-900 dark:bg-amber-900/30 dark:text-amber-300">
                             <i class="fa-solid fa-triangle-exclamation mr-1" aria-hidden="true"></i>
-                            {{ $job->status === JobPostingStatus::Closed ? 'This vacancy is closed - its link shows that applications have ended.' : 'Publish this vacancy before sharing it. Until then its link will not open for applicants.' }}
+                            {{ $job->status === JobPostingStatus::Closed ? 'This vacancy is closed. Its link shows that applications have ended.' : 'Publish this vacancy before sharing it. Until then its link will not open for applicants.' }}
                         </p>
                     @endunless
 
@@ -192,7 +192,7 @@
                     <div class="mt-5 border-t border-gray-100 pt-4 dark:border-gray-700">
                         <p class="text-[13px] font-bold text-gray-900 dark:text-white"><i class="fa-solid fa-image mr-1 text-primary-500" aria-hidden="true"></i>Job post image</p>
                         <p class="mt-1 text-[12px] text-gray-500 dark:text-gray-400">
-                            For Instagram, WhatsApp Status and Facebook posts. It shows your logo, school name and address, the job, and this vacancy's link with a QR code - so anyone who only sees the picture can still apply.
+                            For Instagram, WhatsApp Status and Facebook posts. It shows your logo, school name and address, the job, and this vacancy's link with a QR code, so anyone who only sees the picture can still apply.
                         </p>
                         <a href="{{ route('careers.share-image', $job) }}" class="mt-3 inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] border border-gray-300 text-[13px] font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
                             <i class="fa-solid fa-download" aria-hidden="true"></i> Download image

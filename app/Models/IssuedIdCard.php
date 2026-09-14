@@ -63,7 +63,7 @@ class IssuedIdCard extends Model
     /**
      * A holder supplied directly, instead of looked up.
      *
-     * Only the sample card uses this - see IdCardSample. Everything else
+     * Only the sample card uses this, see IdCardSample. Everything else
      * resolves its holder from the database as it always did.
      */
     private Student|Staff|null $resolvedHolder = null;
@@ -73,7 +73,7 @@ class IssuedIdCard extends Model
      *
      * The template editor draws a specimen card from invented details, so
      * there is no pupil to look up. Without this the sample would have to be
-     * a second, hand-maintained copy of the card design - which is what it
+     * a second, hand-maintained copy of the card design, which is what it
      * used to be, and why the preview stopped resembling the real thing.
      */
     public function withHolder(Student|Staff $holder): static
@@ -141,7 +141,7 @@ class IssuedIdCard extends Model
     /**
      * A card is valid through the end of the school's current academic
      * session (assumed to run September-July, matching the convention
-     * already used for examination sessions) - null if the school hasn't
+     * already used for examination sessions), null if the school hasn't
      * set one, rather than guessing at a date that might be wrong.
      */
     private static function expiryDateFor(School $school): ?Carbon

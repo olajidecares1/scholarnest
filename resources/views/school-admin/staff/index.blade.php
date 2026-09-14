@@ -137,7 +137,7 @@
                                 </td>
                                 <td class="px-6 py-3 font-mono text-xs text-gray-600 dark:text-gray-300">{{ $member->staff_number }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $member->role->label() }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $member->department ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $member->department ?? 'N/A' }}</td>
                                 <td class="px-6 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $member->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
                                         {{ $member->is_active ? 'Active' : 'Inactive' }}

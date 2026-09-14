@@ -47,7 +47,7 @@ enum CbtDocumentUploadStatus: string
             self::Pending => 'Waiting to start…',
             self::Processing => 'Reading the document and extracting questions…',
             self::Importing => 'Creating the CBT from the extracted questions…',
-            self::NeedsMapping => 'Extracted — needs an exam body and subject',
+            self::NeedsMapping => 'Extracted, needs an exam body and subject',
             self::Completed => 'Questions imported successfully',
             self::Failed => 'Extraction failed',
         };
@@ -56,8 +56,8 @@ enum CbtDocumentUploadStatus: string
     /**
      * Percentage where it is honestly known, null where it is not.
      *
-     * Processing has no measurable progress - the extractor does not report
-     * how far through a document it is - so this returns null and the bar
+     * Processing has no measurable progress, the extractor does not report
+     * how far through a document it is, so this returns null and the bar
      * animates rather than inventing a number that would reach 100% while the
      * work was still running.
      */

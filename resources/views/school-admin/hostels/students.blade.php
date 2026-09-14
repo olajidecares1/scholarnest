@@ -43,7 +43,7 @@
                         @forelse ($allocations as $allocation)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $allocation->student->fullName() }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $allocation->student->class_name ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $allocation->student->class_name ?? 'N/A' }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $allocation->allocated_date->format('M j, Y') }}</td>
                                 <td class="px-6 py-3">
                                     <form method="POST" action="{{ route('hostels.allocations.destroy', $allocation) }}" onsubmit="return confirm('Vacate {{ $allocation->student->fullName() }} from this room?');">

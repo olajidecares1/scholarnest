@@ -21,8 +21,8 @@ use InvalidArgumentException;
  * three matches written in three controllers is how one of them ends up
  * missing a case. They are written here once.
  *
- * The role string is the same word the portal login uses - student, guardian,
- * staff - so a client that knows how to sign in already knows this vocabulary.
+ * The role string is the same word the portal login uses, student, guardian,
+ * staff, so a client that knows how to sign in already knows this vocabulary.
  */
 class ApiAccount
 {
@@ -54,7 +54,7 @@ class ApiAccount
      * The name to write in an audit entry.
      *
      * Passed explicitly wherever it is used, because AuditLog falls back to
-     * the web guard's user and an API request has none - without this every
+     * the web guard's user and an API request has none, without this every
      * token event would be attributed to "System".
      */
     public static function displayName(Model $account): string

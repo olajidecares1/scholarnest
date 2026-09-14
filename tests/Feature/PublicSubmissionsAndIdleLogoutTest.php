@@ -19,8 +19,8 @@ use Illuminate\Support\Facades\Cookie;
  *
  *   1. A visitor's message from the public website was answered with a login
  *      page and never reached the database.
- *   2. An expired session sent people to SCHOOL REGISTRATION - as though the
- *      school itself did not exist - rather than to the login page for the
+ *   2. An expired session sent people to SCHOOL REGISTRATION, as though the
+ *      school itself did not exist, rather than to the login page for the
  *      portal they had been using.
  *
  * A NOTE ON THE ASSERTIONS. Every sensitive URI in this application is a
@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Cookie;
  *
  * AND ON THE IDLE CLOCK. The middleware stamps the session on the first
  * request it sees and only compares against that stamp on the next one. A test
- * that signs in, travels forward and then acts has no stamp to compare with -
+ * that signs in, travels forward and then acts has no stamp to compare with,
  * it is a first request, so nothing has expired and the test passes for the
  * wrong reason. Every test below makes a real request first.
  */
@@ -73,7 +73,7 @@ describe('a visitor can write to the school without an account', function () {
 
     test('THE BUG: an idle School Admin submitting the public form loses it', function () {
         // The actual report. The admin is signed in somewhere in the same
-        // browser - they were looking at their own website - and filling in a
+        // browser, they were looking at their own website, and filling in a
         // form takes longer than the three-minute idle timeout. The idle
         // middleware ran on the PUBLIC post, logged them out and answered with
         // the portal login, so the message was never written.
@@ -119,9 +119,9 @@ describe('a visitor can write to the school without an account', function () {
 
 describe('an expired session means sign in again, not register the school again', function () {
     test('THE BUG: a guest is sent to a login page, never to registration', function () {
-        // FOLLOWED to the end. The old behaviour was TWO hops - the auth
+        // FOLLOWED to the end. The old behaviour was TWO hops, the auth
         // middleware redirected to route('login'), and that route redirected
-        // again to route('register') - so checking only the first Location
+        // again to route('register'), so checking only the first Location
         // header said everything was fine while the browser still ended up on
         // the registration form.
         $this->followingRedirects()
@@ -135,7 +135,7 @@ describe('an expired session means sign in again, not register the school again'
     });
 
     test('a guest reaching a teacher page is sent to the TEACHER login', function () {
-        // The school is in the URL - /schools/{school}/staff-portal/... - so
+        // The school is in the URL, /schools/{school}/staff-portal/... so
         // it is known whatever the session says.
         $staff = Staff::factory()->create(['school_id' => $this->school->id]);
 
@@ -163,7 +163,7 @@ describe('an expired session means sign in again, not register the school again'
         // without something outliving the session there is nothing left to say
         // which school this browser belongs to. Rule 2.4.
         //
-        // Encrypted, because that is how the application will receive it -
+        // Encrypted, because that is how the application will receive it,
         // EncryptCookies decrypts on the way in, and a plain-text one arrives
         // as null, which would land on the fallback and prove nothing.
         $this->withCookie(PortalLoginRedirect::COOKIE, "{$this->school->id}:web");
@@ -180,7 +180,7 @@ describe('an expired session means sign in again, not register the school again'
     test('the remembered portal is not handed to a different one', function () {
         // A browser that last signed in as a teacher must not be given the
         // admin login just because it has a cookie with a school in it.
-        // Encrypted, like the test above - an unreadable cookie would fall
+        // Encrypted, like the test above, an unreadable cookie would fall
         // back to the unified sign-in too, and pass for the wrong reason.
         $this->withCookie(PortalLoginRedirect::COOKIE, "{$this->school->id}:staff");
 
@@ -228,7 +228,7 @@ describe('the public website never depends on a portal session', function () {
     });
 
     test('refreshing an idle website page reloads the website', function () {
-        // Rule 1.2. Idle, then refresh, twice over - the second is the refresh
+        // Rule 1.2. Idle, then refresh, twice over, the second is the refresh
         // that used to be answered with a portal login.
         $this->get(route('public.school-website', $this->school))->assertOk();
 

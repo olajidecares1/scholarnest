@@ -164,7 +164,7 @@ test('a staff member keeps their own contact details current, and the school hea
         ->and($this->staff->address)->toBe('4 New Road');
 
     // The record is the school's, so a change made in a portal cannot happen
-    // silently - a number that moves without the office knowing is a call that
+    // silently, a number that moves without the office knowing is a call that
     // bounces with no explanation.
     Notification::assertSentTo($admin, PortalProfileUpdatedNotification::class);
 });

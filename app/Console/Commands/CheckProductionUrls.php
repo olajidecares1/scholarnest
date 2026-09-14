@@ -57,7 +57,7 @@ class CheckProductionUrls extends Command
         }
 
         if ($this->warnings > 0) {
-            $this->components->warn("{$this->warnings} optional setting(s) not configured - see above for what each one costs.");
+            $this->components->warn("{$this->warnings} optional setting(s) not configured. See above for what each one costs.");
 
             return self::SUCCESS;
         }
@@ -69,7 +69,7 @@ class CheckProductionUrls extends Command
 
     private function platform(string $appUrl, ?string $host): void
     {
-        $this->section('Platform', 'APP_URL — every generated link, every email link, and the host stray traffic is redirected to');
+        $this->section('Platform', 'APP_URL: every generated link, every email link, and the host stray traffic is redirected to');
 
         if (! $host) {
             $this->bad('APP_URL', 'missing or unparseable', 'APP_URL=https://your-domain');
@@ -107,13 +107,13 @@ class CheckProductionUrls extends Command
         if ($token === '') {
             $this->bad(
                 'BASIC_PORTAL_TOKEN',
-                'not set — the Basic portal returns 404 and Basic schools have no way in',
+                'not set, so the Basic portal returns 404 and Basic schools have no way in',
                 'Run `php artisan basic-portal:token` and put the result in .env',
             );
         } elseif (strlen($token) !== 32 || ! ctype_alnum($token)) {
             $this->bad(
                 'BASIC_PORTAL_TOKEN',
-                'must be exactly 32 alphanumeric characters — the route pattern will not match it',
+                'must be exactly 32 alphanumeric characters, or the route pattern will not match it',
                 'Run `php artisan basic-portal:token`',
             );
         } else {
@@ -129,17 +129,17 @@ class CheckProductionUrls extends Command
             // omission. Teachers take attendance and enter marks on every
             // plan; pupil and parent accounts are what Standard buys. This
             // list used to include pupil and parent sign-in, which described
-            // a Basic school as having two portals it cannot use - the hub
+            // a Basic school as having two portals it cannot use, the hub
             // does not link them, no login details can be issued for them,
             // and EnsureSchoolHasPortalAccess turns away anyone who reaches
             // one.
             $this->line('    Front door        '.$appUrl.'/'.$token.'  <fg=gray>(name your school)</>');
             $this->line('    School landing    '.$appUrl.'/'.$this->hint('portal_key'));
-            $this->line('    Website           <fg=gray>none — Standard and above</>');
+            $this->line('    Website           <fg=gray>none (Standard and above)</>');
             $this->line('    Portal hub        '.$appUrl.'/p/'.$this->hint('portal_key').'/portal  <fg=gray>(staff only)</>');
             $this->line('    Staff sign-in     '.$appUrl.'/p/'.$this->hint('portal_key').'/staff-portal/'.$this->hint('token').'/login');
-            $this->line('    Pupil portal      <fg=gray>none — Standard and above</>');
-            $this->line('    Parent portal     <fg=gray>none — Standard and above</>');
+            $this->line('    Pupil portal      <fg=gray>none (Standard and above)</>');
+            $this->line('    Parent portal     <fg=gray>none (Standard and above)</>');
             $this->line('    Results           '.$appUrl.'/'.$this->hint('result_link_slug').'/result  <fg=gray>(exam token, no account needed)</>');
         }
     }
@@ -153,7 +153,7 @@ class CheckProductionUrls extends Command
         if ($base === '') {
             $this->optional(
                 'TENANT_BASE_DOMAIN',
-                'not set — Standard schools fall back to /p/{key} paths instead of their own subdomain',
+                'not set, so Standard schools fall back to /p/{key} paths instead of their own subdomain',
                 'Set it to the domain that has a wildcard DNS record, e.g. TENANT_BASE_DOMAIN='.($host ?: 'your-domain'),
             );
 
@@ -174,14 +174,14 @@ class CheckProductionUrls extends Command
         $this->line('    Staff sign-in     '.$site.'/staff-portal/'.$this->hint('token').'/login');
 
         // The two portals Standard actually buys. A pupil and a parent read
-        // their results INSIDE these, unlocking each with the exam token -
+        // their results INSIDE these, unlocking each with the exam token,
         // the token flow below is the Basic route to the same results, for
         // families with no account at all.
         $this->line('    Pupil sign-in     '.$site.'/portal/'.$this->hint('token').'/login  <fg=gray>(results in-portal)</>');
         $this->line('    Parent sign-in    '.$site.'/parent-portal/'.$this->hint('token').'/login  <fg=gray>(results in-portal)</>');
         $this->line('    Results           '.($appUrl ?: 'https://'.$base).'/'.$this->hint('result_link_slug').'/result  <fg=gray>(platform host, every plan)</>');
         $this->newLine();
-        $this->line('    <fg=gray>The Basic paths above keep working too - they are not withdrawn.</>');
+        $this->line('    <fg=gray>The Basic paths above keep working too. They are not withdrawn.</>');
         $this->newLine();
         $this->line('    <fg=yellow>Requires, outside this application:</>');
         $this->line('      DNS   a wildcard A/AAAA record  *.'.$base);
@@ -191,7 +191,7 @@ class CheckProductionUrls extends Command
 
     private function exclusive(?string $host): void
     {
-        $this->section('Exclusive plan', "A school's own domain. On its own host no key is needed — the domain identifies the school");
+        $this->section('Exclusive plan', "A school's own domain. On its own host no key is needed, because the domain identifies the school");
 
         if (PlanKey::Exclusive->isAvailableToSubscribe() === false) {
             $this->line('    <fg=gray>Note: Exclusive cannot currently be subscribed to. These settings only</>');
@@ -206,7 +206,7 @@ class CheckProductionUrls extends Command
         if ($aRecord === '') {
             $this->optional(
                 'CUSTOM_DOMAIN_A_RECORD_IP',
-                'not set — the setup wizard cannot tell a school which A record to create',
+                'not set, so the setup wizard cannot tell a school which A record to create',
                 'Set it to this server\'s public IP address',
             );
         } else {
@@ -227,7 +227,7 @@ class CheckProductionUrls extends Command
 
         // Everything Standard has, on the school's own domain instead of a
         // subdomain. Until the domain verifies, the school stays on its
-        // Standard subdomain - it is never left with no address at all.
+        // Standard subdomain, it is never left with no address at all.
         $site = 'https://'.$this->hint('their-own-domain');
 
         $this->line('    Website           '.$site.'/');
@@ -240,7 +240,7 @@ class CheckProductionUrls extends Command
     }
 
     /**
-     * Real schools, real addresses - the check that the settings above actually
+     * Real schools, real addresses, the check that the settings above actually
      * produce something, rather than merely being present.
      */
     private function examples(): void
@@ -258,7 +258,7 @@ class CheckProductionUrls extends Command
 
             $this->line('    <options=bold>'.$school->name.'</> <fg=gray>('.$plan.')</>');
 
-            // The front door, then the website separately - because on Basic
+            // The front door, then the website separately, because on Basic
             // they are not the same thing and the website does not exist.
             // This used to print publicUrl('public.school-website') for every
             // school, which on Basic is an address that always answers 404:
@@ -266,7 +266,7 @@ class CheckProductionUrls extends Command
             $this->line('      front door  '.$school->frontDoorUrl());
 
             $this->line('      website     '.(
-                $school->websiteUrl() ?? '<fg=gray>none — not included on this plan</>'
+                $school->websiteUrl() ?? '<fg=gray>none (not included on this plan)</>'
             ));
 
             $this->line('      staff       '.$school->portalLoginUrl('staff'));

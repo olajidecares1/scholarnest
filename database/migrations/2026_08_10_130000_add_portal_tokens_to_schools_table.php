@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('portal_guardian_token', 64)->unique()->nullable()->after('portal_student_token');
         });
 
-        // Backfill every school that already exists - new schools get theirs
+        // Backfill every school that already exists, new schools get theirs
         // from the "creating" model event, but that never runs for rows
         // created before this migration.
         DB::table('schools')->orderBy('id')->get(['id'])->each(function ($school) {

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
  * Deleting a school takes its accounts with it.
  *
  * users.school_id was ON DELETE SET NULL, so removing a school did not remove
- * the accounts that belonged to it - it cut them loose. The row survived,
+ * the accounts that belonged to it, it cut them loose. The row survived,
  * holding the school's address in users.email, which is UNIQUE. Registering
  * the same school again was then refused: "the school email address has
  * already been taken", pointing at an account whose school no longer existed
@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Schema;
  * do it is still sitting in the table holding an address hostage.
  *
  * CASCADE puts the rule where it cannot be forgotten. It is safe for Super
- * Admins - their school_id is NULL, and a cascade never fires on a NULL.
+ * Admins, their school_id is NULL, and a cascade never fires on a NULL.
  */
 return new class extends Migration
 {

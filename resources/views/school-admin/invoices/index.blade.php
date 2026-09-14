@@ -27,7 +27,7 @@
                                 <td class="px-5 py-3 font-semibold text-gray-900 dark:text-white">{{ $invoice->number }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->issued_at->format('d M Y') }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->description }}</td>
-                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->licences ? number_format($invoice->licences) : '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->licences ? number_format($invoice->licences) : 'N/A' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->formattedTotal() }}</td>
                                 <td class="px-5 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-bold {{ $invoice->statusBadgeClasses() }}">{{ $invoice->paymentStatus() }}</span>

@@ -6,8 +6,8 @@ return [
     | Incomplete Registration Reminder
     |--------------------------------------------------------------------------
     |
-    | A school that creates an account and then stops - before choosing a plan
-    | and submitting payment - gets one email inviting them to finish. This is
+    | A school that creates an account and then stops, before choosing a plan
+    | and submitting payment, gets one email inviting them to finish. This is
     | how long after registering that email goes out.
     |
     | Long enough that somebody who is simply still deciding is not chased,
@@ -25,7 +25,7 @@ return [
     |
     | Registrations older than this are left alone. Without a floor, the first
     | run of this command after it is deployed would email every school that
-    | has ever abandoned a registration, however long ago - which is a mass
+    | has ever abandoned a registration, however long ago, which is a mass
     | mailing nobody asked for and the fastest way to a spam complaint.
     |
     */

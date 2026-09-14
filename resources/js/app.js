@@ -49,7 +49,7 @@ Alpine.start();
  * drift on the public school website.
  *
  * After Alpine, and guarded on readyState, because the observer measures what
- * is on screen - and measuring before the document has finished parsing means
+ * is on screen, and measuring before the document has finished parsing means
  * observing a fraction of the elements that will exist a moment later.
  */
 if (document.readyState === 'loading') {
@@ -61,7 +61,7 @@ if (document.readyState === 'loading') {
 /*
  * Installing a school portal.
  *
- * Only ever does anything on a page that declared itself installable - see
+ * Only ever does anything on a page that declared itself installable, see
  * the x-pwa component, which writes the per-school settings this reads. On
  * every other page it returns immediately.
  */

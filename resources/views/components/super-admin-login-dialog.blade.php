@@ -6,8 +6,8 @@
 {{-- The hidden Super Admin sign-in.
 
      Revealed by the logo click sequence. The surrounding element must provide
-     the Alpine scope this reads - `open`, `close()` and the `superAdminLogin`
-     ref - which is the same scope that counts the clicks.
+     the Alpine scope this reads, `open`, `close()` and the `superAdminLogin`
+     ref, which is the same scope that counts the clicks.
 
      Hiding it is convenience, not protection: the endpoint it posts to
      re-checks the credentials, the Super Admin role, the account status and

@@ -15,8 +15,8 @@ use Illuminate\Validation\ValidationException;
  * This step is the reason the limiter below is stricter than the token one, and
  * why it counts successes as well as failures.
  *
- * Confirming a pupil's name, photo and class from an admission number alone -
- * before any token - means the school's public result address can answer the
+ * Confirming a pupil's name, photo and class from an admission number alone,
+ * before any token, means the school's public result address can answer the
  * question "who is admission number 004?". Admission numbers run in sequence,
  * so anyone who wanted to could walk the whole register. A limiter on failures
  * would not touch that: every request in such a walk SUCCEEDS. So successful
@@ -34,8 +34,8 @@ class IdentifyStudentRequest extends FormRequest
 
     /**
      * Successful lookups allowed from one address, against one school, per
-     * hour. Generous enough for a household - or a school office helping
-     * several families from one connection - and far below a register.
+     * hour. Generous enough for a household, or a school office helping
+     * several families from one connection, and far below a register.
      */
     private const MAX_LOOKUPS = 20;
 
@@ -103,7 +103,7 @@ class IdentifyStudentRequest extends FormRequest
     }
 
     /**
-     * Counted even though nothing went wrong - see the note on this class.
+     * Counted even though nothing went wrong, see the note on this class.
      */
     public function recordLookup(School $school): void
     {

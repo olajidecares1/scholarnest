@@ -2,7 +2,7 @@
 
 Six documents, written from an audit of this codebase rather than from a
 template. Every factual claim in them was checked against the implementation on
-the date below. They still need review by a qualified lawyer — see
+the date below. They still need review by a qualified lawyer, see
 `00-LEGAL-REVIEW-AND-GAPS.md`.
 
 ## These files are the SEED, not the live copy
@@ -16,7 +16,7 @@ requires the `manage_legal` permission and writes an audit entry for every save.
 
 The files stay in the repository for two reasons: they are what a lawyer reviews
 without needing a login, and they are what a fresh install starts from. They are
-deliberately *not* re-read on deploy — a file improved in a release must never
+deliberately *not* re-read on deploy, a file improved in a release must never
 silently overwrite an amendment somebody made on purpose.
 
 To change what a fresh install starts with, edit the file. To change what is
@@ -30,8 +30,8 @@ the document without schools reading them. A test asserts no published page
 contains the markers or the phrases inside them, so a note added without a fence
 fails the build rather than appearing on a public page.
 
-Use it for open points. Do not use it to hide something a school ought to know —
-a separate test proves the honest disclosures (the Anthropic transfer, blood
+Use it for open points. Do not use it to hide something a school ought to know,
+a separate test proves the honest disclosures (blood
 group as health data, the absent cookie banner) are still on the live pages.
 
 | File | Document |
@@ -80,6 +80,6 @@ written to imply otherwise. What a well-drafted set of terms does is narrower
 and still worth having: it records what was agreed, allocates responsibility
 between AkademicNest and the school, sets out the limits of the service honestly,
 and demonstrates that the platform's data handling was thought about rather
-than improvised. Clauses that overreach — a blanket exclusion of all liability,
-a waiver of rights that cannot be waived — tend to be struck out, and a
+than improvised. Clauses that overreach, a blanket exclusion of all liability,
+a waiver of rights that cannot be waived, tend to be struck out, and a
 document containing them is treated with more suspicion, not less.

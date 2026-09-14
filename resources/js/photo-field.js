@@ -9,7 +9,7 @@
  *
  * Nothing is attached to the record until the person confirms it. A capture
  * sits in a preview with Retake beside it, and the file input stays empty
- * until Use This Photo is pressed - so closing the camera, or changing their
+ * until Use This Photo is pressed, so closing the camera, or changing their
  * mind, leaves the record exactly as it was.
  */
 import { isHeic, markPrepared, prepareImageFile, setInputFiles } from './image-upload-prep';
@@ -26,7 +26,7 @@ export default function photoField({ inputId, existing = null, maxKb = 10240 } =
         preparing: false,
 
         /**
-         * Offered when the in-page camera cannot run - an in-app browser, a
+         * Offered when the in-page camera cannot run, an in-app browser, a
          * refused permission, plain http. The phone's own camera app, opened
          * through a capture input, needs none of what getUserMedia needs.
          */
@@ -100,7 +100,7 @@ export default function photoField({ inputId, existing = null, maxKb = 10240 } =
                     ? 'Permission to use the camera was refused. Allow it in your browser settings, use your phone\'s camera app below, or upload a photograph instead.'
                     : 'The camera could not be started. Use your phone\'s camera app below, or upload a photograph instead.'
 
-                // A second tap opens the device camera app instead - a new
+                // A second tap opens the device camera app instead, a new
                 // gesture, which a file dialog needs.
                 this.offerNativeCamera = true
             } finally {
@@ -111,8 +111,8 @@ export default function photoField({ inputId, existing = null, maxKb = 10240 } =
         /**
          * Freeze the current frame, square-cropped from the centre.
          *
-         * Square because every place this photograph is printed - the ID card,
-         * the report card, the profile - shows it in a square or a circle. A
+         * Square because every place this photograph is printed, the ID card,
+         * the report card, the profile, shows it in a square or a circle. A
          * wide frame would be cropped by CSS at each of them, differently.
          */
         capture() {

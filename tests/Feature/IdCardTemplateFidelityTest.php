@@ -19,8 +19,8 @@ use App\Support\IdCardFields;
 
 /**
  * The card is drawn to match a supplied reference design. These tests pin the
- * parts of it that were previously approximated - the front's proportions and
- * furniture, and the back's shape - so that "it stopped looking like the
+ * parts of it that were previously approximated, the front's proportions and
+ * furniture, and the back's shape, so that "it stopped looking like the
  * template" is a failing test rather than something noticed months later.
  *
  * They assert structure, not pixels. Nothing here can tell you the card is
@@ -94,7 +94,7 @@ function withDecodedSvgs(string $html): string
 
 test('the front footer is a flat bar, not a wave', function () {
     // The reference footer is a plain navy rectangle. This used to draw an
-    // elliptical curve - border-radius: 50% 13px - which is the single most
+    // elliptical curve, border-radius: 50% 13px, which is the single most
     // visible difference between the two designs.
     foreach (['_card', 'pdf._front'] as $partial) {
         $html = renderCardFace($partial, $this->card);
@@ -149,7 +149,7 @@ test('the front still shows the holder details from the database', function () {
             ->and($html)->toContain('Marvel Int&#039; School')
 
             // The badge reads STUDENT on the card, but the capitals come from
-            // text-transform - the markup holds the label as written. The
+            // text-transform, the markup holds the label as written. The
             // screen card gets that from a utility class and the PDF from an
             // inline style, so either spelling satisfies this.
             ->and($html)->toContain('Student')
@@ -164,7 +164,7 @@ test('the front still shows the holder details from the database', function () {
 test('the back has straight edges, and closes on the signature bar', function () {
     // This used to assert that nothing followed the signature, read off a
     // small image of the whole card. A closer view showed the signature sits
-    // ON a navy bar that closes the card - so the old premise was wrong, not
+    // ON a navy bar that closes the card, so the old premise was wrong, not
     // just the styling. What holds in both readings is that no edge curves.
     foreach (['_card_back', 'pdf._back'] as $partial) {
         $html = renderCardFace($partial, $this->card);
@@ -230,7 +230,7 @@ test('a school can change all three colours, the accent included', function () {
     // design rather than to a school. It does not: a school whose colours are
     // green and gold should not be stuck with a red stripe.
     // The back uses the accent only on its contact icons, which need contact
-    // details to render at all - so the school gets some, as a real one would.
+    // details to render at all, so the school gets some, as a real one would.
     SchoolWebsite::factory()->create([
         'school_id' => $this->school->id,
         'contact_phone' => '+234 812 345 6789',
@@ -275,7 +275,7 @@ test('the editor opens a new template on the default card, not on a blank form',
         ->and($defaults['secondary_color'])->toBe(IdCardDesign::SECONDARY)
         ->and($defaults['accent_color'])->toBe(IdCardDesign::ACCENT)
 
-        // Wording a school can accept as it stands, carrying its own name -
+        // Wording a school can accept as it stands, carrying its own name,
         // not a placeholder it has to replace before the card makes sense.
         ->and($defaults['instructions'])->toContain('Marvel Int\' School')
         ->and($defaults['instructions'])->toContain('must be worn at all times');
@@ -308,7 +308,7 @@ test('the defaults are defined once, not copied into each card face', function (
 });
 
 // ---------------------------------------------------------------------------
-// Segment 3 - the details block, barcode and footer
+// Segment 3, the details block, barcode and footer
 // ---------------------------------------------------------------------------
 
 test('each detail row carries its own icon in a navy tile', function () {
@@ -316,7 +316,7 @@ test('each detail row carries its own icon in a navy tile', function () {
         $html = withDecodedSvgs(renderCardFace($partial, $this->card));
 
         // The tile, and a distinct mark inside it per row. Decoded, because
-        // the icons are SVG data URIs - dompdf cannot use an icon font, and a
+        // the icons are SVG data URIs, dompdf cannot use an icon font, and a
         // card that showed icons on screen and none in print would be worse
         // than one with no icons at all.
         expect($html)->toContain('width: 10px; height: 10px; border-radius: 2px')
@@ -402,8 +402,8 @@ test('the specimen is the real card, not a second drawing of it', function () {
     $front = $response->json('front');
 
     // The same furniture the printed card has. The preview used to be a
-    // hand-drawn miniature - a gradient header, an "Authorized Signature"
-    // line - that had drifted away from the card entirely.
+    // hand-drawn miniature, a gradient header, an "Authorized Signature"
+    // line, that had drifted away from the card entirely.
     expect($front)->toContain('68px')
         ->and($front)->toContain(IdCardDesign::ACCENT)
         ->and($front)->toContain('Admission No.')
@@ -458,7 +458,7 @@ test('drawing a specimen saves nothing', function () {
 
 test('a specimen belongs to the school asking for it', function () {
     // It carries the school's own name and crest, so it must not be reachable
-    // by anyone else - and one school must never be handed another's.
+    // by anyone else, and one school must never be handed another's.
     // Given a plan of its own, so this tests school isolation rather than the
     // plan gate that would otherwise turn it away first.
     $otherSchool = School::factory()->create(['name' => 'Another School']);

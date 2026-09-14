@@ -40,7 +40,7 @@ class ResultController extends Controller
                     && $score->subject->examination->term === $currentTerm->term ? 0 : 1,
                 -($score->subject->examination->exam_date?->timestamp ?? 0),
             ])
-            ->groupBy(fn ($score) => $score->subject->examination->name.' — '.$score->subject->examination->session);
+            ->groupBy(fn ($score) => $score->subject->examination->name.' ('.$score->subject->examination->session.')');
 
         return view('student.results.index', [
             'school' => $school,
@@ -110,8 +110,8 @@ class ResultController extends Controller
     /**
      * Refuse a result the school is withholding over unpaid fees.
      *
-     * On the server, on every route that can produce the document - the JSON
-     * view, the printable page and the PDF - because the portal's own list
+     * On the server, on every route that can produce the document, the JSON
+     * view, the printable page and the PDF, because the portal's own list
      * only stops someone who uses the portal. Editing the address is not a way
      * round a balance.
      */
@@ -135,8 +135,8 @@ class ResultController extends Controller
         abort_unless($examination->class_name === $student->class_name, 403);
 
         // Fees first. A token does not buy a result the school is withholding
-        // over money - it decides who may see one, not whether there is one to
-        // see - and checking it the other way round would spend a token on a
+        // over money, it decides who may see one, not whether there is one to
+        // see, and checking it the other way round would spend a token on a
         // result that stays shut anyway.
         $this->assertResultIsNotWithheld($student, $examination);
 

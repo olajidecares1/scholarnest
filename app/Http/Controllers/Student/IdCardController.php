@@ -23,7 +23,7 @@ class IdCardController extends Controller
     /**
      * Read-only: returns the student's own already-issued ID card, if the
      * School Admin has generated one. Deliberately has no print/pdf/regenerate
-     * counterpart - those stay School-Admin-only capabilities, enforced by
+     * counterpart, those stay School-Admin-only capabilities, enforced by
      * their routes simply not existing under this guard.
      */
     public function preview(Request $request, School $school): JsonResponse

@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 /**
  * One published report card, as the school approved it.
  *
- * The payload is the whole card written down - subjects, marks, totals,
- * grades, remarks, attendance, position - rather than a pointer back to the
+ * The payload is the whole card written down, subjects, marks, totals,
+ * grades, remarks, attendance, position, rather than a pointer back to the
  * scores table. That is the point of the repository: a parent reads what the
  * school signed off, and a mark corrected afterwards reaches them when
  * somebody pushes it again, not the moment it is typed.
@@ -127,8 +127,8 @@ class RepositoryResult extends Model
      * Has this been corrected since it was published?
      *
      * True when the marks or remarks behind the card no longer hash to what
-     * they hashed to at the push. The stored card is still what a parent sees
-     * - deliberately - and this is how the school is told there is a newer
+     * they hashed to at the push. The stored card is still what a parent sees,
+     * deliberately, and this is how the school is told there is a newer
      * version worth pushing.
      */
     public function isStaleAgainst(?string $currentFingerprint): bool

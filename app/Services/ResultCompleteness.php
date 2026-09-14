@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
  *
  * The repository is what a parent reads, so a half-entered card must not reach
  * it. A parent who opens a report card with three subjects on it and comes
- * back to find nine has not been given a corrected result - they were given an
+ * back to find nine has not been given a corrected result, they were given an
  * unfinished one and told it was final.
  *
  * The answer is a LIST of what is missing rather than a yes or no, because
@@ -106,7 +106,7 @@ class ResultCompleteness
 
     /**
      * "Mathematics", or "Mathematics and English", or "Mathematics, English
-     * and Civic Education" - a sentence rather than a comma-separated dump.
+     * and Civic Education", a sentence rather than a comma-separated dump.
      *
      * @param  Collection<int, string>  $names
      */

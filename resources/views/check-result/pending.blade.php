@@ -8,7 +8,7 @@
      Reachable only by somebody who has already proved a claim to this
      particular child's result, so naming the child and the term leaks
      nothing. --}}
-<x-auth-layout :title="'Result not published yet - '.$school->name" :school="$school" simple>
+<x-auth-layout :title="'Result not published yet | '.$school->name" :school="$school" simple>
     <x-auth-card>
         <div class="text-center">
             <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-500">

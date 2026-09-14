@@ -13,15 +13,15 @@ use Illuminate\Support\Facades\DB;
  * into a string and the component's own `value="{{ $resolvedValue }}"` escaped
  * it again. The browser decoded one layer when the form was submitted, so
  * "Arise & Shine" came back as "Arise &amp; Shine" and was saved that way.
- * Every subsequent save added another layer: &amp;amp;, &amp;amp;amp;.
+ * Every subsequent save added another layer: &amp;amp; &amp;amp;amp;.
  *
  * This cleans up what that left behind. It is not a find-and-replace across
- * the database - it decodes REPEATEDLY UNTIL STABLE, so a value mangled three
+ * the database, it decodes REPEATEDLY UNTIL STABLE, so a value mangled three
  * times comes back as far as the text the person actually typed, and a value
  * that was never encoded is left exactly as it is.
  *
  * WHY THAT IS SAFE HERE. Decoding is only ever applied to short, plain-text
- * columns - names, titles, addresses, captions - none of which are rendered as
+ * columns, names, titles, addresses, captions, none of which are rendered as
  * HTML anywhere in the application. Blade escapes them on output, which is
  * what keeps them safe; storing them decoded is the correct thing and the
  * escaping stays exactly where it belongs. Long-form and rich-text columns are
@@ -86,7 +86,7 @@ class NormaliseDoubleEncodedText extends Command
         }
 
         if ($changed === 0) {
-            $this->info('Nothing to repair - no double-encoded text found.');
+            $this->info('Nothing to repair. No double-encoded text found.');
 
             return self::SUCCESS;
         }
@@ -164,7 +164,7 @@ class NormaliseDoubleEncodedText extends Command
      *
      * Column by column, NOT all-or-nothing. Skipping the whole table when one
      * name was wrong is how the first run of this quietly passed over
-     * schools.name - the single most visibly broken value in the database -
+     * schools.name, the single most visibly broken value in the database,
      * because "address" happens not to exist on that table.
      *
      * @param  list<string>  $columns

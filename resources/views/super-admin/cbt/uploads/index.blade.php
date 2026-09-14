@@ -8,7 +8,7 @@
     ];
 @endphp
 
-<x-super-admin-layout page-title="Import CBT Questions" page-subtitle="Upload a PDF or Word document and let AI extract the questions automatically.">
+<x-super-admin-layout page-title="Import CBT Questions" page-subtitle="Upload a PDF or Word document and extract the questions automatically.">
     <div class="space-y-6" x-data="{ open: false }">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
@@ -25,7 +25,7 @@
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Upload a Document</h2>
             <p class="field-hint mt-1">
                 PDF or Word (.doc/.docx), up to {{ \App\Http\Controllers\SuperAdmin\CbtDocumentUploadController::maxUploadLabel() }}. If the document covers multiple examination years, every year is detected and split automatically.
-                Leave exam body/subject blank to let AI detect them from the document.
+                Leave exam body/subject blank to detect them from the document.
             </p>
 
             @if ($extractionWarning)
@@ -52,10 +52,8 @@
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {{-- "Detect it from the document", not "let AI detect it".
-                         Extraction has run locally since the hosted model was
-                         removed, and copy promising AI is copy that will send
-                         somebody looking for an API key that is not needed. --}}
+                    {{-- Extraction runs locally, so the wording promises no
+                         outside service and nobody goes looking for an API key. --}}
                     <x-select-field
                         name="cbt_exam_body_id"
                         label="Exam Body (optional)"
@@ -97,7 +95,7 @@
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $upload->original_filename }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">
-                                    {{ $upload->examBody?->code ?? '—' }} @if ($upload->subject) &middot; {{ $upload->subject->name }} @endif
+                                    {{ $upload->examBody?->code ?? 'N/A' }} @if ($upload->subject) &middot; {{ $upload->subject->name }} @endif
                                 </td>
                                 <td class="px-6 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $statusStyles[$upload->status->value] }}">{{ $upload->status->label() }}</span>

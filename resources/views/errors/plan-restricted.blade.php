@@ -30,8 +30,8 @@
     <div class="w-full max-w-xl">
         <div class="restricted-card overflow-hidden rounded-[14px] border border-[#E1E8F2] bg-white shadow-[0_18px_50px_-24px_rgba(15,42,92,0.35)]">
 
-            {{-- The band carries the feature's own icon - the same one on the
-                 card they clicked - so the page reads as an answer to what
+            {{-- The band carries the feature's own icon, the same one on the
+                 card they clicked, so the page reads as an answer to what
                  they just did rather than a generic wall. --}}
             <div class="relative overflow-hidden bg-white px-6 pb-6 pt-8 text-center sm:px-10">
                 <div class="restricted-glow pointer-events-none absolute inset-x-0 -top-24 mx-auto h-48 w-48 rounded-full bg-primary-500/10 blur-3xl"></div>

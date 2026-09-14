@@ -4,7 +4,7 @@
     $secondaryLine = $holder instanceof \App\Models\Student ? $holder?->class_name : ($holder?->department ?? $holder?->role?->label());
 @endphp
 
-<x-auth-layout :title="'Verify ID Card - '.$school->name" simple>
+<x-auth-layout :title="'Verify ID Card | '.$school->name" simple>
     <x-auth-card>
         <div class="text-center">
             @if ($school->logoUrl())

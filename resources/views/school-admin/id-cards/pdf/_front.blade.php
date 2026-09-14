@@ -8,13 +8,13 @@
     $idLabel = $isStudent ? 'Admission No.' : 'Staff ID';
     $secondaryLine = $isStudent ? $holder->class_name : ($holder->department ?? $holder->role->label());
     $fieldLabel = $isStudent ? 'Class' : 'Department';
-    // Defined once, in App\Support\IdCardDesign - see _card.blade.php.
+    // Defined once, in App\Support\IdCardDesign, see _card.blade.php.
     ['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]
         = \App\Support\IdCardDesign::colors($template);
     $badgeColor = $isStudent ? $accentColor : $primaryColor;
     $isLandscape = $template?->orientation === \App\Enums\IdCardOrientation::Landscape;
     // Set in Settings on every plan, not only by schools with a public
-    // website - see App\Support\SchoolMotto.
+    // website, see App\Support\SchoolMotto.
     $motto = \App\Support\SchoolMotto::for($school)->tagline;
 
     // dompdf's `enable_remote` option is off, so it can only read images via
@@ -24,7 +24,7 @@
     $initials = Str::of($holder->first_name)->substr(0, 1)->upper().Str::of($holder->last_name)->substr(0, 1)->upper();
 
     // Generated at the exact pixel size it will be displayed at (rather
-    // than scaled via CSS) - dompdf does not reliably honor width:100% (or
+    // than scaled via CSS), dompdf does not reliably honor width:100% (or
     // any CSS override) on <img>, so mismatched intrinsic/display sizes
     // cause it to render at its native size and blow out the tiny card
     // canvas, spilling content onto extra pages.
@@ -36,7 +36,7 @@
     $images = app(\App\Services\CodeImageGenerator::class);
     $barcode = $images->barcodeDataUri($card->card_number, $barcodeWidth, $barcodeHeight);
 
-    // Same reasoning as the barcode above, but for real uploaded photos -
+    // Same reasoning as the barcode above, but for real uploaded photos,
     // dompdf can render an arbitrary uploaded raster image at a size wildly
     // different from any explicit width/height given, so it's re-sampled to
     // its exact target pixel size server-side instead of trusting dompdf's
@@ -84,10 +84,10 @@
         </tr>
     @else
         {{-- Portrait: the reference card, followed rather than approximated.
-        Top to bottom - lanyard slot, crest beside the school name with the
+        Top to bottom, lanyard slot, crest beside the school name with the
         tagline under it, a red rule, the photograph, the holder's name, their
         badge, their details, the barcode, and a flat navy footer bar. --}}
-        {{-- SEGMENT 1 - the masthead: a navy band carrying the lanyard slot, a
+        {{-- SEGMENT 1, the masthead: a navy band carrying the lanyard slot, a
         red stripe across the full width, then the crest beside the school's
         name. The slot sits inside the navy band, and the stripe under that
         band rather than under the crest. --}}
@@ -128,7 +128,7 @@
         </tr>
         <tr>
             <td style="text-align: center; padding: 3px 7px 0;">
-                {{-- SEGMENT 2 - the holder: photograph, name, badge. The
+                {{-- SEGMENT 2, the holder: photograph, name, badge. The
                 photograph is a rounded rectangle inside a navy frame with a
                 thin white gap between the two, which is a frame around the
                 picture rather than a border drawn on it. --}}
@@ -142,7 +142,7 @@
                     @endif
                     <div style="font-size: 9.5px; font-weight: bold; text-transform: uppercase; color: {{ $secondaryColor }}; margin-top: 4px; line-height: 1.1;">{{ $holder->fullName() }}</div>
                     <div style="display: inline-block; margin-top: 3px; padding: 1.5px 9px; border-radius: 3px; background-color: {{ $badgeColor }}; color: #ffffff; font-size: 6px; font-weight: bold; text-transform: uppercase;">{{ $holderType->label() }}</div>
-                    {{-- SEGMENT 3 - the details. A navy tile with a white icon,
+                    {{-- SEGMENT 3, the details. A navy tile with a white icon,
                     the label, a colon in its own column, then the value, with a
                     hair rule between rows. Rows come from
                     App\Support\IdCardFields, which the on-screen card reads too,
@@ -173,7 +173,7 @@
             </td>
         </tr>
         <tr>
-            {{-- A red hairline, then a flat navy bar - not a wave. --}}
+            {{-- A red hairline, then a flat navy bar, not a wave. --}}
             <td style="padding: 0;">
                 <div style="height: 2px; background-color: {{ $accentColor }}; font-size: 0; line-height: 0;">&nbsp;</div>
             </td>

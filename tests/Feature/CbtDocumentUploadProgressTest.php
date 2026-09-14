@@ -52,7 +52,7 @@ beforeEach(function () {
 
 test('processing reports no percentage, because none is known', function () {
     // This is the whole point. The extractor gives no signal of how far
-    // through a document it is, so a number here would be invented - and an
+    // through a document it is, so a number here would be invented, and an
     // invented number that reaches 100% while the work continues is what made
     // a slow upload look like a broken one.
     expect(CbtDocumentUploadStatus::Processing->progressPercent())->toBeNull();
@@ -198,7 +198,7 @@ test('the status endpoint says so when nothing is working the queue', function (
         // The message used to read "Nothing is processing jobs" and stopped
         // there, which told the reader what was wrong and nothing about what
         // to do. The AkademicNest Team can start a worker, so they are now told
-        // which command does it - that is what this asserts, rather than a
+        // which command does it, that is what this asserts, rather than a
         // particular sentence.
         ->assertJsonPath('message', fn (string $message) => str_contains($message, 'queue:work'));
 });
@@ -384,7 +384,7 @@ test('both upload paths enforce the same limit', function () {
 test('extraction needs no API key at all', function () {
     // The dependency this used to warn about is gone: no key, no credit, no
     // network. Only a queue worker is still required.
-    config(['services.anthropic.key' => null, 'queue.default' => 'database']);
+    config(['queue.default' => 'database']);
     app(QueueWorkerHealth::class)->forget();
 
     expect(app(CbtExtractionAvailability::class)->warning())->toBeNull()
@@ -602,7 +602,7 @@ test('locking and then unlocking returns the test to draft', function () {
         ->post(route('staff.cbt.tests.status', [$this->school, $test]), ['status' => 'draft']);
 
     // Draft, not published. Students only ever see Published tests, so a
-    // locked test is a finished draft held back from editing - and publishing
+    // locked test is a finished draft held back from editing, and publishing
     // stays a separate, deliberate act.
     expect($test->fresh()->status)->toBe(CbtTestStatus::Draft);
 });
@@ -630,7 +630,7 @@ test('neither locking nor unlocking is possible once students have started', fun
 test('a job whose upload was deleted is dropped, not failed', function () {
     // Found in the live queue: a document uploaded while nothing was working
     // the queue, then deleted. Its job stayed behind, looked the row up when it
-    // finally ran, found nothing and threw ModelNotFoundException - raising a
+    // finally ran, found nothing and threw ModelNotFoundException, raising a
     // failed job over somebody changing their mind.
     expect((new ProcessCbtTestDocumentUpload(
         CbtTestDocumentUpload::factory()->make()

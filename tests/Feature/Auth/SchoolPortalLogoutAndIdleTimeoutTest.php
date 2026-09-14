@@ -125,7 +125,7 @@ test('an expired session says nothing about having expired', function () {
         ->withSession(['idle_last_activity_web' => now()->subMinutes(4)])
         ->get(route('dashboard'));
 
-    // Signed out and returned to their own login - and told nothing. The
+    // Signed out and returned to their own login, and told nothing. The
     // person stepped away and came back; a banner explaining the interruption
     // only draws attention to something they had already worked out.
     $response->assertRedirect($this->school->portalLoginUrl('web'));
@@ -174,7 +174,7 @@ test('logging out never lands on the registration page', function () {
     // The school is identified by its OPAQUE PORTAL KEY, not its slug. This
     // used to assert the slug was in the redirect, which was a reasonable
     // proxy for "it went to this school's own login" while the slug was in
-    // the URL - and became exactly the wrong assertion once it stopped being.
+    // the URL, and became exactly the wrong assertion once it stopped being.
     expect($response->headers->get('Location'))
         ->toContain($this->school->portal_key)
         ->not->toBe(route('register'));
@@ -217,7 +217,7 @@ test('a signed-out user cannot reach the dashboard again', function () {
 
     $this->actingAs($admin)->post(route('logout'));
 
-    // The unified sign-in, not route('login') - that name redirects on to
+    // The unified sign-in, not route('login'), that name redirects on to
     // registration, so this used to prove a signed-out admin was invited to
     // register the school they had just been running. A real browser gets
     // their own school's portal login, from the cookie written at sign-in;

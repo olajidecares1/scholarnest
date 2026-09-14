@@ -18,8 +18,8 @@ running, locking you out of the fix.
 | --- | --- | --- |
 | `APP_ENV` | `production` | Turns on the check below, and forces https URL generation. |
 | `APP_DEBUG` | `false` | Debug pages print stack traces containing database credentials to whoever triggered the error. **Enforced.** |
-| `APP_KEY` | a generated key | `php artisan key:generate`. Sessions and every `encrypted` cast depend on it — see the warning under Backups. |
-| `APP_URL` | `https://akademicanest.com` | Every link `route()` generates, every link in an email, the host stray traffic is redirected to, and the default target for custom domains. **Enforced** — an http, local or missing value is refused. |
+| `APP_KEY` | a generated key | `php artisan key:generate`. Sessions and every `encrypted` cast depend on it, see the warning under Backups. |
+| `APP_URL` | `https://akademicanest.com` | Every link `route()` generates, every link in an email, the host stray traffic is redirected to, and the default target for custom domains. **Enforced**: an http, local or missing value is refused. |
 | `SESSION_SECURE_COOKIE` | `true` | Without it the cookie that *is* the session is sent over plain http. **Enforced.** |
 | `SESSION_ENCRYPT` | `true` | Session payloads are otherwise readable wherever they are stored. **Enforced.** |
 
@@ -50,7 +50,7 @@ akademicanest.com          A      <server IP>     the platform itself
 ```
 
 **The wildcard needs a wildcard TLS certificate to match** (`*.akademicanest.com`).
-Without one, every Standard school's website shows a certificate warning — which
+Without one, every Standard school's website shows a certificate warning, which
 is worse than not offering subdomains at all. Leave `TENANT_BASE_DOMAIN` blank
 until the certificate exists; turning it on later is additive and breaks no
 existing link.
@@ -66,8 +66,8 @@ school is ever shown.
 A TXT record lives at the school's own registrar, on a domain this platform does
 not control, so renaming the prefix alone would silently un-verify every domain
 that was verified under an older name. Verification therefore also accepts
-`config('custom_domain.legacy_txt_verification_prefixes')` — currently
-`_edunest-verify` and `_scholarnest-verify` — without advertising them. Empty
+`config('custom_domain.legacy_txt_verification_prefixes')` currently
+`_edunest-verify` and `_scholarnest-verify` without advertising them. Empty
 that list once no verified domain relies on an old prefix.
 
 ## Strongly recommended
@@ -80,15 +80,9 @@ that list once no verified domain relies on an old prefix.
 | `MAIL_MAILER` | a real transport | Password resets, result notices and credential handovers all go by mail. |
 | `LOG_LEVEL` | `warning` | `debug` writes request detail to disk indefinitely. |
 
-## Optional
-
-| Key | Notes |
-| --- | --- |
-| `ANTHROPIC_API_KEY` | Only payment-receipt screening uses it, and it fails open — absent means receipts are simply not pre-screened. CBT extraction does **not** use it; that runs locally. |
-
 ## A queue worker must be running
 
-CBT extraction is queued. With no worker, uploads sit at "Pending" forever —
+CBT extraction is queued. With no worker, uploads sit at "Pending" forever,
 `App\Services\QueueWorkerHealth` detects this and says so on the page, but
 detecting it is not the same as fixing it.
 
@@ -125,8 +119,8 @@ and four of the instructions invert:
 
 | On a server | On Laravel Cloud |
 | --- | --- |
-| supervisor runs the queue | A **Worker cluster** runs it. Do not add `queue:restart` to the deploy commands — Cloud restarts workers itself after every deploy. |
-| `storage:link` publishes uploads | **Do not run it.** The filesystem is ephemeral: it is reset by every deploy, each replica has its own, and the link would not survive. Both disks must be object storage. **The simplest way: attach buckets whose disk names match the app's disks** — a *public* bucket named `public` (school logos, website, gallery, news and CBT question images) and a *private* bucket named `local` (photographs of students, staff and parents, signatures, stamps, receipts, class notes, CBT documents, report evidence), neither marked default. **Until they are attached, uploads are kept in the database** (`App\Support\Storage\DatabaseStorageFallback`): they survive deploys and work on every instance, with public files served at `/files/...`. Buckets remain the better home for large volumes of photos and documents; after attaching them and redeploying, run `php artisan uploads:move-to-buckets` to carry the database copies across. Run `php artisan uploads:check --references` from the Commands tab at any time to see where uploads are going, and which database rows point at files that are already gone. Laravel replaces a disk with the bucket of the same name at boot (`Illuminate\Foundation\Cloud::configureDisks`), public address included, so no variables are needed. A bucket under any other name is ignored by the app. The `PUBLIC_*`/`PRIVATE_*` variables in `.env.production.example` are the manual alternative. The **platform logo and favicon do not depend on any of this**: they are kept in the database and served at `/branding/{file}` (see `App\Models\BrandingImage`). |
+| supervisor runs the queue | A **Worker cluster** runs it. Do not add `queue:restart` to the deploy commands, Cloud restarts workers itself after every deploy. |
+| `storage:link` publishes uploads | **Do not run it.** The filesystem is ephemeral: it is reset by every deploy, each replica has its own, and the link would not survive. Both disks must be object storage. **The simplest way: attach buckets whose disk names match the app's disks**: a *public* bucket named `public` (school logos, website, gallery, news and CBT question images) and a *private* bucket named `local` (photographs of students, staff and parents, signatures, stamps, receipts, class notes, CBT documents, report evidence), neither marked default. **Until they are attached, uploads are kept in the database** (`App\Support\Storage\DatabaseStorageFallback`): they survive deploys and work on every instance, with public files served at `/files/...`. Buckets remain the better home for large volumes of photos and documents; after attaching them and redeploying, run `php artisan uploads:move-to-buckets` to carry the database copies across. Run `php artisan uploads:check --references` from the Commands tab at any time to see where uploads are going, and which database rows point at files that are already gone. Laravel replaces a disk with the bucket of the same name at boot (`Illuminate\Foundation\Cloud::configureDisks`), public address included, so no variables are needed. A bucket under any other name is ignored by the app. The `PUBLIC_*`/`PRIVATE_*` variables in `.env.production.example` are the manual alternative. The **platform logo and favicon do not depend on any of this**: they are kept in the database and served at `/branding/{file}` (see `App\Models\BrandingImage`). |
 | `config:cache` after deploying | Runs in the **build** command, not the deploy command. Deploy commands run on a filesystem that is thrown away. |
 | `A` records to a server IP | Laravel Cloud shows the exact origin records to create. There is no server IP to point at, so **`CUSTOM_DOMAIN_A_RECORD_IP` stays empty** and Exclusive schools are given the CNAME target instead. |
 
@@ -150,8 +144,8 @@ Two things, and losing either alone loses the data:
   attribute are unreadable without it. A database restored without the key it
   was written under is a database of ciphertext.
 
-`storage/app` holds uploaded media — logos, receipts, ID card photos, CBT
-source documents — and is not in the database. Back it up too.
+`storage/app` holds uploaded media, logos, receipts, ID card photos, CBT
+source documents, and is not in the database. Back it up too.
 
 ## What is deliberately not here
 

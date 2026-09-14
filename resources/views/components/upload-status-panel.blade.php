@@ -4,7 +4,7 @@
      page every five seconds: it threw away scroll position, re-ran every query
      behind the page, and still could not say anything more useful than that it
      was trying. Polling one small JSON endpoint instead lets the panel report
-     what is actually happening, including the case this was written for - the
+     what is actually happening, including the case this was written for, the
      queue is not running, so nothing is going to happen at all until someone
      starts it.
 
@@ -16,7 +16,7 @@
      TWO AUDIENCES. A stalled queue is one fact with two useful sentences: the
      AkademicNest Team can start a worker and should be told which command does it,
      while a teacher cannot and should never be shown a shell command. This
-     panel used to print the command to both - so a teacher whose upload was
+     panel used to print the command to both, so a teacher whose upload was
      waiting was handed `php artisan queue:work` and left to wonder what to do
      with it.
 
@@ -123,7 +123,7 @@
 
             <p class="mt-2 text-xs text-blue-700 dark:text-blue-400" x-text="message"></p>
             <p class="mt-1 text-xs text-blue-600/70 dark:text-blue-400/70">
-                Large documents can take a minute or two. This page updates on its own — you do not need to refresh it.
+                Large documents can take a minute or two. This page updates on its own, so you do not need to refresh it.
             </p>
         </div>
     </template>
@@ -140,7 +140,7 @@
 
             <p class="mt-2 text-xs text-amber-800 dark:text-amber-400">
                 The document uploaded successfully and is safely stored, but the background service that reads it is not
-                currently running, so extraction is queued and waiting. Nothing has been lost — it will run as soon as the
+                currently running, so extraction is queued and waiting. Nothing has been lost. It will run as soon as the
                 service is started.
             </p>
 

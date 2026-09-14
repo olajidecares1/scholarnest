@@ -27,8 +27,8 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->foreignId('school_id')->constrained()->cascadeOnDelete();
 
-            // Who sent it. Kept when the member leaves - a note in a pupil's
-            // portal should not vanish because its author was deactivated -
+            // Who sent it. Kept when the member leaves, a note in a pupil's
+            // portal should not vanish because its author was deactivated,
             // so this is nullOnDelete rather than a cascade.
             $table->foreignId('staff_id')->nullable()->constrained()->nullOnDelete();
 
@@ -48,7 +48,7 @@ return new class extends Migration
             // The document's text, pulled out once at upload rather than on
             // every view, so a pupil can read and copy the note without
             // owning Word. Null for a legacy .doc, whose binary format cannot
-            // be read - those stay download-only, and the page says so.
+            // be read, those stay download-only, and the page says so.
             $table->longText('body_text')->nullable();
 
             $table->timestamps();

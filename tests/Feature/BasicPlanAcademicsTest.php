@@ -16,7 +16,7 @@ use Database\Seeders\PlanSeeder;
  * The Basic plan's academic system.
  *
  * Basic is not a cut-down academic engine. It runs the same students, teachers,
- * attendance, marks, grading and result generation as Standard and Exclusive -
+ * attendance, marks, grading and result generation as Standard and Exclusive,
  * the difference is which premium modules sit on top, not the quality of the
  * school's academic records.
  *
@@ -146,7 +146,7 @@ test('a Basic teacher cannot reach CBT or ID cards in the staff portal', functio
 test('a Standard teacher can reach CBT and ID cards', function (string $route) {
     [$school, $teacher] = basicSchoolWithTeacher(PlanKey::Standard);
 
-    // The gate has to distinguish plans, not simply refuse everyone - which is
+    // The gate has to distinguish plans, not simply refuse everyone, which is
     // what a gate reading the wrong auth guard would have done.
     $this->actingAs($teacher, 'staff')
         ->get(route($route, $school))
@@ -178,7 +178,7 @@ test('the Standard staff dashboard does link to CBT', function () {
 });
 
 // -----------------------------------------------------------------------------
-// No parent portal on Basic - but not no parent result access
+// No parent portal on Basic, but not no parent result access
 // -----------------------------------------------------------------------------
 
 test('a Basic guardian gets no parent portal', function () {
@@ -209,7 +209,7 @@ test('a Basic parent still reaches a result through the token flow', function ()
     $school = School::factory()->create();
     activateSchool($school, PlanKey::Basic);
 
-    // No portal, no account, no dashboard - and the result is still reachable.
+    // No portal, no account, no dashboard, and the result is still reachable.
     // "No Parent Portal" is not "no parent result access".
     $this->get(route('check-result.show', $school))
         ->assertOk()
@@ -224,7 +224,7 @@ test('a Basic school portal page offers the teacher login', function () {
     $school = School::factory()->create();
     activateSchool($school, PlanKey::Basic);
 
-    // Opening the staff portal is only half of it - a teacher also has to be
+    // Opening the staff portal is only half of it, a teacher also has to be
     // able to find the way in, and a Basic school has no website to link from.
     $this->get('/'.$school->portal_key)
         ->assertOk()

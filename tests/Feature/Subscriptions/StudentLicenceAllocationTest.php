@@ -113,7 +113,7 @@ test('posting straight at the route does not get past the limit', function () {
     [$school, $admin] = basicSchoolWithLicences(1);
     fillSchoolToCapacity($school, 1);
 
-    // No form, no interface - the same request a script or developer console
+    // No form, no interface, the same request a script or developer console
     // would send. The check lives in the controller, not the page.
     $this->actingAs($admin)
         ->post(route('students.store'), newStudentPayload())
@@ -130,7 +130,7 @@ test('a school cannot free a licence by deactivating and then reactivating', fun
         'is_active' => true,
     ]);
 
-    // Deactivate one, admit a replacement - both legitimate.
+    // Deactivate one, admit a replacement, both legitimate.
     $this->actingAs($admin)->post(route('students.toggle-active', $existing->first()));
     $this->actingAs($admin)->post(route('students.store'), newStudentPayload())->assertSessionDoesntHaveErrors();
 
@@ -166,7 +166,7 @@ test('deactivating always works and releases a licence', function () {
 test('standard schools ARE capped now, like basic', function () {
     // This test used to assert the opposite. Standard's flat ₦200,000 term fee
     // was replaced by ₦1,000 a pupil, so it is sold per student and capped per
-    // student - the same rule, at its own price. Only its BILLING moved;
+    // student, the same rule, at its own price. Only its BILLING moved;
     // its features are untouched.
     $school = School::factory()->create();
     $plan = Plan::firstOrCreate(['key' => PlanKey::Standard], Plan::factory()->make(['key' => PlanKey::Standard])->toArray());
@@ -344,7 +344,7 @@ test('an approved allocation immediately raises the ceiling', function () {
     // request, so re-fetch here to match that.
     $admin = $admin->fresh();
 
-    // Now 2/3, so one more is allowed - and only one.
+    // Now 2/3, so one more is allowed, and only one.
     $this->actingAs($admin)->post(route('students.store'), newStudentPayload())->assertSessionDoesntHaveErrors();
     $this->actingAs($admin)->post(route('students.store'), newStudentPayload())->assertSessionHasErrors();
 
@@ -535,7 +535,7 @@ test('three successive top-ups add up rather than replacing each other', functio
     expect($school->fresh()->studentSlotLimit())->toBe(50);
 
     // The rule the brief is emphatic about: each approval ADDS. A school that
-    // buys 20 more must end on 70, never on 20 - the new allocation replacing
+    // buys 20 more must end on 70, never on 20, the new allocation replacing
     // the old one is the failure being guarded against here.
     expect(topUpAndApprove($school, $subscription, $superAdmin, 20))->toBe(70)
         ->and(topUpAndApprove($school, $subscription, $superAdmin, 30))->toBe(100);
@@ -628,7 +628,7 @@ test('a rejected top-up never becomes capacity, even after later approvals', fun
 
     expect($school->fresh()->studentSlotLimit())->toBe(50);
 
-    // A later, genuine top-up adds only itself - the rejected 999 does not
+    // A later, genuine top-up adds only itself, the rejected 999 does not
     // reappear in the total.
     expect(topUpAndApprove($school, $subscription, $superAdmin, 20))->toBe(70);
 });
@@ -643,7 +643,7 @@ test('every top-up is kept as history while capacity stays a single figure', fun
     $history = SubscriptionTopUp::where('subscription_id', $subscription->id)->orderBy('id')->get();
 
     // The rows record what happened and what each one moved the figure from
-    // and to - they are an audit trail, not three separate allowances.
+    // and to, they are an audit trail, not three separate allowances.
     expect($history)->toHaveCount(2)
         ->and($history[0]->previous_students_count)->toBe(50)
         ->and($history[0]->new_students_count)->toBe(70)
@@ -689,7 +689,7 @@ test('the capacity history shows each top-up moving the single figure', function
         ->get(route('super-admin.schools.show', $school))
         ->assertOk();
 
-    // Two history rows, one cumulative total - not three separate allowances.
+    // Two history rows, one cumulative total, not three separate allowances.
     expect($response->viewData('topUps'))->toHaveCount(2)
         ->and($response->viewData('capacity')['allocated'])->toBe(100);
 
@@ -776,7 +776,7 @@ test('a pending request is shown on the dashboard but never counted as capacity'
     $response = $this->actingAs($admin)->get(route('dashboard'))->assertOk();
 
     // Told it is under review, and told in the same breath that the capacity
-    // has not moved - a school that assumes otherwise finds out at the point
+    // has not moved, a school that assumes otherwise finds out at the point
     // of registering a student.
     $response->assertSee('awaiting AkademicNest Team approval', false)
         ->assertSee('Student/Pupil Capacity Reached');
@@ -872,7 +872,7 @@ test('the request page lists every past request with its status', function () {
         ->get(route('subscription-top-up.create'))
         ->assertOk();
 
-    // History, including the initial allocation, with each outcome named -
+    // History, including the initial allocation, with each outcome named,
     // and a capacity that still counts only the approved one.
     $response->assertSee('Capacity Request History')
         ->assertSee('Initial')
@@ -960,7 +960,7 @@ test('the blocked message and the card say the same thing', function () {
 
     $this->actingAs($admin)->post(route('students.store'), newStudentPayload());
 
-    // A school meets the limit in two places - the card and the refusal - and
+    // A school meets the limit in two places, the card and the refusal, and
     // they used to be worded as though they were different rules.
     expect(session('errors')->first('admission_number'))
         ->toContain('Student/Pupil Capacity Reached');

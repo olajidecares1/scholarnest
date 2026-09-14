@@ -15,7 +15,7 @@ use App\Support\SchoolSocialLinks;
 
 /**
  * A school's address used to live on its website record, and the website is a
- * Standard and Exclusive feature - so the two places an address matters most,
+ * Standard and Exclusive feature, so the two places an address matters most,
  * the letterhead on a result sheet and the back of an ID card, were the two a
  * Basic school could not fill in.
  */
@@ -79,7 +79,7 @@ test('the school\'s own details win over its website', function () {
     expect($contact->address)->toBe('Settings address')
         ->and($contact->phone)->toBe('Settings phone')
 
-        // Not overridden, so the website still supplies it - a Standard school
+        // Not overridden, so the website still supplies it, a Standard school
         // that filled in its website and never opened Settings keeps working.
         ->and($contact->email)->toBe('website@example.test');
 });
@@ -102,7 +102,7 @@ test('the ID card back prints the address a Basic school set in settings', funct
         'contact_phone' => '+234 701 222 3333',
     ]);
 
-    // No website record at all - a Basic school does not get one.
+    // No website record at all, a Basic school does not get one.
     expect($basic->fresh()->website)->toBeNull();
 
     $card = IdCardSample::for($basic->fresh(), IdCardHolderType::Student);

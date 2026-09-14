@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * Deliberately NOT a captcha. The brief asks that protection not be made
  * difficult for legitimate users, and every parent checking a result on a poor
- * connection would pay for a captcha - while an attacker with any real intent
+ * connection would pay for a captcha, while an attacker with any real intent
  * would solve it for a fraction of a penny. A trap costs an honest user
  * nothing at all.
  *
@@ -31,13 +31,13 @@ use Symfony\Component\HttpFoundation\Response;
  * than a replacement for it.
  *
  * A missing field is treated as legitimate rather than rejected. Only a FILLED
- * one is refused - otherwise every non-browser client, and every form that
+ * one is refused, otherwise every non-browser client, and every form that
  * forgets to render it, breaks in a way nobody would connect to this.
  */
 class RejectBotSubmissions
 {
     /**
-     * The trap's name. Unremarkable on purpose - "website" is the sort of
+     * The trap's name. Unremarkable on purpose, "website" is the sort of
      * field a scripted submitter is delighted to complete.
      */
     public const FIELD = 'website_url';

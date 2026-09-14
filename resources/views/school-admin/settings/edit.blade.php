@@ -103,7 +103,7 @@
                 {{-- Address and contact, on every plan.
 
                      These used to live only on the school's public website,
-                     which Basic schools do not have - so the two places an
+                     which Basic schools do not have, so the two places an
                      address matters most, the letterhead on a result sheet and
                      the back of an ID card, were the two a Basic school could
                      not fill in. --}}
@@ -153,7 +153,7 @@
 
                      The signature itself is not here. School Admin is the
                      Principal, so it is registered against the signed-in
-                     account on its own card below - one authoritative
+                     account on its own card below, one authoritative
                      signature per school, not a school column and an account
                      record that can disagree. --}}
                 <div class="border-t border-gray-100 pt-6 dark:border-gray-700">
@@ -212,8 +212,8 @@
 
                 {{-- Social handles, on every plan.
 
-                     Facebook, X and Instagram already existed - on the website
-                     record, which Basic schools do not have - and there was
+                     Facebook, X and Instagram already existed, on the website
+                     record, which Basic schools do not have, and there was
                      nowhere at all for TikTok, WhatsApp, YouTube or LinkedIn.
                      A school fills these in once here and they appear wherever
                      the application shows where to find it. --}}
@@ -263,7 +263,7 @@
                      that can disagree with the marks it came from, and a report
                      card's grades should mean the same thing on every card a
                      school issues. What a school does control is the scale
-                     itself - its grade bands - which is what this points at. --}}
+                     itself, its grade bands, which is what this points at. --}}
                 <div class="flex items-start gap-2 rounded-[8px] border border-gray-200 bg-gray-50 p-3 text-sm dark:border-gray-700 dark:bg-gray-900/40">
                     <i class="fa-solid fa-circle-check mt-0.5 text-[12px] text-green-600 dark:text-green-400"></i>
                     <span class="text-gray-700 dark:text-gray-200">
@@ -309,7 +309,7 @@
 
         {{-- The Principal's signature, which is yours.
 
-             On this platform the School Admin IS the Principal - there is no
+             On this platform the School Admin IS the Principal, there is no
              separate Principal account to create and no second signature to
              keep in step. What you draw here is what appears on the
              Principal's line of every report card and ID card your school

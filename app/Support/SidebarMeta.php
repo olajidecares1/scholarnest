@@ -6,12 +6,12 @@ namespace App\Support;
  * The icon and the one-line description for each place in the application.
  *
  * Keyed by ROUTE, not by label. Five sidebars use different words for the same
- * destination - "Test/Exam Score" in one portal, "Report Cards" in another -
+ * destination, "Test/Exam Score" in one portal, "Report Cards" in another,
  * and an icon chosen five times ends up different in each.
  *
  * The descriptions exist because the sidebar item is a card now: an icon, the
  * feature's name, and a line saying what it is for. They are deliberately
- * short - a description that wraps to three lines makes the sidebar a wall of
+ * short, a description that wraps to three lines makes the sidebar a wall of
  * text and defeats the point of having icons at all.
  */
 class SidebarMeta
@@ -154,7 +154,7 @@ class SidebarMeta
     }
 
     /**
-     * The line under the name. Empty when there is nothing useful to add -
+     * The line under the name. Empty when there is nothing useful to add,
      * better a name on its own than a description that repeats it.
      */
     public static function description(?string $route): string

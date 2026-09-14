@@ -4,7 +4,7 @@
  *
  * It used to be a <link> to cdnjs in each layout, which meant two things: the
  * icons vanished on any network that could not reach cdnjs, and the AkademicNest
- * Team's layout - which never had that link - rendered no icons at all. Every
+ * Team's layout, which never had that link, rendered no icons at all. Every
  * page loads this stylesheet, so importing it here is what makes "the icons
  * are loaded" true everywhere instead of true in four templates out of five. */
 @import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -13,8 +13,8 @@
 
 /* The staff, pupil and parent portals.
  *
- * These three are phone and tablet interfaces at every width - there is no
- * desktop layout behind them - so the things that break on a real handset are
+ * These three are phone and tablet interfaces at every width, there is no
+ * desktop layout behind them, so the things that break on a real handset are
  * handled here rather than left to whichever page happens to get them right.
  * Scoped to .edn-portal-main and .edn-bottom-nav so the School Admin and
  * AkademicNest Team dashboards are untouched. */
@@ -26,8 +26,8 @@
 
     /* Clear the fixed bottom bar, plus whatever the handset reserves for its
      * home indicator. Set here rather than as a utility class so the two
-     * measurements that must agree - the bar's height and the space left for
-     * it - are declared next to each other and cannot drift apart. */
+     * measurements that must agree, the bar's height and the space left for
+     * it, are declared next to each other and cannot drift apart. */
     padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 
@@ -41,7 +41,7 @@
 
 /* A broadsheet result table cannot be made narrow enough for a 320px phone, so
  * it scrolls inside its own box instead of dragging the whole page with it.
- * Printing puts it back - a printed report card is not a scrolling widget. */
+ * Printing puts it back, a printed report card is not a scrolling widget. */
 .edn-portal-main table {
     display: block;
     width: 100%;
@@ -123,7 +123,7 @@
 .edn-nav-link {
     position: relative;
     /* Bouncy overshoot easing on the transform gives the hover a springy "bounce"
-       feel without ever touching the `animation` property — swapping `animation`
+       feel without ever touching the `animation` property, swapping `animation`
        on :hover would cancel the entrance animation's forwards-fill and reset
        this element back to its base opacity: 0, making it vanish on hover. */
     isolation: isolate;
@@ -306,7 +306,7 @@
    ---------------------------------------------------------------------------
 
    A section arrives as the visitor reaches it: it fades in and rises a little.
-   The whole system is two classes and one custom property -
+   The whole system is two classes and one custom property,
 
        .edn-reveal              the resting (hidden) state
        .is-revealed             added once, by the observer, when it is seen
@@ -318,7 +318,7 @@
    on every frame of every reveal.
 
    The delay lives in a custom property rather than in a class per value
-   because the stagger is a number a Blade loop computes - a class would mean
+   because the stagger is a number a Blade loop computes, a class would mean
    inventing edn-delay-100, -200, -300 and hoping nobody ever needs 120.
 
    The observer unobserves after revealing, so nothing re-animates when the
@@ -346,7 +346,7 @@
 }
 
 /* For images. A shade over full size settling back to it, which reads as the
-   picture coming into focus rather than sliding about. Kept small - 1.04 - so
+   picture coming into focus rather than sliding about. Kept small, 1.04, so
    nothing is visibly cropped on the way in. */
 .edn-reveal-scale {
     transform: scale(1.04);
@@ -379,7 +379,7 @@
    ---------------------------------------------------------------------------
 
    This was a flat 82% white across the whole section, which is why the
-   photograph behind News & Events looked washed out and indistinct - at that
+   photograph behind News & Events looked washed out and indistinct, at that
    strength almost nothing of the picture survives, and what does survive is a
    pale ghost that reads as a printing fault rather than a design.
 
@@ -393,19 +393,19 @@
      - Everything below fades back to a light 26%, because the news cards, the
        event cards and the academic cards are all SOLID WHITE. They bring their
        own background, so the wash beneath them is doing nothing except veiling
-       the photograph - which is exactly the complaint.
+       the photograph, which is exactly the complaint.
 
    The result is a picture you can actually see, with headings that stay
    legible over any photograph a school chooses to upload.
 
    The two stops are custom properties because the Academics section has a
-   taller run of bare text - an eyebrow, a heading, a rule and a paragraph, all
-   over the picture - so it needs to hold the strong band further down than the
+   taller run of bare text, an eyebrow, a heading, a rule and a paragraph, all
+   over the picture, so it needs to hold the strong band further down than the
    News row, whose headings are one line each. */
 .edn-photo-scrim {
     /* A BLACK TINT, not a white wash.
 
-       The white version - even as a gradient - is what made the photograph
+       The white version, even as a gradient, is what made the photograph
        look hazy and washed out: white over a bright picture flattens its
        contrast, and a flattened picture reads as blurred whether or not
        anything is actually blurring it. A dark tint does the opposite. It
@@ -414,7 +414,7 @@
 
        45% is the working number rather than a smaller one because the text
        above it is WHITE, and white type over an arbitrary photograph needs the
-       ground genuinely dark - a school can upload a near-white picture, and at
+       ground genuinely dark, a school can upload a near-white picture, and at
        25% that would leave the headings unreadable. */
     background-color: rgb(0 0 0 / 45%);
 }
@@ -422,7 +422,7 @@
 /* The headings that sit directly on a photograph.
    ---------------------------------------------------------------------------
 
-   White, because the ground beneath them is now dark - the project's contrast
+   White, because the ground beneath them is now dark, the project's contrast
    rule, applied the other way round from the rest of the site.
 
    The shadow is the insurance. A tint is one number and a photograph is not:
@@ -447,7 +447,7 @@
    configured appeared to do nothing at all.
 
    300, not the 600 or 700 used on a white page. That is the LIGHT end of the
-   school's own scale, and it is the reason this can carry the brand at all -
+   school's own scale, and it is the reason this can carry the brand at all,
    a mid-tone hue on a dark tinted photograph is the case the contrast rule
    exists to prevent, and it is why these were white in the first place. Taking
    the same hue and lightening it keeps the identity and the legibility
@@ -464,13 +464,13 @@
 /* A card outlined in the school's own colour.
    ---------------------------------------------------------------------------
 
-   1.3px, which is not a width Tailwind has - it has 1px and 2px, and the brief
+   1.3px, which is not a width Tailwind has, it has 1px and 2px, and the brief
    asks for the value between them. A hairline reads as a divider and 2px reads
    as a box; 1.3px is the weight that says "this is a card" without shouting.
 
    The colour is the CSS variable the layout writes from the school's chosen
    hex, so a school on crimson gets crimson borders with no CSS change and no
-   deployment - which is the whole point of the theme system.
+   deployment, which is the whole point of the theme system.
 
    400 rather than 600: this is a border around white, not type on white, and
    the 600 that reads well as text draws a card that looks ruled rather than
@@ -485,7 +485,7 @@
    A native range input cannot be styled through one selector: WebKit and
    Firefox expose the track and the thumb under different pseudo-elements, and
    a browser that does not recognise a rule DISCARDS THE WHOLE BLOCK it sits
-   in - so the two cannot be combined into a selector list. They are written
+   in, so the two cannot be combined into a selector list. They are written
    twice on purpose.
 
    appearance: none is what makes any of it apply; without it the platform
@@ -547,7 +547,7 @@
    have moved the problem to the next screen size rather than fixing it.
 
    svh, NOT vh. On a phone, 100vh is the viewport measured WITHOUT the
-   browser's collapsing address bar - so a 100vh hero is taller than the screen
+   browser's collapsing address bar, so a 100vh hero is taller than the screen
    actually is, and its bottom third, which is where the buttons are, sits
    under the chrome until the visitor scrolls. svh is the small viewport: the
    one that is really visible. This is the single most common cause of a hero
@@ -556,7 +556,7 @@
 
    Minus the chrome, because the top bar and the header sit above the hero in
    normal flow. A full 100svh would push the hero's own bottom edge below the
-   fold by exactly their height - the section would be a screen tall but never
+   fold by exactly their height, the section would be a screen tall but never
    entirely on screen, which is not what filling the screen means.
 
    min-height rather than height, so a school with a long name or a
@@ -577,8 +577,8 @@
 /* .edn-hero-photo is gone deliberately.
  *
  * It existed to start the photograph clear of the navy disc that overlapped
- * it. There is no panel and no disc any more - the photograph fills the whole
- * hero - so an offset would now be the very thing it was written to prevent:
+ * it. There is no panel and no disc any more, the photograph fills the whole
+ * hero, so an offset would now be the very thing it was written to prevent:
  * a strip of bare colour down one side of the image. */
 
 /* Footer links, in the school's own colour.
@@ -586,7 +586,7 @@
 
    The resting state stays a light grey, because these sit on the near-black
    footer and a mid-tone brand colour as small type on near-black is the case
-   the contrast rule exists to prevent - a school on navy would have links it
+   the contrast rule exists to prevent, a school on navy would have links it
    could not read. 300 is the light end of the school's own scale, so even the
    hover stays legible there.
 
@@ -624,7 +624,7 @@
 }
 
 /* The heading above each footer column, with the school's colour as its
-   marker rather than as the type - which keeps the words themselves at full
+   marker rather than as the type, which keeps the words themselves at full
    white-on-black contrast. */
 .edn-footer-heading::before {
     content: '';
@@ -647,7 +647,7 @@
    ---------------------------------------------------------------------------
 
    The GLYPHS stay white and the resting fill stays neutral, because these sit
-   on an 80% black backdrop and the contrast rule outranks the branding rule -
+   on an 80% black backdrop and the contrast rule outranks the branding rule,
    a mid-tone brand colour as an icon on near-black is exactly the case the
    rule exists to prevent.
 
@@ -669,12 +669,12 @@
    TRANSLUCENT, NOT FROSTED. There is no backdrop-filter here on purpose: the
    brief asks for the background to remain sharp, and blurring it behind every
    card is the opposite of that. It is a flat alpha, which keeps the photograph
-   crisp and costs the compositor nothing - a backdrop-filter on a dozen cards
+   crisp and costs the compositor nothing, a backdrop-filter on a dozen cards
    is re-filtered on every frame of every scroll.
 
    The arithmetic behind 82%. The section's own scrim leaves the photograph at
    about 74% below the headings, and this leaves 18% of that showing through a
-   card - so roughly 13% of the picture reads behind the text, enough to see it
+   card, so roughly 13% of the picture reads behind the text, enough to see it
    is there, far too little to fight near-black type. Between the cards the
    photograph shows at full 74%, which is where it is actually meant to be
    looked at. */
@@ -710,7 +710,7 @@
    Colour is in this list rather than left to a `transition-colors` utility on
    the element. Both would be a `transition` shorthand on the same single-class
    specificity, so the later one in the sheet would win outright and silently
-   drop whatever the other declared - either the stagger or the hover. One
+   drop whatever the other declared, either the stagger or the hover. One
    declaration owning all three properties cannot lose that argument. */
 .edn-drawer-item {
     opacity: 0;
@@ -737,15 +737,15 @@
 
 /* Very slight drift on a large background image. The movement is written by
    the observer in a transform, never in a background-position, and it is
-   turned off below the desktop breakpoint - a parallax on a phone costs a
+   turned off below the desktop breakpoint, a parallax on a phone costs a
    scroll handler and buys nothing anyone notices. */
 /* Scroll-linked drift, on backgrounds and on the content over them.
    ---------------------------------------------------------------------------
 
    No breakpoint rule here any more. This used to clear the transform outright
    below 1024px, which meant a phone got the static page the effect exists to
-   prevent. The strength is scaled down in JavaScript instead - the same
-   movement, gentler - so the design survives on a small screen rather than
+   prevent. The strength is scaled down in JavaScript instead, the same
+   movement, gentler, so the design survives on a small screen rather than
    being switched off there.
 
    Reduced motion is a different question from a small screen, and is still
@@ -816,7 +816,7 @@
 
 /* Alpine hides x-cloak elements only once it has booted. Without this rule the
    markup is visible for that first moment, which would flash the hidden Super
-   Admin dialog on every page load - the one thing it must not do. */
+   Admin dialog on every page load, the one thing it must not do. */
 [x-cloak] {
     display: none !important;
 }
@@ -865,18 +865,18 @@
 }
 
 /* ==========================================================================
-   Form controls — one design, project-wide.
+   Form controls, one design, project-wide.
 
    The registration page is the reference. Every dimension below is taken from
    it: 36px tall, 8px radius, a 1.2px border, 12.5px text, and a focus state
-   that changes the border colour and nothing else — no ring, no glow, no
+   that changes the border colour and nothing else, no ring, no glow, no
    shadow, no movement.
 
    These are element selectors in the base layer rather than a class, which is
    deliberate. A class only styles the fields somebody remembered to put it on;
    an element rule styles every field in the project, including the ones nobody
    has written yet. A page that needs a genuinely different width can still say
-   so with a utility — utilities outrank the base layer — but nothing has to
+   so with a utility, utilities outrank the base layer, but nothing has to
    opt IN to the house style to get it.
 
    Anything laid on top of a field (a leading icon, a trailing button) is
@@ -900,7 +900,7 @@
     --field-placeholder: #9aaac4;
     --field-label: #0f2a5c;
 
-    /* Darkened from #64789f, which measured 4.44:1 on white - under the 4.5:1
+    /* Darkened from #64789f, which measured 4.44:1 on white, under the 4.5:1
        floor for text this size, so every hint on every form in the
        application was failing it by a hair. #4e6285 keeps the muted blue-grey
        and measures 6.16:1 on white, 5.89:1 on the #f9fafb panels these sit on
@@ -925,7 +925,7 @@
    iOS zooms the page into any field whose text is smaller than 16px the
    moment it is tapped, and leaves the page zoomed after the keyboard closes.
    At 12.5px every field in the application tripped it, on every iPhone and
-   iPad. 16px is the threshold, so this is the smallest size that stops it -
+   iPad. 16px is the threshold, so this is the smallest size that stops it,
    without taking pinch-zoom away, which maximum-scale=1 in the viewport tag
    would do on Android.
 
@@ -935,7 +935,7 @@
 
    Deliberately OUTSIDE @layer. An unlayered rule outranks every layer, so it
    beats both the base rules below and a text-sm or text-[12.5px] utility on
-   an individual field - which would otherwise quietly bring the zoom back on
+   an individual field, which would otherwise quietly bring the zoom back on
    that one field. */
 @media (pointer: coarse), (hover: none) {
     :root {
@@ -1019,7 +1019,7 @@
         resize: vertical;
     }
 
-    /* appearance:none removes the native arrow, so the select draws its own —
+    /* appearance:none removes the native arrow, so the select draws its own,
        one chevron, the same on every platform. */
     select {
         padding-right: calc(var(--field-padding-x) + 18px);
@@ -1094,7 +1094,7 @@
 /* The sentence under a field explaining what it is for.
 
    display:block because these are written on <small> as often as on <p> now.
-   The element is the right one - it is small print about the control above it -
+   The element is the right one, it is small print about the control above it,
    but it is inline by default, so without this a hint would sit on the same
    line as whatever came after it. Set here rather than as a utility class on
    each one, so a hint added later cannot forget it. */
@@ -1117,7 +1117,7 @@
    The controls that are not text fields.
 
    These were the gap in the first pass. Excluding them from the text-field
-   rules was right - a colour swatch is not a text box - but excluding them
+   rules was right, a colour swatch is not a text box, but excluding them
    from the SYSTEM was not: they were left carrying whatever each page had
    given them, which for the file pickers meant three different button colours
    across the project. They share the frame now, and differ only where they
@@ -1274,7 +1274,7 @@
 }
 
 /* A field that already holds something, where that is worth showing at a
-   glance - the digits of a reset code, which are read as a row rather than
+   glance, the digits of a reset code, which are read as a row rather than
    one at a time. A state, not a second design. */
 .field-filled {
     border-color: var(--color-primary-500);
@@ -1286,7 +1286,7 @@
 
    The motion is there to make the page feel deliberate rather than like
    something that broke: the card settles, then the lines arrive in reading
-   order. It is small, it happens once, and it never repeats - a refusal that
+   order. It is small, it happens once, and it never repeats, a refusal that
    bounces at you is worse than one that does not move at all. Anyone who has
    asked for reduced motion gets the page already settled.
    -------------------------------------------------------------------------- */
@@ -1388,7 +1388,7 @@
 /* The subscription progress rail.
 
    It scrolls sideways on a narrow screen, so it needs a scrollbar people can
-   see - a rail that slides with no indication that it slides is a rail nobody
+   see, a rail that slides with no indication that it slides is a rail nobody
    slides. A slim one, styled to match the bar rather than the operating
    system, and gone entirely from "sm" up where the steps fit and there is
    nothing to scroll. Momentum scrolling and snapping make the drag feel like
@@ -1443,7 +1443,7 @@
 
 /* A file upload has one measurable phase and one that is not. Sending bytes is
    measurable, so the bar fills to a real percentage. Extracting questions from
-   the document is not - the extractor reports no interim progress - so the bar
+   the document is not, the extractor reports no interim progress, so the bar
    switches to the indeterminate sweep below rather than inventing a number.
    That distinction is the whole point of these two rules. */
 
@@ -1528,7 +1528,7 @@
    ===========================================================================
 
    The Terms, Privacy Policy and the rest are markdown files rendered to HTML,
-   so the output is plain tags with no classes on them - which is the point:
+   so the output is plain tags with no classes on them, which is the point:
    the source files stay readable for the lawyer who has to review them, and
    nothing about how the page looks lives in the document.
 
@@ -1607,7 +1607,7 @@
     color: #90A5C7;
 }
 
-/* A note the reader should not skim past - a limitation, a warning, something
+/* A note the reader should not skim past, a limitation, a warning, something
    that is not yet available. Marked with a rule rather than a colour block:
    these documents have enough of them that boxes would fight the text. */
 .legal-prose blockquote {

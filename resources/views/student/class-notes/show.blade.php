@@ -2,7 +2,7 @@
 
      The text was pulled out of the document when the teacher uploaded it, so
      a pupil with no copy of Word on a shared phone can still read the note and
-     copy it into their own work - which is the point of the feature. A legacy
+     copy it into their own work, which is the point of the feature. A legacy
      .doc cannot be read that way, and the panel says so rather than sitting
      empty. --}}
 <x-student-layout page-title="Class Note" :page-subtitle="$note->title">

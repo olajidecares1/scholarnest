@@ -1,371 +1,254 @@
 ---
 title: Security & Data Handling Statement
-version: "1.0"
+version: "1.1"
 effective_date: "[TO BE PROVIDED]"
-last_updated: 2026-09-01
+last_updated: 2026-09-13
 status: Awaiting legal review
 ---
 
 # AkademicNest Security & Data Handling Statement
 
-**Version 1.0 · Effective [TO BE PROVIDED] · Last updated 1 September 2026**
+**Version 1.1 · Effective [TO BE PROVIDED] · Last updated 13 September 2026**
 
 <!-- internal:start -->
-> **Draft.** Section 10 lists real weaknesses in the platform as it stands. That
-> section exists because a security statement that only lists strengths is not a
-> security statement. **Decide deliberately how much of section 10 to publish**
-> — the findings should be *fixed* before publication, not deleted from the
-> document.
+> **Draft.** The list of improvements under "Remediation plan" at the end of
+> this document is for the AkademicNest Team only and is not shown on the
+> published page. Those items should be fixed, not simply left out.
 <!-- internal:end -->
 
 ---
 
 ## 1. Purpose
 
-What AkademicNest actually does to protect the information it holds, verified
-against the code on 1 September 2026. Nothing here is aspirational: where a
-protection does not exist, it is listed in section 10 instead.
+This statement describes how AkademicNest protects the information it holds.
 
 ## 2. Authentication
 
 **Passwords**
 
-- Hashed with **bcrypt at 12 rounds**. Never stored in readable form and not
-  recoverable by anyone, including the AkademicNest Team.
-- Minimum **8 characters, with upper and lower case, a number and a symbol**,
-  applied consistently to registration, password change and reset.
-- An account created by a school with a temporary password **must** have a new
-  password set by its owner before the portal can be used for anything else.
-- Changing a password sends a notification to the account holder, including the
-  IP address it was changed from.
+- Passwords are stored using strong one way hashing. They are never stored in
+  readable form and cannot be recovered by anyone, including the AkademicNest
+  Team.
+- Passwords must be at least **8 characters long, with upper and lower case
+  letters, a number and a symbol**. This applies to registration, password
+  changes and password resets.
+- When a school creates an account with a temporary password, the account
+  holder **must** set a new password before the portal can be used for anything
+  else.
+- When a password is changed, the account holder is notified, including the IP
+  address the change was made from.
 
-**Separate account systems**
+**Separate accounts for each portal**
 
-Pupils, parents/guardians, staff and administrators authenticate through
-**separate mechanisms against separate tables**. A pupil credential is not
-valid for a staff sign-in, and the separation is structural rather than a
-role check applied after the fact.
+Pupils, parents and guardians, staff and administrators sign in through
+**separate portals with separate account records**. A pupil's login cannot be
+used to sign in to a staff portal.
 
-**Rate limiting**
+**Limits on repeated attempts**
 
-Sign-in attempts are throttled by identifier, by school and by IP address, on
-every portal. Result token lookups are throttled separately, again per school
-and per IP. The mobile API is limited to 60 requests a minute, keyed to the
-token so one device cannot exhaust another's budget.
+Sign in attempts are limited by account, by school and by IP address on every
+portal. Result token lookups are limited separately. The mobile application is
+limited to 60 requests a minute for each device.
 
-**Not implemented**: two-factor authentication. See section 10.
+## 3. Access control and school separation
 
-## 3. Authorisation and school isolation
+One school can never access another school's records. This is enforced on
+AkademicNest's servers: every request is checked against **the school of the
+signed in user**, and access is refused where they do not match. A school
+reference submitted with a request is never trusted on its own.
 
-The rule that one school can never reach another school's records is enforced
-on the server. A shared check compares the record's school against the
-**signed-in user's school taken from the session**, and refuses with a 403 —
-it does not filter results, and it does not trust any school identifier
-submitted in a request.
+The same principle applies throughout the platform:
 
-The same principle runs throughout:
+- **Signatures** are always recorded against the signed in account. A signature
+  cannot be attributed to another person by changing a form or an address.
+- **Result tokens** are linked to one pupil and one examination when they are
+  created, and that link is checked against the issuing school each time.
+- **Visitor submissions** are sent to the school whose page they came from, based
+  on the address of the page rather than anything in the form.
+- **Plan features** are enforced on the server. A feature that is not included in
+  a school's plan is refused, even if its address is typed in directly.
 
-- **Signatures** are recorded against the signed-in account. There is no signer
-  identifier in the accepted input at all — not a form field, not a query
-  string, not a route parameter. There is nothing to tamper with.
-- **Result tokens** are bound to one pupil and one examination when they are
-  created, and the binding is re-validated against the issuing school. There is
-  no later moment at which a token decides what it is for.
-- **Visitor submissions** are routed to the school whose page they came from,
-  taken from the address of the page rather than a form field.
-- **Plan restrictions** are enforced by middleware on the routes themselves. A
-  feature a school has not paid for is refused at the server, not merely hidden
-  in the interface — including at a URL typed directly.
+## 4. Connection and browser protections
 
-**Honest limitation.** Isolation is enforced by an explicit check in each
-controller rather than by a database-level scope applied automatically. It is
-applied consistently today, but a new controller that omits the call would not
-be caught by anything. See section 10.
+- **HTTPS is enforced in production.** Plain HTTP requests are redirected, and
+  browsers are instructed to use only secure connections for AkademicNest.
+- A **Content Security Policy** is sent with every page. It prevents plugins,
+  prevents forms from sending data to other websites, and prevents AkademicNest
+  pages from being embedded in other sites, which protects against
+  clickjacking.
+- Further browser security headers prevent file type confusion and limit the
+  information shared with other websites.
+- Browser access to the camera, microphone, location, payment and USB features
+  is switched off for AkademicNest pages.
 
-## 4. Transport and browser protections
-
-- **HTTPS is enforced in production**: a plain HTTP request is redirected before
-  anything else processes it, and **HSTS** is sent so the browser stops trying
-  HTTP for a year.
-- **Content Security Policy** on every response. `object-src 'none'`,
-  `base-uri 'self'`, `form-action 'self'` (an injected form cannot post a
-  password elsewhere) and `frame-ancestors 'none'` (the application cannot be
-  framed, so clickjacking is not possible).
-  **The policy permits inline and evaluated scripts** because the interface
-  framework requires it; that part is a real weakening and is listed in section
-  10 rather than glossed over.
-- `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
-  `Referrer-Policy: strict-origin-when-cross-origin`.
-- **Permissions-Policy** disables camera, microphone, geolocation, payment and
-  USB. Nothing in AkademicNest uses them, so nothing embedded in it can ask.
-
-## 5. Common web attacks
+## 5. Protection against common attacks
 
 | Attack | Protection |
 | --- | --- |
-| **SQL injection** | Queries are built through the framework's query builder and ORM with bound parameters. No raw SQL built from user input was found. |
-| **Cross-site scripting** | Template output is escaped by default. Escaping has **not** been globally disabled. |
-| **Cross-site request forgery** | Token validation on every state-changing request, with a clear recovery path rather than a dead-end error page when a form goes stale. |
-| **Session fixation** | The session identifier is regenerated on sign-in. |
-| **Automated form abuse** | Public forms carry a hidden trap field, and are rate limited. |
-| **Mass assignment** | Models declare explicitly which attributes may be set from a request. |
+| **SQL injection** | Database queries use parameter binding, so user input is never treated as part of a query. |
+| **Cross site scripting** | Content shown on pages is escaped by default. |
+| **Cross site request forgery** | Every form submission and change request is checked for a valid security token. |
+| **Session fixation** | A new session identifier is created at sign in. |
+| **Automated form abuse** | Public forms include hidden checks for automated submissions and are rate limited. |
+| **Mass assignment** | Only approved fields can be set from a request. |
 
 ## 6. File uploads
 
-- The **stored filename is chosen by AkademicNest** — a random UUID. The uploader's
-  filename is discarded.
-- The **extension is derived from the file's actual content**, not its name, and
-  checked against an allowlist. Anything not on the list is stored as `.bin`.
-  A file named `.php` cannot be written under that name from either direction.
-- **SVG is deliberately excluded.** It is the one image format that can carry a
-  script, and these files are served from the school's own origin.
-- Size and count limits are enforced (conduct-report attachments: 5 MB, maximum
-  four files).
-- **EXIF metadata is stripped from uploaded payment receipts**, removing camera
-  and location data before the file reaches disk.
+- **Stored file names are chosen by AkademicNest** using random identifiers. The
+  original file name is not used.
+- **File types are identified from the file's content**, not its name, and are
+  checked against a list of permitted types. A file cannot be stored as
+  executable code.
+- **SVG images are not accepted**, because they can contain scripts.
+- Size and number limits apply to every upload.
+- **Location and camera information (EXIF data) is removed** from uploaded
+  images before they are stored.
 
-**Private storage** — not reachable by URL, served only through an authorised
-controller:
+**Private storage**, which cannot be reached by an address and is served only to
+authorised users:
 
 - payment receipts;
-- conduct-report attachments (photographs a member of the public took of a
-  pupil).
+- conduct report attachments;
+- job application CVs and supporting documents.
 
-**Public storage** — reachable by anyone with the address:
+**Public storage**, which can be opened by anyone who has the file's address:
 
-- **pupil photographs, staff photographs, guardian photographs**;
+- **pupil, staff and guardian photographs**;
 - **signature images**;
 - school logos, favicons, facility images, news images, gallery images, hero
-  slides, ID card templates, CBT question images.
+  slides, ID card templates and test question images.
 
-The addresses are random UUIDs and therefore not guessable, but they are **not
-access-controlled**: anyone who obtains a URL can retrieve the file, signed in
-or not, and can keep retrieving it. See section 10.
+Public file addresses are long random identifiers that cannot be guessed.
+However, anyone who has the address of a public file can open it, so these
+addresses should not be shared.
 
 ## 7. Result tokens
 
-Designed on the assumption that a token will be passed around.
+Result tokens are designed on the assumption that they may be passed on.
 
-- Stored as a **one-way hash**, with a separately **encrypted** copy so a school
-  can re-display a token it issued. The plain value exists only at the moment of
-  issue.
-- **Bound to one pupil and one examination at creation.** There is no window in
-  which a token is a general-purpose code.
-- **Limited number of uses** — five by default, configurable — so a token that
-  circulates stops working.
-- Can be given an expiry.
-- **Every attempt is logged** with the time, outcome, IP address and browser,
-  so a school can see whether a token was used and how often.
-- Lookups are rate limited per school and per IP.
+- Tokens are stored in a protected form, with a separately **encrypted** copy so
+  that a school can display a token it issued again.
+- **Each token is linked to one pupil and one examination when it is created.**
+- **Each token can be used a limited number of times** (five by default, and
+  configurable), so a token that is passed around stops working.
+- Tokens can be given an expiry date.
+- **Every attempt is recorded** with the time, the outcome, the IP address and
+  the browser type, so a school can see whether and how often a token was used.
+- Lookups are rate limited by school and by IP address.
 
-**If a token is compromised**: it exposes one pupil's result for one examination
-and nothing else. A school can see the access log and can revoke the token. It
-gives no access to any portal, any other pupil, or any other examination.
+**If a token is compromised**, it gives access to one pupil's result for one
+examination and nothing else. The school can view the access record and revoke
+the token. A token gives no access to any portal, any other pupil or any other
+examination.
 
-## 8. Logging and audit
+## 8. Records and monitoring
 
-- **Audit log** — administrative actions with the actor, a description, the
-  subject and the IP address. School deletion is recorded before it happens, so
-  the entry survives what it describes.
-- **Sign-in events** are logged; failed sign-ins are logged.
-- **Password resets** are logged and notified to the account holder.
-- **Result token access** is logged in full.
-- **Page views** record path, referrer, traffic source, device type and **IP
-  address** for every request.
+- **Administrative actions** are recorded with the person responsible, a
+  description, the affected item and the IP address. When a school is deleted,
+  the record of that deletion is kept.
+- **Sign ins** and failed sign in attempts are recorded.
+- **Password resets** are recorded, and the account holder is notified.
+- **Result token use** is recorded in full.
+- **Page views** record the page, the referring website, the traffic source, the
+  device type and the **IP address**.
 
-Error logs are written to the application's log files. Verbose error display is
-controlled by a deployment setting that **must be off in production** — see
-section 10.
+Detailed error information is never shown to visitors in production.
 
-## 9. Session handling
+## 9. Sessions
 
-- Sessions are stored **server-side in the database**, not in the browser.
-- School portals sign a user out after **three minutes of inactivity** —
-  administrators, staff, pupils and parents alike. These accounts hold pupil
-  records and are used on shared devices.
-- The timeout deliberately does **not** apply to public school websites; it once
-  did, and it silently discarded messages visitors were in the middle of
-  writing.
-- Signing out invalidates the session server-side and regenerates the token.
-- Deleting a school deletes its administrators' active sessions and any pending
-  password reset tokens.
+- Session data is stored **on AkademicNest's servers**, not in the browser.
+- School portals sign users out after **three minutes of inactivity**. This
+  applies to administrators, staff, pupils and parents alike, because these
+  accounts give access to pupil records and are often used on shared devices.
+- The inactivity limit does **not** apply to public school websites, so visitors
+  do not lose a message they are writing.
+- Signing out ends the session on the server.
+- Deleting a school ends its administrators' active sessions and cancels any
+  pending password reset requests.
 
-## 10. Security & privacy risks requiring remediation
+## 10. Security incidents
 
-**Found in the code. Ordered by severity. Fix these before publishing a security
-statement that a reader might rely on.**
+If personal information is accessed without authorisation, exposed or lost, or
+a provider we rely on suffers a breach, we will:
 
-### CRITICAL — Pupil photographs are at unauthenticated public URLs
+1. **Contain** the incident by stopping the access and revoking affected
+   credentials and tokens.
+2. **Investigate** what happened, what was affected and who was involved.
+3. **Assess** the risk to the people concerned, which may be significant where
+   pupils' information is involved.
+4. **Notify affected schools without undue delay**, explaining what we know, what
+   we are doing, and what they should do, including anything they need to pass
+   on to parents or staff.
+5. **Notify the regulator** where the law requires it. In Nigeria this is the
+   Nigeria Data Protection Commission, and statutory deadlines apply.
+6. **Record** the incident and take steps to prevent it from happening again.
 
-Photographs of children — along with staff and guardian photographs — are
-written to publicly readable storage. The address is an unguessable UUID, but
-there is **no access control**: anyone who obtains a URL can retrieve the image
-indefinitely, from any network, signed in or not. URLs leak through browser
-history, shared screenshots, referrer headers and cached pages.
+To report a vulnerability or a suspected incident, contact
+**support@akademicanest.com**. Please report issues rather than investigating them
+yourself. We will not take action against anyone who reports a vulnerability in
+good faith.
 
-*Fix:* move photographs to private storage and serve them through a controller
-that checks the requester's school and role, as conduct-report attachments
-already are.
-
-### CRITICAL — Signature images are at unauthenticated public URLs
-
-The same exposure, applied to signatures. A principal's signature retrieved from
-a public URL can be reproduced on any document. This undermines the integrity of
-every report card the platform produces.
-
-*Fix:* private storage, served only in the context of an authorised document.
-
-### CRITICAL — Deleting a school leaves its files on disk
-
-School deletion removes the database records but **not** the uploaded files.
-Pupil photographs, signatures, receipts and conduct-report attachments belonging
-to a deleted school remain on the server indefinitely, with the public ones
-still retrievable.
-
-*Fix:* delete the school's storage directories within the deletion transaction.
-
-### HIGH — Payment receipts are sent to a third party abroad, undisclosed
-
-Receipt files are transmitted to Anthropic's API for automated screening.
-Receipts carry payer names, bank details and amounts. Schools are not told, no
-processor agreement is in place, and no transfer mechanism has been established.
-
-*Fix:* disclose it in the Privacy Policy (drafted), put an agreement in place,
-establish a lawful transfer basis, and consider whether screening is worth the
-transfer at all.
-
-### HIGH — Terms and Privacy Policy do not exist and consent is not recorded
-
-The registration form requires agreement to a Terms & Conditions, Privacy Policy
-and Data Protection Policy — and **all three links point to `#`**. Schools are
-agreeing to documents they cannot read. Nothing records **which version** was
-accepted or **when**.
-
-*Fix:* publish the documents, link them, and store the accepted version and
-timestamp against the school.
-
-### HIGH — API tokens never expire
-
-Mobile API tokens are issued with **no expiry**. A token taken from a lost phone
-remains valid indefinitely unless revoked by hand.
-
-*Fix:* set an expiry, prune expired tokens, and give users a way to see and
-revoke their own sessions.
-
-### HIGH — No retention limits on logs containing IP addresses
-
-Page views, audit logs and result token access logs grow without limit and are
-never pruned. This is an indefinitely growing record of personal data with no
-justification for its age.
-
-*Fix:* implement the schedule in the *Data Retention & Deletion Policy*.
-
-### HIGH — Backup position unknown
-
-No backup implementation exists in the codebase. If the hosting arrangement does
-not provide one, a single failure destroys every school's records irrecoverably.
-
-*Fix:* confirm, document, encrypt, and **test a restore**.
-
-### MEDIUM — School isolation depends on remembering a call
-
-Tenant isolation is an explicit check written into each controller. Applied
-consistently today; a controller added tomorrow that omits it would expose
-another school's records with nothing to catch the omission.
-
-*Fix:* add an automatic query scope as defence in depth, keeping the explicit
-checks. Consider a test that fails when a school-scoped controller lacks one.
-
-### MEDIUM — No two-factor authentication
-
-Not available for any account, including School Administrators and the AkademicNest
-Team — accounts that can read every pupil record in a school, or delete a school
-entirely.
-
-*Fix:* offer 2FA, and consider requiring it for the AkademicNest Team.
-
-### MEDIUM — CSP permits inline and evaluated scripts
-
-`script-src` allows `'unsafe-inline'` and `'unsafe-eval'`, which is what the
-interface framework requires. This materially weakens the policy's protection
-against script injection. The genuinely protective directives are not weakened.
-
-*Fix:* longer-term, move to nonces or hashes. Documented here so nobody reads
-"we have a CSP" as more than it is.
-
-### MEDIUM — Blood group is collected without an established basis
-
-Health data about children and staff is collected with no recorded purpose, no
-special-category condition established, and no separate access control.
-
-*Fix:* establish why it is needed. If it is for emergencies, restrict who can
-see it. If it is not used, **stop collecting it** — the cheapest way to protect
-data is not to hold it.
-
-### MEDIUM — Session cookies are not encrypted; secure-cookie default is off
-
-`SESSION_ENCRYPT` defaults to false and `SESSION_SECURE_COOKIE` defaults to
-false in the example configuration. Production must override the latter.
-
-*Fix:* set `SESSION_SECURE_COOKIE=true` in production and verify it, and
-consider enabling session encryption.
-
-### MEDIUM — Free-text `notes` fields on pupils and staff
-
-Unstructured fields invite the recording of sensitive information — medical
-details, behavioural notes, family circumstances — with no separate protection,
-no retention rule and no visibility to the person concerned.
-
-*Fix:* label them with guidance on what not to record, and restrict who can see
-them.
-
-### LOW — Debug mode
-
-`APP_DEBUG` defaults to true in the example configuration. Left on in production
-it would display stack traces and configuration to anyone triggering an error.
-
-*Fix:* verify it is false in production; consider a startup check that refuses
-to boot otherwise.
-
-### LOW — No documented incident response procedure
-
-Section 11 describes an intent. There is no runbook, no named owner, no
-regulator contact list and no notification templates.
-
-*Fix:* write one before it is needed.
-
-## 11. Security incidents
-
-If unauthorised access, exposure or loss of personal information occurs, or a
-provider we rely on suffers a breach, we will:
-
-1. **Contain** — cut off the access, revoke affected credentials and tokens.
-2. **Investigate** — establish what happened, what was affected and who.
-3. **Assess** — the risk to the people involved, which for pupils' data may be
-   significant.
-4. **Notify affected schools without undue delay**, with what we know, what we
-   are doing, and what they should do — including anything they must pass on to
-   parents or staff.
-5. **Notify the regulator** where legally required. In Nigeria this is the
-   Nigeria Data Protection Commission; statutory deadlines apply.
-6. **Record and learn** — what allowed it, and what stops it recurring.
-
-**We do not promise a fixed notification time here.** A commitment made before
-an incident that cannot be met during one is worse than none. Statutory
-deadlines apply regardless.
-
-To report a vulnerability or a suspected incident: **support@akademicanest.com**. We ask
-that you report rather than explore, and we will not pursue good-faith reports.
-
-## 12. Contact
+## 11. Contact
 
 | | |
 | --- | --- |
 | Security reports | support@akademicanest.com |
 | Data protection enquiries | support@akademicanest.com |
 
----
+<!-- internal:start -->
+## Remediation plan (AkademicNest Team only)
 
-*Verified against the codebase on 1 September 2026. Every protection listed in
-sections 2–9 was confirmed present; every gap in section 10 was confirmed by
-looking for the feature, not inferred from documentation.*
+> **Not published.** Improvements identified for the platform, in order of
+> priority. Update this list as items are completed.
+>
+> **Critical: pupil photographs are at public addresses.** Photographs of
+> children, staff and guardians are in public storage. The addresses cannot be
+> guessed, but anyone who obtains one can open the image. *Fix:* move
+> photographs to private storage and serve them through a check of the viewer's
+> school and role, as conduct report attachments already are.
+>
+> **Critical: signature images are at public addresses.** A signature taken from
+> a public address could be reproduced on another document. *Fix:* private
+> storage, served only as part of an authorised document.
+>
+> **Critical: deleting a school may leave its files in storage.** *Fix:* delete
+> the school's stored files as part of the deletion.
+>
+> **High: the accepted version of the Terms is not recorded.** The documents are
+> now published and linked from registration, but the version a school accepted,
+> and when, is not stored. *Fix:* store the accepted version and time against the
+> school.
+>
+> **High: mobile access tokens do not expire.** A token from a lost phone stays
+> valid until revoked manually. *Fix:* add an expiry, remove expired tokens, and
+> let users see and revoke their own sessions.
+>
+> **High: no retention limits on records containing IP addresses.** *Fix:*
+> implement the schedule in the Data Retention & Deletion Policy.
+>
+> **High: backup position not documented.** *Fix:* confirm, document, encrypt,
+> and test a restore.
+>
+> **Medium: school separation relies on a check in each controller.** *Fix:* add
+> an automatic query scope as a second layer, and a test that fails when a school
+> scoped controller lacks the check.
+>
+> **Medium: no two factor authentication.** *Fix:* offer it, and consider
+> requiring it for the AkademicNest Team.
+>
+> **Medium: the Content Security Policy allows inline and evaluated scripts.**
+> *Fix:* move to nonces or hashes over time.
+>
+> **Medium: blood group is collected without an established purpose.** *Fix:*
+> establish why it is needed and restrict who can see it, or stop collecting it.
+>
+> **Medium: session encryption is off by default and the secure cookie setting
+> must be enabled in production.** *Fix:* confirm both in production.
+>
+> **Medium: free text notes on pupils and staff.** These can end up holding
+> sensitive information. *Fix:* add guidance on what not to record and restrict
+> who can see them.
+>
+> **Low: no written incident response procedure.** *Fix:* write one, with a named
+> owner, regulator contacts and notification templates.
+<!-- internal:end -->

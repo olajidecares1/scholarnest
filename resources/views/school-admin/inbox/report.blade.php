@@ -1,7 +1,7 @@
 {{-- One conduct report, in full.
 
-     The photographs and video are shown INLINE - an image renders, a video
-     plays with controls - rather than as a list of downloads, because an
+     The photographs and video are shown INLINE, an image renders, a video
+     plays with controls, rather than as a list of downloads, because an
      administrator deciding what to do needs to see the thing, and a file that
      has to be downloaded first is a file left in a downloads folder on a
      shared computer.
@@ -12,7 +12,7 @@
 
      Opening this page does NOT mark the report reviewed. "Reviewed" means an
      administrator decided something, and the form at the bottom is where that
-     is recorded - reading is not deciding. --}}
+     is recorded, reading is not deciding. --}}
 <x-dashboard-layout page-title="Conduct Report" page-subtitle="Sent from your website by a member of the public.">
     <div class="space-y-6" x-data="{ viewer: null }">
         <a href="{{ route('inbox.index', ['tab' => 'reports']) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-400">

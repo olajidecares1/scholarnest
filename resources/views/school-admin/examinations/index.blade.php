@@ -60,7 +60,7 @@
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $examination->term->label() }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $examination->session }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $examination->subjects_count }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $examination->exam_date?->format('M j, Y') ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $examination->exam_date?->format('M j, Y') ?? 'N/A' }}</td>
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">
                                         <a href="{{ route('examinations.show', $examination) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage</a>

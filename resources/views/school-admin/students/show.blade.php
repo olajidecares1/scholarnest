@@ -38,22 +38,22 @@
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Student Details</h3>
                 <dl class="mt-4 space-y-3 text-sm">
                     <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Gender</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->gender->label() }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Date of Birth</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->date_of_birth?->format('M j, Y') ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Class</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->class_name ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">House</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->house ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Admission Date</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->admission_date?->format('M j, Y') ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->phone ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->email ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-right font-medium text-gray-900 dark:text-white">{{ $student->address ?? '—' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Date of Birth</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->date_of_birth?->format('M j, Y') ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Class</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->class_name ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">House</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->house ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Admission Date</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->admission_date?->format('M j, Y') ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->phone ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->email ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-right font-medium text-gray-900 dark:text-white">{{ $student->address ?? 'N/A' }}</dd></div>
                 </dl>
             </div>
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Guardian Details</h3>
                 <dl class="mt-4 space-y-3 text-sm">
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Name</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->guardian_name ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->guardian_phone ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->guardian_email ?? '—' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Name</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->guardian_name ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->guardian_phone ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->guardian_email ?? 'N/A' }}</dd></div>
                 </dl>
 
                 @if ($student->notes)
@@ -65,7 +65,7 @@
 
         {{-- Only where there is a student portal to sign in to. A Basic school
              has none, so credentials for one would be an account that exists
-             and cannot be used - and a card promising something the plan does
+             and cannot be used, and a card promising something the plan does
              not include. Its parents reach results by exam token instead. --}}
         @if ($school->hasPortalAccounts())
             <x-credential-share-banner />
@@ -142,7 +142,7 @@
                  way: search the parents already on the system and link one.
 
                  Kept alongside the form below rather than replacing it,
-                 because the two answer different questions - "this parent is
+                 because the two answer different questions, "this parent is
                  already here, find them" and "this parent is new". --}}
             <x-link-search-picker
                 :search-url="route('students.guardian-candidates', $student)"

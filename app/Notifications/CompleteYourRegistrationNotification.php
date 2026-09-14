@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\URL;
  * "You started signing up and did not finish."
  *
  * One email, once. The school is told what is outstanding and given a link
- * straight to the step they stopped at - and that link does not sign them in,
+ * straight to the step they stopped at, and that link does not sign them in,
  * for the reasons in App\Http\Controllers\RegistrationResumeController.
  */
 class CompleteYourRegistrationNotification extends Notification
@@ -38,8 +38,8 @@ class CompleteYourRegistrationNotification extends Notification
             ->line('Your account exists and everything you entered has been kept. What is still outstanding is choosing a plan and submitting your payment for approval.')
             ->line('It takes a few minutes, and you can pick up exactly where you stopped.')
             ->action('Complete My Registration', $this->url())
-            ->line('If you have already completed this, or you no longer wish to continue, you can ignore this email - we will not send another.')
-            ->salutation('— AkademicNest Team');
+            ->line('If you have already completed this, or you no longer wish to continue, you can ignore this email. We will not send another.')
+            ->salutation('Regards, AkademicNest Team');
     }
 
     /**
@@ -49,7 +49,7 @@ class CompleteYourRegistrationNotification extends Notification
     {
         return [
             'title' => 'Complete your registration',
-            'body' => 'Your school is not live yet - choose a plan to finish signing up.',
+            'body' => 'Your school is not live yet. Choose a plan to finish signing up.',
             'url' => $this->url(),
         ];
     }

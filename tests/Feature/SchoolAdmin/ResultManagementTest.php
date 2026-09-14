@@ -90,7 +90,7 @@ test('a teacher can be assigned several subjects', function () {
 });
 
 test('a teacher can be class teacher of several classes at once', function () {
-    // Primary 4 and Primary 5 together - being given a second class must not
+    // Primary 4 and Primary 5 together, being given a second class must not
     // quietly take the first one away.
     [$school, $admin, $teacher] = resultSchool();
 
@@ -239,7 +239,7 @@ test('marks a teacher entered are visible to the admin by class, year and term',
         ['test_scores' => [$student->id => 32], 'exam_scores' => [$student->id => 51]],
     )->assertRedirect();
 
-    // The admin selects only class, year and term - no hunting through the
+    // The admin selects only class, year and term, no hunting through the
     // teacher's account.
     $this->actingAs($admin)
         ->get(route('results.index', [
@@ -394,7 +394,7 @@ test('a school that configures part of a scale is not silently graded on the bui
     $school = $school->fresh();
 
     expect(GradeBand::resolve($school, 80.0))->toBe('P')
-        ->and(GradeBand::resolve($school, 30.0))->toBe('—');
+        ->and(GradeBand::resolve($school, 30.0))->toBe('N/A');
 });
 
 test('the grading page names the ranges the school has not covered', function () {
@@ -411,7 +411,7 @@ test('the grading page names the ranges the school has not covered', function ()
         ->get(route('academics.index'))
         ->assertOk()
         ->assertSee('does not cover')
-        ->assertSee('0–49%', false);
+        ->assertSee('0 to 49%', false);
 
     expect(GradeBand::coverageGaps($school->fresh()))->toBe([['from' => 0, 'to' => 49]]);
 });
@@ -514,7 +514,7 @@ test('the marking grid grades against the school\'s own scale', function () {
 // -----------------------------------------------------------------------------
 
 test('the school own session wins over the calendar guess', function () {
-    // AcademicSession::current() guesses from the date - September onward is
+    // AcademicSession::current() guesses from the date, September onward is
     // the new year. A school whose year turned over earlier was shown the
     // previous session on every page that defaulted from the calendar, so its
     // records looked missing when they were merely filed under the year the
@@ -537,7 +537,7 @@ test('score entry opens on the school own academic year', function () {
 
     resultExamination($school);
 
-    // No session in the query string - it has to default to the school's.
+    // No session in the query string, it has to default to the school's.
     $this->actingAs($admin)
         ->get(route('examinations.score-entry', [
             'class_name' => 'Primary 4',

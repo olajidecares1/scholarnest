@@ -14,8 +14,8 @@ use App\Models\Student;
 /**
  * A specimen card, for the School Admin to look at before they commit.
  *
- * The template editor used to draw its own miniature of a card - a gradient
- * header, a small photo box, an "Authorized Signature" line - built by hand in
+ * The template editor used to draw its own miniature of a card, a gradient
+ * header, a small photo box, an "Authorized Signature" line, built by hand in
  * the editor's markup. None of it was the card. It was written once, the real
  * card moved on, and the two drifted until the preview a School Admin approved
  * bore no relation to what the printer produced.
@@ -45,8 +45,8 @@ final class IdCardSample
             'name' => 'Sample',
             'type' => $type,
             'orientation' => $orientation,
-            // ?? before ?:, because $overrides is documented as optional and
-            // every key in it is too - reading a missing one directly threw.
+            // ?? before ?: because $overrides is documented as optional and
+            // every key in it is too, reading a missing one directly threw.
             'primary_color' => ($overrides['primary_color'] ?? null) ?: $defaults['primary_color'],
             'secondary_color' => ($overrides['secondary_color'] ?? null) ?: $defaults['secondary_color'],
             'accent_color' => ($overrides['accent_color'] ?? null) ?: $defaults['accent_color'],
@@ -76,8 +76,8 @@ final class IdCardSample
     /**
      * The invented pupil or staff member on the specimen.
      *
-     * Deliberately complete - a name of a realistic length, a class, a house,
-     * a date of birth - because the point of a specimen is to show a School
+     * Deliberately complete, a name of a realistic length, a class, a house,
+     * a date of birth, because the point of a specimen is to show a School
      * Admin how their card looks when it is full, not how it looks empty.
      */
     private static function holder(School $school, IdCardHolderType $type): Student|Staff

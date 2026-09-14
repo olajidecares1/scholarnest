@@ -38,7 +38,7 @@ function pointerToPercent(el, event) {
 }
 
 /**
- * `x-draggable-resizable="layout.title"` — makes an element movable by
+ * `x-draggable-resizable="layout.title"`, makes an element movable by
  * dragging its body, and resizable via its `[data-handle]` children, reading
  * and writing a reactive `{x, y, w, h}` object (percentages of the closest
  * `[data-canvas]` ancestor) directly, so Alpine's reactivity handles

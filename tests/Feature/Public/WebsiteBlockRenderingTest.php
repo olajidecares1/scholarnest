@@ -39,7 +39,7 @@ test('the public contact page renders without error when nothing has been saved'
 
 test('a saved hero block no longer replaces the designed hero', function () {
     // THE RULE CHANGED, and deliberately. The home hero used to be swapped out
-    // for page-builder blocks the moment a school had saved one - and those
+    // for page-builder blocks the moment a school had saved one, and those
     // are placed by absolute coordinate, so they collided into overlapping
     // text at any width but the one they were arranged at. A school that had
     // touched the builder once got that instead of the design, permanently.

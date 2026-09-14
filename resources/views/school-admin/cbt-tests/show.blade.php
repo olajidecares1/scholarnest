@@ -74,7 +74,7 @@
                     <button type="submit" name="status" value="archived" class="rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
                 </div>
                 @if ($test->hasStudentAttempts())
-                    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled — students have already started this test. You can still archive it.</p>
+                    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled because students have already started this test. You can still archive it.</p>
                 @endif
             </form>
         </div>
@@ -97,7 +97,7 @@
                             <tr>
                                 <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">{{ $attempt->student->fullName() }}</td>
                                 <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $attempt->isSubmitted() ? 'Submitted' : 'In Progress' }}</td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $attempt->isSubmitted() ? $attempt->percentage().'%' : '—' }}</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $attempt->isSubmitted() ? $attempt->percentage().'%' : 'N/A' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -13,7 +13,7 @@ class AttendanceController extends Controller
      * This student's own attendance, most recent first.
      *
      * Scoped by school as well as by student. Filtering by student already
-     * confines it - a student belongs to one school - but stating it makes
+     * confines it, a student belongs to one school, but stating it makes
      * that a property of the query rather than a consequence of an invariant
      * kept somewhere else.
      */

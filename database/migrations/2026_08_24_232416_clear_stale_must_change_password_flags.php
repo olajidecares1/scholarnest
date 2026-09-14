@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\DB;
  * Release accounts still flagged "must change password".
  *
  * That flag blocked every page except the settings screen until the user set
- * their own password there. Self-service password changes are gone - the
- * School Admin is the sole authority on credentials now - so a flagged account
+ * their own password there. Self-service password changes are gone, the
+ * School Admin is the sole authority on credentials now, so a flagged account
  * would be redirected to a page with no form on it, and redirected again on
  * the next click. A locked account with no exit.
  *

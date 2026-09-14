@@ -1,7 +1,7 @@
 {{--
     A token-delivered result.
 
-    The report card itself is the shared partial every other portal renders -
+    The report card itself is the shared partial every other portal renders,
     School Admin, Teacher, Student and Guardian all include this same file from
     the same ReportCardData payload. A parent reaching a result through a token
     therefore sees exactly the document the school sees, attendance, position,
@@ -22,7 +22,7 @@
         <meta name="robots" content="noindex, nofollow">
         <meta name="referrer" content="no-referrer">
 
-        <title>Result - {{ $student->fullName() }} - {{ $school->name }}</title>
+        <title>Result | {{ $student->fullName() }} | {{ $school->name }}</title>
 
         @vite(['resources/css/app.css'])
 
@@ -73,7 +73,7 @@
             {{-- Both actions live only on this page, which is only reachable
                  after a token has been verified. The download address runs the
                  same checks again rather than trusting the referrer. --}}
-            {{-- Inline @php, matching line 53 - a block @php after an inline one
+            {{-- Inline @php, matching line 53, a block @php after an inline one
                  is not compiled correctly in this file. --}}
             @php($downloadUrl = request()->routeIs('school-result.*')
                 ? route('school-result.download', ['school' => $school->result_link_slug, 'usage' => $usage])
@@ -106,7 +106,7 @@
         {{-- The report card is a fixed A4-proportioned sheet whose type runs as
              small as 7px. Squeezed into a 375px phone it is both unreadable and
              clipped, and this is the one place a report card is routinely opened
-             on a phone - a parent following a link, with no dashboard and no
+             on a phone, a parent following a link, with no dashboard and no
              desktop involved anywhere in the flow.
 
              So on small screens it is given a legible minimum width and allowed

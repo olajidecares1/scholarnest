@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Background images for two cards on the public website.
  *
- * TWO columns, not three. Latest News and Upcoming Events share ONE background
- * - they are one card as far as a school is concerned, and giving them a
+ * TWO columns, not three. Latest News and Upcoming Events share ONE background,
+ * they are one card as far as a school is concerned, and giving them a
  * setting each would say they were two. Academic Excellence is a separate card
  * and gets its own.
  *
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Schema;
  * website configuration, and it already has a row here.
  *
  * Nullable, and the website falls back to its existing flat background when
- * they are - which is what every school has today.
+ * they are, which is what every school has today.
  */
 return new class extends Migration
 {

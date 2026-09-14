@@ -18,10 +18,10 @@ use Illuminate\Validation\ValidationException;
  *
  * THE TWO DISKS. Everything uploaded lives on one of two named disks:
  *
- *   "public" - meant to be seen by anyone: school logos, website, gallery,
+ *   "public", meant to be seen by anyone: school logos, website, gallery,
  *              news and facility images, CBT question images. Addressed with
  *              publicUrl().
- *   "local"  - never directly reachable: photographs of people, signatures,
+ *   "local", never directly reachable: photographs of people, signatures,
  *              stamps, receipts, class notes, CBT source documents, report
  *              evidence. Served only by controllers that check who is asking.
  *
@@ -41,7 +41,7 @@ use Illuminate\Validation\ValidationException;
  *  - On Laravel Cloud without object storage, uploads reported success and
  *    were never reachable again. They now go to the database there. Should a
  *    disk ever still be a local directory on Laravel Cloud regardless, the
- *    upload is refused with a message - a clear failure, never a silent one.
+ *    upload is refused with a message, a clear failure, never a silent one.
  *  - PDFs and ID cards read images through ->path(), which does not exist on
  *    object storage. localPath() now provides a real file from either kind.
  */
@@ -83,7 +83,7 @@ class UploadStorage
     }
 
     /**
-     * Store an uploaded file exactly as it arrived - a document or a video.
+     * Store an uploaded file exactly as it arrived, a document or a video.
      *
      * The name is generated (App\Support\StoredUpload): a random stem and an
      * extension decided from the content against an allowlist. The uploader's
@@ -120,7 +120,7 @@ class UploadStorage
     }
 
     /**
-     * Store bytes the application generated itself - a drawn signature, an
+     * Store bytes the application generated itself, a drawn signature, an
      * extracted stamp, an image pulled out of a document.
      *
      * @throws \RuntimeException when storage is unavailable or the write fails.
@@ -163,7 +163,7 @@ class UploadStorage
 
     /**
      * A real file on this machine holding the stored file, or null if there is
-     * none - for code that genuinely needs a path: dompdf, GD, document text
+     * none, for code that genuinely needs a path: dompdf, GD, document text
      * extraction.
      *
      * A local disk answers with its own path. Any other disk is copied to a
@@ -223,7 +223,7 @@ class UploadStorage
      *
      * False only on Laravel Cloud with a local-directory disk: that directory
      * is wiped by the next deploy, differs between instances, and is not
-     * served. Everywhere else a local disk is a real, lasting directory - and
+     * served. Everywhere else a local disk is a real, lasting directory, and
      * on Laravel Cloud such a disk is switched to the database at boot, so in
      * practice this is a safety net that should never be false there.
      */

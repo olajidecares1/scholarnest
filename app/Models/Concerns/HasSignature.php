@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * A signer: somebody who can register one signature of their own.
  *
- * One, not many - the relation is a morphOne and the table enforces it with a
+ * One, not many, the relation is a morphOne and the table enforces it with a
  * unique index, so registering again replaces what was there rather than
  * leaving two marks with no way to tell which is current.
  *
@@ -27,7 +27,7 @@ trait HasSignature
     }
 
     /**
-     * The signature as an inline data URI - it has no URL. See
+     * The signature as an inline data URI, it has no URL. See
      * App\Models\Signature::dataUri() for why.
      */
     public function signatureDataUri(): ?string
@@ -53,7 +53,7 @@ trait HasSignature
      * THE DELETE WAITS FOR THE COMMIT, and that is not a nicety. A filesystem
      * has no transaction to roll back: done inline, a registration inside a
      * transaction that later rolls back leaves the row pointing at the old
-     * path and the old FILE already destroyed - a signature that exists
+     * path and the old FILE already destroyed, a signature that exists
      * everywhere except on disk, which renders as nothing at all. That is not
      * hypothetical; it is how a real school's Principal signature was lost.
      */

@@ -90,7 +90,7 @@ class CbtDocumentUpload extends Model
 
     public function absolutePath(): string
     {
-        // A real local file even when the disk is object storage - the
+        // A real local file even when the disk is object storage, the
         // extractors need one. See UploadStorage::localPath().
         return app(UploadStorage::class)->localPath($this->disk, $this->path)
             ?? Storage::disk($this->disk)->path($this->path);

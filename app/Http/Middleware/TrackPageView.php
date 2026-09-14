@@ -12,13 +12,13 @@ class TrackPageView
     /**
      * Route-name prefixes to exclude from public traffic analytics.
      * Route names stay stable even though every URI is an opaque token,
-     * so this - not the URL - is what exclusion has to key off of.
+     * so this, not the URL, is what exclusion has to key off of.
      *
      * @var list<string>
      */
     /**
-     * Routes that are not pages. The file routes serve images a page asks for
-     * - a school logo, a photograph, an icon - and counting each one recorded
+     * Routes that are not pages. The file routes serve images a page asks for,
+     * a school logo, a photograph, an icon, and counting each one recorded
      * several "page views" for every page anybody opened.
      */
     private const EXCLUDED_ROUTE_NAME_PREFIXES = ['super-admin.', 'notifications.', 'stored-files.', 'branding.', 'media.', 'pwa.', 'session.'];

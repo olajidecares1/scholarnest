@@ -16,7 +16,7 @@ namespace App\Services\DocumentExtraction;
 class HeadingReader
 {
     /**
-     * "Subject: Mathematics", "SUBJECT - English Language".
+     * "Subject: Mathematics", "SUBJECT, English Language".
      */
     private const LABELLED = '/^\s*%s\s*[\:\-–]\s*(.+?)\s*$/iu';
 
@@ -29,7 +29,7 @@ class HeadingReader
     private const HEADING_LINES = 30;
 
     /**
-     * An answer-key line: "1. B", "1) B", "1 - B", "Q1: B".
+     * An answer-key line: "1. B", "1) B", "1, B", "Q1: B".
      */
     private const KEY_ENTRY = '/(?:^|\s)(?:Q(?:uestion)?\s*\.?\s*)?(\d{1,3})\s*[\.\)\:\-–]\s*\(?([A-Ha-h])\)?(?=\s|$|,|;)/u';
 
@@ -57,8 +57,8 @@ class HeadingReader
     /**
      * The paper without its answer key.
      *
-     * Must be parsed instead of the whole document, because a key entry -
-     * "1. B" - is indistinguishable from the start of a question followed by
+     * Must be parsed instead of the whole document, because a key entry,
+     * "1. B", is indistinguishable from the start of a question followed by
      * an option. Handed the raw text, the parser reads a three-question paper
      * with a key as six questions, three of them nonsense.
      */
@@ -80,7 +80,7 @@ class HeadingReader
      *
      * Only where the question does not already carry one. An answer written
      * beside the question is the more specific statement, and a key that
-     * disagreed with it would be the wrong one to believe - keys are typed
+     * disagreed with it would be the wrong one to believe, keys are typed
      * separately and drift when questions are reordered.
      *
      * @param  list<array<string, mixed>>  $questions
@@ -124,7 +124,7 @@ class HeadingReader
      * Question number => option label, from a key block at the end.
      *
      * Searched only AFTER the last question, so the numbered questions
-     * themselves - "1. What is..." followed by "A. ..." - cannot be misread as
+     * themselves, "1. What is..." followed by "A. ...", cannot be misread as
      * key entries.
      *
      * @param  list<array<string, mixed>>  $questions

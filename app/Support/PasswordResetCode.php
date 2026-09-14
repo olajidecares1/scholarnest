@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Config;
  * token to disagree about whether they are still valid.
  *
  * WHY IT IS STILL A SECOND FACTOR. The code is an HMAC of the token under the
- * application key. Somebody holding the link holds the token and nothing else -
+ * application key. Somebody holding the link holds the token and nothing else,
  * without the key they cannot compute the code, so the link on its own remains
  * insufficient exactly as intended.
  */
@@ -45,7 +45,7 @@ final class PasswordResetCode
         $key = (string) Config::get('app.key');
 
         // Twelve hex characters is 48 bits, comfortably more than the 20 bits
-        // the modulo reduces it to - so the digits stay evenly distributed
+        // the modulo reduces it to, so the digits stay evenly distributed
         // rather than favouring the low end.
         $digest = hash_hmac('sha256', $token, $key);
         $number = hexdec(substr($digest, 0, 12)) % (10 ** self::DIGITS);

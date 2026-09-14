@@ -58,7 +58,7 @@ function gradeSubject(Examination $examination, Student $student, string $name =
 }
 
 /**
- * A subject nobody has marked yet - the thing that blocks a push.
+ * A subject nobody has marked yet, the thing that blocks a push.
  */
 function ungradedSubject(Examination $examination, string $name = 'English Language'): ExaminationSubject
 {

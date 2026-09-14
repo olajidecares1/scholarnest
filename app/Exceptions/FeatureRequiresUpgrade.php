@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 /**
  * A school reached a feature its plan does not include.
  *
- * Still a 403 on the wire - the refusal is real, and anything that checks the
+ * Still a 403 on the wire, the refusal is real, and anything that checks the
  * status code (a fetch, a test, a log) should see it as one. What changes is
  * what the person sees: this carries the feature with it, so the handler can
  * render a page that names what they wanted, says which plan includes it, and

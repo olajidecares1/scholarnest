@@ -8,7 +8,7 @@
      So this page names the balance and says what happens next. It is only
      reachable by someone who has already proved a claim to this particular
      student's result, so there is nothing here to leak. --}}
-<x-auth-layout :title="'Result on hold - '.$school->name" :school="$school" simple>
+<x-auth-layout :title="'Result on hold | '.$school->name" :school="$school" simple>
     <x-auth-card>
         <div class="text-center">
             <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 text-amber-500">

@@ -79,7 +79,7 @@
                                 <span class="block truncate text-sm font-bold text-gray-900">{{ $match->name }}</span>
                                 {{-- The school code is what actually separates two
                                      schools with similar names, and it is meant to
-                                     be shared - unlike the slug, which is generated. --}}
+                                     be shared, unlike the slug, which is generated. --}}
                                 <span class="block truncate text-xs text-gray-500">School code: {{ $match->school_code }}</span>
                             </span>
                             <i class="fa-solid fa-chevron-right text-xs text-gray-300 transition-colors duration-200 group-hover:text-primary-400"></i>

@@ -1,7 +1,7 @@
 {{-- Editing one legal document.
 
      TWO TABS, ONE FORM: the markdown you type, and the page a school actually
-     sees. The preview is not decoration - these documents are long, and the
+     sees. The preview is not decoration, these documents are long, and the
      difference between a heading that renders and a heading that does not is
      invisible in a textarea. --}}
 <x-super-admin-layout
@@ -175,7 +175,7 @@
 
         {{-- The page as a school sees it.
 
-             Rendered from what is SAVED, not from the textarea - the preview is
+             Rendered from what is SAVED, not from the textarea, the preview is
              only honest if it shows what is actually live. Editing the text and
              switching tabs shows the previous version until you save, and the
              notice says so rather than leaving anyone guessing. --}}

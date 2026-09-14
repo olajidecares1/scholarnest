@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Schema;
  * There is somewhere to write.
  *
  * The legal documents told people how to exercise rights that only exist if
- * somebody answers - "contact us to request deletion", "report a vulnerability
- * to" - and then gave them "[TO BE PROVIDED]". The subscription confirmation
+ * somebody answers, "contact us to request deletion", "report a vulnerability
+ * to", and then gave them "[TO BE PROVIDED]". The subscription confirmation
  * offered a "Contact Support" button with href="#". A promise of support with
  * no address behind it is worse than no promise, because the reader stops
  * looking for another route.
@@ -134,14 +134,14 @@ describe('the settings that reach invoices and email', function () {
 
         config(['mail.from.address' => SUPPORT_EMAIL]);
 
-        // Creates no row - it is read on a public page.
+        // Creates no row, it is read on a public page.
         expect(Setting::supportEmail())->toBe(SUPPORT_EMAIL)
             ->and(DB::table('settings')->count())->toBe(0);
     });
 });
 
 test('mail is not sent from the framework placeholder address', function () {
-    // Shipped as "hello@example.com" - the Laravel default. Every password
+    // Shipped as "hello@example.com", the Laravel default. Every password
     // reset and every invoice claimed to come from example.com.
     expect(config('mail.from.address'))->not->toBe('hello@example.com')
         ->and(config('mail.from.address'))->toContain('@');

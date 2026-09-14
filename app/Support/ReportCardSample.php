@@ -19,8 +19,8 @@ use Illuminate\Support\Collection;
 /**
  * A specimen report card, for a School Admin or the AkademicNest Team to look at.
  *
- * Deliberately the SAME array a real card is built from - see
- * ReportCardData::for() - so the preview renders the real template rather than
+ * Deliberately the SAME array a real card is built from, see
+ * ReportCardData::for(), so the preview renders the real template rather than
  * a drawing of it. The ID card learnt this the expensive way: its preview was
  * a hand-built miniature that drifted until what a School Admin approved bore
  * no relation to what printed.
@@ -32,7 +32,7 @@ use Illuminate\Support\Collection;
 final class ReportCardSample
 {
     /**
-     * Ten subjects with marks that produce a believable spread of grades -
+     * Ten subjects with marks that produce a believable spread of grades,
      * a card that is all A's tells a School Admin nothing about how a C looks.
      *
      * @var list<array{0: string, 1: int, 2: int}>
@@ -82,7 +82,7 @@ final class ReportCardSample
             'report' => self::report($student, $examination),
             'classTeacher' => self::classTeacher($school, $examination),
             // Same keys ReportCardData::attendanceSummaryFor() returns,
-            // 'percent' included - the card reads it directly.
+            // 'percent' included, the card reads it directly.
             'attendance' => [
                 'present' => 101,
                 'absent' => 6,

@@ -15,7 +15,7 @@ class IdentifierGenerator
     /**
      * Fallback level codes used when a class's AcademicLevel has no `code`
      * configured (or the free-text class name isn't in the catalogue at
-     * all) - keyed by the same AcademicStage that AcademicStageDetector
+     * all), keyed by the same AcademicStage that AcademicStageDetector
      * already infers from a class name elsewhere in the app, so generation
      * still produces a sensible code out of the box before an admin has
      * touched their level codes.
@@ -97,11 +97,11 @@ class IdentifierGenerator
      * about rather than burying:
      *
      *   Anyone whose ID moves can no longer sign in with the one they were
-     *   given. Their new ID has to be passed on to them - the staff page
+     *   given. Their new ID has to be passed on to them, the staff page
      *   shows it, and the WhatsApp share is there for exactly this.
      *
-     *   Anything printed or recorded elsewhere that quotes the old ID - an ID
-     *   card, a payslip reference, a note in a file - now disagrees with the
+     *   Anything printed or recorded elsewhere that quotes the old ID, an ID
+     *   card, a payslip reference, a note in a file, now disagrees with the
      *   system. The audit log records every move so the two can be
      *   reconciled.
      *

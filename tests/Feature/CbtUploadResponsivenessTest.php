@@ -148,8 +148,8 @@ test('a worker that is running says so, and is believed', function () {
         'created_at' => now()->subMinutes(5)->timestamp,
     ]);
 
-    // Even with a job that has waited five minutes - which the old inference
-    // would have called stalled - a live heartbeat is the better evidence.
+    // Even with a job that has waited five minutes, which the old inference
+    // would have called stalled, a live heartbeat is the better evidence.
     QueueWorkerHealth::heartbeat();
     $health->forget();
 

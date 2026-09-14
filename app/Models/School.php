@@ -38,17 +38,17 @@ class School extends Model
         'timezone',
         'current_session',
 
-        // The school's own address, on every plan - see App\Support\SchoolContact.
+        // The school's own address, on every plan, see App\Support\SchoolContact.
         'contact_address',
         'contact_phone',
         'contact_email',
 
         // The motto under the school's name and the values along the foot of
-        // a report card, on every plan - see App\Support\SchoolMotto.
+        // a report card, on every plan, see App\Support\SchoolMotto.
         'motto',
         'core_values',
 
-        // Social handles, on every plan - see App\Support\SchoolSocialLinks.
+        // Social handles, on every plan, see App\Support\SchoolSocialLinks.
         'facebook_url',
         'instagram_url',
         'twitter_url',
@@ -78,7 +78,7 @@ class School extends Model
      * Mirrors the schools table's column defaults: without this, a freshly
      * created-but-not-yet-refreshed School instance has is_active as null in
      * PHP (Eloquent doesn't re-fetch DB-applied defaults after an insert),
-     * even though the database row itself defaults to true - which would
+     * even though the database row itself defaults to true, which would
      * make hasActiveSubscription() silently false for a school checked in
      * the same request it was created in.
      *
@@ -97,7 +97,7 @@ class School extends Model
     /**
      * Would this slug be mistaken for the Basic-plan portal token?
      *
-     * The portal lives at the root of the site - akademicanest.com/{32-char token} -
+     * The portal lives at the root of the site, akademicanest.com/{32-char token} -
      * and so do school slugs. The token route is registered first and therefore
      * wins, which means a school whose slug happened to be 32 unbroken
      * alphanumeric characters would be permanently unreachable: every request
@@ -118,7 +118,7 @@ class School extends Model
         static::creating(function (self $school) {
             if (! $school->slug) {
                 // The slug is also the school's address at the root of the
-                // platform - akademicanest.com/greenfield-college - so it competes
+                // platform, akademicanest.com/greenfield-college, so it competes
                 // for names with the application's own top-level paths. A
                 // school that managed to claim "login" or "dashboard" would
                 // be a genuine problem, so those names are skipped here as
@@ -147,7 +147,7 @@ class School extends Model
             // What identifies this school inside a PORTAL address, in place
             // of the slug.
             //
-            // The slug is public - it is the school's own website address -
+            // The slug is public, it is the school's own website address,
             // and there is no reason for a private portal link to announce
             // whose portal it is in every bookmark and referrer header. This
             // is opaque and says nothing.
@@ -170,7 +170,7 @@ class School extends Model
                 $school->portal_key = $key;
             }
 
-            // Short, memorable, and unique - unlike the slug, which is
+            // Short, memorable, and unique, unlike the slug, which is
             // generated from the name and so is easy to get slightly wrong.
             // This is the thing a school admin actually types in to
             // disambiguate their school on the shared /portal login when no
@@ -189,8 +189,8 @@ class School extends Model
                 $school->school_code = $code;
             }
 
-            // Long, unguessable, and stable for the lifetime of the school -
-            // not regenerated on access - so each of the four portal login
+            // Long, unguessable, and stable for the lifetime of the school,
+            // not regenerated on access, so each of the four portal login
             // pages (school-admin/staff/student/guardian) can't be reached
             // just by knowing the school's public slug/subdomain.
             $school->portal_admin_token ??= Str::random(40);
@@ -208,7 +208,7 @@ class School extends Model
         /*
          * Sign-in residue, which no foreign key can reach.
          *
-         * The school's accounts go with it - users.school_id cascades - and
+         * The school's accounts go with it, users.school_id cascades, and
          * every table hung off a school or a user cascades in turn. Two do
          * not, because they have no foreign key at all:
          *
@@ -263,8 +263,8 @@ class School extends Model
      * a subscription for review. A school that stopped at the account is not
      * a customer yet, whatever the dashboard shows them.
      *
-     * Derived rather than stored: any subscription at all, in any state -
-     * pending, active, even rejected - means they completed the process. A
+     * Derived rather than stored: any subscription at all, in any state,
+     * pending, active, even rejected, means they completed the process. A
      * rejected payment is a conversation to have, not a reason to send
      * somebody a "you never finished signing up" email.
      */
@@ -287,8 +287,8 @@ class School extends Model
      * Does this school have an official stamp on file?
      *
      * No plan check anywhere near this. A stamp is how a school's own
-     * paperwork is recognised - a Basic school's result slip needs it exactly
-     * as much as an Exclusive school's - so it is available on every plan.
+     * paperwork is recognised, a Basic school's result slip needs it exactly
+     * as much as an Exclusive school's, so it is available on every plan.
      */
     public function hasStamp(): bool
     {
@@ -298,7 +298,7 @@ class School extends Model
     /**
      * The stamp, embedded rather than linked.
      *
-     * INLINE, AND DELIBERATELY NO URL - the same reasoning as a signature.
+     * INLINE, AND DELIBERATELY NO URL, the same reasoning as a signature.
      * A stamp is the mark that makes a document official, so an address that
      * hands anybody a clean copy of it is an address for forging the school's
      * paperwork. It is a few kilobytes and appears once per document, so there
@@ -314,17 +314,17 @@ class School extends Model
     }
 
     /**
-     * The same image as a local filesystem path, for dompdf views only -
+     * The same image as a local filesystem path, for dompdf views only,
      * dompdf's `enable_remote` is off and a data URI bloats every PDF.
      */
     public function stampAbsolutePath(): ?string
     {
-        // A real file from whichever disk holds it - see UploadStorage::localPath().
+        // A real file from whichever disk holds it, see UploadStorage::localPath().
         return $this->hasStamp() ? app(UploadStorage::class)->localPath('local', $this->stamp_path) : null;
     }
 
     /**
-     * The school's Principal signature - see App\Support\PrincipalSignature.
+     * The school's Principal signature, see App\Support\PrincipalSignature.
      *
      * Not a column on this model. School Admin is the Principal, so the
      * signature belongs to their account and this school resolves it from
@@ -337,13 +337,13 @@ class School extends Model
 
     /**
      * Absolute local filesystem path to the logo, for use only in dompdf
-     * views - dompdf's `enable_remote` option is off, so it can never fetch
+     * views, dompdf's `enable_remote` option is off, so it can never fetch
      * logoUrl()'s http(s) URL, but it can read local files within its
      * configured chroot directly.
      */
     public function logoAbsolutePath(): ?string
     {
-        // A real file from whichever disk holds it - see UploadStorage::localPath().
+        // A real file from whichever disk holds it, see UploadStorage::localPath().
         return app(UploadStorage::class)->localPath('public', $this->logo_path);
     }
 
@@ -372,7 +372,7 @@ class School extends Model
     }
 
     /**
-     * AkademicNest's invoices to this school - subscriptions and top-ups both.
+     * AkademicNest's invoices to this school, subscriptions and top-ups both.
      *
      * Not $this->invoices(), which is this school's own fee invoices to its
      * parents. Two unrelated documents that share a word.
@@ -403,7 +403,7 @@ class School extends Model
      * renewal. The same newest-row rule made an unreviewed application look
      * like the school's current plan.
      *
-     * Nothing here can grant access on its own - only a Super Admin writing
+     * Nothing here can grant access on its own, only a Super Admin writing
      * Active can put a row in scope of this relation.
      *
      * @return HasOne<Subscription, $this>
@@ -413,7 +413,7 @@ class School extends Model
         // The status constraint goes INSIDE ofMany's closure, not chained after
         // it. Chained, the aggregate picks the newest subscription of any
         // status first and the status filter is applied to that single row
-        // afterwards - so a pending renewal wins the aggregate and is then
+        // afterwards, so a pending renewal wins the aggregate and is then
         // discarded, leaving the school with no active subscription at all.
         return $this->hasOne(Subscription::class)->ofMany(
             ['id' => 'max'],
@@ -439,7 +439,7 @@ class School extends Model
      * What to display as this school's subscription.
      *
      * The approved one when there is one, otherwise the latest application.
-     * Access decisions must not use this - they use hasActiveSubscription() -
+     * Access decisions must not use this, they use hasActiveSubscription(),
      * but every screen that prints a plan name or a status badge should, so
      * that a pending school reads as pending rather than as having no plan.
      */
@@ -465,7 +465,7 @@ class School extends Model
 
     /**
      * Whether this school's current subscription is active and on one of the
-     * given plans - the shared check behind every plan-gated feature
+     * given plans, the shared check behind every plan-gated feature
      * (portals, ID cards, custom domain).
      */
     public function hasPlanAccess(PlanKey ...$allowed): bool
@@ -475,12 +475,12 @@ class School extends Model
 
     /**
      * The class names this school has configured, in the order it arranged
-     * them - Creche, Nursery 1, ... , SSS 1 Science, SSS 1 Commercial.
+     * them, Creche, Nursery 1... , SSS 1 Science, SSS 1 Commercial.
      *
      * The single source for every place a class has to be CHOSEN rather than
      * typed. A typed class name is how a school ends up with its students
      * filed under "SSS 1 Science" and a token batch issued against
-     * "SSS1 Science" - two classes, one of them empty, and no obvious reason
+     * "SSS1 Science", two classes, one of them empty, and no obvious reason
      * why the batch came out at zero.
      *
      * The name alone, because that is what students.class_name holds and what
@@ -490,7 +490,7 @@ class School extends Model
      * The academic year this school is actually in.
      *
      * The school's own setting wins over the calendar. AcademicSession::current()
-     * guesses from the date - September onwards is the new year - and that guess
+     * guesses from the date, September onwards is the new year, and that guess
      * is wrong for any school whose year turned over earlier or later. A school
      * that has told us it is in 2026/2027 was being shown 2025/2026 on every
      * page that defaulted from the calendar, which made result pages look empty
@@ -507,7 +507,7 @@ class School extends Model
      * Classes that hold students are included even if they were never entered
      * into the academic structure. A school whose records predate that
      * structure, or which imported its students, would otherwise find its own
-     * classes missing from every dropdown - and a picker that cannot offer the
+     * classes missing from every dropdown, and a picker that cannot offer the
      * class you need is worse than the free-text field it replaced.
      *
      * @return list<string>
@@ -536,8 +536,8 @@ class School extends Model
      * Whether this school's plan gives students and parents sign-in accounts
      * of their own.
      *
-     * The staff portal is on every plan - teachers need it to do the school's
-     * own work - but the student and parent portals are the outward-facing
+     * The staff portal is on every plan, teachers need it to do the school's
+     * own work, but the student and parent portals are the outward-facing
      * tier Basic does not buy. A Basic parent still reaches results, through
      * an exam token, which needs no account at all.
      */
@@ -550,7 +550,7 @@ class School extends Model
      * Does the result-checking link serve published cards, or live marks?
      *
      * Basic schools have no portals, so the checking link is the ONLY way a
-     * result reaches a family - which is exactly why it must serve what the
+     * result reaches a family, which is exactly why it must serve what the
      * school approved rather than whatever the scores table says this minute.
      * A parent who opens a card mid-entry has been shown an unfinished result
      * and told it was final.
@@ -606,8 +606,8 @@ class School extends Model
     /**
      * This school's result-checking address: akademicanest.com/greenfield-college/result
      *
-     * The one thing a Basic school hands to parents. It carries no secret - a
-     * token is still required to see anything - so it is deliberately readable
+     * The one thing a Basic school hands to parents. It carries no secret, a
+     * token is still required to see anything, so it is deliberately readable
      * enough to print on a slip and type in by hand.
      */
     public function resultLinkUrl(): string
@@ -668,13 +668,13 @@ class School extends Model
     /**
      * A fresh result-checking link, which does not name the school.
      *
-     * It used to be built from the school's name - "greenfield-college" - and
+     * It used to be built from the school's name, "greenfield-college", and
      * this is the link a school hands to parents, so that name travelled into
      * every message, bookmark, browser history and referrer header it reached.
      *
      * Random instead. Nothing is lost by it: a parent clicks this link, they
      * do not type it, and the retirability that made a separate column
-     * worthwhile in the first place is unaffected - a school can still burn a
+     * worthwhile in the first place is unaffected, a school can still burn a
      * link that has spread too far and get another.
      *
      * 16 characters, matching the route pattern in routes/school-links.php.
@@ -685,7 +685,7 @@ class School extends Model
      * Every file this school put on disk, deleted with the school.
      *
      * DELETING A SCHOOL USED TO LEAVE ALL OF THIS BEHIND. The database cascaded
-     * cleanly - pupils, staff, results, the website, all gone - and every
+     * cleanly, pupils, staff, results, the website, all gone, and every
      * uploaded file stayed exactly where it was. Photographs of children,
      * signatures, payment receipts and conduct-report attachments belonging to
      * a school that no longer existed, and the public ones still served at
@@ -697,7 +697,7 @@ class School extends Model
      * flat directories keyed by a random name, so there is no folder to remove
      * and the paths have to be gathered while the rows still exist.
      *
-     * Called from the deleting hook for that reason - a moment later there is
+     * Called from the deleting hook for that reason, a moment later there is
      * nothing left to read them from.
      */
     public function deleteStoredFiles(): void
@@ -732,7 +732,7 @@ class School extends Model
         // Receipts are the one thing filed per school, so the directory goes.
         $private->deleteDirectory("receipts/{$this->id}");
 
-        // Conduct reports are filed per REPORT, not per school - photographs
+        // Conduct reports are filed per REPORT, not per school, photographs
         // members of the public took of a child, which is the last thing that
         // should outlive the school they were sent to. One directory each.
         foreach (MisconductReport::where('school_id', $this->id)->pluck('uuid') as $uuid) {
@@ -749,8 +749,8 @@ class School extends Model
      * memory and printed on things, and "vincent-martins-college" is three
      * chances to put a hyphen in the wrong place.
      *
-     * Everything but letters and digits is dropped rather than replaced -
-     * apostrophes, ampersands, accents and spaces alike - so "GodStime Int'L
+     * Everything but letters and digits is dropped rather than replaced,
+     * apostrophes, ampersands, accents and spaces alike, so "GodStime Int'L
      * School" becomes "godstimeintlschool" rather than acquiring separators
      * from punctuation nobody says out loud.
      *
@@ -764,7 +764,7 @@ class School extends Model
         $reserved = array_map('strtolower', (array) config('basic_portal.reserved_slugs', []));
 
         // 63 is the maximum length of a single DNS label. A longer one is not
-        // merely ugly - it is not a valid hostname, and the school's website
+        // merely ugly, it is not a valid hostname, and the school's website
         // would be unreachable.
         $base = Str::of($name ?? '')
             ->ascii()
@@ -810,8 +810,8 @@ class School extends Model
      * The number of students this school is entitled to admit this term, or
      * null for plans that aren't sold per-student.
      *
-     * Basic AND Standard are both per-student now - Standard's flat term fee
-     * was replaced by a price per pupil - so both are capped. Exclusive has no
+     * Basic AND Standard are both per-student now, Standard's flat term fee
+     * was replaced by a price per pupil, so both are capped. Exclusive has no
      * such cap.
      *
      * Reflects any approved top-ups, since those are applied by increasing the
@@ -819,8 +819,8 @@ class School extends Model
      * as separate batches. That is what keeps the total cumulative:
      * initial capacity plus every approved addition, never a reset.
      *
-     * This is the seam the whole limit hangs off - StudentLicenceAllocation
-     * reads it and everything that can add a student goes through that - so
+     * This is the seam the whole limit hangs off, StudentLicenceAllocation
+     * reads it and everything that can add a student goes through that, so
      * Standard became capped by this method alone changing its mind.
      */
     public function studentSlotLimit(): ?int
@@ -931,7 +931,7 @@ class School extends Model
 
     /**
      * The subjects this school has configured as offered for a given class,
-     * or an empty collection if it hasn't configured any yet - callers
+     * or an empty collection if it hasn't configured any yet, callers
      * should treat an empty result as "not configured" and fall back to
      * free-text subject entry, not "this class offers nothing".
      *
@@ -1063,7 +1063,7 @@ class School extends Model
     /**
      * Returns this school's saved visual-builder blocks for the given public
      * page, or a generated default set (seeded from its current `SchoolWebsite`
-     * fields) when nothing has been saved yet — mirroring the null-fallback
+     * fields) when nothing has been saved yet, mirroring the null-fallback
      * pattern used elsewhere, so an unconfigured school still renders correctly.
      *
      * @return Collection<int, array<string, mixed>>
@@ -1229,7 +1229,7 @@ class School extends Model
      * anything other than the default akademicanest.com/schools/{slug} path
      * applies: an Exclusive school's verified custom domain, or a Standard
      * school's free akademicanest.com subdomain (once TENANT_BASE_DOMAIN is
-     * configured). Null means "use the default path" - the caller decides
+     * configured). Null means "use the default path", the caller decides
      * what that means for its context (render vs. redirect).
      */
     public function resolvedPublicHost(): ?string
@@ -1256,8 +1256,8 @@ class School extends Model
     /**
      * Does this school have a public website at all?
      *
-     * Two conditions, and both matter. The PLAN has to include a website -
-     * it is a Standard and Exclusive feature - and the school has to have
+     * Two conditions, and both matter. The PLAN has to include a website,
+     * it is a Standard and Exclusive feature, and the school has to have
      * published one. A Standard school that has never opened the website
      * manager has no public site, and neither does a school that was Standard
      * last term and is Basic now.
@@ -1278,7 +1278,7 @@ class School extends Model
      *
      * Null is the whole point of this method. publicUrl() answers "what would
      * the website address be", which for a Basic school is a path that
-     * always 404s - and the application was handing that dead address to
+     * always 404s, and the application was handing that dead address to
      * `production:urls` and to the dashboard's "view your website" link as
      * though it were real. A school without a website should produce no
      * website URL, not a broken one.
@@ -1301,7 +1301,7 @@ class School extends Model
      *   EXCLUSIVE    its own domain, once verified; its subdomain until then.
      *
      * A Standard school that has not published a website yet falls back to
-     * the same portal landing a Basic school gets - it is a working page that
+     * the same portal landing a Basic school gets, it is a working page that
      * tells a visitor where to sign in, which is better than the empty shell
      * of an unpublished site.
      */
@@ -1321,7 +1321,7 @@ class School extends Model
      * @param  array<string, mixed>  $params
      */
     /**
-     * The correct, school-scoped login page for a given auth guard - the
+     * The correct, school-scoped login page for a given auth guard, the
      * destination every logout (manual or idle-timeout) must return to
      * instead of the shared, school-agnostic /login page.
      */

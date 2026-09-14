@@ -24,7 +24,7 @@ use Throwable;
  *
  * THE SCHOOL IS TAKEN FROM THE SIGNED-IN MEMBER, never from the request. The
  * class names are then intersected with that school's own classes, so a
- * submitted class this school does not have is dropped rather than stored -
+ * submitted class this school does not have is dropped rather than stored,
  * a teacher at one school cannot name a class at another and reach its pupils.
  *
  * The file is written ONCE. Several classes receive the same row.
@@ -91,8 +91,8 @@ class ClassNotePublisher
     /**
      * Every pupil in the selected classes is told, once each.
      *
-     * A pupil in two of the selected classes - which the data allows, even if
-     * the timetable does not - gets one notification rather than two, because
+     * A pupil in two of the selected classes, which the data allows, even if
+     * the timetable does not, gets one notification rather than two, because
      * the recipients are collected across all the classes and then keyed by
      * id. The class named in each notification is the one that pupil is
      * actually in.
@@ -119,8 +119,8 @@ class ClassNotePublisher
     /**
      * The submitted classes that this school actually has.
      *
-     * configuredClassNames() is the school's own list - the classes it has set
-     * up, plus any its pupils are actually in - so the intersection is the
+     * configuredClassNames() is the school's own list, the classes it has set
+     * up, plus any its pupils are actually in, so the intersection is the
      * boundary. Comparison is exact, because that is how a class name is
      * matched to a pupil everywhere else in this application.
      *
@@ -148,8 +148,8 @@ class ClassNotePublisher
      * would be paid again by every pupil in the year group, every time they
      * open it.
      *
-     * A FAILURE IS NOT AN ERROR. A legacy .doc cannot be read at all - its
-     * binary format is not a zip of XML - and a docx can be malformed. Either
+     * A FAILURE IS NOT AN ERROR. A legacy .doc cannot be read at all, its
+     * binary format is not a zip of XML, and a docx can be malformed. Either
      * way the note is still delivered and still downloadable; only the
      * on-screen text is missing, and the pupil's page says why.
      */

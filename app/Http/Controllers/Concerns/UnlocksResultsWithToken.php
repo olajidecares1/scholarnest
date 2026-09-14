@@ -18,13 +18,13 @@ use Illuminate\Validation\ValidationException;
  * does not follow that the school is ready to hand over a particular result,
  * so a portal result stays shut until the exam token for it is entered. Same
  * token, same binding, same 15 characters as the one a Basic school hands out
- * on a slip of paper - the difference is only where it gets typed.
+ * on a slip of paper, the difference is only where it gets typed.
  *
  * Shared by both portals deliberately. The student portal and the guardian
  * portal are separate controllers on separate guards, and a gate implemented
  * twice is a gate that will eventually be two different gates.
  *
- * What is remembered is the pair (student, examination) - never the token.
+ * What is remembered is the pair (student, examination), never the token.
  * Once a token has been redeemed there is no reason to keep it, and a session
  * that held one would be a place to steal it from.
  *
@@ -49,7 +49,7 @@ trait UnlocksResultsWithToken
      * Ever, not "in this session". A token opens a result once and for good:
      * a parent who unlocked last term's card in February must not be asked for
      * that token again in June, and asking would be worse than an
-     * inconvenience - schools do not reissue tokens, so a parent who has lost
+     * inconvenience, schools do not reissue tokens, so a parent who has lost
      * the slip would be locked out of a result they had already been shown.
      *
      * What makes that safe is WHERE the durable answer comes from. A usage row
@@ -77,7 +77,7 @@ trait UnlocksResultsWithToken
      * Deliberately not scoped to who redeemed it. The rule in the brief is
      * that a token unlocks "that particular result for that child", so a
      * result opened by the pupil is open to the parent linked to them and the
-     * other way round - one token per child per term is exactly what the
+     * other way round, one token per child per term is exactly what the
      * school issued, and making each account redeem it separately would need
      * two.
      */
@@ -95,7 +95,7 @@ trait UnlocksResultsWithToken
      *
      * For the profile pages, which say "Check Result" without listing
      * anything. Counted over the examinations the pupil actually has marks in,
-     * which is the same set the results page lists - a card promising two
+     * which is the same set the results page lists, a card promising two
      * locked results against a page showing three would be its own small
      * betrayal.
      *
@@ -137,7 +137,7 @@ trait UnlocksResultsWithToken
      * Redeem a token for one result, from inside a portal.
      *
      * The token is checked against the student and the examination being
-     * opened, so another child's token - valid, unexpired, unspent - is
+     * opened, so another child's token, valid, unexpired, unspent, is
      * refused here rather than opening the wrong result. That check happens
      * before the use is counted, so a wrong token costs nothing.
      *

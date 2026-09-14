@@ -46,7 +46,7 @@
                             'cursor-pointer' => $available,
                             // Coming soon: visibly out of reach, and with no
                             // radio inside it to select. The server refuses it
-                            // too - see PlanKey::isAvailableToSubscribe.
+                            // too, see PlanKey::isAvailableToSubscribe.
                             'cursor-not-allowed border-gray-200 opacity-60' => ! $available,
                         ])
                         @if ($available)
@@ -97,7 +97,7 @@
 
                         <div class="mt-4 rounded-[5px] bg-gray-50 p-4 lg:rounded-[10px]">
                             {{-- Basic and Standard are both priced per pupil
-                                 now - the same sentence, at each plan's own
+                                 now, the same sentence, at each plan's own
                                  rate, read from the plan record rather than
                                  written here. Standard's ₦200,000-a-term fee
                                  and its monthly/per-term toggle are gone with

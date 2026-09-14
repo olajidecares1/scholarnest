@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
  *   script-src keeps 'unsafe-inline' and 'unsafe-eval'. Alpine evaluates the
  *   expressions written in x-data and x-show attributes, which is eval by
  *   another name, and every layout carries a small inline script that applies
- *   the saved dark-mode preference before first paint - deliberately inline,
+ *   the saved dark-mode preference before first paint, deliberately inline,
  *   because loading it separately is what causes the white flash. A policy
  *   that forbade either would break the application, and a broken policy gets
  *   removed rather than fixed.
@@ -68,7 +68,7 @@ class SecurityHeaders
 
         // HSTS only over https, and only in production. Sent from a laptop it
         // would pin http://localhost to https for a year in the developer's
-        // own browser - a self-inflicted outage that survives clearing the
+        // own browser, a self-inflicted outage that survives clearing the
         // cache and is genuinely awkward to undo.
         if ($request->secure() && app()->environment('production')) {
             $response->headers->set(

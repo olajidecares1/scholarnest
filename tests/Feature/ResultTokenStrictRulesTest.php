@@ -18,8 +18,8 @@ use Illuminate\Http\Request;
  * The rules a result token has to obey, asserted rather than assumed.
  *
  * Most of these were already true. They are written down here because they are
- * the kind of thing that quietly stops being true - a token that opens the
- * wrong term, or a plan that gains a portal it was never sold - and nothing
+ * the kind of thing that quietly stops being true, a token that opens the
+ * wrong term, or a plan that gains a portal it was never sold, and nothing
  * else in the suite states them as rules in one place.
  */
 function strictTokenSchool(PlanKey $plan = PlanKey::Standard): array
@@ -43,8 +43,8 @@ function strictExaminationFor(School $school, string $session, ExamTerm $term, s
 /**
  * Put a mark against this student in this examination.
  *
- * The verifier refuses a token whose result is not there yet - correctly, since
- * opening an empty result sheet teaches a parent nothing - so any test that
+ * The verifier refuses a token whose result is not there yet, correctly, since
+ * opening an empty result sheet teaches a parent nothing, so any test that
  * expects a token to WORK has to record one first.
  */
 function strictScoreFor(Examination $examination, Student $student): void
@@ -72,7 +72,7 @@ describe('the academic year on the generation page', function () {
         // An examination in an OLDER session exists. The page used to default
         // to the newest examination's session, so a school that had moved on
         // in Settings was offered the year its last examination was filed
-        // under - not the year it is actually in.
+        // under, not the year it is actually in.
         strictExaminationFor($school, '2024/2025', ExamTerm::First);
 
         $this->actingAs($admin)
@@ -271,7 +271,7 @@ describe('the change of format does not strand a token already in a parent\'s ha
         $plain = app(ResultTokenIssuer::class)->issue($school, $student, $exam, $admin)['plain'];
 
         // The legacy path is tried only after an exact miss, and it hashes the
-        // UPPER-CASED input - so a current mixed-case token typed in the wrong
+        // UPPER-CASED input, so a current mixed-case token typed in the wrong
         // case matches neither. Without that ordering, the fallback would have
         // quietly made every new token case-insensitive and thrown away a
         // chunk of its keyspace.

@@ -8,7 +8,7 @@ namespace App\Enums;
  * Every plan restriction in the application is described here once. Before
  * this, each gate was its own middleware class holding its own copy of the
  * rule and its own sentence of prose, which is how the project ended up with
- * some features gated, some not, and a different message for each - a school
+ * some features gated, some not, and a different message for each, a school
  * could reach the Events manager on a plan that has no public website to put
  * events on.
  *
@@ -32,7 +32,7 @@ enum PlanFeature: string
 
     // The case values are the route prefixes, which is what lets a nav item,
     // a module card and the middleware all reach the same answer. Note
-    // 'assignments' is homework set for students - 'teacher-assignments',
+    // 'assignments' is homework set for students, 'teacher-assignments',
     // which is putting teachers in front of classes, is a different thing on
     // every plan and does not match this prefix.
     case Assignments = 'assignments';
@@ -75,7 +75,7 @@ enum PlanFeature: string
 
             // Every plan, Basic included. A school's buildings are a plain fact
             // about the school rather than a premium extra, and a Basic school
-            // still needs somewhere to record them - its facilities show on its
+            // still needs somewhere to record them, its facilities show on its
             // ID cards and printed material even with no public website to put
             // them on.
             self::Facilities => [PlanKey::Basic, PlanKey::Standard, PlanKey::Exclusive],
@@ -117,7 +117,7 @@ enum PlanFeature: string
      * Why it is not available, in the school's terms.
      *
      * Each of these says what the feature would do FOR them, because a school
-     * being turned away deserves to know what it is being turned away from -
+     * being turned away deserves to know what it is being turned away from,
      * "not included in your plan" on its own tells them nothing.
      */
     public function blurb(): string
@@ -126,7 +126,7 @@ enum PlanFeature: string
             self::Cbt => 'Set computer-based tests, publish them to your classes, and have every script marked the moment a student submits.',
             self::CbtPractice => 'Give your students past questions from WAEC, JAMB and NECO to practise against, with instant scoring.',
             self::Guardians => 'Give parents and guardians their own accounts to follow attendance, results and fees for every child they are linked to.',
-            self::Events => 'Publish your school calendar - open days, sports, prize-givings - to your public website so families can plan around it.',
+            self::Events => 'Publish your school calendar (open days, sports, prize-givings) to your public website so families can plan around it.',
             self::News => 'Share announcements and stories from your school on your public website, with photos and full articles.',
             self::Careers => 'Publish vacancies on your own Job Portal, share them on WhatsApp and social media, and manage applicants, CVs and interviews in one place.',
             self::Testimonials => 'Show what parents and alumni say about your school on your public website.',
@@ -175,7 +175,7 @@ enum PlanFeature: string
     }
 
     /**
-     * "the Standard or Exclusive plan", or "the Exclusive plan" - written out
+     * "the Standard or Exclusive plan", or "the Exclusive plan", written out
      * so the page names the plans rather than a tier number.
      */
     public function requiredPlanLabel(): string

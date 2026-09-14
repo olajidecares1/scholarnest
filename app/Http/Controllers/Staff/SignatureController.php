@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 /**
  * A class teacher's own signature, drawn in their portal.
  *
- * The signer comes from the staff session and from nowhere else - see
+ * The signer comes from the staff session and from nowhere else, see
  * RegistersSignatures for why there is no id to swap.
  */
 class SignatureController extends Controller

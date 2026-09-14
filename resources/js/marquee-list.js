@@ -5,7 +5,7 @@
  * The two halves of that sentence are why this exists rather than the
  * show-one-page-and-hide-the-rest it replaces. Hiding pages needs them
  * absolutely positioned on top of one another and the panel clipped, and a
- * clipped panel cannot be scrolled - so "let people scroll it" and "swap pages
+ * clipped panel cannot be scrolled, so "let people scroll it" and "swap pages
  * in and out" could not both be true. Here every page sits in normal flow
  * inside a real scrolling box, and the rotation moves the scroll position
  * instead of moving the pages.
@@ -13,11 +13,11 @@
  * The movement is animated by hand rather than with scroll-behavior: smooth,
  * because the browser picks that duration and will not be told otherwise. The
  * whole point of these panels is a slow, deliberate three-second rise, so the
- * scroll position is eased across exactly that long on a cubic ease-out - the
+ * scroll position is eased across exactly that long on a cubic ease-out, the
  * same curve, direction and duration the CSS transition used.
  *
  * It moves to a page's own offsetTop rather than by a fixed step, so pages of
- * unequal height - a final group of one event where the last held three - land
+ * unequal height, a final group of one event where the last held three, land
  * flush instead of drifting further out of true with every turn.
  *
  * It yields to the visitor. Hovering, touching or scrolling by hand pauses the
@@ -35,7 +35,7 @@ export default function marqueeList({ dwell = 30000, duration = 3000 } = {}) {
 
         init() {
             // Anyone who has asked for less motion gets a plain scrolling
-            // list. Not a faster rotation - none. They can still reach every
+            // list. Not a faster rotation, none. They can still reach every
             // page, because it is all still there to be scrolled.
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 return;

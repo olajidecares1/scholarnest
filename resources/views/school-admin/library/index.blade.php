@@ -81,8 +81,8 @@
                         @forelse ($books as $book)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $book->title }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $book->author ?? '—' }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $book->category ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $book->author ?? 'N/A' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $book->category ?? 'N/A' }}</td>
                                 <td class="px-6 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $book->copies_available > 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' }}">
                                         {{ $book->copies_available }} / {{ $book->copies_total }}

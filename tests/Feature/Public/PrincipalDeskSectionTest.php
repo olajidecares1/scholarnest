@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
  * The Principal's Desk, the Quote of the Week, and the school's own statements.
  *
  * These were removed from the public site while their columns stayed in the
- * database - so a school could have a principal's message stored and no way to
+ * database, so a school could have a principal's message stored and no way to
  * see it or edit it. They are back, below Events, Facilities and the Gallery.
  */
 beforeEach(function () {

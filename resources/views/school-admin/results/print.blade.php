@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Report Card - {{ $student->fullName() }}</title>
+        <title>Report Card | {{ $student->fullName() }}</title>
         @vite(['resources/css/app.css'])
         <style>
             @media print {

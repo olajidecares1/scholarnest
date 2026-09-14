@@ -50,7 +50,7 @@
                                     <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">{{ $log->action }}</span>
                                 </td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $log->description }}</td>
-                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $log->ip_address ?? '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $log->ip_address ?? 'N/A' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $log->created_at->format('M j, Y g:ia') }}</td>
                             </tr>
                         @empty

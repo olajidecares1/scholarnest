@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Storage;
  *
  * The pictures are DRAWN, not photographs. Nothing here can produce a
  * photorealistic image of a school, so rather than pretend, this paints
- * twenty-four distinct, good-looking abstract plates - each captioned and
+ * twenty-four distinct, good-looking abstract plates, each captioned and
  * numbered so you can tell at a glance which one you are looking at while
  * testing the rotation and the viewer. Replace them with real photographs
  * through the school admin's website settings whenever you have them.
  *
- * They are deliberately of MIXED SHAPE - landscape, portrait, square and
+ * They are deliberately of MIXED SHAPE, landscape, portrait, square and
  * widescreen. Twenty-four images that were all the same shape would prove
  * nothing about the gallery: the tile crops to a square-ish box while the
  * viewer must letterbox without cropping or stretching, and only mixed shapes
@@ -281,7 +281,7 @@ class SchoolGallerySeeder extends Seeder
         // edge of the portrait plates, which are the narrow ones.
         //
         // 3.2% is deliberately modest. At 5.5% the caption was shouting across
-        // a fifth of the plate, and it is redundant besides - the viewer prints
+        // a fifth of the plate, and it is redundant besides, the viewer prints
         // the same caption underneath the photograph as real text. This one is
         // just a label on the plate, so it should read as one.
         $margin = (int) ($width * 0.05);

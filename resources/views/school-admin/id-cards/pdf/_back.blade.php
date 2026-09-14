@@ -1,20 +1,20 @@
 @php
     $school = $card->school;
     $template = $card->template;
-    // Defined once, in App\Support\IdCardDesign - see _card.blade.php.
+    // Defined once, in App\Support\IdCardDesign, see _card.blade.php.
     ['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]
         = \App\Support\IdCardDesign::colors($template);
 
     // Set in Settings on every plan, not only by schools with a public
-    // website - see App\Support\SchoolMotto.
+    // website, see App\Support\SchoolMotto.
     $motto = \App\Support\SchoolMotto::for($school)->tagline;
 
-    // The school's own address, on every plan - see App\Support\SchoolContact.
+    // The school's own address, on every plan, see App\Support\SchoolContact.
     $contact = \App\Support\SchoolContact::for($school);
 
     // dompdf does not reliably honor CSS-only <img> sizing (including for
     // arbitrary uploaded raster images, which can render at a size wildly
-    // different from any explicit width/height given) - every raster image
+    // different from any explicit width/height given), every raster image
     // here is re-sampled to its exact display size server-side instead of
     // trusting dompdf's own image scaling (see _front.blade.php for the
     // full explanation).
@@ -27,7 +27,7 @@
     $logoPath = $logoAbsolutePath ? $images->containedImageDataUri($logoAbsolutePath, 52, 52) : null;
 
     // School Admin is the Principal, so this is their own registered
-    // signature, already rendered gold - see App\Support\PrincipalSignature.
+    // signature, already rendered gold, see App\Support\PrincipalSignature.
     $principalSignature = \App\Support\PrincipalSignature::for($school);
     $signatureAbsolutePath = $principalSignature?->absolutePath();
     $signature = $signatureAbsolutePath ? $images->containedImageDataUri($signatureAbsolutePath, 62, 15) : null;
@@ -39,7 +39,7 @@
     // A red disc with a white glyph inside it, as the reference draws each
     // contact line. The disc is painted into the SVG rather than applied as a
     // CSS background, because dompdf will neither colour nor clip an inline
-    // one - the same reason these are data URIs at all.
+    // one, the same reason these are data URIs at all.
     $discIcon = fn (string $path, string $viewBox = '0 0 512 512') => 'data:image/svg+xml;base64,'.base64_encode(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-96 -96 704 704">'
         .'<circle cx="256" cy="256" r="352" fill="'.$accentColor.'"/>'
@@ -67,7 +67,7 @@
 @endphp
 
 <table class="pdf-card" style="border: 1.5px solid {{ $secondaryColor }}; border-radius: 5px; background-color: #f7f7f8;">
-    {{-- SEGMENT 1 - the navy crown: lanyard slot, crest, school name, tagline,
+    {{-- SEGMENT 1, the navy crown: lanyard slot, crest, school name, tagline,
     closed off by the same red stripe the front carries. --}}
     <tr>
         <td style="padding: 0;">
@@ -91,7 +91,7 @@
         </td>
     </tr>
 
-    {{-- SEGMENT 2 - instructions, headed by a navy tab. --}}
+    {{-- SEGMENT 2, instructions, headed by a navy tab. --}}
     <tr>
         <td style="padding: 6px 7px 0; text-align: center;">
             <div style="display: inline-block; background-color: {{ $secondaryColor }}; color: #ffffff; font-size: 6.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; padding: 2px 8px; border-radius: 3px;">Instructions</div>
@@ -107,9 +107,9 @@
         </td>
     </tr>
 
-    {{-- SEGMENT 3 - where to send the card back. The address comes from the
+    {{-- SEGMENT 3, where to send the card back. The address comes from the
     school's own settings on any plan, falling back to its website where one
-    exists - see App\Support\SchoolContact. --}}
+    exists, see App\Support\SchoolContact. --}}
     @unless ($contact->isEmpty())
         <tr>
             <td style="padding: 5px 7px 0;">
@@ -148,7 +148,7 @@
         </tr>
     @endunless
 
-    {{-- SEGMENT 4 - the principal's hand, on the navy bar that closes the
+    {{-- SEGMENT 4, the principal's hand, on the navy bar that closes the
     card. Earlier artwork looked as though the card simply ended after the
     signature; the closer view shows the bar. --}}
     <tr>

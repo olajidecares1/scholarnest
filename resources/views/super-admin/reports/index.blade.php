@@ -63,7 +63,7 @@
                                 <td class="px-5 py-3">
                                     <a href="{{ route('super-admin.reports.show', $report) }}" class="font-semibold text-gray-900 hover:text-primary-500 dark:text-white dark:hover:text-primary-400">{{ $report->reference }}</a>
                                 </td>
-                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $report->school?->name ?? '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $report->school?->name ?? 'N/A' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $report->reporter_name ?? 'Anonymous' }}</td>
                                 <td class="px-5 py-3">
                                     @php

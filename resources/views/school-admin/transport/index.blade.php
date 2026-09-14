@@ -40,10 +40,10 @@
                         @forelse ($vehicles as $vehicle)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $vehicle->name }}</td>
-                                <td class="px-6 py-3 font-mono text-xs text-gray-600 dark:text-gray-300">{{ $vehicle->plate_number ?? '—' }}</td>
+                                <td class="px-6 py-3 font-mono text-xs text-gray-600 dark:text-gray-300">{{ $vehicle->plate_number ?? 'N/A' }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $vehicle->capacity }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">
-                                    {{ $vehicle->driver_name ?? '—' }}
+                                    {{ $vehicle->driver_name ?? 'N/A' }}
                                     @if ($vehicle->driver_phone) <span class="text-gray-400 dark:text-gray-500">&middot; {{ $vehicle->driver_phone }}</span> @endif
                                 </td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $vehicle->routes_count }}</td>

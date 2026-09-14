@@ -11,9 +11,9 @@
 |
 | This is obscurity, and obscurity is not security. It keeps the door out of
 | sight of people idly looking around; it does nothing against anyone who
-| finds it. Everything that actually protects the account - credential
+| finds it. Everything that actually protects the account, credential
 | checking, the Super Admin role requirement, the account-status check, both
-| rate limiters, CSRF and session handling - lives on the server and applies
+| rate limiters, CSRF and session handling, lives on the server and applies
 | identically whether the form was reached by the click sequence or by
 | someone posting straight at the endpoint.
 |

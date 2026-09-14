@@ -73,7 +73,7 @@ class CbtTestController extends Controller
         }
 
         if (in_array($newStatus, [CbtTestStatus::Draft, CbtTestStatus::Locked], true) && $test->hasStudentAttempts()) {
-            abort(422, 'This test cannot be locked or unlocked - students have already started it. You can still archive it.');
+            abort(422, 'This test cannot be locked or unlocked because students have already started it. You can still archive it.');
         }
 
         $test->update([

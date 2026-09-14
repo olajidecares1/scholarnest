@@ -55,7 +55,7 @@ test('maintenance mode does not block the way back in', function () {
     Setting::current()->update(['maintenance_mode' => true]);
 
     // The registration page carries the hidden Super Admin sign-in, so it has
-    // to stay reachable - otherwise turning maintenance on locks the Super
+    // to stay reachable, otherwise turning maintenance on locks the Super
     // Admin out of the switch that turns it off again.
     $this->get(route('register'))->assertStatus(200);
 

@@ -8,7 +8,7 @@ use App\Models\School;
  *
  * These pages exist to show one card. The sticky header bar above it was
  * costing roughly 90px of height for a logo, a wordmark and a link none of
- * these pages use - and on a phone that is the difference between seeing the
+ * these pages use, and on a phone that is the difference between seeing the
  * password field and having to scroll for it.
  *
  * So the portals have no header. The logo sits on its own in the top-left
@@ -38,7 +38,7 @@ describe('the portals have no header bar', function () {
         foreach (portalChromePages($this->school) as $label => $url) {
             $html = $this->get($url)->assertOk()->getContent();
 
-            // The bar itself is gone from the markup, not hidden with a class -
+            // The bar itself is gone from the markup, not hidden with a class,
             // a hidden header still ships its markup and still runs the Alpine
             // handler attached to the logo inside it.
             expect($html)->not->toContain('<header');

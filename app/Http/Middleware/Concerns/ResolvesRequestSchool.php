@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
  * Plan gates are asked the same question on School Admin routes and on portal
  * routes, but the answer used to live in different places: School Admin runs on
  * the default `web` guard, while each portal has its own. A gate written for
- * one guard silently misfires on the other - `$request->user()` is simply null
+ * one guard silently misfires on the other, `$request->user()` is simply null
  * there, so a `?->` chain collapses to "no access" for everyone.
  */
 trait ResolvesRequestSchool

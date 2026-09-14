@@ -6,7 +6,7 @@
 
     // Built here rather than inline in @json below. Blade parses a directive's
     // argument by matching brackets, and a multi-line array with string
-    // concatenation in it defeats that - it reads the first "]" it likes and
+    // concatenation in it defeats that, it reads the first "]" it likes and
     // reports an unclosed bracket, swallowing the rest of the file.
     $pwaSettings = [
         'name' => $pwa->shortName(),

@@ -6,20 +6,20 @@
 |--------------------------------------------------------------------------
 |
 | This application writes to exactly two disks by name. "public" holds what a
-| browser is meant to see - school logos, ID card photographs, favicons.
-| "local" holds what it must never see - payment receipts carrying payer names
+| browser is meant to see, school logos, ID card photographs, favicons.
+| "local" holds what it must never see, payment receipts carrying payer names
 | and bank details, CBT source documents, passport photographs.
 |
 | On a single server both are directories under storage/. On a platform whose
-| filesystem is ephemeral - Laravel Cloud, where the disk is reset by every
-| deployment and each replica has its own copy - a directory under storage/
+| filesystem is ephemeral, Laravel Cloud, where the disk is reset by every
+| deployment and each replica has its own copy, a directory under storage/
 | means every upload is gone at the next deploy. There they must be object
 | storage instead.
 |
 | The switch is per disk and defaults to "local", so a laptop and the test
 | suite behave exactly as they did before with none of these variables set.
 |
-| Cloudflare R2 - what Laravel Object Storage is built on - decides visibility
+| Cloudflare R2, what Laravel Object Storage is built on, decides visibility
 | per bucket, not per object, and answers a per-object ACL with
 | "NotImplemented". That is why neither disk below sends a "visibility" key,
 | and why the two disks need two separate buckets rather than one.
@@ -127,7 +127,7 @@ return [
     | the locations of the links and the values should be their targets.
     |
     | Only meaningful when the public disk is a local directory. Object storage
-    | is reached over HTTP and has nothing to link to - which is why Laravel
+    | is reached over HTTP and has nothing to link to, which is why Laravel
     | Cloud's own documentation says not to run `storage:link` there.
     |
     */

@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * THEY USED TO BE PUBLIC FILES. A pupil's photograph sat at
  * /storage/students/<uuid>.jpg with no access control at all: the name was
  * unguessable, and that was the entire protection. Anyone who ever obtained the
- * address - from a shared screenshot, a referrer header, browser history, a
- * cached page - could fetch that child's photograph for ever, from any network,
+ * address, from a shared screenshot, a referrer header, browser history, a
+ * cached page, could fetch that child's photograph for ever, from any network,
  * signed in or not.
  *
  * WHY SIGNED URLS RATHER THAN A SESSION CHECK. A session check was the obvious
@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * photograph have no session at all. A parent opening a result with a token has
  * never signed in, and neither has somebody scanning the QR code on a printed ID
  * card to check it is genuine. Requiring a session would have broken both, and
- * the usual workaround - leave those two public - leaves the photographs exactly
+ * the usual workaround, leave those two public, leaves the photographs exactly
  * as exposed as before.
  *
  * So the URL itself carries the authority. Whoever renders a page that may show
@@ -83,7 +83,7 @@ class ProtectedMediaController extends Controller
 
                 // These are files somebody uploaded, served inline from the
                 // application's own origin. Without this a browser is free to
-                // ignore the declared type and sniff the bytes - so a file
+                // ignore the declared type and sniff the bytes, so a file
                 // that passed the image check but reads as HTML would run as
                 // a page here, with this origin's cookies.
                 'X-Content-Type-Options' => 'nosniff',

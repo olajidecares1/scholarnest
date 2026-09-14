@@ -167,7 +167,7 @@ class CbtDocumentUploadController extends Controller
      * Put a failed or stalled upload back on the queue.
      *
      * The file is already stored, so this re-runs the extraction rather than
-     * asking for the document again - which matters most in the case this was
+     * asking for the document again, which matters most in the case this was
      * written for, where nothing was wrong with the upload and the queue
      * simply was not running.
      */

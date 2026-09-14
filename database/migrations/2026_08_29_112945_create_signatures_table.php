@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 /**
- * A person's registered signature - drawn by them, owned by them.
+ * A person's registered signature, drawn by them, owned by them.
  *
  * One table rather than a column on each kind of signer. A signature is the
  * same thing whoever writes it, and the alternative was already growing into
  * three separate homes for one idea: a column on staff, another on users, and
  * the school's principal scan. Wherever a future document needs somebody's
- * mark - a certificate, an approval, a transfer letter - it asks the same
+ * mark, a certificate, an approval, a transfer letter, it asks the same
  * relation rather than a fourth column.
  *
  * OWNERSHIP IS THE POINT. The unique index on (owner_type, owner_id) is what
@@ -48,7 +48,7 @@ return new class extends Migration
         });
 
         // Signatures uploaded before this table existed, moved rather than
-        // abandoned - a teacher who has already signed should not have to sign
+        // abandoned, a teacher who has already signed should not have to sign
         // again because the storage changed underneath them.
         if (! Schema::hasColumn('staff', 'signature_path')) {
             return;

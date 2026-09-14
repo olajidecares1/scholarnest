@@ -118,7 +118,7 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
     }
 
     /**
-     * Every class this teacher is the Class Teacher of - a teacher may hold
+     * Every class this teacher is the Class Teacher of, a teacher may hold
      * this role for more than one class.
      *
      * @return Collection<int, string>
@@ -179,12 +179,12 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
      * Two ways to qualify, and the second is the one that was missing. A
      * subject teacher may enter the subject they teach. A class teacher may
      * enter any subject in their own class, because compiling that class's
-     * results is what being its class teacher means - they collect marks from
+     * results is what being its class teacher means, they collect marks from
      * the subject teachers and enter the sheet.
      *
      * Without the class-teacher case, a teacher who taught no individual
-     * subject - the ordinary arrangement in a primary class, and common in a
-     * small secondary school - opened the score page to nothing at all, with
+     * subject, the ordinary arrangement in a primary class, and common in a
+     * small secondary school, opened the score page to nothing at all, with
      * no indication that the cause was an assignment rather than an empty
      * term.
      */

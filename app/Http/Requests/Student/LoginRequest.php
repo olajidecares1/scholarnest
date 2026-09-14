@@ -51,7 +51,7 @@ class LoginRequest extends FormRequest
 
         // admission_number/email are only unique per-school, not globally, so the
         // credential lookup must always be scoped to the school the student is
-        // logging in through — otherwise two schools sharing the same admission
+        // logging in through, otherwise two schools sharing the same admission
         // number could resolve to the wrong student row.
         $credentials = [
             $field => $this->string('login')->toString(),
@@ -109,7 +109,7 @@ class LoginRequest extends FormRequest
      * Get the rate limiting throttle key for the request.
      *
      * Scoped by school_id, not just the login string, because
-     * admission_number/email are only unique per-school - without this,
+     * admission_number/email are only unique per-school, without this,
      * a student at one school could be locked out by failed attempts
      * against an identically-numbered/named student at a completely
      * different school sharing the same IP address.

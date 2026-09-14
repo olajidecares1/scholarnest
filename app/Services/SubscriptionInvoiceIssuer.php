@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * Raising AkademicNest's invoice to a school.
  *
- * One place, because an invoice is raised from two quite different events -
- * a school subscribing, and a school buying more student licences - and the
+ * One place, because an invoice is raised from two quite different events,
+ * a school subscribing, and a school buying more student licences, and the
  * numbering has to be continuous across both. Two call sites each minting
  * their own number is how a business ends up with two invoice 41s.
  */
@@ -54,7 +54,7 @@ class SubscriptionInvoiceIssuer
             'plan_name' => $plan->name,
             'billing_cycle' => $subscription->billing_cycle?->label(),
             'description' => $licences
-                ? "{$plan->name} plan - {$licences} student licence(s)"
+                ? "{$plan->name} plan, {$licences} student licence(s)"
                 : "{$plan->name} plan subscription",
             'licences' => $licences,
 
@@ -89,7 +89,7 @@ class SubscriptionInvoiceIssuer
             'subscription_top_up_id' => $topUp->id,
             'plan_name' => $subscription->plan->name,
             'billing_cycle' => $subscription->billing_cycle?->label(),
-            'description' => "Additional student licences - {$licences} licence(s)",
+            'description' => "Additional student licences: {$licences} licence(s)",
             'licences' => $licences,
             'unit_price' => $topUp->price_per_student,
             'currency' => $topUp->currency ?: 'NGN',

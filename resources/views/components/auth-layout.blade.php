@@ -9,7 +9,7 @@
     // account?" link.
     //
     // Off on the PORTALS, where it was costing about 90px of height at the top
-    // of a page whose whole job is one sign-in card - and on a phone that is
+    // of a page whose whole job is one sign-in card, and on a phone that is
     // the difference between seeing the password field and having to scroll for
     // it. With it off, the logo sits on its own in the top-left corner and the
     // card gets the room back.
@@ -21,7 +21,7 @@
 
     // Where the logo goes on a page with no header: 'corner' or 'above'.
     //
-    // 'corner' is absolutely positioned and takes no height - but it is 80px
+    // 'corner' is absolutely positioned and takes no height, but it is 80px
     // square at 16px from the edge, and on a phone the card is full-width and
     // starts about 40-60px down, so the logo lands ON the card's top-left
     // corner. 'above' puts it in the flow, centred over the card, where it
@@ -32,7 +32,7 @@
     // click sequence does not quietly exist on every auth screen in the app.
     'superAdminAccess' => false,
 
-    // A page that belongs to one school rather than to the platform - the
+    // A page that belongs to one school rather than to the platform, the
     // result checker, chiefly. Given one, the header wears that school's badge
     // and name instead of AkademicNest's, because a parent checking their child's
     // result should see their child's school.
@@ -72,7 +72,7 @@
     <body class="min-h-screen bg-white font-sans text-gray-900 antialiased">
         <div
             {{-- relative so the header-less logo can be positioned against the
-                 page rather than the viewport - absolute-to-viewport would
+                 page rather than the viewport, absolute-to-viewport would
                  leave it hovering over the card as the page scrolls. --}}
             class="relative flex min-h-screen flex-col"
             @if ($superAdminAccess)
@@ -80,7 +80,7 @@
                     clicks: 0,
                     timer: null,
                     // A failed attempt redirects back here, so the dialog has to
-                    // reopen to show why - otherwise the error lands on a page
+                    // reopen to show why, otherwise the error lands on a page
                     // with nothing visible to attach it to.
                     open: {{ $errors->has("login") ? "true" : "false" }},
                     registerClick() {
@@ -113,7 +113,7 @@
                 {{-- No header bar: the logo alone, in the top-left corner.
 
                      Absolute rather than in the flow, so it takes no height
-                     from the card below it - which is the point of turning the
+                     from the card below it, which is the point of turning the
                      header off. pointer-events-none on the wrapper with the
                      link re-enabling them keeps the empty space beside the logo
                      from swallowing clicks meant for the page. --}}
@@ -151,7 +151,7 @@
                         </div>
                     @elseif ($superAdminAccess)
                         {{-- The logo mark is the click target, so it cannot
-                             navigate - the first click would leave the page and
+                             navigate, the first click would leave the page and
                              the sequence could never reach five. The wordmark
                              beside it keeps the link home, so nothing is lost.
 
@@ -206,15 +206,15 @@
 
                 {{-- Two large blurred blue discs used to sit here, one top
                      right and one bottom left. They were not a gradient in
-                     the CSS sense - which is why searching for "gradient"
-                     found nothing - but a 384px circle at blur-3xl reads as
+                     the CSS sense, which is why searching for "gradient"
+                     found nothing, but a 384px circle at blur-3xl reads as
                      one, and they tinted every portal, every sign-in and the
                      school finder pale blue. The background is plain white. --}}
 
                 @if ($simple)
                     <div class="relative mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
                         @if (! $header && $logoPlacement === 'above')
-                            {{-- In the flow, centred, with its own margin - so the
+                            {{-- In the flow, centred, with its own margin, so the
                                  card starts below it at every width instead of
                                  underneath it. --}}
                             <a href="{{ url('/') }}" class="mb-6 inline-block">

@@ -8,7 +8,7 @@ enforced.
 ## The rule
 
 **Only a School Admin may reset the password of a Staff member, Student or
-Parent/Guardian — and only for accounts belonging to their own school.**
+Parent/Guardian, and only for accounts belonging to their own school.**
 
 Those three account types have **no self-service password recovery at all**.
 There is no "Forgot password?" link on their login pages, and no route behind
@@ -69,7 +69,7 @@ Forgot password?  ->  enter email  ->  always the same answer
 it when a new one is requested. None of that is re-implemented here.
 
 **The code is the addition, and it is derived rather than stored.** It is an
-HMAC of the token under the application key — see `App\Support\PasswordResetCode`.
+HMAC of the token under the application key, see `App\Support\PasswordResetCode`.
 That means it expires with the token, is replaced with the token, and is deleted
 with the token, without a second table that could disagree with the first.
 Someone holding the link holds the token and nothing else; without the key they
@@ -88,17 +88,17 @@ turns the form into a free way to test who is a AkademicNest administrator.
 **Where the link points.** The URL is built from `APP_URL`, not from the request.
 Laravel's `route()` takes its host from the incoming request, so a forged Host
 header on the forgot-password endpoint would otherwise put an attacker's domain
-in the victim's email — and the victim would hand over their token by clicking
+in the victim's email, and the victim would hand over their token by clicking
 it.
 
 **What is recorded.** Every request is written to the application log, including
 the ones that matched nothing, because a run of misses is what enumeration looks
 like. Successful resets additionally write an audit entry and send the account
-holder a "your password was changed" notification — the one message that reaches
+holder a "your password was changed" notification, the one message that reaches
 somebody whose account was taken by whoever controls their inbox.
 
-> **There used to be two flows.** A second, parallel reset — its own token table,
-> its own broker, its own four pages — existed alongside this one, and nothing
+> **There used to be two flows.** A second, parallel reset, its own token table,
+> its own broker, its own four pages, existed alongside this one, and nothing
 > linked to it. The sign-in page pointed at the route *without* the verification
 > code, so every administrator who ever clicked "Forgot password?" used the
 > weaker path while the stronger one sat unreachable and unaudited. The code
@@ -151,7 +151,7 @@ When an admin sets a password, the account is flagged `must_change_password`.
 The `EnsurePasswordHasBeenChanged` middleware then blocks every portal page
 except the settings screen and logout until the user chooses their own password.
 
-Without this, the admin-chosen password would go on working indefinitely — a
+Without this, the admin-chosen password would go on working indefinitely, a
 credential known to at least two people, which stops being a password in any
 meaningful sense.
 
@@ -175,7 +175,7 @@ Every reset writes an `audit_logs` row containing:
 When a user later changes their own password, that is logged separately as
 `password.changed`.
 
-**Passwords never appear in the log** — not the new one, not a hash of it, not
+**Passwords never appear in the log**: not the new one, not a hash of it, not
 its length. A log containing passwords is a list of live credentials.
 
 ---

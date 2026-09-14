@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Tells a parent, guardian or student that a result is ready - and nothing
+ * Tells a parent, guardian or student that a result is ready, and nothing
  * more than that.
  *
  * Deliberately carries no scores, no grades, no average and no position. A

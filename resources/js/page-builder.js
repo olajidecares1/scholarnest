@@ -56,7 +56,7 @@ function uid() {
 }
 
 /**
- * Alpine.data() component powering the unified Website visual builder — one
+ * Alpine.data() component powering the unified Website visual builder, one
  * instance per page tab (Home/About/Admissions/Contact/Footer), operating on
  * an arbitrary set of blocks grouped by section rather than fixed named
  * elements, so the exact same engine covers every page.

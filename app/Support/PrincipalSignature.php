@@ -8,13 +8,13 @@ use App\Models\User;
 use App\Services\GoldSignature;
 
 /**
- * The school's Principal signature - one per school, and only one.
+ * The school's Principal signature, one per school, and only one.
  *
  * ON THIS PLATFORM, SCHOOL ADMIN IS THE PRINCIPAL. There is no separate
  * Principal account and no second signature to keep in step: the School
  * Admin's own registered signature IS the school's official Principal
- * signature, and everything that prints one - report cards, ID cards,
- * certificates, previews - resolves it through here.
+ * signature, and everything that prints one, report cards, ID cards,
+ * certificates, previews, resolves it through here.
  *
  * That is a deliberate single point. The school used to carry its own
  * `principal_signature_path` alongside the admin's registered signature, which
@@ -22,7 +22,7 @@ use App\Services\GoldSignature;
  * the stale one.
  *
  * SECURITY. The school is always a School model the caller resolved from the
- * session or from a record it already owns - never an id out of a request -
+ * session or from a record it already owns, never an id out of a request,
  * and the signer is found by querying THAT school's own School Admin accounts.
  * There is no principal_id or school_admin_id parameter anywhere in this
  * class, so there is nothing a teacher, pupil, guardian or another school
@@ -30,7 +30,7 @@ use App\Services\GoldSignature;
  * resolve another's: the query is scoped to the school it was handed.
  *
  * When no School Admin has registered a signature, this resolves to null and
- * documents print their ruled line unsigned - which is the honest placeholder.
+ * documents print their ruled line unsigned, which is the honest placeholder.
  * A signature is a claim that a particular person saw the document, so
  * substituting anybody else's would be worse than leaving it blank.
  */
@@ -72,7 +72,7 @@ final class PrincipalSignature
     /**
      * The name to print under the ruled line.
      *
-     * The school's recorded Principal's Name wins - "Mr. Gregory A. Eze" -
+     * The school's recorded Principal's Name wins, "Mr. Gregory A. Eze",
      * and the signed-in account's own name stands in where none is set,
      * because the account IS the Principal.
      *
@@ -107,7 +107,7 @@ final class PrincipalSignature
      * The gold, emboldened signature, for the screen.
      *
      * Gold is applied HERE rather than left to each template, so a document
-     * added later cannot forget it - see App\Services\GoldSignature for why it
+     * added later cannot forget it, see App\Services\GoldSignature for why it
      * is baked into the image rather than applied with CSS.
      */
     public function dataUri(): ?string
@@ -135,7 +135,7 @@ final class PrincipalSignature
 
         // Resolved even when no signature is registered, so an unsigned card
         // still carries the Principal's name where the school has recorded
-        // one - or a clean blank line where it has not.
+        // one, or a clean blank line where it has not.
         return self::for($school)?->name ?? self::nameFrom($school, self::firstAdminOf($school));
     }
 

@@ -23,7 +23,7 @@ use PhpOffice\PhpWord\PhpWord;
  *     school -> staff -> class note -> selected classes -> pupils in them
  *
  * Every link in that chain is a place a note could reach somebody it was never
- * meant for, so each one is held here - and the two that matter most are the
+ * meant for, so each one is held here, and the two that matter most are the
  * last: a pupil sees their own school's notes, and only the ones sent to the
  * class they are actually in.
  */
@@ -74,7 +74,7 @@ function notePupil(School $school, string $className): Student
  *
  * UploadedFile::fake() produces a file whose contents are not a Word document
  * at all, which the `mimetypes` rule would reject and the text extractor could
- * not read - so a fake would prove the opposite of what these tests are for.
+ * not read, so a fake would prove the opposite of what these tests are for.
  */
 function wordDocument(string $name = 'note.docx'): UploadedFile
 {
@@ -113,7 +113,7 @@ describe('the staff side', function () {
     test('it is in the sidebar for a non-teaching member too', function () {
         $school = noteSchool(PlanKey::Basic);
 
-        // "All registered staff" - the bursar and the librarian included.
+        // "All registered staff", the bursar and the librarian included.
         $nav = PortalNavigation::forStaff(noteStaff($school, StaffRole::SupportStaff));
 
         expect(collect($nav['categories']['Academic'])->pluck('route'))
@@ -142,7 +142,7 @@ describe('the staff side', function () {
 
         $note = ClassNote::sole();
 
-        // ONE row and ONE file, two classes - not a copy per class.
+        // ONE row and ONE file, two classes, not a copy per class.
         expect($note->classNames()->sort()->values()->all())->toBe(['JSS 1A', 'JSS 1B'])
             ->and(ClassNote::count())->toBe(1);
 
@@ -270,7 +270,7 @@ describe('a class a teacher may not name', function () {
                 'class_names' => ['JSS 1A', 'A Class That Does Not Exist'],
                 'document' => wordDocument(),
             ])
-            // The invented one, at its own index - the valid class beside it
+            // The invented one, at its own index, the valid class beside it
             // does not launder it through.
             ->assertSessionHasErrors('class_names.1');
 
@@ -310,7 +310,7 @@ describe('a class a teacher may not name', function () {
             // 404 rather than 403, and from EnsureStaffIsActive rather than
             // from this feature: the staff portal already refuses a request
             // whose address names a school the signed-in member is not in.
-            // The controller checks it again anyway - two locks on a door
+            // The controller checks it again anyway, two locks on a door
             // that only needs one is the right number for this one.
             ->assertNotFound();
 
@@ -360,7 +360,7 @@ describe('the student side', function () {
 
         $note = ClassNote::factory()->sentTo(['JSS 2A'])->create(['school_id' => $school->id]);
 
-        // Not hidden - unreachable. The address is guessable; the answer is not.
+        // Not hidden, unreachable. The address is guessable; the answer is not.
         $this->actingAs($pupil, 'student')
             ->get(route('student.class-notes.show', [$school, $note]))
             ->assertNotFound();

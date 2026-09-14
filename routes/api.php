@@ -6,7 +6,7 @@
 |--------------------------------------------------------------------------
 |
 | A manifest, like routes/web.php. Each version is its own file, and adding
-| v2 means adding a file and a line here - not editing v1 in place, which is
+| v2 means adding a file and a line here, not editing v1 in place, which is
 | the thing versioning exists to prevent.
 |
 | Everything is under /api (the prefix is set in bootstrap/app.php) and then

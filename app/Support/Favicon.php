@@ -19,8 +19,8 @@ use App\Services\Uploads\UploadStorage;
  *     <link rel="icon" sizes="16x16" href="/favicon-16x16.png">
  *     <link rel="icon" href="/storage/branding/favicon-a1b2c3d4.png">
  *
- * With several candidates a browser picks by its own rules - usually the best
- * size match, not the last tag - so the bundled 32x32 kept winning on exactly
+ * With several candidates a browser picks by its own rules, usually the best
+ * size match, not the last tag, so the bundled 32x32 kept winning on exactly
  * the pages that had bothered to offer the uploaded one. The Super Admin
  * uploaded a favicon, the file was stored correctly, the setting was saved
  * correctly, and the tab did not change.
@@ -43,15 +43,15 @@ final class Favicon
     /**
      * The icon for a page, most specific source first.
      *
-     * A school's own favicon wins on its own portals and website - that is
-     * what a school branding its space means - and the platform's stands in
+     * A school's own favicon wins on its own portals and website, that is
+     * what a school branding its space means, and the platform's stands in
      * everywhere else. `$school` is always a School the caller already
      * resolved, never an id from a request, so one school cannot ask for
      * another's.
      *
      * $platformFallback is false on a school's PUBLIC WEBSITE, and only
      * there. That site is the school's own presence on the internet, so a
-     * school that has uploaded no favicon shows none - it must never end up
+     * school that has uploaded no favicon shows none, it must never end up
      * flying AkademicNest's flag on its own front page. Everywhere else the
      * platform's icon is the honest answer, because those pages ARE
      * AkademicNest, wearing the school's colours.
@@ -61,7 +61,7 @@ final class Favicon
         $path = $school?->favicon_path;
 
         // The platform's icon is served by the application, from the database,
-        // because the disk it was uploaded to is not reachable in production -
+        // because the disk it was uploaded to is not reachable in production,
         // see BrandingImage. A school's own icon still comes from the disk.
         $address = $path ? UploadStorage::publicUrl($path) : null;
 

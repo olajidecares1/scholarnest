@@ -22,7 +22,7 @@ use Throwable;
  *  - What is each disk really backed by, after Laravel Cloud has applied any
  *    bucket attached to it?
  *  - Will a file written now still be there after the next deploy?
- *  - Can it be written, read back and deleted - for real, not in theory?
+ *  - Can it be written, read back and deleted, for real, not in theory?
  *  - For the public disk, what address will a browser be given?
  *  - (--references) Which rows in the database point at files that are gone,
  *    and so will show as broken until they are uploaded again?

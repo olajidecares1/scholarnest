@@ -26,13 +26,13 @@ class SchoolWebsite extends Model
         'hero_image_path',
         'about_text',
 
-        // The About section - see the migration for why mission, vision and
+        // The About section, see the migration for why mission, vision and
         // values are three columns rather than one.
         'about_headline',
         'about_image_path',
 
         // Backgrounds for two cards on the public site. News and Events share
-        // the first one - they are one card, not two.
+        // the first one, they are one card, not two.
         'news_events_card_image_path',
         'academics_card_image_path',
         'about_card_image_path',
@@ -48,7 +48,7 @@ class SchoolWebsite extends Model
         'topbar_link_text',
         'topbar_link_url',
         // cta_text and cta_url are the BUTTON; the two below are the band's
-        // own words - see the migration.
+        // own words, see the migration.
         'cta_text',
         'cta_url',
         'cta_title',

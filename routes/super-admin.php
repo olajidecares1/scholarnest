@@ -52,8 +52,8 @@ Route::name('schools.')->middleware('permission:manage_schools')->group(function
     Route::post(R::uri('super-admin.schools.activate').'/{school}', [SchoolController::class, 'activate'])->name('activate');
     Route::post(R::uri('super-admin.schools.deactivate').'/{school}', [SchoolController::class, 'deactivate'])->name('deactivate');
 
-    // Deleting a school erases everything belonging to it - students,
-    // staff, results, invoices, 43 tables in all - and cannot be
+    // Deleting a school erases everything belonging to it, students,
+    // staff, results, invoices, 43 tables in all, and cannot be
     // undone. Deactivating is the reversible option and is what the
     // interface offers first; this exists for schools that were never
     // real, such as test records and abandoned registrations.
@@ -93,7 +93,7 @@ Route::name('result-pins.')->middleware('permission:manage_result_pins')->group(
     Route::post(R::uri('super-admin.result-pins.revoke').'/{pin}', [ResultPinController::class, 'revoke'])->name('revoke');
 
     // Global token settings: the defaults every school's newly issued
-    // tokens inherit. Point 16 of the rule - oversight includes being
+    // tokens inherit. Point 16 of the rule, oversight includes being
     // able to move the baseline without editing code.
     Route::put(R::uri('super-admin.result-pins.settings'), [ResultPinController::class, 'updateSettings'])->name('settings');
 });
@@ -245,7 +245,7 @@ Route::put(R::uri('super-admin.settings.index'), [SettingsController::class, 'up
  * Payment settings: how schools may pay, and what they pay into.
  *
  * Behind the same manage_settings permission as the rest of the
- * platform's configuration - this decides where money is sent.
+ * platform's configuration, this decides where money is sent.
  */
 Route::middleware('permission:manage_settings')->name('payment-settings.')->group(function () {
     Route::get(R::uri('super-admin.payment-settings.index'), [PaymentSettingsController::class, 'index'])->name('index');
@@ -253,7 +253,7 @@ Route::middleware('permission:manage_settings')->name('payment-settings.')->grou
     Route::post(R::uri('super-admin.payment-settings.toggle').'/{method}/toggle', [PaymentSettingsController::class, 'toggle'])->name('toggle');
 });
 
-// Plan pricing, including the Basic plan's per-student price - the
+// Plan pricing, including the Basic plan's per-student price, the
 // figure the whole student-licence system multiplies by. Kept out of
 // the source so it can be changed without a deployment.
 Route::name('plans.')->middleware('permission:manage_settings')->group(function () {

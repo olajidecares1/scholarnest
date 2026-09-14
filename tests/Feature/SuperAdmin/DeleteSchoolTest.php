@@ -11,7 +11,7 @@ use App\Models\User;
  * Deleting a school.
  *
  * `schools` is the parent of 43 cascading foreign keys, so this is one of the
- * widest destructive actions in the application - and the only one with no
+ * widest destructive actions in the application, and the only one with no
  * undo. The tests below are mostly about the guardrails rather than the
  * deletion itself: that it cannot be triggered by the wrong person, cannot be
  * triggered by accident, and leaves a record behind of what was destroyed.
@@ -68,7 +68,7 @@ test('what was destroyed is recorded before it goes', function () {
     $entry = AuditLog::where('action', 'school.deleted')->latest('id')->first();
 
     // The audit entry is the only surviving evidence any of it existed, so it
-    // has to carry the counts - afterwards there is nothing left to count.
+    // has to carry the counts, afterwards there is nothing left to count.
     expect($entry)->not->toBeNull()
         ->and($entry->description)->toContain('Doomed Academy')
         ->and($entry->description)->toContain('3 student(s)')
@@ -104,7 +104,7 @@ test('another school name is not accepted as confirmation', function () {
     $target = deletableSchool('Doomed Academy');
     $bystander = deletableSchool('Innocent College');
 
-    // Confirming with a name that is real, but belongs to a different row -
+    // Confirming with a name that is real, but belongs to a different row,
     // the mistake a list of near-identical Delete buttons invites.
     $this->actingAs(deletingAdmin())
         ->delete(route('super-admin.schools.destroy', $target), ['confirm_name' => 'Innocent College'])
@@ -179,7 +179,7 @@ test('deleting a school removes its admin accounts', function () {
         ->delete(route('super-admin.schools.destroy', $school), ['confirm_name' => 'Doomed Academy']);
 
     // users.school_id is SET NULL rather than CASCADE, so without deleting
-    // them explicitly the admins survive pointing at nothing - still able to
+    // them explicitly the admins survive pointing at nothing, still able to
     // sign in, and fatal on whatever they open.
     expect(User::find($schoolAdmin->id))->toBeNull();
 });
@@ -230,7 +230,7 @@ test('an orphaned school admin cannot reach school pages either', function () {
     ]);
 
     // Every school-side route sits behind the school_admin middleware, which
-    // makes the same check - so no page is left that still fatals.
+    // makes the same check, so no page is left that still fatals.
     $this->actingAs($orphan)
         ->get(route('students.index'))
         ->assertRedirect(route('portal.show'));

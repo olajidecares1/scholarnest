@@ -8,7 +8,7 @@
 {{-- The app-style bottom bar.
 
      Fixed to the bottom below lg, where the desktop sidebar takes over. It
-     carries only primary destinations plus More - four tabs at most, because a
+     carries only primary destinations plus More, four tabs at most, because a
      bottom bar with eight tabs is a menu that happens to be at the bottom, and
      nobody can hit a 40px-wide tab with a thumb.
 

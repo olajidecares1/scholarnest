@@ -40,7 +40,7 @@ class MessageController extends Controller
 
         // Addressed to students, or to everyone. A memorandum meant for the
         // staff room is refused here as well as hidden from the list, because
-        // hiding it from a list is not a rule - the URL is guessable.
+        // hiding it from a list is not a rule, the URL is guessable.
         abort_unless(in_array(MemorandumAudience::Students, $notice->audience->groups(), true), 403);
 
         $notice->reads()->firstOrCreate(

@@ -13,20 +13,20 @@ class CustomDomainVerificationService
      * always names the specific thing that's actually wrong rather than a
      * single generic error:
      *
-     * 1. Ownership - a TXT record at the domain's "_akademicnest-verify"
+     * 1. Ownership, a TXT record at the domain's "_akademicnest-verify"
      *    subdomain containing its verification token. TXT-based ownership
      *    verification works for both root domains and subdomains, unlike
      *    CNAME which most registrars forbid at the zone apex.
-     * 2. Routing - the domain itself actually points at AkademicNest (a CNAME to
+     * 2. Routing, the domain itself actually points at AkademicNest (a CNAME to
      *    the configured target, or an A record to the configured IP for
      *    apex domains). Ownership alone isn't enough to actually serve
-     *    traffic - without this check a school could pass verification
+     *    traffic, without this check a school could pass verification
      *    while their domain still resolves nowhere.
      */
     public function verify(CustomDomain $domain): bool
     {
         if (! $this->ownershipProven($domain)) {
-            $this->fail($domain, "We couldn't find a TXT record at {$domain->verificationRecordHost()} containing your verification token yet. DNS changes can take a few minutes to a few hours to propagate - if you just added the record, please try again shortly.");
+            $this->fail($domain, "We couldn't find a TXT record at {$domain->verificationRecordHost()} containing your verification token yet. DNS changes can take a few minutes to a few hours to propagate. If you just added the record, please try again shortly.");
 
             return false;
         }
@@ -60,7 +60,7 @@ class CustomDomainVerificationService
      * Whether the school's TXT record proves it owns the domain.
      *
      * The current prefix first, then the ones this platform used before it was
-     * renamed - a domain verified under the old name keeps working without the
+     * renamed, a domain verified under the old name keeps working without the
      * school having to touch its DNS again. Only the current prefix is ever
      * shown to anybody, so nothing new is created under an old name.
      */
@@ -95,8 +95,8 @@ class CustomDomainVerificationService
     }
 
     /**
-     * Pulled out as a pure method for the same reason as recordsContainToken
-     * - unit-testable without real DNS access.
+     * Pulled out as a pure method for the same reason as recordsContainToken,
+     * unit-testable without real DNS access.
      *
      * @param  list<array{target?: string}>  $cnameRecords
      * @param  list<array{ip?: string}>  $aRecords
@@ -134,7 +134,7 @@ class CustomDomainVerificationService
     /**
      * The one place this class touches the network. Protected rather than
      * private so a test can answer DNS itself and assert on which hosts were
-     * asked - the real lookup is unusable in a test suite.
+     * asked, the real lookup is unusable in a test suite.
      *
      * @return list<array<string, mixed>>
      */

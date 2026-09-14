@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Concerns;
 /**
  * The rules that govern a CBT document upload, in one place.
  *
- * Two controllers accept these documents - the Super Admin's question bank and
- * a teacher's own test - and a limit that differs between them is a limit that
+ * Two controllers accept these documents, the Super Admin's question bank and
+ * a teacher's own test, and a limit that differs between them is a limit that
  * is wrong in one of them. The size in particular is quoted to the user on the
  * upload form, so the number they are told and the number enforced have to come
  * from the same constant or they will drift apart.

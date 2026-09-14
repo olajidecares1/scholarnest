@@ -29,7 +29,7 @@
             <div class="rounded-[5px] border border-amber-200 bg-white p-6 shadow-sm dark:border-amber-800 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-bold text-gray-900 dark:text-white">Confirm Exam Body & Subject</p>
                 <p class="field-hint mt-1">
-                    AI detected
+                    The document names
                     <strong>{{ $upload->ai_response['exam_body'] ?? 'an exam body' }}</strong> /
                     <strong>{{ $upload->ai_response['subject'] ?? 'a subject' }}</strong>,
                     but no matching record exists yet. Pick the correct ones below (or add them first from the CBT overview page) to import the extracted questions.

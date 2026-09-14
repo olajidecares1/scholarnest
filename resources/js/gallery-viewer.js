@@ -9,7 +9,7 @@
  *
  * Note the method is openAt() rather than show(). The thumbnails sit inside the
  * marquee's Alpine scope, which has its own show() for the dots, and an inner
- * scope shadows an outer one - a thumbnail calling show() would have scrolled
+ * scope shadows an outer one, a thumbnail calling show() would have scrolled
  * the panel instead of opening anything.
  */
 export default function galleryViewer(images = []) {
@@ -85,7 +85,7 @@ export default function galleryViewer(images = []) {
          *
          * Hiding the body's scrollbar takes its width out of the layout and
          * shunts the whole page sideways, which is very visible on the way
-         * back out - so the width it took is given back as padding.
+         * back out, so the width it took is given back as padding.
          */
         lockPage() {
             this.scrollY = window.scrollY;

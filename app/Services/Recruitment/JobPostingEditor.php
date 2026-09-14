@@ -154,7 +154,7 @@ class JobPostingEditor
      * Replace the vacancy's questions with the submitted list, in order.
      *
      * Editing a question in place keeps its id; removing one deletes it. Neither
-     * changes an application already received - each answer carries a copy of
+     * changes an application already received, each answer carries a copy of
      * the question it answered.
      *
      * @param  array<int, array<string, mixed>>  $questions

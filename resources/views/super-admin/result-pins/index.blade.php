@@ -105,9 +105,9 @@
                             @foreach ($suspicious as $entry)
                                 <tr>
                                     <td class="px-5 py-2.5 text-xs text-gray-700 dark:text-gray-300">{{ $entry->occurred_at->format('j M, g:ia') }}</td>
-                                    <td class="px-5 py-2.5 text-gray-900 dark:text-white">{{ $entry->school?->name ?? '—' }}</td>
+                                    <td class="px-5 py-2.5 text-gray-900 dark:text-white">{{ $entry->school?->name ?? 'N/A' }}</td>
                                     <td class="px-5 py-2.5 text-xs font-semibold text-red-700 dark:text-red-400">{{ $entry->outcome->label() }}</td>
-                                    <td class="px-5 py-2.5 font-mono text-xs text-gray-600 dark:text-gray-400">{{ $entry->ip_address ?? '—' }}</td>
+                                    <td class="px-5 py-2.5 font-mono text-xs text-gray-600 dark:text-gray-400">{{ $entry->ip_address ?? 'N/A' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

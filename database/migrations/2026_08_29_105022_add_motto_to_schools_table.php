@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Schema;
  * A report card carries two of them and they are not the same line: the motto
  * sits under the school's name on the letterhead ("Raising Excellence,
  * Building Leaders"), and the core values run along the foot of the page
- * ("Discipline - Knowledge - Character - Excellence").
+ * ("Discipline, Knowledge, Character, Excellence").
  *
  * Both lived only on the website record, which is a Standard and Exclusive
- * feature - so a Basic school's report cards printed its name twice and no
+ * feature, so a Basic school's report cards printed its name twice and no
  * values at all. Like the address before them, these belong to the school
  * rather than to one of its features, so they sit on the school and every plan
  * can set them.

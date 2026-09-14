@@ -33,7 +33,7 @@ class ResultCheckingPinFactory extends Factory
     public function definition(): array
     {
         // A token carries its own session and term in its first five
-        // characters, so the factory has to say which - there is no such thing
+        // characters, so the factory has to say which, there is no such thing
         // as a token that belongs to no term.
         $session = fake()->randomElement(['2024/2025', '2025/2026']);
         $term = fake()->randomElement(ExamTerm::cases());
@@ -57,7 +57,7 @@ class ResultCheckingPinFactory extends Factory
     }
 
     /**
-     * A token created but never bound - the shape tokens had before they were
+     * A token created but never bound, the shape tokens had before they were
      * required to name their student and result up front. Must be refused.
      */
     public function unissued(): static

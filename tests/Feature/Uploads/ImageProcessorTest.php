@@ -30,7 +30,7 @@ describe('phone photographs come out upright', function () {
     /*
      * The fixture's stored pixels are 400x300 with a blue stripe down the LEFT
      * edge. For each EXIF orientation, this is where that stripe must be once
-     * the tag has been applied - the same place every browser draws it.
+     * the tag has been applied, the same place every browser draws it.
      */
     test('every EXIF orientation is applied', function (int $orientation, int $width, int $height, string $stripe) {
         $image = processed(UploadFixtures::cameraJpeg($orientation));

@@ -55,7 +55,7 @@
                     />
 
                     {{-- Who it goes to. "Everyone" is one memorandum, not
-                         three written out separately - a school addressing the
+                         three written out separately, a school addressing the
                          whole community should not have to say it three times,
                          and a term later the record should still read as one
                          message to everybody. --}}
@@ -67,7 +67,7 @@
                         helper="Only the groups your plan has accounts for are listed."
                     />
 
-                    {{-- Narrows the people who belong to a class - students,
+                    {{-- Narrows the people who belong to a class, students,
                          and the parents of those students. Staff are not in a
                          class, so a memorandum to staff reaches all of them
                          whatever is chosen here. --}}

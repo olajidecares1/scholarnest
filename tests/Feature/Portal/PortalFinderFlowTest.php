@@ -11,7 +11,7 @@ use App\Models\School;
  *
  * This used to be Basic-only, behind a 32-character token nobody could be
  * expected to remember. Standard and Exclusive schools were assumed to arrive
- * at their own subdomain instead - true when they have the address to hand,
+ * at their own subdomain instead, true when they have the address to hand,
  * and no help at all when they do not.
  */
 function findableSchool(string $name, PlanKey $plan): School

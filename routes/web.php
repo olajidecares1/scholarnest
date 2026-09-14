@@ -19,7 +19,7 @@
 |     serve the wrong page.
 |
 |   - school-links.php goes last because both of its routes sit in the root
-|     namespace - /{school:result_link_slug}/result and /{school:slug} - and
+|     namespace, /{school:result_link_slug}/result and /{school:slug}, and
 |     would otherwise shadow everything registered after them.
 |
 | Each file carries the reasoning for its own contents. Adding an area means
@@ -29,7 +29,7 @@
 
 require __DIR__.'/public.php';
 
-// Before school-links.php claims the root namespace - /sw.js lives there too.
+// Before school-links.php claims the root namespace, /sw.js lives there too.
 require __DIR__.'/pwa.php';
 require __DIR__.'/branding.php';
 require __DIR__.'/session.php';

@@ -19,8 +19,8 @@ use Illuminate\Validation\ValidationException;
  *
  * The web portal remembers an unlocked result in the session. There is no
  * session here, so the exam token is presented with the request that wants the
- * result and redeemed then and there. That is a real difference in feel - a
- * client must ask for the token each time rather than once per visit - and it
+ * result and redeemed then and there. That is a real difference in feel, a
+ * client must ask for the token each time rather than once per visit, and it
  * is the honest way to do it statelessly: the alternative is inventing a
  * second, longer-lived unlock credential, which is a new thing to steal.
  *

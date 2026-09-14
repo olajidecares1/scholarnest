@@ -24,7 +24,7 @@ function adminLoginUrl(School $school): string
 test('the portal hub renders all four tokenized login links on the default path', function () {
     // Standard, because the hub is plan-aware: only Standard and Exclusive
     // have all four portals. Basic has no student or parent accounts, so its
-    // hub offers two logins and the result-token route instead - covered in
+    // hub offers two logins and the result-token route instead, covered in
     // BasicPlanAcademicsTest. This test is about tokenisation and the default
     // path, so it wants the plan that actually has four doors.
     $school = School::factory()->create();
@@ -210,7 +210,7 @@ test('failed portal login attempts are throttled across schools, not per school'
     }
 
     // A 6th attempt, even against a THIRD school's page, should now be
-    // throttled rather than get the generic "invalid credentials" message -
+    // throttled rather than get the generic "invalid credentials" message,
     // proving the lockout isn't scoped per-school.
     $schoolC = School::factory()->create();
 

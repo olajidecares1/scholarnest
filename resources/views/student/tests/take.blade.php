@@ -5,7 +5,7 @@
      button that tells you what you are about to leave unanswered.
 
      The palette is deliberately always visible on wide screens and collapsible
-     on narrow ones - on a phone it would otherwise push the question itself
+     on narrow ones, on a phone it would otherwise push the question itself
      below the fold, and the question is what the student is here for. --}}
 <x-student-layout :page-title="$attempt->test->title" :page-subtitle="$attempt->test->subject.' · '.$attempt->test->class_name">
     <div

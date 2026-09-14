@@ -71,7 +71,7 @@
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <div class="flex items-center gap-1">
                     <p class="text-sm font-medium text-green-600">Active Students</p>
-                    <x-stat-tooltip text="Students currently marked active — inactive students are excluded from attendance, exams, and class lists." />
+                    <x-stat-tooltip text="Students currently marked active. Inactive students are excluded from attendance, exams, and class lists." />
                 </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($activeCount) }}</p>
             </div>
@@ -144,8 +144,8 @@
                                     </a>
                                 </td>
                                 <td class="px-6 py-3 font-mono text-xs text-gray-600 dark:text-gray-300">{{ $student->admission_number }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $student->class_name ?? '—' }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $student->guardian_name ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $student->class_name ?? 'N/A' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $student->guardian_name ?? 'N/A' }}</td>
                                 <td class="px-6 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $student->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
                                         {{ $student->is_active ? 'Active' : 'Inactive' }}
@@ -266,7 +266,7 @@
 
                     {{-- Camera or upload, previewed either way, and nothing
                          attached until it is confirmed. Bound to whichever
-                         pupil this form saves - there is no id in the field
+                         pupil this form saves, there is no id in the field
                          for a photograph to follow to the wrong record. --}}
                     <x-photo-field
                         name="photo"

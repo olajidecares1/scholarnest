@@ -79,8 +79,8 @@ class ThemeController extends Controller
      *
      * The rules here are `mimetypes`, not `image` + `mimes`, and that is the
      * whole reason this feature appeared broken. The form offers PNG or ICO
-     * and `accept=".png,.ico"`, but `image` refuses ICO outright - it admits
-     * jpg, jpeg, png, bmp, gif, webp and nothing else - so every .ico upload
+     * and `accept=".png,.ico"`, but `image` refuses ICO outright, it admits
+     * jpg, jpeg, png, bmp, gif, webp and nothing else, so every .ico upload
      * failed validation no matter what sat beside it. The same trap the logo
      * rules above carry a note about, with `svg`.
      *
@@ -102,7 +102,7 @@ class ThemeController extends Controller
 
                 // 2MB, matching the logo above rather than the 512KB this
                 // used to carry. That was the tightest limit in the whole
-                // application - half what a SCHOOL's own favicon is allowed -
+                // application, half what a SCHOOL's own favicon is allowed,
                 // and it is genuinely too small: a .ico holding the usual
                 // 16/32/48/64/128/256px set runs to several hundred KB, and a
                 // 512px PNG passes 512KB on its own. The file is stored once
@@ -151,7 +151,7 @@ class ThemeController extends Controller
      * THE DATABASE COPY IS THE ONE THAT COUNTS. Pages load these images from
      * BrandingImageController, which reads the database, because in production
      * the public disk is a directory that is not served at /storage and is
-     * wiped by every deploy - an upload that lived only there reported success
+     * wiped by every deploy, an upload that lived only there reported success
      * and never appeared anywhere. The disk copy is still written, for the
      * subscription invoice PDF on a server where it survives, but nothing
      * depends on the write succeeding.
@@ -164,7 +164,7 @@ class ThemeController extends Controller
             $path = BrandingImage::DIRECTORY.'/'.StoredUpload::name($file, $stem);
             $bytes = (string) file_get_contents((string) $file->getRealPath());
         } else {
-            // Upright, within size, transparency kept, metadata removed - the
+            // Upright, within size, transparency kept, metadata removed, the
             // same processing every other image upload gets.
             try {
                 $image = app(ImageProcessor::class)->process((string) $file->getRealPath(), $profile);

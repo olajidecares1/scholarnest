@@ -25,7 +25,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | The 32-character token in the Basic portal URL. It is not a password and
-    | it identifies no one - it simply keeps the entry point from being found
+    | it identifies no one, it simply keeps the entry point from being found
     | by anyone idly typing /portal, in the same spirit as the per-school
     | portal tokens already used elsewhere in the app.
     |

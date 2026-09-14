@@ -9,7 +9,7 @@ namespace App\Support;
  * practical reason: the same card is drawn twice, once for the browser and
  * once through dompdf for print, and dompdf cannot use an icon font. Anything
  * that looked right on screen and vanished in print would be worse than no
- * icons at all - and a printed card is the one that ends up round a child's
+ * icons at all, and a printed card is the one that ends up round a child's
  * neck.
  *
  * So both faces read from here and get identical marks. The path data is

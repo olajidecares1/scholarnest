@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
  * A school's name never appears in a URL.
  *
  * Portal, website and result-checking addresses all used to carry the school's
- * slug - /schools/greenfield-college/staff-portal/... - which put the school's
+ * slug, /schools/greenfield-college/staff-portal/... which put the school's
  * identity into every link anyone was ever sent, and from there into browser
  * history, bookmarks and the referrer header of every outbound click.
  *
@@ -82,7 +82,7 @@ describe('the opaque key works as an address', function () {
 
     test('the old slug-shaped address is gone, not redirected', function () {
         // Deliberate. A redirect would keep the slug resolving, and a URL that
-        // still resolves is still a URL that names the school - in history, in
+        // still resolves is still a URL that names the school, in history, in
         // referrer headers, and in whatever indexed it.
         $this->get('/schools/'.$this->school->slug)->assertNotFound();
         $this->get('/schools/'.$this->school->slug.'/news')->assertNotFound();
@@ -98,7 +98,7 @@ describe('the keys are unguessable and unique', function () {
         expect($this->school->portal_key)->toHaveLength(20)
             ->and($other->portal_key)->toHaveLength(20)
             ->and($other->portal_key)->not->toBe($this->school->portal_key)
-            // Two schools with the SAME name get different keys - which a
+            // Two schools with the SAME name get different keys, which a
             // name-derived slug could never manage without a "-2" suffix that
             // gave the game away.
             ->and($other->result_link_slug)->not->toBe($this->school->result_link_slug);
@@ -123,7 +123,7 @@ describe('the keys are unguessable and unique', function () {
         }
 
         // Two real root-level paths, still reachable. /login is deliberately
-        // not one of them - sign-in sits behind an obfuscated URI, so there
+        // not one of them, sign-in sits behind an obfuscated URI, so there
         // has never been anything at that path to protect.
         $this->get('/legal')->assertSuccessful();
         $this->get('/portal/sign-in')->assertSuccessful();

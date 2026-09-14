@@ -67,7 +67,7 @@ class Examination extends Model
     }
 
     /**
-     * The per-student report rows - where the two remarks live.
+     * The per-student report rows, where the two remarks live.
      *
      * @return HasMany<ExaminationReport, $this>
      */

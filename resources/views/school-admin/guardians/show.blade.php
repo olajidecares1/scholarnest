@@ -55,8 +55,8 @@
 
         </div>
 
-        {{-- The guardian pages are already Standard and Exclusive only - the
-             whole guardians module is plan-gated - so there is nothing further
+        {{-- The guardian pages are already Standard and Exclusive only, the
+             whole guardians module is plan-gated, so there is nothing further
              to check here. --}}
         <x-credential-share-banner />
 
@@ -74,7 +74,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h3 class="text-sm font-bold text-gray-900 dark:text-white">Linked Children</h3>
-            <p class="field-hint mt-1">Every child linked here is an existing student record — nothing new is created by linking.</p>
+            <p class="field-hint mt-1">Every child linked here is an existing student record. Nothing new is created by linking.</p>
 
             @if ($guardian->students->isNotEmpty())
                 <div class="mt-4 space-y-2">

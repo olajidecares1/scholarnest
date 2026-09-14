@@ -7,7 +7,7 @@
  *
  * The browser fires `beforeinstallprompt` once, silently, and then does
  * nothing visible unless the page asks. Left alone, the offer is a small icon
- * in the address bar that almost nobody presses - which for a parent who has
+ * in the address bar that almost nobody presses, which for a parent who has
  * been told "install the school app" is the same as the feature not existing.
  * So the event is captured and shown as a banner instead.
  *
@@ -22,7 +22,7 @@ const config = () => window.AkademicNestPwa || null
 const isStandalone = () =>
     window.matchMedia('(display-mode: standalone)').matches ||
     window.matchMedia('(display-mode: minimal-ui)').matches ||
-    // Safari's own, non-standard flag - the only signal iOS gives.
+    // Safari's own, non-standard flag, the only signal iOS gives.
     window.navigator.standalone === true
 
 const isIos = () =>
@@ -166,8 +166,8 @@ export default function initPortalInstall() {
 
                 const choice = await event.userChoice.catch(() => null)
 
-                // "dismissed" is not "never" - they may install later from the
-                // browser menu - but asking again on the next page load would
+                // "dismissed" is not "never", they may install later from the
+                // browser menu, but asking again on the next page load would
                 // be pestering.
                 if (choice && choice.outcome === 'dismissed') {
                     remember(settings.dismissKey)

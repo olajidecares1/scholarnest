@@ -35,7 +35,7 @@
                     ['label' => 'Total Students', 'value' => number_format($totalStudents), 'sub' => number_format($activeStudents).' active'],
                     ['label' => 'Teachers & Staff', 'value' => number_format($totalStaff)],
                     ['label' => 'Classes', 'value' => number_format($totalClasses)],
-                    ['label' => 'Attendance (30 Days)', 'value' => $attendanceAverage !== null ? $attendanceAverage.'%' : '—'],
+                    ['label' => 'Attendance (30 Days)', 'value' => $attendanceAverage !== null ? $attendanceAverage.'%' : 'N/A'],
                 ] as $stat)
                     <div class="rounded-[8px] border border-gray-100 p-4 text-center dark:border-gray-700">
                         <p class="text-2xl font-extrabold text-gray-900 dark:text-white">{{ $stat['value'] }}</p>
@@ -60,7 +60,7 @@
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Academic Performance</h2>
                     <dl class="mt-3 space-y-2 text-sm">
-                        <div class="flex justify-between border-b border-gray-50 pb-2 dark:border-gray-700/50"><dt class="text-gray-500 dark:text-gray-400">Term Average Score</dt><dd class="font-semibold text-gray-900 dark:text-white">{{ $examAverage !== null ? $examAverage.'%' : '—' }}</dd></div>
+                        <div class="flex justify-between border-b border-gray-50 pb-2 dark:border-gray-700/50"><dt class="text-gray-500 dark:text-gray-400">Term Average Score</dt><dd class="font-semibold text-gray-900 dark:text-white">{{ $examAverage !== null ? $examAverage.'%' : 'N/A' }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Students with Graded Scores</dt><dd class="font-semibold text-gray-900 dark:text-white">{{ number_format($gradedStudentCount) }}</dd></div>
                     </dl>
                 </div>

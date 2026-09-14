@@ -4,9 +4,9 @@
     $presentCount = $existing->filter(fn ($record) => $record->status->isPresentForStats())->count();
 
     // Written out as complete, literal peer-checked:* strings (not built via
-    // concatenation) so Tailwind's v4 content scanner - which only generates
+    // concatenation) so Tailwind's v4 content scanner, which only generates
     // CSS for class names it finds as contiguous text in scanned source
-    // files - actually picks these up. A "peer-checked:" prefix combined
+    // files, actually picks these up. A "peer-checked:" prefix combined
     // with a PHP-computed suffix at render time produces no such literal
     // anywhere, so no CSS would ever be generated for it.
     $statusSelectedClasses = [
@@ -110,7 +110,7 @@
                                             <span class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $student->class_name ?? '—' }}</td>
+                                    <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $student->class_name ?? 'N/A' }}</td>
                                     <td class="px-6 py-3">
                                         <div class="grid max-w-md grid-cols-4 gap-1.5">
                                             @foreach ($statusOptions as $status)

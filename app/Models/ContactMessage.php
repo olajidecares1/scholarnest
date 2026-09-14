@@ -50,7 +50,7 @@ class ContactMessage extends Model
 
     /**
      * What the inbox lists this under. The subject when there is one, and a
-     * summary drawn from the message when there is not - the field is optional
+     * summary drawn from the message when there is not, the field is optional
      * on the public form. See [App\Support\SubmissionTopic].
      */
     public function topic(): string

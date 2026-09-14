@@ -12,7 +12,7 @@ class AcademicStageDetector
      * the free-text class name defensively rather than requiring a canonical
      * taxonomy. Junior must be checked before senior, since senior's "SS"
      * pattern would otherwise never be reached for "JSS" (it's checked first
-     * on purpose, not because SS would match JSS - it wouldn't - but to keep
+     * on purpose, not because SS would match JSS, it wouldn't, but to keep
      * the precedence obvious and future-proof if senior patterns broaden).
      */
     public static function detect(?string $className): ?AcademicStage

@@ -14,18 +14,18 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | How somebody GETS to one of the three portals above: a school's own portal
-| page, the unified sign-in, the Basic-plan token finder - and misconduct
+| page, the unified sign-in, the Basic-plan token finder, and misconduct
 | reporting, which is public for the same reason.
 |
 */
 
-// School Portal — single entry point per school linking out to all four
+// School Portal, single entry point per school linking out to all four
 // role-specific logins above, so a school's public website never has to
 // send anyone to the shared global AkademicNest login. Same school-slug-scoped,
 // readable-by-design convention as the three portals above. Available on
-// every plan (login itself has never been plan-gated for any portal - only
+// every plan (login itself has never been plan-gated for any portal, only
 // the post-login dashboards are, via "portal_access").
-// The school is identified by an opaque key, not its slug - see
+// The school is identified by an opaque key, not its slug, see
 // routes/student.php for why, and the add_portal_key_to_schools_table
 // migration for what the key is. The parameter is still "school" and still
 // resolves to a School, so no controller or route() call changed.
@@ -47,7 +47,7 @@ Route::prefix('p/{school:portal_key}/portal')->name('portal.')->group(function (
 // THE FRONT DOOR, for every plan.
 //
 // Type your school's name, land on that school's portal page, and pick the
-// portal you need - and which portals are offered there is decided by the
+// portal you need, and which portals are offered there is decided by the
 // school's plan, not here. Basic gets School Admin, Staff and result checking;
 // Standard and Exclusive add the Student and Parent portals.
 //
@@ -64,7 +64,7 @@ Route::post('/portal', [BasicSchoolFinderController::class, 'find'])
     ->name('portal.find');
 
 // The new unified portal login (Phase 2 of the portal-URL-security rewrite),
-// default-host mirror of the tenant-domain pair registered above - this is
+// default-host mirror of the tenant-domain pair registered above, this is
 // the actual Basic-plan entry point (no {school:slug}, disambiguated by the
 // school_code field instead). Additive alongside the school-slug-scoped
 // "portal." group above; Phase 3 removes that group and reclaims "/portal"
@@ -72,7 +72,7 @@ Route::post('/portal', [BasicSchoolFinderController::class, 'find'])
 Route::get('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'create'])->name('portal.show');
 Route::post('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'store'])->name('portal.attempt');
 
-// Basic-plan portal - the school finder.
+// Basic-plan portal, the school finder.
 //
 // Basic schools have no public website and no subdomain, so unlike Standard
 // and Exclusive they cannot be reached directly. Everyone arrives here, at one
@@ -80,8 +80,8 @@ Route::post('/portal/sign-in', [PortalAuthenticatedSessionController::class, 'st
 // flow is entirely separate from the two portals above and shares no route,
 // controller or view with them. See docs/BASIC-PLAN-PORTAL.md.
 //
-// The token sits alone at the root - akademicanest.com/6219db402a20f65b63358972bd5274cd
-// - so the address gives away nothing at all about the application's shape.
+// The token sits alone at the root, akademicanest.com/6219db402a20f65b63358972bd5274cd,
+// so the address gives away nothing at all about the application's shape.
 // There is no "/portal" segment to notice, and nothing to strip off and probe.
 //
 // ORDER MATTERS. This shares the root namespace with the school-slug route at

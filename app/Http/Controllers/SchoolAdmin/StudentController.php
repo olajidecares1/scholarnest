@@ -75,7 +75,7 @@ class StudentController extends Controller
 
         // The capacity check and the insert happen together, under a lock. A
         // check followed by a separate create would let two simultaneous
-        // submissions - a double-click is enough - both pass and both insert.
+        // submissions, a double-click is enough, both pass and both insert.
         $student = $this->licences->withCapacity($school, function () use ($school, $request, $validated) {
             if ($school->auto_generate_admission_numbers) {
                 $validated['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $validated['class_name'] ?? null);
@@ -122,7 +122,7 @@ class StudentController extends Controller
         $validated = $request->validate($this->rules($student->school_id, $student->id, $autoGenerate));
 
         if ($autoGenerate) {
-            // The admission number is locked once auto-generation is on -
+            // The admission number is locked once auto-generation is on,
             // any value submitted for it (the field is disabled in the
             // form, but never trust client input for this) is ignored.
             unset($validated['admission_number']);
@@ -166,7 +166,7 @@ class StudentController extends Controller
     {
         $this->authorizeStudent($student);
 
-        // Deactivating always works - it releases a licence.
+        // Deactivating always works, it releases a licence.
         if ($student->is_active) {
             $student->update(['is_active' => false]);
 
@@ -175,7 +175,7 @@ class StudentController extends Controller
 
         // Reactivating consumes a licence, so it must pass the same check as
         // creating one. Without this, a school at its limit could deactivate a
-        // student, admit a new one, then reactivate the first - ending up over
+        // student, admit a new one, then reactivate the first, ending up over
         // its allocation with every individual step looking legitimate.
         $reactivated = $this->licences->withCapacity(
             $student->school,
@@ -375,7 +375,7 @@ class StudentController extends Controller
      *
      * The School Admin is the authority on both. Users may edit their own
      * contact details, but never their login identifier and never their
-     * password - see the portal profile controllers.
+     * password, see the portal profile controllers.
      */
     public function updateCredentials(Request $request, Student $student): RedirectResponse
     {

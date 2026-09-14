@@ -9,7 +9,7 @@ use App\Support\ReportCardSample;
  *
  * The rule: light background means near-black or the school's navy; dark
  * background means white; and no low-contrast grey anywhere information
- * actually lives. These tests measure it rather than eyeball it - a colour
+ * actually lives. These tests measure it rather than eyeball it, a colour
  * that "looks fine" on a designer's screen is exactly how 4.44:1 shipped
  * across every form in the application unnoticed.
  */
@@ -47,7 +47,7 @@ function contrastRatio(string $foreground, string $background): float
 
 test('every colour the printed card sets for text clears the readable floor', function () {
     // The printed card is inline styles only, so every colour it uses can be
-    // read straight out of the rendered HTML - no stylesheet to consult.
+    // read straight out of the rendered HTML, no stylesheet to consult.
     $html = view('school-admin.results.pdf.report-card', ReportCardSample::for($this->school))->render();
 
     // The lookbehind matters: without it this also matches the "color:" inside
@@ -75,7 +75,7 @@ test('every colour the printed card sets for text clears the readable floor', fu
 test('the screen card uses no washed-out grey utility', function () {
     $html = view('school-admin.results._report-card', ReportCardSample::for($this->school))->render();
 
-    // gray-400 is 2.8:1 on white and gray-500 is 4.8:1 at best - neither
+    // gray-400 is 2.8:1 on white and gray-500 is 4.8:1 at best, neither
     // belongs on a document somebody photocopies.
     expect($html)->not->toContain('text-gray-400')
         ->and($html)->not->toContain('text-gray-500');
@@ -106,7 +106,7 @@ test('the form hint colour clears the floor on the backgrounds it sits on', func
 });
 
 test('both cards name each signature block for what it is', function () {
-    // "Class Teacher's Signature", not "Class Teacher" - each block says what
+    // "Class Teacher's Signature", not "Class Teacher", each block says what
     // it holds rather than who it belongs to.
     foreach (['school-admin.results._report-card', 'school-admin.results.pdf.report-card'] as $template) {
         $html = view($template, ReportCardSample::for($this->school))->render();

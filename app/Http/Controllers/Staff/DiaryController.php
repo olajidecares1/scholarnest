@@ -21,7 +21,7 @@ use Illuminate\View\View;
  *
  * A teacher only ever sees and writes their own entries. The subjects they may
  * write against are their own assignments rather than a free-text box, so an
- * entry cannot end up filed under a subject or class they do not teach - and
+ * entry cannot end up filed under a subject or class they do not teach, and
  * the choice is re-checked here, because a select element is a convenience and
  * not a boundary.
  */
@@ -29,7 +29,7 @@ class DiaryController extends Controller
 {
     /**
      * Weeks in a term. Thirteen or so is the usual shape, and a number the
-     * teacher picks is more honest than one derived from today's date - they
+     * teacher picks is more honest than one derived from today's date, they
      * are often writing up a week late.
      */
     private const WEEKS_IN_TERM = 14;
@@ -51,7 +51,7 @@ class DiaryController extends Controller
             'entries' => $entries,
 
             // What this teacher actually teaches. An empty list is its own
-            // answer - see the view - rather than an empty dropdown.
+            // answer, see the view, rather than an empty dropdown.
             'assignments' => $teacher->subjectAssignments(),
 
             'sessions' => collect([AcademicSession::current(), $school->current_session])
@@ -88,7 +88,7 @@ class DiaryController extends Controller
         [$className, $subject] = explode('|', $validated['assignment'], 2);
 
         // Revising what was written for a week updates that week rather than
-        // adding a second entry for it - which is what the unique key on the
+        // adding a second entry for it, which is what the unique key on the
         // table enforces, and what a teacher expects when correcting a typo.
         $entry = TeacherDiaryEntry::updateOrCreate(
             [

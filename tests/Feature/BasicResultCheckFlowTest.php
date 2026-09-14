@@ -12,8 +12,8 @@ use App\Services\ResultRepository;
 use App\Services\ResultTokenIssuer;
 
 /**
- * A Basic-plan school with its own result address, a pupil, a marked result
- * - and that result PUBLISHED to the school's Result Repository.
+ * A Basic-plan school with its own result address, a pupil, a marked result,
+ * and that result PUBLISHED to the school's Result Repository.
  *
  * The publish is part of the fixture because it is now part of the workflow: a
  * Basic school's checking link serves what the school pushed, so a result that
@@ -214,7 +214,7 @@ test('an identification made at one school does not carry to another', function 
 });
 
 test('another pupil\'s token is refused for the pupil who was named', function () {
-    // Both children are at the same school and in the same examination - only
+    // Both children are at the same school and in the same examination, only
     // the binding on the token tells them apart.
     [$school, $studentA, $examination] = flowSchool();
 

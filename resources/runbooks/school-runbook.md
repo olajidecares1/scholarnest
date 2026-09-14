@@ -20,7 +20,7 @@ looking for a button that is not there.
 
 ## How to use this book
 
-1. **Find the category** — LOGIN, STUDENTS, RESULTS, ATTENDANCE, CBT, WEBSITE,
+1. **Find the category**: LOGIN, STUDENTS, RESULTS, ATTENDANCE, CBT, WEBSITE,
    PAYMENTS, SIGNATURES, MESSAGES, MOBILE, SECURITY.
 2. **Read the whole entry before doing anything.** Some steps must happen in
    order.
@@ -89,14 +89,14 @@ form is not signed in and is not logged out of anything, however long they take.
 ### 3. One school can never see another school's data
 
 This is enforced on the server on every single request. If a school ever sees
-data belonging to another school, that is a 🔴 **Critical security incident** —
+data belonging to another school, that is a 🔴 **Critical security incident**:
 go to [section 20](#20-security-incidents) and stop.
 
 ---
 
 # 1. LOGIN, SESSIONS AND ACCESS
 
-## 1.1 — Cannot log in: "These credentials do not match our records"
+## 1.1, Cannot log in: "These credentials do not match our records"
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -104,7 +104,7 @@ go to [section 20](#20-security-incidents) and stop.
 
 **In order of likelihood:**
 
-**Step 1 — Are you on the right portal?**
+**Step 1, Are you on the right portal?**
 AkademicNest has four separate sign-in pages, and **an account only works on its
 own**. A teacher's details will never work on the student portal, however
 correct they are.
@@ -116,18 +116,18 @@ correct they are.
 | Parent or guardian | Parent portal (Standard/Exclusive only) |
 | School Admin or Principal | School Admin portal |
 
-**Step 2 — Check what you are typing.**
+**Step 2, Check what you are typing.**
 - Caps Lock off.
-- No space at the start or end — copy-and-paste from a message often adds one.
+- No space at the start or end, copy-and-paste from a message often adds one.
 - Staff sign in with their **staff number or email**; students with their
   **admission number**; guardians with their **guardian number or email**.
   Check with your School Admin which one your school issues.
 
-**Step 3 — Ask your School Admin to check the account is active.**
-A deactivated account gives a *different* message — "This account has been
+**Step 3, Ask your School Admin to check the account is active.**
+A deactivated account gives a *different* message, "This account has been
 deactivated. Please contact your school." If you see that one, go to 1.3.
 
-**Step 4 — Ask your School Admin to reset the password.**
+**Step 4, Ask your School Admin to reset the password.**
 They can set a new one from the staff, student or guardian record. You will be
 asked to choose your own the first time you sign in (see 1.5).
 
@@ -142,17 +142,17 @@ password.**
 
 ---
 
-## 1.2 — "Too many login attempts. Please try again in N seconds."
+## 1.2, "Too many login attempts. Please try again in N seconds."
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟡 Medium
 
 **What happened:** AkademicNest locks an account after **5 failed attempts** and
-holds the lock for **15 minutes**. This is deliberate — it is what stops someone
+holds the lock for **15 minutes**. This is deliberate, it is what stops someone
 guessing their way into your pupils' records.
 
 **Steps:**
 
-1. **Wait.** The message tells you how long. Nobody can shorten it — not your
+1. **Wait.** The message tells you how long. Nobody can shorten it, not your
    School Admin, not the AkademicNest Team.
 2. Do **not** keep trying. Each attempt can extend the wait.
 3. While waiting, work out the correct details (see 1.1).
@@ -170,13 +170,13 @@ That may mean somebody else is trying to get into your account → treat it as
 
 ---
 
-## 1.3 — "This account has been deactivated. Please contact your school."
+## 1.3, "This account has been deactivated. Please contact your school."
 
 **Affected:** staff, students, guardians · **Plans:** all · **Severity:** 🟡 Medium
 
 The account exists and the password was right. The school has switched it off.
 
-**School Admin — steps:**
+**School Admin, steps:**
 
 1. Open the staff, student or guardian record.
 2. Check whether it is marked inactive.
@@ -189,9 +189,9 @@ that is correct behaviour. Do not reactivate to make the message go away.
 
 ---
 
-## 1.4 — Logged out after a couple of minutes
+## 1.4, Logged out after a couple of minutes
 
-**Affected:** all portal users · **Plans:** all · **Severity:** 🟢 Low — this is by design
+**Affected:** all portal users · **Plans:** all · **Severity:** 🟢 Low, this is by design
 
 **This is not a fault.** School portals sign you out after **3 minutes without
 activity**, because these accounts hold children's records and are often used on
@@ -209,18 +209,18 @@ can time out mid-sentence.
    than at the end.
 4. Sign out properly when leaving a shared computer.
 
-**If you are signed out while actively working** — clicking and saving, not
-idle — that is a fault. Escalate with what you were doing and how long you had
+**If you are signed out while actively working**: clicking and saving, not
+idle, that is a fault. Escalate with what you were doing and how long you had
 been doing it.
 
 ---
 
-## 1.5 — "You must change your password before continuing"
+## 1.5, "You must change your password before continuing"
 
 **Affected:** staff, students, guardians · **Plans:** all · **Severity:** 🟢 Low
 
 Your School Admin set a temporary password. AkademicNest will not let you use the
-portal until you replace it — the person who typed it in should not go on
+portal until you replace it, the person who typed it in should not go on
 knowing it.
 
 **Steps:**
@@ -237,7 +237,7 @@ can reset it again if you forget; they never need to know it.
 
 ---
 
-## 1.6 — "Your session expired while this page was open. Please try again."
+## 1.6, "Your session expired while this page was open. Please try again."
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟢 Low
 
@@ -246,7 +246,7 @@ sends you back **with what you typed still in the boxes** rather than losing it.
 
 **Steps:**
 
-1. Check your details are still filled in — they should be.
+1. Check your details are still filled in, they should be.
 2. Type your password again if it was a sign-in form (passwords are never kept).
 3. Submit again.
 
@@ -255,12 +255,12 @@ cookies. Go to [section 19](#19-browser-troubleshooting), Level 2.
 
 ---
 
-## 1.7 — The portal link does not work / gives "page not found"
+## 1.7, The portal link does not work / gives "page not found"
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟠 High if nobody can get in
 
 **Why:** every portal sign-in page sits behind a long, unguessable address
-unique to your school. Knowing your school's name is not enough to find it —
+unique to your school. Knowing your school's name is not enough to find it,
 that is on purpose. A wrong or altered address gives **page not found**, never
 "access denied", because saying "access denied" would confirm something is
 there.
@@ -269,11 +269,11 @@ there.
 
 1. **Use the exact link your School Admin gave you.** Do not shorten it, retype
    it, or guess it.
-2. Copy and paste rather than typing — these addresses are long and one wrong
+2. Copy and paste rather than typing, these addresses are long and one wrong
    character breaks them.
 3. Check nothing was cut off. Messaging apps often truncate long links; ask for
    it again as plain text.
-4. If you bookmarked it, the bookmark may be stale — ask for a fresh link.
+4. If you bookmarked it, the bookmark may be stale, ask for a fresh link.
 
 **School Admin:** the current links are in your dashboard. Share them by a
 method that will not break them.
@@ -285,7 +285,7 @@ Basic schools, then you type your school's name. Your School Admin has it.
 
 ---
 
-## 1.8 — Signed out of the portal, and now the school website looks wrong
+## 1.8, Signed out of the portal, and now the school website looks wrong
 
 **Affected:** School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟡 Medium
 
@@ -303,12 +303,12 @@ website is for visitors and has no sign-in. The portal is for staff.
    problem. Go to [section 11](#11-public-school-website).
 
 **Escalate if:** a visitor with no account is sent to a sign-in or registration
-page when opening your website. That is a genuine fault — send the exact address
+page when opening your website. That is a genuine fault, send the exact address
 they used.
 
 ---
 
-## 1.9 — Signed in on one tab, signed out on another
+## 1.9, Signed in on one tab, signed out on another
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟢 Low
 
@@ -316,14 +316,14 @@ they used.
 
 1. Reload the tab that shows you as signed out. Tabs do not update each other
    until they reload.
-2. If it asks you to sign in, sign in — the 3-minute timeout applies to the
+2. If it asks you to sign in, sign in, the 3-minute timeout applies to the
    whole browser, not per tab.
 3. **Do not sign into two different portals in the same browser at once.** Use
    separate browsers, or a private window for the second.
 
 ---
 
-## 1.10 — "Remember me" — should we use it?
+## 1.10, "Remember me", should we use it?
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟢 Low
 
@@ -340,7 +340,7 @@ It is off unless you tick it.
 
 # 2. STAFF AND TEACHERS
 
-## 2.1 — Creating a teacher account
+## 2.1, Creating a teacher account
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟢 Low
 
@@ -356,7 +356,7 @@ and subjects.** That is step 2.2, and skipping it causes most of section 2.
 
 ---
 
-## 2.2 — Teacher signs in but sees no classes or subjects
+## 2.2, Teacher signs in but sees no classes or subjects
 
 **Affected:** teacher · **Plans:** all · **Severity:** 🟠 High for that teacher
 
@@ -367,10 +367,10 @@ subjects they have been assigned to, and nothing else.
 
 | Assignment | What it grants |
 | --- | --- |
-| **Class Teacher** of a class | The whole class — attendance, all its results, the class teacher remark |
+| **Class Teacher** of a class | The whole class, attendance, all its results, the class teacher remark |
 | **Subject Teacher** for a class *and* a subject | Score entry for **that subject in that class only** |
 
-**School Admin — steps:**
+**School Admin, steps:**
 
 1. Open Teacher Assignments.
 2. Find the teacher. If nothing is listed, that is your answer.
@@ -379,7 +379,7 @@ subjects they have been assigned to, and nothing else.
    - Teaches Maths to JSS 1A, 1B and 1C → **three Subject Teacher assignments**,
      one per class. One assignment does not cover three classes.
 4. Check the class name matches your class list **exactly**. "JSS 1A" and
-   "JSS1A" are two different classes to AkademicNest — one of them will be empty.
+   "JSS1A" are two different classes to AkademicNest, one of them will be empty.
 5. Have the teacher sign out and back in.
 
 **Expected result:** the teacher sees their classes on their dashboard.
@@ -389,7 +389,7 @@ nothing. The account is fine; the assignment is missing.
 
 ---
 
-## 2.3 — Teacher can see the class but cannot enter scores for a subject
+## 2.3, Teacher can see the class but cannot enter scores for a subject
 
 **Affected:** subject teacher · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -404,12 +404,12 @@ assignment for that subject.
 4. Teacher signs out and back in.
 
 **Note:** being Class Teacher of a class does not by itself grant score entry
-for every subject in it. Assign each subject deliberately — that is what stops a
+for every subject in it. Assign each subject deliberately, that is what stops a
 teacher editing marks for a subject they do not teach.
 
 ---
 
-## 2.4 — Teacher has left / changing who teaches a class
+## 2.4, Teacher has left / changing who teaches a class
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -421,7 +421,7 @@ teacher editing marks for a subject they do not teach.
 3. Add the same assignments to the new teacher.
 4. **Deactivate the departing teacher's account** the day they leave. An active
    account still reaches pupil records.
-5. Check whether their signature appears on results — see 10.6.
+5. Check whether their signature appears on results, see 10.6.
 
 **Do not delete** a teacher who has already entered results or signed report
 cards unless you are certain. Deactivating stops access and keeps the record.
@@ -429,7 +429,7 @@ cards unless you are certain. Deactivating stops access and keeps the record.
 
 ---
 
-## 2.5 — Staff details are wrong
+## 2.5, Staff details are wrong
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟢 Low
 
@@ -444,7 +444,7 @@ They request a change and you approve it.
 
 # 3. STUDENTS
 
-## 3.1 — Adding a student
+## 3.1, Adding a student
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟢 Low
 
@@ -454,22 +454,22 @@ They request a change and you approve it.
    creates a class nobody is in.
 4. Save.
 
-**If you are refused, see 3.5 — you are probably at capacity.**
+**If you are refused, see 3.5, you are probably at capacity.**
 
 ---
 
-## 3.2 — Student cannot sign in to the student portal
+## 3.2, Student cannot sign in to the student portal
 
 **Affected:** student · **Plans:** Standard, Exclusive · **Severity:** 🟡 Medium
 
 > **On the Basic plan there is no student portal.** This is not a fault. Basic
-> pupils reach their results by result token instead — see 4.7.
+> pupils reach their results by result token instead, see 4.7.
 
 **Steps:**
 
 1. Confirm your plan includes the student portal (Standard or Exclusive).
 2. Confirm the pupil is using the **student** portal link, not staff or parent.
-3. Confirm they are typing their **admission number** exactly as printed —
+3. Confirm they are typing their **admission number** exactly as printed,
    leading zeros matter.
 4. School Admin: check the pupil's record is **active** (1.3).
 5. School Admin: check a password has been set. A pupil record can exist with no
@@ -478,9 +478,9 @@ They request a change and you approve it.
 
 ---
 
-## 3.3 — Student is in the wrong class
+## 3.3, Student is in the wrong class
 
-**Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High — it affects results and attendance
+**Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High, it affects results and attendance
 
 **Fix this before entering any more results.** Class decides which examinations,
 attendance register and teachers apply to a pupil.
@@ -499,46 +499,46 @@ class. Say which pupil, which examination, and what the correct class is.
 
 ---
 
-## 3.4 — Student photograph not showing
+## 3.4, Student photograph not showing
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟢 Low
 
-1. Check a photograph was actually uploaded — the record shows a placeholder if
+1. Check a photograph was actually uploaded, the record shows a placeholder if
    not.
 2. Check the file type: **JPG, PNG or WebP only**. HEIC from an iPhone is not
    accepted; convert it first.
 3. Re-upload and save.
-4. Reload with **Ctrl+F5** — the browser often holds the old image.
+4. Reload with **Ctrl+F5**: the browser often holds the old image.
 5. Check in a private window to rule out caching entirely.
 
 **If the upload is refused**, see [section 17](#17-file-uploads).
 
 ---
 
-## 3.5 — "Student capacity reached" — cannot add a pupil
+## 3.5, "Student capacity reached", cannot add a pupil
 
 **Affected:** School Admin · **Plans:** Basic, Standard · **Severity:** 🟠 High
 
 Basic and Standard are priced per pupil. Your subscription includes a set number
 of places, and **AkademicNest will refuse to go past it.** This is not a bug.
 
-**Step 1 — Free up places you are not using.**
+**Step 1, Free up places you are not using.**
 Capacity counts **active** pupils only. Deactivating a pupil who has left
 releases their place immediately, and keeps their records.
 
 1. Students → filter for pupils who have left, graduated or transferred.
-2. Deactivate them. Do **not** delete them — deletion is permanent and takes
+2. Deactivate them. Do **not** delete them, deletion is permanent and takes
    their results with it.
 3. Try adding again.
 
-**Step 2 — If you genuinely need more places, buy them.**
+**Step 2, If you genuinely need more places, buy them.**
 
 1. Subscription → add student capacity.
 2. Choose how many.
 3. Pay by bank transfer and upload the receipt.
 4. Wait for the AkademicNest Team to approve it. **This is a manual review, not
    instant.**
-5. Approved top-ups **add** to your existing allocation — they never replace it.
+5. Approved top-ups **add** to your existing allocation, they never replace it.
 
 **While you wait:** you cannot exceed capacity. Plan intake around this.
 
@@ -547,7 +547,7 @@ permanently, and it cannot be recovered.
 
 ---
 
-## 3.6 — Deleted a student by mistake
+## 3.6, Deleted a student by mistake
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🔴 Critical for that pupil
 
@@ -560,7 +560,7 @@ undo, and the AkademicNest Team cannot restore one pupil.
 2. Write down: the pupil's name, admission number, class, and roughly when it
    happened.
 3. **Contact the AkademicNest Team immediately.** The sooner you ask, the more chance
-   there is — recovery depends on backups, is not guaranteed, and would restore
+   there is, recovery depends on backups, is not guaranteed, and would restore
    far more than the one pupil.
 4. Meanwhile, gather any printed report cards or exported records you hold.
 
@@ -590,14 +590,14 @@ Class teacher remark    Principal remark   (recommended, not required)
         ↓
 Result PUBLISHED to the repository
         ↓
-Fee check — is anything outstanding?
+Fee check: is anything outstanding?
         ↓
 Parent reads it: portal (Standard/Exclusive) or result token (any plan)
 ```
 
 ---
 
-## 4.1 — Teacher cannot enter results
+## 4.1, Teacher cannot enter results
 
 **Affected:** teacher · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -620,7 +620,7 @@ Are the boxes there but refusing to save?
 
 ---
 
-## 4.2 — Examination or subject is missing
+## 4.2, Examination or subject is missing
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High
 
@@ -639,25 +639,25 @@ understand why.
 
 ---
 
-## 4.3 — Score will not save
+## 4.3, Score will not save
 
 **Affected:** teacher · **Plans:** all · **Severity:** 🟡 Medium
 
-**Step 1 — Check the number.**
+**Step 1, Check the number.**
 - Whole numbers within the maximum for that component.
 - No letters, no percent sign, no spaces.
 - A blank box is not zero. If a pupil scored nothing, type **0**.
 
-**Step 2 — Enter both marks.**
+**Step 2, Enter both marks.**
 AkademicNest expects a **test score and an examination score** for each subject. One
 without the other will block publishing later even if it saves now.
 
-**Step 3 — Watch the 3-minute timeout.**
+**Step 3, Watch the 3-minute timeout.**
 Entering a full class slowly can time you out. **Save each subject as you
 finish it**, not at the end. If you are signed out mid-entry, sign back in and
 check what saved.
 
-**Step 4 — Retry.**
+**Step 4, Retry.**
 Save one pupil. If that works, the rest will.
 
 **Escalate if:** one pupil's score will not save while the rest of the class
@@ -666,27 +666,27 @@ are trying to enter.
 
 ---
 
-## 4.4 — Total, grade or position is wrong
+## 4.4, Total, grade or position is wrong
 
 **Affected:** School Admin, class teacher · **Plans:** all · **Severity:** 🟡 Medium
 
 **AkademicNest calculates these from what you entered and how you configured
 grading.** It does not invent them. A wrong output means a wrong input.
 
-**Step 1 — Check the marks.** Open the pupil's result and check each test and
+**Step 1, Check the marks.** Open the pupil's result and check each test and
 exam score against your mark sheet. Most "wrong grades" are a mistyped mark.
 
-**Step 2 — Check your grade bands.**
+**Step 2, Check your grade bands.**
 Academics → grade bands. Look for:
-- **Gaps** — if A is 70–100 and B is 60–69, what happens at 69.5?
-- **Overlaps** — two bands covering the same mark; one silently wins.
+- **Gaps**: if A is 70 to 100 and B is 60 to 69, what happens at 69.5?
+- **Overlaps**: two bands covering the same mark; one silently wins.
 - Bands not covering 0 to 100.
 
-**Step 3 — Position.** Position is worked out within the class for that
+**Step 3, Position.** Position is worked out within the class for that
 examination. A pupil in the wrong class (3.3) or with a missing subject will
 place oddly.
 
-**Step 4 — Fix the input and reopen the result.** It recalculates; there is no
+**Step 4, Fix the input and reopen the result.** It recalculates; there is no
 separate "recalculate" button.
 
 **Escalate if:** the marks are right, the bands are right, and the grade is
@@ -695,12 +695,12 @@ a screenshot of your grade bands.
 
 ---
 
-## 4.5 — Cannot publish a result: "no score recorded for…"
+## 4.5, Cannot publish a result: "no score recorded for…"
 
 **Affected:** School Admin, class teacher · **Plans:** all · **Severity:** 🟡 Medium
 
 **This is AkademicNest protecting you.** A parent who opens a report card with three
-subjects and comes back to find nine was not given a corrected result — they
+subjects and comes back to find nine was not given a corrected result, they
 were given an unfinished one and told it was final.
 
 **The message names exactly what is missing.** Read it.
@@ -709,7 +709,7 @@ were given an unfinished one and told it was final.
 | --- | --- |
 | "This examination has no subjects yet" | School Admin adds subjects to the examination (4.2) |
 | "No score has been recorded for *Mathematics and Civic Education*" | The teachers for those subjects enter marks |
-| "Both the test and examination marks are needed for *English*" | One of the two is missing — enter it |
+| "Both the test and examination marks are needed for *English*" | One of the two is missing, enter it |
 
 **Remarks do not block publishing.** You will be told a class teacher or
 principal remark is missing, and you can publish anyway. That is a warning, not
@@ -721,19 +721,19 @@ a refusal.
 2. Contact those subject teachers.
 3. Once entered, publish again.
 4. Publishing a whole class at once **skips** any pupil who is not ready and
-   tells you which — it does not fail the whole class over one pupil.
+   tells you which, it does not fail the whole class over one pupil.
 
 ---
 
-## 4.6 — Result is published but the parent cannot see it
+## 4.6, Result is published but the parent cannot see it
 
 **Affected:** parent, School Admin · **Plans:** all · **Severity:** 🟠 High
 
-**Step 1 — Check for unpaid fees. This is the most common cause and it surprises
+**Step 1, Check for unpaid fees. This is the most common cause and it surprises
 everyone.**
 
 > **AkademicNest withholds a result while the pupil owes the school money.**
-> The gate only closes on a balance **your school itself raised** — a school with
+> The gate only closes on a balance **your school itself raised**: a school with
 > no fees recorded on AkademicNest owes nothing and nothing is withheld.
 
 **School Admin:**
@@ -744,25 +744,25 @@ everyone.**
    that pupil's results for the term.** This records who made the decision. It
    is your school's call, always.
 
-**Step 2 — Check it was actually published.** Entered is not published. Open the
+**Step 2, Check it was actually published.** Entered is not published. Open the
 result and confirm it has been sent to the repository.
 
-**Step 3 — Check the parent is looking in the right place.**
+**Step 3, Check the parent is looking in the right place.**
 
 | Plan | Where a parent reads results |
 | --- | --- |
-| Basic | Result token only — no parent account exists |
+| Basic | Result token only, no parent account exists |
 | Standard, Exclusive | Parent portal, **or** a result token |
 
-**Step 4 — Check the parent is linked to the child.** See 5.3.
+**Step 4, Check the parent is linked to the child.** See 5.3.
 
 ---
 
-## 4.7 — Result token will not work
+## 4.7, Result token will not work
 
 **Affected:** parent · **Plans:** all · **Severity:** 🟡 Medium
 
-**How tokens work — this explains almost every failure:**
+**How tokens work, this explains almost every failure:**
 
 - A token is tied to **one pupil and one examination**, fixed when it is
   created. It is not a general password.
@@ -793,18 +793,18 @@ Does the pupil owe fees?
 **"Too many attempts":** result lookups are rate-limited per school. Wait, then
 try once with the correct token.
 
-**School Admin — issuing a token:**
+**School Admin, issuing a token:**
 1. Result tokens → issue.
 2. Choose the pupil **and** the examination. Both are required and both are
    locked in.
 3. Give it to that family only.
 
-**If a token has been shared publicly:** treat it as 🔴 a security matter — see
+**If a token has been shared publicly:** treat it as 🔴 a security matter, see
 20.4.
 
 ---
 
-## 4.8 — Wrong pupil's result, or a result on the wrong pupil
+## 4.8, Wrong pupil's result, or a result on the wrong pupil
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🔴 Critical
 
@@ -814,23 +814,23 @@ cosmetic bug.
 **Steps:**
 
 1. **Stop issuing and publishing results for that examination.**
-2. Screenshot exactly what was seen. **Do not delete anything** — it is the
+2. Screenshot exactly what was seen. **Do not delete anything**: it is the
    evidence.
 3. Note: which pupil saw it, whose result it was, how they reached it (portal,
    token, printed card), the date and time.
 4. **Contact the AkademicNest Team immediately.** Mark it 🔴 Critical.
-5. If it reached a parent, follow your school's own data-protection procedure —
+5. If it reached a parent, follow your school's own data-protection procedure,
    you are the one who must notify them, not AkademicNest.
 6. Do not attempt to investigate the cause yourself.
 
 **Common innocent explanation, still worth checking first:** two pupils with the
 same or similar name, and the wrong one was picked from a list. Check the
 **admission numbers**, which are unique. If it was a mis-click, correct it and
-note it — no escalation needed.
+note it, no escalation needed.
 
 ---
 
-## 4.9 — Result on a report card is out of date after a correction
+## 4.9, Result on a report card is out of date after a correction
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -842,19 +842,19 @@ already sent.
 1. Correct the score.
 2. **Publish the result again.** This is the step people miss.
 3. If the family already has a token, the corrected result appears the next time
-   they open it — unless the token is used up, in which case issue a new one.
+   they open it, unless the token is used up, in which case issue a new one.
 4. Tell the parent. A quietly changed grade is worse than a corrected one
    explained.
 
 ---
 
-## 4.10 — Report card will not print, or prints wrongly
+## 4.10, Report card will not print, or prints wrongly
 
 **Affected:** School Admin, class teacher · **Plans:** all · **Severity:** 🟡 Medium
 
 1. Use the **print or PDF** option in AkademicNest, not the browser's own print.
 2. If it is cut off, set the printer to **A4** and margins to default.
-3. If the logo or signature is missing, see 10.5 — that is a separate problem.
+3. If the logo or signature is missing, see 10.5, that is a separate problem.
 4. If the page is blank, check the result is complete (4.5).
 5. Try a different browser (section 19, Level 4).
 
@@ -866,23 +866,23 @@ pupil's admission number and the examination.
 # 5. PARENTS AND GUARDIANS
 
 > **Parent and guardian accounts are Standard and Exclusive only.** On Basic
-> there are no parent accounts at all — parents use result tokens (4.7). This is
+> there are no parent accounts at all, parents use result tokens (4.7). This is
 > a plan limit, not a fault.
 
-## 5.1 — Creating a parent account
+## 5.1, Creating a parent account
 
 **Affected:** School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟢 Low
 
 1. Guardians → add.
 2. Name, phone and email.
 3. **Link them to their children.** An account with no children linked shows an
-   empty dashboard — this is the single most common parent complaint.
+   empty dashboard, this is the single most common parent complaint.
 4. Set a temporary password; they must change it on first sign-in (1.5).
 5. Send them the **parent portal** link (1.7).
 
 ---
 
-## 5.2 — Parent cannot sign in
+## 5.2, Parent cannot sign in
 
 **Affected:** parent · **Plans:** Standard, Exclusive · **Severity:** 🟡 Medium
 
@@ -896,7 +896,7 @@ Work through 1.1. Then, specific to parents:
 
 ---
 
-## 5.3 — Parent signs in but sees no children (or the wrong child)
+## 5.3, Parent signs in but sees no children (or the wrong child)
 
 **Affected:** parent · **Plans:** Standard, Exclusive · **Severity:** 🟠 High
 
@@ -913,7 +913,7 @@ A parent seeing a child who is not theirs is a data protection incident.
 1. Screenshot it. Do not delete anything.
 2. Note which parent, which child, and when.
 3. **Contact the AkademicNest Team immediately.**
-4. Check first whether somebody simply linked the wrong child by hand — two
+4. Check first whether somebody simply linked the wrong child by hand, two
    pupils with similar names. If so, unlink it, note what happened, and tell the
    parent. Still record it; it is still a disclosure.
 
@@ -921,7 +921,7 @@ A parent seeing a child who is not theirs is a data protection incident.
 
 # 6. ATTENDANCE
 
-## 6.1 — Cannot take attendance
+## 6.1, Cannot take attendance
 
 **Affected:** teacher · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -932,7 +932,7 @@ A parent seeing a child who is not theirs is a data protection incident.
 
 ---
 
-## 6.2 — A pupil is missing from the register
+## 6.2, A pupil is missing from the register
 
 **Affected:** teacher · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -946,11 +946,11 @@ one of those is not true.
 
 ---
 
-## 6.3 — Attendance was marked wrongly
+## 6.3, Attendance was marked wrongly
 
 **Affected:** teacher, School Admin · **Plans:** all · **Severity:** 🟢 Low
 
-1. Open attendance for **that date** — not today.
+1. Open attendance for **that date**: not today.
 2. Change the marks.
 3. Save.
 
@@ -963,11 +963,11 @@ cannot take it in the first place.
 
 Covered under [Results](#4-results-and-report-cards): creating examinations
 (4.2), score entry problems (4.1, 4.3), calculation (4.4). Nothing in
-examinations fails on its own — it fails as one of those.
+examinations fails on its own, it fails as one of those.
 
 **One point worth its own note:**
 
-## 7.1 — An examination shows no pupils
+## 7.1, An examination shows no pupils
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High
 
@@ -976,7 +976,7 @@ Almost always a class name that does not match.
 1. Open the examination and note the class name **exactly**.
 2. Open your class list and compare character by character. "JSS 1A" ≠ "JSS1A"
    ≠ "Jss 1a".
-3. Correct whichever is wrong — usually easier to correct the examination.
+3. Correct whichever is wrong, usually easier to correct the examination.
 4. Reload.
 
 ---
@@ -986,7 +986,7 @@ Almost always a class name that does not match.
 > **CBT is Standard and Exclusive only.** On Basic the pages are refused by the
 > server with a message naming the plan required. This is not a fault.
 
-## 8.1 — Uploaded a document and it is stuck on "Waiting to start…"
+## 8.1, Uploaded a document and it is stuck on "Waiting to start…"
 
 **Affected:** teacher, School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟠 High
 
@@ -999,9 +999,9 @@ not started.
 | Status | Meaning |
 | --- | --- |
 | Waiting to start… | Queued. Nothing has begun. |
-| Reading the document and extracting questions… | Working. No percentage — the reader cannot say how far through it is. |
+| Reading the document and extracting questions… | Working. No percentage, the reader cannot say how far through it is. |
 | Creating the CBT from the extracted questions… | Nearly done. |
-| Extracted — needs an exam body and subject | **Your turn.** See 8.3. |
+| Extracted, needs an exam body and subject | **Your turn.** See 8.3. |
 | Questions imported successfully | Done. |
 | Extraction failed | See 8.2. |
 
@@ -1018,7 +1018,7 @@ shown. Say clearly: *"CBT extraction stuck at Waiting to start."*
 
 ---
 
-## 8.2 — "Extraction failed"
+## 8.2, "Extraction failed"
 
 **Affected:** teacher · **Plans:** Standard, Exclusive · **Severity:** 🟡 Medium
 
@@ -1027,7 +1027,7 @@ The document was read and could not be understood.
 **Steps:**
 
 1. **Check the file type.** Word (.docx) and PDF are what the reader handles. A
-   scanned PDF — a photograph of a page — has no text in it to read, however
+   scanned PDF, a photograph of a page, has no text in it to read, however
    clear it looks.
 2. **Check the layout.** Questions numbered plainly with options labelled A, B,
    C, D read reliably. Multi-column layouts, text inside images, and heavy
@@ -1037,11 +1037,11 @@ The document was read and could not be understood.
 4. **Try a smaller batch.** Twenty questions to test the format before uploading
    two hundred.
 5. If a clean, plainly formatted document still fails, escalate and **attach the
-   document** — the AkademicNest Team cannot diagnose it without the file.
+   document**: the AkademicNest Team cannot diagnose it without the file.
 
 ---
 
-## 8.3 — "Needs exam body and subject"
+## 8.3, "Needs exam body and subject"
 
 **Affected:** teacher, School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟢 Low
 
@@ -1053,7 +1053,7 @@ Extraction worked. AkademicNest could not tell what the questions belong to.
 
 ---
 
-## 8.4 — Questions came out wrong
+## 8.4, Questions came out wrong
 
 **Affected:** teacher · **Plans:** Standard, Exclusive · **Severity:** 🟡 Medium
 
@@ -1065,12 +1065,12 @@ Extraction worked. AkademicNest could not tell what the questions belong to.
    cannot be read at all), and options that ran together.
 4. Only publish once you have read it through.
 
-**If most questions are wrong**, the document format is the problem — go back to
+**If most questions are wrong**, the document format is the problem, go back to
 8.2 and re-upload a cleaner copy rather than fixing a hundred questions by hand.
 
 ---
 
-## 8.5 — Pupils cannot see a test
+## 8.5, Pupils cannot see a test
 
 **Affected:** student · **Plans:** Standard, Exclusive · **Severity:** 🟠 High
 
@@ -1081,11 +1081,11 @@ Extraction worked. AkademicNest could not tell what the questions belong to.
 
 ---
 
-## 8.6 — Cannot lock or unlock a test
+## 8.6, Cannot lock or unlock a test
 
 **Affected:** teacher · **Plans:** Standard, Exclusive · **Severity:** 🟢 Low
 
-You will see: *"This test cannot be locked or unlocked — students have already
+You will see: *"This test cannot be locked or unlocked, students have already
 started it. You can still archive it."*
 
 This is deliberate. Changing a test out from under pupils mid-attempt would
@@ -1096,11 +1096,11 @@ invalidate their work.
 
 ---
 
-## 8.7 — A pupil's CBT score was not recorded
+## 8.7, A pupil's CBT score was not recorded
 
 **Affected:** student, teacher · **Plans:** Standard, Exclusive · **Severity:** 🟠 High
 
-1. Check the attempt exists — teachers can see attempts per test.
+1. Check the attempt exists, teachers can see attempts per test.
 2. Check whether the pupil actually **submitted** or just closed the tab.
 3. Check whether they lost connection mid-test.
 4. If an attempt exists with answers but no score, escalate with the pupil's
@@ -1132,9 +1132,9 @@ They share one troubleshooting path:
 
 # 10. DIGITAL SIGNATURES
 
-## 10.1 — What a signature is in AkademicNest
+## 10.1, What a signature is in AkademicNest
 
-**Affected:** School Admin, class teacher · **Plans:** all · **Severity:** —
+**Affected:** School Admin, class teacher · **Plans:** all · **Severity:** N/A
 
 You draw it once with a finger, stylus or mouse. It is saved as a picture and
 printed on report cards and ID cards.
@@ -1142,24 +1142,24 @@ printed on report cards and ID cards.
 **Two rules that explain most problems:**
 
 1. **A signature always belongs to the person signed in when it was drawn.** You
-   cannot draw one "on behalf of" the principal — it will be recorded as yours.
+   cannot draw one "on behalf of" the principal, it will be recorded as yours.
 2. **One person, one signature.** Drawing a new one replaces the old
    everywhere. There is no history.
 
 ---
 
-## 10.2 — The signature pad will not open
+## 10.2, The signature pad will not open
 
 **Affected:** anyone signing · **Plans:** all · **Severity:** 🟡 Medium
 
 1. Reload the page (**Ctrl+F5**).
 2. Try a different browser (section 19).
-3. On a phone or tablet, turn it to landscape — the pad needs width.
+3. On a phone or tablet, turn it to landscape, the pad needs width.
 4. Check nothing is blocking scripts (some school networks do).
 
 ---
 
-## 10.3 — Cannot draw / the line does not follow my finger
+## 10.3, Cannot draw / the line does not follow my finger
 
 **Affected:** anyone signing · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -1167,11 +1167,11 @@ printed on report cards and ID cards.
 2. Use a finger or stylus, not a fingernail.
 3. Remove any screen protector that is interfering.
 4. On a laptop, use the trackpad with the button held, or a mouse.
-5. Clear and start again — a partial stroke can confuse the pad.
+5. Clear and start again, a partial stroke can confuse the pad.
 
 ---
 
-## 10.4 — "That is not a signature image" / it will not save
+## 10.4, "That is not a signature image" / it will not save
 
 **Affected:** anyone signing · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -1180,7 +1180,7 @@ sensible before keeping it.
 
 1. **Draw something.** An empty pad has nothing to save.
 2. Draw within the box, not off the edge.
-3. Do not try to upload a photograph of a signature — the pad is for drawing.
+3. Do not try to upload a photograph of a signature, the pad is for drawing.
 4. Reload and draw again.
 
 **Escalate if:** a normal drawn signature is refused repeatedly on more than one
@@ -1188,7 +1188,7 @@ device.
 
 ---
 
-## 10.5 — Signature is not on the report card
+## 10.5, Signature is not on the report card
 
 **Affected:** School Admin, parent · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -1208,7 +1208,7 @@ Reprint the report card.
 
 ---
 
-## 10.6 — Wrong signature appearing / a departed teacher's signature
+## 10.6, Wrong signature appearing / a departed teacher's signature
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High
 
@@ -1230,14 +1230,14 @@ school → 🔴 [Security](#20-security-incidents).
 
 ---
 
-## 10.7 — Replacing a signature
+## 10.7, Replacing a signature
 
 **Affected:** the signer · **Plans:** all · **Severity:** 🟢 Low
 
 1. The person signs in **as themselves**.
 2. Opens the signature pad and draws a new one.
 3. It replaces the old one everywhere immediately.
-4. Reprint any documents that should carry the new one — already-printed cards
+4. Reprint any documents that should carry the new one, already-printed cards
    keep the old.
 
 ---
@@ -1247,7 +1247,7 @@ school → 🔴 [Security](#20-security-incidents).
 > **The public website is Standard and Exclusive only.** Basic-plan schools have
 > no public website. This is a plan limit, not a fault.
 
-## 11.1 — The website does not load at all
+## 11.1, The website does not load at all
 
 **Affected:** visitors · **Plans:** Standard, Exclusive · **Severity:** 🟠 High
 
@@ -1271,14 +1271,14 @@ Does it load on mobile data instead of school Wi-Fi?
 
 ---
 
-## 11.2 — A visitor is sent to a sign-in or registration page
+## 11.2, A visitor is sent to a sign-in or registration page
 
 **Affected:** visitors · **Plans:** Standard, Exclusive · **Severity:** 🟠 High
 
 **This should never happen.** The public website has no sign-in, and a visitor
 should never be sent to one.
 
-**Check first — is it only happening to you?** Open the site in a private
+**Check first, is it only happening to you?** Open the site in a private
 window. If it is fine there, you were seeing your own signed-in session, not
 what visitors see. Nothing is wrong.
 
@@ -1287,26 +1287,26 @@ what appeared, and whether it happens every time.
 
 ---
 
-## 11.3 — The website shows old content after an edit
+## 11.3, The website shows old content after an edit
 
 **Affected:** School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟢 Low
 
 1. Did you **save**? Then did you **publish**? Some changes need both.
 2. **Ctrl+F5** (**Cmd+Shift+R** on Mac) to force a fresh copy.
-3. Check in a private window — that is the visitor's view.
+3. Check in a private window, that is the visitor's view.
 4. Check on your phone, on mobile data. If it is right there, it is your
    computer's cache, not the website.
 
 ---
 
-## 11.4 — Hero image problems
+## 11.4, Hero image problems
 
 **Affected:** School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟢 Low
 
 **Nothing showing:**
 1. Check an image was uploaded.
 2. **If you have added Hero Slider images, the single fallback image is not
-   used.** That is by design — the slider replaces it.
+   used.** That is by design, the slider replaces it.
 3. JPG, PNG or WebP only.
 
 **Image looks cropped or the wrong part shows:**
@@ -1315,7 +1315,7 @@ Use a **wide landscape photograph** with the important part near the middle. A
 tall portrait photograph will always crop badly.
 
 **Image looks soft or blurry:**
-It is being stretched across the full screen width. Upload a larger original —
+It is being stretched across the full screen width. Upload a larger original,
 at least 1600 pixels wide.
 
 **Slider not changing:**
@@ -1325,12 +1325,12 @@ at least 1600 pixels wide.
 
 ---
 
-## 11.5 — A section is missing from the website
+## 11.5, A section is missing from the website
 
 **Affected:** School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟢 Low
 
 **Every section always renders, whether or not you have filled it in.** An empty
-Gallery says so rather than disappearing — a parent learning "no photos yet" is
+Gallery says so rather than disappearing, a parent learning "no photos yet" is
 better than a menu link that goes nowhere.
 
 So a "missing" section usually means **empty**:
@@ -1346,25 +1346,25 @@ So a "missing" section usually means **empty**:
 | Contact | Website → Contact details |
 
 **Note:** *Facilities is not in the top menu.* The section is still on the page
-and links to it still work — it was taken off the menu to keep it fitting on a
+and links to it still work, it was taken off the menu to keep it fitting on a
 phone.
 
 ---
 
-## 11.6 — News or events not appearing
+## 11.6, News or events not appearing
 
 **Affected:** School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟢 Low
 
 1. Is the item **published**, or saved as a draft?
 2. **Events show upcoming ones.** An event whose date has passed drops off. That
    is correct.
-3. They rotate **three at a time**. Yours may be in the next group — wait, or
+3. They rotate **three at a time**. Yours may be in the next group, wait, or
    scroll the panel.
 4. Ctrl+F5.
 
 ---
 
-## 11.7 — Gallery viewer problems
+## 11.7, Gallery viewer problems
 
 **Affected:** visitors · **Plans:** Standard, Exclusive · **Severity:** 🟢 Low
 
@@ -1377,7 +1377,7 @@ phone.
 
 ---
 
-## 11.8 — Contact form messages are not arriving
+## 11.8, Contact form messages are not arriving
 
 **Affected:** School Admin · **Plans:** Standard, Exclusive · **Severity:** 🟠 High
 
@@ -1387,14 +1387,14 @@ phone.
 2. Check notifications.
 3. **Test it yourself:** open your website in a private window, send a message,
    then check.
-4. If your test arrives, the form works — the earlier sender may not have
+4. If your test arrives, the form works, the earlier sender may not have
    completed it.
 
 **Escalate if:** your own test message does not arrive. Send the time you sent
 it and what you typed.
 
 **Conduct reports** from members of the public arrive the same way, with any
-photographs attached. These concern children — handle them under your school's
+photographs attached. These concern children, handle them under your school's
 own safeguarding procedure. AkademicNest does not read or investigate them.
 
 ---
@@ -1408,27 +1408,27 @@ check in a private window if unsure.
 
 | Setting | What it controls | If the change does not show |
 | --- | --- | --- |
-| **Brand colour** | Buttons, headings, icons, borders and links across your whole website | Ctrl+F5. Enter a valid colour — a name like "Indigo" or a code like `#1877f2` |
+| **Brand colour** | Buttons, headings, icons, borders and links across your whole website | Ctrl+F5. Enter a valid colour, a name like "Indigo" or a code like `#1877f2` |
 | **Font family** | The typeface for all your website text | See the note below on installed fonts |
 | **Font weight** | How heavy the body text is. Headings keep their own weight so the page keeps its shape | Ctrl+F5 |
 | **Hero image / slider** | The large picture at the top | See 11.4 |
 | **About, Mission, Vision, Values** | The About section | Save, then Ctrl+F5 |
-| **Contact details** | Used in the top bar, Contact section, footer and Contact page — entered once, used everywhere | Save; check you edited Contact Details, not a Contact card |
+| **Contact details** | Used in the top bar, Contact section, footer and Contact page, entered once, used everywhere | Save; check you edited Contact Details, not a Contact card |
 | **Social links** | The icons in the footer | Paste the **full** web address. Blank = no icon shown |
 | **Footer** | Description, contact lines, the call-to-action band | Quick Links and Academics are built automatically and are not edited |
 | **Navigation menu** | The links across the top | **Adding even one custom link replaces the whole standard menu.** Add all of them, or none |
 
-> **Fonts marked "Installed fonts — only for visitors who have them"** (such as
+> **Fonts marked "Installed fonts, only for visitors who have them"** (such as
 > Algerian) are not sent with your page. They show for visitors whose device
 > already has that font, and everyone else sees a similar fallback. Fonts under
-> "Web fonts — look the same for every visitor" always look the same. If you
+> "Web fonts, look the same for every visitor" always look the same. If you
 > need your website to look identical to everyone, choose a web font.
 
 ---
 
 # 13. SUBSCRIPTION AND PLANS
 
-## 13.1 — Registered and paid, but the school is not activated
+## 13.1, Registered and paid, but the school is not activated
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High
 
@@ -1443,7 +1443,7 @@ Did you upload proof of payment?
    NO  → Upload the receipt. Nothing happens until you do.
    YES ↓
 Was the receipt accepted when you uploaded it?
-   NO — you were told it did not look like a receipt, or the amount was short
+   NO: you were told it did not look like a receipt, or the amount was short
        → Go to 14.2.
    YES ↓
 Does your dashboard say the subscription is under review?
@@ -1460,26 +1460,26 @@ time of transfer, the amount, and confirmation that you uploaded the receipt.
 
 ---
 
-## 13.2 — "This feature requires the Standard or Exclusive plan"
+## 13.2, "This feature requires the Standard or Exclusive plan"
 
-**Affected:** School Admin, staff · **Plans:** Basic · **Severity:** 🟢 Low — working as intended
+**Affected:** School Admin, staff · **Plans:** Basic · **Severity:** 🟢 Low, working as intended
 
 Not a fault. Your plan does not include that feature, and the block is enforced
-by the server — the address will not work if typed directly.
+by the server, the address will not work if typed directly.
 
 The page names the feature and the plan that includes it. To get it, upgrade
 through your subscription screen.
 
 **Check the table in [The three facts](#1-your-plan-decides-what-exists) before
-escalating** — most "missing feature" reports are plan limits.
+escalating**: most "missing feature" reports are plan limits.
 
 ---
 
-## 13.3 — Wrong plan showing
+## 13.3, Wrong plan showing
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High
 
-1. Check your subscription screen — the plan and its status.
+1. Check your subscription screen, the plan and its status.
 2. If it says pending, it has not been approved yet (13.1).
 3. If it shows a plan you did not pay for, or fewer pupil places than you bought
    → escalate. Send what you paid, when, the receipt reference, and what the
@@ -1489,11 +1489,11 @@ escalating** — most "missing feature" reports are plan limits.
 
 ---
 
-## 13.4 — Subscription expired
+## 13.4, Subscription expired
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High
 
-Administrative features lock. **Your records are not deleted** — AkademicNest does
+Administrative features lock. **Your records are not deleted**: AkademicNest does
 not delete a school's records because a subscription lapsed.
 
 1. Renew from your subscription screen.
@@ -1503,22 +1503,22 @@ not delete a school's records because a subscription lapsed.
 
 **If you are leaving AkademicNest**, ask for a copy of your data *before* asking for
 anything to be deleted. Deletion is permanent and there is currently no
-self-service export — allow time to arrange it.
+self-service export, allow time to arrange it.
 
 ---
 
 # 14. PAYMENTS
 
-## 14.1 — How paying actually works
+## 14.1, How paying actually works
 
-**Affected:** School Admin · **Plans:** all · **Severity:** —
+**Affected:** School Admin · **Plans:** all · **Severity:** N/A
 
 1. Choose your plan and pupil places.
 2. **Transfer to the bank details shown.** Card payment appears in the interface
-   but is **not yet working** — bank transfer is the only method that operates.
+   but is **not yet working**: bank transfer is the only method that operates.
    AkademicNest never collects or stores card details.
 3. Upload your receipt.
-4. It is checked automatically for obvious problems — a screenshot that is not a
+4. It is checked automatically for obvious problems, a screenshot that is not a
    receipt, an amount well below the price.
 5. **A person then reviews it.** Passing the automatic check is not approval.
 6. Approved → your school is activated.
@@ -1530,7 +1530,7 @@ self-service export — allow time to arrange it.
 
 ---
 
-## 14.2 — Receipt was rejected
+## 14.2, Receipt was rejected
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -1550,13 +1550,13 @@ the transfer.
 
 ---
 
-## 14.3 — Paid but nothing has happened
+## 14.3, Paid but nothing has happened
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟠 High
 
 1. Check the money actually left your account. A pending transfer has not
    arrived.
-2. Check you **uploaded the receipt**. Paying is not enough — nothing starts
+2. Check you **uploaded the receipt**. Paying is not enough, nothing starts
    until the receipt is uploaded.
 3. Check your subscription screen for the status.
 4. If it says under review, it is with the AkademicNest Team.
@@ -1564,7 +1564,7 @@ the transfer.
 
 ---
 
-## 14.4 — Paid twice by mistake
+## 14.4, Paid twice by mistake
 
 **Affected:** School Admin · **Plans:** all · **Severity:** 🟡 Medium
 
@@ -1577,25 +1577,25 @@ the transfer.
 
 # 15. MESSAGES AND NOTIFICATIONS
 
-## 15.1 — Not receiving notifications
+## 15.1, Not receiving notifications
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟡 Medium
 
 1. **Check inside AkademicNest first.** Notifications appear on the bell in your
    dashboard, not by email.
-2. Reload the page — the bell updates on load, not continuously.
+2. Reload the page, the bell updates on load, not continuously.
 3. Check you are signed in as the right account. Notifications go to the account
    they concern.
 4. School Admins: visitor messages come to your messages area (11.8).
 
 ---
 
-## 15.2 — A notification opens the wrong page, or the message is empty
+## 15.2, A notification opens the wrong page, or the message is empty
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟢 Low
 
 1. Reload and open it again.
-2. Go to the feature directly instead — the message tells you where.
+2. Go to the feature directly instead, the message tells you where.
 3. If it happens repeatedly, escalate with a screenshot of the notification
    (with any pupil's name covered) and where it took you.
 
@@ -1603,11 +1603,11 @@ the transfer.
 
 # 16. FILE UPLOADS
 
-## 16.1 — A file will not upload
+## 16.1, A file will not upload
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟡 Medium
 
-**Step 1 — Check the type.**
+**Step 1, Check the type.**
 
 | Uploading | Accepted |
 | --- | --- |
@@ -1622,32 +1622,32 @@ on purpose.
 **iPhone HEIC photographs are not accepted.** Set your camera to "Most
 Compatible", or convert the file first.
 
-**Step 2 — Check the size.** Large photographs from a modern phone are often too
+**Step 2, Check the size.** Large photographs from a modern phone are often too
 big. Resize before uploading.
 
-**Step 3 — Rename it.** Remove accents, `#`, `&` and emoji from the file name.
+**Step 3, Rename it.** Remove accents, `#`, `&` and emoji from the file name.
 
-**Step 4 — Try another browser** (section 19).
+**Step 4, Try another browser** (section 19).
 
 ---
 
-## 16.2 — Upload progress sticks
+## 16.2, Upload progress sticks
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟡 Medium
 
 1. **Wait.** A large PDF over school Wi-Fi is genuinely slow.
-2. Do not close the tab or press the button again — a second attempt uploads it
+2. Do not close the tab or press the button again, a second attempt uploads it
    twice.
 3. If it is still stuck after 5 minutes, reload and check whether it arrived
    before uploading again.
 4. Try on a different network.
 
 **For CBT documents specifically:** an upload that completes but stays at
-"Waiting to start" is a different problem — see 8.1.
+"Waiting to start" is a different problem, see 8.1.
 
 ---
 
-## 16.3 — A file uploaded but is not showing
+## 16.3, A file uploaded but is not showing
 
 **Affected:** anyone · **Plans:** all · **Severity:** 🟢 Low
 
@@ -1665,16 +1665,16 @@ Admin dashboard is designed for a larger screen and is best used on a computer.
 
 | Problem | Do this |
 | --- | --- |
-| Page runs off the side | Turn the device to landscape. Tables scroll sideways on their own — swipe **inside** the table |
+| Page runs off the side | Turn the device to landscape. Tables scroll sideways on their own, swipe **inside** the table |
 | Buttons hard to tap | Zoom out to 100%. Landscape gives more room |
 | Menu will not open | Reload. Check the browser is up to date |
 | Signature pad not working | See 10.2 / 10.3. Landscape helps |
-| Cannot upload from a phone | See 16.1 — usually HEIC or file size |
+| Cannot upload from a phone | See 16.1, usually HEIC or file size |
 | Modal or pop-up will not close | Tap outside it, or reload |
 | Page will not scroll | Close and reopen the tab |
 
-**School Admin work — entering many results, editing the website, managing
-subscriptions — should be done on a computer.** It is possible on a phone but
+**School Admin work, entering many results, editing the website, managing
+subscriptions, should be done on a computer.** It is possible on a phone but
 much slower, and the 3-minute timeout is less forgiving.
 
 ---
@@ -1692,11 +1692,11 @@ Before escalating **anything**, run this. It resolves a large share of reports.
       NO → Section 1.1.
 4. Is the person's account ACTIVE?
       NO → Section 1.3.
-5. For teachers — are they ASSIGNED to the class and subject?
+5. For teachers: are they ASSIGNED to the class and subject?
       NO → Sections 2.2 / 2.3.
-6. For results — is it ENTERED, COMPLETE and PUBLISHED?
+6. For results: is it ENTERED, COMPLETE and PUBLISHED?
       NO → Sections 4.3 / 4.5.
-7. For a parent who cannot see a result — are FEES outstanding?
+7. For a parent who cannot see a result: are FEES outstanding?
       YES → Section 4.6.
 8. Have you tried Ctrl+F5 and a private window?
       NO → Section 19.
@@ -1710,25 +1710,25 @@ Still broken → Escalate with the template in section 22.
 
 Work up the levels. Stop as soon as it works.
 
-**Level 1 — Reload properly.**
+**Level 1, Reload properly.**
 **Ctrl+F5** (Windows) or **Cmd+Shift+R** (Mac). This fetches a fresh copy rather
 than the stored one. It fixes most "I changed it and nothing happened" reports.
 
-**Level 2 — Private/incognito window.**
+**Level 2, Private/incognito window.**
 Loads with no stored data. **If it works here, the problem is your browser's
 stored copy, not AkademicNest.**
 
-**Level 3 — Clear data for this site only.**
+**Level 3, Clear data for this site only.**
 Browser settings → Privacy → site settings → find AkademicNest → clear.
 **Do not clear all browsing data.** You will sign yourself out of everything
 else for no reason.
 
-**Level 4 — Another browser.** Chrome, Edge, Firefox or Safari, kept up to date.
+**Level 4, Another browser.** Chrome, Edge, Firefox or Safari, kept up to date.
 
-**Level 5 — Another device or network.** Try a phone on mobile data. If it works
-there, your school network or that computer is the problem — not AkademicNest.
+**Level 5, Another device or network.** Try a phone on mobile data. If it works
+there, your school network or that computer is the problem, not AkademicNest.
 
-**Level 6 — Escalate**, saying which levels you tried and what happened at each.
+**Level 6, Escalate**, saying which levels you tried and what happened at each.
 
 ---
 
@@ -1745,10 +1745,10 @@ STOP  →  SECURE THE ACCOUNT  →  DO NOT DELETE ANYTHING  →  CONTACT AKADEMI
 **Do not investigate it yourself.** Trying to reproduce a security problem can
 destroy the record of what happened and can make it worse.
 
-**Do not delete anything** — not the message, not the file, not the account, not
+**Do not delete anything**: not the message, not the file, not the account, not
 the record. It is the evidence.
 
-## 20.1 — When to treat something as a security incident
+## 20.1, When to treat something as a security incident
 
 - Someone saw a pupil's information they should not have
 - A parent saw a child who is not theirs
@@ -1760,7 +1760,7 @@ the record. It is the evidence.
 - Records changed and nobody will say by whom
 - A suspicious file or message inside AkademicNest
 
-## 20.2 — What to do, in order
+## 20.2, What to do, in order
 
 1. **Stop using the affected account.** Do not keep clicking to see what else
    shows.
@@ -1774,23 +1774,23 @@ the record. It is the evidence.
 6. **Contact the AkademicNest Team and say "security incident".** That routes it
    properly.
 7. **Do not delete anything.**
-8. **Tell your school's data protection lead.** Your school — not AkademicNest — is
+8. **Tell your school's data protection lead.** Your school, not AkademicNest, is
    the one who must notify parents if pupils' information was disclosed.
 
-## 20.3 — Compromised account
+## 20.3, Compromised account
 
 1. Reset that password immediately.
 2. Deactivate the account if you are unsure who has it.
-3. Check what that account could reach — a School Admin account reaches every
+3. Check what that account could reach, a School Admin account reaches every
    pupil record in the school.
 4. Contact the AkademicNest Team. They can see when the account was used and from
    where.
 5. Do not delete the account. It is the record.
 
-## 20.4 — A result token was shared publicly
+## 20.4, A result token was shared publicly
 
 1. Tell the AkademicNest Team, who can revoke it.
-2. Ask your School Admin to check the token's access log — you can see how often
+2. Ask your School Admin to check the token's access log, you can see how often
    and when it was used.
 3. Issue a fresh token to the family.
 
@@ -1798,7 +1798,7 @@ the record. It is the evidence.
 no access to any portal, any other pupil or any other examination. Serious, but
 contained.
 
-## 20.5 — What AkademicNest will never ask you for
+## 20.5, What AkademicNest will never ask you for
 
 The AkademicNest Team will **never** ask for:
 
@@ -1860,7 +1860,7 @@ family · AkademicNest completely unreachable
 
 ## Never send
 
-❌ Passwords — anyone's, ever
+❌ Passwords, anyone's, ever
 ❌ Result tokens
 ❌ Bank or card details
 ❌ Full pupil records when an admission number would do
@@ -1885,18 +1885,18 @@ family · AkademicNest completely unreachable
 | What you see | What it means | Do this |
 | --- | --- | --- |
 | **These credentials do not match our records** | Wrong details, or wrong portal | 1.1 |
-| **Too many login attempts… try again in N seconds** | 5 failed attempts. Locked 15 minutes | 1.2 — wait |
+| **Too many login attempts… try again in N seconds** | 5 failed attempts. Locked 15 minutes | 1.2, wait |
 | **This account has been deactivated. Please contact your school.** | The school switched it off | 1.3 |
-| **Your session expired while this page was open** | Page open too long. Your typing is kept | 1.6 — submit again |
+| **Your session expired while this page was open** | Page open too long. Your typing is kept | 1.6, submit again |
 | **You must change your password before continuing** | Temporary password must be replaced | 1.5 |
-| **Page not found (404)** | Wrong or altered address, or the item was deleted | 1.7 — use the exact link |
+| **Page not found (404)** | Wrong or altered address, or the item was deleted | 1.7, use the exact link |
 | **This feature requires the Standard or Exclusive plan** | Not on your plan. Enforced by the server | 13.2 |
 | **Student capacity reached** | Every pupil place is in use | 3.5 |
 | **This examination has no subjects yet** | Nothing to score | 4.2 |
 | **No score has been recorded for [subjects]** | Those teachers have not entered marks | 4.5 |
 | **Both the test and examination marks are needed for [subject]** | One of the two is missing | 4.5 |
-| **There is no class teacher remark on this result** | A warning, not a refusal — you can publish | 4.5 |
-| **This test cannot be locked or unlocked — students have already started it** | Deliberate. Archive it instead | 8.6 |
+| **There is no class teacher remark on this result** | A warning, not a refusal, you can publish | 4.5 |
+| **This test cannot be locked or unlocked, students have already started it** | Deliberate. Archive it instead | 8.6 |
 | **Extraction failed** | The document could not be read | 8.2 |
 | **Waiting to start… (stuck)** | Background service not running | 8.1 |
 | **Needs exam body and subject** | Read successfully; choose what it belongs to | 8.3 |
@@ -1913,7 +1913,7 @@ family · AkademicNest completely unreachable
 | --- | --- | --- | --- |
 | Cannot log in | Right portal? Right details? | School Admin resets password | Several people affected |
 | Locked out | Wait 15 minutes | Confirm details, try once | Locked without wrong attempts (security) |
-| Logged out constantly | Normal — 3-minute timeout | Save more often | Logged out while actively working |
+| Logged out constantly | Normal, 3-minute timeout | Save more often | Logged out while actively working |
 | Teacher sees no classes | Check assignments | Add Class/Subject Teacher | Assignments exist but nothing shows |
 | Cannot enter scores | Check subject assignment | Check the examination has that subject | Boxes present but will not save |
 | Cannot publish result | Read what the message names | Those teachers enter the marks | Everything entered, still refused |
@@ -1924,7 +1924,7 @@ family · AkademicNest completely unreachable
 | Website not loading | Published? Ctrl+F5 | Private window; another device | Fails in private window too |
 | Change not showing | Ctrl+F5 | Private window | Still old in a private window |
 | Image not showing | Check type (JPG/PNG/WebP) | Re-upload; Ctrl+F5 | Re-upload also fails |
-| CBT stuck "Waiting" | Wait 5 min; do **not** re-upload | Wait 15 min | Still waiting — AkademicNest restarts it |
+| CBT stuck "Waiting" | Wait 5 min; do **not** re-upload | Wait 15 min | Still waiting, AkademicNest restarts it |
 | Signature missing | Has the person drawn one? | Right class teacher assigned? Reprint | Drawn and assigned, still absent |
 | Contact form silent | Check messages **in AkademicNest** | Send yourself a test | Your own test does not arrive |
 | Saw another school's data | **STOP** | Screenshot, do not delete | 🔴 **Immediately** |
@@ -1932,5 +1932,5 @@ family · AkademicNest completely unreachable
 ---
 
 *This runbook describes AkademicNest as it behaved on 1 September 2026. If something
-in it no longer matches what you see, tell the AkademicNest Team — a runbook that is
+in it no longer matches what you see, tell the AkademicNest Team, a runbook that is
 wrong is worse than no runbook.*

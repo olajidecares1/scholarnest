@@ -11,7 +11,7 @@ use RuntimeException;
 /**
  * Issues, resolves, and revokes the opaque per-login-session tokens that
  * back the /portal/{token} URL scheme. The token is a routing/obfuscation
- * layer only - resolve() intentionally never returns anything that could
+ * layer only, resolve() intentionally never returns anything that could
  * be used as a credential on its own; the caller still has to independently
  * confirm an authenticated guard session before treating a resolved token
  * as meaningful (see App\Http\Middleware\ResolvePortalSession, added in a

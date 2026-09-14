@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 /**
- * An uploaded file held in the database - see the create_stored_files_table
+ * An uploaded file held in the database, see the create_stored_files_table
  * migration for why, and App\Support\Storage\DatabaseFilesystemAdapter for how
  * the application reads and writes it through an ordinary Storage disk.
  */
@@ -16,8 +16,8 @@ class StoredFile extends Model
     /**
      * Raw bytes per chunk: 512KB, which is about 700KB once base64-encoded.
      *
-     * Sized to the SMALLEST max_allowed_packet in common use - 1MB, what
-     * XAMPP's MariaDB ships with - not the generous defaults of a managed
+     * Sized to the SMALLEST max_allowed_packet in common use, 1MB, what
+     * XAMPP's MariaDB ships with, not the generous defaults of a managed
      * database. A 1MB chunk encodes to 1.4MB and failed there with "MySQL
      * server has gone away", and because the disk does not throw, a direct
      * Storage::put() simply returned false with nothing stored.

@@ -112,7 +112,7 @@ test('a correction made after publishing does not reach the parent until it is p
     ExaminationScore::where('examination_subject_id', $fixture['subject']->id)
         ->update(['test_score' => 40, 'exam_score' => 57, 'score' => 97]);
 
-    // Three facts together, rather than one fragile "does not see 97" - two
+    // Three facts together, rather than one fragile "does not see 97", two
     // digits turn up inside a date or an id sooner or later, and a test that
     // fails on that is a test nobody trusts.
     expect(ExaminationScore::where('examination_subject_id', $fixture['subject']->id)->value('score'))

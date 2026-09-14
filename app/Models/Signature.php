@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Somebody's registered signature.
  *
- * Written by the person it belongs to and by nobody else - see
+ * Written by the person it belongs to and by nobody else, see
  * App\Http\Controllers\Concerns\RegistersSignatures, where the owner is always
  * taken from the session and never from the request.
  */
@@ -47,7 +47,7 @@ class Signature extends Model
      * A SIGNATURE HAS NO URL AT ALL NOW, and that is the fix rather than a
      * side effect. It used to be a public file: /storage/staff-signatures/
      * <uuid>.png, no access control, permanent. Anyone who obtained the address
-     * could download a principal's signature and reproduce it on anything -
+     * could download a principal's signature and reproduce it on anything,
      * which undermines every report card the platform issues, because the
      * signature is the part that makes the document a claim by a named person.
      *
@@ -57,7 +57,7 @@ class Signature extends Model
      * already entitled to see. Embedding it means there is no address to leak,
      * nothing to expire, and no request that could be replayed.
      *
-     * It also removes the case that made photographs awkward - a report card
+     * It also removes the case that made photographs awkward, a report card
      * opened with a result token has no session, and an embedded image needs no
      * authority of its own.
      */
@@ -80,7 +80,7 @@ class Signature extends Model
      */
     public function absolutePath(): ?string
     {
-        // A real file from whichever disk holds it - see UploadStorage::localPath().
+        // A real file from whichever disk holds it, see UploadStorage::localPath().
         return app(UploadStorage::class)->localPath('local', $this->path);
     }
 }

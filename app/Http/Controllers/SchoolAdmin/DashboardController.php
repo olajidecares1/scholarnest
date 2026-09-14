@@ -44,7 +44,7 @@ class DashboardController extends Controller
             'subscription' => $subscription,
             'accountState' => 'active',
 
-            // Null for the flat-fee plans, which are uncapped - the card is
+            // Null for the flat-fee plans, which are uncapped, the card is
             // not drawn at all rather than drawn with a meaningless ceiling.
             // A Basic school only reaches a non-null figure once a Super Admin
             // has approved its payment, which is what makes this card the
@@ -52,7 +52,7 @@ class DashboardController extends Controller
             'capacity' => $this->licences->summary($school),
 
             // The dashboard is a dashboard now rather than a second menu.
-            // Every figure below is read from the database - see
+            // Every figure below is read from the database, see
             // App\Services\SchoolDashboardMetrics.
             'headline' => $this->metrics->headline($school),
             'attendanceSummary' => $this->metrics->attendance($school),
@@ -118,7 +118,7 @@ class DashboardController extends Controller
      * Resolves which of the dashboard's account-state banners to show.
      * activeSubscription() alone can't drive this: it's scoped to
      * Active/PendingVerification/PendingPayment, so a Rejected or Expired
-     * subscription would look identical to "never subscribed" through it -
+     * subscription would look identical to "never subscribed" through it,
      * the school's actual latest subscription (any status) is needed to
      * tell those cases apart and explain what happened.
      *
@@ -133,7 +133,7 @@ class DashboardController extends Controller
         // The approved subscription decides, if there is one. Taking simply the
         // newest row meant a school that submitted a renewal was told it was
         // "awaiting activation" while the subscription it had already paid for
-        // was still running - the dashboard disagreeing with the access gates
+        // was still running, the dashboard disagreeing with the access gates
         // about the very same school.
         $approved = $school->activeSubscription()->with(['plan', 'latestPayment'])->first();
 

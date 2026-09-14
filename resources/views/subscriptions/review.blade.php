@@ -19,7 +19,7 @@
                     {{-- The unit price is shown as well as the total so the
                          school can check the arithmetic itself rather than
                          being asked to trust a single figure. It comes from
-                         the plan record the Super Admin configures - never a
+                         the plan record the Super Admin configures, never a
                          number written into this page. --}}
                     <div class="flex justify-between py-3">
                         <dt class="text-gray-500">Price per Student</dt>

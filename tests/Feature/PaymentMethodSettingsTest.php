@@ -84,7 +84,7 @@ test('changing the details changes what the next school sees', function () {
 });
 
 test('an empty detail is left out rather than printed blank', function () {
-    // "Sort Code —" on a payment page is worse than no row: somebody transfers
+    // A bare "Sort Code" label on a payment page is worse than no row: somebody transfers
     // the money anyway and guesses.
     $this->bankTransfer->update([
         'details' => ['bank_name' => 'Zenith Bank', 'account_number' => '1234509876', 'sort_code' => null],
@@ -227,7 +227,7 @@ test('the shipped placeholder is flagged until it is replaced', function () {
 });
 
 /**
- * One page, one form per payment method - and they must not collide.
+ * One page, one form per payment method, and they must not collide.
  *
  * This is where "I updated the payment settings and schools still see the old
  * account" came from. Nothing was wrong with saving; the fields on the page
@@ -240,7 +240,7 @@ describe('the two forms on the page stay separate', function () {
             ->getContent();
 
         // Every input used to carry a bare id, so the page held two
-        // id="account_number" - and BOTH <label for="account_number"> pointed
+        // id="account_number", and BOTH <label for="account_number"> pointed
         // at whichever came first in the document. Clicking "Account Number"
         // on the second card put the cursor in the first card's field.
         preg_match_all('/\sid="([^"]+)"/', $body, $matches);
@@ -348,8 +348,8 @@ describe('saving one method never damages another, or itself', function () {
  *
  * It carried the bank details in its own template, so the AkademicNest Team
  * could change the account in Payment Settings and every "Add More Students"
- * page went on showing the placeholder that shipped with the migration -
- * GTBank / AkademicNest Technologies Ltd / 0123456789 - on every plan.
+ * page went on showing the placeholder that shipped with the migration,
+ * GTBank / AkademicNest Technologies Ltd / 0123456789, on every plan.
  */
 describe('adding student places shows the real account', function () {
     /**

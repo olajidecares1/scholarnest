@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * One examination, and - when a student is named - whether they may see it.
+ * One examination, and, when a student is named, whether they may see it.
  *
  * The access flags are optional rather than always present because the same
  * examination means different things to different readers: a list a school
@@ -17,7 +17,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * exactly one.
  *
  * Nothing here is a score. A client gets the list, learns which entries it can
- * open, and asks for those one at a time - so a locked result is never
+ * open, and asks for those one at a time, so a locked result is never
  * serialised in the first place rather than being serialised and then filtered.
  *
  * @mixin Examination
@@ -67,7 +67,7 @@ class ExaminationResource extends JsonResource
             'withheld_reason' => $withheld ? $policy->lockMessage($student, $this->resource) : null,
 
             // Permission. Even when nothing is withheld, a portal result opens
-            // only against its exam token - see the detail endpoint.
+            // only against its exam token, see the detail endpoint.
             'requires_exam_token' => true,
         ];
     }

@@ -36,8 +36,8 @@ class GradeBand extends Model
 
     /**
      * The letter grade for a percentage, using the given school's configured
-     * grade bands, or the app-wide default scale if it hasn't configured any
-     * - so every school's grading behaves consistently until they set up
+     * grade bands, or the app-wide default scale if it hasn't configured any,
+     * so every school's grading behaves consistently until they set up
      * their own bands.
      */
     public static function resolve(School $school, float $percentage): string
@@ -46,7 +46,7 @@ class GradeBand extends Model
     }
 
     /**
-     * The remark/description for a percentage - the same band lookup as
+     * The remark/description for a percentage, the same band lookup as
      * resolve(), just returning the description instead of the letter. Used
      * both for a subject's report-card remark and to render the Grade Key
      * box, so the key and the actual grading can never disagree.
@@ -93,7 +93,7 @@ class GradeBand extends Model
         // it never chose, and nothing on the page would say so. An uncovered
         // mark is a configuration gap, and it is shown as one.
         if ($school->gradeBands->isNotEmpty()) {
-            return ['letter' => '—', 'description' => 'Outside the school\'s grading scale'];
+            return ['letter' => 'N/A', 'description' => 'Outside the school\'s grading scale'];
         }
 
         $default = collect(self::defaultBands())->first(fn (array $band) => $percentage >= $band['min_percent'] && $percentage <= $band['max_percent'])
@@ -105,8 +105,8 @@ class GradeBand extends Model
     /**
      * Percentage ranges this school's scale does not account for.
      *
-     * Configuration is incremental - a school adding its bands one at a time
-     * has gaps for as long as it takes - so this reports rather than forbids.
+     * Configuration is incremental, a school adding its bands one at a time
+     * has gaps for as long as it takes, so this reports rather than forbids.
      * The grading page uses it to say what is still uncovered, which is the
      * difference between noticing on the settings screen and noticing on a
      * child's report card.
@@ -176,7 +176,7 @@ class GradeBand extends Model
             ->where('min_percent', '<=', $max)
             ->where('max_percent', '>=', $min)
             ->get()
-            ->map(fn (self $band) => sprintf('%s (%d–%d%%)', $band->letter, $band->min_percent, $band->max_percent))
+            ->map(fn (self $band) => sprintf('%s (%d to %d%%)', $band->letter, $band->min_percent, $band->max_percent))
             ->values()
             ->all();
     }

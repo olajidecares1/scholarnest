@@ -105,7 +105,7 @@
              many pupils and staff, whether the registers were taken, how far
              the term's marks have got, and what is waiting on them.
 
-             Every figure is read from the database - see
+             Every figure is read from the database, see
              App\Services\SchoolDashboardMetrics. --}}
         <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
             @foreach ([

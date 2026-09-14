@@ -74,7 +74,7 @@ describe('the favicon actually changes', function () {
      * the one the SERVER would derive.
      *
      * The rule reads $file->getMimeType(). For a real upload that is finfo
-     * reading the file's content - "image/vnd.microsoft.icon" for an icon,
+     * reading the file's content, "image/vnd.microsoft.icon" for an icon,
      * "text/x-php" for PHP source whatever it has been named. Laravel's test
      * doubles skip finfo and map the extension instead, and their map has
      * .ico as "application/ico", which no real upload ever reports. Letting
@@ -84,7 +84,7 @@ describe('the favicon actually changes', function () {
      */
     test('an ICO is accepted, which is the format the form offers', function () {
         // The bug. The rules read ['required', 'image', 'mimes:png,ico'], and
-        // `image` admits jpg, jpeg, png, bmp, gif and webp - not ico. So every
+        // `image` admits jpg, jpeg, png, bmp, gif and webp, not ico. So every
         // .ico the form invited was rejected by the rule sitting next to the
         // one that allowed it.
         $this->actingAs($this->superAdmin)
@@ -130,7 +130,7 @@ describe('the favicon actually changes', function () {
         $html = $this->actingAs($this->superAdmin)->get(route('super-admin.dashboard'))->getContent();
 
         // One <link rel="icon">, not three. Offering several let the browser
-        // choose, and it chose the bundled 32x32 - so the upload worked and
+        // choose, and it chose the bundled 32x32, so the upload worked and
         // the tab never changed.
         expect(substr_count($html, 'rel="icon"'))->toBe(1)
             ->and($html)->toContain(Setting::current()->favicon_path);
@@ -165,8 +165,8 @@ describe('the favicon actually changes', function () {
 /**
  * The size limit, which was simply too small.
  *
- * 512KB was the tightest upload limit in the application - half what a SCHOOL
- * is allowed for its own favicon, a quarter of the platform logo's - and a
+ * 512KB was the tightest upload limit in the application, half what a SCHOOL
+ * is allowed for its own favicon, a quarter of the platform logo's, and a
  * favicon legitimately exceeds it: a .ico carrying the usual 16/32/48/64/128/
  * 256px set runs to several hundred KB, and a 512px PNG passes it alone. The
  * file is stored once and served from cache, so there was nothing to buy by
@@ -196,7 +196,7 @@ describe('the favicon size limit', function () {
     });
 
     test('the form advertises the limit it actually enforces', function () {
-        // The hint said 512KB while the rule said 512KB - both wrong for a
+        // The hint said 512KB while the rule said 512KB, both wrong for a
         // real favicon. They have to agree, and they have to be workable.
         $this->actingAs($this->superAdmin)
             ->get(route('super-admin.themes.index'))
@@ -222,7 +222,7 @@ describe('the favicon size limit', function () {
 
 /**
  * The platform logo and favicon are served by the application, from the
- * database - not from the disk.
+ * database, not from the disk.
  *
  * In production the "public" disk is a directory Laravel Cloud does not serve
  * at /storage and wipes on every deploy. Uploads reported success and every
@@ -323,7 +323,7 @@ describe('the logo and favicon survive losing the disk', function () {
     test('nothing but a stored image is ever served', function () {
         $this->get('/branding/logo-missing.png')->assertNotFound();
 
-        // Not an image type, so not served - even if something put it there.
+        // Not an image type, so not served, even if something put it there.
         Storage::disk('public')->put('branding/page.html', '<script>alert(1)</script>');
         $this->get('/branding/page.html')->assertNotFound();
 

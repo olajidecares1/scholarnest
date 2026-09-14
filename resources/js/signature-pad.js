@@ -10,8 +10,8 @@
  *      three points, not as line segments between raw samples. Pointer events
  *      arrive at whatever rate the hardware reports; joining them with
  *      straight lines is what makes a signature look like a seismograph.
- *   3. Line width varies with speed - a fast stroke thins, a slow one
- *      thickens - which is what a pen actually does and what the eye reads as
+ *   3. Line width varies with speed, a fast stroke thins, a slow one
+ *      thickens, which is what a pen actually does and what the eye reads as
  *      handwriting.
  *
  * Pointer events cover mouse, touch and stylus in one code path, so a stylus
@@ -164,8 +164,8 @@ export default function signaturePad({ action, destroyAction, current }) {
                 return;
             }
 
-            // A tap that never moved is still a mark - a full stop, a dot on
-            // an "i" - so it gets a dot rather than nothing.
+            // A tap that never moved is still a mark, a full stop, a dot on
+            // an "i", so it gets a dot rather than nothing.
             if (this.points.length === 1) {
                 const [point] = this.points;
                 this.ctx.beginPath();

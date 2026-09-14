@@ -38,8 +38,8 @@
                         @forelse ($routes as $route)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $route->name }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $route->vehicle?->name ?? '—' }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $route->fee ? '₦'.number_format((float) $route->fee, 2) : '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $route->vehicle?->name ?? 'N/A' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $route->fee ? '₦'.number_format((float) $route->fee, 2) : 'N/A' }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $route->assignments_count }}</td>
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">

@@ -13,8 +13,8 @@ use Illuminate\View\View;
 /**
  * Everything the public has sent the school, in one place.
  *
- * Two kinds of thing arrive from the website - an enquiry and a report of a
- * pupil's conduct - and they land in the same inbox because that is where an
+ * Two kinds of thing arrive from the website, an enquiry and a report of a
+ * pupil's conduct, and they land in the same inbox because that is where an
  * administrator will look for either. They stay separate underneath: a
  * conduct report carries photographs of a child and is read by a different
  * part of the brain than "what are your fees?".
@@ -53,7 +53,7 @@ class InboxController extends Controller
      * One enquiry, in full.
      *
      * Opening it marks it read, which is what an administrator means by
-     * opening it - the button on the listing stays for marking it back to
+     * opening it, the button on the listing stays for marking it back to
      * unread, or for clearing one without reading it.
      */
     public function showMessage(Request $request, ContactMessage $contactMessage): View
@@ -74,7 +74,7 @@ class InboxController extends Controller
      *
      * A report is NOT marked reviewed by being opened. "Reviewed" here means an
      * administrator decided something, and that is what the form on this page
-     * records - reading is not deciding.
+     * records, reading is not deciding.
      */
     public function showReport(MisconductReport $misconductReport): View
     {

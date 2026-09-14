@@ -13,7 +13,7 @@ use League\Flysystem\Filesystem;
  *
  * WHY. The "public" and "local" disks are directories by default. On Laravel
  * Cloud those directories are not served, differ between instances and are
- * wiped by every deploy - so until object storage buckets are attached, every
+ * wiped by every deploy, so until object storage buckets are attached, every
  * upload is lost and every image on the site is broken. Rather than refuse
  * uploads until somebody configures the dashboard, each such disk is switched
  * to the database, which every instance shares and every deploy keeps.
@@ -83,11 +83,11 @@ final class DatabaseStorageFallback
      *
      * Called by UploadStorage before every write and before every answer to
      * "is this disk persistent". apply() at boot should already have switched
-     * both disks - but a production school admin met "File uploads are not
+     * both disks, but a production school admin met "File uploads are not
      * available yet" on the stamp and the signature, both on the private disk,
      * while the public disk served uploads from the database. Rather than
      * depend on boot order, the check is repeated where the file is written,
-     * and a disk still found wanting is switched then - and reported, so the
+     * and a disk still found wanting is switched then, and reported, so the
      * cause can be found in the logs.
      */
     public static function ensure(): void

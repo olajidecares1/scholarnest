@@ -16,7 +16,7 @@ use Illuminate\View\View;
 /**
  * Memorandums: one message, addressed to whoever the school means.
  *
- * This used to send to students and only students - the audience was implicit
+ * This used to send to students and only students, the audience was implicit
  * in the code rather than chosen by the sender. A school that wanted to tell
  * its teachers something had no way to, and one addressing everybody would
  * have had to write the same memo three times.

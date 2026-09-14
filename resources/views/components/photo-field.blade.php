@@ -16,7 +16,7 @@
 
     The real <input type="file"> is here and hidden. Both the camera and the
     file picker write into it, so what arrives at the server is an ordinary
-    upload either way - same validation, same optimisation, same private disk.
+    upload either way, same validation, same optimisation, same private disk.
     There is no second endpoint and no base64 payload.
 
     The photograph is bound to whichever record this form saves, so it cannot
@@ -133,7 +133,7 @@
         <div class="w-full max-w-sm overflow-hidden rounded-[12px] bg-white shadow-2xl dark:bg-gray-800">
             <div class="relative aspect-square w-full bg-black">
                 {{-- Mirrored, so framing yourself behaves like a mirror. The
-                     capture is mirrored to match - see photo-field.js. --}}
+                     capture is mirrored to match, see photo-field.js. --}}
                 <video
                     x-ref="video"
                     x-show="mode === 'camera'"

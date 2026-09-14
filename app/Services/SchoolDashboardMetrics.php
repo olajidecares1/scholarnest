@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
  * What the School Admin's dashboard actually shows.
  *
  * The dashboard used to be twenty-five cards linking to the same places as the
- * sidebar - a second navigation menu wearing a dashboard's clothes. It told a
+ * sidebar, a second navigation menu wearing a dashboard's clothes. It told a
  * head teacher nothing they could act on: not how many pupils they have, not
  * whether today's registers were taken, not whose results are still unmarked.
  *
@@ -145,7 +145,7 @@ class SchoolDashboardMetrics
 
     /**
      * Things waiting on the School Admin, in the order they should be dealt
-     * with. Only non-zero items are returned - a list of noughts is a list
+     * with. Only non-zero items are returned, a list of noughts is a list
      * nobody reads.
      *
      * @return list<array{label: string, count: int, url: ?string}>

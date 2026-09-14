@@ -1,14 +1,14 @@
 @php
     $brandPrimary = $school->website?->brand_primary_color ?? '#1d4ed8';
     $brandSecondary = $school->website?->brand_secondary_color ?? '#111a35';
-    // The two lines of words a school puts on its documents - the tagline
+    // The two lines of words a school puts on its documents, the tagline
     // under its name, the values along the foot. Set in Settings on every
     // plan; see App\Support\SchoolMotto.
     $schoolMotto = \App\Support\SchoolMotto::for($school);
     $motto = $schoolMotto->tagline;
 
     // The letterhead address. Read from the school's own settings, which every
-    // plan can fill in - it used to come from the website record, so a Basic
+    // plan can fill in, it used to come from the website record, so a Basic
     // school's results carried no address at all.
     $letterhead = \App\Support\SchoolContact::for($school);
 
@@ -20,7 +20,7 @@
     $examMaxLabel = $subjects->first()?->examMaxScore() ?? 60;
     $subjectMaxLabel = $subjects->first()?->max_score ?? 100;
 
-    $overallGrade = $summary['average'] === null ? '—' : \App\Models\GradeBand::resolve($school, $summary['average']);
+    $overallGrade = $summary['average'] === null ? 'N/A' : \App\Models\GradeBand::resolve($school, $summary['average']);
     $overallDescription = $summary['average'] === null ? null : \App\Models\GradeBand::describe($school, $summary['average']);
 
     $position = $summary['position'] ?? null;
@@ -30,7 +30,7 @@
         $position % 10 === 2 => 'nd',
         $position % 10 === 3 => 'rd',
         default => 'th',
-    } : '—';
+    } : 'N/A';
 
     $gradeKey = ($school->gradeBands->isNotEmpty()
         ? $school->gradeBands->sortBy('position')->map(fn ($band) => ['min_percent' => $band->min_percent, 'max_percent' => $band->max_percent, 'letter' => $band->letter, 'description' => $band->description])
@@ -38,13 +38,13 @@
 
     // A best-to-worst color scale (green through red) applied by the grade
     // band's rank rather than its letter, since a school's configured bands
-    // can use any letters/count - this keeps the "green = best" visual
+    // can use any letters/count, this keeps the "green = best" visual
     // language from the reference design working for any grading scale.
     //
     // Each shade is one step darker than the obvious Tailwind 600, because
     // the 600s do not clear 4.5:1 on white at the size a grade letter is
     // printed: green was 3.3:1 and amber 3.19:1. The letter on a report
-    // card is the one character a parent looks for first, and it is 11px -
+    // card is the one character a parent looks for first, and it is 11px,
     // too small to qualify for the large-text allowance. These run 5.02:1
     // to 6.47:1 and keep the same green-through-red order.
     $gradeColors = ['#15803d', '#1d4ed8', '#b45309', '#c2410c', '#b91c1c'];
@@ -65,7 +65,7 @@
     // The reference card's third colour: the tagline, the corner flourish, the
     // footer motto and the highlighted attendance row.
     //
-    // A fixed value, not a school setting - schools currently choose two
+    // A fixed value, not a school setting, schools currently choose two
     // colours, not three, and pretending to read a third from a column that
     // does not exist would look configurable while never changing. If it
     // should become editable it wants a real column, as the ID card's accent
@@ -74,7 +74,7 @@
 
     // The same gold, darkened for text on a WHITE ground.
     //
-    // #c8a34a is 2.39:1 on white - unreadable as small italic type,
+    // #c8a34a is 2.39:1 on white, unreadable as small italic type,
     // and a report card is a document people photocopy. It stays as it
     // is on the navy footer bar (7.19:1 there) and on the rules, which
     // are shapes rather than words. Only the tagline moves, to 5.06:1.
@@ -92,7 +92,7 @@
 
     // The Principal's signature: this school's School Admin's own registered
     // signature, in gold. Resolved once here rather than per-row, and never
-    // from anything in the request - see App\Support\PrincipalSignature.
+    // from anything in the request, see App\Support\PrincipalSignature.
     $principalSignature = \App\Support\PrincipalSignature::for($school);
 
     // One place for the contact lines, so the letterhead is a loop rather than
@@ -108,11 +108,11 @@
 <div class="relative mx-auto w-full max-w-3xl overflow-hidden rounded-[5px] bg-white text-left text-gray-900" style="aspect-ratio: 1 / 1.4142; font-family: 'Inter', sans-serif; border: 2.5px solid {{ $brandSecondary }};">
     {{-- No decorative sweep in the top corner. It sat behind the report
          card's own title block and read as a stray mark crowding it rather
-         than as a flourish - the corner belongs to the title block. --}}
+         than as a flourish, the corner belongs to the title block. --}}
     {{-- The watermark: this school's OWN crest, not an AkademicNest mark.
 
          Large enough to read as a watermark rather than a stray graphic, and
-         faint enough that nothing printed over it becomes harder to read - the
+         faint enough that nothing printed over it becomes harder to read, the
          whole point of a watermark on a result is that it proves provenance
          without competing with the marks.
 
@@ -137,7 +137,7 @@
 
     <div class="relative z-10 flex h-full flex-col overflow-hidden">
         <div class="flex-1 space-y-2.5 overflow-y-auto p-4">
-            {{-- SEGMENT 1 - the letterhead.
+            {{-- SEGMENT 1, the letterhead.
 
                  Crest, then the school's name at the size a letterhead uses,
                  the tagline in the accent colour beneath it, and the contact
@@ -209,7 +209,7 @@
                 </div>
             </div>
 
-            {{-- SEGMENT 2 - who the card is about.
+            {{-- SEGMENT 2, who the card is about.
 
                  Photograph, then the pupil's details on the left and the
                  result's headline figures on the right, in two label/value
@@ -263,7 +263,7 @@
 
                                         {{-- Letter and description sit INSIDE the
                                              one filled block, as the reference has
-                                             them - not a coloured letter with grey
+                                             them, not a coloured letter with grey
                                              text beside it. --}}
                                         <span class="inline-flex min-w-0 items-baseline gap-2 rounded-[3px] px-2.5 py-[3px] text-white" style="background-color: {{ $overallColor }};">
                                             <span class="text-[12px] font-extrabold leading-none">{{ $overallGrade }}</span>
@@ -273,7 +273,7 @@
                                         </span>
                                     @else
                                         <span class="w-[108px] shrink-0 text-[8.5px] font-bold uppercase leading-tight" style="color: {{ $brandSecondary }};">{{ $label }}:</span>
-                                        <span class="min-w-0 truncate text-[9.5px] font-semibold text-gray-900">{{ filled($value) ? $value : '—' }}</span>
+                                        <span class="min-w-0 truncate text-[9.5px] font-semibold text-gray-900">{{ filled($value) ? $value : 'N/A' }}</span>
                                     @endif
                                 </div>
                             @endforeach
@@ -282,15 +282,15 @@
                 </div>
             </div>
 
-            {{-- SEGMENT 3 - the marks.
+            {{-- SEGMENT 3, the marks.
 
                  One row per subject: the test and exam marks the school
                  recorded, their total, the percentage that follows from it,
                  the grade in the grade's own colour and the remark that goes
                  with that band.
 
-                 The column headings carry their own maximum - "Test (40
-                 Marks)" - because a school can set those maxima per paper, and
+                 The column headings carry their own maximum, "Test (40
+                 Marks)", because a school can set those maxima per paper, and
                  a mark of 32 means nothing without knowing 32 out of what. --}}
             <div class="overflow-hidden rounded-[6px]" style="border: 1.5px solid {{ $brandSecondary }};">
                 <div class="py-1.5 text-center text-[11px] font-extrabold uppercase tracking-wide text-white" style="background-color: {{ $brandSecondary }};">Academic Performance</div>
@@ -328,12 +328,12 @@
                             <tr style="background-color: {{ $loop->even ? $rowStriped : $rowPlain }};">
                                 <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $loop->iteration }}</td>
                                 <td class="border border-gray-200 px-2 py-[5px] font-semibold text-gray-900">{{ $subject->name }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->test_score !== null ? rtrim(rtrim($score->test_score, '0'), '.') : '—' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->exam_score !== null ? rtrim(rtrim($score->exam_score, '0'), '.') : '—' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-extrabold text-gray-900">{{ $score ? rtrim(rtrim($score->score, '0'), '.') : '—' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $percentage !== null ? $percentage.'%' : '—' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center text-[11px] font-extrabold" style="color: {{ $rowColor }};">{{ $score ? $score->grade() : '—' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $percentage !== null ? \App\Models\GradeBand::describe($school, $percentage) : '—' }}</td>
+                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->test_score !== null ? rtrim(rtrim($score->test_score, '0'), '.') : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->exam_score !== null ? rtrim(rtrim($score->exam_score, '0'), '.') : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-extrabold text-gray-900">{{ $score ? rtrim(rtrim($score->score, '0'), '.') : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $percentage !== null ? $percentage.'%' : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 py-[5px] text-center text-[11px] font-extrabold" style="color: {{ $rowColor }};">{{ $score ? $score->grade() : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $percentage !== null ? \App\Models\GradeBand::describe($school, $percentage) : 'N/A' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -344,7 +344,7 @@
                             <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ rtrim(rtrim((string) $totalTest, '0'), '.') }}</td>
                             <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ rtrim(rtrim((string) $totalExam, '0'), '.') }}</td>
                             <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ rtrim(rtrim((string) $totalScore, '0'), '.') }}/{{ $totalMax }}</td>
-                            <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ $summary['average'] !== null ? $summary['average'].'%' : '—' }}</td>
+                            <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ $summary['average'] !== null ? $summary['average'].'%' : 'N/A' }}</td>
                             <td class="border border-gray-300 px-1.5 py-1.5 text-center text-[11px]" style="color: {{ $overallColor }};">{{ $overallGrade }}</td>
                             <td class="border border-gray-300 px-1.5 py-1.5"></td>
                         </tr>
@@ -352,7 +352,7 @@
                 </table>
             </div>
 
-            {{-- SEGMENT 4 - three panels reading the same result three ways.
+            {{-- SEGMENT 4, three panels reading the same result three ways.
 
                  The summary is the headline figures gathered in one place; the
                  grade key is the school's OWN bands, not a fixed A-E, so a
@@ -364,11 +364,11 @@
             @php
                 $summaryRows = [
                     ['Total Marks Obtained', rtrim(rtrim((string) $totalScore, '0'), '.').' / '.$totalMax, false],
-                    ['Average Score', $summary['average'] !== null ? $summary['average'].'%' : '—', false],
+                    ['Average Score', $summary['average'] !== null ? $summary['average'].'%' : 'N/A', false],
                     ['Overall Grade', $overallGrade.($overallDescription ? ' ('.strtoupper($overallDescription).')' : ''), false, $overallColor],
                     ['Position in Class', $positionLabel, false],
                     ['Number in Class', (string) $numberInClass, false],
-                    ['Attendance Percentage', $attendance && $attendance['percent'] !== null ? $attendance['percent'].'%' : '—', true],
+                    ['Attendance Percentage', $attendance && $attendance['percent'] !== null ? $attendance['percent'].'%' : 'N/A', true],
                 ];
 
                 $attendanceRows = $attendance ? [
@@ -377,7 +377,7 @@
                     ['Days Absent', (string) $attendance['absent'], false],
                     ['Days Late', (string) $attendance['late'], false],
                     ['Excused Absences', (string) $attendance['excused'], false],
-                    ['Attendance Percentage', $attendance['percent'] !== null ? $attendance['percent'].'%' : '—', true],
+                    ['Attendance Percentage', $attendance['percent'] !== null ? $attendance['percent'].'%' : 'N/A', true],
                 ] : [];
             @endphp
 
@@ -439,7 +439,7 @@
                 @endforeach
             </div>
 
-            {{-- SEGMENT 5 - what the people who taught the child think.
+            {{-- SEGMENT 5, what the people who taught the child think.
 
                  Set in italic and given room to breathe: these are the two
                  lines most parents read first, and the only part of the card
@@ -455,7 +455,7 @@
                         ] as $index => [$label, $remark])
                             <tr style="background-color: {{ $index === 0 ? $rowPlain : $rowStriped }};">
                                 <td class="w-[150px] border border-gray-200 px-2 py-2 align-top text-[8.5px] font-extrabold uppercase" style="color: {{ $brandSecondary }};">{{ $label }}:</td>
-                                <td class="border border-gray-200 px-2.5 py-2 italic leading-snug text-gray-900">{{ $remark ?: '—' }}</td>
+                                <td class="border border-gray-200 px-2.5 py-2 italic leading-snug text-gray-900">{{ $remark ?: 'N/A' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -463,11 +463,11 @@
             </div>
         </div>
 
-        {{-- SEGMENT 6 - the hands that sign it.
+        {{-- SEGMENT 6, the hands that sign it.
 
              Class teacher and principal each over their own rule, the school's
              approval stamp between them, and the parent's line left blank with
-             a date to fill in - the one thing on the card the school does not
+             a date to fill in, the one thing on the card the school does not
              complete itself.
 
              Each signature comes from the person it belongs to: the class
@@ -477,15 +477,15 @@
              unsigned.
 
              THE GEOMETRY IS FIXED, AND THAT IS THE POINT. Every block is the
-             same height and every part inside it - the space the signature
-             occupies, the ruled line, the role, the name, the date - is a
+             same height and every part inside it, the space the signature
+             occupies, the ruled line, the role, the name, the date, is a
              fixed height too. So the Principal's line is in exactly the same
              place on every card this school ever issues: whether they have
              registered a signature or not, whether the name under it is short
              or long, whether the label wraps to one line or two.
 
              It used to be `items-end`, which bottom-aligned four blocks of
-             different heights - a two-line label under one and a one-line
+             different heights, a two-line label under one and a one-line
              label under another put their ruled lines at different heights,
              and the Principal's signature drifted up and down the page
              depending on how long somebody's name was. --}}
@@ -509,7 +509,7 @@
                             @if ($school->hasStamp())
                                 {{-- The school's REAL stamp, on transparency,
                                      so it sits over the card. Embedded rather
-                                     than linked - a stamp is what makes a
+                                     than linked, a stamp is what makes a
                                      document look official, so there is no
                                      address that hands out a clean copy. --}}
                                 <img
@@ -544,14 +544,14 @@
 
                             <div style="border-bottom: 1px solid {{ $brandSecondary }}66;"></div>
 
-                            {{-- Named in full - "Class Teacher's Signature",
-                                 not "Class Teacher" - so each block says what
+                            {{-- Named in full, "Class Teacher's Signature",
+                                 not "Class Teacher", so each block says what
                                  it is rather than who it is. Two lines' worth
                                  of height is reserved at 7px, so a label that
                                  wraps and one that does not still put the name
                                  beneath them on the same line. --}}
                             <p class="mt-1 h-[18px] text-[7px] font-extrabold uppercase leading-[1.25] tracking-wide" style="height: 18px; font-size: 7px; color: {{ $brandSecondary }};">{{ $role }}</p>
-                            <p class="h-[11px] truncate text-[8.5px] font-bold leading-[11px] text-gray-900" style="height: 11px;">{{ $name ?: '—' }}</p>
+                            <p class="h-[11px] truncate text-[8.5px] font-bold leading-[11px] text-gray-900" style="height: 11px;">{{ $name ?: 'N/A' }}</p>
                             <p class="text-[7px] font-semibold leading-tight text-gray-900">Date: {{ $date ?: '________________' }}</p>
                         </div>
                     @endif

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Schema;
  *
  *   Resolution has to match generation. Every request to a subdomain is looked
  *   up by that label, and a WHERE on a value computed in PHP cannot use an
- *   index - so the lookup would either be a full scan or would have to strip
+ *   index, so the lookup would either be a full scan or would have to strip
  *   hyphens from every row to compare.
  *
  *   Removing hyphens creates collisions the slug never had. "Saint Mary" and
@@ -54,7 +54,7 @@ return new class extends Migration
      *
      * Stripping hyphens out of the slug would give the same answer almost
      * always, but not for a school whose slug already carries a collision
-     * suffix - "saint-mary-2" would become "saintmary2", which is a worse
+     * suffix, "saint-mary-2" would become "saintmary2", which is a worse
      * address than the one the name itself produces.
      *
      * Ordered by id so the result is deterministic: when two schools do

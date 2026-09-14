@@ -11,7 +11,7 @@ use Throwable;
  * A PDF is two quite different things wearing one extension. One carries real
  * selectable text and gives it up readily. The other is a photograph of paper
  * with a PDF wrapper, and no amount of parsing will find words in it, because
- * there are none - only pixels.
+ * there are none, only pixels.
  *
  * This tells those two apart rather than reporting the second as an empty
  * document, because "your PDF is a scan and needs OCR" is something a teacher
@@ -35,7 +35,7 @@ class PdfTextExtractor
             $pdf = (new Parser)->parseFile($absolutePath);
             $text = $this->tidy($pdf->getText());
         } catch (Throwable $e) {
-            // A PDF this library cannot open is not necessarily corrupt - some
+            // A PDF this library cannot open is not necessarily corrupt, some
             // encrypted or unusual producers defeat it. Either way the file is
             // kept and the person is told plainly.
             return new ExtractedDocument(

@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notification;
 /**
  * "Your teacher has sent a new class note."
  *
- * Database only, like every other portal notification here - it appears in the
+ * Database only, like every other portal notification here, it appears in the
  * pupil's own notifications list rather than in their inbox at home.
  *
  * The URL is what makes it useful: tapping the notification opens the note
@@ -38,7 +38,7 @@ class NewClassNotePosted extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        $subject = $this->note->subject ? $this->note->subject.' — ' : '';
+        $subject = $this->note->subject ? $this->note->subject.': ' : '';
 
         return [
             'title' => 'New Class Note: '.$this->note->title,

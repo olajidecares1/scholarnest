@@ -10,8 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
  * Result tokens are available on every plan.
  *
  * They used to be gated to Basic, which made them look like a consolation
- * prize for schools with no website. They are not a plan feature - they are
- * how a result reaches a parent safely - so a Standard or Exclusive school
+ * prize for schools with no website. They are not a plan feature, they are
+ * how a result reaches a parent safely, so a Standard or Exclusive school
  * needs them exactly as much.
  *
  * What is still required is an active subscription: a school that has not paid,

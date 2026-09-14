@@ -90,7 +90,7 @@ class PaymentSettingsController extends Controller
          * now, so without the first check saving it would blank the details
          * on its row for no reason. And `$validated[x] ?? null` on a field
          * the form did not send used to write null over a perfectly good
-         * account number - a form that omits one input for any reason would
+         * account number, a form that omits one input for any reason would
          * quietly wipe the account schools are told to pay into.
          */
         if ($method->usesBankAccount()) {

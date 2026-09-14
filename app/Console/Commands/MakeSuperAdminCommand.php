@@ -71,7 +71,7 @@ class MakeSuperAdminCommand extends Command
         ]);
 
         // forceFill, because `email_verified_at` is not fillable and was being
-        // silently dropped from the create() above - every account this
+        // silently dropped from the create() above, every account this
         // command has ever made came out unverified. Nothing depends on it
         // for a Super Admin today, since no super-admin route carries the
         // `verified` middleware, but an account created "verified" that is

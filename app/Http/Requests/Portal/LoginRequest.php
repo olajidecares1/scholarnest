@@ -38,7 +38,7 @@ class LoginRequest extends FormRequest
     /**
      * The school for a Standard/Exclusive request is already known from the
      * domain (resolved by ResolveTenantFromCustomDomain before this request
-     * is even validated) - only a Basic-plan request on the shared default
+     * is even validated), only a Basic-plan request on the shared default
      * host needs the school_code field to disambiguate.
      */
     public function resolvedTenant(): ?School
@@ -61,7 +61,7 @@ class LoginRequest extends FormRequest
 
         if (! $school) {
             // Deliberately the same generic message a wrong password
-            // produces below - a bad school code must not read any
+            // produces below, a bad school code must not read any
             // differently from a bad password to whoever is trying it.
             throw ValidationException::withMessages([
                 'login' => trans('auth.failed'),
@@ -73,7 +73,7 @@ class LoginRequest extends FormRequest
 
     /**
      * Dispatches to the matching, already-tested per-guard LoginRequest's
-     * own authenticate() method - reused completely unmodified via a cloned
+     * own authenticate() method, reused completely unmodified via a cloned
      * request, rather than reimplementing rate-limiting/is_active/school-
      * active checks a second time for the same four guards.
      *

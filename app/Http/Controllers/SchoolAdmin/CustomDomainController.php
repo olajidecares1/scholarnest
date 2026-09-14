@@ -79,7 +79,7 @@ class CustomDomainController extends Controller
 
         return back()->with('status', $verified
             ? "\"{$domain->domain}\" was verified successfully."
-            : "Verification failed for \"{$domain->domain}\" - check the DNS record and try again.");
+            : "Verification failed for \"{$domain->domain}\". Check the DNS record and try again.");
     }
 
     public function update(Request $request, CustomDomain $domain): RedirectResponse

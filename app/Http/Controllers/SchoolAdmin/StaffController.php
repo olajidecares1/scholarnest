@@ -63,7 +63,7 @@ class StaffController extends Controller
         $school = $request->user()->school;
         // Always generated, never typed. The Staff ID is what a teacher
         // signs in with and what the numbering sequence keeps in order, so it
-        // is not the School Admin's to set - and a setting that made it
+        // is not the School Admin's to set, and a setting that made it
         // sometimes theirs would make "cannot be edited" untrue on some
         // schools and true on others.
         $validated = $request->validate($this->rules($school->id, null, autoGenerateStaffId: true));
@@ -75,8 +75,8 @@ class StaffController extends Controller
 
             if ($limit !== null && $activeTeacherCount >= $limit) {
                 return back()->withErrors([
-                    // No plan caps teachers today - Basic stopped doing so when
-                    // teacher accounts were decoupled from the student licence -
+                    // No plan caps teachers today, Basic stopped doing so when
+                    // teacher accounts were decoupled from the student licence,
                     // but the check stays, generic, so reintroducing a cap on any
                     // plan is a data change rather than a code change.
                     'role' => "You have reached the maximum of {$limit} teacher accounts available on your current plan. Please upgrade your subscription to add more teachers.",
@@ -116,7 +116,7 @@ class StaffController extends Controller
         $validated = $request->validate($this->rules($member->school_id, $member->id, autoGenerateStaffId: true));
 
         // The Staff ID is never editable. The form does not offer it, and any
-        // value that arrives anyway is dropped here rather than trusted - a
+        // value that arrives anyway is dropped here rather than trusted, a
         // field the interface refuses to show but the controller would still
         // honour is not read-only.
         unset($validated['staff_number']);
@@ -157,7 +157,7 @@ class StaffController extends Controller
         // STAFF-001 makes STAFF-002 into STAFF-001, and so on down the list.
         //
         // This renames other people's login identifiers, so it is reported
-        // rather than done quietly - anyone whose ID moved can no longer sign
+        // rather than done quietly, anyone whose ID moved can no longer sign
         // in with the one they were given, and has to be told the new one.
         $moves = $this->identifiers->resequenceStaffIds($school);
 
@@ -174,7 +174,7 @@ class StaffController extends Controller
             );
 
             return back()->with('status', sprintf(
-                '%s was removed. %d Staff ID(s) moved up to close the gap — the affected staff will need their new ID.',
+                '%s was removed. %d Staff ID(s) moved up to close the gap. The affected staff will need their new ID.',
                 $name,
                 count($moves),
             ));
@@ -255,7 +255,7 @@ class StaffController extends Controller
      *
      * The School Admin is the authority on both. Users may edit their own
      * contact details, but never their login identifier and never their
-     * password - see the portal profile controllers.
+     * password, see the portal profile controllers.
      */
     public function updateCredentials(Request $request, Staff $member): RedirectResponse
     {

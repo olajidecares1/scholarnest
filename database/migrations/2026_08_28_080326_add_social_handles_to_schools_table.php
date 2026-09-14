@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Where to find a school online.
  *
- * Three of these - Facebook, X and Instagram - already existed, on the website
+ * Three of these, Facebook, X and Instagram, already existed, on the website
  * record, which is a Standard and Exclusive feature. So the schools least
  * likely to have a website of their own were the ones with no way to publish a
  * handle at all, and there was nowhere to put TikTok, WhatsApp, YouTube or

@@ -11,7 +11,7 @@ use App\Models\User;
 /**
  * Every school's public website wears that school's own colour.
  *
- * The machinery for this already existed - one hex on school_websites, a
+ * The machinery for this already existed, one hex on school_websites, a
  * nine-shade scale derived from it by BrandColorScale, and CSS variables
  * written into the page head that Tailwind's primary-* utilities read. What was
  * missing was the places that ignored it: four hard-coded academic stage
@@ -35,7 +35,7 @@ describe('the school chooses one colour and the site follows', function () {
     test('the chosen hex becomes a full scale in the page head', function () {
         $html = brandedPage($this->school);
 
-        // One value in, nine shades out - the school never configures a
+        // One value in, nine shades out, the school never configures a
         // separate hover, border or focus colour.
         expect($html)->toContain('--color-primary-600')
             ->toContain('--color-primary-400')
@@ -108,8 +108,8 @@ describe('nothing on the public site is a fixed theme colour', function () {
 
         $html = brandedPage($this->school);
 
-        // They were #15803d, #b45309, #1d4ed8 and #7e22ce - a green, an amber,
-        // a blue and a purple - so a crimson school still got a blue Junior
+        // They were #15803d, #b45309, #1d4ed8 and #7e22ce, a green, an amber,
+        // a blue and a purple, so a crimson school still got a blue Junior
         // card and a purple Senior one.
         expect($html)->not->toContain('#15803d')
             ->not->toContain('#b45309')
@@ -170,7 +170,7 @@ describe('contrast outranks branding', function () {
 
         // Matched with the closing quote. "edn-on-photo" is a prefix of
         // "edn-on-photo-brand", so the bare string passes whichever class is
-        // actually there - this test went on passing after the headings moved
+        // actually there, this test went on passing after the headings moved
         // to the brand variant, while claiming they had not.
         //
         // The heading is a short bold line and can carry a tint; the body over
@@ -220,7 +220,7 @@ describe('the About section wears the school colour', function () {
         // the only branded thing in the row.
         expect(substr_count($html, 'text-[15px] font-bold text-primary-700'))->toBe(3)
             // The icon has NO colour of its own now: it inherits the heading's,
-            // so the two cannot drift apart - and over a photograph it picks up
+            // so the two cannot drift apart, and over a photograph it picks up
             // the heading's shadow with it.
             ->and(substr_count($html, 'fa-solid fa-bullseye text-[15px]" aria-hidden'))->toBe(1);
     });
@@ -255,7 +255,7 @@ describe('the footer Quick Links follow the school colour', function () {
 
     test('the resting colour stays legible on the near-black footer', function () {
         // A mid-tone brand colour as small type on near-black is the case the
-        // contrast rule exists to prevent - a school on navy would have links
+        // contrast rule exists to prevent, a school on navy would have links
         // it could not read. 300 is the light end of its own scale.
         expect(file_get_contents(base_path('resources/css/app.css')))
             ->toContain('color: rgb(209 213 219)');
@@ -339,7 +339,7 @@ describe('the hero photograph fills the whole section', function () {
 
         $html = brandedPage($this->school);
 
-        // There is no coloured container left for the image to sit inside -
+        // There is no coloured container left for the image to sit inside,
         // the photograph IS the hero, and the words sit on top of it.
         expect($html)->not->toContain('width: 1400px; height: 1400px;')
             ->not->toContain('absolute inset-y-0 left-0 hidden w-[42%] lg:block');
@@ -437,7 +437,7 @@ describe('headings over a photograph still wear the school colour', function () 
     test('the light end of the scale, because a mid-tone would not read', function () {
         // 300, not the 600 or 700 used on a white page. A mid-tone hue on a
         // dark tinted photograph is the case the contrast rule exists to
-        // prevent - which is why these were white to begin with. Lightening
+        // prevent, which is why these were white to begin with. Lightening
         // the same hue keeps identity and legibility together.
         $css = file_get_contents(base_path('resources/css/app.css'));
 
@@ -452,7 +452,7 @@ describe('headings over a photograph still wear the school colour', function () 
             'mission' => 'To teach well.',
         ]);
 
-        // No colour of its own - it takes the heading's colour AND its shadow.
+        // No colour of its own, it takes the heading's colour AND its shadow.
         expect(brandedPage($this->school))->toContain('fa-solid fa-bullseye text-[15px]" aria-hidden');
     });
 

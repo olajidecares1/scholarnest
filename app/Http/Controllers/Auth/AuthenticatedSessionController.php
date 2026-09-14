@@ -14,8 +14,8 @@ class AuthenticatedSessionController extends Controller
     /**
      * There is no shared sign-in page any more.
      *
-     * Every school signs in at its own portal - /schools/{slug}/portal/admin/
-     * {token}/login - which is where logging out and an expired session both
+     * Every school signs in at its own portal, /schools/{slug}/portal/admin/
+     * {token}/login, which is where logging out and an expired session both
      * return them, and the Super Admin signs in through the hidden dialog on
      * the registration page. A generic "AkademicNest login" served neither, and
      * looked enough like the registration page to be mistaken for it.
@@ -57,7 +57,7 @@ class AuthenticatedSessionController extends Controller
 
         // A School Admin who ended up authenticated via this shared,
         // school-agnostic login page still belongs to a specific school and
-        // must be returned to that school's own portal - never to this page,
+        // must be returned to that school's own portal, never to this page,
         // which is registration/first-login territory only. Super Admins
         // have no school to return to, so they alone keep this destination.
         if ($user?->role === UserRole::SchoolAdmin && $user->school) {

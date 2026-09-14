@@ -11,7 +11,7 @@
      * The map is drawn from the ADDRESS, and only from the address.
      *
      * It used to fall back to the school's name when no address was set,
-     * which produces a map of wherever Google decides that name is - a
+     * which produces a map of wherever Google decides that name is, a
      * different town, a similarly named school, or nothing. A map that is
      * confidently wrong about where a school is, on the school's own website,
      * is worse than no map: a parent drives to it.

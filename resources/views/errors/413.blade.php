@@ -1,4 +1,4 @@
-{{-- The request was larger than the server accepts - almost always a photo
+{{-- The request was larger than the server accepts, almost always a photo
      or document straight off a phone.
 
      Laravel rejects it before a session exists, so this cannot be sent back to
@@ -11,7 +11,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>That file is too large - {{ config('app.name', 'AkademicNest') }}</title>
+        <title>That file is too large | {{ config('app.name', 'AkademicNest') }}</title>
         @vite(['resources/css/app.css'])
     </head>
     <body class="flex min-h-dvh items-center justify-center bg-[#F1F5FC] px-4 py-10 font-sans text-[#0F2A5C] antialiased">

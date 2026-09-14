@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Storage;
  * Background images for two cards on the public website.
  *
  * TWO settings, not three. Latest News and Upcoming Events share one card and
- * one background - the image stays put while the content rotates between
- * stories and events - and Academic Excellence is a separate card with its own.
+ * one background, the image stays put while the content rotates between
+ * stories and events, and Academic Excellence is a separate card with its own.
  *
  * The cards themselves are untouched. What changed is what sits behind them.
  */
@@ -45,7 +45,7 @@ describe('News and Events share ONE background', function () {
     });
 
     test('there is no separate setting for events', function () {
-        // The whole point of the rule. One card, one image - a second endpoint
+        // The whole point of the rule. One card, one image, a second endpoint
         // would say they were two cards, and whichever was saved last would
         // appear to overwrite the other.
         expect(fn () => route('website.events-card-background'))->toThrow(Exception::class);
@@ -193,7 +193,7 @@ describe('what it will accept', function () {
     test('and one that would be visibly upscaled across a full-width band', function () {
         // The floor was 600 wide, which passes validation and then gets blown
         // up more than twice on a 1400px section. No amount of care elsewhere
-        // makes an upscaled photograph look sharp - and that is precisely how
+        // makes an upscaled photograph look sharp, and that is precisely how
         // the first background came out.
         $this->actingAs($this->admin)
             ->post(route('website.news-events-card-background'), [
@@ -220,7 +220,7 @@ describe('on the public website', function () {
 
         expect($html)->toContain($website->newsEventsCardImageUrl())
             ->toContain($website->academicsCardImageUrl())
-            // One image for news and events, so it appears once - not once per panel.
+            // One image for news and events, so it appears once, not once per panel.
             ->and(substr_count($html, $website->newsEventsCardImageUrl()))->toBe(1);
     });
 
@@ -230,20 +230,20 @@ describe('on the public website', function () {
         $html = $this->get(route('public.school-website', $this->school))->assertOk()->getContent();
 
         // The card text is near-black and the cards are white, so the wash is
-        // white too - a dark scrim would mean recolouring the type.
+        // white too, a dark scrim would mean recolouring the type.
         //
         // A GRADIENT, not the flat 82% this used to assert. Eighty-two per cent
         // across the whole section left almost nothing of the photograph
         // visible, which is what made the first one look washed out. The wash
         // is strong only at the top, where the section headings sit on the
-        // picture with nothing behind them, and falls away below - where every
+        // picture with nothing behind them, and falls away below, where every
         // card brings its own solid white and the wash was veiling the
         // photograph for no benefit at all.
         expect($html)->toContain('edn-photo-scrim');
     });
 
     test('the tint is BLACK, not a white wash', function () {
-        // The white version - flat, and then as a gradient - is what made the
+        // The white version, flat, and then as a gradient, is what made the
         // photograph look hazy: white over a bright picture flattens its
         // contrast, and a flattened picture reads as blurred whether or not
         // anything is blurring it. A dark tint deepens the picture's own
@@ -276,7 +276,7 @@ describe('on the public website', function () {
     });
 
     test('and carries a shadow, so it reads over a pale photograph too', function () {
-        // A tint is one number and a photograph is not - a school can upload
+        // A tint is one number and a photograph is not, a school can upload
         // something nearly white. The shadow costs nothing and blurs no image.
         expect(file_get_contents(base_path('resources/css/app.css')))
             ->toContain('text-shadow: 0 1px 3px rgb(0 0 0 / 55%)');
@@ -375,7 +375,7 @@ describe('the About section has one too', function () {
 
         expect($html)->toContain('edn-on-photo')
             ->toContain('edn-on-photo-muted')
-            // The hairlines between the pillars lighten too - a gray-200 rule
+            // The hairlines between the pillars lighten too, a gray-200 rule
             // is invisible on a dark photograph, and the three columns would
             // read as one block of text.
             ->toContain('border-white/30');
@@ -404,7 +404,7 @@ describe('the About section has one too', function () {
 
         $this->actingAs($this->admin)->post(route('website.about-card-background'), [
             'background_image' => wideImage(),
-            // Ignored - the school comes from the signed-in user.
+            // Ignored, the school comes from the signed-in user.
             'school_id' => $other->id,
         ]);
 
@@ -417,7 +417,7 @@ describe('the About tab makes its two pictures tellable apart', function () {
     test('the About background field is on the About Us tab', function () {
         // It was there all along and could not be found, because the field
         // directly beneath it is also a picture, also on the About tab, and
-        // was labelled "School photograph" - while actually feeding the
+        // was labelled "School photograph", while actually feeding the
         // CONTACT section.
         $this->actingAs($this->admin)
             ->get(route('website.index'))
@@ -461,7 +461,7 @@ test('the hero slider has a heading somebody can actually find', function () {
 
 test('the portal chrome is plain white, with no tinted glow behind it', function () {
     // Two 384px blurred blue discs used to sit behind every portal page and
-    // read unmistakably as a gradient - while a search for "gradient" found
+    // read unmistakably as a gradient, while a search for "gradient" found
     // nothing, because that is not what they were.
     // Asserted against the RENDERED page, not the source: the source carries
     // a comment explaining what was removed, which mentions the very class

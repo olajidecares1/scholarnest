@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Who redeemed a token, where that is knowable.
  *
  * The usage already recorded WHICH token, for WHICH student, and WHEN. What a
- * School Admin also asks is "who used it" - and on the portals that has an
+ * School Admin also asks is "who used it", and on the portals that has an
  * answer: the signed-in guardian, or the student themselves.
  *
  * Nullable because on the public check-result page there is nobody signed in.

@@ -121,7 +121,7 @@
                     {{-- EVERY FIELD ID IS SCOPED TO ITS METHOD.
 
                          This page renders one form per payment method, and the
-                         fields used to carry bare ids - so two inputs on the
+                         fields used to carry bare ids, so two inputs on the
                          page were both id="account_number", and both
                          <label for="account_number"> pointed at whichever came
                          first. Clicking "Account Number" on the second card

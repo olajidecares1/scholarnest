@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * An enquiry sent from the school's own website.
  *
- * The contact form used to be a GET that went nowhere - it looked like a form
+ * The contact form used to be a GET that went nowhere, it looked like a form
  * and did nothing, which is worse than not having one, because a parent who
  * fills it in believes they have been in touch.
  *

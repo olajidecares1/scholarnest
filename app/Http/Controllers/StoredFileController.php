@@ -9,11 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Serves PUBLIC-disk files kept in the database - school logos, website,
+ * Serves PUBLIC-disk files kept in the database, school logos, website,
  * gallery and news images, CBT question images, media library files.
  *
- * Only the "public" disk, and only while it is the database. Private files -
- * photographs of people, signatures, receipts, documents - are never reachable
+ * Only the "public" disk, and only while it is the database. Private files,
+ * photographs of people, signatures, receipts, documents, are never reachable
  * here; they go through the controllers that check who is asking.
  *
  * Every public upload is stored under a new random name, so an address always
@@ -32,8 +32,8 @@ class StoredFileController extends Controller
 
         abort_if($file === null, 404);
 
-        // Only what the public disk is for. Anything else - however it got
-        // there - is never rendered from this origin.
+        // Only what the public disk is for. Anything else, however it got
+        // there, is never rendered from this origin.
         abort_unless(preg_match('#^(image/(jpeg|png|webp|gif|x-icon|vnd\.microsoft\.icon)|video/(mp4|quicktime|webm))$#', (string) $file->mime_type) === 1, 404);
 
         $headers = [

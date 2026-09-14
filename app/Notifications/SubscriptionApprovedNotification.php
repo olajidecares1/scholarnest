@@ -45,7 +45,7 @@ class SubscriptionApprovedNotification extends Notification
         $school = $subscription->school;
 
         $message = (new MailMessage)
-            ->subject('Welcome to AkademicNest - '.$school->name.' Is Now Active')
+            ->subject('Welcome to AkademicNest: '.$school->name.' Is Now Active')
             ->greeting('Hello '.$notifiable->name.',')
             ->line('Your payment has been reviewed and approved, and your AkademicNest account is now active. Welcome aboard.')
             ->line('**A summary of your subscription**')
@@ -82,7 +82,7 @@ class SubscriptionApprovedNotification extends Notification
         return $message
             ->line('Your reference is '.$subscription->reference.'. Keep it for your records.')
             ->action('Go to Your Dashboard', route('dashboard'))
-            ->salutation('— AkademicNest Team');
+            ->salutation('Regards, AkademicNest Team');
     }
 
     /**

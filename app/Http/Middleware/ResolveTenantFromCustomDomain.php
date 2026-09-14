@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Resolves which School a request on a tenant domain belongs to, then
- * injects it as the route's "school" parameter - letting the exact same
+ * injects it as the route's "school" parameter, letting the exact same
  * PublicSchoolWebsiteController methods (which already expect School $school
  * from the path-based {school:slug} routes) serve domain-based requests too,
  * with no controller duplication. Two kinds of tenant domain are handled
@@ -36,7 +36,7 @@ class ResolveTenantFromCustomDomain
         abort_unless($school, 404);
 
         // Replace the wildcard "tenantDomain" parameter with the resolved School
-        // rather than adding a separate "school" parameter alongside it - leaving
+        // rather than adding a separate "school" parameter alongside it, leaving
         // both in place means the route ends up with two parameters for a
         // controller action that only takes one, and Laravel's ControllerDispatcher
         // passes route parameters positionally, so the raw domain string would be
@@ -49,7 +49,7 @@ class ResolveTenantFromCustomDomain
     private function resolveFromCustomDomain(string $host): ?School
     {
         // Eager-loads the chain hasPlanAccess() needs below so it doesn't run a
-        // second query - this middleware runs on every request to a custom
+        // second query, this middleware runs on every request to a custom
         // domain, so it stays a single indexed lookup either way.
         $domain = CustomDomain::with('school.activeSubscription.plan')
             ->where('domain', $host)
@@ -62,7 +62,7 @@ class ResolveTenantFromCustomDomain
 
         $school = $domain->school;
 
-        // Re-checked at request time, not just when the domain was set up -
+        // Re-checked at request time, not just when the domain was set up,
         // otherwise a school that downgrades from Exclusive, or whose
         // subscription lapses, would keep silently serving its old custom
         // domain forever.

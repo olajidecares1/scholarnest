@@ -90,7 +90,7 @@
         {{-- Typography.
 
              The weights offered are the ones the CHOSEN FAMILY actually
-             publishes, not a fixed 300-800 range - Google returns a stylesheet
+             publishes, not a fixed 300-800 range, Google returns a stylesheet
              without a weight a family does not ship, and the browser then fakes
              it, which looks worse than the weight the school asked for. The
              slider is therefore indexed over that family's real list, and
@@ -112,7 +112,7 @@
                 families: @js($fontFamilies),
 
                 // The real stacks, so the preview shows what the page will
-                // actually render - a system face previewed with the generic
+                // actually render, a system face previewed with the generic
                 // sans fallback would promise Helvetica where the site falls
                 // back to a serif or a display face.
                 stacks: @js(collect(\App\Support\WebsiteTypography::systemFamilies())->map(fn ($f) => $f['stack'])->all()),
@@ -130,7 +130,7 @@
 
                 // The slider moves over POSITIONS in the family's list, not
                 // over the numbers themselves. The published weights are not
-                // evenly spaced - Lato ships 400, 700, 900 - so a numeric
+                // evenly spaced, Lato ships 400, 700, 900, so a numeric
                 // range would let it rest on values that do not exist.
                 get index() {
                     const at = this.weights.indexOf(this.weight);
@@ -169,16 +169,16 @@
                          should be able to see it before choosing. The web
                          fonts are delivered with the page and look the same on
                          every device. The installed ones are only used if the
-                         visitor's own computer has them - Algerian is on
-                         Windows machines with Office and almost nowhere else -
+                         visitor's own computer has them, Algerian is on
+                         Windows machines with Office and almost nowhere else,
                          so they fall back for everyone who does not. --}}
                     <select id="font_family" name="font_family" x-model="family" @change="onFamilyChange()" class="mt-1.5 w-full">
-                        <optgroup label="Web fonts — look the same for every visitor">
+                        <optgroup label="Web fonts (look the same for every visitor)">
                             @foreach (array_keys(config('website_fonts.fonts', [])) as $family)
                                 <option value="{{ $family }}">{{ $family }}</option>
                             @endforeach
                         </optgroup>
-                        <optgroup label="Installed fonts — only for visitors who have them">
+                        <optgroup label="Installed fonts (only for visitors who have them)">
                             @foreach (array_keys(\App\Support\WebsiteTypography::systemFamilies()) as $family)
                                 <option value="{{ $family }}">{{ $family }}</option>
                             @endforeach
@@ -225,7 +225,7 @@
                         :style="`font-family: ${stack}`"
                     >
                         {{-- The heading stays bold whatever the slider says,
-                             because that is what the website does - previewing
+                             because that is what the website does, previewing
                              it at the base weight would promise a page the
                              school will not get. --}}
                         <p class="text-[15px] font-bold text-gray-900 dark:text-white">{{ $school->name }}</p>
@@ -306,18 +306,18 @@
                         <h3 class="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Top Utility Bar</h3>
                         <small class="field-hint">The thin strip above the main menu, on every page of your website. Leave all four blank and the strip is hidden.</small>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <x-text-field name="topbar_announcement" label="Welcome Message" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" :value="$website->topbar_announcement" placeholder="Welcome to {{ $school->name }}" helper="Optional. A short greeting on the left of the strip. Keep it to a few words — it shares one line with everything else." />
+                            <x-text-field name="topbar_announcement" label="Welcome Message" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" :value="$website->topbar_announcement" placeholder="Welcome to {{ $school->name }}" helper="Optional. A short greeting on the left of the strip. Keep it to a few words, as it shares one line with everything else." />
                             <x-text-field name="topbar_badge_text" label="Badge Text" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" :value="$website->topbar_badge_text" placeholder="Admissions Open {{ $school->current_session ?? now()->year }}" helper="Optional. A small highlighted pill for a short announcement, such as an open admissions window." />
                         </div>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <x-text-field name="topbar_link_text" label="Portal Link Text" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" :value="$website->topbar_link_text" placeholder="School Portal" helper="Optional. The wording of the link on the right of the strip — where parents and staff sign in." />
+                            <x-text-field name="topbar_link_text" label="Portal Link Text" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" :value="$website->topbar_link_text" placeholder="School Portal" helper="Optional. The wording of the link on the right of the strip, where parents and staff sign in." />
                             <x-text-field name="topbar_link_url" label="Portal Link URL" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" :value="$website->topbar_link_url" placeholder="{{ route('login') }}" helper="Optional. Where that link goes. Leave blank to use your AkademicNest login page." />
                         </div>
 
                         <div>
                             <label class="field-label" for="hero_image">Fallback Hero Image</label>
                             <input id="hero_image" type="file" name="hero_image" accept=".jpg,.jpeg,.png,.webp" class="mt-1.5 w-full">
-                            <small class="field-hint mt-1">The single large photograph behind the top of your home page, used only when the Hero Slider below is empty. A wide landscape shot of your building, grounds or pupils works best — it is stretched across the full width of the screen, so a small image will look soft. JPEG, PNG or WebP.</small>
+                            <small class="field-hint mt-1">The single large photograph behind the top of your home page, used only when the Hero Slider below is empty. A wide landscape shot of your building, grounds or pupils works best. It is stretched across the full width of the screen, so a small image will look soft. JPEG, PNG or WebP.</small>
                             @if ($website->heroImageUrl())
                                 <img src="{{ $website->heroImageUrl() }}" class="mt-2 h-24 w-full max-w-sm rounded-[8px] object-cover">
                             @endif
@@ -346,7 +346,7 @@
                          Given its own titled panel rather than the small grey
                          label it used to carry. It sat below a long form under
                          a heading the same size as a field hint, and was
-                         reported as missing more than once - the pictures at
+                         reported as missing more than once, the pictures at
                          the top of a school's home page are one of the first
                          things anybody wants to change. --}}
                     <div id="hero-slider" class="scroll-mt-24 overflow-hidden rounded-[10px] border-2 border-blue-100 dark:border-blue-900/40">
@@ -372,7 +372,7 @@
 
                         <div class="mt-4">
                             @if ($heroSlides->isEmpty())
-                                <p class="rounded-[8px] border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">No hero slides yet. Click "Add Slide" to upload the first one — until then the fallback hero image above is used.</p>
+                                <p class="rounded-[8px] border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">No hero slides yet. Click "Add Slide" to upload the first one. Until then the fallback hero image above is used.</p>
                             @else
                                 <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                                     @foreach ($heroSlides as $index => $slide)
@@ -431,7 +431,7 @@
 
             {{-- Our Mission, Our Vision and Our Values.
 
-                 These were already editable, and had been all along - but the
+                 These were already editable, and had been all along, but the
                  form lived inside the CONTACT US tab, which is not anywhere a
                  person looks for the About section. It is here now, under the
                  tab named after the page it edits. --}}
@@ -458,7 +458,7 @@
                         <div>
                             <label class="field-label" for="about_text">About your school</label>
                             <textarea id="about_text" name="about_text" rows="3" class="mt-1.5 w-full" placeholder="A short paragraph about what your school offers and stands for.">{{ old('about_text', $website->about_text) }}</textarea>
-                            <small class="field-hint mt-1">A short introduction shown under the headline on your home page — two or three sentences is plenty. Longer writing belongs on the About Us page tab.</small>
+                            <small class="field-hint mt-1">A short introduction shown under the headline on your home page. Two or three sentences is plenty. Longer writing belongs on the About Us page tab.</small>
                             @error('about_text')<p class="field-error">{{ $message }}</p>@enderror
                         </div>
 
@@ -468,7 +468,7 @@
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             @foreach ([
                                 ['mission', 'Our Mission', 'To provide quality education that empowers students to excel and impact their world positively.', 'What your school sets out to do for its pupils, day to day.'],
-                                ['vision', 'Our Vision', 'To be a leading institution recognised for academic excellence and character development.', 'What your school is working towards becoming — the longer view.'],
+                                ['vision', 'Our Vision', 'To be a leading institution recognised for academic excellence and character development.', 'What your school is working towards becoming: the longer view.'],
                                 ['values', 'Our Values', 'Excellence, Integrity, Discipline, Leadership, Innovation and Respect.', 'The principles your school holds its pupils and staff to. A short list reads best here.'],
                             ] as [$field, $label, $example, $description])
                                 <div>
@@ -576,7 +576,7 @@
                                     <strong>This is not the About background.</strong>
                                     For the picture behind the About section, use <em>About section background</em> at the top of this tab.
                                     This one is shown in the Contact section. A photograph of your pupils or campus works best.
-                                    Leave blank to keep the current one — and if you upload none, the Contact section borrows whichever image your hero is showing. JPEG, PNG or WebP.
+                                    Leave blank to keep the current one. If you upload none, the Contact section borrows whichever image your hero is showing. JPEG, PNG or WebP.
                                 </small>
                                 @error('about_image')<p class="field-error">{{ $message }}</p>@enderror
                             </div>
@@ -607,7 +607,7 @@
                         <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
                             <div class="space-y-6">
                                 @include('school-admin.website._section-canvas', ['sectionKey' => 'intro', 'label' => 'Intro Subtitle', 'height' => '90px', 'description' => 'The line under the page title. One sentence saying what this page covers.'])
-                                @include('school-admin.website._section-canvas', ['sectionKey' => 'body', 'label' => 'About Text', 'height' => '220px', 'description' => 'The main body of your About Us page — your history, your approach, and what a parent should know about the school.'])
+                                @include('school-admin.website._section-canvas', ['sectionKey' => 'body', 'label' => 'About Text', 'height' => '220px', 'description' => 'The main body of your About Us page: your history, your approach, and what a parent should know about the school.'])
                                 @include('school-admin.website._section-canvas', ['sectionKey' => 'slogan', 'label' => 'Slogan Callout', 'height' => '90px', 'description' => 'A short highlighted line at the end, usually your motto. Leave it empty if you would rather not have one.'])
                             </div>
                             <div x-show="! preview">
@@ -643,7 +643,7 @@
                         <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
                             <div class="space-y-6">
                                 @include('school-admin.website._section-canvas', ['sectionKey' => 'intro', 'label' => 'Intro', 'height' => '100px', 'description' => 'A welcome for prospective parents, and when your admissions window opens and closes.'])
-                                @include('school-admin.website._section-canvas', ['sectionKey' => 'steps', 'label' => 'Application Steps (cards)', 'height' => '280px', 'description' => 'What a parent has to do, in order — one card per step. Number them so it is obvious which comes first.'])
+                                @include('school-admin.website._section-canvas', ['sectionKey' => 'steps', 'label' => 'Application Steps (cards)', 'height' => '280px', 'description' => 'What a parent has to do, in order, with one card per step. Number them so it is obvious which comes first.'])
                                 @include('school-admin.website._section-canvas', ['sectionKey' => 'requirements', 'label' => 'Requirements List', 'height' => '260px', 'description' => 'The documents and details a parent must bring or send. Being specific here saves your office a great many phone calls.'])
                             </div>
                             <div x-show="! preview">
@@ -678,7 +678,7 @@
 
                         <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
                             <div class="space-y-6">
-                                @include('school-admin.website._section-canvas', ['sectionKey' => 'cards', 'label' => 'Contact Info Cards', 'height' => '220px', 'description' => 'Cards for things the fields below do not cover — office opening hours, a second campus, or who to ask for. Your email, phone and address are set under Contact Details and appear on their own.'])
+                                @include('school-admin.website._section-canvas', ['sectionKey' => 'cards', 'label' => 'Contact Info Cards', 'height' => '220px', 'description' => 'Cards for things the fields below do not cover, such as office opening hours, a second campus, or who to ask for. Your email, phone and address are set under Contact Details and appear on their own.'])
                             </div>
                             <div x-show="! preview">
                                 @include('school-admin.website._inspector')
@@ -696,9 +696,9 @@
                         @method('PUT')
 
                         <h3 class="text-xs font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300">Contact Details</h3>
-                        <small class="field-hint max-w-2xl">These are used everywhere your details appear — the top bar, the Contact section, the footer and the Contact Us page. Entered once here rather than typed into each. The email and phone become links a parent can tap on a phone, and the address is what the map points at.</small>
+                        <small class="field-hint max-w-2xl">These are used everywhere your details appear: the top bar, the Contact section, the footer and the Contact Us page. Entered once here rather than typed into each. The email and phone become links a parent can tap on a phone, and the address is what the map points at.</small>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                            <x-text-field name="contact_email" label="Contact Email" type="email" icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7" :value="$website->contact_email" helper="Optional. The address enquiries should reach — usually your school office, not a personal account." />
+                            <x-text-field name="contact_email" label="Contact Email" type="email" icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7" :value="$website->contact_email" helper="Optional. The address enquiries should reach, usually your school office, not a personal account." />
                             <x-text-field name="contact_phone" label="Contact Phone" type="tel" icon="M6.5 4.5h2l1.2 4-1.8 1.5a11 11 0 005.1 5.1l1.5-1.8 4 1.2v2a1.5 1.5 0 01-1.6 1.5A15 15 0 015 6.1a1.5 1.5 0 011.5-1.6z" :value="$website->contact_phone" helper="Optional. Shown as a number a visitor can tap to call. Include the country or area code." />
                             <x-text-field name="contact_address" label="Address" icon="M12 21s7-6.1 7-11a7 7 0 10-14 0c0 4.9 7 11 7 11z" :value="$website->contact_address" helper="Optional. Your street address. This is also what the map on the Contact section searches for, so write it as you would for a delivery." />
                         </div>
@@ -738,7 +738,7 @@
                         <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
                             <div class="space-y-6">
                                 @include('school-admin.website._section-canvas', ['sectionKey' => 'description', 'label' => 'School Description', 'height' => '80px', 'description' => 'A sentence or two about the school, in the first footer column beneath your logo.'])
-                                @include('school-admin.website._section-canvas', ['sectionKey' => 'contact', 'label' => 'Contact Lines', 'height' => '100px', 'description' => 'Extra lines for the footer contact column — a postal address or office hours. Your main email, phone and address are already shown from the Contact tab.'])
+                                @include('school-admin.website._section-canvas', ['sectionKey' => 'contact', 'label' => 'Contact Lines', 'height' => '100px', 'description' => 'Extra lines for the footer contact column, such as a postal address or office hours. Your main email, phone and address are already shown from the Contact tab.'])
                                 @include('school-admin.website._section-canvas', ['sectionKey' => 'cta', 'label' => 'Call-to-Action Banner', 'height' => '100px', 'description' => 'The wide band just above the footer, inviting a visitor to apply or get in touch. Add a button block to give them somewhere to go.'])
                             </div>
                             <div x-show="! preview">
@@ -774,7 +774,7 @@
 
                 <div class="mt-4">
                     @if ($navLinks->isEmpty())
-                        <p class="rounded-[8px] border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">No custom links yet — the default menu (Home, About, Academics, Admissions, News, Events, Gallery, Contact) is being used.</p>
+                        <p class="rounded-[8px] border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">No custom links yet. The default menu (Home, About, Academics, Admissions, News, Events, Gallery, Contact) is being used.</p>
                     @else
                         <div class="divide-y divide-gray-100 rounded-[8px] border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
                             @foreach ($navLinks as $index => $navLink)
@@ -833,7 +833,7 @@
                         @csrf
                         <template x-if="navLinkEditing"><input type="hidden" name="_method" value="PUT"></template>
 
-                        <x-text-field name="label" label="Label" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" x-model="navLinkEditing ? navLinkEditing.label : ''" placeholder="e.g. Alumni" required helper="The wording shown in the menu. One or two words — the menu has to fit on a phone." />
+                        <x-text-field name="label" label="Label" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" x-model="navLinkEditing ? navLinkEditing.label : ''" placeholder="e.g. Alumni" required helper="The wording shown in the menu. One or two words, because the menu has to fit on a phone." />
                         <x-text-field name="url" label="URL" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" x-model="navLinkEditing ? navLinkEditing.url : ''" placeholder="e.g. /schools/your-school/gallery or #contact" required helper="Where the link goes. Start with # to scroll to a section of your home page (#about, #contact), or paste a full web address to send visitors elsewhere." />
 
                         <div class="flex justify-end gap-2">

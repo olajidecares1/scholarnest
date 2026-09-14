@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
  * A school deleted from the Super Admin panel and then registered again with
  * the same address was refused: "the school email address has already been
  * taken". The school row was gone, but the account that held the email was
- * not - and an email nobody can sign in with, attached to a school that no
+ * not, and an email nobody can sign in with, attached to a school that no
  * longer exists, is not a record worth keeping. It is a lock on an empty room.
  */
 function deletionSuperAdmin(): User
@@ -69,7 +69,7 @@ test('the registration is refused while the school still exists', function () {
     registerSchoolForDeletion('school@example.com');
     auth()->logout();
 
-    // The constraint is not being loosened - a live school still owns its
+    // The constraint is not being loosened, a live school still owns its
     // address, and this is the assertion that would catch it if the fix had
     // been to weaken the rule instead of to complete the deletion.
     registerSchoolForDeletion('school@example.com', 'An Impostor');
@@ -82,7 +82,7 @@ test('deleting a school releases every account that belonged to it', function ()
     registerSchoolForDeletion('admin@example.com');
     $school = School::where('name', 'Greenfield College')->firstOrFail();
 
-    // A second admin, a teacher, a student and a guardian - every kind of
+    // A second admin, a teacher, a student and a guardian, every kind of
     // account that holds an address of its own.
     User::factory()->create(['school_id' => $school->id, 'role' => UserRole::SchoolAdmin, 'email' => 'second@example.com']);
     Staff::factory()->create(['school_id' => $school->id, 'role' => StaffRole::Teacher, 'email' => 'teacher@example.com']);
@@ -128,7 +128,7 @@ test('a school removed by any route takes its accounts with it', function () {
     // A query-builder delete, which fires no model events and runs none of the
     // controller's tidying. This is the case that was broken: the constraint
     // was ON DELETE SET NULL, so the school vanished and its admin was cut
-    // loose - still holding the address, unable to sign in, and blocking the
+    // loose, still holding the address, unable to sign in, and blocking the
     // school from ever registering again. The rule belongs on the constraint,
     // where no code path can forget it.
     School::where('id', $school->id)->delete();
@@ -163,7 +163,7 @@ test('the sign-in residue of a deleted school goes with it', function () {
 
     // Neither of these has a foreign key, so no cascade reaches them: a
     // session row would keep a deleted account signed in, and a reset token
-    // would be a live way back into an account that is gone - handed to
+    // would be a live way back into an account that is gone, handed to
     // whoever registers that address next.
     DB::table('sessions')->insert([
         'id' => 'test-session-id',

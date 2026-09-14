@@ -43,7 +43,7 @@ test('the policy still permits what the application actually does', function () 
     // Alpine evaluates its own attribute expressions, every layout has an
     // inline script that applies dark mode before first paint, brand colours
     // are inline styles, and barcodes and QR codes are data: URIs. A policy
-    // that forbade any of these would break the application - and a broken
+    // that forbade any of these would break the application, and a broken
     // policy gets deleted rather than fixed.
     expect($csp)->toContain("'unsafe-eval'")
         ->and($csp)->toContain("'unsafe-inline'")
@@ -147,7 +147,7 @@ test('plain http is not forced to https outside production', function () {
     // and redirecting there sends every developer to a dead port.
     //
     // Asserted on the destination rather than the status, because "/" has its
-    // own redirect for reasons of its own - what matters is that nothing was
+    // own redirect for reasons of its own, what matters is that nothing was
     // sent to an https URL.
     $location = $this->get('/')->headers->get('Location');
 

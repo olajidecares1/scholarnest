@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notification;
 /**
  * A school has registered, and the AkademicNest Team should know once.
  *
- * Sent through TeamNotifier, which claims the event before anything goes out -
+ * Sent through TeamNotifier, which claims the event before anything goes out,
  * see that class for why a second registration notification cannot exist for
  * the same school.
  */
@@ -44,7 +44,7 @@ class SchoolRegisteredNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('New School Registration - '.$this->school->name)
+            ->subject('New School Registration: '.$this->school->name)
             ->greeting('Hello '.$notifiable->name.',')
             ->line($this->school->name.' has registered on AkademicNest and is awaiting a subscription.')
             ->line('School code: '.$this->school->school_code)
@@ -78,7 +78,7 @@ class SchoolRegisteredNotification extends Notification
 
             // Where the registration stands. A school exists before it has a
             // subscription, and that gap is the whole reason the team is being
-            // told - somebody has to decide what happens next.
+            // told, somebody has to decide what happens next.
             'status' => 'Awaiting subscription',
         ];
     }

@@ -15,7 +15,7 @@ namespace App\Support;
  *
  * It matches WHOLE WORDS inside the name, not the whole name and not bare
  * substrings. Schools write "Main Library" and "The Junior Library Block", so
- * comparing the whole name is no good; but a substring search is worse - "art"
+ * comparing the whole name is no good; but a substring search is worse, "art"
  * sits inside "Staff Quarters" and "bus" inside "Business", and both drew the
  * wrong icon with a straight face. Even anchoring to the start of a word is not
  * enough, because "bus" is how "Business" begins. A keyword ending in * is the
@@ -25,7 +25,7 @@ namespace App\Support;
  * Laboratory" holds both "computer" and "laborator" and would otherwise get a
  * flask.
  *
- * And the vaguest words - hall, block, office - are held back to a SECOND PASS.
+ * And the vaguest words, hall, block, office, are held back to a SECOND PASS.
  * A facility called "Block C" in the category "Laboratory" should draw a flask,
  * not a building, and it only can if the specific words get first refusal over
  * both the name and the category before "block" is allowed to answer.
@@ -42,7 +42,7 @@ final class FacilityIcon
      * @var array<string, string>
      */
     private const RULES = [
-        // Computing, ahead of the laboratories - a Computer Laboratory is a
+        // Computing, ahead of the laboratories, a Computer Laboratory is a
         // computer room, not a science one.
         'computer' => 'fa-desktop',
         'ict' => 'fa-desktop',
@@ -201,7 +201,7 @@ final class FacilityIcon
      * give or take a plural.
      *
      * The distinction is the whole game. Anchoring only to the start of a word
-     * is not enough - "bus" starts "Business" and "lab" starts "Labour", so a
+     * is not enough, "bus" starts "Business" and "lab" starts "Labour", so a
      * prefix rule drew a school bus for the Business Centre. Requiring the
      * whole word leaves both alone while still matching Bus, Buses and Labs.
      */

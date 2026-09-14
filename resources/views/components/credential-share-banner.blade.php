@@ -1,7 +1,7 @@
 {{-- "Share via WhatsApp", offered at the one moment it can be.
 
-     The password exists in readable form for exactly one page view - it was
-     typed, hashed, and forgotten - so this banner appears on the response to
+     The password exists in readable form for exactly one page view, it was
+     typed, hashed, and forgotten, so this banner appears on the response to
      saving credentials and never again. There is no way to bring it back
      later, because there is nothing left to bring back: if the password is
      lost, a new one is set.

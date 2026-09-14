@@ -38,7 +38,7 @@ return [
     | EMPTY ON PURPOSE. The default is ['web'], which makes Sanctum try the
     | browser session BEFORE the bearer token. This application's API is
     | token-only and carries no CSRF protection, so a cookie authenticating a
-    | request there would be a session-riding surface - and the session guard's
+    | request there would be a session-riding surface, and the session guard's
     | user is a School Admin, which none of the API's endpoints are written
     | for. Today the api middleware group has no StartSession, so that path
     | resolves to null anyway; this makes it true by configuration rather than

@@ -25,14 +25,14 @@
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($summaries as $summary)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <td class="px-6 py-3 font-bold text-gray-900 dark:text-white">{{ $summary['position'] ?? '—' }}</td>
+                                <td class="px-6 py-3 font-bold text-gray-900 dark:text-white">{{ $summary['position'] ?? 'N/A' }}</td>
                                 <td class="px-6 py-3">
                                     <a href="{{ route('examinations.report-cards.show', [$examination, $summary['student']]) }}" class="font-semibold text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
                                         {{ $summary['student']->fullName() }}
                                     </a>
                                 </td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['subjectsGraded'] }} / {{ $subjectCount }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['average'] !== null ? $summary['average'].'%' : '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['average'] !== null ? $summary['average'].'%' : 'N/A' }}</td>
                                 <td class="px-6 py-3">
                                     <a href="{{ route('examinations.report-cards.show', [$examination, $summary['student']]) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">View Report Card</a>
                                 </td>

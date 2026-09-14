@@ -52,8 +52,8 @@ function storedSignature(string $path, string $hex = '#111827'): string
 
     // The path is written into the image, so two signatures are never the
     // same picture. This helper used to draw an identical line every time,
-    // which did not matter while a document carried a URL - the path told two
-    // signatures apart - and matters entirely now that the document carries
+    // which did not matter while a document carried a URL, the path told two
+    // signatures apart, and matters entirely now that the document carries
     // the image itself. Byte-identical marks would let "one school never
     // resolves another's" pass however the resolver behaved. Written rather
     // than hashed into an offset because two paths must never collide.
@@ -217,7 +217,7 @@ describe('where it prints', function () {
      * follow that rather than papering over it.
      *
      * On screen the image is embedded, so what proves the right signature
-     * arrived is its bytes - there is no longer a filename anywhere in the
+     * arrived is its bytes, there is no longer a filename anywhere in the
      * page to look for. In print dompdf is pointed at a local file, because
      * it cannot fetch an address and a base64 copy would bloat every card, so
      * the filename is exactly what appears.
@@ -273,7 +273,7 @@ describe('where it prints', function () {
 
 test('the settings page offers the Principal signature pad, not an upload', function () {
     // The signature is registered against the account, never uploaded as a
-    // school-level file - one authoritative source per school.
+    // school-level file, one authoritative source per school.
     $this->actingAs($this->admin)
         ->get(route('settings.index'))
         ->assertOk()

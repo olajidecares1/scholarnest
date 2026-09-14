@@ -46,7 +46,7 @@
         @endif
 
         {{-- Academic Excellence is its own card on the public website, so it
-             has its own background - separate from the one News and Events
+             has its own background, separate from the one News and Events
              share. --}}
         <x-card-background-field
             :action="route('website.academics-card-background')"
@@ -116,19 +116,19 @@
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Grading</h2>
             <p class="field-hint mt-1">
                 Configure the percentage ranges, letters, and descriptions used to grade every score in this school.
-                Leave it empty to use the default A–E scale; add even one grade and this school is graded on your scale alone.
+                Leave it empty to use the default A to E scale; add even one grade and this school is graded on your scale alone.
             </p>
 
             @if ($gradeCoverageGaps !== [])
                 {{-- Once a school has its own scale, nothing falls back to the
-                     built-in one - so an uncovered range would print a dash on a
+                     built-in one, so an uncovered range would print a dash on a
                      report card instead of a grade. Said here, where it can be
                      fixed, rather than there. --}}
                 <div class="mt-4 flex items-start gap-2.5 rounded-[8px] border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
                     <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0 text-amber-600 dark:text-amber-400"></i>
                     <p class="text-xs leading-[1.6] text-amber-900 dark:text-amber-300">
                         Your scale does not cover
-                        @foreach ($gradeCoverageGaps as $gap)<strong>{{ $gap['from'] }}–{{ $gap['to'] }}%</strong>@if (! $loop->last), @endif @endforeach.
+                        @foreach ($gradeCoverageGaps as $gap)<strong>{{ $gap['from'] }} to {{ $gap['to'] }}%</strong>@if (! $loop->last), @endif @endforeach.
                         A score in that range will show no grade. Add a band covering it.
                     </p>
                 </div>
@@ -159,7 +159,7 @@
                                         <td class="px-3 py-2 font-semibold text-gray-900 dark:text-white">{{ $band->letter }}</td>
                                     </template>
                                     <template x-if="!editing">
-                                        <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ $band->description ?: '—' }}</td>
+                                        <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ $band->description ?: 'N/A' }}</td>
                                     </template>
                                     <template x-if="!editing">
                                         <td class="px-3 py-2 text-right">

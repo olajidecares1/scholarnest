@@ -19,13 +19,13 @@ use Throwable;
 /**
  * Turn an uploaded past-paper document into catalogue questions.
  *
- * Extraction is local - PHPWord for .docx, smalot/pdfparser for .pdf, and a PHP
+ * Extraction is local, PHPWord for .docx, smalot/pdfparser for .pdf, and a PHP
  * parser for the questions. Nothing reaches the network.
  *
  * The one thing a local parser cannot do as well as a person is decide which
  * examination body and subject a document belongs to. It does not guess: when
  * the uploader did not say and the document does not make it obvious, the
- * upload stops at NeedsMapping and asks - which is the state that already
+ * upload stops at NeedsMapping and asks, which is the state that already
  * existed for exactly this case.
  */
 class ProcessCbtDocumentUpload implements ShouldQueue
@@ -37,7 +37,7 @@ class ProcessCbtDocumentUpload implements ShouldQueue
     public int $tries = 3;
 
     /**
-     * An upload deleted before its job ran is not a failure - see the same
+     * An upload deleted before its job ran is not a failure, see the same
      * note on ProcessCbtTestDocumentUpload. The job looks the record up again
      * when it runs, so one that has since been removed would otherwise raise a
      * failed job over somebody changing their mind.
@@ -97,7 +97,7 @@ class ProcessCbtDocumentUpload implements ShouldQueue
 
             $this->fail(
                 'Document extraction failed. Please check the document format and try again. '
-                .'The file is stored safely — it does not need to be uploaded again.'
+                .'The file is stored safely, so it does not need to be uploaded again.'
             );
         } finally {
             // A worker does not end between jobs, so the temporary local copy
@@ -111,7 +111,7 @@ class ProcessCbtDocumentUpload implements ShouldQueue
      *
      * A compilation prints a year heading above each paper, and the parser
      * records which one each question fell under. Where a document names no
-     * year at all - an ordinary single paper - everything goes into one group
+     * year at all, an ordinary single paper, everything goes into one group
      * under the upload's own year, and the reviewer can correct it.
      *
      * @return array{exam_body: string, subject: string, years: list<array{year: int, questions: list<array<string, mixed>>, instructions: ?string}>}

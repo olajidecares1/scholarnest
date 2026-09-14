@@ -24,7 +24,7 @@ use Illuminate\View\View;
  * Redeeming a result token.
  *
  * Deliberately independent of the front-facing school website, because it must
- * work identically on all three plans - Basic schools have no website and no
+ * work identically on all three plans, Basic schools have no website and no
  * portal at all, and a result token is not a plan feature.
  *
  * Nothing on this path takes a student, a result, a term or a session from the
@@ -56,7 +56,7 @@ class CheckResultController extends Controller
      * Step one: name the pupil from their School ID / Admission Number.
      *
      * Answering this confirms that a given admission number belongs to a named
-     * child - before any token has been shown - so it is rate limited on
+     * child, before any token has been shown, so it is rate limited on
      * successes as well as failures. See {@see IdentifyStudentRequest}.
      */
     public function identify(IdentifyStudentRequest $request, School $school): RedirectResponse
@@ -155,7 +155,7 @@ class CheckResultController extends Controller
 
             // One message for every kind of failure. Saying which check failed
             // would let someone learn that a token is real but revoked, or that
-            // a student exists but has no published result - each of which is a
+            // a student exists but has no published result, each of which is a
             // fact worth keeping to ourselves.
             throw ValidationException::withMessages([
                 'code' => ResultTokenVerifier::GENERIC_FAILURE_MESSAGE,
@@ -189,12 +189,12 @@ class CheckResultController extends Controller
 
         // The school comes from the address; the token's school comes from the
         // token. They must be the same school, and this is the check that says
-        // so - editing the address to another school's link cannot reach this
+        // so, editing the address to another school's link cannot reach this
         // result, because the usage behind it still belongs where it did.
         abort_unless($usage->pin?->school_id === $school->id, 404);
 
         // The token that authorised this view may have been revoked or
-        // suspended since - by the school, or by the Super Admin looking into
+        // suspended since, by the school, or by the Super Admin looking into
         // something. Re-checking here means the result page closes with it,
         // rather than staying open to whoever still holds the link.
         $token = $usage->pin;
@@ -204,7 +204,7 @@ class CheckResultController extends Controller
             404,
         );
 
-        // The same shared engine every other portal renders from - School
+        // The same shared engine every other portal renders from, School
         // Admin, Teacher, Student and Guardian all call ReportCardData::for().
         //
         // This page used to hand-roll its own subject list and average, which
@@ -233,7 +233,7 @@ class CheckResultController extends Controller
         }
 
         // Published, or not yet. A valid token for a result the school has not
-        // released is not an error and must not read like one - the family did
+        // released is not an error and must not read like one, the family did
         // nothing wrong, and the token is not spent by being told to wait.
         if ($this->publishedCardIsMissing($school, $usage)) {
             return view('check-result.pending', [
@@ -252,8 +252,8 @@ class CheckResultController extends Controller
     /**
      * The report card this token opens.
      *
-     * On a Basic school it comes out of the Result Repository - the card the
-     * school pushed and approved - and nowhere else. A result the school has
+     * On a Basic school it comes out of the Result Repository, the card the
+     * school pushed and approved, and nowhere else. A result the school has
      * not published yet is not shown half-finished; the page says it is not
      * ready, which is the truth and is something a parent can act on.
      *
@@ -282,7 +282,7 @@ class CheckResultController extends Controller
      * Whether there is a published card to hand over at all.
      *
      * Separated from cardFor() so the page that explains the wait can be shown
-     * instead of a 404 - a parent holding a valid token has done nothing wrong
+     * instead of a 404, a parent holding a valid token has done nothing wrong
      * and should be told the school has not released this result yet.
      */
     private function publishedCardIsMissing(School $school, ResultCheckingPinUsage $usage): bool
@@ -297,7 +297,7 @@ class CheckResultController extends Controller
      * Guarded exactly as the result page is, and for the same reason: this is a
      * second address that hands over a child's marks, so it re-runs every check
      * rather than assuming whoever reached it came through the page. The fee
-     * hold applies here too - a result that cannot be read cannot be saved
+     * hold applies here too, a result that cannot be read cannot be saved
      * either.
      */
     public function download(Request $request, School $school, ResultCheckingPinUsage $usage): Response
@@ -308,7 +308,7 @@ class CheckResultController extends Controller
         abort_if($this->access->isLocked($usage->student, $usage->examination), 404);
 
         // Nothing to save until the school has published it. A 404 here rather
-        // than the pending page, because this address returns a file - there
+        // than the pending page, because this address returns a file, there
         // is no page to explain anything on.
         abort_if($this->publishedCardIsMissing($school, $usage), 404);
 
@@ -324,7 +324,7 @@ class CheckResultController extends Controller
      * The checks that stand between a usage uuid and a child's marks.
      *
      * The school on the address and the school on the token must agree, and the
-     * token must still be one that grants access - it may have been revoked or
+     * token must still be one that grants access, it may have been revoked or
      * suspended since it was redeemed.
      */
     private function assertUsageIsStillGood(School $school, ResultCheckingPinUsage $usage): void
@@ -357,8 +357,8 @@ class CheckResultController extends Controller
     /**
      * The sibling route in whichever group this request arrived through.
      *
-     * One controller serves two addresses - a school's own
-     * /greenfield-college/result and the older /schools/{slug}/check-result -
+     * One controller serves two addresses, a school's own
+     * /greenfield-college/result and the older /schools/{slug}/check-result,
      * and a redirect has to stay inside the one the visitor is actually using.
      */
     private function routeName(string $action, School $school): string

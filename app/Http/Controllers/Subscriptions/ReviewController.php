@@ -86,7 +86,7 @@ class ReviewController extends Controller
                 'receipt_original_name' => $data['receipt_original_name'],
 
                 // What screening could read off the receipt, for whoever
-                // reviews it. Notes, not a verdict - the wording deliberately
+                // reviews it. Notes, not a verdict, the wording deliberately
                 // ends "not verified".
                 'notes' => $data['receipt_screening_notes'] ?? null,
             ]);
@@ -98,7 +98,7 @@ class ReviewController extends Controller
 
         // The invoice is raised the moment the subscription is submitted, not
         // when it is approved. A school that has just paid needs the document
-        // now - for its own books, and to have something to quote if the
+        // now, for its own books, and to have something to quote if the
         // approval takes a day. The invoice says plainly that it is awaiting
         // approval; it is not a receipt.
         //
@@ -112,7 +112,7 @@ class ReviewController extends Controller
         AuditLog::record('subscription.submitted', "Submitted a {$subscription->plan->name} subscription for review.", $subscription);
         AuditLog::record('invoice.issued', "Issued invoice {$invoice->number} to {$school->name}.", $invoice);
 
-        // One submission, one notification - claimed against the subscription
+        // One submission, one notification, claimed against the subscription
         // so a retried or replayed request announces nothing twice. See
         // App\Services\TeamNotifier.
         $this->team->once(

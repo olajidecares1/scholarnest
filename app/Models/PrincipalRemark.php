@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * One reusable sentence in a school's Principal remark library.
  *
- * Saving the same sentence twice is a no-op rather than a duplicate - see
+ * Saving the same sentence twice is a no-op rather than a duplicate, see
  * saveFor(), and the unique index behind it.
  */
 class PrincipalRemark extends Model

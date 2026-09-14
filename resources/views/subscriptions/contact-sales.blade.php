@@ -29,7 +29,7 @@
             <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a
                     {{-- The confirmed mailbox, with the subject kept so these
-                         can still be filtered. This read "sales@" - an address
+                         can still be filtered. This read "sales@", an address
                          nobody has said exists, on the page selling the most
                          expensive plan. Change it back once that mailbox does. --}}
                     href="mailto:{{ \App\Models\Setting::supportEmail() }}?subject=Exclusive%20Plan%20Enquiry"

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * school's website configuration on the row that already holds the rest.
  *
  * NOT the same thing as about_image_path, which is the photograph INSIDE the
- * section - the one in the frame beside the prose. This is the picture behind
+ * section, the one in the frame beside the prose. This is the picture behind
  * the whole band. A school can set either, both or neither.
  */
 return new class extends Migration

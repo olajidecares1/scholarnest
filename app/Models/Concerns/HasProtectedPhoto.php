@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\URL;
 /**
  * A photograph of a person, kept out of public storage.
  *
- * Four models carry one - Student, Staff, Guardian and User - and they used to
+ * Four models carry one, Student, Staff, Guardian and User, and they used to
  * do it four times over, each writing the same two methods against the public
  * disk. Sharing it here is not only tidier: it means the disk is named ONCE, so
  * a fifth model added later cannot quietly put a person's photograph back on
@@ -60,13 +60,13 @@ trait HasProtectedPhoto
     /**
      * Absolute local path, for dompdf views only.
      *
-     * dompdf has `enable_remote` off, so it can never follow photoUrl() - it
+     * dompdf has `enable_remote` off, so it can never follow photoUrl(), it
      * reads local files within its chroot instead. That is why moving these off
      * the public disk did not break a single PDF: nothing in a PDF ever fetched
      * the URL.
      *
      * A real file whichever disk holds the photograph: on object storage a
-     * temporary local copy - see UploadStorage::localPath(). This used to be
+     * temporary local copy, see UploadStorage::localPath(). This used to be
      * $disk->path(), which names a file that does not exist once photographs
      * live in a bucket, and every report card and ID card lost its photo.
      */
@@ -85,7 +85,7 @@ trait HasProtectedPhoto
 
     /**
      * The directory these are written to, and the URL segment they are served
-     * under - the same word, so a path and a link cannot drift apart.
+     * under, the same word, so a path and a link cannot drift apart.
      */
     public function photoSubject(): string
     {

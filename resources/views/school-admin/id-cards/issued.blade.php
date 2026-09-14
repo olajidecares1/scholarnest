@@ -50,7 +50,7 @@
                             @php $holder = $card->holder(); @endphp
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3 font-mono font-semibold text-gray-900 dark:text-white">{{ $card->card_number }}</td>
-                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $holder?->fullName() ?? '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $holder?->fullName() ?? 'N/A' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $card->holder_type->label() }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $card->issued_at->format('M j, Y') }}</td>
                                 <td class="px-5 py-3">

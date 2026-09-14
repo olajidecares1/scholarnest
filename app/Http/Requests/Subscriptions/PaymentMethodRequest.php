@@ -26,7 +26,7 @@ class PaymentMethodRequest extends FormRequest
         return [
             // The list comes from what the AkademicNest Team has enabled, not from
             // a hard-coded "in:bank_transfer". A method turned off must be
-            // refused HERE - the brief is explicit that hiding the radio while
+            // refused HERE, the brief is explicit that hiding the radio while
             // leaving the endpoint open is not the same thing, and it is not:
             // the form is a suggestion and this is the rule.
             'payment_method' => ['required', 'string', Rule::in($available->keys())],

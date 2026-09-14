@@ -119,7 +119,7 @@ class WebsiteController extends Controller
      *
      * The family is validated against the curated list rather than merely
      * being a string, because this value ends up inside a CSS declaration on
-     * every visitor's page - an unchecked one would be a way to point the site
+     * every visitor's page, an unchecked one would be a way to point the site
      * at an arbitrary font host.
      *
      * The weight is checked against what THAT family publishes, not against a
@@ -198,7 +198,7 @@ class WebsiteController extends Controller
             'about_image' => UploadedImage::rules(ImageProfile::Website),
 
             // The Principal's Desk and the Quote of the Week. The columns were
-            // here all along - the section that showed them was removed and
+            // here all along, the section that showed them was removed and
             // the fields went with it, leaving data a school could not reach.
             'principal_name' => ['nullable', 'string', 'max:150'],
             'principal_title' => ['nullable', 'string', 'max:120'],
@@ -421,7 +421,7 @@ class WebsiteController extends Controller
      * The background behind the Latest News AND Upcoming Events card.
      *
      * ONE setting for both. They are one card as far as a school is concerned,
-     * and a control on each page would say they were two - so the Events page
+     * and a control on each page would say they were two, so the Events page
      * points at this one rather than repeating it.
      */
     public function updateNewsEventsCardBackground(Request $request): RedirectResponse
@@ -470,7 +470,7 @@ class WebsiteController extends Controller
      * should decide which card they are setting.
      *
      * The school comes from the signed-in user, so an image can only ever be
-     * attached to the uploader's own school - there is no school id in the
+     * attached to the uploader's own school, there is no school id in the
      * form to tamper with.
      */
     private function updateCardBackground(Request $request, string $column, string $savedMessage, string $removedMessage): RedirectResponse
@@ -487,12 +487,12 @@ class WebsiteController extends Controller
             // These sit behind a full-width band, so the browser stretches
             // whatever it is given across the whole page. A 600px image on a
             // 1400px section is being blown up more than twice, and no amount
-            // of care elsewhere makes an upscaled photograph look sharp - it
+            // of care elsewhere makes an upscaled photograph look sharp, it
             // just looks soft, which is exactly how the first one did.
             'background_image' => [...UploadedImage::rules(ImageProfile::Website), 'dimensions:min_width=1200,min_height=500'],
             'remove' => ['nullable', 'boolean'],
         ], [
-            'background_image.dimensions' => 'That image is too small to stay sharp across the full width of the page. Please choose one at least 1200 by 500 pixels — wider is better.',
+            'background_image.dimensions' => 'That image is too small to stay sharp across the full width of the page. Please choose one at least 1200 by 500 pixels. Wider is better.',
         ]);
 
         if ($request->boolean('remove')) {

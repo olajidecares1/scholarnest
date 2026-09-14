@@ -12,7 +12,7 @@ return [
     |
     | THE WEIGHTS ARE NOT DECORATION. Google's CSS API returns a stylesheet
     | that silently omits any weight a family does not publish, and the browser
-    | then synthesises the difference - faux bold, visibly worse than the real
+    | then synthesises the difference, faux bold, visibly worse than the real
     | cut. Everything offered here is a weight the family really ships.
     |
     | Curated rather than the full 1500-family catalogue, because a picker with
@@ -105,7 +105,7 @@ return [
     | beside them everywhere else.
     |
     | ALGERIAN IS THE REASON THIS SECTION EXISTS. It is a Microsoft display
-    | face shipped with Office, not a Google font - there is no URL to request
+    | face shipped with Office, not a Google font, there is no URL to request
     | it from. Putting it in the list above would have produced a Google Fonts
     | request for a family Google does not have, and a heading that rendered in
     | the default serif on every machine, including the ones that own the font.
@@ -116,7 +116,7 @@ return [
     | page or a silent substitution into something unrelated.
     |
     | The weights are what the installed files really contain. Algerian is a
-    | single decorative cut - offering it a bold would only ask the browser to
+    | single decorative cut, offering it a bold would only ask the browser to
     | smear the outlines, which on a face this heavy looks like a fault.
     |
     */

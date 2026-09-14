@@ -4,9 +4,9 @@
      the flow: a parent who has typed the wrong admission number sees it here,
      rather than after burning a use on somebody else's record.
 
-     The pupil on this page came from the session, not the address - there is
+     The pupil on this page came from the session, not the address, there is
      no id in the URL to change. --}}
-<x-auth-layout :title="'Check Result - '.$school->name" :school="$school" simple>
+<x-auth-layout :title="'Check Result | '.$school->name" :school="$school" simple>
     <x-auth-card>
         @php
             $onSchoolResultLink = request()->routeIs('school-result.*');

@@ -239,7 +239,7 @@
                                             {{-- The number allocated is entered here, not
                                                  taken from the request. Check the receipt
                                                  against the amount paid, then enter the
-                                                 licences that amount actually covers - it
+                                                 licences that amount actually covers, it
                                                  may not be what was asked for. --}}
                                             <form method="POST" action="{{ route('super-admin.subscriptions.top-ups.approve', $topUp) }}" class="flex flex-wrap items-end gap-2">
                                                 @csrf
@@ -348,7 +348,7 @@
                                     <p class="field-hint mt-1">{{ $subscription->billing_cycle->label() }}</p>
                                 </td>
                                 <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">&#8358;{{ number_format($subscription->amount, 2) }}</td>
-                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $subscription->latestPayment?->method?->label() ?? '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $subscription->latestPayment?->method?->label() ?? 'N/A' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $subscription->created_at->format('M j, Y') }}</td>
                                 <td class="px-5 py-3">
                                     @php

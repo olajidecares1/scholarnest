@@ -80,7 +80,7 @@ class SchoolController extends Controller
 
             // Every request ever made against this school, in the order they
             // happened. These are the history behind the single cumulative
-            // figure below - not separate allowances the school can draw on.
+            // figure below, not separate allowances the school can draw on.
             'topUps' => $licences->requestHistory($school),
 
             // Read through the same service the enforcement uses, and the same
@@ -150,7 +150,7 @@ class SchoolController extends Controller
         }
 
         // Counted before the delete, because afterwards there is nothing left
-        // to count - and the audit entry is the only record that any of it
+        // to count, and the audit entry is the only record that any of it
         // existed.
         $summary = sprintf(
             '%d student(s), %d staff, %d subscription(s), %d admin account(s)',
@@ -178,7 +178,7 @@ class SchoolController extends Controller
         // that no foreign key can reach.
         //
         // This used to delete the accounts by hand first, because the
-        // constraint was SET NULL and would otherwise cut them loose - leaving
+        // constraint was SET NULL and would otherwise cut them loose, leaving
         // an admin who could not sign in but still held the school's email
         // address, which is what stopped a deleted school ever registering
         // again. A rule kept in one controller only holds on the one path that

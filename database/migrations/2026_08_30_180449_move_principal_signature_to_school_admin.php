@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
  * right.
  *
  * Whatever each school had uploaded is moved onto its longest-standing School
- * Admin account - the same account App\Support\PrincipalSignature resolves -
+ * Admin account, the same account App\Support\PrincipalSignature resolves,
  * so no school loses a signature it had already provided. An admin who has
  * since registered their own keeps theirs: a signature they drew is a better
  * claim than a file somebody uploaded on their behalf.

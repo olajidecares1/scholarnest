@@ -14,7 +14,7 @@ Artisan::command('inspire', function () {
 Schedule::command('custom-domains:auto-verify')
     ->cron('*/'.config('custom_domain.auto_verify_interval_minutes').' * * * *');
 
-// Hourly, though a school is only ever reminded once - the command decides
+// Hourly, though a school is only ever reminded once, the command decides
 // who is due from registration.reminder_after_hours. Checking often and
 // sending rarely means a school registering at 4pm is reminded at about 4pm
 // the next day rather than whenever a daily job happens to run.

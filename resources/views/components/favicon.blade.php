@@ -7,7 +7,7 @@
 
     Deliberately not a list of sizes beside it. Offering several lets the
     browser arbitrate, and it used to pick the bundled default over the
-    uploaded one - which is why changing the favicon appeared to do nothing.
+    uploaded one, which is why changing the favicon appeared to do nothing.
 --}}
 @if ($icon)
     <link rel="icon" type="{{ $icon->type }}" href="{{ $icon->href }}">

@@ -184,7 +184,7 @@ test('a result already unlocked does not ask for its token again in a new sessio
         ->post(route('guardian.children.results.unlock', [$this->school, $student, $examination]), ['token' => $token])
         ->assertSessionHasNoErrors();
 
-    // A new session entirely - signed out, session flushed, signed back in.
+    // A new session entirely, signed out, session flushed, signed back in.
     auth('guardian')->logout();
     session()->flush();
 

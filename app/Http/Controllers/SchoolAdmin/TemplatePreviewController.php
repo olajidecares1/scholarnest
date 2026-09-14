@@ -14,7 +14,7 @@ use Illuminate\View\View;
 /**
  * What a School Admin's documents will look like, before they generate any.
  *
- * Both pages render the REAL templates from specimen data - the same Blade
+ * Both pages render the REAL templates from specimen data, the same Blade
  * files that produce a printed report card and a printed ID card. Nothing here
  * draws its own version of either, which is the only way "the preview matches
  * what is generated" can be a property of the system rather than a promise
@@ -44,7 +44,7 @@ class TemplatePreviewController extends Controller
             ?? IdCardHolderType::Student;
 
         // The school's own default template for this holder type, so the
-        // preview shows the colours and instructions THIS school has saved -
+        // preview shows the colours and instructions THIS school has saved,
         // falling back to the platform default where it has saved none.
         $template = IdCardTemplate::query()
             ->where('school_id', $school->id)

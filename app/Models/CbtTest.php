@@ -115,7 +115,7 @@ class CbtTest extends Model
 
     /**
      * Once a student has started an attempt, the test can no longer be
-     * hidden again (unpublished back to Locked/Draft) - only forward to
+     * hidden again (unpublished back to Locked/Draft), only forward to
      * Archived. Used to enforce "lock/unlock at any time before students
      * begin the examination."
      */
@@ -157,9 +157,9 @@ class CbtTest extends Model
      *
      * Publishing is the moment a test stops being the teacher's draft and
      * starts producing marks on students' records, so it is the right place to
-     * insist the questions are answerable. The alternative - letting it through
+     * insist the questions are answerable. The alternative, letting it through
      * and discovering afterwards that a question could never be answered
-     * correctly - means unpicking results that have already been recorded.
+     * correctly, means unpicking results that have already been recorded.
      */
     public function publishBlocker(): ?string
     {

@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Schema;
  * The old model was a WAEC scratch card: a school bought a batch of unbound
  * PINs, and whichever student's admission number was typed first is the one a
  * PIN bound itself to. That is a general-purpose access code. The rule here is
- * the opposite - one token authorises one student's one result and nothing
+ * the opposite, one token authorises one student's one result and nothing
  * else, decided when the token is created rather than when it is first used.
  *
  * Storage changes too. The plain `code` column meant anyone who could read the
  * table could read every live token. Now:
  *
- *   token_hash       SHA-256, unique and indexed - what verification looks up.
+ *   token_hash       SHA-256, unique and indexed, what verification looks up.
  *                    Tokens are high-entropy random strings, so a fast hash is
  *                    the right tool: there is nothing worth brute-forcing, and
  *                    it keeps verification a single indexed lookup rather than
@@ -46,8 +46,8 @@ return new class extends Migration
 
             $table->timestamp('last_accessed_at')->nullable()->after('expires_at');
 
-            // Which term a token is for is already implied by the examination -
-            // an examination carries school, class, term and session - so no
+            // Which term a token is for is already implied by the examination,
+            // an examination carries school, class, term and session, so no
             // extra column is needed. This index makes "does this student
             // already have a live token for this result?" cheap.
             $table->index(['school_id', 'bound_student_id', 'examination_id'], 'result_tokens_student_exam_index');
@@ -55,7 +55,7 @@ return new class extends Migration
 
         // Carry existing codes across so nothing is lost. Every token on this
         // installation is unbound, unassigned and unused, so this is really
-        // housekeeping - but another installation may have live ones.
+        // housekeeping, but another installation may have live ones.
         DB::table('result_checking_pins')->orderBy('id')->chunkById(200, function ($pins) {
             foreach ($pins as $pin) {
                 if (blank($pin->code)) {

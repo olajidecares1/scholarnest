@@ -122,7 +122,7 @@ class PublicSchoolWebsiteController extends Controller
 
     /**
      * The old careers page. Vacancies live on the school's Job Portal now, so
-     * every link to /careers - on a website, in an old message - lands there.
+     * every link to /careers, on a website, in an old message, lands there.
      */
     public function careers(School $school): RedirectResponse
     {
@@ -141,7 +141,7 @@ class PublicSchoolWebsiteController extends Controller
     }
 
     /**
-     * Re-checked on every request, not just when the site was published -
+     * Re-checked on every request, not just when the site was published,
      * otherwise a school that downgrades from Standard/Exclusive to Basic
      * (which has no front-facing website) would keep serving its old public
      * site forever.

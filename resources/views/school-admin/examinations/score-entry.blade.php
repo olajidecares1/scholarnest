@@ -1,6 +1,6 @@
 {{-- Test/Exam Score, from the administrator's side.
 
-     Four choices - class, year, term, subject - and then the same marking grid
+     Four choices, class, year, term, subject, and then the same marking grid
      a teacher uses. Deliberately the same grid: an administrator entering marks
      and a teacher entering marks must produce identical results, and two
      implementations of one calculation is how they stop doing that.

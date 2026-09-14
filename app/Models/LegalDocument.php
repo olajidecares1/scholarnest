@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * One of AkademicNest's own legal documents - the Terms, the Privacy Policy, and the
+ * One of AkademicNest's own legal documents, the Terms, the Privacy Policy, and the
  * four that go with them.
  *
  * Edited by the AkademicNest Team, read by anyone. The markdown files in
@@ -22,8 +22,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * INTERNAL NOTES ARE STRIPPED ON THE WAY OUT. These documents carry passages
  * addressed to counsel rather than to schools, fenced in the source. A school
- * agreeing to the Terms must not be shown them, so renderedHtml() removes them
- * - and a test asserts no published page contains the fences or the phrases
+ * agreeing to the Terms must not be shown them, so renderedHtml() removes them,
+ * and a test asserts no published page contains the fences or the phrases
  * inside them, so a note added without a fence fails the build instead of
  * quietly appearing on a public page.
  */
@@ -34,8 +34,8 @@ class LegalDocument extends Model
      *
      * A fixed list, not a query: the route constraint is built from it at boot,
      * and a slug is therefore incapable of naming anything else. It is also
-     * what keeps the audit and gap report - which live in the same source
-     * directory - unreachable.
+     * what keeps the audit and gap report, which live in the same source
+     * directory, unreachable.
      *
      * @var list<string>
      */
@@ -108,7 +108,7 @@ class LegalDocument extends Model
 
     /**
      * Every document, in the order the public index and the admin screen list
-     * them - the order of SLUGS, so the Terms come first and the Privacy Policy
+     * them, the order of SLUGS, so the Terms come first and the Privacy Policy
      * second, rather than alphabetically or by whichever row was written first.
      *
      * Sorted in PHP: a CASE expression would do it in SQL, but there are six
@@ -162,7 +162,7 @@ class LegalDocument extends Model
      * Rendered with the internal passages LEFT IN.
      *
      * Only for the AkademicNest Team's own preview, where seeing exactly what is in
-     * the document - including the notes to counsel - is the point.
+     * the document, including the notes to counsel, is the point.
      */
     public function renderedHtmlForReview(): string
     {

@@ -19,7 +19,7 @@ use App\Models\User;
  * A teacher enters a Test mark out of 40 and an Exam mark out of 60. Nothing
  * else is typed: the total, the percentage, the grade and the remark are all
  * worked out from those two, against the school's own grading bands. That is
- * the point rather than a convenience - a grade somebody could type is a grade
+ * the point rather than a convenience, a grade somebody could type is a grade
  * that can disagree with the marks it is supposed to come from.
  */
 function scoringSchool(string $code = 'MIS'): array
@@ -140,7 +140,7 @@ test('the highest possible marks come to exactly 100', function () {
 test('the grade comes from the school\'s own bands, not a fixed scale', function () {
     [$school, $admin, , $subject, $student] = scoringSchool();
 
-    // This school calls 80 a B. Another school's 80 might be an A - which is
+    // This school calls 80 a B. Another school's 80 might be an A, which is
     // exactly why the scale cannot be hard-coded.
     GradeBand::where('school_id', $school->id)->delete();
     GradeBand::create(['school_id' => $school->id, 'min_percent' => 85, 'max_percent' => 100, 'letter' => 'A', 'description' => 'Outstanding', 'position' => 1]);
@@ -196,7 +196,7 @@ test('the report card is built from the student\'s own marks', function () {
         ->assertOk();
 
     // The school's own identity, the student's own record, and the marks as
-    // entered - none of it written into the page.
+    // entered, none of it written into the page.
     $response->assertSee($school->name)
         ->assertSee($student->fullName())
         ->assertSee($student->admission_number)

@@ -289,7 +289,7 @@ test('the report card shows the attendance summary within the configured term ra
 
     AttendanceRecord::factory()->create(['school_id' => $school->id, 'student_id' => $student->id, 'date' => '2025-09-10', 'status' => AttendanceStatus::Present]);
     AttendanceRecord::factory()->create(['school_id' => $school->id, 'student_id' => $student->id, 'date' => '2025-09-11', 'status' => AttendanceStatus::Absent]);
-    // Outside the configured term range - must not be counted.
+    // Outside the configured term range, must not be counted.
     AttendanceRecord::factory()->create(['school_id' => $school->id, 'student_id' => $student->id, 'date' => '2026-01-05', 'status' => AttendanceStatus::Present]);
 
     $response = $this->actingAs($admin)->get(route('results.print', [$examination, $student]));
@@ -313,7 +313,7 @@ test('the report card shows the number of students in the class and the next ter
     $response->assertOk()
         ->assertSeeInOrder(['Number in Class', '4'])
 
-        // The long ordinal form, as the supplied card design uses throughout -
+        // The long ordinal form, as the supplied card design uses throughout,
         // "12th January, 2026", not "Jan 12, 2026". Same date, and it now
         // matches the date of birth two rows above it, which was already
         // written this way.

@@ -18,8 +18,8 @@ use Illuminate\View\View;
  * A school's own Job Portal: its vacancies, each at its own address, and the
  * form to apply.
  *
- * SEPARATE FROM THE WEBSITE. The portal needs no published website - a school
- * can recruit before, or without, building one - and it carries only what an
+ * SEPARATE FROM THE WEBSITE. The portal needs no published website, a school
+ * can recruit before, or without, building one, and it carries only what an
  * applicant needs: the school's name, logo, address and contact details, and
  * its vacancies.
  *
@@ -100,7 +100,7 @@ class JobPortalController extends Controller
     }
 
     /**
-     * The link-preview image for a vacancy - its og:image. Public, because the
+     * The link-preview image for a vacancy, its og:image. Public, because the
      * crawlers that draw link previews on WhatsApp, Facebook and LinkedIn are
      * not signed in.
      */

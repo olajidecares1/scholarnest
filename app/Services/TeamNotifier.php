@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
  * Telling the AkademicNest Team something, exactly once.
  *
  * Every notification to the team goes through here, and every one of them
- * names the EVENT it is about - "school.registered:<uuid>", not "a
+ * names the EVENT it is about, "school.registered:<uuid>", not "a
  * notification". That is what makes "one registration, one notification" a
  * property of the system rather than a promise made by whichever controller
  * happens to be sending.
@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Log;
  * The claim comes first and the sending second. A row in notification_events
  * is inserted against a unique index before anyone is notified, so a second
  * attempt for the same event loses the insert and stops there. The obvious
- * alternative - ask whether it has been sent, then send - leaves a gap between
+ * alternative, ask whether it has been sent, then send, leaves a gap between
  * the question and the answer, and two requests arriving together both pass
  * through it. This has no gap.
  *
@@ -35,7 +35,7 @@ class TeamNotifier
     /**
      * Notify the team about an event, unless it has been announced already.
      *
-     * @param  string  $eventKey  Stable and unique for the event - not for the
+     * @param  string  $eventKey  Stable and unique for the event, not for the
      *                            attempt. "school.registered:<school uuid>".
      * @return bool Whether this call was the one that sent it.
      */

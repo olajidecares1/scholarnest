@@ -7,7 +7,7 @@ namespace App\Services\DocumentExtraction;
  *
  * There is one implementation, {@see LocalQuestionExtractor}, and it needs no
  * network, no account and no key. The interface exists so that a different
- * engine - an OCR pass for scanned pages, or a hosted model - can be added
+ * engine, an OCR pass for scanned pages, or a hosted model, can be added
  * later as an alternative, not as a prerequisite.
  *
  * That distinction is the point of the interface. This pipeline previously

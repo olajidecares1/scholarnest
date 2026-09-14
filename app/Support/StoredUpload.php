@@ -8,8 +8,8 @@ use Illuminate\Support\Str;
 /**
  * What an uploaded file is called once it is ours.
  *
- * Every upload site in the application discarded the original filename - which
- * is right - and then pasted the original EXTENSION back on, which is not. The
+ * Every upload site in the application discarded the original filename, which
+ * is right, and then pasted the original EXTENSION back on, which is not. The
  * extension is part of the same untrusted string: the person uploading chooses
  * it, and it decides what a web server will later do with the file.
  *
@@ -19,18 +19,18 @@ use Illuminate\Support\Str;
  * in a framework blocklist the calling code knew nothing about. An upload site
  * added tomorrow without one of those rules would silently lose it, and the
  * blocklist does not cover every extension some server configurations execute
- * (.pht, .phps, .cgi).
+ * (.pht.phps.cgi).
  *
  * So the extension is decided here, twice over:
  *
  *   1. From the file's CONTENT, via finfo, rather than from its name.
  *   2. Against an allowlist. Anything not on it becomes .bin, whichever way it
- *      was derived - so a site that forgets its validation rules is still
+ *      was derived, so a site that forgets its validation rules is still
  *      incapable of writing an executable name to disk.
  *
  * The client extension is consulted only as a fallback, and only through the
- * same allowlist. finfo cannot always identify a file - an empty one, or a
- * format it has no magic for - and a correctly uploaded .docx should not lose
+ * same allowlist. finfo cannot always identify a file, an empty one, or a
+ * format it has no magic for, and a correctly uploaded .docx should not lose
  * its name because of that. What the fallback cannot do is smuggle anything
  * through: `.php` is not on the list from either direction.
  */
@@ -40,13 +40,13 @@ class StoredUpload
      * Extensions this application is willing to write to disk.
      *
      * Everything the upload rules accept, and nothing else. Add a format here
-     * when you add it to a validation rule - not the other way round.
+     * when you add it to a validation rule, not the other way round.
      *
      * @var list<string>
      */
     private const ALLOWED = [
         // SVG is deliberately absent. It is the one image format that is also
-        // a script host - an <svg> may contain <script>, and these files are
+        // a script host, an <svg> may contain <script>, and these files are
         // written to the public disk and served from the school's own origin,
         // so one uploaded by a School Admin would run as that school.
         //

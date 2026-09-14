@@ -2,7 +2,7 @@
 
      Rendering this inside the dashboard chrome would put the sidebar's link to
      the very feature being refused right beside the refusal. It is its own
-     page, centred, with its own way back - which is also why it does not
+     page, centred, with its own way back, which is also why it does not
      depend on any of the layouts' data being present. --}}
 @props(['title'])
 
@@ -17,7 +17,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ $title }} - {{ config('app.name', 'AkademicNest') }}</title>
+        <title>{{ $title }} | {{ config('app.name', 'AkademicNest') }}</title>
 
         <x-favicon />
 

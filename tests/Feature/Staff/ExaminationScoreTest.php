@@ -44,7 +44,7 @@ test('a teacher does not see examinations for classes/subjects they do not teach
     ExaminationSubject::factory()->create(['examination_id' => $examination->id, 'name' => 'Mathematics', 'max_score' => 100]);
 
     // Asserted on the class, which is what the table now shows. Asserting on
-    // the examination's name would pass for the wrong reason - that name is
+    // the examination's name would pass for the wrong reason, that name is
     // no longer rendered for anybody.
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.exams.index', $this->school))

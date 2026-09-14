@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
  * What a browser needs before it will offer to install a portal.
  *
  * Three documents: a manifest describing the app, an icon to put on the home
- * screen, and a service worker - the last of which is required for an install
+ * screen, and a service worker, the last of which is required for an install
  * prompt to appear at all, whether or not the app has any use for it offline.
  *
  * All three are public, and deliberately so. They are fetched by the browser
@@ -40,13 +40,13 @@ class PwaController extends Controller
     /**
      * WHITE, and it has to be.
      *
-     * The artwork is a blue rounded square with the mark PUNCHED OUT of it -
+     * The artwork is a blue rounded square with the mark PUNCHED OUT of it,
      * the mark is transparent, not white. Composite it onto the brand blue,
      * which looks like the obvious thing to do, and the mark fills with blue
      * and disappears: a plain blue tile with no logo on it. A test asserting
      * the icon matches the artwork is what caught that.
      *
-     * On white it renders as drawn, and is fully opaque - which a maskable
+     * On white it renders as drawn, and is fully opaque, which a maskable
      * icon must be, or a launcher cropping to a circle fills the corners with
      * whatever it likes, usually black.
      */
@@ -55,8 +55,8 @@ class PwaController extends Controller
     /**
      * The platform's app-icon artwork, largest first.
      *
-     * Purpose-drawn as an app icon - the mark reversed out in white, inside
-     * its own margin - rather than the page-header wordmark, which is
+     * Purpose-drawn as an app icon, the mark reversed out in white, inside
+     * its own margin, rather than the page-header wordmark, which is
      * illegible at 192px.
      */
     private const ARTWORK = [
@@ -78,7 +78,7 @@ class PwaController extends Controller
         // A Basic school has no student or parent accounts at all, so offering
         // to install either app would put an icon on a phone that opens onto
         // the "locked" page for ever. See EnsureSchoolHasPortalAccess, which
-        // is the server-side rule this mirrors - it is the gate; this only
+        // is the server-side rule this mirrors, it is the gate; this only
         // avoids advertising a door that one keeps shut.
         abort_unless($this->portalAvailable($school, $app), 404);
 
@@ -93,8 +93,8 @@ class PwaController extends Controller
      *
      * The app being installed is AkademicNest, and the icon is what says so.
      * A school's own logo appears throughout its portal, on its website, on
-     * its ID cards and in the browser tab - see App\Support\Favicon, which is
-     * unchanged - but the thing that lands on a phone's home screen carries
+     * its ID cards and in the browser tab, see App\Support\Favicon, which is
+     * unchanged, but the thing that lands on a phone's home screen carries
      * the platform's mark.
      *
      * There is no school in this route at all, which is the point: one icon,
@@ -183,7 +183,7 @@ class PwaController extends Controller
      * Compose the icon: the AkademicNest mark, opaque, at the exact size.
      *
      * The bundled artwork is already drawn as an app icon, with its own margin
-     * inside the tile - which is the safe zone a maskable icon needs, so it is
+     * inside the tile, which is the safe zone a maskable icon needs, so it is
      * drawn at full size rather than inset a second time. Only the backing
      * colour is added, to make it opaque. See ICON_BACKGROUND for why that
      * colour is white and not the brand blue.

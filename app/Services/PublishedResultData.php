@@ -26,7 +26,7 @@ use Illuminate\Support\Collection;
  *               returns, so the SAME Blade templates render a published card.
  *
  * That second one is the whole reason this class exists. The obvious
- * alternative - a second template that renders the stored arrays - would mean
+ * alternative, a second template that renders the stored arrays, would mean
  * two report cards: the one the school prints and the one a parent downloads,
  * drifting apart a line at a time until somebody notices they disagree. The
  * project already made that mistake once on the check-result page, which used
@@ -100,7 +100,7 @@ class PublishedResultData
                     // Snapshotted, unlike the school's crest and motto above.
                     // A signature attests to a particular moment: the teacher
                     // who signed this card signed THIS card, and replacing
-                    // their signature later - or leaving the school - must not
+                    // their signature later, or leaving the school, must not
                     // rewrite what was already published.
                     'signature_path' => $card['classTeacher']->staff->signature?->path,
                 ]
@@ -113,7 +113,7 @@ class PublishedResultData
      *
      * The school is the LIVE school, not a snapshot of one. A report card
      * carries the school's name, crest, motto, address and grade key, and
-     * those belong to the school as it is today - a school that changes its
+     * those belong to the school as it is today, a school that changes its
      * logo has changed its logo, not rewritten last term's marks.
      *
      * @return array<string, mixed>
@@ -152,7 +152,7 @@ class PublishedResultData
                 ? Carbon::parse($payload['nextTermBegins'])
                 : null,
 
-            // Only ever read, never written - and the templates that offer an
+            // Only ever read, never written, and the templates that offer an
             // edit box check this.
             'canEditTeacherRemark' => false,
             'canEditPrincipalRemark' => false,
@@ -223,7 +223,7 @@ class PublishedResultData
 
             // grade() returns the override before it consults anything else,
             // so writing the recorded grade here is what makes a published
-            // card immune to a later change of grade bands - without a second
+            // card immune to a later change of grade bands, without a second
             // code path, and without touching the live model.
             'grade_override' => $row['grade'],
         ]);
@@ -260,7 +260,7 @@ class PublishedResultData
      *
      * Name and class are the snapshot's, because a card reissued under a
      * married name or a new class would no longer be the document that was
-     * approved. The photo is looked up live - it is an illustration, not a
+     * approved. The photo is looked up live, it is an illustration, not a
      * figure, and a school that replaces a blurred photograph should not have
      * to republish a term's results to fix it.
      *
@@ -312,7 +312,7 @@ class PublishedResultData
         // Set as the relation the templates actually read, so a published card
         // prints the signature it was published with. Absent from cards
         // published before signatures existed, which then print an unsigned
-        // line - correct, because they were.
+        // line, correct, because they were.
         $staff->setRelation(
             'signature',
             ($payload['signature_path'] ?? null)

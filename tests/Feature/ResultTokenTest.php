@@ -22,7 +22,7 @@ use Database\Factories\ResultCheckingPinFactory;
  * Result tokens.
  *
  * One token authorises one student's one result, and nothing else. That is not
- * a policy the interface enforces - it is what the token IS, because it is
+ * a policy the interface enforces, it is what the token IS, because it is
  * bound to its student and its examination when it is created and an
  * examination carries the class, term and session.
  *
@@ -85,7 +85,7 @@ test('a valid token opens the result it was issued for', function () {
 
 test('a token for one term does not open another term', function () {
     [$school, $firstTerm, $student] = schoolWithResult('first');
-    // Same student, same class, same session - only the term differs.
+    // Same student, same class, same session, only the term differs.
     $secondTerm = Examination::factory()->create([
         'school_id' => $school->id,
         'class_name' => $student->class_name,
@@ -141,7 +141,7 @@ test('a parent with several children gets a separate token for each', function (
     $tokenA = issueTokenFor($school, $childA, $examination);
     $tokenB = issueTokenFor($school, $childB, $examination);
     expect($tokenA)->not->toBe($tokenB);
-    // Child A's token shows child A, never child B - no matter that the same
+    // Child A's token shows child A, never child B, no matter that the same
     // parent holds both and the results sit in the same examination.
     // Step one: the token is only checked against a pupil already named.
     identifyForResultCheck($school, $childA, false);
@@ -172,11 +172,11 @@ test('an invalid token reveals nothing about any student', function () {
     identifyForResultCheck($school, $student, false);
 
     // from() so the redirect back lands on the token form, where the error
-    // renders - without it a test request has no referer and back() goes to "/".
+    // renders, without it a test request has no referer and back() goes to "/".
     $response = $this->from(route('check-result.confirm', $school))
         ->followingRedirects()
         ->post(route('check-result.verify', $school), ['code' => 'EDU-AAAA-BBBB-CCCC-DDDD']);
-    // The pupil's name is on screen deliberately - step one put it there.
+    // The pupil's name is on screen deliberately, step one put it there.
     // What a wrong token must still give away is the result itself.
     $response->assertDontSee('Report Card')
         ->assertDontSee('Position')
@@ -262,7 +262,7 @@ test('a result page closes if its token is revoked afterwards', function () {
     $this->post(route('check-result.verify', $school), ['code' => $token]);
     $usage = ResultCheckingPinUsage::latest('id')->first();
     $this->get(route('check-result.result', ['school' => $school, 'usage' => $usage]))->assertOk();
-    // The school revokes it - perhaps the link was shared around.
+    // The school revokes it, perhaps the link was shared around.
     $usage->pin->update(['status' => 'revoked']);
     $this->get(route('check-result.result', ['school' => $school, 'usage' => $usage]))->assertNotFound();
 });
@@ -276,7 +276,7 @@ test('the token is never stored in readable form', function () {
     [$school, $examination, $student] = schoolWithResult();
     $token = issueTokenFor($school, $student, $examination);
     $row = DB::table('result_checking_pins')->latest('id')->first();
-    // The hash is a hash, and the stored copy is ciphertext - neither is the
+    // The hash is a hash, and the stored copy is ciphertext, neither is the
     // token, so reading this table gets an attacker nothing.
     expect($row->token_hash)->toBe(hash('sha256', $token))
         ->and($row->token_hash)->not->toBe($token)
@@ -297,14 +297,14 @@ test('a token is not derived from anything about the student', function () {
     // All different, and none contains the identifiers somebody looking at a
     // class register would already know.
     //
-    // The first five characters ARE derived - from the session and the term,
+    // The first five characters ARE derived, from the session and the term,
     // which is deliberate and is the same for every student sitting that
     // examination. It is the remaining ten that have to be unguessable, so
     // that is where the comparison is made.
     expect($tokens->unique())->toHaveCount(5);
     foreach ($tokens as $token) {
         // Twelve random characters, and nothing derivable in them. The token
-        // used to open with the session and term - 26271... - which is gone:
+        // used to open with the session and term, 26271... which is gone:
         // the whole string is randomness now, and none of it is the student.
         expect($token)->toHaveLength(ResultCheckingPin::TOKEN_LENGTH)
             ->and($token)->toMatch('/^[A-Za-z0-9]{12}$/')
@@ -493,7 +493,7 @@ test('the result notification announces the result without revealing it', functi
     // is full of incidental numbers (widths, colours, the year) that a naive
     // "does not contain 80" would trip over without telling us anything.
     $body = collect($mail->introLines)->merge($mail->outroLines)->implode(' ');
-    // It says a result exists and how to reach it - and carries none of it. An
+    // It says a result exists and how to reach it, and carries none of it. An
     // email gets forwarded; anything inside one is effectively public.
     expect($body)
         ->toContain('Result Token')
@@ -627,7 +627,7 @@ test('a school sees an expired token as expired, not active', function () {
 // -----------------------------------------------------------------------------
 // The school's own dashboard, over HTTP
 //
-// The issuer is exercised directly above, which skips the controller - and the
+// The issuer is exercised directly above, which skips the controller, and the
 // controller is where a swapped identifier in a form post gets caught. These go
 // through the routes a school actually uses.
 
@@ -662,7 +662,7 @@ test('a school admin cannot issue a token for another school student', function 
     [$schoolA, $examinationA] = schoolWithResult();
     [, , $studentB] = schoolWithResult();
     $admin = schoolAdminFor($schoolA);
-    // Rejected by validation, before the issuer is ever reached - the rule
+    // Rejected by validation, before the issuer is ever reached, the rule
     // scopes the student to the acting school.
     $this->actingAs($admin)
         ->post(route('result-pins.store'), [
@@ -682,7 +682,7 @@ test('a school admin cannot reach another school\'s examination', function () {
 
     // There is no examination field to point elsewhere any more. The
     // examination is resolved from the acting school, the year, the term and
-    // the student's own class - so even naming school B's exact year, term and
+    // the student's own class, so even naming school B's exact year, term and
     // class produces school A's examination, never school B's.
     $this->actingAs($admin)
         ->post(route('result-pins.store'), [
@@ -710,14 +710,14 @@ test('a school admin bulk-issues tokens for a class from the dashboard', functio
     $this->actingAs($admin)
         ->post(route('result-pins.store-bulk'), [
             // The class is chosen from the school's own list now, not implied
-            // by whichever examination was picked - and the examination is
+            // by whichever examination was picked, and the examination is
             // resolved from the three together.
             'class_name' => $examination->class_name,
             'session' => $examination->session,
             'term' => $examination->term->value,
         ])
         ->assertRedirect();
-    // Three students in the class, so three tokens - each bound to its own.
+    // Three students in the class, so three tokens, each bound to its own.
     expect(ResultCheckingPin::count())->toBe(3)
         ->and(ResultCheckingPin::distinct('bound_student_id')->count('bound_student_id'))->toBe(3)
         ->and(ResultCheckingPin::pluck('token_hash')->unique())->toHaveCount(3);
@@ -745,7 +745,7 @@ test('a school admin suspends a token and can restore it', function () {
     // Step one: the token is only checked against a pupil already named.
     identifyForResultCheck($school, $student, false);
     $this->post(route('check-result.verify', $school), ['code' => $plain])->assertSessionHasErrors('code');
-    // Unlike revoking, this can be lifted - the parent keeps the token they
+    // Unlike revoking, this can be lifted, the parent keeps the token they
     // were given rather than needing a new one.
     $this->actingAs($admin)->post(route('result-pins.suspend', $token))->assertRedirect();
     expect($token->fresh()->status->value)->toBe('active');

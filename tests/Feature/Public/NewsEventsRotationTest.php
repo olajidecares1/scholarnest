@@ -259,7 +259,7 @@ describe('events are grouped into sets of three', function () {
         $html = $this->get(route('public.school-website', $this->school))->assertOk()->getContent();
 
         // Three groups in the page, and a script that is told nothing at all
-        // about how many there are - it walks whatever it finds.
+        // about how many there are, it walks whatever it finds.
         expect(substr_count($html, 'Show events'))->toBe(3)
             ->and($html)->toContain('x-data="marqueeList()"')
             ->and(marqueeScript())->toContain('this.$refs.track.children');
@@ -295,7 +295,7 @@ describe('it yields to the visitor', function () {
 
         $this->get(route('public.school-website', $this->school))->assertOk();
 
-        // Not a faster rotation - none. Everything stays reachable by scrolling.
+        // Not a faster rotation, none. Everything stays reachable by scrolling.
         expect(marqueeScript())->toContain("matchMedia('(prefers-reduced-motion: reduce)')");
     });
 
@@ -322,7 +322,7 @@ describe('it yields to the visitor', function () {
 
 /**
  * A stray closing tag in this page once popped a container open and let four
- * segments escape it, and nothing failed - the page still returned 200. It is
+ * segments escape it, and nothing failed, the page still returned 200. It is
  * cheap to count the tags, and this file has just had a large block replaced.
  */
 test('the rendered page has balanced div tags', function () {

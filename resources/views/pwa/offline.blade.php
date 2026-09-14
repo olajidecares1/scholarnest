@@ -2,7 +2,7 @@
     Shown by the service worker when a page is asked for and the device has no
     network. Deliberately self-contained: no @vite, no fonts, no images. It is
     served from the cache, and anything it referenced would have to be cached
-    too - which is how an offline page ends up rendering as unstyled text on
+    too, which is how an offline page ends up rendering as unstyled text on
     the one occasion it matters.
 
     It says nothing about which school or which portal, because it is one file

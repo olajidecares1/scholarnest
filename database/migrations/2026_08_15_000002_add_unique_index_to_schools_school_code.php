@@ -33,7 +33,7 @@ return new class extends Migration
 
     /**
      * school_code was previously optional and only set by an admin who
-     * opted into auto-generated admission numbers / staff IDs - every other
+     * opted into auto-generated admission numbers / staff IDs, every other
      * school has a null value that would violate the new unique index.
      */
     private function backfillMissingCodes(): void
@@ -53,7 +53,7 @@ return new class extends Migration
 
     /**
      * With no uniqueness constraint ever enforced, two schools could
-     * already share a code today - keep the earliest-created school's value
+     * already share a code today, keep the earliest-created school's value
      * untouched and append a numeric suffix to every later duplicate.
      */
     private function deduplicateExistingCodes(): void

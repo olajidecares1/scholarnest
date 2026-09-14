@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * that makes a document official, so a downloadable copy is precisely what
  * lets somebody else make a document look official.
  *
- * Available on every plan. A stamp is not a premium feature - it is how a
+ * Available on every plan. A stamp is not a premium feature, it is how a
  * school's own paperwork is recognised, and a Basic school's result slip needs
  * it exactly as much as an Exclusive school's.
  */

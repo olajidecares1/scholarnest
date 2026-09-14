@@ -21,8 +21,8 @@ use Illuminate\Support\Facades\Route;
  *
  * What this application adds is a six-digit code, derived from that token and
  * printed in the email body. The token proves possession of the URL; the code
- * proves the email itself was read. A link that leaks - a referrer header, a
- * shared inbox, a screen left open in a staffroom - is not on its own enough to
+ * proves the email itself was read. A link that leaks, a referrer header, a
+ * shared inbox, a screen left open in a staffroom, is not on its own enough to
  * take an administrator's account.
  */
 beforeEach(function () {
@@ -65,7 +65,7 @@ describe('requesting a link', function () {
     test('the answer never reveals whether the account exists', function () {
         // Laravel's default says "We can't find a user with that email address",
         // which turns this form into a free way to test who is a AkademicNest
-        // administrator - useful to anyone writing a phishing email.
+        // administrator, useful to anyone writing a phishing email.
         $real = $this->post(route('password.email'), ['email' => $this->admin->email]);
         $fake = $this->post(route('password.email'), ['email' => 'nobody@nowhere.test']);
 
@@ -109,7 +109,7 @@ describe('the email', function () {
         expect($mail->subject)->toBe('Reset Your AkademicNest Password')
             ->and($mail->greeting)->toBe('Hello Adaeze Okonkwo,')
             ->and($mail->actionText)->toBe('Reset Password')
-            ->and($mail->salutation)->toBe('— AkademicNest Team');
+            ->and($mail->salutation)->toBe('Regards, AkademicNest Team');
 
         expect(implode(' ', $mail->introLines))
             ->toContain('We received a request to reset your AkademicNest account password');
@@ -210,7 +210,7 @@ describe('resetting the password', function () {
     test('guessing the code is given a small number of tries per link', function () {
         // The ROUTE throttle is deliberately turned off here. Laravel keys it
         // by domain and IP rather than by URI, so it is shared across every
-        // route in the guest group - six requests in a minute exhausts it
+        // route in the guest group, six requests in a minute exhausts it
         // whatever they were for. That is a real second layer and it is
         // asserted separately below; this test is about the per-link attempt
         // limit, which has to hold on its own.
@@ -360,7 +360,7 @@ describe('the code itself', function () {
 
 describe('only administrators have this at all', function () {
     test('there is no reset route for staff, students or guardians', function () {
-        // Not "the link is hidden" - there is no endpoint behind it. See
+        // Not "the link is hidden", there is no endpoint behind it. See
         // docs/PASSWORD-RESET-POLICY.md for why schools are different.
         foreach (['staff.password.request', 'student.password.request', 'guardian.password.request'] as $name) {
             expect(Route::has($name))->toBeFalse();

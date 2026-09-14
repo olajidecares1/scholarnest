@@ -40,7 +40,7 @@
             </div>
         @endif
 
-        {{-- The school, as it will appear - read from the school's profile. --}}
+        {{-- The school, as it will appear, read from the school's profile. --}}
         <section class="{{ $card }}">
             <h2 class="{{ $sectionTitle }}"><i class="fa-solid fa-school text-primary-500" aria-hidden="true"></i>School details on this vacancy</h2>
             <div class="mt-4 flex items-center gap-4">
@@ -71,9 +71,9 @@
                 <x-select-field name="employment_type" label="Employment type" icon="fa-clock" :options="$typeOptions" :selected="$job->employment_type?->value" required />
                 <x-text-field name="location" label="Job location" icon="fa-location-dot" :value="$job->location" placeholder="e.g. Main campus, Ikeja" />
                 <x-text-field name="openings" type="number" label="Number of openings" icon="fa-users" :value="$job->openings" min="1" max="999" placeholder="Optional" />
-                <x-text-field name="salary_range" label="Salary / salary range" icon="fa-money-bill-wave" :value="$job->salary_range" placeholder="e.g. ₦150,000 – ₦200,000 per month" helper="Optional. Leave blank to not show a salary." />
+                <x-text-field name="salary_range" label="Salary / salary range" icon="fa-money-bill-wave" :value="$job->salary_range" placeholder="e.g. ₦150,000 to ₦200,000 per month" helper="Optional. Leave blank to not show a salary." />
                 <x-text-field name="closes_at" type="date" label="Application deadline" icon="fa-calendar-day" :value="$job->closes_at?->format('Y-m-d')" required helper="Applications stop at the end of this day." />
-                <x-text-field name="experience_required" label="Experience required" icon="fa-chart-line" :value="$job->experience_required" placeholder="e.g. At least 3 years teaching SS1–SS3" />
+                <x-text-field name="experience_required" label="Experience required" icon="fa-chart-line" :value="$job->experience_required" placeholder="e.g. At least 3 years teaching SS1 to SS3" />
             </div>
         </section>
 
@@ -81,7 +81,7 @@
             <h2 class="{{ $sectionTitle }}"><i class="fa-solid fa-file-lines text-primary-500" aria-hidden="true"></i>Description</h2>
             <div class="mt-4 space-y-4">
                 <x-textarea-field name="description" label="Job description" rows="6" :value="$job->description" placeholder="What the role is, who it reports to, and what makes it a good place to work." required />
-                <x-textarea-field name="responsibilities" label="Responsibilities" rows="5" :value="$job->responsibilities" placeholder="One per line, e.g.&#10;Teach Mathematics to SS1–SS3&#10;Prepare lesson notes and assessments" />
+                <x-textarea-field name="responsibilities" label="Responsibilities" rows="5" :value="$job->responsibilities" placeholder="One per line, e.g.&#10;Teach Mathematics from SS1 to SS3&#10;Prepare lesson notes and assessments" />
                 <x-textarea-field name="requirements" label="Requirements" rows="5" :value="$job->requirements" placeholder="One per line" />
                 <x-textarea-field name="qualifications" label="Qualifications" rows="4" :value="$job->qualifications" placeholder="e.g. B.Sc./B.Ed. in Mathematics; TRCN registration" />
             </div>

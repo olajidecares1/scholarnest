@@ -1,8 +1,8 @@
 {{-- The School Admin issuing someone their login details.
 
      Two fields, as asked: the username they sign in with, and the password.
-     Which column the username is depends on the account - Staff ID for a
-     teacher, Admission Number for a student, phone number for a parent - so
+     Which column the username is depends on the account, Staff ID for a
+     teacher, Admission Number for a student, phone number for a parent, so
      the caller names it, and the same card serves all three.
 
      The password is never shown back. It is typed here, hashed, and handed on
@@ -107,7 +107,7 @@
                 <span class="truncate font-mono text-[12.5px] font-semibold text-[#0F2A5C] dark:text-gray-200">{{ $username ?: 'Not yet generated' }}</span>
                 <span class="shrink-0 text-[10px] font-bold uppercase tracking-wide text-[#8194B3]">Auto</span>
             </p>
-            <p class="field-hint mt-1">{{ $usernameHint ?? 'Generated automatically — cannot be edited.' }}</p>
+            <p class="field-hint mt-1">{{ $usernameHint ?? 'Generated automatically and cannot be edited.' }}</p>
         </div>
 
         <div>

@@ -21,7 +21,7 @@
                 <p class="text-center text-sm text-gray-500">This school hasn't added contact details yet.</p>
             @endif
 
-            {{-- Every network the school has filled in, from its own settings -
+            {{-- Every network the school has filled in, from its own settings,
                  see App\Support\SchoolSocialLinks. --}}
             @php $socialLinks = \App\Support\SchoolSocialLinks::for($school); @endphp
 
@@ -57,7 +57,7 @@
             {{-- Where the school actually is.
 
                  This page is the one a visitor opens looking for exactly that,
-                 and it carried no address and no map at all - only the home
+                 and it carried no address and no map at all, only the home
                  page had one. Same component as the home page, so the two
                  cannot disagree, and it draws nothing when no address has been
                  set. --}}

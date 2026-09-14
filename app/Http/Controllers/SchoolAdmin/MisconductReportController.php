@@ -52,8 +52,8 @@ class MisconductReportController extends Controller
     /**
      * Serve one attachment.
      *
-     * The ownership check is on the REPORT the file hangs off, not on the file
-     * - an attachment has no school of its own, and checking the thing that
+     * The ownership check is on the REPORT the file hangs off, not on the file,
+     * an attachment has no school of its own, and checking the thing that
      * does is what stops one school opening another's evidence by uuid.
      */
     public function download(Request $request, MisconductReportAttachment $attachment): StreamedResponse

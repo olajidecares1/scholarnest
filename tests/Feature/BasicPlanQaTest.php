@@ -25,8 +25,8 @@ use Illuminate\Support\Facades\DB;
  *
  * Two things are checked here that the feature tests elsewhere do not.
  *
- * The first is the END-TO-END path - school, teacher, student, assignment,
- * attendance, marks, calculation, token, link, parent, print - as one
+ * The first is the END-TO-END path, school, teacher, student, assignment,
+ * attendance, marks, calculation, token, link, parent, print, as one
  * continuous run. Each step passes on its own in its own test file; this is
  * the test that says they still fit together.
  *
@@ -143,7 +143,7 @@ test('the complete Basic-plan workflow runs end to end', function () {
 
     // 35 of 40 on the test and 53 of 60 on the exam. This app mandates a
     // 40/60 split rather than letting each subject set its own, so the
-    // components differ from the 20/80 in the brief - the total, and the point
+    // components differ from the 20/80 in the brief, the total, and the point
     // being made, are the same.
     $this->actingAs($teacher, 'staff')->put(
         route('staff.exams.scores.update', [$school, $examination, $subject]),
@@ -284,7 +284,7 @@ test('a score above the configured maximum is refused', function (mixed $test, m
         'subject' => $subject->name,
     ]);
 
-    // Crafted by hand, not by the form - the browser's own max attribute is
+    // Crafted by hand, not by the form, the browser's own max attribute is
     // not a restriction, it is a hint.
     $this->actingAs($teacher, 'staff')->put(
         route('staff.exams.scores.update', [$school, $examination, $subject]),
@@ -316,7 +316,7 @@ test('the boundary values themselves are accepted', function () {
         'subject' => $subject->name,
     ]);
 
-    // Exactly the maximum on both halves - the off-by-one that a naive
+    // Exactly the maximum on both halves, the off-by-one that a naive
     // "less than max" check gets wrong.
     $this->actingAs($teacher, 'staff')->put(
         route('staff.exams.scores.update', [$school, $examination, $subject]),
@@ -357,7 +357,7 @@ test('a school admin cannot create a student inside another school', function ()
     $schoolB = qaBasicSchool();
     $adminA = qaSchoolAdmin($schoolA);
 
-    // A school_id in the payload is not authority - the acting user's own
+    // A school_id in the payload is not authority, the acting user's own
     // school is the only one that counts.
     $this->actingAs($adminA)->post(route('students.store'), [
         'first_name' => 'Planted',
@@ -425,7 +425,7 @@ test('the result token screen does not issue a query per token', function () {
     $countQueries = function () use ($admin) {
         // Flushed first: enableQueryLog() APPENDS to whatever is already
         // there, so a second measurement without this silently counts the
-        // first one again - which looks exactly like an N+1 that is not
+        // first one again, which looks exactly like an N+1 that is not
         // there.
         DB::flushQueryLog();
         DB::enableQueryLog();
@@ -447,7 +447,7 @@ test('the result token screen does not issue a query per token', function () {
     // lookup would show up here as fifteen more, whatever number the budget
     // happened to be set to.
     //
-    // Not equality - the very first request of a test does one-off work that
+    // Not equality, the very first request of a test does one-off work that
     // later ones do not (seeding platform settings, warming the container),
     // so the second reading is legitimately a little lower.
     expect($withThirty)->toBeLessThanOrEqual($withFifteen);

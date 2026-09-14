@@ -33,13 +33,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Student Portal — school-slug-scoped, readable by design (same convention as the
+// Student Portal, school-slug-scoped, readable by design (same convention as the
 // public marketing site above), separate from the obfuscated staff dashboard URLs.
 /*
  * THE SCHOOL IS IDENTIFIED BY AN OPAQUE KEY, NOT ITS SLUG.
  *
  * This prefix used to read schools/{school:slug}/portal, which put the
- * school's public name into every portal link a pupil ever received - and into
+ * school's public name into every portal link a pupil ever received, and into
  * every bookmark, browser history and referrer header those links produced.
  * The slug is not a secret, but a private portal address has no reason to
  * announce whose portal it is.
@@ -79,7 +79,7 @@ Route::prefix('p/{school:portal_key}/portal')->name('student.')->group(function 
             // this off Basic: that plan has no student portal, so there is no
             // student-side Class Note on it and none is created here. The
             // controller scopes every query to the pupil's own school AND
-            // their own class - see the class docblock for why both.
+            // their own class, see the class docblock for why both.
             Route::name('class-notes.')->prefix('class-notes')->group(function () {
                 Route::get('/', [StudentClassNoteController::class, 'index'])->name('index');
                 Route::get('/{note}', [StudentClassNoteController::class, 'show'])->name('show');

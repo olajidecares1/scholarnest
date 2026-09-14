@@ -13,11 +13,11 @@ class NotificationController extends Controller
      *
      * THIS USED TO THROW PEOPLE OUT OF WHERE THEY WERE. It redirected to
      * `route('dashboard')` whenever a notification carried no url of its own,
-     * and twelve of the application's twenty-two notifications carry none - so
+     * and twelve of the application's twenty-two notifications carry none, so
      * clicking most of them abandoned whatever page you were on and sent you
      * to a generic dashboard. For an account whose school had no active
      * subscription, or whose school had been deleted, that dashboard bounces
-     * again, and the second bounce lands on the sign-in page - which is what
+     * again, and the second bounce lands on the sign-in page, which is what
      * "clicking a notification sends me to the registration page" was.
      *
      * The fallback is now back(), so a notification without a destination
@@ -27,7 +27,7 @@ class NotificationController extends Controller
     public function read(DatabaseNotification $notification): RedirectResponse
     {
         // BOTH halves of the morph, not just the id. Comparing the id alone
-        // let a User with id 7 open a Staff member's notification with id 7 -
+        // let a User with id 7 open a Staff member's notification with id 7,
         // different tables, same number, and the notifiable_type is the only
         // thing that tells them apart.
         abort_unless(

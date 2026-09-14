@@ -1,14 +1,14 @@
 ---
 title: Privacy Policy
-version: "1.0"
+version: "1.1"
 effective_date: "[TO BE PROVIDED]"
-last_updated: 2026-09-01
+last_updated: 2026-09-13
 status: Awaiting legal review
 ---
 
 # AkademicNest Privacy Policy
 
-**Version 1.0 · Effective [TO BE PROVIDED] · Last updated 1 September 2026**
+**Version 1.1 · Effective [TO BE PROVIDED] · Last updated 13 September 2026**
 
 <!-- internal:start -->
 > **Draft.** Not yet reviewed by a lawyer or data protection professional. Do
@@ -19,123 +19,124 @@ status: Awaiting legal review
 
 ## 1. Who we are
 
-AkademicNest is a school management platform operated by [TO BE PROVIDED — legal
-entity name and registration number], of [TO BE PROVIDED — address].
+AkademicNest is a school management platform operated by [TO BE PROVIDED: legal
+entity name and registration number], of [TO BE PROVIDED: address].
 
 Data protection contact: support@akademicanest.com.
-Data Protection Officer: [TO BE PROVIDED — *see note in section 20 on whether
-one is required*].
+Data Protection Officer: [TO BE PROVIDED].
 
-This policy explains what personal information passes through AkademicNest, why, and
-what happens to it. It covers the school portals, the public school websites and
-the mobile API.
+This policy explains what personal information AkademicNest handles, why we
+handle it, and what happens to it. It covers the school portals, the public
+school websites and the mobile application.
 
-## 2. The relationship, in plain terms
+## 2. Our relationship with schools
 
-Almost all the personal information in AkademicNest was put there by a **school**,
-about its own pupils, parents and staff. The school decides what to record, who
-may see it, how long to keep it and when to correct it. AkademicNest provides and
-runs the system in which that happens.
+Almost all of the personal information in AkademicNest is entered by a
+**school** about its own pupils, parents and staff. The school decides what to
+record, who may see it, how long to keep it and when to correct it. AkademicNest
+provides and runs the system in which that happens.
 
-In data protection language, for that information:
+In data protection terms, for that information:
 
-- the **school** is the **controller** — it decides the purposes and means;
-- **AkademicNest** is a **processor** — we act on the school's instructions.
+- the **school** is the **controller**, because it decides the purposes and means
+  of processing;
+- **AkademicNest** is a **processor**, because we act on the school's instructions.
 
-For a smaller category — the information we need to run AkademicNest itself as a
-business — AkademicNest is the controller. Section 3 says which is which.
+For a smaller set of information, which we need to run AkademicNest as a
+business, AkademicNest is the controller. Section 3 explains which is which.
 
 <!-- internal:start -->
-> **For legal review.** This allocation is our reasoned view of the system as
-> built, not a settled legal conclusion, and there are edges where it is
-> genuinely arguable. The clearest is automated payment-receipt screening
-> (section 8): AkademicNest decides that screening happens, chooses the provider and
-> sets the criteria, which points towards AkademicNest being a controller for that
-> processing rather than a processor. It should be confirmed by counsel.
-> The absence of a signed data processing agreement is noted in section 21.
+> **For legal review.** This allocation is our reasoned view and not a settled
+> legal conclusion. The clearest edge case is automated payment receipt checking
+> (section 8.1): AkademicNest decides that the check happens and sets its
+> criteria, which points towards AkademicNest acting as a controller for that
+> processing. It should be confirmed by counsel. The absence of a signed data
+> processing agreement is noted in section 21.
 <!-- internal:end -->
 
 ## 3. What we collect, and in which role
 
-### 3.1 School and account information — *AkademicNest is controller*
+### 3.1 School and account information (AkademicNest is controller)
 
 | Data | Source |
 | --- | --- |
-| School name, slug, address, phone, email, logo, favicon | School registration and settings |
-| School Administrator name, email, username, phone, password (hashed), profile photograph | Registration and profile |
+| School name, web address, postal address, phone, email, logo, favicon | School registration and settings |
+| School Administrator name, email, username, phone, password (stored securely, never in readable form), profile photograph | Registration and profile |
 | Subscription plan, status, pupil capacity, dates | Subscription process |
-| Payment records, payment method, proof-of-payment documents, verification notes | Payment submission |
+| Payment records, payment method, proof of payment documents, verification notes | Payment submission |
 | Support tickets and replies | Support requests |
 
-### 3.2 Pupil information — *school is controller, AkademicNest is processor*
+### 3.2 Pupil information (school is controller, AkademicNest is processor)
 
 Full name, admission number, gender, date of birth, class, house, address,
-phone, email, photograph, admission date, free-text notes, active status,
-portal password (hashed), and **blood group**.
+phone, email, photograph, admission date, notes, active status, portal password
+(stored securely), and **blood group**.
 
 > **Blood group is health information.** Under the Nigeria Data Protection Act
-> and comparable laws it is a special category of personal data attracting
-> stricter conditions. It is collected about pupils and about staff. See
+> and comparable laws it is a special category of personal data that attracts
+> stricter conditions. It may be recorded about pupils and about staff. See
 > section 7.
 
-### 3.3 Parent and guardian information — *school is controller*
+### 3.3 Parent and guardian information (school is controller)
 
-Name, guardian number, email, phone, photograph, portal password (hashed), and
-the pupils they are linked to. Pupil records also carry a guardian name, phone
-and email entered directly on the pupil.
+Name, guardian number, email, phone, photograph, portal password (stored
+securely), and the pupils they are linked to. Pupil records may also include a
+guardian name, phone number and email address entered directly on the pupil's
+record.
 
-### 3.4 Staff information — *school is controller*
+### 3.4 Staff information (school is controller)
 
 Name, staff number, gender, date of birth, role, department, qualification,
-employment date, **emergency contact name and phone**, address, phone, email,
-photograph, **blood group**, free-text notes, portal password (hashed).
+employment date, **emergency contact name and phone number**, address, phone,
+email, photograph, **blood group**, notes and portal password (stored securely).
 
-### 3.5 Academic information — *school is controller*
+### 3.5 Academic information (school is controller)
 
-Examination records, subjects, scores, computed grades and positions, teacher
-and principal remarks, report cards, attendance records, assignments and
-submissions, CBT tests, questions, attempts and answers, timetables, teacher
-diary entries, co-curricular activities, library loans, transport assignments,
-hostel allocations, fee structures, invoices and fee payments.
+Examination records, subjects, scores, grades and positions, teacher and
+principal remarks, report cards, attendance records, assignments and
+submissions, computer based tests with their questions, attempts and answers,
+timetables, teacher diary entries, co-curricular activities, library loans,
+transport assignments, hostel allocations, fee structures, invoices and fee
+payments.
 
-### 3.6 Result access tokens — *school is controller*
+### 3.6 Result access tokens (school is controller)
 
-Tokens issued so a parent can look up one pupil's result for one examination.
-Stored as a one-way hash plus a separately encrypted copy so the school can
-re-display a token it issued. Each use is logged with the time, the outcome,
-the **IP address** and the **browser user-agent string**.
+Tokens issued so that a parent can view one pupil's result for one examination.
+Tokens are stored in a protected form, with an encrypted copy so that the school
+can display a token it has issued again. Each use is recorded with the time, the
+outcome, the **IP address** and the **browser type**.
 
-### 3.7 Digital signatures — *school is controller*
+### 3.7 Digital signatures (school is controller)
 
 An image of a signature drawn by a School Administrator or member of staff,
 stored against that person's account and printed on documents such as report
 cards.
 
-### 3.8 Visitor information from public school websites — *school is controller*
+### 3.8 Information from visitors to public school websites (school is controller)
 
-- **Contact enquiries**: name, email, phone, subject, message.
-- **Pupil conduct reports**: reporter's name, description, location, and up to
-  four attached files (photographs or short video). Contact details are
-  deliberately *not* required.
+- **Contact enquiries**: name, email, phone, subject and message.
+- **Pupil conduct reports**: the reporter's name, a description, the location,
+  and up to four attached files (photographs or short videos). Contact details
+  are not required.
 
-### 3.9 Technical information — *AkademicNest is controller*
+### 3.9 Technical information (AkademicNest is controller)
 
-| Data | Where | Note |
-| --- | --- | --- |
-| **IP address**, path, referrer host, traffic source, device type | `page_views` | Recorded for **every** web request, signed in or not |
-| IP address, action, description, acting user | `audit_logs` | Administrative actions |
-| IP address, user-agent | Result token access logs | Every result lookup |
-| IP address | Rate limiting | Held transiently in cache to throttle sign-in and lookups |
-| Session identifier and payload | `sessions` table | See section 12 |
-| API tokens | Sanctum | For the mobile API |
+| Data | Purpose |
+| --- | --- |
+| **IP address**, page visited, referring website, traffic source, device type | Recorded for every web request, whether or not the visitor is signed in, to understand how the platform is used |
+| IP address, action, description, acting user | A record of administrative actions |
+| IP address and browser type | A record of every result lookup |
+| IP address | Held briefly to limit repeated sign in attempts and lookups |
+| Session identifier and session data | Keeping you signed in (see section 12) |
+| Access tokens | Signing in to the mobile application |
 
-## 4. Who provides the data
+## 4. Who provides the information
 
 Very little of it is provided by the person it describes. Pupil and staff
-records are entered by the school. Parent records are created by the school.
-This matters: **the person whose information it is may not know it is in AkademicNest
-at all.** Telling them is the school's responsibility, not ours — see the
-*School Data Processing Framework*.
+records are entered by the school, and parent records are created by the
+school. This means **the person the information is about may not know it is held
+in AkademicNest.** Informing them is the school's responsibility, as explained in
+the *School Responsibilities Framework*.
 
 ## 5. Why we process it
 
@@ -150,9 +151,9 @@ at all.** Telling them is the school's responsibility, not ours — see the
 | Operating the public school website | Website content, gallery, news, events |
 | Handling visitor enquiries and conduct reports | Visitor submissions |
 | Subscription and payment verification | Payment records, receipts |
-| Fraud prevention on payments | Receipt documents |
+| Preventing payment fraud | Receipt documents |
 | Security, rate limiting and abuse prevention | IP addresses, session data |
-| Audit and accountability | Audit logs |
+| Audit and accountability | Audit records |
 | Technical support and fault diagnosis | Whatever the fault concerns |
 | Understanding platform usage | Page views |
 | Legal compliance | As required |
@@ -161,258 +162,237 @@ at all.** Telling them is the school's responsibility, not ours — see the
 
 For information where **AkademicNest is controller**, we rely on:
 
-- **Contract** — running accounts, subscriptions and payments.
-- **Legitimate interests** — security, fraud prevention, audit logging, and
-  understanding platform usage, balanced against the individual's interests.
-- **Legal obligation** — where law requires us to keep or disclose something.
+- **Contract**, to run accounts, subscriptions and payments;
+- **Legitimate interests**, for security, fraud prevention, audit records and
+  understanding platform usage, balanced against the individual's interests;
+- **Legal obligation**, where the law requires us to keep or disclose something.
 
 For information where the **school is controller**, the school must identify its
-own basis. For a school this will commonly be a public task, a legal obligation,
-or the performance of its contract with parents. **AkademicNest does not obtain
-consent from pupils or parents and does not rely on consent for this
+own legal basis. For a school this will commonly be a public task, a legal
+obligation, or the performance of its contract with parents. **AkademicNest does
+not obtain consent from pupils or parents and does not rely on consent for this
 processing.**
 
 <!-- internal:start -->
-> **For legal review.** Bases must be mapped against the NDPA specifically, and
-> the condition for processing blood group as health data must be established
-> before either the school or AkademicNest can safely continue to collect it.
+> **For legal review.** The bases must be mapped against the NDPA specifically,
+> and the condition for processing blood group as health data must be
+> established before either the school or AkademicNest continues to collect it.
 <!-- internal:end -->
 
 ## 7. Children's and pupils' information
 
-AkademicNest is a school platform, so a large part of what it holds is about
-children. We treat this as the highest-risk area of the system.
+AkademicNest is a school platform, so much of the information it holds is about
+children. We treat this information with particular care.
 
 **What is held about a pupil**: name, admission number, gender, date of birth,
-photograph, home address, phone, email, class, house, blood group, free-text
-notes, guardian contact details, attendance, results, grades, remarks,
-assignments, CBT attempts, library loans, transport, hostel allocation, fees,
-and any misconduct report a member of the public has filed about them.
+photograph, home address, phone, email, class, house, blood group, notes,
+guardian contact details, attendance, results, grades, remarks, assignments,
+test attempts, library loans, transport, hostel allocation, fees, and any conduct
+report a member of the public has submitted about them.
 
-**Who enters it**: the school — administrators and staff.
+**Who enters it**: the school, through its administrators and staff.
 
 **Who can see it**:
 
 | Party | Access |
 | --- | --- |
 | School Administrator | All pupil records in that school |
-| Staff | Records within their school, scoped by role and assignment |
+| Staff | Records within their school, limited by role and assignment |
 | Pupil | Their own results, attendance, assignments, notices and timetable |
-| Parent/guardian | Their linked children's records (Standard and above) |
-| Anyone with a result token | One pupil's result for one examination, limited uses |
-| AkademicNest Team | Technically able to reach it — see section 10 |
-| Another school | **Never.** Enforced in the application |
+| Parent or guardian | Their linked children's records (Standard plan and above) |
+| Anyone with a result token | One pupil's result for one examination, for a limited number of uses |
+| AkademicNest Team | Authorised team members, as described in section 10 |
+| Another school | **Never.** This is enforced by the platform |
 
 **Who can change it**: school administrators and, within limits, staff. Pupils
-and parents cannot edit their own records directly; a change request mechanism
-exists for portal profile changes, which the school approves.
+and parents cannot edit their own records directly. They can request changes to
+their portal profile, which the school approves.
 
 **Who can download it**: schools can generate and print report cards and ID
-cards. Result tokens allow a result to be downloaded.
+cards. A result token allows a result to be downloaded.
 
 **Retention**: see the *Data Retention & Deletion Policy*.
 
 **How it is protected**: see section 11 and the *Security & Data Handling
-Statement* — **including its statement that pupil photographs and signature
-images are currently stored at publicly reachable addresses**, which is the most
-significant open issue affecting children's data on the platform.
+Statement*, including the information there about how photographs and signature
+images are stored.
 
-**Consent.** AkademicNest does not obtain parental consent. The school is responsible
-for having the authority and any required permission to record its pupils'
-information and to publish any photograph on its public website.
+**Consent.** AkademicNest does not obtain parental consent. The school is
+responsible for having the authority, and any permission required, to record
+its pupils' information and to publish any photograph on its public website.
 
 <!-- internal:start -->
-> **For legal review — highest priority.** Which child-data rules apply, whether
-> a data protection impact assessment is required, what parental notification is
-> owed, and on what basis blood group may be held about a child.
+> **For legal review, highest priority.** Which rules on children's data apply,
+> whether a data protection impact assessment is required, what notice parents
+> are owed, and on what basis blood group may be held about a child.
 <!-- internal:end -->
 
 ## 8. Third parties
 
-AkademicNest uses few external services. Those it does use are:
+AkademicNest uses a small number of external services, described below.
 
-### 8.1 Anthropic (payment receipt screening) — *personal data leaves AkademicNest*
+### 8.1 Payment receipt checks (no external service)
 
-When a school uploads proof of payment, **the receipt image or document is sent
-to Anthropic's API (`api.anthropic.com`) to be checked automatically** before a
-person reviews it.
+When a school uploads proof of payment, the receipt is checked automatically
+**on AkademicNest's own servers** before a member of our team reviews it.
 
-- **What is sent**: the receipt file itself and the school's name. A receipt
-  commonly shows the payer's name, bank, account details, amount and date.
-- **Why**: to turn away obvious non-receipts before they reach manual review.
-- **Where**: Anthropic is based outside Nigeria. **This is a cross-border
-  transfer of personal data.**
-- **Control**: once sent, the data is subject to Anthropic's own terms and
-  protections. AkademicNest does not control what happens to it there.
-- If the service is unavailable, the upload proceeds and is reviewed by a person
-  with a note that the automatic check did not run.
+- **What is checked**: whether the file can be read, whether it is blank, and,
+  for a PDF, whether it shows payment details and an amount at least equal to
+  what is owed.
+- **Why**: to identify uploads that are clearly not receipts before they reach
+  manual review.
+- **Where**: the receipt **is not sent to any outside service**. It is stored in
+  private storage and seen only by the AkademicNest Team.
 
-<!-- internal:start -->
-> **For legal review — high priority.** This transfer needs a lawful transfer
-> mechanism, a processor agreement, and disclosure to schools. Schools are not
-> currently told it happens, and cannot opt out of it while paying by transfer.
-<!-- internal:end -->
+### 8.2 Bunny Fonts (fonts.bunny.net)
 
-### 8.2 Bunny Fonts (`fonts.bunny.net`)
+Provides the typeface used in the signed in portals. **The visitor's browser
+requests the font directly**, which shares their IP address and browser details
+with that provider.
 
-Serves the typeface used across the signed-in portals. **The visitor's browser
-requests the font directly**, which discloses their IP address and user-agent to
-that provider. Bunny Fonts is used specifically because it is marketed as not
-tracking users; we have not independently verified that claim.
+### 8.3 Google Fonts (fonts.googleapis.com, fonts.gstatic.com)
 
-### 8.3 Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`)
-
-Serves typefaces on **public school websites**, where a school has chosen one.
-The visitor's browser requests these directly, disclosing their IP address to
-Google. This applies only to Google-hosted typefaces; a school that selects one
-of the installed system fonts causes no such request.
+Provides typefaces on **public school websites** where a school has chosen one.
+The visitor's browser requests these directly, which shares their IP address with
+Google. This applies only to Google hosted typefaces. A school that selects one
+of the standard system fonts causes no such request.
 
 ### 8.4 Email delivery
 
-Notifications may be sent by email through a mail provider. **The provider is
-configured per deployment and is not fixed in the codebase**; the operator must
-name it here before publication: [TO BE PROVIDED].
+Notifications may be sent by email through a mail delivery provider: [TO BE
+PROVIDED].
 
 ### 8.5 Hosting
 
-The Platform and its database run on [TO BE PROVIDED — hosting provider and
-region]. Object storage (Amazon S3) is *supported* by the configuration but is
-**not enabled by default**; files are written to the application server's own
-disk unless the operator changes this.
+The platform and its database are hosted by [TO BE PROVIDED: hosting provider
+and region].
 
 ### 8.6 What we do **not** use
 
-Verified absent from the codebase:
-
-- **No analytics service.** No Google Analytics, Tag Manager, Meta pixel,
-  Hotjar, Segment or similar. Page views are recorded in AkademicNest's own database.
+- **No analytics services.** We do not use Google Analytics, Tag Manager, the
+  Meta pixel, Hotjar, Segment or similar tools. Page views are recorded in
+  AkademicNest's own database.
 - **No advertising networks.**
-- **No card processor.** Paystack appears as an option in the interface but is
-  **not integrated**; no card details reach AkademicNest.
-- **No CDN** for application assets.
+- **No card processing.** No card details are collected or stored by
+  AkademicNest.
 - **We do not sell personal information, and we do not share it between
   schools.**
 
 ## 9. Sharing
 
-Beyond section 8, personal information is disclosed only:
+Apart from the services in section 8, personal information is disclosed only:
 
 - to the users a school has authorised, within that school;
-- to a holder of a valid result token, for the single result it was issued for;
+- to the holder of a valid result token, for the single result it was issued for;
 - to the AkademicNest Team for support, security and payment verification;
 - where required by law, or to establish or defend legal claims;
-- to a successor entity on a sale or reorganisation, on notice.
+- to a successor organisation on a sale or reorganisation, with notice.
 
 **One school can never see another school's data.** Every request is checked
-against the acting user's school, and the check refuses rather than filters.
+against the signed in user's school, and access is refused where they do not
+match.
 
 ## 10. AkademicNest Team access
 
-Members of the AkademicNest Team with the appropriate role can, through the
-administrative interface, reach school records and act on them — including
-deleting a school and everything in it. Administrative actions are recorded in
-an audit log with the actor, the action and the IP address.
+Members of the AkademicNest Team with the appropriate role can use the
+administrative tools to view school records and act on them, including deleting
+a school and everything in it. Administrative actions are recorded with the
+person responsible, the action taken and the IP address.
 
-**Honest limitations**: access is governed by role permissions, but there is no
-technical restriction that prevents a sufficiently privileged team member from
-viewing a school's records, no requirement to state a reason, and no separate
-alert to the school when it happens.
+Access is governed by role permissions. Team members may access school records
+only for support, security, payment verification and the operation of the
+platform.
 
 ## 11. How information is stored and protected
 
-Summarised here; stated fully in the *Security & Data Handling Statement*.
+A summary is given here. Full details are in the *Security & Data Handling
+Statement*.
 
-- **Database**: MySQL.
-- **Passwords**: hashed with bcrypt (12 rounds). Never stored or recoverable in
-  readable form. Minimum eight characters with mixed case, a number and a
+- **Passwords** are stored using strong one way hashing. They are never stored
+  in readable form and cannot be recovered. Passwords must be at least eight
+  characters long and include upper and lower case letters, a number and a
   symbol.
-- **Result tokens**: stored as a one-way hash plus a separately encrypted copy.
-- **Files**: payment receipts and conduct-report attachments are on a
-  **private** disk. **Photographs of pupils, staff and guardians, school logos,
-  gallery images and signature images are on a publicly readable disk** at
-  unguessable but unprotected addresses.
-- **Transport**: HTTPS enforced in production, with HSTS.
-- **In production, the database itself is not encrypted at the application
-  level** beyond the specific fields named above.
+- **Result tokens** are stored in a protected form with a separately encrypted
+  copy.
+- **Files**: payment receipts and conduct report attachments are held in
+  **private** storage. Photographs of pupils, staff and guardians, school logos,
+  gallery images and signature images are held at long, random addresses that
+  cannot be guessed. Anyone who has the address of one of these files can open
+  it, so addresses should not be shared.
+- **Connections** use HTTPS in production, with HSTS.
 
 ## 12. Sessions and cookies
 
-Covered in full by the *Cookie & Browser Storage Policy*. In summary: a session
+Full details are in the *Cookie & Browser Storage Policy*. In summary: a session
 cookie is required to sign in; school portal sessions end after **three minutes
-of inactivity**; a "remember me" option is available; no analytics or
-advertising cookies are set; **there is currently no cookie consent banner**.
+of inactivity**; a "remember me" option is available; and no analytics or
+advertising cookies are set.
 
 ## 13. Retention
 
-Covered in full by the *Data Retention & Deletion Policy*.
-
-**Stated plainly**: the Platform does not currently delete anything
-automatically. Audit logs, page-view records (with IP addresses), result token
-access logs and expired sessions accumulate indefinitely, and files remain on
-disk after their database records are deleted. This is a gap we intend to close;
-it is described honestly here rather than dressed up as a retention schedule
-that is not enforced.
+Full details are in the *Data Retention & Deletion Policy*. Records are held for
+as long as a school's subscription is active and until deletion is requested.
+Operational records such as audit records, page views and result lookup records
+are currently kept without a fixed deletion date. We intend to introduce
+automatic retention limits.
 
 ## 14. Deletion and other rights
 
-Depending on jurisdiction, an individual may have the right to access, correct,
-erase, restrict, object to, or receive a portable copy of their personal
-information.
+Depending on the law that applies, you may have the right to access, correct,
+erase, restrict or object to the use of your personal information, or to receive
+a copy of it in a portable format.
 
-**Where to direct a request:**
+**Where to send a request:**
 
 - **Pupils, parents and staff** should contact **their school**, which decides
   what is recorded about them and is the controller for it. AkademicNest cannot
-  action such a request on its own.
+  act on such a request without the school.
 - **School Administrators** may contact AkademicNest about their own account.
 - If a school asks us to help with a request it has received, we will.
 
-**Limits we will not pretend away:**
+**Please note:**
 
-- A school may be required by education law or its own obligations to keep
-  academic records, and can refuse deletion on that basis.
-- Deletion of a school Environment is permanent and cannot be reversed by us.
-- **Bulk export is not currently available as a feature.** A school wanting a
-  copy of its records should contact us to arrange it.
+- A school may be required by education law, or by its own obligations, to keep
+  academic records, and may refuse deletion on that basis.
+- Deletion of a school's account is permanent and cannot be reversed by us.
+- A bulk export feature is not currently available. A school wanting a copy of
+  its records should contact us to arrange it.
 
-You may also complain to a data protection authority — in Nigeria, the Nigeria
-Data Protection Commission.
+You may also complain to a data protection authority. In Nigeria this is the
+Nigeria Data Protection Commission.
 
 ## 15. International transfers
 
-Personal information is transferred outside Nigeria in one confirmed case:
-**payment receipts sent to Anthropic's API** (section 8.1). Font requests to
-Bunny and Google disclose visitors' IP addresses to servers outside Nigeria.
+Font requests to Bunny Fonts and Google share visitors' IP addresses with
+servers outside Nigeria. Payment receipts are not sent outside AkademicNest.
 
-Where the platform is hosted, and therefore whether the database itself sits
-outside Nigeria, depends on the deployment: [TO BE PROVIDED].
+Whether the database itself is stored outside Nigeria depends on the hosting
+arrangement: [TO BE PROVIDED].
 
 <!-- internal:start -->
 > **For legal review.** Each transfer needs a lawful basis under the NDPA's
-> transfer provisions. This has not been established.
+> transfer provisions. This has not yet been established.
 <!-- internal:end -->
 
-## 16. Automated decision-making
+## 16. Automated decision making
 
-Payment receipts are screened automatically (section 8.1). The screening can
-**reject** an upload — telling the school the document does not look like a
-receipt, or that the amount falls short — but it can never **approve** one. A
-person always reviews before a subscription is activated, and a school whose
-receipt is rejected can contact us.
+Payment receipts are checked automatically (section 8.1). The check can
+**reject** an upload, for example by telling the school that the document does
+not look like a receipt or that the amount is too low, but it can never
+**approve** one. A member of our team always reviews a payment before a
+subscription is activated, and a school whose receipt is rejected can contact
+us.
 
-No other automated decision-making with legal or similarly significant effect
-takes place. Grades and positions are calculated arithmetically from values and
-grading bands the school itself configures; that is computation, not profiling.
+No other automated decision making with legal or similarly significant effects
+takes place. Grades and positions are calculated from scores and grading bands
+that the school itself sets. That is a calculation, not profiling.
 
 ## 17. Security incidents
 
-Our approach is set out in the *Security & Data Handling Statement*. In summary:
-we will investigate and contain, assess who is affected, notify affected schools
-without undue delay, and notify a regulator where legally required.
-
-**We do not commit to a fixed notification time in this policy**, because a
-commitment made before an incident that cannot be honoured during one is worse
-than none. Statutory deadlines apply regardless of what is written here.
+Our approach is described in the *Security & Data Handling Statement*. In
+summary, we will investigate and contain an incident, assess who is affected,
+notify affected schools without undue delay, and notify the regulator where the
+law requires it. Statutory deadlines apply in every case.
 
 <!-- internal:start -->
 > **For legal review.** A documented incident response procedure with defined
@@ -421,8 +401,8 @@ than none. Statutory deadlines apply regardless of what is written here.
 
 ## 18. Changes to this policy
 
-Material changes will be notified through the Platform or by email to School
-Administrators. The version number and date at the top will change.
+We will notify School Administrators of material changes through the platform
+or by email. The version number and date at the top of this policy will change.
 
 ## 19. Contact
 
@@ -434,31 +414,25 @@ Administrators. The version number and date at the top will change.
 | Data Protection Officer | [TO BE PROVIDED] |
 | Supervisory authority (Nigeria) | Nigeria Data Protection Commission |
 
+<!-- internal:start -->
 ## 20. Registration and DPO
 
-<!-- internal:start -->
-> **For legal review.** Whether AkademicNest is required to register with the Nigeria
-> Data Protection Commission, to file an annual audit return, or to appoint a
-> Data Protection Officer depends on how much personal data it processes and on
-> current NDPC thresholds and guidance. Given that the platform holds children's
-> records including health data, this should be assessed before publication
-> rather than after. Nothing has been asserted here about registration status.
-<!-- internal:end -->
+> **For legal review.** Whether AkademicNest must register with the Nigeria Data
+> Protection Commission, file an annual audit return, or appoint a Data
+> Protection Officer depends on how much personal data it processes and on
+> current NDPC thresholds and guidance. Because the platform holds children's
+> records including health data, this should be assessed before publication.
 
 ## 21. Processing agreements
 
-<!-- internal:start -->
 > **For legal review.** No data processing agreement is currently offered to
-> schools, and none is in place with Anthropic for the receipt screening
-> described in section 8.1. Where AkademicNest acts as a processor, a written
-> agreement is normally a legal requirement rather than good practice. See the
-> *School Data Processing Framework*, which is drafted to serve as the basis for
-> one.
-<!-- internal:end -->
+> schools. Where AkademicNest acts as a processor, a written agreement is
+> normally a legal requirement. The *School Responsibilities Framework* is
+> drafted to serve as the basis for one.
 
 ---
 
-*This policy describes the platform as it was implemented on 1 September 2026.
-It should be reviewed and approved by a qualified data protection professional
-before publication, particularly because AkademicNest processes educational records,
-children's personal data and health information.*
+*This policy should be reviewed and approved by a qualified data protection
+professional before publication, particularly because AkademicNest processes
+educational records, children's personal data and health information.*
+<!-- internal:end -->

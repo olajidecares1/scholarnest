@@ -6,7 +6,7 @@ namespace App\Enums;
  * Why an attempt to redeem a result token succeeded or failed.
  *
  * These values are recorded, never shown. Whatever the real reason, the person
- * at the keyboard always sees the same generic refusal - telling them that a
+ * at the keyboard always sees the same generic refusal, telling them that a
  * token exists but is revoked, or that it belongs to a different term, hands
  * an attacker a way to map what is out there.
  */
@@ -39,7 +39,7 @@ enum ResultTokenAccessOutcome: string
     case RateLimited = 'rate_limited';
 
     /**
-     * A real, usable token - for somebody else's result.
+     * A real, usable token, for somebody else's result.
      *
      * Only reachable from the portals, where the result being opened is already
      * known, so the token can be checked against it. Recorded separately from

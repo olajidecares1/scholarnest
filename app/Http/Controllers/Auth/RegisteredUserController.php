@@ -71,7 +71,7 @@ class RegisteredUserController extends Controller
 
         // One registration, one notification. The key is the school's, not
         // this request's, so a retry or a re-delivered job announces nothing
-        // twice - see App\Services\TeamNotifier.
+        // twice, see App\Services\TeamNotifier.
         $this->team->once(
             SchoolRegisteredNotification::eventKeyFor($user->school),
             new SchoolRegisteredNotification($user->school),

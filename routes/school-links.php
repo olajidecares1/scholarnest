@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | Loaded LAST, and it has to be. Both routes here live in the root
-| namespace and would shadow anything registered after them - see the
+| namespace and would shadow anything registered after them, see the
 | notes on each.
 |
 | Neither names its school any more. Both carry an opaque fixed-length key,
@@ -28,8 +28,8 @@ require __DIR__.'/auth.php';
 |
 | akademicanest.com/hT4wLpZs3H8Kq2mV/result
 |
-| The link a school hands to parents. It carries no secret of its own - a
-| result token is still required to see anything - but it does decide WHICH
+| The link a school hands to parents. It carries no secret of its own, a
+| result token is still required to see anything, but it does decide WHICH
 | school's tokens are even considered, and that decision is made here from the
 | address rather than from anything the visitor can type.
 |
@@ -39,8 +39,8 @@ require __DIR__.'/auth.php';
 |
 | It used to be built from the school's name and read /greenfield-college/
 | result, which put that name into every message, notice board and referrer
-| header the link reached. It is random now. Nothing is lost - a parent clicks
-| this link rather than typing it - and the file below no longer needs the
+| header the link reached. It is random now. Nothing is lost, a parent clicks
+| this link rather than typing it, and the file below no longer needs the
 | reserved-word machinery a name-shaped slug required.
 |
 */
@@ -65,7 +65,7 @@ Route::prefix('{school:result_link_slug}/result')->name('school-result.')->group
 
 // The Basic-plan school landing, on the same opaque key as everything else.
 //
-// It used to be akademicanest.com/greenfield-college - a single readable segment at
+// It used to be akademicanest.com/greenfield-college, a single readable segment at
 // the root, which is why this file carried so much machinery to stop a school
 // slug colliding with a reserved path. The key retires all of it: 20 mixed-case
 // alphanumerics cannot be "login" or "dashboard" or "legal", so there is no

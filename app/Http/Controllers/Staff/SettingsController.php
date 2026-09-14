@@ -78,7 +78,7 @@ class SettingsController extends Controller
      *
      * Uploaded here and nowhere else. A signature is the one thing on a report
      * card that is supposed to mean a particular person saw it, so the school
-     * office cannot upload one on a teacher's behalf - if it could, the mark
+     * office cannot upload one on a teacher's behalf, if it could, the mark
      * would prove nothing.
      *
      * The staff member is taken from the session, never from the request, so
@@ -111,7 +111,7 @@ class SettingsController extends Controller
         }
 
         // Private, like every other signature. This upload path was the one
-        // that still wrote to the public disk after the rest moved - so a
+        // that still wrote to the public disk after the rest moved, so a
         // teacher who uploaded a photograph of their signature, rather than
         // drawing it on the pad, published it at a public address.
         $path = $this->uploads->storeImage($request->file('signature'), 'local', 'staff-signatures', ImageProfile::Signature, 'signature')->path;

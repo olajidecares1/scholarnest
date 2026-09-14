@@ -55,7 +55,7 @@ export function registerResultPreviewStore(Alpine) {
 
                 // Scheduled after loading flips to false (not before), since
                 // the report-card container is hidden via x-show while
-                // loading - measuring it before that flag flips reads a
+                // loading, measuring it before that flag flips reads a
                 // zero-size element and the fit calculation silently no-ops.
                 if (!this.error && this.tab === 'report-card') {
                     this.scheduleFitToScreen();
@@ -69,7 +69,7 @@ export function registerResultPreviewStore(Alpine) {
         },
 
         // Alpine.nextTick() only guarantees the DOM has been updated (e.g.
-        // x-html's innerHTML write), not that the browser has laid it out -
+        // x-html's innerHTML write), not that the browser has laid it out,
         // reading scrollHeight/clientHeight right after can still return 0.
         // Waiting two animation frames after nextTick ensures a real layout
         // pass has happened before fitToScreen() measures anything.
@@ -132,7 +132,7 @@ export function registerResultPreviewStore(Alpine) {
         },
 
         // Scales the report card down (never up past 100%) so the whole A4
-        // page fits inside the visible preview area without scrolling -
+        // page fits inside the visible preview area without scrolling,
         // transform: scale() doesn't affect layout, so scrollHeight/Width on
         // the content wrapper still reflect its natural, unscaled size.
         fitToScreen() {

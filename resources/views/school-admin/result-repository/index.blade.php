@@ -14,7 +14,7 @@
 >
     <div class="space-y-6">
         <div class="rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-            {{-- Class, then session, then term - the order asked for, and the
+            {{-- Class, then session, then term, the order asked for, and the
                  order somebody looking for a particular result thinks in. --}}
             <form method="GET" class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
@@ -133,16 +133,16 @@
                                         {{ $payload['student']['full_name'] ?? $result->student?->fullName() }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">
-                                        {{ $payload['student']['admission_number'] ?? '—' }}
+                                        {{ $payload['student']['admission_number'] ?? 'N/A' }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">
                                         {{ count($payload['subjects'] ?? []) }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">
-                                        {{ $payload['summary']['average'] !== null ? $payload['summary']['average'].'%' : '—' }}
+                                        {{ $payload['summary']['average'] !== null ? $payload['summary']['average'].'%' : 'N/A' }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">
-                                        {{ $payload['summary']['position'] ?? '—' }}
+                                        {{ $payload['summary']['position'] ?? 'N/A' }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3">
                                         @if ($isStale)

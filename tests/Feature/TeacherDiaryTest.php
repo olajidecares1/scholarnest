@@ -20,7 +20,7 @@ use Illuminate\Testing\TestResponse;
  * The teacher diary, and the loop it closes.
  *
  * A teacher logs the topic they taught each week, subject by subject; the
- * school reads it and says so. Both halves matter - a diary submitted into
+ * school reads it and says so. Both halves matter, a diary submitted into
  * silence gives a teacher no way to tell one that is being read from one that
  * is not, and they stop writing it carefully.
  */
@@ -58,7 +58,7 @@ function submitDiaryEntry(Staff $teacher, School $school, array $overrides = [])
         'session' => '2025/2026',
         'term' => ExamTerm::Second->value,
         'week_number' => 3,
-        'topic' => 'Quadratic equations — factorisation.',
+        'topic' => 'Quadratic equations: factorisation.',
         ...$overrides,
     ]);
 }
@@ -158,7 +158,7 @@ test('a teacher cannot write against a subject or class they are not assigned to
     'a class they do not teach' => 'JSS 3|Mathematics',
 
     // The pair matters, not the two values separately: this teacher teaches
-    // Mathematics, and teaches JSS 2 - but not Mathematics to JSS 2.
+    // Mathematics, and teaches JSS 2, but not Mathematics to JSS 2.
     'a real subject to the wrong class' => 'JSS 2|Mathematics',
 ]);
 

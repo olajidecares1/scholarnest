@@ -86,7 +86,7 @@
                         name="resolution_notes"
                         label="Resolution Notes"
                         icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z"
-                        helper="Internal notes only — not shared with the reporter."
+                        helper="Internal notes only. Not shared with the reporter."
                         rows="4"
                         placeholder="Internal notes about how this was handled..."
                         :value="old('resolution_notes', $report->resolution_notes)"

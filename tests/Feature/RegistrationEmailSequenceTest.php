@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\Notification;
  * WHICH email a school gets, and WHEN.
  *
  * The ordering is the requirement, not a detail of it. A school that has
- * submitted a payment is not a customer yet - a Super Admin has still to
- * approve it - and the two emails say two different things:
+ * submitted a payment is not a customer yet, a Super Admin has still to
+ * approve it, and the two emails say two different things:
  *
  *   AT SUBMISSION: the invoice, which states plainly that the account is
  *   awaiting approval.
@@ -152,7 +152,7 @@ test('the welcome email carries the full subscription summary', function () {
 describe('the Super Admin remains the gate', function () {
     test('registering does not activate anything', function () {
         // The school exists, the admin exists, and there is no subscription
-        // at all - so nothing is active and nothing has been assumed.
+        // at all, so nothing is active and nothing has been assumed.
         expect($this->school->fresh()->hasActiveSubscription())->toBeFalse()
             ->and($this->school->subscriptions()->count())->toBe(0);
     });

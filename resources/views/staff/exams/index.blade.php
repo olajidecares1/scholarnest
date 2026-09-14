@@ -6,7 +6,7 @@
      to find "Physics, this term" is the wrong way to start a marking session.
 
      Only Test and Examination are ever typed. Total, grade and remark are
-     worked out - see the score grid itself. --}}
+     worked out, see the score grid itself. --}}
 <x-staff-layout page-title="Test/Exam Score" page-subtitle="Enter and update Test and Examination scores for your class.">
     <div class="space-y-6">
         @if (session('status'))
@@ -62,8 +62,8 @@
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                         {{-- No Examination column. It repeated the term and
-                             session that follow it - every row read "First
-                             Term Examination, First Term, 2026/2027" - and
+                             session that follow it, every row read "First
+                             Term Examination, First Term, 2026/2027", and
                              cost the columns a teacher actually reads on a
                              phone the width to be legible. --}}
                         <tr>

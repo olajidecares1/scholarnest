@@ -43,7 +43,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        // portalLoginUrl() uses publicUrl(), not route() - see Student\Auth\AuthenticatedSessionController.
+        // portalLoginUrl() uses publicUrl(), not route(), see Student\Auth\AuthenticatedSessionController.
         return redirect()->to($school->portalLoginUrl('staff'));
     }
 }

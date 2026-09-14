@@ -1,7 +1,7 @@
 @php
     $school = $card->school;
     $template = $card->template;
-    // Defined once, in App\Support\IdCardDesign - see _card.blade.php.
+    // Defined once, in App\Support\IdCardDesign, see _card.blade.php.
     ['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]
         = \App\Support\IdCardDesign::colors($template);
 
@@ -9,11 +9,11 @@
     $cardWidth = $isLandscape ? '85.6mm' : '53.98mm';
     $cardHeight = $isLandscape ? '53.98mm' : '85.6mm';
     // Set in Settings on every plan, not only by schools with a public
-    // website - see App\Support\SchoolMotto.
+    // website, see App\Support\SchoolMotto.
     $motto = \App\Support\SchoolMotto::for($school)->tagline;
     $qr = app(\App\Services\CodeImageGenerator::class)->qrCodeDataUri($card->verificationUrl(), 160);
 
-    // The school's own address, on every plan - see App\Support\SchoolContact.
+    // The school's own address, on every plan, see App\Support\SchoolContact.
     $contact = \App\Support\SchoolContact::for($school);
 
     $instructionLines = collect(explode("\n", $template?->instructions ?: \App\Support\IdCardDesign::instructions($school)))
@@ -38,7 +38,7 @@
     class="id-card flex h-full flex-col overflow-hidden text-gray-900"
     style="width: {{ $cardWidth }}; height: {{ $cardHeight }}; background-color: #f7f7f8; border: 1.5px solid {{ $secondaryColor }}; border-radius: 5px; font-family: 'Inter', sans-serif;"
 >
-    {{-- SEGMENT 1 - the navy crown: lanyard slot, crest, school name and
+    {{-- SEGMENT 1, the navy crown: lanyard slot, crest, school name and
          tagline, closed off with the same red stripe the front carries. --}}
     <div class="shrink-0 text-center text-white" style="background-color: {{ $secondaryColor }}; padding: 6px 7px 8px; border-top-left-radius: 3.5px; border-top-right-radius: 3.5px;">
         <div class="flex justify-center" style="padding-bottom: 5px;">
@@ -59,7 +59,7 @@
     <div class="shrink-0" style="height: 3px; background-color: {{ $accentColor }};"></div>
 
     <div class="flex min-h-0 flex-1 flex-col overflow-hidden" style="padding: 6px 7px 0;">
-        {{-- SEGMENT 2 - instructions, headed by a navy tab with a rule running
+        {{-- SEGMENT 2, instructions, headed by a navy tab with a rule running
              out to each margin. --}}
         <div class="flex shrink-0 items-center" style="gap: 4px;">
             <span class="flex-1" style="height: 1px; background-color: {{ $secondaryColor }}55;"></span>
@@ -76,9 +76,9 @@
             @endforeach
         </ul>
 
-        {{-- SEGMENT 3 - where to send the card back. The address comes from the
+        {{-- SEGMENT 3, where to send the card back. The address comes from the
              school's own settings on any plan, falling back to its website
-             where one exists - see App\Support\SchoolContact. --}}
+             where one exists, see App\Support\SchoolContact. --}}
         @unless ($contact->isEmpty())
             <div class="shrink-0" style="height: 1px; background-color: {{ $accentColor }}; margin: 5px 0;"></div>
 
@@ -112,7 +112,7 @@
         @endunless
     </div>
 
-    {{-- SEGMENT 4 - the principal's hand, on the navy bar that closes the
+    {{-- SEGMENT 4, the principal's hand, on the navy bar that closes the
          card. Earlier artwork looked as though the card simply ended after the
          signature; the closer view shows the bar. --}}
     <div class="shrink-0" style="height: 3px; background-color: {{ $accentColor }};"></div>
@@ -124,7 +124,7 @@
              THE SPACE IS RESERVED WHETHER OR NOT ANYTHING FILLS IT. A fixed
              15px box, so the rule beneath it and the word "Principal" beneath
              that are in exactly the same place on every card this school
-             issues - a school that registers a signature later does not get
+             issues, a school that registers a signature later does not get
              cards laid out differently from the ones it printed last term.
 
              Where none is registered, the printed name stands in at the same
@@ -145,7 +145,7 @@
 
         {{-- The school's stamp, beside the signature the way it sits on paper.
              Shown only when one has been uploaded, so a card from a school
-             without one is simply the card without it - nothing is drawn in
+             without one is simply the card without it, nothing is drawn in
              its place, because a stamp is a claim of authenticity and an
              invented one would be a lie on a document a child carries. --}}
         @if ($school->hasStamp())

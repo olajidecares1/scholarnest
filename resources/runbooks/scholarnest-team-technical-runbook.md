@@ -19,7 +19,7 @@ quoted to a school user.
 ## Before you touch anything
 
 1. **Reproduce it first.** Most escalations resolve to a plan limit, a missing
-   teacher assignment or an unpaid fee balance — all covered in the school
+   teacher assignment or an unpaid fee balance, all covered in the school
    runbook. Check section 18 of that book before reaching for a console.
 2. **You are in a multi-tenant system.** Every query you write must be scoped to
    one school. A `Student::where(...)` without a `school_id` is how you read the
@@ -37,11 +37,11 @@ quoted to a school user.
 | --- | --- |
 | Framework | Laravel 12 · PHP 8.2 |
 | Database | MySQL (SQLite in tests) |
-| Session driver | `database` — `sessions` table |
-| Cache driver | `database` — `cache` table |
-| Queue driver | `database` — `jobs`, `failed_jobs` |
+| Session driver | `database` `sessions` table |
+| Cache driver | `database` `cache` table |
+| Queue driver | `database` `jobs`, `failed_jobs` |
 | Storage | Local disks. `public` (URL-reachable) and `local` (private). S3 configured but **not enabled** |
-| Mail | Per deployment — **[TO BE PROVIDED]** |
+| Mail | Per deployment, **[TO BE PROVIDED]** |
 | Hosting | **[TO BE PROVIDED]** |
 
 ---
@@ -60,7 +60,7 @@ Is it a security report?
    NO  ↓
 Does the school runbook already cover it?
    YES → Walk the school through it. Do not fix by hand what they can fix
-         themselves — you will be doing it again next term.
+         themselves. You will be doing it again next term.
    NO  → Feature section below.
 ```
 
@@ -77,7 +77,7 @@ Does the school runbook already cover it?
 
 # 2. PLATFORM-WIDE
 
-## 2.1 — Application returns 500 for everyone
+## 2.1, Application returns 500 for everyone
 
 **Severity:** 🔴 P1
 
@@ -86,9 +86,9 @@ Does the school runbook already cover it?
 1. **Read the log.** `storage/logs/laravel.log`, most recent entries. The stack
    trace usually names the cause outright.
 2. **Confirm `APP_DEBUG=false` in production.** If it is true, that is its own
-   P1 — stack traces and configuration are being shown to the public. Fix that
+   P1, stack traces and configuration are being shown to the public. Fix that
    first.
-3. **Database reachable?** `php artisan db:show` — connection failure is the
+3. **Database reachable?** `php artisan db:show` connection failure is the
    most common cause of a total outage.
 4. **Disk full?** A full disk breaks logging, sessions, cache and uploads at
    once and produces confusing symptoms everywhere.
@@ -98,27 +98,27 @@ Does the school runbook already cover it?
    `php artisan config:clear && php artisan cache:clear && php artisan view:clear`,
    then re-cache. A stale config cache after an env change is a classic.
 
-**Do not** clear caches as a reflex on a healthy system — you will lose the
+**Do not** clear caches as a reflex on a healthy system, you will lose the
 signal that told you what was wrong.
 
-## 2.2 — Vite manifest error
+## 2.2, Vite manifest error
 
-**Severity:** 🟠 P2 — the application is up but unstyled or broken
+**Severity:** 🟠 P2, the application is up but unstyled or broken
 
 `Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest`
 
 Front-end assets were not built for this deploy. Run `npm run build` as part of
 the deploy, then clear the view cache. Add it to the deploy pipeline if it is
-not there — this recurs otherwise.
+not there, this recurs otherwise.
 
-## 2.3 — Maintenance mode
+## 2.3, Maintenance mode
 
 `CheckMaintenanceMode` middleware runs on the web group. Confirm whether
 maintenance was left on deliberately before treating it as an outage.
 
 ---
 
-# 3. TENANT STATE — THE FIRST CHECK FOR ANY SINGLE-SCHOOL REPORT
+# 3. TENANT STATE, THE FIRST CHECK FOR ANY SINGLE-SCHOOL REPORT
 
 Almost every "school X cannot do Y" resolves here. Run this before anything
 else.
@@ -142,14 +142,14 @@ $school = App\Models\School::where('slug', 'the-slug')->firstOrFail();
 | Finding | Meaning |
 | --- | --- |
 | `active` false | Suspended. Everything content-related is blocked by `EnsureSchoolIsActivated` |
-| `has_active_sub` false | No approved subscription. Same effect. Check `subscriptionForDisplay()` — pending is different from absent |
+| `has_active_sub` false | No approved subscription. Same effect. Check `subscriptionForDisplay()` pending is different from absent |
 | `plan` = basic | No public website, no student/guardian portals, no CBT. **Staff portal still works** |
 | `slot_limit` at `active_pupils` | At capacity. Every create and reactivate will be refused |
-| `website` false | Public site unpublished — 404 for visitors, correctly |
+| `website` false | Public site unpublished, 404 for visitors, correctly |
 
 **Plan gating** is `EnsureSchoolHasFeature` (`plan_feature:<key>` on the route),
 resolved through `PlanFeature::requiredPlans()`. That enum is the single source
-of truth — do not add a plan check anywhere else.
+of truth, do not add a plan check anywhere else.
 
 > **Exclusive cannot be subscribed to** (`PlanKey::isAvailableToSubscribe()`
 > returns false for it). If a school reports being unable to buy Exclusive, that
@@ -159,13 +159,13 @@ of truth — do not add a plan check anywhere else.
 
 # 4. AUTHENTICATION AND SESSIONS
 
-## 4.1 — Architecture
+## 4.1, Architecture
 
 Four guards, four tables, deliberately separate:
 
 | Guard | Model | Table |
 | --- | --- | --- |
-| `web` | `User` | `users` — Super Admin and School Admin only |
+| `web` | `User` | `users` Super Admin and School Admin only |
 | `staff` | `Staff` | `staff` |
 | `student` | `Student` | `students` |
 | `guardian` | `Guardian` | `guardians` |
@@ -173,7 +173,7 @@ Four guards, four tables, deliberately separate:
 A credential is valid on exactly one guard. Cross-guard sign-in is structurally
 impossible, not a role check.
 
-## 4.2 — "User cannot log in"
+## 4.2, "User cannot log in"
 
 ```php
 // Pick the right model for the guard.
@@ -192,14 +192,14 @@ $account = App\Models\Staff::where('school_id', $school->id)
 | --- | --- |
 | No row | Account not created, or wrong school |
 | `is_active` false | Deactivated → they see "This account has been deactivated" |
-| `must_change_password` true | They can sign in but only reach settings and logout — `EnsurePasswordHasBeenChanged` |
-| `last_login_at` recent | They **are** signing in. The problem is downstream — assignment, plan, or capacity |
+| `must_change_password` true | They can sign in but only reach settings and logout, `EnsurePasswordHasBeenChanged` |
+| `last_login_at` recent | They **are** signing in. The problem is downstream, assignment, plan, or capacity |
 
 **Never read or reset a password from a console.** Have the School Admin reset it
 through the interface, which sets `must_change_password` and notifies the
 account holder.
 
-## 4.3 — Lockouts
+## 4.3, Lockouts
 
 5 attempts per identifier+school+IP, 900-second decay. Admin login additionally
 30 per IP.
@@ -211,14 +211,14 @@ Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 5);
 
 **Do not clear a lockout as routine.** It exists to stop credential guessing.
 Clear it only when you have established the lockout was self-inflicted, and note
-that you did. If an account is locked and the user swears they typed nothing —
+that you did. If an account is locked and the user swears they typed nothing,
 treat it as section 12.
 
-## 4.4 — Portal token 404s
+## 4.4, Portal token 404s
 
 Portal sign-in pages sit behind per-school tokens: `portal_student_token`,
 `portal_guardian_token`, `portal_staff_token`, `portal_admin_token` on `schools`.
-`ValidateSchoolPortalToken` aborts **404** on mismatch, never 403 — a 403 would
+`ValidateSchoolPortalToken` aborts **404** on mismatch, never 403, a 403 would
 confirm something is there.
 
 ```php
@@ -229,17 +229,17 @@ The Basic-plan portal uses one platform-wide token from
 `config('basic_portal.token')`. **Empty config fails closed with a 404** rather
 than falling back to something predictable.
 
-## 4.5 — Idle timeout complaints
+## 4.5, Idle timeout complaints
 
 `LogsOutIdleUsers`, `IDLE_SECONDS = 180`, guards `web`, `student`, `staff`,
 `guardian`. Super Admins are exempt.
 
 **It only runs on routes that require authentication.** It once ran on the public
-website and silently discarded visitors' contact-form submissions — if a report
+website and silently discarded visitors' contact-form submissions, if a report
 resembles that, check `requiresAuthentication()` still gates it before assuming
 the timeout is at fault.
 
-## 4.6 — Session table
+## 4.6, Session table
 
 ```sql
 SELECT COUNT(*) FROM sessions;
@@ -247,14 +247,14 @@ SELECT COUNT(*) FROM sessions WHERE last_activity < UNIX_TIMESTAMP(NOW() - INTER
 ```
 
 > **Nothing prunes this table.** Expired sessions accumulate indefinitely. Growth
-> here is expected, not a symptom — but it is worth capping. See the
+> here is expected, not a symptom, but it is worth capping. See the
 > improvement recommendations.
 
 ---
 
 # 5. RESULTS AND ACADEMIC DATA
 
-## 5.1 — "Result published but the parent cannot see it"
+## 5.1, "Result published but the parent cannot see it"
 
 **Check the fee gate first. It is the most common cause and the least obvious.**
 
@@ -266,13 +266,13 @@ $policy = app(App\Services\ResultAccessPolicy::class);
 $policy->outstandingBalance($student);        // > 0 means withheld
 ```
 
-A school with no invoices raised owes nothing, so nothing is withheld — that is
+A school with no invoices raised owes nothing, so nothing is withheld, that is
 what makes the gate safe on plans with no Finance module.
 
 **The release is the school's decision, always.** Do not clear a balance or add a
 clearance on their behalf. Point them at school-runbook 4.6.
 
-## 5.2 — "Result will not publish"
+## 5.2, "Result will not publish"
 
 ```php
 app(App\Services\ResultCompleteness::class)->blockers($examination, $student);
@@ -282,12 +282,12 @@ Returns a list naming exactly what is missing. Empty means it will publish.
 `advisories()` returns the missing remarks, which are **warnings, not blockers**.
 
 Publishing a class (`ResultRepository::publishClass`) returns
-`['published' => n, 'skipped' => n]` — it skips incomplete pupils rather than
+`['published' => n, 'skipped' => n]` it skips incomplete pupils rather than
 failing the batch.
 
-## 5.3 — Teacher cannot enter scores
+## 5.3, Teacher cannot enter scores
 
-Not a permission bug — an assignment gap, nine times in ten.
+Not a permission bug, an assignment gap, nine times in ten.
 
 ```php
 $staff->classesAsClassTeacher();   // classes they lead
@@ -305,7 +305,7 @@ SELECT DISTINCT class_name FROM students WHERE school_id = ?;
 SELECT DISTINCT class_name FROM teacher_assignments WHERE school_id = ?;
 ```
 
-## 5.4 — Grades or positions look wrong
+## 5.4, Grades or positions look wrong
 
 `ExaminationResultCalculator` computes from stored scores and the school's own
 `GradeBand` rows. Check the bands for gaps and overlaps before suspecting the
@@ -318,7 +318,7 @@ SELECT * FROM grade_bands WHERE school_id = ? ORDER BY min_score;
 A gap between 69 and 70 leaves 69.5 ungraded. An overlap means one band silently
 wins.
 
-## 5.5 — Result tokens
+## 5.5, Result tokens
 
 `ResultCheckingPin`: `token_hash` (lookup) plus `token_encrypted` (cast
 `encrypted`, so a school can redisplay one it issued). Bound to `student_id` and
@@ -341,9 +341,9 @@ to one pupil, one examination.
 
 # 6. QUEUE AND CBT EXTRACTION
 
-## 6.1 — The single most common P2
+## 6.1, The single most common P2
 
-CBT extraction is queued. It runs locally — PHPWord, smalot/pdfparser — with no
+CBT extraction is queued. It runs locally, PHPWord, smalot/pdfparser, with no
 external service and no API key. **It needs a worker running and nothing else.**
 
 ```php
@@ -363,13 +363,13 @@ SELECT * FROM failed_jobs ORDER BY failed_at DESC LIMIT 5;
 
 ```bash
 php artisan queue:work            # production, under a supervisor
-composer run dev                  # development — starts one alongside the server
+composer run dev                  # development: starts one alongside the server
 ```
 
 Uploads made while the queue was down are **not lost**. They process when the
 worker returns; the school must not re-upload.
 
-## 6.2 — Retrying failed jobs
+## 6.2, Retrying failed jobs
 
 ```bash
 php artisan queue:failed
@@ -377,10 +377,10 @@ php artisan queue:retry <uuid>
 php artisan queue:retry all       # only when you know why they all failed
 ```
 
-Investigate before retrying all — a job failing on malformed input will fail
+Investigate before retrying all, a job failing on malformed input will fail
 again and fill the table.
 
-## 6.3 — Upload stuck in a status
+## 6.3, Upload stuck in a status
 
 `CbtDocumentUploadStatus`: `Pending → Processing → Importing → Completed`, with
 `NeedsMapping` and `Failed` as terminal branches.
@@ -394,19 +394,19 @@ again and fill the table.
 
 **Note the two-audience messaging** in `CbtExtractionAvailability::warning()` and
 `QueueWorkerHealth::stalledMessage()`: they take a `$canOperateTheServer` flag
-and default to **false**. Never pass true for anything a school user sees — a
+and default to **false**. Never pass true for anything a school user sees, a
 teacher was once shown `php artisan queue:work`.
 
 ---
 
 # 7. STORAGE AND UPLOADS
 
-## 7.1 — Disks
+## 7.1, Disks
 
 | Disk | Path | URL-reachable |
 | --- | --- | --- |
-| `public` | `storage/app/public` | **Yes** — via `/storage` symlink |
-| `local` | `storage/app/private` | No — served through controllers |
+| `public` | `storage/app/public` | **Yes**: via `/storage` symlink |
+| `local` | `storage/app/private` | No, served through controllers |
 
 **On `public`:** pupil, staff and guardian photographs; **signature images**;
 logos, favicons, facility, news and gallery images; hero slides; ID card
@@ -419,29 +419,29 @@ templates; CBT question images.
 > in the compliance audit as GAP-01 and GAP-02. Do not describe these as
 > "protected" to a school.
 
-## 7.2 — Images not loading
+## 7.2, Images not loading
 
-1. `php artisan storage:link` — a missing symlink breaks every public image at
+1. `php artisan storage:link` a missing symlink breaks every public image at
    once, which is the usual signature of this.
 2. Check the file exists on disk at the stored path.
-3. Check `APP_URL` — it builds the public URL, and a wrong one breaks images on
+3. Check `APP_URL` it builds the public URL, and a wrong one breaks images on
    tenant domains specifically.
 4. Check the CSP: `SecurityHeaders` names `applicationOrigin()` in `img-src`
    alongside `'self'` precisely because schools are served from their own
    subdomains and uploads come from `APP_URL`.
 
-## 7.3 — Upload rejected
+## 7.3, Upload rejected
 
 `StoredUpload::name()` discards the client filename, derives the extension from
 **content** via finfo, and checks it against an allowlist. Anything unrecognised
-becomes `.bin`. **SVG is deliberately absent** — it can host a script and these
+becomes `.bin`. **SVG is deliberately absent**: it can host a script and these
 files are served from the school's own origin.
 
 If a school reports a legitimate format being refused, check the allowlist and
 the corresponding validation rule together. Adding one without the other is how
 the two drift.
 
-## 7.4 — Orphaned files
+## 7.4, Orphaned files
 
 > **Deleting a school does not delete its files.** The cascade clears the
 > database, sessions and password-reset tokens; storage is untouched. Compliance
@@ -454,36 +454,36 @@ you removed.
 
 # 8. PAYMENTS AND SUBSCRIPTIONS
 
-## 8.1 — Flow
+## 8.1, Flow
 
 Bank transfer only. `PaymentMethod::Paystack` exists in the enum but **is not
-integrated** — `StoreTopUpRequest` accepts bank transfer alone. No card data
+integrated**: `StoreTopUpRequest` accepts bank transfer alone. No card data
 reaches AkademicNest.
 
 ```
 School submits → receipt to local disk (EXIF stripped) →
-PaymentReceiptScreening (Anthropic API) → manual review → activation
+PaymentReceiptScreening (runs on our own servers) → manual review → activation
 ```
 
 **Screening can only reject, never approve.** That is deliberate: a carefully
 edited receipt passes every automated check, and a system that announced
-"verified" would train reviewers to stop looking. If the API is unavailable the
+"verified" would train reviewers to stop looking. If a file cannot be read the
 upload proceeds with a note that screening did not run.
 
-> Receipts are transmitted to `api.anthropic.com` — a cross-border transfer of
-> personal data. Compliance audit GAP-04. Do not add data to this call.
+> Receipts never leave the platform. A PDF's text is read locally and an image is
+> checked for being blank or too small. Do not add a call to an outside service.
 
-## 8.2 — "Paid but not activated"
+## 8.2, "Paid but not activated"
 
 ```php
 $school->subscriptions()->latest()->with('payments')->first();
 ```
 
 Check `status`, whether a payment row exists, and whether a receipt path is
-recorded. A subscription with no payment means the school never uploaded one —
+recorded. A subscription with no payment means the school never uploaded one,
 send them to school-runbook 13.1.
 
-## 8.3 — Capacity
+## 8.3, Capacity
 
 ```php
 $alloc = app(App\Services\StudentLicenceAllocation::class);
@@ -491,19 +491,19 @@ $alloc = app(App\Services\StudentLicenceAllocation::class);
 ```
 
 `allocated` reads `activeSubscription.students_count`, which is initial capacity
-**plus every approved top-up** — never a reset. `null` means the plan is not
+**plus every approved top-up**: never a reset. `null` means the plan is not
 sold per pupil (Exclusive).
 
 Enforcement is `withCapacity()`, which takes a **database lock and re-counts
 inside it**. That closes two holes a single check misses: simultaneous
-submissions, and deactivate-then-reactivate. **Do not bypass it** — go through
+submissions, and deactivate-then-reactivate. **Do not bypass it**: go through
 the approval flow so capacity and billing stay in step.
 
 ---
 
 # 9. THE PUBLIC WEBSITE AND TENANT ROUTING
 
-## 9.1 — Resolution order
+## 9.1, Resolution order
 
 `routes/public.php` registers the custom-domain group **first**, constrained by
 Host. Laravel picks the first route matching method+URI regardless of domain
@@ -513,7 +513,7 @@ tenant domain. **Do not reorder that file** without understanding this.
 `routes/school-links.php` is registered **last** because its routes sit in the
 root namespace (`/{school:slug}`) and would shadow everything after them.
 
-## 9.2 — Website not loading
+## 9.2, Website not loading
 
 ```php
 [$school->is_active, $school->hasActiveSubscription(), $school->website?->is_published,
@@ -522,21 +522,21 @@ root namespace (`/{school:slug}`) and would shadow everything after them.
 
 All four must be true. Basic-plan schools have no public website by design.
 
-## 9.3 — Custom domains
+## 9.3, Custom domains
 
 Exclusive only. `CustomDomain` with `CustomDomainStatus` and
 `CustomDomainSslStatus`; `custom-domains:auto-verify` runs on the schedule from
 `config('custom_domain.auto_verify_interval_minutes')`.
 
 **This is the only scheduled task in the application.** If the scheduler is not
-running, nothing else breaks — but nothing else is scheduled either, which is
+running, nothing else breaks, but nothing else is scheduled either, which is
 its own problem (section 14).
 
 ---
 
 # 10. DATA INTEGRITY
 
-## 10.1 — Class-name drift
+## 10.1, Class-name drift
 
 The most common integrity problem. `class_name` is a free string on `students`,
 `teacher_assignments`, `examinations` and `attendance_records`. "JSS 1A",
@@ -547,16 +547,16 @@ SELECT class_name, COUNT(*) FROM students WHERE school_id = ? GROUP BY class_nam
 ```
 
 Correct through the interface with the school confirming each mapping. Never
-bulk-update class names from a console — you will merge two classes the school
+bulk-update class names from a console, you will merge two classes the school
 deliberately kept apart.
 
-## 10.2 — Guardian details duplicated
+## 10.2, Guardian details duplicated
 
 `students.guardian_name/phone/email` exist alongside the `guardians` table. Two
-copies drift, and correcting one leaves the other wrong — which frustrates a
+copies drift, and correcting one leaves the other wrong, which frustrates a
 rectification request. Compliance audit GAP-17.
 
-## 10.3 — Double-encoded text
+## 10.3, Double-encoded text
 
 `Arise &amp;amp; Shine` in a school name means text was HTML-escaped twice.
 
@@ -567,7 +567,7 @@ php artisan text:normalise-double-encoded
 
 Covers 16 tables of plain-text columns. It decodes until stable.
 
-## 10.4 — Cross-tenant contamination
+## 10.4, Cross-tenant contamination
 
 🔴 **P1. Go to section 12. Do not query around it first.**
 
@@ -577,10 +577,10 @@ Covers 16 tables of plain-text columns. It decodes until stable.
 
 ## What exists
 
-- `storage/logs/laravel.log` — application errors
-- `audit_logs` — administrative actions, actor, IP
-- `page_views` — path, referrer, device, **IP**, every request
-- `result_token_access_logs` — IP, user-agent, outcome
+- `storage/logs/laravel.log` application errors
+- `audit_logs` administrative actions, actor, IP
+- `page_views` path, referrer, device, **IP**, every request
+- `result_token_access_logs` IP, user-agent, outcome
 - Sign-in success and failure listeners
 - Queue heartbeat via `QueueWorkerHealth`
 
@@ -588,7 +588,7 @@ Covers 16 tables of plain-text columns. It decodes until stable.
 
 - No uptime monitoring
 - No error aggregation (Sentry or equivalent)
-- No alerting of any kind — **including no alert when the queue worker stops**,
+- No alerting of any kind, **including no alert when the queue worker stops**,
   which is the most common P2
 - No performance monitoring
 - No log rotation policy
@@ -599,7 +599,7 @@ Section 14 has the recommendations.
 
 # 12. SECURITY INCIDENTS
 
-## 12.1 — The sequence
+## 12.1, The sequence
 
 ```
 1. PRESERVE   Do not delete. Do not "clean up". Snapshot the logs now.
@@ -614,28 +614,28 @@ Section 14 has the recommendations.
 destroyed the only record of what was reached is a worse position than a session
 that lived ten minutes longer.
 
-## 12.2 — Cross-tenant data exposure — 🔴 P1
+## 12.2, Cross-tenant data exposure, 🔴 P1
 
 The most serious class of incident here.
 
-1. **Do not** run exploratory queries against the affected records — you add
+1. **Do not** run exploratory queries against the affected records, you add
    noise to the audit trail you are about to rely on.
 2. Snapshot `audit_logs`, `page_views` and web server logs for the window.
 3. Identify the route and the actor.
 4. Check whether `authorizeSchoolOwnership()` is present on that controller
-   action. Its absence is the likely cause — isolation is an explicit call, not
+   action. Its absence is the likely cause, isolation is an explicit call, not
    an automatic scope (compliance audit GAP-10).
 5. Escalate to engineering. Ship the fix with a regression test.
 6. Notify both schools. **Both.**
 
-## 12.3 — Compromised account
+## 12.3, Compromised account
 
 ```php
 // Session revocation for a web-guard account.
 DB::table('sessions')->where('user_id', $user->id)->delete();
 DB::table('password_reset_tokens')->where('email', $user->email)->delete();
 
-// API tokens (Sanctum) — note these never expire on their own.
+// API tokens (Sanctum). Note these never expire on their own.
 $user->tokens()->delete();
 ```
 
@@ -646,9 +646,9 @@ what the role could reach.
 > A token from a lost device is valid until revoked by hand. Compliance audit
 > GAP-06.
 
-## 12.4 — Suspected breach
+## 12.4, Suspected breach
 
-Follow 12.1. **The school notifies its own parents and staff** — AkademicNest is the
+Follow 12.1. **The school notifies its own parents and staff**: AkademicNest is the
 processor for that data and notifies the school. Do not contact a school's
 parents directly.
 
@@ -659,7 +659,7 @@ regulator is the Nigeria Data Protection Commission.
 
 # 13. BACKUP AND RECOVERY
 
-> ⚠️ **[TO BE PROVIDED] — and this is the largest open risk in this document.**
+> ⚠️ **[TO BE PROVIDED], and this is the largest open risk in this document.**
 >
 > **There is no backup implementation in the codebase.** Whether backups exist,
 > their frequency, retention, encryption and restore time depend entirely on the
@@ -678,7 +678,7 @@ last actually tested.** An untested backup is a hypothesis.
 Deletion is immediate and permanent. There are **no soft deletes anywhere** in
 the application.
 
-1. Establish exactly what was deleted and when — `audit_logs` records school
+1. Establish exactly what was deleted and when, `audit_logs` records school
    deletions before they happen, with a count of what went.
 2. Determine whether a backup covers the window.
 3. **A restore brings back everything from that point**, including data
@@ -701,7 +701,7 @@ Support staff should know these exist so they are not diagnosed as new faults.
 | GAP-03 | School deletion leaves files on disk | Deletion requests need a manual storage sweep |
 | GAP-04 | Receipts transferred to a third party abroad | Disclose if a school asks |
 | GAP-06 | API tokens never expire | Revoke by hand on any device-loss report |
-| GAP-07 | No log retention — `page_views`, `audit_logs` grow without limit | Expect table growth; not a symptom |
+| GAP-07 | No log retention, `page_views`, `audit_logs` grow without limit | Expect table growth; not a symptom |
 | GAP-08 | Backup position unknown | Section 13 |
 | GAP-09 | No data export | A school leaving needs a manual extract; allow real time |
 | GAP-10 | Tenant isolation is an explicit call, not a scope | First thing to check on any cross-tenant report |
@@ -739,4 +739,4 @@ Support staff should know these exist so they are not diagnosed as new faults.
 ---
 
 *Verified against the codebase on 1 September 2026. Where this document and the
-code disagree, the code is right and this document is a bug — fix it.*
+code disagree, the code is right and this document is a bug, fix it.*

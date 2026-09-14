@@ -85,12 +85,12 @@ class JobApplicationSubmitter
         return [
             'email.unique' => 'You have already applied for this position with this email address.',
             'phone.regex' => 'Enter a valid phone number.',
-            'cover_letter.min' => 'Tell the school a little more in your cover letter - at least a few sentences.',
+            'cover_letter.min' => 'Tell the school a little more in your cover letter, at least a few sentences.',
             'cv.required' => 'Attach your CV or résumé.',
             'cv.mimes' => 'Your CV must be a PDF or Word document.',
             'cv.mimetypes' => 'Your CV must be a PDF or Word document.',
             'cv.max' => 'Your CV must be 5MB or smaller.',
-            'cv.uploaded' => 'Your CV could not be uploaded. It may be larger than 5MB - please try again with a smaller file.',
+            'cv.uploaded' => 'Your CV could not be uploaded. It may be larger than 5MB. Please try again with a smaller file.',
             'documents.max' => 'You can attach at most '.self::MAX_DOCUMENTS.' supporting documents.',
             'documents.*.mimes' => 'Supporting documents must be PDF, Word, JPG or PNG files.',
             'documents.*.max' => 'Each supporting document must be 5MB or smaller.',
@@ -187,8 +187,8 @@ class JobApplicationSubmitter
                 $this->uploads->delete(JobApplication::DISK, $path);
             }
 
-            // Two submissions racing past validation - a double tap on a slow
-            // connection - meet the database's unique index. The second is told
+            // Two submissions racing past validation, a double tap on a slow
+            // connection, meet the database's unique index. The second is told
             // plainly, not shown an error page.
             if ($e instanceof UniqueConstraintViolationException) {
                 throw ValidationException::withMessages(['email' => $this->messages()['email.unique']]);

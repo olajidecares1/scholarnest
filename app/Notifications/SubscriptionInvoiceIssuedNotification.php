@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\URL;
 /**
  * "Here is your invoice."
  *
- * Sent when the invoice is raised - which is when the school submits its
+ * Sent when the invoice is raised, which is when the school submits its
  * subscription, before any Super Admin has looked at it. So the email says
  * plainly that the account is not active yet and what has to happen next. A
  * billing email that reads like a receipt, for something still awaiting
@@ -31,7 +31,7 @@ class SubscriptionInvoiceIssuedNotification extends Notification
      * How long the link in this email keeps working.
      *
      * Long, because an invoice is a durable record and a bursar may come back
-     * to it weeks later - and not forever, because the link carries billing
+     * to it weeks later, and not forever, because the link carries billing
      * details and needs an end. A school admin can always fetch it again from
      * inside the platform.
      */
@@ -83,7 +83,7 @@ class SubscriptionInvoiceIssuedNotification extends Notification
 
         return $message
             ->action('View Invoice', $this->url())
-            ->salutation('— AkademicNest Team')
+            ->salutation('Regards, AkademicNest Team')
             ->attachData(
                 $document->render($invoice),
                 $document->filename($invoice),
@@ -105,7 +105,7 @@ class SubscriptionInvoiceIssuedNotification extends Notification
 
     /**
      * A signed link, built from the configured application URL rather than
-     * from the request - so a forged Host header on the request that triggered
+     * from the request, so a forged Host header on the request that triggered
      * this email cannot decide where the school is sent to view its billing.
      */
     private function url(): string

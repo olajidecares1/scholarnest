@@ -28,7 +28,7 @@ class CbtTestQuestionFactory extends Factory
     /**
      * A question a student could actually sit: four options, one of them right.
      *
-     * The bare factory deliberately makes neither - a question with no options
+     * The bare factory deliberately makes neither, a question with no options
      * is a real state extraction can produce, and tests need to be able to
      * create it. But a test that means "a finished, publishable question" has
      * to say so, because the publish gate now checks exactly that.

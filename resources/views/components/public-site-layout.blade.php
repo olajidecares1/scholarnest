@@ -4,7 +4,7 @@
     // The school's OWN address, not the /schools/{slug} path.
     //
     // A school reached at its own domain sits on "/", so a menu built from
-    // the path-based URL pointed every anchor at a DIFFERENT address - the
+    // the path-based URL pointed every anchor at a DIFFERENT address, the
     // browser reloaded the page and redirected back rather than scrolling.
     // publicUrl() resolves to whichever address this school is actually
     // reached at, so "#about" is a scroll on the page the visitor is on.
@@ -14,19 +14,19 @@
     // separate document, so clicking one scrolls rather than reloads.
     //
     // ALL EIGHT, ALWAYS. Every one of these sections is rendered on the front
-    // page whether or not the school has filled it in yet - an empty Gallery
+    // page whether or not the school has filled it in yet, an empty Gallery
     // says "nothing here yet", which is a true and useful thing for a parent
     // to learn, and it means no menu item can ever point at a section that is
     // not on the page.
     //
     // Facilities is deliberately NOT among them. The section is still on the
     // page and still has its own id, so a link to #facilities from anywhere
-    // else keeps working - it is only off the menu, which was carrying more
+    // else keeps working, it is only off the menu, which was carrying more
     // items than a phone can show without wrapping.
     //
     // The href carries the full home URL, not a bare "#about", so the menu
     // still works from a separate News or Gallery page a visitor may have
-    // arrived on - it takes them home and scrolls.
+    // arrived on, it takes them home and scrolls.
     $sectionLinks = collect([
         ['label' => 'Home', 'id' => 'home'],
         ['label' => 'About', 'id' => 'about'],
@@ -49,7 +49,7 @@
     // choice about where their applications go.
     $ctaUrl = $website->cta_url ?: $homeUrl.'#contact';
     // NO BACKDROP BLUR. Both of these carried backdrop-blur, which frosts
-    // everything scrolling underneath the header - so the top of every
+    // everything scrolling underneath the header, so the top of every
     // photograph and every card went soft as it passed behind. The bar is
     // opaque enough on its own; raising it from 95% to 98% costs nothing and a
     // solid bar is sharper than a blurred one at any opacity.
@@ -102,18 +102,18 @@
              ------------------------------------------------------------------
 
              On :root as custom properties, and applied to body from there, so
-             one declaration reaches the whole page - navbar, hero, cards,
-             forms, footer - rather than a class having to be added to each.
+             one declaration reaches the whole page, navbar, hero, cards,
+             forms, footer, rather than a class having to be added to each.
 
              THE BASE WEIGHT IS ON body ALONE, and that is deliberate. Every
              heading on this site carries its own font-bold or font-extrabold
-             utility, and a class beats an inherited value - so the hierarchy
+             utility, and a class beats an inherited value, so the hierarchy
              survives untouched while unstyled body text follows whatever the
              school chose. Setting the weight on * instead would flatten the
              page to a single weight and lose the design.
 
              The family is a name out of the curated list, never a value a
-             school typed - see App\Support\WebsiteTypography. --}}
+             school typed, see App\Support\WebsiteTypography. --}}
         <style>
             :root {
                 --edn-font-family: {!! $fontStack !!};
@@ -134,7 +134,7 @@
              section, so a section added later cannot forget it.
 
              Anyone who has asked their system not to animate gets an instant
-             jump instead - a full-page glide is exactly the motion that
+             jump instead, a full-page glide is exactly the motion that
              setting exists to switch off. --}}
         <style>
             html { scroll-behavior: smooth; scroll-padding-top: 96px; }
@@ -142,7 +142,7 @@
         </style>
     </head>
     {{-- No `font-sans` here. It is a CLASS, and a class beats the `body`
-         element rule above it - so the school's chosen typeface would have
+         element rule above it, so the school's chosen typeface would have
          been set, inherited by nothing, and silently overridden on the very
          element it was written for. The rule in the head is the font now. --}}
     <body class="bg-white text-gray-900 antialiased" x-data="{ mobileNavOpen: false }">
@@ -158,7 +158,7 @@
                     </span>
                     {{-- Opens in its own tab. A visitor reading the website who wants
                          to sign in should still have the website when they
-                         are done - signing in is an errand, not a departure. --}}
+                         are done, signing in is an errand, not a departure. --}}
                     <a
                         href="{{ $website->topbar_link_url ?: $school->publicUrl('portal.index') }}"
                         target="_blank"
@@ -176,7 +176,7 @@
             {{-- Throttled to one read a frame, and passive.
 
                  A scroll event fires far more often than the screen refreshes,
-                 and this used to set the property on every one of them - so a
+                 and this used to set the property on every one of them, so a
                  single flick of a trackpad queued dozens of Alpine updates the
                  browser would never paint. Passive also tells the browser it
                  need not wait on this handler before scrolling at all. --}}
@@ -197,7 +197,7 @@
                 :class="scrolled ? 'py-2.5' : 'py-4'"
             >
                 {{-- The crest is a disc, not a rounded square, and it is
-                     smaller than the wordmark beside it - the school's name is
+                     smaller than the wordmark beside it, the school's name is
                      what identifies the site, the crest confirms it. Contained
                      rather than cropped, so a wide or tall crest keeps its
                      shape instead of being cut to fit. --}}
@@ -223,7 +223,7 @@
                 </a>
 
                 {{-- Ranged right, ending against the Apply Now button, rather
-                     than centred in whatever space the wordmark leaves - a
+                     than centred in whatever space the wordmark leaves, a
                      school with a long name would otherwise push the whole
                      menu off centre. --}}
                 <nav class="hidden flex-1 items-center justify-end gap-0.5 xl:flex">
@@ -307,7 +307,7 @@
         {{-- The band above the footer.
 
              It used to render positioned website-builder blocks into a fixed
-             90px box, and they collided - the headline sat on top of the
+             90px box, and they collided, the headline sat on top of the
              subline on top of the button, which is the overlapping text that
              has been visible on this page for a while. Blocks are placed by
              coordinate; a band that has to reflow from a phone to a desktop
@@ -315,7 +315,7 @@
              its own two columns.
 
              ALWAYS RENDERED, and with defaults, because a school that has
-             written nothing still wants parents to know how to apply - and the
+             written nothing still wants parents to know how to apply, and the
              band is where the page asks for the one thing it wants. --}}
         @php
             $ctaTitle = $website->cta_title ?: 'Give Your Child the Foundation for a Successful Future';
@@ -335,7 +335,7 @@
                     </div>
                 </div>
 
-                {{-- Heading, then paragraph, then the buttons - the small
+                {{-- Heading, then paragraph, then the buttons, the small
                      stagger the spec asks of a CTA. --}}
                 <div class="edn-reveal flex shrink-0 flex-wrap items-center gap-3" style="--edn-delay: 270ms;">
                     <a
@@ -361,7 +361,7 @@
 
         {{-- The footer is not #contact. The Contact SECTION owns that
              anchor now, and two elements sharing an id means the browser
-             scrolls to whichever it meets first - which was the footer, past
+             scrolls to whichever it meets first, which was the footer, past
              everything the menu item was pointing at. --}}
         <footer id="site-footer" class="bg-[#0b1220] text-gray-300">
             {{-- The columns arrive 80ms apart, which is enough to read as a
@@ -385,7 +385,7 @@
                     </div>
                     <div class="mt-4 flex gap-3">
                         {{-- Every network the school has filled in, from its
-                             own settings - see App\Support\SchoolSocialLinks.
+                             own settings, see App\Support\SchoolSocialLinks.
                              This used to be three hand-written blocks reading
                              the website record directly, which meant TikTok,
                              WhatsApp, YouTube and LinkedIn could be set in
@@ -433,8 +433,8 @@
                 </div>
 
                 {{-- The newsletter column was here. It was a disabled input
-                     and a "Coming soon" button - a signup that could not sign
-                     anybody up - and it is gone rather than left to look
+                     and a "Coming soon" button, a signup that could not sign
+                     anybody up, and it is gone rather than left to look
                      broken. The grid dropped from five columns to four with
                      it, so nothing is left holding an empty fifth. --}}
             </div>

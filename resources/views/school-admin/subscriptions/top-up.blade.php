@@ -14,7 +14,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Request Additional Student/Pupil Spaces</h2>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                Your request is reviewed by a AkademicNest Team before your capacity increases — this is not automatic,
+                Your request is reviewed by the AkademicNest Team before your capacity increases. This is not automatic,
                 and the spaces cannot be used until it is approved.
             </p>
 
@@ -53,7 +53,7 @@
                         </div>
                         <div class="flex justify-between">
                             <dt class="text-gray-500 dark:text-gray-400">Additional Spaces Requested</dt>
-                            <dd class="font-semibold text-gray-900 dark:text-white" x-text="Number(additionalStudentsCount) > 0 ? Number(additionalStudentsCount).toLocaleString() : '—'"></dd>
+                            <dd class="font-semibold text-gray-900 dark:text-white" x-text="Number(additionalStudentsCount) > 0 ? Number(additionalStudentsCount).toLocaleString() : 'N/A'"></dd>
                         </div>
                         <div class="flex justify-between">
                             <dt class="text-gray-500 dark:text-gray-400">Price per Student/Pupil</dt>
@@ -78,7 +78,7 @@
                      These three lines were typed into this template, so a
                      school topping up was shown GTBank / AkademicNest
                      Technologies Ltd / 0123456789 whatever the AkademicNest
-                     Team had actually saved - the placeholder that shipped
+                     Team had actually saved, the placeholder that shipped
                      with the migration, on every plan, for ever. The
                      subscription wizard was moved onto the database and this
                      page was missed, which is why updating Payment Settings
@@ -156,7 +156,7 @@
         </div>
 
         {{-- Payment, approval and capacity history. These rows are a record of
-             what was asked for and what was decided - they are NOT separate
+             what was asked for and what was decided, they are NOT separate
              usable allowances. The school's usable capacity is the single
              cumulative figure in the card above. --}}
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">

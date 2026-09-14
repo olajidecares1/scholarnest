@@ -12,7 +12,7 @@ use App\Models\Staff;
 /**
  * The website's animation system.
  *
- * Most of what makes an animation good cannot be asserted in a feature test -
+ * Most of what makes an animation good cannot be asserted in a feature test,
  * whether it feels smooth is a matter for eyes. What CAN be pinned is the part
  * that silently breaks: that the markup carries the hooks, that the stagger is
  * computed rather than guessed, that nothing animates a layout property, and
@@ -42,7 +42,7 @@ describe('sections reveal as they are scrolled to', function () {
     test('every section heading carries the reveal hook', function () {
         $html = animatedPage();
 
-        // SEVEN at this size - Academics, Admissions, News, Events,
+        // SEVEN at this size, Academics, Admissions, News, Events,
         // Facilities, Gallery, Contact. About's is a size larger now that the
         // section is one centred column rather than a narrow half.
         expect(substr_count($html, 'edn-reveal text-[11.5px] font-bold uppercase'))->toBe(7)
@@ -90,7 +90,7 @@ describe('the stagger is computed, not guessed', function () {
 
     test('the delay is a custom property, not a class per value', function () {
         // A class would mean inventing edn-delay-100, -200, -300 and hoping
-        // nobody ever needs 120 - which the admission cards do.
+        // nobody ever needs 120, which the admission cards do.
         expect(stylesheet())->toContain('transition-delay: var(--edn-delay, 0ms)');
     });
 });
@@ -209,7 +209,7 @@ describe('performance', function () {
     test('there is no continuous animation loop', function () {
         $script = revealScript();
 
-        // A CALL, not the word - the file explains in a comment why
+        // A CALL, not the word, the file explains in a comment why
         // requestAnimationFrame is used rather than setInterval, and matching
         // the bare word failed on that sentence.
         expect($script)->not->toContain('setInterval(')
@@ -223,7 +223,7 @@ describe('performance', function () {
         // It used to be cleared outright below 1024px, which left a phone with
         // the static page the effect exists to prevent. A phone has less
         // horsepower and a shorter viewport, so the same travel reads as more
-        // movement - the answer is a gentler version, not none.
+        // movement, the answer is a gentler version, not none.
         expect(revealScript())->toContain('strength = window.innerWidth >= 1024 ? 1 : 0.45')
             ->toContain('?? 0.12) * strength')
             ->toContain('?? 60) * strength');
@@ -243,7 +243,7 @@ describe('performance', function () {
         expect($script)->toContain('box.top + window.scrollY + box.height / 2')
             ->toContain('(viewportMiddle - positions[index]) * rate')
             // NOT offsetTop, which is measured from the nearest positioned
-            // ancestor - and every one of these layers is absolutely
+            // ancestor, and every one of these layers is absolutely
             // positioned inside its own section, so it was 0, never the
             // distance down the page, and every layer sat pinned at its cap.
             //
@@ -383,7 +383,7 @@ describe('images drift with the scroll', function () {
     test('the section backgrounds drift on their own layers', function () {
         // The About photograph that used to drift inside its frame is gone
         // with the card that held it. The section BACKGROUNDS still drift, and
-        // for the same reason they always did - a background cannot be
+        // for the same reason they always did, a background cannot be
         // transformed, only the element carrying it can.
         $this->website->update([
             'about_card_image_path' => 'website/about-bg.jpg',

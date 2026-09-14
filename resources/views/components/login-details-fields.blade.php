@@ -8,7 +8,7 @@
      Both are optional here. A school records a teacher before it decides to
      give them portal access, and a form that refused to save a staff member
      without a password would make the two inseparable. Filling the password
-     sets it; leaving it blank leaves whatever was there alone - so editing
+     sets it; leaving it blank leaves whatever was there alone, so editing
      someone's phone number does not silently wipe their login.
 
      The username is bound to the same Alpine state as the identifier field
@@ -46,7 +46,7 @@
                  staff numbering keeps in sequence. An editable field here
                  would be an invitation to break all three.
 
-                 Deliberately not a disabled <input> either - a disabled input
+                 Deliberately not a disabled <input> either, a disabled input
                  submits nothing, which is right, but reads as a field that is
                  temporarily unavailable rather than one that is not yours. --}}
             <p class="mt-1 flex h-[36px] items-center rounded-[8px] border border-dashed border-[#CBD6E6] bg-white px-3 font-mono text-[12.5px] text-[#0F2A5C] dark:border-gray-600 dark:bg-gray-900/40 dark:text-gray-200">

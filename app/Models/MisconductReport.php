@@ -71,7 +71,7 @@ class MisconductReport extends Model
 
     /**
      * What the inbox lists this under. The subject when the reporter gave one,
-     * and a summary drawn from the description when they did not - the field is
+     * and a summary drawn from the description when they did not, the field is
      * optional on purpose. See [App\Support\SubmissionTopic].
      */
     public function topic(): string

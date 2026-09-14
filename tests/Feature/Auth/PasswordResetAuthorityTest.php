@@ -204,7 +204,7 @@ test('an account flagged for a password change is not locked out of its portal',
     // must_change_password used to block every page except the settings
     // screen, where the change-password form lived. That form is gone, so a
     // flagged account would have been redirected to a page with no way to
-    // comply and redirected again on the next click - a locked account with no
+    // comply and redirected again on the next click, a locked account with no
     // exit. Removing the self-service change without removing the flag's
     // enforcement would have shipped exactly that.
     $student = Student::factory()->create([
@@ -300,7 +300,7 @@ test('the guardian login page tells the user to contact their school admin', fun
 //
 // A guardian's password can be reset from two places: the guardians list, and
 // from the page of a student they are linked to. Both are separate routes, so
-// both need their own check - it would be easy to harden one and forget the
+// both need their own check, it would be easy to harden one and forget the
 // other.
 
 test('a school admin can reset a guardian password from a student page', function () {

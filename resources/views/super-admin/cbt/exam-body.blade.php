@@ -61,8 +61,8 @@
                 <div class="flex items-center gap-2">
                     {{-- The way in that was missing. Somebody managing JAMB
                          was looking at this page, and the document uploader
-                         was linked only from the All Exam Bodies landing page
-                         - so from here there was no upload at all. --}}
+                         was linked only from the All Exam Bodies landing page,
+                         so from here there was no upload at all. --}}
                     <a
                         href="{{ route('super-admin.cbt.uploads.index', ['exam_body' => $examBody->uuid]) }}"
                         class="flex items-center gap-2 rounded-[8px] border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400"

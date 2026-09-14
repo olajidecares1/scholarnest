@@ -13,14 +13,14 @@ use RuntimeException;
  * Registering a signature, for whoever is signing.
  *
  * THE ONE RULE THIS FILE EXISTS TO ENFORCE: the signer is a model the caller
- * has already resolved from the session - $request->user('staff'),
- * $request->user() - and nothing in the request is ever consulted to decide
+ * has already resolved from the session, $request->user('staff'),
+ * $request->user(), and nothing in the request is ever consulted to decide
  * whose signature this is.
  *
  * There is deliberately no signer id, uuid, email or staff number in the
  * accepted input, so there is nothing to tamper with: not a form field, not a
  * query string, not a route parameter, not a JSON key. A request that carries
- * one is not rejected, because it is not read - which is stronger than
+ * one is not rejected, because it is not read, which is stronger than
  * rejecting it, since a check can be forgotten and an absent parameter cannot.
  *
  * The database backs this up. `signatures` is unique on (owner_type,

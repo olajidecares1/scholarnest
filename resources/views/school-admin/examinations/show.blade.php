@@ -20,7 +20,7 @@
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <div class="flex items-center gap-1">
                     <p class="text-sm font-medium text-purple-600 dark:text-purple-400">Students in {{ $examination->class_name }}</p>
-                    <x-stat-tooltip text="Active students in this examination's class — the pool eligible to have scores entered." />
+                    <x-stat-tooltip text="Active students in this examination's class, the pool eligible to have scores entered." />
                 </div>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($studentCount) }}</p>
             </div>
@@ -33,7 +33,7 @@
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-green-600 dark:text-green-400">Exam Date</p>
-                <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ $examination->exam_date?->format('M j') ?? '—' }}</p>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ $examination->exam_date?->format('M j') ?? 'N/A' }}</p>
             </div>
         </div>
 

@@ -50,7 +50,7 @@ class ProfileChangeRequest extends Model
 
     /**
      * Applies the requested value to the real Student/Staff row and marks
-     * the request approved, in one transaction - this *is* the sync, there
+     * the request approved, in one transaction, this *is* the sync, there
      * is no separate propagation step since every surface (profile, ID
      * card, report card, portals) already reads the live row.
      */

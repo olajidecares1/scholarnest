@@ -103,7 +103,7 @@ class GuardianController extends Controller
             'guardian' => $guardian,
 
             // Only the classes, for the picker's filter. The pupils themselves
-            // are fetched as they are searched for - loading every one of them
+            // are fetched as they are searched for, loading every one of them
             // into the page was what made this unusable for a school with more
             // than a few classes. See linkCandidates().
             'classOptions' => $guardian->school->configuredClassNames(),
@@ -168,8 +168,8 @@ class GuardianController extends Controller
     /**
      * Children this guardian could be linked to.
      *
-     * Narrowed by class and by a search, because the alternative - every pupil
-     * in the school in one dropdown - stops being usable at about the third
+     * Narrowed by class and by a search, because the alternative, every pupil
+     * in the school in one dropdown, stops being usable at about the third
      * class and is how the wrong child gets linked.
      *
      * Scoped to the guardian's own school, and that is the only scoping that
@@ -216,7 +216,7 @@ class GuardianController extends Controller
         ]);
 
         // The selected student must belong to the same school as the
-        // guardian - never trust the submitted UUID alone, it could
+        // guardian, never trust the submitted UUID alone, it could
         // otherwise be swapped for any student's UUID from any school.
         $student = Student::where('uuid', $validated['student'])
             ->where('school_id', $guardian->school_id)
@@ -250,7 +250,7 @@ class GuardianController extends Controller
      *
      * The School Admin is the authority on both. Users may edit their own
      * contact details, but never their login identifier and never their
-     * password - see the portal profile controllers.
+     * password, see the portal profile controllers.
      */
     public function updateCredentials(Request $request, Guardian $guardian): RedirectResponse
     {

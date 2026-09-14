@@ -12,8 +12,8 @@ test('the extension comes from the content, not the name', function () {
 });
 
 test('a script can never be written to disk under an executable name', function () {
-    // The whole point of the finding. Not currently reachable - the mimes
-    // rules block it first - but this must hold with no validation at all,
+    // The whole point of the finding. Not currently reachable, the mimes
+    // rules block it first, but this must hold with no validation at all,
     // because a future upload site may forget one.
     foreach (['shell.php', 'shell.phtml', 'shell.phar', 'shell.pht', 'shell.cgi'] as $name) {
         $file = UploadedFile::fake()->createWithContent($name, '<?php echo "run"; ?>');
@@ -26,7 +26,7 @@ test('a script can never be written to disk under an executable name', function 
 test('a script disguised as an image is not stored as a script', function () {
     $file = UploadedFile::fake()->createWithContent('avatar.jpg', '<?php echo "run"; ?>');
 
-    // It may keep .jpg - nothing executes that - but it can never become .php.
+    // It may keep .jpg, nothing executes that, but it can never become .php.
     expect(StoredUpload::extension($file))->not->toBe('php');
 });
 

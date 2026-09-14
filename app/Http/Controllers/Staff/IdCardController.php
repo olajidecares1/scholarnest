@@ -24,7 +24,7 @@ class IdCardController extends Controller
     /**
      * Read-only: returns the staff member's own already-issued ID card, if
      * the School Admin has generated one. Deliberately has no
-     * print/pdf/regenerate counterpart - those stay School-Admin-only
+     * print/pdf/regenerate counterpart, those stay School-Admin-only
      * capabilities, enforced by their routes simply not existing under this
      * guard.
      */

@@ -1,9 +1,9 @@
 {{-- A file upload that tells the truth about what it is doing.
 
      A CBT document goes through two phases that feel like one to the person
-     waiting. The first - sending the bytes - is measurable, and we report it
+     waiting. The first, sending the bytes, is measurable, and we report it
      as a real percentage taken from the browser's own upload events. The
-     second - extracting questions from the document - is not measurable: the
+     second, extracting questions from the document, is not measurable: the
      extractor does not report how far through a paper it is, and a 20MB scan
      can take a minute.
 

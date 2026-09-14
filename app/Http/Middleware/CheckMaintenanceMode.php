@@ -26,7 +26,7 @@ class CheckMaintenanceMode
             // The registration page carries the hidden Super Admin sign-in, and
             // "login" now redirects here rather than rendering a page of its
             // own. Without this the only way in during maintenance redirects
-            // straight into the maintenance screen - locking the Super Admin
+            // straight into the maintenance screen, locking the Super Admin
             // out of the switch that turns maintenance off.
             || $request->routeIs('register')
 

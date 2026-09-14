@@ -27,7 +27,7 @@ use Tests\Support\UploadFixtures;
 /**
  * The school Job Portal, end to end: a School Admin creates and publishes a
  * vacancy, shares its link, an applicant applies from a phone, the school is
- * notified, reviews, and invites to interview - with every school's jobs,
+ * notified, reviews, and invites to interview, with every school's jobs,
  * applicants and files kept away from every other school.
  */
 beforeEach(function () {
@@ -56,10 +56,10 @@ function vacancyFields(array $overrides = []): array
         'employment_type' => EmploymentType::FullTime->value,
         'location' => 'Main campus, Ikeja',
         'openings' => 2,
-        'salary_range' => '₦150,000 – ₦200,000 per month',
+        'salary_range' => '₦150,000 to ₦200,000 per month',
         'closes_at' => today()->addWeeks(3)->format('Y-m-d'),
         'description' => 'Teach Mathematics to senior secondary classes.',
-        'responsibilities' => "Teach SS1–SS3\nPrepare lesson notes",
+        'responsibilities' => "Teach SS1 to SS3\nPrepare lesson notes",
         'requirements' => 'Strong classroom management.',
         'qualifications' => 'B.Sc./B.Ed. Mathematics',
         'experience_required' => 'At least 3 years',
@@ -138,7 +138,7 @@ describe('creating and managing vacancies', function () {
         expect($job->school_id)->toBe($this->school->id)
             ->and($job->status)->toBe(JobPostingStatus::Draft)
             ->and($job->public_token)->toHaveLength(32)
-            ->and($job->salary_range)->toBe('₦150,000 – ₦200,000 per month')
+            ->and($job->salary_range)->toBe('₦150,000 to ₦200,000 per month')
             ->and($job->featured_image_path)->not->toBeNull()
             ->and($job->questions)->toHaveCount(2)
             ->and($job->questions[1]->options)->toBe(['Junior', 'Senior']);
@@ -179,8 +179,8 @@ describe('creating and managing vacancies', function () {
             ->assertSee('12 Allen Avenue, Ikeja, Lagos')
             ->assertSee('office@greenfield.test')
             ->assertSee('school-logos/greenfield.png')
-            ->assertSee('₦150,000 – ₦200,000 per month')
-            ->assertSee('Teach SS1–SS3')
+            ->assertSee('₦150,000 to ₦200,000 per month')
+            ->assertSee('Teach SS1 to SS3')
             ->assertSee('B.Sc./B.Ed. Mathematics')
             ->assertSee('At least 3 years')
             ->assertSee('Attach your TRCN certificate.')
@@ -267,7 +267,7 @@ describe('creating and managing vacancies', function () {
         $this->actingAs($this->admin)->get(route('careers.preview', $job))
             ->assertOk()
             ->assertSee('Draft Role')
-            ->assertSee('Preview - this is how applicants see this vacancy');
+            ->assertSee('Preview: this is how applicants see this vacancy');
     });
 
     test('the dashboard pages render', function () {
@@ -518,7 +518,7 @@ describe('reviewing applicants', function () {
     test('the CV downloads for the school, named for the applicant', function () {
         $response = $this->actingAs($this->admin)->get(route('careers.applications.cv', $this->application))->assertOk();
 
-        expect($response->headers->get('Content-Disposition'))->toContain('Chidinma Okafor - CV.pdf')
+        expect($response->headers->get('Content-Disposition'))->toContain('Chidinma Okafor CV.pdf')
             ->and($response->streamedContent())->toBe('%PDF-1.4 test cv');
     });
 });

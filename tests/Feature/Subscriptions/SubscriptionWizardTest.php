@@ -11,9 +11,9 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Notifications\NewSubscriptionSubmittedNotification;
 use Database\Seeders\PlanSeeder;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Tests\Support\UploadFixtures;
 
 beforeEach(function () {
     $this->seed(PlanSeeder::class);
@@ -208,7 +208,7 @@ test('the full wizard creates a subscription and payment on confirmation', funct
 
     $this->actingAs($user)->post(route('subscriptions.payment-method.store'), [
         'payment_method' => 'bank_transfer',
-        'receipt' => UploadedFile::fake()->image('receipt.jpg'),
+        'receipt' => UploadFixtures::receiptPng(),
     ])->assertRedirect(route('subscriptions.review'));
 
     $response = $this->actingAs($user)->get(route('subscriptions.review'));
@@ -270,7 +270,7 @@ test('submitting a subscription notifies all super admins', function () {
 
     $this->actingAs($user)->post(route('subscriptions.payment-method.store'), [
         'payment_method' => 'bank_transfer',
-        'receipt' => UploadedFile::fake()->image('receipt.jpg'),
+        'receipt' => UploadFixtures::receiptPng(),
     ])->assertRedirect(route('subscriptions.review'));
 
     $this->actingAs($user)->post(route('subscriptions.review.store'))
@@ -295,7 +295,7 @@ test('a super admin can open a school subscription without a school of their own
     ]);
 
     // The policy lets a Super Admin open any subscription, but this page is the
-    // last step of the SCHOOL's signup wizard and is no place to review one -
+    // last step of the SCHOOL's signup wizard and is no place to review one,
     // it addresses the reader as the school that just paid. They are sent to
     // the review screen in their own panel instead, which is where the decision
     // is actually made. See SuperAdmin\SubscriptionReviewTest.
@@ -317,7 +317,7 @@ test('a school admin still sees the school chrome on the confirmation page', fun
     ]);
 
     // The layout is chosen per audience, so the school must keep getting its
-    // own - the school name in the sidebar is the giveaway.
+    // own, the school name in the sidebar is the giveaway.
     $this->actingAs($owner)
         ->get(route('subscriptions.confirmation', $subscription))
         ->assertOk()
@@ -346,7 +346,7 @@ function reviewStepFor(int $students): array
 
     test()->actingAs($user)->post(route('subscriptions.payment-method.store'), [
         'payment_method' => 'bank_transfer',
-        'receipt' => UploadedFile::fake()->image('receipt.jpg'),
+        'receipt' => UploadFixtures::receiptPng(),
     ]);
 
     return [$user, $plan];
@@ -355,7 +355,7 @@ function reviewStepFor(int $students): array
 test('the review step shows the unit price, the quantity and the total', function () {
     [$user, $plan] = reviewStepFor(50);
 
-    // Every figure the brief asks for, before any payment is submitted - and
+    // Every figure the brief asks for, before any payment is submitted, and
     // the unit price so the school can check the arithmetic rather than being
     // asked to trust one number.
     $this->actingAs($user)
@@ -435,7 +435,7 @@ test('the confirmation page keeps the quantity step the school walked through', 
     $subscription = Subscription::firstOrFail();
 
     // The wizard session is cleared once the subscription exists, so the bar
-    // is told from the subscription instead - otherwise the last screen would
+    // is told from the subscription instead, otherwise the last screen would
     // quietly drop a step the school had just completed.
     $this->actingAs($user)
         ->get(route('subscriptions.confirmation', $subscription))
@@ -482,7 +482,7 @@ test('the step counter counts the steps that plan actually has', function () {
 
     // SIX now, not five: Standard gained the student-quantity step when it
     // moved to per-pupil pricing. The counter is derived from the same list
-    // the bar draws, so it cannot promise a step that is not there - or miss
+    // the bar draws, so it cannot promise a step that is not there, or miss
     // one that is.
     $this->actingAs($user)
         ->get(route('subscriptions.billing-details'))

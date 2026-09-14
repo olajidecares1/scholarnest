@@ -112,8 +112,8 @@ class User extends Authenticatable
      *
      * Overridden here rather than configured with ResetPassword::toMailUsing()
      * in a service provider, because this is the only model that has a reset
-     * flow at all - Staff, Student and Guardian deliberately do not, see
-     * docs/PASSWORD-RESET-POLICY.md - and a global callback would suggest
+     * flow at all, Staff, Student and Guardian deliberately do not, see
+     * docs/PASSWORD-RESET-POLICY.md, and a global callback would suggest
      * otherwise to anyone reading it.
      */
     public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void

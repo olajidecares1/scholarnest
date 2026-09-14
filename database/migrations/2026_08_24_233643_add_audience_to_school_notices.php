@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * A memorandum knows who it was for.
  *
- * Notices went to students and only students - the audience was implicit in
+ * Notices went to students and only students, the audience was implicit in
  * the code that sent them. A school that wanted to tell its teachers something
  * had no way to, and one addressing everybody would have had to write the same
  * memo three times.

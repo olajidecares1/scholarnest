@@ -40,8 +40,8 @@ class SubscriptionWizardService
      * Whether the price is a per-student one, which is what decides both the
      * amount and the school's capacity for the term.
      *
-     * Asked in more than one place - the progress bar draws a step for it, the
-     * screens after it link back to that step - so it is answered here once
+     * Asked in more than one place, the progress bar draws a step for it, the
+     * screens after it link back to that step, so it is answered here once
      * rather than by each caller comparing the billing cycle for itself.
      */
     public function isPerStudent(): bool

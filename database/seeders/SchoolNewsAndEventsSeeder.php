@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
 /**
  * Latest News and Upcoming Events for a school's public website.
  *
- * Twelve of each - enough that both panels are past the three-item threshold
+ * Twelve of each, enough that both panels are past the three-item threshold
  * and rotate, and enough for the full News and Events pages to look like a
  * school that has been running a while.
  *

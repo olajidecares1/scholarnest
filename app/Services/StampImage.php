@@ -9,7 +9,7 @@ use RuntimeException;
  *
  * A school does not have a stamp as a file. It has a rubber stamp, and what it
  * can give us is a photograph or a scan of that stamp pressed onto white
- * paper - complete with the paper, its shadows, and whatever else was on the
+ * paper, complete with the paper, its shadows, and whatever else was on the
  * desk. Dropped straight onto a report card, that arrives as a white rectangle
  * with a stamp somewhere inside it, sitting over the design like a sticker.
  *
@@ -17,7 +17,7 @@ use RuntimeException;
  *
  *   1. THE PAPER IS MADE TRANSPARENT. Every pixel close enough to the page's
  *      own background colour becomes transparent, judged against the corners
- *      rather than against pure white - a scan is never pure white, and a
+ *      rather than against pure white, a scan is never pure white, and a
  *      photograph of one is often grey or faintly blue.
  *
  *   2. THE MARGINS ARE TRIMMED. What is left is cropped to the ink, so the
@@ -26,7 +26,7 @@ use RuntimeException;
  *      stamp happened to occupy.
  *
  *   3. IT IS SAVED AS PNG. Transparency has to survive, so the format is not
- *      the uploaded one - a stamp uploaded as JPEG comes out PNG.
+ *      the uploaded one, a stamp uploaded as JPEG comes out PNG.
  *
  * The edge is deliberately soft: pixels near the threshold are made partly
  * transparent rather than fully, so the stamp does not print with a hard
@@ -39,7 +39,7 @@ class StampImage
      *
      * Measured as a distance across the three channels. Generous enough to
      * take the grey of a scan and the faint blue of a phone photograph, tight
-     * enough to leave a pale blue or red stamp alone - which is why this is
+     * enough to leave a pale blue or red stamp alone, which is why this is
      * judged against the SAMPLED background rather than against white.
      */
     private const TRANSPARENT_WITHIN = 60;
@@ -114,7 +114,7 @@ class StampImage
 
             if ($bounds['right'] < 0) {
                 throw new RuntimeException(
-                    'No stamp could be found in that image. It looks blank - try a clearer photograph on plain paper.'
+                    'No stamp could be found in that image. It looks blank. Try a clearer photograph on plain paper.'
                 );
             }
 
@@ -171,7 +171,7 @@ class StampImage
      * The paper's colour, taken from the four corners.
      *
      * The corners are where a stamp is not. Taking the median rather than the
-     * mean means one dark corner - a thumb over the lens, the edge of a desk -
+     * mean means one dark corner, a thumb over the lens, the edge of a desk,
      * does not drag the estimate away from the paper.
      *
      * @return array{0: int, 1: int, 2: int}

@@ -52,7 +52,7 @@ class LocalQuestionExtractor implements QuestionExtractionProvider
             warnings: $document->warnings,
             looksScanned: $document->looksScanned,
 
-            // What the paper says it is - subject, class, session, term,
+            // What the paper says it is, subject, class, session, term,
             // title. Suggestions for the review screen, never applied on
             // their own. See DocumentMetadata.
             metadata: $this->heading->metadata($document->text),

@@ -23,7 +23,7 @@ class ResultCheckIdentity
     /**
      * How long an identification stays good for.
      *
-     * Short, because it is the weaker half of the pair - it took only an
+     * Short, because it is the weaker half of the pair, it took only an
      * admission number to obtain. Long enough to find the token slip that the
      * school sent home.
      */

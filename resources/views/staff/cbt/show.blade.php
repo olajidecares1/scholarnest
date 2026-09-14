@@ -139,7 +139,7 @@
                     {{-- One button, both ways.
 
                          It only ever sent "locked", so a test that was locked
-                         had a Lock button that did nothing - the way back was
+                         had a Lock button that did nothing, the way back was
                          "Save as Draft", which does not read as the opposite of
                          Lock and nobody found it.
 
@@ -170,7 +170,7 @@
                     </div>
                 @endif
                 @if ($test->hasStudentAttempts())
-                    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled — students have already started this test. You can still archive it.</p>
+                    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled because students have already started this test. You can still archive it.</p>
                 @endif
             </div>
 

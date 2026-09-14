@@ -1,6 +1,6 @@
 {{-- Shared by the School Admin panel and the Class Teacher portal, which are
      allowed different things. Each capability is a prop that defaults to
-     true - the admin's page says nothing and keeps everything, the teacher's
+     true, the admin's page says nothing and keeps everything, the teacher's
      turns off what it must.
 
      These props only decide what is DRAWN. What can be reached is decided by
@@ -151,7 +151,7 @@ the GET print URL, which auto-calls window.print() on load (same convention
 as id-cards/print.blade.php), so the system print dialog opens without
 navigating this page or opening a new tab.
 
-Left out entirely where printing is not offered - a page with no print
+Left out entirely where printing is not offered, a page with no print
 capability should not carry the frame that performs one. --}}
 @if ($canPrint)
     <iframe id="result-print-frame" name="result-print-frame" style="position: absolute; width: 0; height: 0; border: 0;" title="Report card print frame"></iframe>

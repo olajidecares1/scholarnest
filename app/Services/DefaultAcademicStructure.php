@@ -10,8 +10,8 @@ class DefaultAcademicStructure
     /**
      * A sensible starting point covering the standard Nigerian education
      * structure. Schools can rename, remove, or add to these from the
-     * Academics screen - not every school needs every level. Each class is
-     * either a plain name, or [name, stream] for SSS's three streams - a
+     * Academics screen, not every school needs every level. Each class is
+     * either a plain name, or [name, stream] for SSS's three streams, a
      * student's stream is which class they're actually in (e.g. "SS 1
      * Science" is a distinct class from "SS 1 Art"), matching how
      * Student::class_name already treats classes as plain, freestanding
@@ -39,7 +39,7 @@ class DefaultAcademicStructure
     ];
 
     /**
-     * The admission-number level code seeded for each default level - the
+     * The admission-number level code seeded for each default level, the
      * School Admin can rename these per level from the Academics screen
      * once they've been created, same as level names.
      *

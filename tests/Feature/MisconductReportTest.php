@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Reporting a pupil's conduct outside school.
  *
- * The endpoint is open on purpose - a neighbour who saw something is not going
- * to make an account first - and being open is what makes the rest of it
+ * The endpoint is open on purpose, a neighbour who saw something is not going
+ * to make an account first, and being open is what makes the rest of it
  * matter:
  *
  *   - the school comes from the URL's tenant binding, never from a field;
@@ -166,7 +166,7 @@ describe('who can read them', function () {
 
     test('the school that received it', function () {
         // The listing shows what it is ABOUT and who sent it, not the account
-        // of what happened - ten long reports made the page unreadable, and an
+        // of what happened, ten long reports made the page unreadable, and an
         // administrator looking for one had to read all of them.
         $this->actingAs($this->admin)
             ->get(route('inbox.index', ['tab' => 'reports']))
@@ -237,7 +237,7 @@ test('reviewing records who decided and when', function () {
 });
 
 test('a website message is stored and the school is told', function () {
-    // The contact form used to be a GET that went nowhere - it looked like a
+    // The contact form used to be a GET that went nowhere, it looked like a
     // form and did nothing, which is worse than not having one, because
     // somebody who fills it in believes they have been in touch.
     $this->post(route('public.contact-message.store', $this->school), [
@@ -316,12 +316,12 @@ test('the reports tab plays video and shows images inline', function () {
         ],
     ]);
 
-    // On the report's own page now, not in the listing - the listing says how
+    // On the report's own page now, not in the listing, the listing says how
     // many are attached and leaves the media to the page with room for it.
     $response = $this->actingAs($this->admin)
         ->get(route('inbox.report', MisconductReport::firstOrFail()));
 
-    // Rendered in place - an <img> and a <video> with controls - rather than a
+    // Rendered in place, an <img> and a <video> with controls, rather than a
     // list of downloads. Both point at the private route, never a public URL.
     $response->assertOk()
         ->assertSee('<video controls', false)

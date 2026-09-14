@@ -14,8 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
  * teacher can leave, a school's subscription can lapse, and the token in their
  * phone would go on working until it expired on its own.
  *
- * So the check moves from sign-in to every request. Both halves matter - the
- * account itself, and the school it belongs to - because deactivating a school
+ * So the check moves from sign-in to every request. Both halves matter, the
+ * account itself, and the school it belongs to, because deactivating a school
  * is how the platform stops serving it, and that has to reach its app users
  * too.
  *

@@ -1,5 +1,5 @@
 /**
- * Client-side mirror of `app/Support/BrandColorScale.php` — keep the ratio
+ * Client-side mirror of `app/Support/BrandColorScale.php`, keep the ratio
  * tables below identical to that file so client-side live preview and the
  * server-rendered `<style>` override always agree.
  */

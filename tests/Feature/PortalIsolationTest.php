@@ -44,7 +44,7 @@ describe('Test A - a notification opens what it is about', function () {
     test('a notification WITHOUT one leaves the reader where they were', function () {
         // This is the bug. It used to redirect to a generic dashboard, which
         // for a school with no active subscription bounces again and lands on
-        // the sign-in page - "clicking a notification sends me to the
+        // the sign-in page, "clicking a notification sends me to the
         // registration page".
         $this->admin->notify(new class extends Notification
         {

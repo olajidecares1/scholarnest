@@ -21,7 +21,7 @@ use Database\Seeders\PlanSeeder;
  * AkademicNest's invoices to its schools.
  *
  * Distinct from App\Models\Invoice, which is a school billing a parent for
- * school fees. Same word, unrelated business - and the separation is the point
+ * school fees. Same word, unrelated business, and the separation is the point
  * of several of these tests.
  */
 beforeEach(function () {
@@ -64,7 +64,7 @@ function invoicedSubscription(?School $school = null, int $students = 120, float
 }
 
 /**
- * The invoice link exactly as the billing email carries it - not one built
+ * The invoice link exactly as the billing email carries it, not one built
  * here. Signing a URL in the test signed the ABSOLUTE address while the email
  * signs a RELATIVE one, so the tests passed and the real link answered 403.
  */
@@ -94,7 +94,7 @@ describe('what an invoice records', function () {
         $invoice = app(SubscriptionInvoiceIssuer::class)->issueForSubscription($subscription);
 
         // A Super Admin raises the price. What this school was charged in
-        // February must still say what it said in February - an invoice that
+        // February must still say what it said in February, an invoice that
         // restates itself is not a record of anything.
         $subscription->plan->update(['price_per_student_per_term' => 9999]);
 
@@ -196,7 +196,7 @@ describe('who may fetch an invoice', function () {
         ]);
 
         // The uuid is in the URL and the school comes from the session, so
-        // there is nothing to tamper with - which is the point.
+        // there is nothing to tamper with, which is the point.
         $this->actingAs($intruder)
             ->get(route('invoices.download', $invoice))
             ->assertForbidden();
@@ -319,7 +319,7 @@ test('the invoice embeds the uploaded logo even when its disk file is gone', fun
 test('opening the invoice from the notification bell shows the invoice', function () {
     // The path a School Admin actually takes: the invoice notification in the
     // bell redirects to the link stored in it. That link is signed relative,
-    // and plain `signed` middleware checked it as absolute - 403 Invalid
+    // and plain `signed` middleware checked it as absolute, 403 Invalid
     // signature, every time.
     $invoice = app(SubscriptionInvoiceIssuer::class)->issueForSubscription(invoicedSubscription());
 

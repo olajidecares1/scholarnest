@@ -18,11 +18,11 @@ use function Laravel\Prompts\select;
  * Set a new password for a AkademicNest Team account, from the server.
  *
  * The last door. Every other account on the platform has somebody who can let
- * it back in - a School Admin reissues a teacher's or a parent's password, and
+ * it back in, a School Admin reissues a teacher's or a parent's password, and
  * a School Admin who forgets theirs uses the forgot-password flow. A Super
  * Admin has neither: nobody outranks them, and if the email on the account is
  * unreachable, or the mailer is not configured, the forgot-password link goes
- * nowhere. make:super-admin does not help either - it refuses an email that
+ * nowhere. make:super-admin does not help either, it refuses an email that
  * already exists, because it creates accounts rather than repairing them.
  *
  * So this exists, and it is deliberately only reachable by somebody who
@@ -52,7 +52,7 @@ class ResetSuperAdminPasswordCommand extends Command
 
         // The same rules the web forms apply. A password set here must not be
         // weaker than one a School Admin is held to, and it must not be built
-        // out of the account either - see App\Rules\NotDerivedFromIdentity.
+        // out of the account either, see App\Rules\NotDerivedFromIdentity.
         $identity = new NotDerivedFromIdentity([$user->name, $user->email, $user->username]);
 
         $new = password(
@@ -75,7 +75,7 @@ class ResetSuperAdminPasswordCommand extends Command
         $user->forceFill(['password' => Hash::make($new)])->save();
 
         // Recorded like every other password change, and attributed to the
-        // server rather than to a user - nobody was signed in to do this.
+        // server rather than to a user, nobody was signed in to do this.
         AuditLog::record(
             'password.reset',
             "Password reset from the console for AkademicNest Team {$user->name}.",
@@ -96,7 +96,7 @@ class ResetSuperAdminPasswordCommand extends Command
     }
 
     /**
-     * The account to reset - named on the command line, or chosen from a list.
+     * The account to reset, named on the command line, or chosen from a list.
      *
      * Only Super Admin accounts are offered or accepted. This command must not
      * become a way to take over a school's account from the console.
@@ -126,7 +126,7 @@ class ResetSuperAdminPasswordCommand extends Command
         $chosen = select(
             label: 'Which account?',
             options: $accounts->mapWithKeys(fn (User $user) => [
-                $user->id => $user->email.' ('.$user->name.')'.($user->is_active ? '' : ' - deactivated'),
+                $user->id => $user->email.' ('.$user->name.')'.($user->is_active ? '' : ' (deactivated)'),
             ])->all(),
         );
 

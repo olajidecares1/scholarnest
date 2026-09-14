@@ -72,7 +72,7 @@
                                     <a href="{{ route('super-admin.support-tickets.show', $ticket) }}" class="font-semibold text-gray-900 hover:text-primary-500 dark:text-white dark:hover:text-primary-400">{{ $ticket->subject }}</a>
                                 </td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $ticket->priority->label() }}</td>
-                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $ticket->assignedTo?->name ?? '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $ticket->assignedTo?->name ?? 'N/A' }}</td>
                                 <td class="px-5 py-3">
                                     @php
                                         $statusColors = ['open' => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', 'in_progress' => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', 'resolved' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', 'closed' => 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'];

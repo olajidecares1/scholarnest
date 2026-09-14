@@ -14,8 +14,8 @@ use Illuminate\Support\Collection;
  * the page, and a rule enforced in two places is a rule that will eventually
  * be enforced in one.
  *
- * A method the code no longer knows about - a row left behind after a method
- * was removed - is dropped here rather than allowed to reach a controller that
+ * A method the code no longer knows about, a row left behind after a method
+ * was removed, is dropped here rather than allowed to reach a controller that
  * would have to guess what to do with it.
  */
 class AvailablePaymentMethods
@@ -39,7 +39,7 @@ class AvailablePaymentMethods
      * Is this one open?
      *
      * Takes the raw string a request submitted, because that is what has to be
-     * checked - a key that is not a method at all must answer false rather
+     * checked, a key that is not a method at all must answer false rather
      * than blow up on the way to finding out.
      */
     public function allows(?string $key): bool

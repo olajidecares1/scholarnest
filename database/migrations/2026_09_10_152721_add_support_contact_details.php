@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
  *                     went out from the framework's "hello@example.com".
  *
  *   legal_documents   Six documents seeded with "[TO BE PROVIDED]" wherever a
- *                     contact belonged - a Privacy Policy that tells a parent
+ *                     contact belonged, a Privacy Policy that tells a parent
  *                     how to exercise their rights and then gives them nowhere
  *                     to write, a Security Statement inviting vulnerability
  *                     reports to an address that is not there.
@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Schema;
  * the files and the rows have to be changed separately.
  *
  * ONLY THE CONTACT SLOTS ARE FILLED. The other placeholders in these documents
- * ask for facts nobody can invent - the operating company's registered name and
+ * ask for facts nobody can invent, the operating company's registered name and
  * number, its address, the effective date, the hosting provider, whether a Data
  * Protection Officer is required. Guessing at those would produce a legal
  * document that is confidently wrong, which is worse than one that is visibly
@@ -83,7 +83,7 @@ return new class extends Migration
      *
      * Both columns were null, so subscription invoices went out with no way to
      * reply to them and every notification came from the framework's default
-     * "hello@example.com". Only nulls are filled - an address somebody has
+     * "hello@example.com". Only nulls are filled, an address somebody has
      * already set through the admin screen is theirs, not this migration's.
      */
     private function fillSupportSettings(): void

@@ -2,7 +2,7 @@
 
      The listing shows what each message is about; this is where the message
      itself lives, along with the ways to answer it. Opening this page is what
-     marks it read - see InboxController::showMessage. --}}
+     marks it read, see InboxController::showMessage. --}}
 <x-dashboard-layout page-title="Message" page-subtitle="Sent from your website's contact form.">
     <div class="space-y-6">
         <a href="{{ route('inbox.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-400">

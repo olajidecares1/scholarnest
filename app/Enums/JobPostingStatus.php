@@ -6,7 +6,7 @@ namespace App\Enums;
  * Where a vacancy is in its life.
  *
  * Whether a published vacancy is still ACCEPTING applications also depends on
- * its deadline - see JobPosting::acceptsApplications(). A deadline passing does
+ * its deadline, see JobPosting::acceptsApplications(). A deadline passing does
  * not change the status; it is read at the moment an application arrives, so a
  * vacancy can never quietly keep accepting after its closing date.
  */

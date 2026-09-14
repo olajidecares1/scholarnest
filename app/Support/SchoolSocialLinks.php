@@ -8,8 +8,8 @@ use App\Models\School;
  * Where to find a school online, ready to render.
  *
  * Same arrangement as SchoolContact: the school's own settings are the source
- * of truth on every plan, and the website record - a Standard and Exclusive
- * feature - is consulted only where the school has left a field blank, so a
+ * of truth on every plan, and the website record, a Standard and Exclusive
+ * feature, is consulted only where the school has left a field blank, so a
  * school that filled in its website years ago does not lose its links.
  *
  * Only the networks a school has actually filled in come back, so a footer or
@@ -100,7 +100,7 @@ final class SchoolSocialLinks
      *
      * Schools write "facebook.com/ourschool" as often as they paste a full
      * address, and an href without a scheme is read as a path on the current
-     * site - which sends a visitor to a page of ours that does not exist.
+     * site, which sends a visitor to a page of ours that does not exist.
      */
     private static function normaliseUrl(string $url): string
     {

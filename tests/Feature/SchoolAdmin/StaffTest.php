@@ -61,7 +61,7 @@ test('a school admin can add a staff member', function () {
 });
 
 test('staff numbers are generated in sequence and cannot be dictated', function () {
-    // A posted staff_number is not refused - it is simply not consulted. The
+    // A posted staff_number is not refused, it is simply not consulted. The
     // ID comes from the school's own sequence, so a duplicate is not something
     // the form is able to create.
     foreach (['First', 'Second', 'Third'] as $name) {

@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
  *
  * WHAT IS PRIVATE. Applications carry a person's contact details and CV, so
  * every one of these tables is scoped to a school, and the files are paths on
- * the private disk - never URLs. See App\Http\Controllers\SchoolAdmin\
+ * the private disk, never URLs. See App\Http\Controllers\SchoolAdmin\
  * JobApplicationController for how they are served.
  */
 return new class extends Migration
@@ -107,7 +107,7 @@ return new class extends Migration
             $table->unsignedInteger('cv_size_bytes')->default(0);
 
             // Answers to the school's own questions, with each QUESTION'S TEXT
-            // copied in beside the answer - so editing or removing a question
+            // copied in beside the answer, so editing or removing a question
             // later never changes what an applicant is recorded as answering.
             $table->json('answers')->nullable();
 
@@ -150,7 +150,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Every status change, in order - the recruitment trail for one
+        // Every status change, in order, the recruitment trail for one
         // applicant, and the record of who decided what and when.
         Schema::create('job_application_events', function (Blueprint $table) {
             $table->id();

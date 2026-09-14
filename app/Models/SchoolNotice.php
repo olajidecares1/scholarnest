@@ -45,7 +45,7 @@ class SchoolNotice extends Model
      *
      * A memorandum carries who it is for; until this existed nothing read that
      * back, so a note to "Teachers & Staff" appeared in front of students and
-     * parents anyway - the write side of the feature without the read side.
+     * parents anyway, the write side of the feature without the read side.
      *
      * "Everyone" is stored as its own value rather than expanded when saved,
      * so matching means matching either this audience or All.

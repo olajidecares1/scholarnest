@@ -15,12 +15,12 @@ use Illuminate\Support\Carbon;
  * One invoice from AkademicNest to a school.
  *
  * NOT App\Models\Invoice, which is a school billing a parent for school fees.
- * Same word, different business - see the migration for why they are kept
+ * Same word, different business, see the migration for why they are kept
  * apart.
  *
  * The row is a SNAPSHOT and is never edited after it is issued. Everything
- * that could later move - the plan's price, the school's name, its billing
- * email - is copied in at issue time, so re-reading an invoice a year later
+ * that could later move, the plan's price, the school's name, its billing
+ * email, is copied in at issue time, so re-reading an invoice a year later
  * shows what the school was actually charged rather than what today's prices
  * would make of it.
  *
@@ -112,7 +112,7 @@ class SubscriptionInvoice extends Model
     }
 
     /**
-     * Paid, pending review, or refused - read from the payment, never stored.
+     * Paid, pending review, or refused, read from the payment, never stored.
      */
     public function paymentStatus(): string
     {

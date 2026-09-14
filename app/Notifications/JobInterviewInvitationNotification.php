@@ -71,6 +71,6 @@ class JobInterviewInvitationNotification extends Notification
             $message->line('If you need to reschedule or have any questions, please contact the school on '.$reach.'.');
         }
 
-        return $message->salutation('— '.$school->name);
+        return $message->salutation('Regards, '.$school->name);
     }
 }

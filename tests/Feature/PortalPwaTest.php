@@ -13,7 +13,7 @@ use App\Support\PortalPwa;
  *
  * The promise is narrow and the whole feature rests on it: tap the icon and
  * you are in YOUR school's portal. Not the platform's front door, not a school
- * finder, not whichever school the browser saw last - and never a different
+ * finder, not whichever school the browser saw last, and never a different
  * school from the one the app was installed from.
  *
  * That comes down to one field, start_url, and to every school getting its own
@@ -218,7 +218,7 @@ describe('the icon is AkademicNest, never a school', function () {
     test('THE MARK IS NOT SWALLOWED BY ITS OWN BACKGROUND', function () {
         $icon = imagecreatefromstring($this->get(route('pwa.icon', ['size' => 512]))->getContent());
 
-        // The artwork is a blue squircle with the mark PUNCHED OUT of it - the
+        // The artwork is a blue squircle with the mark PUNCHED OUT of it, the
         // mark is transparent, not white. Backing it with the brand blue, the
         // obvious thing to do, fills the mark with blue and leaves a plain blue
         // tile with no logo on it. This is that bug's test.
@@ -245,7 +245,7 @@ describe('the icon is AkademicNest, never a school', function () {
 
         // The bundled art has transparent corners and a transparent mark. A
         // maskable icon may be cropped to a circle, and whatever is still
-        // transparent is filled in by the launcher - usually with black.
+        // transparent is filled in by the launcher, usually with black.
         foreach ([[2, 2], [189, 2], [2, 189], [189, 189], [96, 96]] as [$x, $y]) {
             expect((imagecolorat($icon, $x, $y) >> 24) & 0x7F)->toBe(0);
         }

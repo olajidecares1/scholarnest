@@ -19,8 +19,8 @@ use Throwable;
  * A Flysystem adapter whose files live in the database.
  *
  * Registered as the "database" Storage driver, so every Storage::disk() call
- * in the application - put, get, exists, delete, response(), download(),
- * readStream - works against it unchanged. See DatabaseStorageFallback for
+ * in the application, put, get, exists, delete, response(), download(),
+ * readStream, works against it unchanged. See DatabaseStorageFallback for
  * when a disk uses it.
  */
 class DatabaseFilesystemAdapter implements FilesystemAdapter

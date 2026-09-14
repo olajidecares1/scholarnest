@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\DB;
  * because it wanted a website or CBT, but because it had staff.
  *
  * Nothing is special-cased in code for this. `max_teachers` is already the
- * generic per-plan cap and null already means "no cap" - Standard and Exclusive
- * have always been null - so Basic simply joins them, and the enforcement in
+ * generic per-plan cap and null already means "no cap", Standard and Exclusive
+ * have always been null, so Basic simply joins them, and the enforcement in
  * the staff controller is left exactly as it was.
  */
 return new class extends Migration

@@ -79,7 +79,7 @@ class BrandingImage extends Model
 
     /**
      * The bytes for $path: from the database, or from the disk for an upload
-     * that predates this table and is still there - a laptop, or a server where
+     * that predates this table and is still there, a laptop, or a server where
      * storage:link works.
      */
     public static function contents(string $path): ?string

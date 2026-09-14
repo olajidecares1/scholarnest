@@ -15,8 +15,8 @@ use Illuminate\View\View;
 /**
  * The AkademicNest Team's view of the documents schools hand out.
  *
- * Both previews render the REAL templates - the same Blade files that produce
- * a printed report card and a printed ID card - from specimen data. Nothing
+ * Both previews render the REAL templates, the same Blade files that produce
+ * a printed report card and a printed ID card, from specimen data. Nothing
  * here draws its own version of either design, because a preview that is a
  * separate drawing is a preview that will eventually disagree with what
  * schools receive. That already happened once, in the ID card editor, and is
@@ -25,7 +25,7 @@ use Illuminate\View\View;
  * A school may be chosen so the Team can see any school's real crest, colours,
  * watermark and contact details flowing through the same templates. With none
  * chosen it falls back to whichever school comes first, and to a plain unsaved
- * School when the platform has none at all - a brand-new installation should
+ * School when the platform has none at all, a brand-new installation should
  * still be able to look at its own default design.
  */
 class DocumentTemplateController extends Controller
@@ -44,7 +44,7 @@ class DocumentTemplateController extends Controller
             'school' => $school,
             'holderType' => $holderType,
 
-            // The report card, built exactly as a real one is - see
+            // The report card, built exactly as a real one is, see
             // ReportCardData::for(), whose shape this mirrors.
             'reportCard' => ReportCardSample::for($school),
 

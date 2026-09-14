@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
  * The existing `result_checking_pin_usages` table only records successes: both
  * its pin and student columns are required, so an attempt with a token that
  * does not exist cannot be written there at all. That leaves the interesting
- * half unrecorded - somebody working through guesses looks exactly like
+ * half unrecorded, somebody working through guesses looks exactly like
  * silence.
  *
  * This table takes every attempt, including the ones where nothing could be
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->foreignId('student_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('examination_id')->nullable()->constrained()->nullOnDelete();
 
-            // Why the attempt succeeded or failed - the value of
+            // Why the attempt succeeded or failed, the value of
             // App\Enums\ResultTokenAccessOutcome.
             $table->string('outcome', 40);
 

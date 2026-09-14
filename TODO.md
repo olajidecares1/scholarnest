@@ -20,11 +20,11 @@ getting the code off this laptop, the framework upgrade, and the clients.
 ## Built and working
 
 ### Portals
-- [x] Super Admin — schools, subscriptions, CMS, media, support tickets
-- [x] School Admin — full dashboard with dark mode
-- [x] Staff portal — registers, score entry, assignments, CBT authoring, diary
-- [x] Student portal — results, assignments, attendance, timetable, CBT
-- [x] Guardian portal — children's results, attendance, fees, messages
+- [x] Super Admin, schools, subscriptions, CMS, media, support tickets
+- [x] School Admin, full dashboard with dark mode
+- [x] Staff portal, registers, score entry, assignments, CBT authoring, diary
+- [x] Student portal, results, assignments, attendance, timetable, CBT
+- [x] Guardian portal, children's results, attendance, fees, messages
 
 ### School management
 - [x] Students, staff and guardians, with issued login details and ID sequences
@@ -43,7 +43,7 @@ getting the code off this laptop, the framework upgrade, and the clients.
 - [x] Memoranda addressed to a chosen audience
 
 ### CBT
-- [x] Question papers read from `.docx` and `.pdf` **locally** — no API key,
+- [x] Question papers read from `.docx` and `.pdf` **locally**: no API key,
       no credit, no network
 - [x] The paper's rubric and per-question marks carried across
 - [x] Upload progress, and a warning when no queue worker is running
@@ -59,12 +59,12 @@ getting the code off this laptop, the framework upgrade, and the clients.
 - [x] Public school websites, custom domains, news, events, gallery
 - [x] Misconduct reporting with media uploads
 - [x] Audit logging, maintenance mode
-- [x] **API v1** — Sanctum tokens, versioned routes, Eloquent resources,
+- [x] **API v1**: Sanctum tokens, versioned routes, Eloquent resources,
       per-token rate limiting. See [docs/API.md](docs/API.md)
-- [x] **CI** — Pint, `composer audit` and the suite on every push
+- [x] **CI**: Pint, `composer audit` and the suite on every push
 
 ### Security
-- [x] The audit is **closed — all seven findings**. See
+- [x] The audit is **closed, all seven findings**. See
       [docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md)
 - [x] Tenant isolation through one `AuthorizesSchoolOwnership` check
 - [x] UUIDs in URLs, never the database's integer keys
@@ -84,7 +84,7 @@ getting the code off this laptop, the framework upgrade, and the clients.
 
 ## Next up
 
-### 1. Get the code onto GitHub — *do this first, it is still not done*
+### 1. Get the code onto GitHub, *do this first, it is still not done*
 
 The repository is **local only**. Every commit in this project exists on one
 disk. [docs/GITHUB.md](docs/GITHUB.md) has the exact commands.
@@ -94,7 +94,7 @@ disk. [docs/GITHUB.md](docs/GITHUB.md) has the exact commands.
 - [ ] Turn on branch protection for `main` and require the CI check
 - [ ] Push the parked `upgrade/laravel-13` branch too
 
-*(`.env` has never been committed — verified. `.env.backup*` and
+*(`.env` has never been committed, verified. `.env.backup*` and
 `storage/backups` are ignored.)*
 
 ### 2. Make PHP 8.3 the default, then merge Laravel 13
@@ -108,7 +108,7 @@ vendor tree breaks `php artisan serve` with a platform check failure. In order:
 
 - [ ] Install PHP 8.3 as the default (8.3.33 is already at `C:\php83`)
 - [ ] `git switch upgrade/laravel-13 && composer install`
-- [ ] Run the suite and work through the failures — Pest 3 → 4 is a major jump
+- [ ] Run the suite and work through the failures, Pest 3 → 4 is a major jump
       and has not been run yet
 - [ ] Update `.github/workflows/ci.yml` to 8.3 in the same commit
 - [ ] Merge into `dev` only when the whole suite passes
@@ -119,7 +119,7 @@ v1 is read-only and covers the student and guardian surface. Before the Flutter
 work:
 
 - [ ] Staff endpoints: classes, registers, score entry
-- [ ] Writes — and the offline/idempotency design that has to come first
+- [ ] Writes, and the offline/idempotency design that has to come first
 - [ ] A password-change endpoint, so an account told to change its password is
       not sent back to the browser
 - [ ] Decide whether School Admin gets tokens at all
@@ -131,10 +131,10 @@ work:
 
 ### 5. Infrastructure
 
-- [ ] Production deployment and HTTPS — [docs/PRODUCTION.md](docs/PRODUCTION.md)
+- [ ] Production deployment and HTTPS, [docs/PRODUCTION.md](docs/PRODUCTION.md)
       is the checklist
 - [ ] Redis for cache, sessions and queues
-- [ ] Backups, and **back up `APP_KEY` with the database** — a database
+- [ ] Backups, and **back up `APP_KEY` with the database**: a database
       restored without it is a database of ciphertext
 - [ ] Error tracking
 - [ ] CDN for uploaded media
@@ -148,7 +148,7 @@ The audit was a first pass. It never looked at:
 - [ ] The four portal sign-in paths themselves
 - [ ] `PortalSessionBroker` and `ValidateSchoolPortalToken`
 - [ ] Misconduct-report video upload handling
-- [ ] The local document parsers — they now read untrusted `.docx` and `.pdf`
+- [ ] The local document parsers, they now read untrusted `.docx` and `.pdf`
       in-process, which deserves its own pass
 - [ ] CSRF coverage on the portal routes
 - [ ] Whether `EnsureHasPermission` can be bypassed by direct route access

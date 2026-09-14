@@ -69,8 +69,8 @@ test('the token at the root does not swallow the application', function () {
     $this->get('/portal/sign-in')->assertOk();
     $this->get('/up')->assertOk();
 
-    // /portal is the open front door now - name your school, pick your
-    // portal - rather than a 404. It used to be reachable only at the
+    // /portal is the open front door now, name your school, pick your
+    // portal, rather than a 404. It used to be reachable only at the
     // token-gated address above, which no school could be expected to keep.
     $this->get('/portal')->assertOk();
 });
@@ -182,7 +182,7 @@ test('a school with no active subscription cannot be found', function () {
 test('a basic school page shows its portal sign-in choices', function () {
     $school = basicSchool('Greenfield College');
 
-    // The two roles Basic actually has - School Admin and Teacher - plus the
+    // The two roles Basic actually has, School Admin and Teacher, plus the
     // result-token route for parents. It used to list Student and Parent
     // logins too, which on Basic opened straight onto the locked page.
     $this->get('/'.$school->portal_key)
@@ -207,7 +207,7 @@ test('a standard school with no website published yet gets the portal hub, not a
     $school = nonBasicSchool('Royal College', PlanKey::Standard);
 
     // This used to redirect anyway, to an address the public site answers
-    // with 404 - so a school that had not yet built its website sent every
+    // with 404, so a school that had not yet built its website sent every
     // visitor at its root to a dead page. There is nothing to redirect TO
     // until a site is published, so they get the page that tells them where
     // to sign in.
@@ -253,7 +253,7 @@ test('a school whose name merely starts with a reserved word still works', funct
 test('a school can never be given a token-shaped slug', function () {
     // The token sits at the root and its route is registered first, so a
     // school whose slug were 32 unbroken alphanumeric characters would be
-    // permanently unreachable - every request for it would hit the token
+    // permanently unreachable, every request for it would hit the token
     // check and 404. Such slugs are refused and given a suffix instead.
     $thirtyTwoLetterName = str_repeat('a', 32);
 

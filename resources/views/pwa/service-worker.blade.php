@@ -11,8 +11,8 @@
  * network every time, and if the network is not there the request fails
  * honestly.
  *
- * What it does cache is the build output - the hashed CSS and JS under
- * /build/ - which is byte-identical for every school and carries nothing
+ * What it does cache is the build output, the hashed CSS and JS under
+ * /build/, which is byte-identical for every school and carries nothing
  * personal. Those filenames change whenever the contents do, so a cached one
  * is never stale.
  *
@@ -87,7 +87,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Everything else - every page, every API call - is network only. When a
+    // Everything else, every page, every API call, is network only. When a
     // navigation fails because the device is offline, show the offline page
     // rather than the browser's dinosaur, so an installed app still looks like
     // an app. A FAILED PAGE IS NEVER CACHED AND A SUCCESSFUL ONE IS NEVER

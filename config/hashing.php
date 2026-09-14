@@ -7,7 +7,7 @@ return [
     | Default Hash Driver
     |--------------------------------------------------------------------------
     |
-    | Argon2id - existing bcrypt hashes keep verifying correctly regardless
+    | Argon2id, existing bcrypt hashes keep verifying correctly regardless
     | of this setting (PHP's password_verify() detects the algorithm from
     | the hash itself) and are transparently upgraded to Argon2id the next
     | time each user logs in, via "rehash_on_login" below.

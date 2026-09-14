@@ -65,7 +65,7 @@
                             @foreach ($application->answers as $answer)
                                 <div>
                                     <dt class="font-semibold text-gray-900 dark:text-white">{{ $answer['question'] }}</dt>
-                                    <dd class="mt-0.5 whitespace-pre-line break-words text-gray-700 dark:text-gray-300">{{ $answer['answer'] ?? '— not answered' }}</dd>
+                                    <dd class="mt-0.5 whitespace-pre-line break-words text-gray-700 dark:text-gray-300">{{ $answer['answer'] ?? 'Not answered' }}</dd>
                                 </div>
                             @endforeach
                         </dl>
@@ -130,7 +130,7 @@
                     <form method="POST" action="{{ route('careers.applications.status', $application) }}" class="mt-4 space-y-3">
                         @csrf @method('PUT')
                         <x-select-field name="status" label="Status" icon="fa-flag" :options="$statusOptions" :selected="$application->status->value" required />
-                        <x-textarea-field name="note" label="Note (optional)" rows="2" placeholder="e.g. Strong candidate - check references" />
+                        <x-textarea-field name="note" label="Note (optional)" rows="2" placeholder="e.g. Strong candidate, check references" />
                         <button type="submit" class="inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] bg-primary-600 text-[13px] font-bold text-white hover:bg-primary-700">
                             <i class="fa-solid fa-check" aria-hidden="true"></i> Update status
                         </button>

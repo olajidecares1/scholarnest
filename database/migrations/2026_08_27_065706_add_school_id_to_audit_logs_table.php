@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  * That was survivable while the only thing reading them was the AkademicNest Team's
  * platform-wide log, which wants every school's entries anyway. The moment a
  * School Admin's dashboard tried to show its own recent activity there was no
- * column to filter on - and no way to show a school its history without
+ * column to filter on, and no way to show a school its history without
  * showing it everyone else's.
  *
  * Nullable, because plenty of entries are genuinely platform-level: the

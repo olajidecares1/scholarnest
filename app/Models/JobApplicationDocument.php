@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * A supporting document attached to an application - a certificate, a
+ * A supporting document attached to an application, a certificate, a
  * reference letter. Private, like the CV.
  */
 class JobApplicationDocument extends Model

@@ -21,7 +21,7 @@
     $cardWidth = $isLandscape ? '85.6mm' : '53.98mm';
     $cardHeight = $isLandscape ? '53.98mm' : '85.6mm';
     // Set in Settings on every plan, not only by schools with a public
-    // website - see App\Support\SchoolMotto.
+    // website, see App\Support\SchoolMotto.
     $motto = \App\Support\SchoolMotto::for($school)->tagline;
     $images = app(\App\Services\CodeImageGenerator::class);
     $barcode = $images->barcodeDataUri($card->card_number, 220, 26);
@@ -110,12 +110,12 @@
         </div>
     @else
         {{-- Portrait: the reference card, followed rather than approximated.
-             Top to bottom - lanyard slot, crest beside the school name with
+             Top to bottom, lanyard slot, crest beside the school name with
              the tagline under it, a red rule, the photograph, the holder's
              name, their badge, their details, the barcode, and a flat navy
              footer bar carrying the school's name. --}}
 
-        {{-- SEGMENT 1 - the masthead.
+        {{-- SEGMENT 1, the masthead.
 
              Three bands, in this order: a navy header carrying the lanyard
              slot, a red stripe across the full width, then the crest beside
@@ -150,10 +150,10 @@
             </div>
         </div>
 
-        {{-- SEGMENT 2 - the holder: photograph, name, badge.
+        {{-- SEGMENT 2, the holder: photograph, name, badge.
 
              The photograph is a rounded rectangle inside a navy frame, with a
-             thin white gap between the two - a frame around the picture rather
+             thin white gap between the two, a frame around the picture rather
              than a border drawn on it. Roughly 41% of the card's width, which
              is what makes it read as a portrait rather than a thumbnail. --}}
         <div class="flex min-h-0 flex-1 flex-col items-center overflow-hidden" style="padding: 3px 7px 0;">
@@ -173,10 +173,10 @@
             <p class="line-clamp-2 w-full text-center text-[9.5px] font-extrabold uppercase leading-[1.1]" style="color: {{ $secondaryColor }}; margin-top: 4px;">{{ $holder->fullName() }}</p>
 
             <span class="text-[6px] font-bold uppercase tracking-wide text-white" style="background-color: {{ $badgeColor }}; padding: 1.5px 9px; border-radius: 3px; margin-top: 3px;">{{ $holderType->label() }}</span>
-            {{-- SEGMENT 3 - the details.
+            {{-- SEGMENT 3, the details.
 
                  Each row is a navy tile carrying a white icon, then the label,
-                 then a colon in its own column, then the value - with a hair
+                 then a colon in its own column, then the value, with a hair
                  rule between rows. The colon is a column rather than glued to
                  the value so every row's colon lines up whatever the labels
                  are, which is the thing that makes a list of five details read
@@ -208,7 +208,7 @@
             <img src="{{ $barcode }}" class="w-full object-contain" style="height: 16px; display: block;">
         </div>
 
-        {{-- A red hairline, then a flat navy bar - not a wave. --}}
+        {{-- A red hairline, then a flat navy bar, not a wave. --}}
         <div class="shrink-0" style="height: 2px; background-color: {{ $accentColor }};"></div>
 
         <div class="shrink-0 text-center text-white" style="background-color: {{ $secondaryColor }}; padding: 4px;">

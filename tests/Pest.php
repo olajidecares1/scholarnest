@@ -31,7 +31,7 @@ use Tests\TestCase;
  * database.
  *
  * RefreshDatabase rolls the database back between tests but nothing rolled the
- * CACHE back, and CACHE_STORE is "array" - a PHP array living in the process,
+ * CACHE back, and CACHE_STORE is "array", a PHP array living in the process,
  * which every test in that process shares. Login throttling counts attempts
  * there, so a file with several "wrong password" tests left five failures on
  * the counter and the NEXT test to post those credentials got a 429 for a
@@ -73,14 +73,14 @@ expect()->extend('toBeOne', function () {
 
 /**
  * Gives a school an Active subscription so it passes the school_activated
- * gate - most School Admin feature tests only care about the feature under
+ * gate, most School Admin feature tests only care about the feature under
  * test, not the activation workflow itself, so they need this as a fixture
  * rather than re-deriving it per test.
  */
 function activateSchool(School $school, PlanKey $plan = PlanKey::Standard): School
 {
     // Plan::factory() burns one of Faker's only 3 unique PlanKey slots even
-    // when "key" is overridden afterwards - checking for an existing row
+    // when "key" is overridden afterwards, checking for an existing row
     // first avoids exhausting that pool in a test that activates several
     // schools.
     $planModel = Plan::where('key', $plan)->first()
@@ -125,7 +125,7 @@ function enterExamToken(
 /**
  * Step one of Basic-plan result checking: name the pupil.
  *
- * Checking a result is two steps now - a School ID / Admission Number, then the
+ * Checking a result is two steps now, a School ID / Admission Number, then the
  * token bound to whoever that found. The token post on its own goes nowhere, by
  * design, so every test that redeems a token does this first.
  *

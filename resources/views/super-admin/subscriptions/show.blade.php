@@ -48,13 +48,13 @@
             <dl class="grid grid-cols-1 gap-px bg-gray-100 sm:grid-cols-2 dark:bg-gray-700">
                 @foreach ([
                     ['School', $school->name],
-                    ['Plan', $subscription->plan?->name ?? '—'],
-                    ['Billing cycle', $subscription->billing_cycle?->label() ?? '—'],
-                    ['Student licences', $subscription->students_count ?? '—'],
+                    ['Plan', $subscription->plan?->name ?? 'N/A'],
+                    ['Billing cycle', $subscription->billing_cycle?->label() ?? 'N/A'],
+                    ['Student licences', $subscription->students_count ?? 'N/A'],
                     ['Amount', '₦'.number_format((float) $subscription->amount, 2)],
                     ['Reference', $subscription->reference],
-                    ['Submitted', $subscription->created_at?->format('j M Y, g:ia') ?? '—'],
-                    ['Starts / ends', $subscription->starts_at ? $subscription->starts_at->format('j M Y').' – '.($subscription->ends_at?->format('j M Y') ?? '—') : 'Not started'],
+                    ['Submitted', $subscription->created_at?->format('j M Y, g:ia') ?? 'N/A'],
+                    ['Starts / ends', $subscription->starts_at ? $subscription->starts_at->format('j M Y').' to '.($subscription->ends_at?->format('j M Y') ?? 'N/A') : 'Not started'],
                 ] as [$label, $value])
                     <div class="bg-white p-4 dark:bg-gray-800">
                         <dt class="text-xs text-gray-500 dark:text-gray-400">{{ $label }}</dt>
@@ -76,11 +76,11 @@
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <div>
                             <p class="field-hint">Method</p>
-                            <p class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">{{ $payment->method?->label() ?? $payment->method ?? '—' }}</p>
+                            <p class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">{{ $payment->method?->label() ?? $payment->method ?? 'N/A' }}</p>
                         </div>
                         <div>
                             <p class="field-hint">Status</p>
-                            <p class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">{{ $payment->status?->label() ?? '—' }}</p>
+                            <p class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">{{ $payment->status?->label() ?? 'N/A' }}</p>
                         </div>
                         <div>
                             <p class="field-hint">Verified</p>

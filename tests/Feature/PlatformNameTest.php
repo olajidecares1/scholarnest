@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * The platform is called AkademicNest, in the database as well as in the code.
  *
  * The last rename left the old name in the browser tab, because the name a page
- * prints does not come from the codebase at all - it comes from APP_NAME, and
+ * prints does not come from the codebase at all, it comes from APP_NAME, and
  * from rows written into `settings` and `legal_documents` long before. Renaming
  * every string in every file changed none of them.
  *
@@ -38,7 +38,7 @@ test('the configured platform name is AkademicNest', function () {
 });
 
 test('a deployment that forgets APP_NAME still says AkademicNest', function () {
-    // The fallback matters as much as the value - without it a fresh server
+    // The fallback matters as much as the value, without it a fresh server
     // greets its first school as "Laravel".
     $config = file_get_contents(config_path('app.php'));
 
@@ -51,7 +51,7 @@ test('no layout hardcodes an older name in its title', function () {
 
         expect($source)->not->toContain('ScholarNest')
             ->and($source)->not->toContain('EduNest')
-            // "AkademicNest AkademicNest Team" - what a blind find-and-replace
+            // "AkademicNest AkademicNest Team", what a blind find-and-replace
             // over an already-branded string produces.
             ->and($source)->not->toContain('AkademicNest AkademicNest');
     }
@@ -113,7 +113,7 @@ describe('the stored copies of the name', function () {
 
         runPlatformRename();
 
-        // "scholarnest.schoolname.com" had it backwards as well as misnamed -
+        // "scholarnest.schoolname.com" had it backwards as well as misnamed,
         // the school is the label, the platform is the domain.
         expect($plan->refresh()->features)->toContain('Subdomain (schoolname.akademicanest.com)');
     });

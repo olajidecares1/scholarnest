@@ -19,7 +19,7 @@ use App\Services\ResultTokenIssuer;
  * decides WHICH school's tokens are even considered, and a token, which decides
  * which student. Neither is sufficient alone.
  *
- * The tests that matter most are the isolation ones - a link belonging to one
+ * The tests that matter most are the isolation ones, a link belonging to one
  * school must refuse every other school's tokens, and no amount of editing the
  * address may get around that.
  */
@@ -85,7 +85,7 @@ function linkIssueTokenFor(School $school, Student $student, Examination $examin
 // -----------------------------------------------------------------------------
 
 test('every school gets its own result-checking address, and it does not name the school', function () {
-    // It used to be built from the name - greenfield-college - and this is the
+    // It used to be built from the name, greenfield-college, and this is the
     // one link a school deliberately spreads, so that name travelled into every
     // message, notice board and referrer header it reached. Random now.
     $school = schoolWithLink('Greenfield College');
@@ -119,7 +119,7 @@ test('an address belonging to no school is not found', function () {
 });
 
 // -----------------------------------------------------------------------------
-// School isolation - the point of the whole feature
+// School isolation, the point of the whole feature
 // -----------------------------------------------------------------------------
 
 test('a school result link refuses a token belonging to another school', function () {
@@ -171,7 +171,7 @@ test('a refused cross-school token reveals nothing about the student', function 
     $token = linkIssueTokenFor($schoolA, $studentA, $examinationA);
 
     // Named as a School B pupil, then School A's token. School A's child is
-    // never mentioned - not their name, not their admission number.
+    // never mentioned, not their name, not their admission number.
     $studentB = Student::factory()->create(['school_id' => $schoolB->id, 'is_active' => true]);
     identifyForResultCheck($schoolB, $studentB, true);
 
@@ -219,7 +219,7 @@ test('regenerating issues a new address and kills the old one', function () {
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
     // Captured rather than written out. The slug is random now, so there is
-    // no literal to assert against - which is the point of the change.
+    // no literal to assert against, which is the point of the change.
     $before = $school->result_link_slug;
 
     $this->actingAs($admin)->post(route('result-pins.link.regenerate'))->assertRedirect();
@@ -259,7 +259,7 @@ test('tokens already issued keep working after the link is regenerated', functio
     $this->actingAs($admin)->post(route('result-pins.link.regenerate'));
 
     // Tokens are tied to the school, not to the address, so only the URL
-    // changed - a school should not have to reissue every token to move link.
+    // changed, a school should not have to reissue every token to move link.
     identifyForResultCheck($school->fresh(), $student, true);
 
     $this->post('/'.$school->fresh()->result_link_slug.'/result', ['code' => $token])

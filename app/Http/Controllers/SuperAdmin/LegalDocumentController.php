@@ -13,7 +13,7 @@ use Illuminate\View\View;
  * The AkademicNest Team's editor for the platform's own legal documents.
  *
  * These are not blog posts. Each one is a document a school has agreed to, and
- * changing it changes the terms of a live contract - so this screen is
+ * changing it changes the terms of a live contract, so this screen is
  * deliberately more careful than the rest of the CMS:
  *
  *   - Editing requires its own permission, not the general CMS one.
@@ -68,7 +68,7 @@ class LegalDocumentController extends Controller
             ...$validated,
 
             // Absent from the request when the box is unticked, which is what a
-            // browser sends - so it has to be read from the boolean helper
+            // browser sends, so it has to be read from the boolean helper
             // rather than from $validated, where it would simply be missing and
             // leave the document published.
             'is_published' => $request->boolean('is_published'),

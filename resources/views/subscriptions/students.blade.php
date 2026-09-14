@@ -3,7 +3,7 @@
      The unit price is read from the plan record the Super Admin configures and
      handed to Alpine as a number; nothing here writes an amount of its own, so
      a price change takes effect on this page without it being touched. The
-     total shown is a quote - the charge is recalculated server-side from the
+     total shown is a quote, the charge is recalculated server-side from the
      same plan record when the form is submitted. --}}
 <x-dashboard-layout page-title="Students & Amount" page-subtitle="Tell us how many students you are onboarding this term.">
     <div class="mx-auto max-w-2xl space-y-6">
@@ -90,7 +90,7 @@
                         </div>
                         <div class="flex items-center justify-between">
                             <dt class="text-gray-500">Students</dt>
-                            <dd class="font-semibold text-gray-900" x-text="Number(studentsCount) > 0 ? Number(studentsCount).toLocaleString() : '—'"></dd>
+                            <dd class="font-semibold text-gray-900" x-text="Number(studentsCount) > 0 ? Number(studentsCount).toLocaleString() : 'N/A'"></dd>
                         </div>
                     </dl>
 

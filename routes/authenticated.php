@@ -37,7 +37,7 @@ Route::get(R::uri('dashboard'), function (Request $request) {
     // This route is the one place a School Admin lands that is NOT behind the
     // school_admin middleware, so the orphan check has to be repeated here.
     // An account whose school has been deleted keeps a valid session, and
-    // every school page reaches for the school immediately - so without this
+    // every school page reaches for the school immediately, so without this
     // it is a fatal error rather than a sign-out.
     if ($request->user()->school === null) {
         return EnsureUserIsSchoolAdmin::signOutOrphan($request);
@@ -78,7 +78,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
     });
 
     // Invoices, for whoever is signed in. Authorised against the account's own
-    // school inside the controller - a School Admin reaches their school's
+    // school inside the controller, a School Admin reaches their school's
     // invoices and no others.
     Route::get(R::uri('invoices.index'), [SubscriptionInvoiceController::class, 'index'])
         ->middleware('school_admin')

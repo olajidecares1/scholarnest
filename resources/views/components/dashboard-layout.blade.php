@@ -8,7 +8,7 @@
     $logoUrl = $platformSettings->logoUrl();
     $school = auth()->user()->school;
     // The approved subscription when there is one, otherwise the latest
-    // application - so a school waiting on approval still sees the plan it
+    // application, so a school waiting on approval still sees the plan it
     // submitted and its pending badge, rather than "Choose a Plan".
     $subscription = $school->subscriptionForDisplay();
     $openTicketsCount = \App\Models\SupportTicket::where('school_id', $school->id)->whereIn('status', [\App\Enums\TicketStatus::Open, \App\Enums\TicketStatus::InProgress])->count();
@@ -29,13 +29,13 @@
         {{-- Using the page counts as activity: see resources/js/session-keep-alive.js. --}}
         <meta name="session-keep-alive" content="{{ route('session.keep-alive', absolute: false) }}">
 
-        <title>{{ $pageTitle }} - {{ config('app.name', 'AkademicNest') }}</title>
+        <title>{{ $pageTitle }} | {{ config('app.name', 'AkademicNest') }}</title>
 
         <x-favicon />
 
         {{-- Installable, like the other three portals. The School Admin's
              pages are obfuscated root paths with no school in them, so this
-             app opens at the school's own admin login - which goes straight
+             app opens at the school's own admin login, which goes straight
              through to the dashboard when a session already exists. --}}
         @if ($school)
             <x-pwa :school="$school" portal="admin" />

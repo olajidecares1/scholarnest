@@ -21,13 +21,13 @@ use Illuminate\Support\Facades\Schema;
  *                     EduNest.
  *
  *   schools           Only where a school typed the platform's name into its
- *                     own content, which is nobody's business to rewrite - so
+ *                     own content, which is nobody's business to rewrite, so
  *                     schools are deliberately NOT touched. See below.
  *
  * SCHOOL-OWNED CONTENT IS LEFT ALONE. A school's website text, news posts and
  * remarks belong to the school. If one of them mentions EduNest by name that is
- * their sentence, and silently rewriting a customer's own words - in documents
- * they may have had approved - is not a rename, it is an edit nobody asked for.
+ * their sentence, and silently rewriting a customer's own words, in documents
+ * they may have had approved, is not a rename, it is an edit nobody asked for.
  * The schools that care will change it themselves.
  */
 return new class extends Migration
@@ -59,7 +59,7 @@ return new class extends Migration
             return;
         }
 
-        // Read, replace in PHP, write back - rather than a SQL REPLACE().
+        // Read, replace in PHP, write back, rather than a SQL REPLACE().
         // MySQL's REPLACE() is case sensitive and would need three passes for
         // "EduNest", "edunest" and "EDUNEST"; and SQLite, which the tests run
         // on, has no multi-pass equivalent worth writing twice.

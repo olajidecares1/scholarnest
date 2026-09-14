@@ -17,7 +17,7 @@ class PlanSeeder extends Seeder
             ['key' => PlanKey::Basic],
             [
                 'name' => 'Basic Plan',
-                'tagline' => 'Perfect for schools that need to run their academics - results, attendance and report cards - without a public website.',
+                'tagline' => 'Perfect for schools that need to run their academics (results, attendance and report cards) without a public website.',
                 'price_per_student_per_term' => 500,
                 'max_teachers' => null,
                 'features' => [
@@ -66,7 +66,7 @@ class PlanSeeder extends Seeder
                     'Computer-Based Testing (CBT)',
                     'Public School Website',
                     // The school is the label and the platform is the domain,
-                    // not the other way about - this is what the app issues.
+                    // not the other way about, this is what the app issues.
                     'Subdomain (schoolname.akademicanest.com)',
                     'ID Card Management',
                     'Hero Slider',
@@ -91,7 +91,7 @@ class PlanSeeder extends Seeder
                 'has_custom_pricing' => true,
 
                 // The row STAYS, with every feature it has. Exclusive is not
-                // being removed - it cannot be subscribed to yet, and that is
+                // being removed, it cannot be subscribed to yet, and that is
                 // decided by PlanKey::isAvailableToSubscribe() rather than by
                 // deleting anything here. Turning it on later is one line.
                 'features' => [

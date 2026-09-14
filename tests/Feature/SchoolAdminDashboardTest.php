@@ -80,7 +80,7 @@ test('recent announcements on the overview page show real data', function () {
 
 test('the sidebar lists every module and links to a real route', function () {
     // Pinned to Standard. The sidebar is filtered by plan now, so a Basic
-    // school is SUPPOSED not to see CBT, Events or the Website builder - which
+    // school is SUPPOSED not to see CBT, Events or the Website builder, which
     // plan sees what belongs to PlanRestrictionPageTest. This one is about the
     // links being real.
     activateSchool($this->school, PlanKey::Standard);

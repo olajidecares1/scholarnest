@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Schema;
  * correction reaches them only when somebody pushes it again.
  *
  * Keyed by school + student + class + session + term, unique. That is the
- * school's own idea of a result - one report card per child per term - and the
+ * school's own idea of a result, one report card per child per term, and the
  * uniqueness is what makes a second push an update rather than a duplicate.
  */
 return new class extends Migration
@@ -36,8 +36,8 @@ return new class extends Migration
             $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
 
-            // Which examination produced it. Not part of the key - the key is
-            // the term - but kept so an entry can always be traced back to the
+            // Which examination produced it. Not part of the key, the key is
+            // the term, but kept so an entry can always be traced back to the
             // marks it came from. Nulled rather than deleted if the
             // examination is removed: the published card outlives it.
             $table->foreignId('examination_id')->nullable()->constrained()->nullOnDelete();
@@ -46,8 +46,8 @@ return new class extends Migration
             $table->string('session');
             $table->string('term', 20);
 
-            // The card as approved. Every figure on it - subjects, test and
-            // exam scores, totals, grades, remarks, attendance, position -
+            // The card as approved. Every figure on it, subjects, test and
+            // exam scores, totals, grades, remarks, attendance, position,
             // read from the student's records at the moment of the push and
             // written down, so what a parent sees cannot drift underneath them.
             $table->json('payload');

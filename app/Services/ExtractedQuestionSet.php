@@ -19,7 +19,7 @@ final class ExtractedQuestionSet
      * Below this share of usable questions, the document is treated as having
      * failed rather than as needing review. Set where it is because a document
      * that produced mostly rubble is almost always the wrong file, a scan too
-     * poor to read, or a layout the extractor could not follow - none of which
+     * poor to read, or a layout the extractor could not follow, none of which
      * a teacher can fix question by question.
      */
     private const MINIMUM_USABLE_RATIO = 0.5;
@@ -92,7 +92,7 @@ final class ExtractedQuestionSet
         }
 
         return sprintf(
-            'Only %d of the %d questions in this document could be read properly - the rest were missing their text or '
+            'Only %d of the %d questions in this document could be read properly. The rest were missing their text or '
                 .'answer options. The document likely needs its layout corrected before it can be turned into a CBT. '
                 .'Nothing has been added to the test.',
             $this->usable()->count(),

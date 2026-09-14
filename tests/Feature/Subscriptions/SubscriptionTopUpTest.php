@@ -34,7 +34,7 @@ function basicSchoolAdminWithSubscription(int $studentsCount = 100): array
 
 test('a standard school CAN reach the top-up page now', function () {
     // It used to be refused. Standard is sold per student now, so it is capped
-    // per student, so it must be able to buy more - a plan capped in one place
+    // per student, so it must be able to buy more, a plan capped in one place
     // and unable to top up in another would be a trap.
     $school = School::factory()->create();
     $plan = Plan::firstOrCreate(['key' => PlanKey::Standard], Plan::factory()->make(['key' => PlanKey::Standard])->toArray());

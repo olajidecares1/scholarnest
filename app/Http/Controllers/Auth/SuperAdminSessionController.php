@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
  * that sequence is a curtain, not a lock. Nothing here trusts it: this endpoint
  * behaves exactly the same whether the request came from the revealed dialog or
  * from somebody who found the URL and posted at it directly, and it is the
- * checks below - not the curtain - that keep the account safe.
+ * checks below, not the curtain, that keep the account safe.
  *
  * Separate from the shared sign-in page because that page admits School Admins
  * too. This one admits nobody but a Super Admin, which means a stolen School
@@ -29,8 +29,8 @@ class SuperAdminSessionController extends Controller
     /**
      * A discovered URL should reveal nothing.
      *
-     * There is no Super Admin sign-in PAGE to serve - the dialog only ever
-     * exists on the registration page, behind the click sequence - so anyone
+     * There is no Super Admin sign-in PAGE to serve, the dialog only ever
+     * exists on the registration page, behind the click sequence, so anyone
      * arriving here by typing the address gets the ordinary sign-in page, the
      * same as any other visitor.
      */
@@ -46,7 +46,7 @@ class SuperAdminSessionController extends Controller
         try {
             // The shared request object, so this endpoint inherits the same
             // credential check, the same account-status check, and both rate
-            // limiters - per credential and per IP - rather than a second,
+            // limiters, per credential and per IP, rather than a second,
             // weaker copy of them written just for this door.
             $request->authenticate();
         } catch (ValidationException $exception) {
@@ -58,15 +58,15 @@ class SuperAdminSessionController extends Controller
         $user = Auth::user();
 
         if ($user->role !== UserRole::SuperAdmin) {
-            // Valid credentials, wrong role. No session is granted here - this
-            // door admits Super Admins only - but they are told plainly where
+            // Valid credentials, wrong role. No session is granted here, this
+            // door admits Super Admins only, but they are told plainly where
             // to go instead.
             //
             // THAT IS SAFE, AND ONLY BECAUSE THE PASSWORD WAS CORRECT. The
             // oracle this door has to avoid is telling a stranger whether an
             // address belongs to an account; somebody who has just proved they
             // hold that account's password already knows it exists, because it
-            // is theirs. A WRONG password never reaches this line - it is
+            // is theirs. A WRONG password never reaches this line, it is
             // refused above with the generic message, unchanged.
             //
             // It used to say "These credentials do not match our records",
@@ -83,11 +83,11 @@ class SuperAdminSessionController extends Controller
                 $login,
             );
 
-            // The finder, not route('login') - that one redirects straight
+            // The finder, not route('login'), that one redirects straight
             // back to the registration page, which is where they started.
             return redirect()->route('portal.find.show')->with(
                 'status',
-                'That was the AkademicNest Team sign-in. Your details are correct - please sign in to your school here instead.',
+                'That was the AkademicNest Team sign-in. Your details are correct. Please sign in to your school here instead.',
             );
         }
 
@@ -102,7 +102,7 @@ class SuperAdminSessionController extends Controller
      * Record an attempt that never produced a session.
      *
      * AuditLog::record() reads the acting user for its actor, and there is not
-     * one here, so the attempted login is passed explicitly instead - that
+     * one here, so the attempted login is passed explicitly instead, that
      * string is the only trace a failed attempt leaves.
      */
     private function log(string $action, string $description, string $login): void

@@ -7,13 +7,13 @@
  * The clock is anchored to the server, not the device. A tablet with a wrong
  * date would otherwise show a student minutes they do not have, or take away
  * minutes they do. The server decides when an attempt expires regardless, so
- * getting this wrong never let anyone cheat - it just meant the countdown on
+ * getting this wrong never let anyone cheat, it just meant the countdown on
  * screen disagreed with the one being enforced, which is its own cruelty during
  * an exam.
  *
  * Saving retries. The previous version fired the save and ignored the result,
  * so an answer chosen while the connection dropped was lost with no sign
- * anything had gone wrong - the option stayed highlighted, the student moved
+ * anything had gone wrong, the option stayed highlighted, the student moved
  * on, and the mark never existed. Answers now queue, retry with backoff, and
  * the header says plainly whether the work is safe.
  */
@@ -84,7 +84,7 @@ export default function cbtAttempt(config) {
             return {
                 saving: 'Saving…',
                 saved: 'All answers saved',
-                retrying: 'Connection lost — retrying…',
+                retrying: 'Connection lost. Retrying…',
             }[this.saveState] ?? '';
         },
 
@@ -141,7 +141,7 @@ export default function cbtAttempt(config) {
                 }),
             })
                 .then((response) => {
-                    // The server has ended the attempt - time ran out while the
+                    // The server has ended the attempt, time ran out while the
                     // page was open. Go where it says rather than keep trying.
                     if (response.status === 409) {
                         return response.json().then((data) => {

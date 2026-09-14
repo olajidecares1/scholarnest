@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
  * One row is one topic, for one subject, in one class, in one week of one term
  * of one session, by one teacher, at one school. Every one of those is a
  * column rather than something inferred later, because the record is only
- * useful if it can be read back along any of them - "what did 2A cover in
+ * useful if it can be read back along any of them, "what did 2A cover in
  * Mathematics last term" is the question this exists to answer.
  *
  * The unique key is what stops a week being logged twice for the same subject:
@@ -38,7 +38,7 @@ return new class extends Migration
             // Sized to what they hold rather than left at the default 255.
             // All four sit in the composite unique below, and at utf8mb4's four
             // bytes per character four 255-column keys blow past InnoDB's
-            // 3072-byte index limit - which surfaces as a foreign key that
+            // 3072-byte index limit, which surfaces as a foreign key that
             // "is incorrectly formed" rather than as anything about length.
             $table->string('class_name', 100);
             $table->string('subject', 100);

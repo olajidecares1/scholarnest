@@ -9,7 +9,7 @@ use App\Models\User;
 
 /**
  * A School Admin must be able to see what their documents will look like
- * before generating any - and must never be shown another school's branding.
+ * before generating any, and must never be shown another school's branding.
  */
 beforeEach(function () {
     $this->school = activateSchool(School::factory()->create([

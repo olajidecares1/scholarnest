@@ -12,7 +12,7 @@
 
         {{-- The home screen: every feature this pupil may use, grouped,
              as an icon over its name. It replaced a grid of large cards
-             that were navigation dressed as content - four of them filled
+             that were navigation dressed as content, four of them filled
              a phone screen, so Results was three screens down. --}}
         @php
             $nav = \App\Support\PortalNavigation::forStudent($student);

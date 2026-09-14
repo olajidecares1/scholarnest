@@ -10,7 +10,7 @@ use App\Services\CustomDomainVerificationService;
  *
  * That record lives at the SCHOOL's registrar, on a domain this platform does
  * not control, so renaming the prefix alone would quietly un-verify every
- * domain verified under an older name - a school would find its site off, with
+ * domain verified under an older name, a school would find its site off, with
  * nothing in the application to say why. The new prefix is what anybody is
  * told to create; the old ones are still accepted and never advertised.
  */

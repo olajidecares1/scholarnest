@@ -93,7 +93,7 @@ test('a token carries upper case, lower case and digits', function () {
 });
 
 test('a token reveals nothing about the session or term it belongs to', function () {
-    // The old format spent its first five characters on exactly that -
+    // The old format spent its first five characters on exactly that,
     // 25263QK7M92XP4Q announced "2025/2026, Third Term" to anyone holding it,
     // and two tokens side by side gave away the whole scheme.
     //
@@ -343,7 +343,7 @@ test('the fee hold and the token gate are two separate locks', function () {
     [$school, $admin, $examination, $student] = feeLockSchool(PlanKey::Standard);
     oweFees($student);
 
-    // Owing money. Refused, and no token will help - the unlock route turns
+    // Owing money. Refused, and no token will help, the unlock route turns
     // the token away before it is even read, so it is not spent on a result
     // that stays shut anyway.
     $this->actingAs($student, 'student')
@@ -382,7 +382,7 @@ test('the result checker wears the school\'s logo, not the platform\'s', functio
 
     // A parent typing a token into their child's school's address was shown
     // AkademicNest's badge, and the same badge whichever school the address
-    // belonged to - nothing on the page said whose result this was.
+    // belonged to, nothing on the page said whose result this was.
     $this->get($school->resultLinkUrl())
         ->assertOk()
         ->assertSee($school->fresh()->logoUrl())

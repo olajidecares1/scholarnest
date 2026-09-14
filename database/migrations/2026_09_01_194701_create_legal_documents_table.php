@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Schema;
  * and on most hosting the application cannot write to resources/ anyway.
  *
  * So the files become the SEED and the table becomes the live copy. The
- * markdown is still in the repository - it is what a reviewer reads, and what a
- * fresh install starts from - but once a row exists, the row is what schools
+ * markdown is still in the repository, it is what a reviewer reads, and what a
+ * fresh install starts from, but once a row exists, the row is what schools
  * see. A later deploy carrying an improved file will not silently overwrite an
  * edit somebody made on purpose.
  */
@@ -68,7 +68,7 @@ return new class extends Migration
         Schema::create('legal_documents', function (Blueprint $table) {
             $table->id();
 
-            // The slug is the public URL - /legal/privacy - and is fixed. It is
+            // The slug is the public URL, /legal/privacy, and is fixed. It is
             // not editable from the admin screen: changing it would break every
             // link already printed on a registration form, in an email, or in
             // somebody's bookmarks.
@@ -107,7 +107,7 @@ return new class extends Migration
      *
      * A missing file is skipped rather than fatal. The documents are in the
      * repository, but a migration that refuses to run because a resource file
-     * moved would take the whole deploy down with it - and an absent row simply
+     * moved would take the whole deploy down with it, and an absent row simply
      * means that document is not published yet, which the admin screen shows.
      */
     private function seedFromFiles(): void

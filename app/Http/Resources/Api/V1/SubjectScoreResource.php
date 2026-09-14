@@ -32,7 +32,7 @@ class SubjectScoreResource extends JsonResource
             'exam_max_score' => $this->examMaxScore(),
 
             // Cast, because the columns are decimals and Eloquent hands those
-            // back as strings - "72.00" in JSON is a mark a client has to
+            // back as strings, "72.00" in JSON is a mark a client has to
             // parse before it can compare it to anything.
             'test_score' => $score?->test_score === null ? null : (float) $score->test_score,
             'exam_score' => $score?->exam_score === null ? null : (float) $score->exam_score,

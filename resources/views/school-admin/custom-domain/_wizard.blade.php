@@ -109,7 +109,7 @@
                     </div>
                 @else
                     <div class="mt-5 rounded-[8px] bg-blue-50 p-4 text-xs text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
-                        Saving a domain doesn't connect it right away — it's still managed wherever you registered it (Namecheap, GoDaddy, Cloudflare, Hostinger, Squarespace Domains, Porkbun, and similar). Follow the steps below to point it at AkademicNest.
+                        Saving a domain doesn't connect it right away. It's still managed wherever you registered it (Namecheap, GoDaddy, Cloudflare, Hostinger, Squarespace Domains, Porkbun, and similar). Follow the steps below to point it at AkademicNest.
                     </div>
 
                     <div class="mt-4 space-y-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
@@ -145,7 +145,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <p class="text-[11px] text-gray-400 dark:text-gray-500">Root/apex domains (without "www") may need your provider's ALIAS/ANAME or CNAME-flattening option instead of a plain CNAME — most registrars list this under advanced DNS settings. DNS changes can take a few minutes to a few hours to fully take effect.</p>
+                        <p class="text-[11px] text-gray-400 dark:text-gray-500">Root/apex domains (without "www") may need your provider's ALIAS/ANAME or CNAME-flattening option instead of a plain CNAME. Most registrars list this under advanced DNS settings. DNS changes can take a few minutes to a few hours to fully take effect.</p>
                     </div>
 
                     <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
@@ -172,7 +172,7 @@
                     @if ($primary->status === CustomDomainStatus::Verified)
                         <div class="mt-4 flex items-center gap-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
                             <svg class="h-5 w-5 shrink-0 animate-spin text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
-                            <p class="text-sm text-gray-700 dark:text-gray-200">3. Installing your SSL certificate and configuring HTTPS — this usually only takes a moment. This page updates automatically.</p>
+                            <p class="text-sm text-gray-700 dark:text-gray-200">3. Installing your SSL certificate and configuring HTTPS. This usually only takes a moment. This page updates automatically.</p>
                         </div>
                     @endif
                 @endif
@@ -250,7 +250,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="field-hint">No subdomains yet — e.g. add "portal.{{ $primary->domain }}" if you'd like a dedicated address for a specific area of your site.</p>
+                        <p class="field-hint">No subdomains yet. For example, add "portal.{{ $primary->domain }}" if you'd like a dedicated address for a specific area of your site.</p>
                     @endforelse
                 </div>
             </div>
@@ -285,7 +285,7 @@
         // Polls the domain's status endpoint while its setup wizard is mid-flow
         // (not yet verified, or verified but SSL isn't Active yet) so the school
         // admin sees progress update automatically instead of needing to
-        // manually refresh - reloads the page once the status actually changes,
+        // manually refresh, reloads the page once the status actually changes,
         // since the wizard's markup is server-rendered from that status.
         function customDomainWizard(statusUrl, initialStatus, initialSslStatus, shouldPoll) {
             return {

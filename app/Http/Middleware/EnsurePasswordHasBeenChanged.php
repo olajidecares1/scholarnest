@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * When a School Admin sets/resets a Student, Staff, or Guardian's password,
  * that account is flagged must_change_password so the temporary password
- * the admin chose can't just go on being used indefinitely - this
+ * the admin chose can't just go on being used indefinitely, this
  * middleware blocks every page except the settings screen (where the
  * change-password form lives) and logout until the user sets their own.
  */

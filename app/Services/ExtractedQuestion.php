@@ -12,8 +12,8 @@ use Illuminate\Support\Str;
  * of the time that structure is sound, but the failures are quiet ones: a
  * question whose options were lost, two options that both came back labelled
  * "B", or an answer key naming an option the question does not have. None of
- * those look wrong in a list of extracted questions - they look like ordinary
- * questions - and every one of them produces a test a student cannot pass.
+ * those look wrong in a list of extracted questions, they look like ordinary
+ * questions, and every one of them produces a test a student cannot pass.
  *
  * The worst of them was silent. If the answer key said "E" and the options ran
  * A to D, nothing matched, so no option was stored as correct, and the question
@@ -28,7 +28,7 @@ use Illuminate\Support\Str;
 final class ExtractedQuestion
 {
     /**
-     * Below this a question cannot be answered in any meaningful way - a
+     * Below this a question cannot be answered in any meaningful way, a
      * "multiple choice" question with one option is not a question.
      */
     public const MINIMUM_OPTIONS = 2;
@@ -242,13 +242,13 @@ final class ExtractedQuestion
         if ($this->problems === [] && ! $this->hasCorrectAnswer()) {
             // Only worth saying on its own; when there are problems, one of
             // them already explains why no answer was resolved.
-            $notes[] = 'Correct answer was not found in the source document - select it manually.';
+            $notes[] = 'Correct answer was not found in the source document. Select it manually.';
         }
 
         if ($this->hasDiagram) {
             $notes[] = $this->diagramDescription
-                ? "This question refers to a diagram ({$this->diagramDescription}) - attach the image manually."
-                : 'This question refers to a diagram - attach the image manually.';
+                ? "This question refers to a diagram ({$this->diagramDescription}). Attach the image manually."
+                : 'This question refers to a diagram. Attach the image manually.';
         }
 
         return $notes === [] ? null : implode(' ', $notes);

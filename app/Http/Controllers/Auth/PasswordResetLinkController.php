@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 
 /**
- * "Forgot password?" — the request half.
+ * "Forgot password?", the request half.
  *
  * Only the `web` guard reaches this. Staff, Students and Parents deliberately
  * have no self-service reset and no route to one, so a request for those
@@ -20,7 +20,7 @@ use Illuminate\View\View;
  * THE ANSWER IS THE SAME WHETHER OR NOT THE ACCOUNT EXISTS. Laravel's default
  * returns "We can't find a user with that email address" when it does not,
  * which turns this form into a way to test whether somebody is a AkademicNest
- * administrator - useful to anyone preparing a phishing email, and free to run.
+ * administrator, useful to anyone preparing a phishing email, and free to run.
  * Both outcomes now produce the identical sentence.
  */
 class PasswordResetLinkController extends Controller
@@ -46,7 +46,7 @@ class PasswordResetLinkController extends Controller
         $this->record($validated['email'], $status, $request->ip());
 
         // Deliberately not branching on $status. RESET_LINK_SENT, INVALID_USER
-        // and RESET_THROTTLED all come back as the same sentence - the last of
+        // and RESET_THROTTLED all come back as the same sentence, the last of
         // those included, because "you asked too recently" also confirms the
         // address belongs to somebody.
         return back()->with('status', self::NEUTRAL_RESPONSE);

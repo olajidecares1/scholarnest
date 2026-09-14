@@ -12,7 +12,7 @@ use Database\Seeders\PlanSeeder;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Standard is priced per pupil now, exactly as Basic is - and that is ALL that
+ * Standard is priced per pupil now, exactly as Basic is, and that is ALL that
  * changed about it. Its features, its portals and its permissions are
  * untouched; only the way it is sold has moved.
  *
@@ -133,7 +133,7 @@ describe('the capacity is enforced', function () {
         expect($allocation->remaining($school->fresh()))->toBe(0);
 
         // Refused in the service every path goes through, not in one
-        // controller - so a bulk import cannot walk around it.
+        // controller, so a bulk import cannot walk around it.
         //
         // Refusal is a null return rather than an exception: the callers show
         // limitReachedMessage() and let the school buy more, which is a better
@@ -200,7 +200,7 @@ describe('Exclusive is coming soon', function () {
             ->get(route('subscriptions.choose-plan'))
             ->assertOk()
             ->assertSee('Coming Soon')
-            // Its radio is not merely disabled - it is not rendered at all.
+            // Its radio is not merely disabled, it is not rendered at all.
             ->assertDontSee('value="'.Plan::where('key', PlanKey::Exclusive)->firstOrFail()->id.'"', false);
     });
 
@@ -223,7 +223,7 @@ describe('Exclusive is coming soon', function () {
     });
 
     test('nothing about Exclusive was deleted', function () {
-        // It stays built for later - the row, its features and its code are
+        // It stays built for later, the row, its features and its code are
         // all still here. Only its availability changed.
         $exclusive = Plan::where('key', PlanKey::Exclusive)->firstOrFail();
 

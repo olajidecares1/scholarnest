@@ -22,8 +22,8 @@ use Illuminate\Support\Facades\Notification;
  *   A school looks active before anyone approved it, because the screen showing
  *   it is reading a different field from the one that grants access.
  *
- *   A school that IS approved looks pending, because a second subscription row
- *   - a renewal - outranks the approved one in whichever query happened to be
+ *   A school that IS approved looks pending, because a second subscription row,
+ *   a renewal, outranks the approved one in whichever query happened to be
  *   used.
  */
 beforeEach(function () {
@@ -48,14 +48,14 @@ function superAdminUserForActivation(): User
 }
 
 // -----------------------------------------------------------------------------
-// Bug 1 - nothing but a Super Admin grants access
+// Bug 1, nothing but a Super Admin grants access
 // -----------------------------------------------------------------------------
 
 test('a newly registered school is not active', function () {
     $school = School::factory()->create();
     subFor($school, SubscriptionStatus::PendingVerification);
 
-    // is_active defaults to true - it means "not suspended", not "approved" -
+    // is_active defaults to true, it means "not suspended", not "approved",
     // so the access check must not be satisfied by it alone.
     expect($school->fresh()->is_active)->toBeTrue()
         ->and($school->fresh()->hasActiveSubscription())->toBeFalse()
@@ -88,7 +88,7 @@ test('logging in does not activate a school', function () {
     $this->actingAs($admin)->get(route('dashboard'))->assertOk();
     $this->actingAs($admin)->get(route('dashboard'))->assertOk();
 
-    // Nothing approved, so there is no active subscription at all - and the
+    // Nothing approved, so there is no active subscription at all, and the
     // pending application is still sitting there untouched.
     expect($school->fresh()->hasActiveSubscription())->toBeFalse()
         ->and($school->fresh()->activeSubscription)->toBeNull()
@@ -118,7 +118,7 @@ test('the suspension toggle does not approve a subscription', function () {
 });
 
 // -----------------------------------------------------------------------------
-// Bug 2 - an approved school stays approved
+// Bug 2, an approved school stays approved
 // -----------------------------------------------------------------------------
 
 test('an approved school keeps access when it submits a renewal', function () {
@@ -154,7 +154,7 @@ test('the dashboard does not say awaiting activation while an approved subscript
     subFor($school, SubscriptionStatus::PendingVerification);
 
     // The access check and the dashboard must not disagree about the same
-    // school - one granting entry while the other prints "awaiting activation".
+    // school, one granting entry while the other prints "awaiting activation".
     $this->actingAs($admin)
         ->get(route('dashboard'))
         ->assertOk()

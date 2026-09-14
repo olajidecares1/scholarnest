@@ -1,7 +1,7 @@
 {{-- One school's student/pupil capacity, told the same way everywhere.
 
      Every figure here comes from StudentLicenceAllocation, which is the same
-     service the server consults before it will create a student - so what this
+     service the server consults before it will create a student, so what this
      card says and what the system actually enforces cannot drift apart. There
      is no arithmetic in this file and nothing is counted in the browser.
 

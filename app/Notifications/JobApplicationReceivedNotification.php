@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notification;
  * Confirms to an applicant that their application arrived.
  *
  * Sent to the address they applied with, from the school's name. It links back
- * to the vacancy on the school's own Job Portal - never to anything in the
+ * to the vacancy on the school's own Job Portal, never to anything in the
  * dashboard, which an applicant has no business opening.
  */
 class JobApplicationReceivedNotification extends Notification
@@ -40,6 +40,6 @@ class JobApplicationReceivedNotification extends Notification
             ->line('Thank you for applying for **'.$job->title.'** at **'.$school->name.'**. Your application has been received.')
             ->line('The school will review it and contact you at this email address or on '.$application->phone.' if you are shortlisted.')
             ->action('View the vacancy', $job->publicUrl())
-            ->salutation('— '.$school->name);
+            ->salutation('Regards, '.$school->name);
     }
 }

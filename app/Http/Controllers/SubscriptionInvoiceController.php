@@ -14,8 +14,8 @@ use Illuminate\View\View;
  * Two doors, because two kinds of visitor need one and they cannot be checked
  * the same way:
  *
- *   DOWNLOAD is for somebody signed in - the school's own administrator, or a
- *   Super Admin - and is authorised against the account. A school admin may
+ *   DOWNLOAD is for somebody signed in, the school's own administrator, or a
+ *   Super Admin, and is authorised against the account. A school admin may
  *   fetch their own school's invoices and nobody else's; the check is against
  *   the session's school_id, never an id in the request.
  *

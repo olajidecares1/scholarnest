@@ -6,8 +6,8 @@
  * storage; a laptop and this test suite must keep writing to storage/.
  *
  * These tests read config/filesystems.php the way the framework does, so a
- * change that silently sends local uploads to S3 - or, far worse, leaves
- * production writing to a disk that is wiped on every deploy - fails here.
+ * change that silently sends local uploads to S3, or, far worse, leaves
+ * production writing to a disk that is wiped on every deploy, fails here.
  */
 
 /**
@@ -99,8 +99,8 @@ it('never sends a per-object visibility to object storage', function () {
 });
 
 /**
- * Every disk definition has to survive var_export() or `config:cache` - which
- * PRODUCTION.md tells you to run after deploying - fatals on a closure.
+ * Every disk definition has to survive var_export() or `config:cache`, which
+ * PRODUCTION.md tells you to run after deploying, fatals on a closure.
  */
 it('stays safe to cache', function () {
     $config = filesystemsConfiguredWith([

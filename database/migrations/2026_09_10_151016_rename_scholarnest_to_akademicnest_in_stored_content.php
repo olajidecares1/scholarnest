@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Schema;
  *   schools           A school's own website text, news posts and remarks
  *                     belong to the school. If one of them names the platform,
  *                     that is their sentence, and silently rewriting a
- *                     customer's words - in pages they may have had approved -
+ *                     customer's words, in pages they may have had approved,
  *                     is not a rename, it is an edit nobody asked for.
  *
  *   audit_logs        A record of what happened, and what happened happened
@@ -69,7 +69,7 @@ return new class extends Migration
 
     /**
      * The Standard plan advertised "Subdomain (scholarnest.schoolname.com)",
-     * which is the wrong way round as well as the wrong name - the school is
+     * which is the wrong way round as well as the wrong name, the school is
      * the label and the platform is the domain, not the other way about. What
      * the application actually issues is schoolname.akademicanest.com.
      */
@@ -109,7 +109,7 @@ return new class extends Migration
             return;
         }
 
-        // Read, replace in PHP, write back - rather than a SQL REPLACE().
+        // Read, replace in PHP, write back, rather than a SQL REPLACE().
         // MySQL's REPLACE() is case sensitive and would need a pass per casing
         // per old name; and SQLite, which the tests run on, has no multi-pass
         // equivalent worth writing twice.

@@ -31,7 +31,7 @@ use Illuminate\Validation\Rules\Password;
  *
  *   It sets must_change_password to false. That flag exists to force a user to
  *   choose their own password on first sign-in, and users are no longer
- *   permitted to change their own - the School Admin is the authority. Leaving
+ *   permitted to change their own, the School Admin is the authority. Leaving
  *   it true would lock every account out on the first login with nowhere to go.
  */
 trait SetsPortalCredentials
@@ -41,7 +41,7 @@ trait SetsPortalCredentials
      * protected with.
      *
      * The school's name, the person's own name, the id they sign in with and
-     * their email address - the four things a stranger holding a school
+     * their email address, the four things a stranger holding a school
      * newsletter already has. Read from the ACCOUNT rather than from the
      * request, so the check cannot be sidestepped by submitting a different
      * school name alongside the password.
@@ -73,7 +73,7 @@ trait SetsPortalCredentials
         string $usernameLabel,
     ): string {
         // Only the password. The username is the account's generated ID and is
-        // not accepted from the request at all - a field the interface refuses
+        // not accepted from the request at all, a field the interface refuses
         // to show but the controller would still honour is not read-only, it
         // is read-only-looking.
         $validated = $request->validate([
@@ -83,7 +83,7 @@ trait SetsPortalCredentials
                 'confirmed',
                 Password::defaults(),
 
-                // Not made out of the account it protects. See the rule -
+                // Not made out of the account it protects. See the rule,
                 // "Greenfield2026!" passes every complexity check and is the
                 // first guess anybody makes against Greenfield College.
                 $this->identityRuleFor($account),
@@ -122,7 +122,7 @@ trait SetsPortalCredentials
      * save a staff member without a password would make the two inseparable.
      *
      * A blank password therefore leaves the existing one alone rather than
-     * clearing it - editing somebody's phone number must not silently revoke
+     * clearing it, editing somebody's phone number must not silently revoke
      * their login. A blank username likewise leaves the identifier as the main
      * form set it.
      *
@@ -174,7 +174,7 @@ trait SetsPortalCredentials
      * Put the WhatsApp share link in the session, for one page view.
      *
      * This is the only moment the password exists in readable form anywhere in
-     * the system - it was typed, hashed, and is about to be forgotten - so the
+     * the system, it was typed, hashed, and is about to be forgotten, so the
      * offer to share it has to be made now or not at all. Flashed rather than
      * stored for exactly that reason: a share link that survived the page
      * would be a password sitting in the session.
@@ -200,7 +200,7 @@ trait SetsPortalCredentials
     }
 
     /**
-     * The sign-in page this person actually uses - each portal has its own,
+     * The sign-in page this person actually uses, each portal has its own,
      * behind the school's own token, so a generic address would be no help.
      */
     private function loginUrlFor(Model $account, School $school): string

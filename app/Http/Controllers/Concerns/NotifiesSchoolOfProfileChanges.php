@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Staff and guardians keep their own contact details current because they are
  * the ones who know when those change. The records still belong to the school,
- * though, so the change is not allowed to happen quietly - a phone number that
+ * though, so the change is not allowed to happen quietly, a phone number that
  * moves without the office knowing is a call that bounces with no explanation.
  *
  * Shared by the staff and guardian portals so the two cannot end up notifying

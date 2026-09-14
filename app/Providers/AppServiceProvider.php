@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Document extraction runs locally, with no key, no credit and no
         // network. The binding is here rather than type-hinted directly so a
-        // different engine - OCR for scanned pages, or a hosted model - can be
+        // different engine, OCR for scanned pages, or a hosted model, can be
         // swapped in later by changing one line, without the local extractor
         // ever ceasing to be the default that works on its own.
         $this->app->bind(QuestionExtractionProvider::class, LocalQuestionExtractor::class);
@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
         // Uploads live in the database on Laravel Cloud until object storage
         // buckets are attached, instead of on a filesystem every deploy wipes.
         // Here, in register(), so it is settled before anything resolves a
-        // disk - and after Laravel has already applied any attached bucket.
+        // disk, and after Laravel has already applied any attached bucket.
         DatabaseStorageFallback::registerDriver($this->app);
         DatabaseStorageFallback::apply();
     }
@@ -52,11 +52,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // Again once every provider has registered, so nothing a later
         // provider did can leave an upload disk a directory Laravel Cloud
-        // wipes - every read of a photo, signature or stamp goes through here.
+        // wipes, every read of a photo, signature or stamp goes through here.
         DatabaseStorageFallback::ensure();
 
         // Refuses to serve a request from a production environment configured
-        // to leak - APP_DEBUG on, or a session cookie that is not secure and
+        // to leak, APP_DEBUG on, or a session cookie that is not secure and
         // encrypted. Outside production, and for console commands, it does
         // nothing. See App\Support\ProductionConfiguration.
         ProductionConfiguration::verify(
@@ -72,14 +72,14 @@ class AppServiceProvider extends ServiceProvider
          * An expired session sends people to their own portal's login.
          *
          * Laravel's default is route('login'), and in this application that
-         * name redirects on to route('register') - the shared sign-in page was
+         * name redirects on to route('register'), the shared sign-in page was
          * removed once every portal got its own, and the name was left aimed at
          * the public front door. The result was that stepping away from the
          * dashboard for four minutes ended on a form inviting a School Admin to
          * register the school they already run.
          *
          * Fixed here, at the one place every guest redirect passes through,
-         * rather than by pointing route('login') somewhere else - that name is
+         * rather than by pointing route('login') somewhere else, that name is
          * still the registration page's front door and several other things
          * lean on it. See App\Support\PortalLoginRedirect.
          */
@@ -90,7 +90,7 @@ class AppServiceProvider extends ServiceProvider
          *
          * The School Admin dashboard is an obfuscated path with no school in
          * it, reachable on the default host, so once the session is gone there
-         * is otherwise nothing left to say which school the person belongs to -
+         * is otherwise nothing left to say which school the person belongs to,
          * and "your session expired" would degrade to the generic sign-in.
          * Listening on the Login event covers all four portals at once rather
          * than adding the same line to each controller's store().
@@ -109,7 +109,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         /*
-         * A queue worker stamps a heartbeat on every pass of its loop - idle
+         * A queue worker stamps a heartbeat on every pass of its loop, idle
          * or busy, roughly once a second.
          *
          * Without it, "is anything processing jobs?" could only be inferred
@@ -126,8 +126,8 @@ class AppServiceProvider extends ServiceProvider
          * LogSuccessfulLogin and LogFailedLogin are NOT registered here.
          *
          * Laravel discovers listeners in app/Listeners by the type hint on
-         * their handle() method, so these two were registered twice - once by
-         * discovery and once by hand - and every login wrote its audit entry
+         * their handle() method, so these two were registered twice, once by
+         * discovery and once by hand, and every login wrote its audit entry
          * twice. `php artisan event:list` showed the pair plainly:
          *
          *     Illuminate\Auth\Events\Login
@@ -143,7 +143,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Applies everywhere Password::defaults() is used as a validation
         // rule (registration, self-service password change, forgot-password
-        // reset, Super Admin user creation) - a single source of truth for
+        // reset, Super Admin user creation), a single source of truth for
         // the app-wide minimum: 8+ characters, upper+lower case, a number,
         // and a symbol.
         Password::defaults(fn () => Password::min(8)->letters()->mixedCase()->numbers()->symbols());
@@ -152,7 +152,7 @@ class AppServiceProvider extends ServiceProvider
          * What "throttle:api" means.
          *
          * Keyed on the TOKEN rather than the account, so a parent with the app
-         * on a phone and a tablet gets a budget for each - and losing a device
+         * on a phone and a tablet gets a budget for each, and losing a device
          * to a runaway retry loop does not lock them out of the other one.
          * Falling back to the account id keeps the limit meaningful if a token
          * is ever absent, and to the IP for anything unauthenticated.
@@ -180,7 +180,7 @@ class AppServiceProvider extends ServiceProvider
      * Both columns have existed, been editable and been validated since the
      * settings screen was built, and NOTHING HAS EVER READ THEM. A Super Admin
      * could set the sender, save, see it saved, and every email would still go
-     * out under whatever MAIL_FROM_ADDRESS happened to be - a setting that
+     * out under whatever MAIL_FROM_ADDRESS happened to be, a setting that
      * lies is worse than one that is missing, because nobody goes looking.
      *
      * Only a set value overrides, so this can never blank out a working

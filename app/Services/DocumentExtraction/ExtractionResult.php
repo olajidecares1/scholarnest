@@ -52,7 +52,7 @@ final class ExtractionResult
     /**
      * Why nothing came out, phrased for the teacher who uploaded it.
      *
-     * Deliberately never a stack trace, a parser message or an exception - a
+     * Deliberately never a stack trace, a parser message or an exception, a
      * teacher can act on "this looks like a scan" and can do nothing whatever
      * with "TypeError in PdfParser.php line 412". The technical detail is
      * logged for whoever maintains the server.
@@ -67,7 +67,7 @@ final class ExtractionResult
 
         if ($this->warnings !== []) {
             return 'The document could not be read. '.$this->warnings[0]
-                .' The file is stored safely — you can fix it and use "Try extracting again" without uploading it afresh.';
+                .' The file is stored safely, so you can fix it and use "Try extracting again" without uploading it afresh.';
         }
 
         return 'No questions could be read from this document. Check that it contains numbered questions with '

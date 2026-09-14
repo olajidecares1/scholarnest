@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
  * Extends the portal's own login request rather than restating its rules,
  * which means the API gets the per-guard credential lookup, the per-school
  * throttle key, the is_active check and the school-active check exactly as the
- * browser does - and gets them again automatically when any of those change.
+ * browser does, and gets them again automatically when any of those change.
  * An API that reimplemented four guards' worth of sign-in would be four more
  * places for the rules to drift apart.
  *

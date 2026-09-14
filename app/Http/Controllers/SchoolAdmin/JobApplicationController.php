@@ -27,7 +27,7 @@ use Throwable;
  *
  * SCHOOL ISOLATION. Every action authorizes the APPLICATION's own school_id
  * against the signed-in admin's school first. Files are served only from here,
- * after that check, from the private disk - there is no public address for a
+ * after that check, from the private disk, there is no public address for a
  * CV at all.
  */
 class JobApplicationController extends Controller
@@ -199,7 +199,7 @@ class JobApplicationController extends Controller
     }
 
     /**
-     * "Ada Obi - CV.pdf", from the applicant's name and the stored extension -
+     * "Ada Obi, CV.pdf", from the applicant's name and the stored extension,
      * never the uploader's own filename wholesale.
      */
     private function downloadName(JobApplication $application, string $original, string $label): string
@@ -209,7 +209,7 @@ class JobApplicationController extends Controller
 
         $name = trim((string) preg_replace('/[^\pL\pN\s\-]+/u', '', $application->full_name)) ?: 'Applicant';
 
-        return "{$name} - {$label}.{$extension}";
+        return "{$name} {$label}.{$extension}";
     }
 
     private function markNotificationsRead(Request $request, JobApplication $application): void

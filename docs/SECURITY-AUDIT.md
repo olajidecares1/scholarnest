@@ -1,4 +1,4 @@
-# Security audit — 21 August 2026, closed out 26 August
+# Security audit, 21 August 2026, closed out 26 August
 
 A first pass over AkademicNest against the security requirements in the project
 brief. Everything below was checked against the actual code, not assumed.
@@ -58,7 +58,7 @@ Laravel's `Lockout` event. The limiter is cleared on success.
 
 - Expires after **60 minutes** (`config/auth.php`), for all four brokers
   (admin, students, staff, guardians)
-- Tokens are hashed at rest and single-use — Laravel's broker handles both
+- Tokens are hashed at rest and single-use, Laravel's broker handles both
 - Reset activity is logged by `LogPasswordReset`
 
 ### Sign-ins are audited
@@ -72,7 +72,7 @@ Laravel's `Lockout` event. The limiter is cleared on success.
 checking a MIME type, because it does two things at once:
 
 - **strips EXIF metadata**, as the brief requires
-- **proves the file is genuinely an image** — a disguised payload will not
+- **proves the file is genuinely an image**: a disguised payload will not
   survive being decoded and re-encoded
 
 It also downscales anything over 2560px.
@@ -81,7 +81,7 @@ It also downscales anything over 2560px.
 
 ## Findings
 
-### 1. Password spraying is not rate limited — *medium*
+### 1. Password spraying is not rate limited, *medium*
 
 `LoginRequest::throttleKey()` combines the email and the IP address:
 
@@ -102,24 +102,24 @@ of defence:
 Route::post(R::uri('login'), [AuthenticatedSessionController::class, 'store']);
 ```
 
-**Fix:** add a second, wider limiter keyed on IP alone — roughly 30 failures per
+**Fix:** add a second, wider limiter keyed on IP alone, roughly 30 failures per
 15 minutes. It must be generous, because a whole school can share one internet
 connection and several teachers may mistype passwords in the same window.
 
-### 2. Password reset requests are not rate limited per IP — *medium*
+### 2. Password reset requests are not rate limited per IP, *medium*
 
 `password.email` has no throttle. Laravel's broker enforces 60 seconds between
 requests **for the same email address**, but nothing limits one address
 requesting resets for thousands of different accounts.
 
-That allows mass password-reset emails to be triggered from AkademicNest — which is
+That allows mass password-reset emails to be triggered from AkademicNest, which is
 both an abuse of the school's users and a fast route to the mail provider
 blocking the platform's sending domain.
 
 Note the admin reset flow already does this correctly with `throttle:10,1`. The
 fix is to extend the same treatment to the main flow.
 
-### 3. Stored filenames use the client-supplied extension — *low, but fix it*
+### 3. Stored filenames use the client-supplied extension, *low, but fix it*
 
 14 upload sites build the stored filename like this:
 
@@ -127,7 +127,7 @@ fix is to extend the same treatment to the main flow.
 $file->storeAs('students', (string) Str::uuid().'.'.$file->getClientOriginalExtension(), 'public');
 ```
 
-The uuid part is right — the original filename is correctly discarded. But the
+The uuid part is right, the original filename is correctly discarded. But the
 extension comes from the browser, which means the *attacker* chooses it.
 
 **This is not currently exploitable**, and it is worth being precise about why.
@@ -147,14 +147,14 @@ does not cover every extension that some server configurations will execute
 $extension = $file->extension();   // guessed from the real MIME type
 ```
 
-### 4. Nothing prevents PHP execution in upload directories — *medium*
+### 4. Nothing prevents PHP execution in upload directories, *medium*
 
 The brief asks for this explicitly. There is no `.htaccess` in
 `storage/app/public` or `public/storage`.
 
 Uploaded files are served from `public/storage`, a symlink into
 `storage/app/public`. If a file that Apache is willing to execute ever lands
-there — through finding 3, a future upload path, or a misconfiguration — it
+there, through finding 3, a future upload path, or a misconfiguration, it
 runs as PHP.
 
 This is defence in depth: it costs almost nothing and it removes the entire
@@ -163,7 +163,7 @@ class of problem rather than one instance of it.
 **Fix:** add an `.htaccess` to the upload root that disables PHP handling, and
 serve user uploads through a controller rather than directly where practical.
 
-### 5. Production configuration is not documented — *medium*
+### 5. Production configuration is not documented, *medium*
 
 `.env` currently reads:
 
@@ -185,13 +185,13 @@ deploying has to already know.
 **Fix:** document the required production values, and add a startup check that
 refuses to boot with `APP_DEBUG=true` when `APP_ENV=production`.
 
-### 6. Authorization is spread across three mechanisms — *low, architectural*
+### 6. Authorization is spread across three mechanisms, *low, architectural*
 
 There is one Policy (`SubscriptionPolicy`). Everything else is enforced by
 middleware (`EnsureUserIsSchoolAdmin`, `EnsureHasPermission`, and 19 others)
 plus per-controller `abort_unless` helpers.
 
-This works today — the 941 tests demonstrate that. The cost is that answering
+This works today, the 941 tests demonstrate that. The cost is that answering
 "who may edit a student?" means checking a route definition, a middleware and a
 private controller method, and the same `abort_unless` line is repeated in 45
 files.
@@ -200,7 +200,7 @@ files.
 Policy so it is written once. This is a refactor, not a bug fix, and should
 happen module by module rather than in one sweep.
 
-### 7. `routes/web.php` is 78 KB in one file — *low, maintainability*
+### 7. `routes/web.php` is 78 KB in one file, *low, maintainability*
 
 Not a security issue, but it makes reviewing what is exposed hard, and reviewing
 what is exposed is a security activity.
@@ -218,7 +218,7 @@ All seven findings are closed.
 | --- | --- | --- |
 | 1 | Password spraying not rate limited | per-IP login limiter, 30 failures / 15 min |
 | 2 | Reset requests not rate limited per IP | reset limiter |
-| 3 | Stored filenames use the client extension | `App\Support\StoredUpload` — content-derived, allowlisted |
+| 3 | Stored filenames use the client extension | `App\Support\StoredUpload` content-derived, allowlisted |
 | 4 | PHP execution not blocked in upload directories | `.htaccess` in the upload root |
 | 5 | Production configuration undocumented | `App\Support\ProductionConfiguration` + [PRODUCTION.md](PRODUCTION.md) |
 | 6 | Ownership check repeated in 45 places | `AuthorizesSchoolOwnership` |
@@ -234,18 +234,18 @@ they close rather than merely get fixed.
 This was a first pass. These have still not been looked at:
 
 - The Student, Staff and Guardian portal login flows (four separate guards).
-  Their password-reset restrictions are audited and enforced - see
-  [PASSWORD-RESET-POLICY.md](PASSWORD-RESET-POLICY.md) - but the sign-in paths
+  Their password-reset restrictions are audited and enforced, see
+  [PASSWORD-RESET-POLICY.md](PASSWORD-RESET-POLICY.md), but the sign-in paths
   themselves are not.
 - `PortalSessionBroker` and `ValidateSchoolPortalToken`
 - The public misconduct-reporting upload path (video handling)
-- CBT document import, which now parses uploaded `.docx` and `.pdf` locally -
+- CBT document import, which now parses uploaded `.docx` and `.pdf` locally,
   a parser reading untrusted files in-process is worth its own pass
 - CSRF coverage on the portal routes
 - Whether `EnsureHasPermission` can be bypassed by direct route access
 - `ReportController::create` lists every school on a public page, publishing
   the full customer list
 
-Also outstanding from finding 6: roughly twenty checks of a different shape -
+Also outstanding from finding 6: roughly twenty checks of a different shape,
 "these two records belong to the same school as each other" rather than "this
 record is mine". That is a second rule and wants its own thinking.

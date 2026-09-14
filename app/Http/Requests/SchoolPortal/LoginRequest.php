@@ -52,7 +52,7 @@ class LoginRequest extends FormRequest
         $field = str_contains((string) $this->string('login'), '@') ? 'email' : 'username';
 
         // school_id is included directly in the credentials, not checked
-        // afterwards, so a School B admin's row simply fails to match here -
+        // afterwards, so a School B admin's row simply fails to match here,
         // same pattern already used by Student/Guardian/Staff login.
         $credentials = [
             $field => $this->string('login')->toString(),
@@ -107,7 +107,7 @@ class LoginRequest extends FormRequest
     /**
      * Get the rate limiting throttle key for the request.
      *
-     * Deliberately keyed by login+IP only, NOT +school_id - unlike Student/
+     * Deliberately keyed by login+IP only, NOT +school_id, unlike Student/
      * Guardian/Staff, a School Admin's email/username is globally unique
      * across the whole platform, not per-school, so scoping this by school
      * would let an attacker reset their attempt budget just by retrying the

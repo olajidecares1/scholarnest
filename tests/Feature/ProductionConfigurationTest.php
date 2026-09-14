@@ -16,7 +16,7 @@ function withProductionConfig(array $overrides = []): void
 
         // A real production address. The baseline used to leave this at the
         // test default of http://localhost, which was fine while the check
-        // looked only at debug and session settings - and stopped being fine
+        // looked only at debug and session settings, and stopped being fine
         // the moment APP_URL joined them, because a platform whose every
         // generated link points at localhost is not correctly configured.
         'app.url' => 'https://akademicanest.com',
@@ -82,7 +82,7 @@ test('every problem is reported at once, not one deployment at a time', function
 
 test('console commands are exempt, so a bad cached config can still be cleared', function () {
     // Without this exemption a misconfiguration baked into config:cache would
-    // stop `php artisan config:clear` - the one command that fixes it - from
+    // stop `php artisan config:clear`, the one command that fixes it, from
     // running at all.
     withProductionConfig([
         'app.debug' => true,

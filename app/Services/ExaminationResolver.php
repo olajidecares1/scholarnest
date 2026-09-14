@@ -11,21 +11,21 @@ use App\Models\School;
  * picked.
  *
  * A token is bound to one examination, and that binding is what makes "valid
- * for this term only" true - an examination IS one class, in one term, of one
+ * for this term only" true, an examination IS one class, in one term, of one
  * session. So the binding cannot go away. What can go away is asking the
  * School Admin to choose it: they have already chosen the year, the term and
  * the class, and those three name the examination completely.
  *
  * The picker they replace was worse than redundant. An examination has to
- * exist before it can be chosen, so a school with none - which is every school
- * on its first term - met an empty dropdown reading "No examinations recorded
+ * exist before it can be chosen, so a school with none, which is every school
+ * on its first term, met an empty dropdown reading "No examinations recorded
  * for that year and term yet" and could not issue a single token until it had
  * been somewhere else first.
  */
 class ExaminationResolver
 {
     /**
-     * The examination for this class, term and session - creating it if the
+     * The examination for this class, term and session, creating it if the
      * school has not recorded one yet.
      *
      * WHERE SEVERAL MATCH, THE LATEST BY DATE WINS. A school may legitimately

@@ -18,7 +18,7 @@ beforeEach(function () {
 
 test('every icon it can return exists in the bundled Font Awesome', function () {
     // The one that actually matters. A typo in the map renders a blank square
-    // on the website and nothing anywhere would fail - the class is simply
+    // on the website and nothing anywhere would fail, the class is simply
     // undefined and the glyph never arrives.
     $css = file_get_contents(base_path('node_modules/@fortawesome/fontawesome-free/css/all.css'));
 

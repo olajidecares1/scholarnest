@@ -11,7 +11,7 @@
         @php
             // CBT, the diary, ID cards and the timetable stay on Standard and
             // Exclusive. This portal is open to every plan, so the panels below
-            // need their own gate - those routes 403 on Basic.
+            // need their own gate, those routes 403 on Basic.
             //
             // The feature menu no longer needs a list here: PortalNavigation
             // applies the same rule, once, for every surface that shows it.
@@ -90,7 +90,7 @@
                             <p class="field-hint">{{ $entry->class_name }}@if ($entry->room) &middot; {{ $entry->room }} @endif</p>
                         </div>
                         <span class="shrink-0 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                            {{ \Illuminate\Support\Carbon::parse($entry->start_time)->format('h:i A') }} – {{ \Illuminate\Support\Carbon::parse($entry->end_time)->format('h:i A') }}
+                            {{ \Illuminate\Support\Carbon::parse($entry->start_time)->format('h:i A') }} to {{ \Illuminate\Support\Carbon::parse($entry->end_time)->format('h:i A') }}
                         </span>
                     </div>
                 @empty

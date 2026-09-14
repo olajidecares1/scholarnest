@@ -14,7 +14,7 @@ use Illuminate\Notifications\Notification;
  * in this class that is a security control rather than presentation. Laravel's
  * route() takes its host from the incoming request, so an attacker who sends a
  * forged Host header to the forgot-password endpoint would have the reset link
- * in the victim's email point at the attacker's domain - and the victim would
+ * in the victim's email point at the attacker's domain, and the victim would
  * hand over their token by clicking it. Building the URL from configuration
  * makes the header irrelevant.
  *
@@ -54,8 +54,8 @@ class ResetPasswordNotification extends Notification
             // Said plainly because the code is the second half of the reset:
             // anyone holding both it and the link can change the password.
             ->line('Keep this code to yourself. AkademicNest staff will never ask you for it.')
-            ->line('If you did not request a password reset, you can safely ignore this email — your password will not be changed.')
-            ->salutation('— AkademicNest Team');
+            ->line('If you did not request a password reset, you can safely ignore this email. Your password will not be changed.')
+            ->salutation('Regards, AkademicNest Team');
     }
 
     /**

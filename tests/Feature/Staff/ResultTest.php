@@ -54,7 +54,7 @@ test('a teacher with no class teacher assignment is forbidden', function () {
 test('a class teacher cannot print or download a report card, by any URL', function () {
     // Not "the buttons are gone". There is no endpoint left behind them, so
     // typing the address by hand reaches nothing. Asserted against the raw
-    // paths because route() cannot name a route that does not exist - which
+    // paths because route() cannot name a route that does not exist, which
     // is itself the point.
     $base = "/schools/{$this->school->uuid}/staff-portal/results/{$this->examination->uuid}/students/{$this->student->uuid}";
 

@@ -5,7 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 
 /**
  * Put the plans, the subject list and the CBT catalogue into a database that
- * has none - which is every production database, because a deploy runs
+ * has none, which is every production database, because a deploy runs
  * migrations and never seeders. See App\Support\ReferenceData.
  *
  * Only empty catalogues are touched, so this is safe on a database that was

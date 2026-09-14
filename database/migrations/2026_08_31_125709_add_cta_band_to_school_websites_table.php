@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * The headline and subline for the band above the footer.
  *
- * cta_text and cta_url were already here, but they are the BUTTON - its label
+ * cta_text and cta_url were already here, but they are the BUTTON, its label
  * and where it goes. The band's own words had nowhere to live, so it was drawn
  * from positioned website-builder blocks squeezed into a fixed 90px box, which
  * is why it rendered as overlapping text. Two plain columns and the band can be

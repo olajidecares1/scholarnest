@@ -36,7 +36,7 @@ class ReportController extends Controller
             $media = $request->file('media');
             $uploads = app(UploadStorage::class);
 
-            // A photo is processed - upright, GPS metadata removed; a video
+            // A photo is processed, upright, GPS metadata removed; a video
             // is stored as it arrived.
             $path = str_starts_with((string) $media->getMimeType(), 'image/')
                 ? $uploads->storeImage($media, 'local', "reports/{$report->id}", ImageProfile::Website, 'media')->path

@@ -2,6 +2,7 @@
 
 namespace Tests\Support;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
@@ -13,7 +14,7 @@ use League\Flysystem\Local\LocalFilesystemAdapter;
  * Real files for upload tests.
  *
  * UploadedFile::fake()->image() makes a plain GD image with no EXIF, no
- * transparency and nothing wrong with it - which is exactly the kind of file
+ * transparency and nothing wrong with it, which is exactly the kind of file
  * that never broke. These are the files that did: a phone photograph with an
  * orientation tag and GPS coordinates, a logo on a transparent background, a
  * truncated JPEG, a script wearing a .jpg name, an iPhone HEIC.
@@ -81,7 +82,7 @@ final class UploadFixtures
         return self::file((string) ob_get_clean(), $name, 'image/png');
     }
 
-    /** A palette (8-bit) PNG with a transparent index - how many logo tools export. */
+    /** A palette (8-bit) PNG with a transparent index, how many logo tools export. */
     public static function palettePng(int $width = 3000, int $height = 1000): UploadedFile
     {
         $image = imagecreate($width, $height);
@@ -139,7 +140,7 @@ final class UploadFixtures
     }
 
     /**
-     * A PNG whose header claims 20000 x 20000 pixels - 400 megapixels - in a
+     * A PNG whose header claims 20000 x 20000 pixels, 400 megapixels, in a
      * few hundred bytes. Decoding it would try to allocate gigabytes.
      */
     public static function pixelBombPng(): UploadedFile
@@ -150,6 +151,49 @@ final class UploadFixtures
         $png = "\x89PNG\r\n\x1a\n".$chunk('IHDR', $ihdr).$chunk('IDAT', gzcompress(str_repeat("\0", 1024))).$chunk('IEND', '');
 
         return self::file($png, 'bomb.png', 'image/png');
+    }
+
+    /**
+     * A screenshot of a bank transfer confirmation: dark text on white.
+     */
+    public static function receiptPng(string $name = 'receipt.png'): UploadedFile
+    {
+        $image = imagecreatetruecolor(480, 640);
+        imagefill($image, 0, 0, imagecolorallocate($image, 255, 255, 255));
+        $ink = imagecolorallocate($image, 20, 20, 20);
+
+        foreach (['Transfer Successful', 'Amount: NGN 50,000.00', 'Reference: TRF/2026/00912', 'Beneficiary: AkademicNest'] as $row => $line) {
+            imagestring($image, 5, 30, 40 + $row * 40, $line, $ink);
+        }
+
+        ob_start();
+        imagepng($image);
+
+        return self::file((string) ob_get_clean(), $name, 'image/png');
+    }
+
+    /** A solid white image, the size of a phone screenshot. */
+    public static function blankPng(): UploadedFile
+    {
+        $image = imagecreatetruecolor(480, 640);
+        imagefill($image, 0, 0, imagecolorallocate($image, 255, 255, 255));
+
+        ob_start();
+        imagepng($image);
+
+        return self::file((string) ob_get_clean(), 'blank.png', 'image/png');
+    }
+
+    /**
+     * A real PDF with selectable text, one line per entry.
+     *
+     * @param  list<string>  $lines
+     */
+    public static function textPdf(array $lines, string $name = 'receipt.pdf'): UploadedFile
+    {
+        $html = '<html><body>'.collect($lines)->map(fn (string $line) => '<p>'.e($line).'</p>')->implode('').'</body></html>';
+
+        return self::file(Pdf::loadHTML($html)->output(), $name, 'application/pdf');
     }
 
     public static function file(string $bytes, string $name, string $mime): UploadedFile
@@ -164,7 +208,7 @@ final class UploadFixtures
      * Point both upload disks at storage that behaves like object storage.
      *
      * Files are kept in a directory the TEST can inspect, but the disk itself
-     * answers path() with the object KEY, the way an S3 disk does - so any
+     * answers path() with the object KEY, the way an S3 disk does, so any
      * code that still treats ->path() as a real file fails here exactly as it
      * would in production. url() returns a bucket-style address.
      *

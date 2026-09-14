@@ -1,7 +1,7 @@
 @php
     $settings = \App\Models\Setting::current();
 
-    // dompdf cannot fetch a URL - enable_remote is off - so the logo is
+    // dompdf cannot fetch a URL, enable_remote is off, so the logo is
     // embedded as a data URI. The uploaded one is read from the database copy
     // (see App\Models\BrandingImage): the disk file does not survive a deploy
     // in production, so reading only the disk printed the bundled mark.
@@ -140,8 +140,8 @@
         <tbody>
             <tr>
                 <td>{{ $invoice->description }}</td>
-                <td class="right">{{ $invoice->licences ?? '—' }}</td>
-                <td class="right">{{ $invoice->unit_price !== null ? $money($invoice->unit_price) : '—' }}</td>
+                <td class="right">{{ $invoice->licences ?? 'N/A' }}</td>
+                <td class="right">{{ $invoice->unit_price !== null ? $money($invoice->unit_price) : 'N/A' }}</td>
                 <td class="right">{{ $money($invoice->subtotal) }}</td>
             </tr>
         </tbody>
@@ -196,8 +196,8 @@
     @endif
 
     <div class="footer">
-        {{ $settings->site_name ?: config('app.name') }} — invoice {{ $invoice->number }} —
-        generated {{ now()->format('j F Y') }}.
+        {{ $settings->site_name ?: config('app.name') }} | Invoice {{ $invoice->number }} |
+        Generated {{ now()->format('j F Y') }}.
         This document is a record of a subscription to the {{ $settings->site_name ?: config('app.name') }} school management platform.
     </div>
 </body>

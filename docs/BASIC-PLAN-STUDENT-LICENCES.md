@@ -30,7 +30,7 @@ School pays
 
 Per-student, per-term, held in `plans.price_per_student_per_term`.
 
-**Editable by the Super Admin** at *Plan Pricing* — it is not a constant in the
+**Editable by the Super Admin** at *Plan Pricing*. It is not a constant in the
 source, so changing it needs no developer and no deployment.
 
 Changing the price never rewrites a payment already submitted. Each top-up
@@ -77,7 +77,7 @@ behind the `super_admin` middleware.
 Approving requires **typing the number of licences to allocate**. This is the
 heart of the rule, and it is why there is a field rather than just a button:
 
-- The number entered is what gets applied — never the number the school asked
+- The number entered is what gets applied, never the number the school asked
   for.
 - The two are allowed to differ. A school that requested 50 but paid for 40
   receives 40.
@@ -103,7 +103,7 @@ interface involved is refused exactly the same way.
 ### Two requests at once
 
 Counting students and then creating one is two statements. Two simultaneous
-submissions — a double-click is enough — could both count 99 against a limit of
+submissions, a double-click is enough, could both count 99 against a limit of
 100 and both insert, leaving 101.
 
 `withCapacity()` counts and creates inside one transaction, holding
@@ -113,7 +113,7 @@ than racing.
 ### Deactivate, admit, reactivate
 
 A school at 100/100 could deactivate a student, admit a replacement, then
-reactivate the first — 101 active students with every individual step looking
+reactivate the first, 101 active students with every individual step looking
 legitimate.
 
 Reactivating therefore goes through the same check as creating. Deactivating
@@ -136,7 +136,7 @@ The Students page shows **used / allocated** and **remaining**.
 | Exhausted | Red **Student Limit Reached** banner and button |
 
 "Running low" is within a tenth of the allocation, or five licences, whichever
-is larger — so a 30-student school is warned at 5 rather than at 3.
+is larger, so a 30-student school is warned at 5 rather than at 3.
 
 The banner appears only when capacity is low or gone, so it reads as a real
 prompt rather than furniture the eye learns to skip.

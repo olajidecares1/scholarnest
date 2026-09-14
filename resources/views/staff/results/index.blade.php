@@ -116,8 +116,8 @@
                                                 <span class="truncate font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
                                             </div>
                                         </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['averageScore'] ?? '—' }}</td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['average'] !== null ? $row['average'].'%' : '—' }}</td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['averageScore'] ?? 'N/A' }}</td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['average'] !== null ? $row['average'].'%' : 'N/A' }}</td>
                                         <td class="whitespace-nowrap px-4 py-3">
                                             <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $statusBadge($row['status']) }}">{{ $row['status'] }}</span>
                                         </td>

@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>ID Cards - {{ $school->name }}</title>
+        <title>ID Cards | {{ $school->name }}</title>
         @vite(['resources/css/app.css'])
         <style>
             @media print {

@@ -19,7 +19,7 @@ use App\Support\ReportCardSample;
  *   1. The library is the SCHOOL'S. One school can never read, reword or
  *      delete another's, and nothing in a request can point at one.
  *   2. A remark on a card is a COPY, not a reference. Rewording a library
- *      entry - or deleting it - never rewrites a result already issued,
+ *      entry, or deleting it, never rewrites a result already issued,
  *      because what was said about a child on the day is not a row that can
  *      change underneath them.
  */
@@ -240,7 +240,7 @@ test('both remarks print in italic on the report card', function () {
     foreach (['school-admin.results._report-card', 'school-admin.results.pdf.report-card'] as $template) {
         $html = view($template, $data)->render();
 
-        // The label is bold, the wording italic - each remark sits in a cell
+        // The label is bold, the wording italic, each remark sits in a cell
         // that declares italic and carries the text.
         expect($html)->toMatch('/italic[^>]*>\s*Excellent effort this term\./')
             ->and($html)->toMatch('/italic[^>]*>\s*Outstanding performance\./');

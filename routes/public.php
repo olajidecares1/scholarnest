@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Route;
 // {tenantDomain} wildcard excludes this app's own host so it can never shadow the
 // app's own routes for normal requests. Registered BEFORE the default "/" route
 // below (and every other host-agnostic route) because Laravel's router picks the
-// FIRST route that matches a given method+URI regardless of domain specificity -
+// FIRST route that matches a given method+URI regardless of domain specificity,
 // a host-agnostic route registered earlier would otherwise always win over this
 // domain-constrained one for the same "/" URI, even on a foreign host.
 Route::group([
@@ -51,7 +51,7 @@ Route::group([
     Route::get('/events', [PublicSchoolWebsiteController::class, 'events'])->name('school-events.index');
     Route::get('/careers', [PublicSchoolWebsiteController::class, 'careers'])->name('school-careers.index');
 
-    // The Job Portal - see App\Http\Controllers\JobPortalController. Each
+    // The Job Portal, see App\Http\Controllers\JobPortalController. Each
     // vacancy at its own unguessable token; applications rate limited and
     // honeypotted, like every other open form. 30 an hour per address rather
     // than a handful, because applicants on one mobile network commonly share
@@ -83,14 +83,14 @@ Route::group([
 
     // Mirrors the Portal hub and all four logins so a school reached at its
     // subdomain never has to jump back to the default "/p/{portal_key}/..."
-    // path just to sign in - same controllers as the default-path routes
+    // path just to sign in, same controllers as the default-path routes
     // below, reused exactly like PublicSchoolWebsiteController above. Every
-    // store() already redirects with route(..., absolute: false), so once
+    // store() already redirects with route(... absolute: false), so once
     // signed in here the browser simply stays on this same host afterward.
     Route::get('/portal', [SchoolPortalController::class, 'index'])->name('portal.index');
 
     // The new unified portal login (Phase 2 of the portal-URL-security
-    // rewrite) - additive, alongside the four per-guard logins below and the
+    // rewrite), additive, alongside the four per-guard logins below and the
     // portal.index hub above, which is why this can't claim the bare
     // "/portal" path yet. Phase 3 removes the hub/per-guard logins and
     // reclaims "/portal" for this. See
@@ -130,7 +130,7 @@ Route::get('/', function () {
 // The `signed` middleware is the access control: the URL carries a signature
 // minted by whatever rendered the page, and an altered, forged or expired one
 // never reaches the controller. A session check could not be used here because
-// two of the pages that legitimately show a photograph have no session - a
+// two of the pages that legitimately show a photograph have no session, a
 // parent opening a result with a token, and somebody scanning the QR on a
 // printed ID card. See App\Http\Controllers\ProtectedMediaController.
 Route::get('media/{subject}/{uuid}', [ProtectedMediaController::class, 'photo'])
@@ -143,12 +143,12 @@ Route::get('media/{subject}/{uuid}', [ProtectedMediaController::class, 'photo'])
 // Signed rather than gated, for the same reason photographs are: a billing
 // email is commonly opened by a bursar or a proprietor who has no account on
 // this platform, and an invoice they cannot open has not really been sent.
-// The signature expires - see App\Notifications\SubscriptionInvoiceIssuedNotification.
+// The signature expires, see App\Notifications\SubscriptionInvoiceIssuedNotification.
 //
 // signed:RELATIVE, for this link and the next. Both emails sign only the path
 // and query (absolute: false) and put config('app.url') in front, so a forged
 // Host header can never choose where the link points. Plain `signed` checks an
-// ABSOLUTE signature - scheme and host included - which such a link can never
+// ABSOLUTE signature, scheme and host included, which such a link can never
 // match: every one of them answered 403 Invalid signature. The photo route
 // above is signed absolutely and keeps plain `signed`.
 Route::get('invoices/{invoice}', [SubscriptionInvoiceController::class, 'view'])
@@ -156,7 +156,7 @@ Route::get('invoices/{invoice}', [SubscriptionInvoiceController::class, 'view'])
     ->name('invoices.view');
 
 // "Continue your registration", from the reminder email. Signed, and
-// deliberately not a sign-in - see App\Http\Controllers\RegistrationResumeController.
+// deliberately not a sign-in, see App\Http\Controllers\RegistrationResumeController.
 Route::get('continue-registration/{school}', RegistrationResumeController::class)
     ->middleware('signed:relative')
     ->name('registration.resume');
@@ -166,7 +166,7 @@ Route::get('continue-registration/{school}', RegistrationResumeController::class
 // form, and a school cannot meaningfully agree to terms it can only read after
 // it has an account.
 //
-// Plain, readable paths rather than obfuscated ones - unlike the dashboard
+// Plain, readable paths rather than obfuscated ones, unlike the dashboard
 // these are meant to be linked to, shared and cited. The {document} segment is
 // constrained to the documents that exist, so a slug can never reach the audit
 // and gap report that sit in the same directory.
@@ -175,7 +175,7 @@ Route::name('legal.')->prefix('legal')->group(function () {
     Route::get('/{document}', [LegalDocumentController::class, 'show'])
         // The fixed list on the model, not a database query: the constraint is
         // built at boot, and a slug is therefore incapable of naming anything
-        // else - including the audit and gap report in the same source
+        // else, including the audit and gap report in the same source
         // directory, which have no row and no slug.
         ->whereIn('document', LegalDocument::SLUGS)
         ->name('show');
@@ -215,7 +215,7 @@ Route::middleware('redirect_to_custom_domain')->name('public.')->group(function 
 });
 
 // Result-checking PINs: deliberately its own top-level group, not nested under
-// the "public." website group above - it must keep working for Basic-plan
+// the "public." website group above, it must keep working for Basic-plan
 // schools, which are barred from the front-facing website entirely and have
 // no SchoolWebsite record for that group's middleware/layout to depend on.
 Route::prefix('p/{school:portal_key}/check-result')->name('check-result.')->group(function () {
@@ -229,7 +229,7 @@ Route::prefix('p/{school:portal_key}/check-result')->name('check-result.')->grou
     Route::get('/result/{usage}/download', [CheckResultController::class, 'download'])->name('download');
 });
 
-// ID card QR verification: also deliberately ungated and unauthenticated -
+// ID card QR verification: also deliberately ungated and unauthenticated,
 // anyone scanning a printed card must be able to reach it without logging in.
 // No plan-gating needed here: cards can only ever be issued by Standard/
 // Exclusive schools (id_card_access guards generation, not this route).

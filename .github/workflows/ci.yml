@@ -1,7 +1,7 @@
 name: CI
 
 # Every push to a long-lived branch, and every pull request aimed at one.
-# Nothing merges into main without this being green - see docs/GITHUB.md for
+# Nothing merges into main without this being green, see docs/GITHUB.md for
 # the branch protection rule that enforces it, which is a repository setting
 # and cannot live in this file.
 on:
@@ -27,7 +27,7 @@ jobs:
 
       # 8.2 is what composer.json requires and what the project is developed
       # on. When PHP 8.3 becomes the floor, change it here and in composer.json
-      # together - a CI that tests a version nobody runs proves nothing.
+      # together, a CI that tests a version nobody runs proves nothing.
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -70,7 +70,7 @@ jobs:
         run: npm audit --audit-level=high
 
       # Not optional. Feature tests render Blade views, those views call @vite,
-      # and @vite throws without a build manifest - so skipping this fails the
+      # and @vite throws without a build manifest, so skipping this fails the
       # suite in a way that looks nothing like a missing asset build.
       - name: Build assets
         run: npm run build

@@ -10,13 +10,13 @@ use Illuminate\Http\Request;
  *
  * THE BUG THIS EXISTS FOR. Laravel's auth middleware redirects a guest to
  * route('login'), and route('login') in this application redirects again, to
- * route('register') - the global sign-in page was removed once every portal
+ * route('register'), the global sign-in page was removed once every portal
  * got its own, and the name was left pointing at the public front door. So the
  * end of every expired session was SCHOOL REGISTRATION: a School Admin who
  * stepped away for four minutes came back to a form inviting them to register
  * the school they already own.
  *
- * An expired session means one thing only - "this person needs to sign in
+ * An expired session means one thing only, "this person needs to sign in
  * again". It never means the school needs creating. So this works out which
  * portal they were in and sends them to that portal's own login.
  *
@@ -25,7 +25,7 @@ use Illuminate\Http\Request;
  *   1. The ROUTE. The staff, student and guardian portals all carry
  *      /p/{portal_key}/... in the URL, so the school is right there in the
  *      address they just asked for, whatever their session says. The key is
- *      opaque - it identifies the school without naming it.
+ *      opaque, it identifies the school without naming it.
  *   2. The HOST. A school reached at its own domain or subdomain is identified
  *      by the request itself.
  *   3. A COOKIE written when they signed in. The School Admin dashboard is an
@@ -34,7 +34,7 @@ use Illuminate\Http\Request;
  *      the school context survive independently of the authentication session,
  *      and a cookie is the only thing here that does.
  *
- * If all three come up empty the destination is the unified portal sign-in -
+ * If all three come up empty the destination is the unified portal sign-in,
  * still a login page, still not registration.
  */
 final class PortalLoginRedirect
@@ -43,7 +43,7 @@ final class PortalLoginRedirect
      * Remembers which school and portal this browser last signed in to.
      *
      * Encrypted in transit like every other cookie this application sets, and
-     * it holds nothing the person does not already know - the id of their own
+     * it holds nothing the person does not already know, the id of their own
      * school and the name of the portal they use.
      */
     public const COOKIE = 'akademicnest_portal';
@@ -120,7 +120,7 @@ final class PortalLoginRedirect
                 return $value;
             }
 
-            // Normally the parameter is already a School - model binding has
+            // Normally the parameter is already a School, model binding has
             // run. This is the fallback for a request that failed before
             // binding, where all we have is the raw segment.
             //

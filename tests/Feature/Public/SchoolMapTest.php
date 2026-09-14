@@ -29,7 +29,7 @@ test('the home page maps the address a school has set', function () {
 });
 
 test('the Contact Us page maps it too, and prints the address beside it', function () {
-    // This page carried no address and no map at all - only the home page did,
+    // This page carried no address and no map at all, only the home page did,
     // and this is the page somebody opens looking for exactly that.
     $this->school->update(['contact_address' => '12 Ogui Road, Enugu']);
 

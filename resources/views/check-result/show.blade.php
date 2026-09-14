@@ -3,7 +3,7 @@
      The token is not asked for here. It comes on the next screen, once the
      School ID has found somebody, so a parent confirms they are looking at
      their own child's record before spending a token on it. --}}
-<x-auth-layout :title="'Check Result - '.$school->name" :school="$school" simple>
+<x-auth-layout :title="'Check Result | '.$school->name" :school="$school" simple>
     <x-auth-card>
         <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-primary-600">
             <span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary-500 text-[10px] text-white">1</span>

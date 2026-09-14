@@ -89,7 +89,7 @@
                                         </span>
                                     </a>
                                 </td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $guardian->phone ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $guardian->phone ?? 'N/A' }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">
                                     {{ $guardian->students_count }} {{ Str::plural('child', $guardian->students_count) }}
                                 </td>
@@ -152,7 +152,7 @@
                         username-label="Username (Phone Number)"
                         username-model="loginUsername"
                         username-hint="The phone number and password this parent or guardian signs in to the parent portal with."
-                        password-hint="Optional — you can set it later from the guardian's page."
+                        password-hint="Optional. You can set it later from the guardian's page."
                     />
 
                     <div class="flex justify-end gap-2">

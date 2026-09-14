@@ -42,7 +42,7 @@ test('a school admin with no active subscription cannot access custom domain man
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
     // Blocked earlier by the school_activated gate (no subscription at all) before
-    // the custom-domain plan-tier check ever runs - redirected to the dashboard, not 403'd.
+    // the custom-domain plan-tier check ever runs, redirected to the dashboard, not 403'd.
     $this->actingAs($admin)
         ->get(route('custom-domain.index'))
         ->assertRedirect(route('dashboard'));

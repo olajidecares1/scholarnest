@@ -41,8 +41,8 @@
                         @forelse ($assignments as $assignment)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $assignment->student->fullName() }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $assignment->student->class_name ?? '—' }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $assignment->pickup_point ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $assignment->student->class_name ?? 'N/A' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $assignment->pickup_point ?? 'N/A' }}</td>
                                 <td class="px-6 py-3">
                                     <form method="POST" action="{{ route('transport.routes.assignments.destroy', $assignment) }}" onsubmit="return confirm('Remove {{ $assignment->student->fullName() }} from this route?');">
                                         @csrf @method('DELETE')

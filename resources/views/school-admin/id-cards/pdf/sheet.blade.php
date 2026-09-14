@@ -11,7 +11,7 @@
             @page { margin: 10mm; }
             body { margin: 0; padding: 0; font-family: sans-serif; }
             .pdf-card-wrap { display: inline-block; margin: 0 6px 6px 0; page-break-inside: avoid; }
-            {{-- No explicit height - see single.blade.php's .pdf-card comment
+            {{-- No explicit height, see single.blade.php's .pdf-card comment
             for why dompdf can split a table across pages when its CSS
             height is even a fraction taller than the space actually
             available for it. --}}

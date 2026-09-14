@@ -30,7 +30,7 @@ class ChoosePlanController extends Controller
 
         // Exclusive is Coming Soon. Refused HERE as well as hidden on the
         // page, because a disabled radio button is a suggestion and a posted
-        // plan_id is not - anything that only stopped the click would let a
+        // plan_id is not, anything that only stopped the click would let a
         // school onto a plan nobody is ready to sell by editing the form.
         if (! $plan->key->isAvailableToSubscribe()) {
             return back()->withErrors([

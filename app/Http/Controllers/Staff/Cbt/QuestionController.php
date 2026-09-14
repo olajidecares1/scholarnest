@@ -49,7 +49,7 @@ class QuestionController extends Controller
 
             // Saving the form is the review. It requires a correct answer to
             // be chosen, so whatever extraction could not work out has now
-            // been settled by a person - and leaving the flag set would block
+            // been settled by a person, and leaving the flag set would block
             // publishing on a question that is already fixed.
             $question->update([
                 'question_text' => $validated['question_text'],

@@ -39,7 +39,7 @@ class RegisterSchoolRequest extends FormRequest
             // of the school's own website, and "Greenfield2026!" satisfies
             // every complexity rule while being the first guess anybody makes
             // against Greenfield College. Read from THIS request because at
-            // registration there is no account yet - they are the values the
+            // registration there is no account yet, they are the values the
             // account is about to be created with.
             'password' => [
                 'required',
@@ -56,7 +56,7 @@ class RegisterSchoolRequest extends FormRequest
             // a browser convenience: it is trivially removed with developer
             // tools and absent entirely from a request made outside a browser.
             //
-            // `accepted` refuses anything that is not a true value - and
+            // `accepted` refuses anything that is not a true value, and
             // refuses a request in which the field is missing altogether,
             // which is exactly what an unticked checkbox sends, since a
             // browser omits unchecked boxes rather than sending them as false.
@@ -71,7 +71,7 @@ class RegisterSchoolRequest extends FormRequest
     {
         return [
             // Names the three documents that exist. It used to name a "Data
-            // Protection Policy", which never did - so a school reading the
+            // Protection Policy", which never did, so a school reading the
             // refusal was told to accept something it could not find.
             'terms.accepted' => 'Please read and accept the Terms & Conditions, Privacy Policy and Cookie Policy to continue.',
         ];

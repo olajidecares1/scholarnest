@@ -1,6 +1,6 @@
 @php
-    // A new template opens on the default card - the same colours and wording
-    // an untouched school already gets - so "edit this into our card" starts
+    // A new template opens on the default card, the same colours and wording
+    // an untouched school already gets, so "edit this into our card" starts
     // from what the school is looking at rather than from a blank form.
     $defaults = \App\Support\IdCardDesign::newTemplateDefaults($school);
 
@@ -267,7 +267,7 @@
                          templates and fetched again whenever a colour or the
                          card type changes.
 
-                         It used to be a miniature drawn by hand here - a
+                         It used to be a miniature drawn by hand here, a
                          gradient header, a small photo box, an "Authorized
                          Signature" line. None of it was the card. It was
                          written once, the card moved on, and what a School

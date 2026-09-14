@@ -67,7 +67,7 @@ describe('the hierarchy survives the base weight', function () {
 
         // The base weight is set on body alone. Every heading carries its own
         // font-bold or font-extrabold utility, and a class beats an inherited
-        // value - so the page keeps its shape instead of flattening to one
+        // value, so the page keeps its shape instead of flattening to one
         // weight.
         expect($html)->toContain('font-extrabold')
             ->toContain('font-bold');
@@ -94,7 +94,7 @@ describe('nothing arbitrary reaches the stylesheet', function () {
         $this->actingAs($this->admin)
             // A name that is genuinely in neither list. This used to say
             // "Comic Sans MS", which stopped being invalid the moment the
-            // installed fonts were added - a test that asserts a refusal has
+            // installed fonts were added, a test that asserts a refusal has
             // to name something the list will never contain.
             ->put(route('website.update-typography'), [
                 'font_family' => 'Wingdings Ultra Expanded',
@@ -205,7 +205,7 @@ describe('the admin controls', function () {
 describe('installed fonts sit beside the web fonts', function () {
     test('Algerian is offered, and is never asked of Google', function () {
         // It is a Microsoft display face shipped with Office, not a Google
-        // font - there is no URL to request it from. Listing it as a web font
+        // font, there is no URL to request it from. Listing it as a web font
         // would have produced a request for a family Google does not have and
         // a page that rendered in the fallback on every machine, including the
         // ones that own the typeface.
@@ -254,8 +254,8 @@ describe('installed fonts sit beside the web fonts', function () {
     test('the picker separates the two kinds so a school knows what it is choosing', function () {
         $html = $this->actingAs($this->admin)->get(route('website.index'))->assertOk()->getContent();
 
-        expect($html)->toContain('Web fonts — look the same for every visitor')
-            ->toContain('Installed fonts — only for visitors who have them')
+        expect($html)->toContain('Web fonts (look the same for every visitor)')
+            ->toContain('Installed fonts (only for visitors who have them)')
             ->toContain('>Algerian<');
     });
 });
@@ -281,7 +281,7 @@ describe('the list is a good deal longer now', function () {
         // The whole reason the weights are written down: Google omits any it
         // does not publish and the browser fakes the difference.
         // Collected and asserted once, rather than passing a message as a
-        // second argument to toContain - which Pest reads as ANOTHER value to
+        // second argument to toContain, which Pest reads as ANOTHER value to
         // look for, so the message itself became the thing being searched for.
         $missing = [];
 

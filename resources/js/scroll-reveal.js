@@ -1,8 +1,8 @@
 /**
  * Scroll-driven animation for the public school website.
  *
- * Four jobs, one file, because they all answer the same question - "is this
- * on screen yet?" - and answering it four separate times would mean four
+ * Four jobs, one file, because they all answer the same question, "is this
+ * on screen yet?", and answering it four separate times would mean four
  * observers and four scroll handlers on a page that needs neither.
  *
  *   1. Reveals.    Sections fade and rise as the visitor reaches them.
@@ -22,7 +22,7 @@
  *
  * REDUCED MOTION is checked once, at the top. When it is on, everything is
  * revealed immediately, the counts jump to their final values and no observer
- * or scroll handler is ever created - there is nothing to turn off later
+ * or scroll handler is ever created, there is nothing to turn off later
  * because nothing was started.
  */
 
@@ -31,7 +31,7 @@ const REVEALED = 'is-revealed';
 const wantsLessMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
- * Reveal everything at once, for anyone who has asked for less motion - and
+ * Reveal everything at once, for anyone who has asked for less motion, and
  * as the fallback for a browser with no IntersectionObserver, where the
  * alternative would be a page of permanently invisible content.
  */
@@ -119,7 +119,7 @@ function startRevealing() {
     targets.forEach((el) => {
         // The server renders the REAL figure, so a visitor with no JavaScript
         // reads "1,200" rather than a zero that never moves. That means this
-        // has to blank it before the count begins - otherwise the true value
+        // has to blank it before the count begins, otherwise the true value
         // shows, then snaps to zero the moment the bar is scrolled to, which
         // looks like a bug rather than an animation.
         if (el.dataset.countTo !== undefined) {
@@ -134,19 +134,19 @@ function startRevealing() {
  * The scroll-linked drift, on one passive handler.
  *
  * Passive, so the browser never waits on this before scrolling, and throttled
- * to one read per frame - a scroll event can fire far more often than the
+ * to one read per frame, a scroll event can fire far more often than the
  * screen refreshes, and doing the work each time is how a smooth page starts
  * to stutter.
  *
  * DEPTH comes from the rates disagreeing. A background is given a small
- * POSITIVE rate, which lags it behind the page - it appears to move upward
+ * POSITIVE rate, which lags it behind the page, it appears to move upward
  * more slowly than everything around it. The content over it is given a small
  * NEGATIVE rate, so it leads slightly. Neither is large; what the eye reads is
  * not either movement but the difference between them.
  *
  * POSITIONS ARE MEASURED ONCE, not every frame. offsetTop is a layout-reading
  * property: asking for it inside a scroll handler forces the browser to flush
- * layout before it can answer, on every frame, for every layer - the exact
+ * layout before it can answer, on every frame, for every layer, the exact
  * "expensive layout recalculation during scrolling" this is supposed to avoid.
  * It cannot change while the page is merely scrolling, so it is cached and
  * re-measured only when the viewport does something that could move it.
@@ -165,7 +165,7 @@ function startScrollEffects() {
     const measure = () => {
         // Reduced rather than removed on a small screen. A phone has less
         // horsepower and a shorter viewport, so the same travel reads as more
-        // movement - but switching the effect off entirely would leave those
+        // movement, but switching the effect off entirely would leave those
         // visitors with the static page this exists to prevent.
         strength = window.innerWidth >= 1024 ? 1 : 0.45;
 
@@ -180,12 +180,12 @@ function startScrollEffects() {
             // The layer's CENTRE, in DOCUMENT coordinates.
             //
             // THIS IS THE FIX. It was layer.offsetTop, which is measured from
-            // the nearest positioned ancestor - and every one of these layers
+            // the nearest positioned ancestor, and every one of these layers
             // is absolutely positioned inside its own section, so offsetTop
             // was 0, or -50 for the inset backgrounds. Never the distance down
             // the page.
             //
-            // The arithmetic then read (scrollY - 0) * rate, which is hundreds
+            // The arithmetic then read (scrollY, 0) * rate, which is hundreds
             // of pixels the moment anyone scrolls at all, so every layer was
             // slammed to its cap and pinned there. The transform was being
             // written on every frame and the value never changed: motion that
@@ -198,7 +198,7 @@ function startScrollEffects() {
         // Measured against the middle of the SCREEN rather than its top, so
         // the drift is zero when the section is centred and grows either side
         // of that. A layer therefore moves as its section passes through the
-        // viewport - which is the effect - instead of being a function of how
+        // viewport, which is the effect, instead of being a function of how
         // far down the document it happens to sit.
         const viewportMiddle = window.scrollY + window.innerHeight / 2;
 
@@ -206,7 +206,7 @@ function startScrollEffects() {
             const rate = Number(layer.dataset.parallaxRate ?? 0.12) * strength;
 
             // Per element, because the travel a layer can afford depends on
-            // how much room it was given - a background layer inset beyond its
+            // how much room it was given, a background layer inset beyond its
             // section can move further than text that has to stay inside one.
             const max = Number(layer.dataset.parallaxMax ?? 60) * strength;
 
@@ -228,8 +228,8 @@ function startScrollEffects() {
 
     window.addEventListener('scroll', schedule, { passive: true });
 
-    // Re-measure when the viewport changes shape - a resize, a rotation, or a
-    // phone's address bar collapsing - because any of those can move a layer
+    // Re-measure when the viewport changes shape, a resize, a rotation, or a
+    // phone's address bar collapsing, because any of those can move a layer
     // in the document without a single scroll event being fired.
     window.addEventListener(
         'resize',

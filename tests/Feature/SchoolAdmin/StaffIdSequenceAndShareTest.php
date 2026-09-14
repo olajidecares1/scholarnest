@@ -68,7 +68,7 @@ test('a posted staff id is ignored on create and on edit', function () {
         'role' => $member->role->value,
     ])->assertSessionHasNoErrors();
 
-    // Not refused - simply not consulted. A field the interface refuses to
+    // Not refused, simply not consulted. A field the interface refuses to
     // show but the controller would still honour is not read-only.
     expect($member->fresh()->staff_number)->toBe('ZHTVVT-STAFF-001');
 });
@@ -263,7 +263,7 @@ test('the share stays available, but stops carrying the password', function () {
 
     $response = $this->actingAs($admin)->get(route('staff.show', $member))->assertOk();
 
-    // The button is permanent - it lives in the Login Details card, where
+    // The button is permanent, it lives in the Login Details card, where
     // credentials are managed. Only the password is transient: it exists in
     // readable form for one page view, and a share link that kept carrying it
     // would be a password sitting in the session.
@@ -282,7 +282,7 @@ test('the login details card offers a working whatsapp link before any password 
     hireStaff($admin, 'One');
     $member = Staff::where('school_id', $school->id)->firstOrFail();
 
-    // The icon must never be a decoration that does nothing - this is the
+    // The icon must never be a decoration that does nothing, this is the
     // state the School Admin sees most often, on a record they have not yet
     // issued credentials for.
     $response = $this->actingAs($admin)->get(route('staff.show', $member))->assertOk();

@@ -52,7 +52,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // 301 to itself until the browser gives up. See the commit message.
         $middleware->trustProxies(at: '*');
 
-        // One call, because Middleware::alias() ASSIGNS rather than merges - a
+        // One call, because Middleware::alias() ASSIGNS rather than merges, a
         // second call anywhere in this closure silently discards every alias
         // above it, and the first thing you see is "Target class
         // [school_admin] does not exist" from an unrelated route.
@@ -92,7 +92,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // Every plan restriction, by feature: plan_feature:cbt,
             // plan_feature:events, and so on. This replaced four separate
             // middleware classes that each held a copy of the same rule and
-            // refused in their own words - which is how the project ended up
+            // refused in their own words, which is how the project ended up
             // with some premium features gated and others not.
             'plan_feature' => EnsureSchoolHasFeature::class,
             'resolve_tenant_domain' => ResolveTenantFromCustomDomain::class,
@@ -153,7 +153,7 @@ return Application::configure(basePath: dirname(__DIR__))
          *
          * The honest response is to send the form back with an explanation,
          * so the fix is to type the password again rather than to work out
-         * what "419" means. Nothing is loosened by this - the request is still
+         * what "419" means. Nothing is loosened by this, the request is still
          * rejected and never reaches the controller.
          */
         /*
@@ -161,7 +161,7 @@ return Application::configure(basePath: dirname(__DIR__))
          *
          * Laravel's handler calls prepareException() before it runs these
          * callbacks, and that turns a TokenMismatchException into a plain
-         * HttpException(419) - so a callback typed against the original class
+         * HttpException(419), so a callback typed against the original class
          * is never reached. The token mismatch survives as the previous
          * exception, which is what makes this specific rather than a blanket
          * rule for every 419.
@@ -170,7 +170,7 @@ return Application::configure(basePath: dirname(__DIR__))
          * A plan restriction is a 403, but it is not an error.
          *
          * abort(403, 'CBT requires the Standard or Exclusive plan.') rendered
-         * that sentence on an otherwise empty page with no links on it - a
+         * that sentence on an otherwise empty page with no links on it, a
          * paying customer told they had done something wrong and then left
          * there. The status stays 403, because the refusal is real and
          * anything reading the code should see one; what changes is that the

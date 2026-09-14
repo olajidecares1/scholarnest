@@ -138,13 +138,13 @@ test('saving settings does not disturb the Principal signature', function () {
 
 test('both signatures print on the card, each from its own owner', function () {
     // Real files on the faked disk: the card resolves the bytes behind the
-    // path and returns null for a path with nothing behind it - so a column
+    // path and returns null for a path with nothing behind it, so a column
     // alone would not prove the card renders anything.
     Storage::disk('local')->put('admin-signatures/principal.png', signatureBytes(2));
     Storage::disk('local')->put('staff-signatures/teacher.png', signatureBytes(11));
 
-    // The Principal's comes from the School Admin's own account - they ARE
-    // the Principal - and is rendered gold, so the card carries the cached
+    // The Principal's comes from the School Admin's own account, they ARE
+    // the Principal, and is rendered gold, so the card carries the cached
     // gold rendering rather than the source.
     $this->admin->registerSignature('admin-signatures/principal.png');
 
@@ -152,7 +152,7 @@ test('both signatures print on the card, each from its own owner', function () {
     $data['classTeacher']->staff->setRelation('signature', new Signature(['path' => 'staff-signatures/teacher.png']));
 
     // On screen the card embeds both images, so each is identified by its own
-    // bytes - no filename appears in the page at all any more.
+    // bytes, no filename appears in the page at all any more.
     $screen = view('school-admin.results._report-card', $data)->render();
 
     expect($screen)
@@ -234,7 +234,7 @@ test('a published card keeps the signature that was on it', function () {
 
 test('a card published before signatures existed still reads back', function () {
     // Older payloads have no signature_path key at all. They must render an
-    // unsigned line, not fail - they were unsigned, and that is the truth.
+    // unsigned line, not fail, they were unsigned, and that is the truth.
     $rehydrate = new ReflectionMethod(PublishedResultData::class, 'rehydrateClassTeacher');
     $teacher = $rehydrate->invoke(
         app(PublishedResultData::class),
@@ -252,8 +252,8 @@ test('a card published before signatures existed still reads back', function () 
  * A signature PNG, drawn in near-black like a real one.
  *
  * $mark changes the stroke, so two signatures are genuinely different images.
- * This mattered nowhere while a card carried a URL - the path told two marks
- * apart - and matters entirely now that the card carries the image itself:
+ * This mattered nowhere while a card carried a URL, the path told two marks
+ * apart, and matters entirely now that the card carries the image itself:
  * identical bytes would let "never shows a different teacher's signature"
  * pass however the card resolved them.
  */

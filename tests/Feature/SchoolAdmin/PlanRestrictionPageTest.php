@@ -14,7 +14,7 @@ use App\Models\User;
 /**
  * What a school on the wrong plan meets, and what it is not left with.
  *
- * The refusal itself was already right - a 403 - but it arrived as a bare
+ * The refusal itself was already right, a 403, but it arrived as a bare
  * sentence on an empty page with nothing on it to click. These assert the two
  * halves that matter: the backend still refuses, and the person refused is
  * never stranded.
@@ -209,7 +209,7 @@ test('a teacher at a basic school is refused CBT, and sent to their own dashboar
         ->assertForbidden();
 
     // The way back is their portal, not the School Admin dashboard they have
-    // no account for - and they are told who can change the plan rather than
+    // no account for, and they are told who can change the plan rather than
     // handed a buy button they cannot act on.
     $response->assertSee('Return to Dashboard')
         ->assertSee(route('staff.dashboard', $school))
@@ -249,7 +249,7 @@ test('but facilities is on every plan, so a Basic school reaches it', function (
 test('and the basic dashboard offers it', function () {
     // The interface asks canAccessRoute before it draws a link and the
     // middleware asks the same question before serving the page, so the two
-    // cannot disagree - but that cuts both ways, and a feature opened up in
+    // cannot disagree, but that cuts both ways, and a feature opened up in
     // one place has to appear in the other.
     $admin = adminOnPlan(PlanKey::Basic);
 

@@ -18,7 +18,7 @@ use Illuminate\Validation\Rules\Password;
  * terminal and impossible on one without. A managed platform runs artisan
  * one-shot with no stdin: the prompt never renders, nothing is ever typed, and
  * the command hangs or dies. On a fresh deployment that leaves no way in at
- * all - there is no public registration route for this role by design, and
+ * all, there is no public registration route for this role by design, and
  * super-admin:reset-password needs an account to already exist.
  *
  * So this reads the three values from the ENVIRONMENT instead. That is the
@@ -52,8 +52,8 @@ class BootstrapSuperAdminCommand extends Command
     {
         if (User::where('role', UserRole::SuperAdmin)->exists()) {
             $this->components->error(
-                'A AkademicNest Team account already exists. This command only bootstraps the first one - '
-                .'use `make:super-admin` to add another, or `super-admin:reset-password` to get back into this one.'
+                'A AkademicNest Team account already exists. This command only bootstraps the first one. '
+                .'Use `make:super-admin` to add another, or `super-admin:reset-password` to get back into this one.'
             );
 
             return self::FAILURE;

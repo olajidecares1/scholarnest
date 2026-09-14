@@ -35,7 +35,7 @@ class AcademicController extends Controller
             'gradeBands' => $school->gradeBands,
 
             // Once a school has its own scale, that scale is the only one its
-            // pupils are graded on - so anything it leaves uncovered has to be
+            // pupils are graded on, so anything it leaves uncovered has to be
             // visible here rather than discovered on a report card.
             'gradeCoverageGaps' => GradeBand::coverageGaps($school),
             'sessionOptions' => AcademicSession::options(),
@@ -127,7 +127,7 @@ class AcademicController extends Controller
         }
 
         return sprintf(
-            '%d–%d%% overlaps %s. Grade ranges cannot cover the same percentage twice.',
+            '%d to %d%% overlaps %s. Grade ranges cannot cover the same percentage twice.',
             $validated['min_percent'],
             $validated['max_percent'],
             implode(' and ', $clashes),

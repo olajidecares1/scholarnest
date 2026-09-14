@@ -9,7 +9,7 @@ use App\Models\Staff;
 use App\Models\User;
 
 /**
- * The reported failure was not a missing feature - the uploader, the queue, the
+ * The reported failure was not a missing feature, the uploader, the queue, the
  * extractor and the review screen all existed. It was that nothing navigated to
  * them: the team's upload page was linked only from the All Exam Bodies landing
  * page, so anybody working inside a particular exam body could not reach it.
@@ -50,13 +50,14 @@ test('arriving from an exam body pre-selects it on the upload form', function ()
         ->assertSee("x-data=\"{ value: '{$examBody->id}' }\"", false);
 });
 
-test('the upload page no longer promises AI it does not use', function () {
-    // Extraction runs locally. Copy promising AI sends somebody looking for an
-    // API key that is not needed and is not configured.
+test('the upload page does not promise an outside extraction service', function () {
+    // Extraction runs locally, so nothing on the page should send somebody
+    // looking for an API key that is not needed.
     $this->actingAs($this->team)
         ->get(route('super-admin.cbt.uploads.index'))
         ->assertOk()
-        ->assertDontSee('Let AI detect it');
+        ->assertSee('extract the questions automatically')
+        ->assertDontSee('AI detect');
 });
 
 test('a Standard-plan teacher is told they can upload a paper', function () {

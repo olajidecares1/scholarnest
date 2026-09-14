@@ -8,7 +8,7 @@ export function registerIdCardPreviewStore(Alpine) {
         zoom: 1,
         // Multiplier that fits the card's actual rendered size (physical mm
         // dimensions, landscape or portrait) inside the modal's visible
-        // viewport - recalculated from real measurements every time a card
+        // viewport, recalculated from real measurements every time a card
         // loads, since a fixed multiplier overflows the viewport for some
         // card/screen combinations and clips the card behind scrollbars.
         baseScale: 1,
@@ -68,7 +68,7 @@ export function registerIdCardPreviewStore(Alpine) {
         /**
          * Measures the currently visible card's true (pre-transform) size
          * against its scrollable viewport and picks a scale that fits both
-         * dimensions - CSS transforms don't affect offsetWidth/offsetHeight,
+         * dimensions, CSS transforms don't affect offsetWidth/offsetHeight,
          * so this reads the card's real physical-mm-based layout size
          * regardless of any scale already applied to it.
          */

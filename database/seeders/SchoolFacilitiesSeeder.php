@@ -10,13 +10,13 @@ use Illuminate\Database\Seeder;
  * The facilities a school shows on its public website.
  *
  * The first SIX are the ones from the reference design, in its order, because
- * the panel on the home page shows six and the relation sorts on sort_order -
+ * the panel on the home page shows six and the relation sorts on sort_order,
  * so these are exactly what a visitor sees. The rest fill out the full
  * facilities page behind the "View all" link, which is the one panel on that
  * row that still has one.
  *
  * Every school gets them, on every plan. Facilities is available to Basic as
- * well - see [App\Enums\PlanFeature::requiredPlans] - so a Basic school has a
+ * well, see [App\Enums\PlanFeature::requiredPlans], so a Basic school has a
  * facilities page to manage even though it has no public website to show it on.
  *
  * The names are chosen to exercise [App\Support\FacilityIcon] as well as to
@@ -52,7 +52,7 @@ class SchoolFacilitiesSeeder extends Seeder
 
     public function run(): void
     {
-        // EVERY school, on every plan. Facilities is not a website feature -
+        // EVERY school, on every plan. Facilities is not a website feature,
         // it is a record of what the school has, and a Basic school has
         // buildings too. The other website seeders in here are right to skip
         // schools with no site; this one would be wrong to.

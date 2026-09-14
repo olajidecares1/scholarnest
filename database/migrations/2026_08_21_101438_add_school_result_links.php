@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Schema;
  * renaming itself and breaking its own landing page and portal URLs.
  *
  * It is seeded FROM the slug, so the ordinary case reads exactly like the
- * school - /greenfield-college/result - and only a school that deliberately
+ * school, /greenfield-college/result, and only a school that deliberately
  * regenerates ends up with something else.
  *
  * `retired_school_result_links` is the other half of the same idea. A retired
@@ -45,7 +45,7 @@ return new class extends Migration
         Schema::create('retired_school_result_links', function (Blueprint $table) {
             $table->id();
 
-            // Kept even if the school is deleted - the point is that nobody
+            // Kept even if the school is deleted, the point is that nobody
             // else may ever claim this address, which outlives the school.
             $table->foreignId('school_id')->nullable()->constrained()->nullOnDelete();
 

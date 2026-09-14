@@ -100,7 +100,7 @@ test('the document numbering is kept, and position fills in when it is missing',
 
 test('an answer key naming an option the question does not have is caught, not silently dropped', function () {
     // Previously: no option matched, so none was stored correct, and the
-    // question was NOT flagged - because an answer key had after all been
+    // question was NOT flagged, because an answer key had after all been
     // found. It published looking ordinary and marked every student wrong.
     $question = ExtractedQuestion::fromExtraction(extractedQuestion(['correct_label' => 'E']), 1);
 
@@ -221,7 +221,7 @@ test('a question with no answer key is structurally fine but needs the teacher t
     expect($question->isUsable())->toBeTrue()
         ->and($question->hasCorrectAnswer())->toBeFalse()
         ->and($question->needsReview())->toBeTrue()
-        ->and($question->reviewNotes())->toContain('select it manually');
+        ->and($question->reviewNotes())->toContain('Select it manually');
 });
 
 test('a diagram question is flagged so the image can be attached', function () {

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Notification;
  * Reviewing a subscription from the Super Admin panel.
  *
  * The Super Admin's only "view" for a subscription used to be
- * subscriptions.confirmation - the final step of the SCHOOL's signup wizard,
+ * subscriptions.confirmation, the final step of the SCHOOL's signup wizard,
  * complete with a progress bar and "Thank You! Your Payment Has Been
  * Received". Clicking View on a pending subscription therefore threw the
  * reviewer out of their own workflow and addressed them as the school that had
@@ -87,7 +87,7 @@ test('a super admin opening the school wizard is sent to the review screen', fun
     $subscription = reviewableSubscription();
 
     // Covers stale links, bookmarks and anything else still pointing at the
-    // school's page - the redirect is what makes the boundary hold everywhere
+    // school's page, the redirect is what makes the boundary hold everywhere
     // rather than only on the screens that were relinked.
     $this->actingAs(reviewingAdmin())
         ->get(route('subscriptions.confirmation', $subscription))

@@ -10,11 +10,11 @@
  * So an image wider than it will ever be displayed is drawn onto a canvas at
  * that size and sent instead. createImageBitmap applies the photograph's EXIF
  * orientation as it decodes, so a portrait photo is upright in the file that
- * is sent. On Safari - the only browser that can decode HEIC - an iPhone HEIC
+ * is sent. On Safari, the only browser that can decode HEIC, an iPhone HEIC
  * photo comes out of this as a JPEG the server can read.
  *
- * THIS IS ONLY EVER A CONVENIENCE. Anything it cannot do - an old browser, a
- * format it cannot decode, a canvas that fails - leaves the original file
+ * THIS IS ONLY EVER A CONVENIENCE. Anything it cannot do, an old browser, a
+ * format it cannot decode, a canvas that fails, leaves the original file
  * untouched, and the server validates and processes whatever arrives exactly
  * as it would have anyway (App\Services\Uploads\ImageProcessor).
  *
@@ -99,7 +99,7 @@ export async function prepareImageFile(file, { maxEdge = DEFAULT_MAX_EDGE } = {}
         context.imageSmoothingQuality = 'high';
         context.drawImage(bitmap, 0, 0, width, height);
 
-        // PNG and WebP may be transparent - a logo, usually - so they keep
+        // PNG and WebP may be transparent, a logo, usually, so they keep
         // their format. Everything else, including HEIC, becomes JPEG.
         const outputType = type === 'image/png' || type === 'image/webp' ? type : 'image/jpeg';
         const blob = await new Promise((resolve) => canvas.toBlob(resolve, outputType, 0.92));
@@ -151,7 +151,7 @@ function toggleBusy(form, busy) {
  *
  * Every image field in the application gets this without its view being
  * touched. The first submit is held back while the images are prepared, then
- * the form is submitted again - through requestSubmit(), so the button that
+ * the form is submitted again, through requestSubmit(), so the button that
  * was pressed, the browser's own validation and every other submit handler
  * behave exactly as they would have. A field can opt out with
  * data-no-image-prep, and data-max-edge sets how large it may be sent.

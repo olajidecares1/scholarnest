@@ -43,7 +43,7 @@ class ExaminationSubject extends Model
 
     /**
      * The Test component's max score, derived from this subject's overall
-     * max_score rather than stored separately - keeps the mandatory 40/60
+     * max_score rather than stored separately, keeps the mandatory 40/60
      * Test/Exam split consistent even for legacy subjects whose max_score
      * isn't exactly 100, without touching any already-saved scores.
      */

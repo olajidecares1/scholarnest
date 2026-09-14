@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Where a school actually is.
  *
- * A school's address, telephone and email lived on its WEBSITE record - and
+ * A school's address, telephone and email lived on its WEBSITE record, and
  * the website is a Standard and Exclusive feature. So a Basic school had
  * nowhere to put an address at all, which meant the back of its ID cards had
  * no "if found, please return to" and its result sheets had no letterhead.

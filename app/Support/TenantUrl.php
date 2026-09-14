@@ -7,7 +7,7 @@ class TenantUrl
     /**
      * Builds an absolute URL for a tenant domain/subdomain host, using the
      * scheme and port this app is actually configured to run on (APP_URL)
-     * rather than assuming production's https-with-no-port - otherwise the
+     * rather than assuming production's https-with-no-port, otherwise the
      * generated link is unreachable in local dev, where the app is served
      * over plain http on a non-standard port (e.g. "php artisan serve").
      */

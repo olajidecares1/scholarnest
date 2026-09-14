@@ -10,19 +10,19 @@ use RuntimeException;
  * Turns what a signature pad posts into a file we are willing to keep.
  *
  * The canvas sends a base64 data URL, which means this is the one image path
- * in the application that never goes near Laravel's `image` validation rule -
+ * in the application that never goes near Laravel's `image` validation rule,
  * there is no UploadedFile to validate. Everything that rule would have done
  * has to be done here instead, and then some:
  *
  *   1. The envelope must be a PNG data URL, and the base64 must decode
- *      strictly - no whitespace-tolerant "close enough".
+ *      strictly, no whitespace-tolerant "close enough".
  *   2. The decoded bytes are size-capped BEFORE anything tries to parse them,
  *      so a malicious payload cannot be large enough to matter.
  *   3. getimagesizefromstring() must agree it is a PNG of sane dimensions.
  *   4. It is re-encoded through GD.
  *
  * Step 4 is the one that matters most and is worth being explicit about. A
- * file can be a valid PNG *and* carry something else - a polyglot that is also
+ * file can be a valid PNG *and* carry something else, a polyglot that is also
  * a script, or metadata that a later viewer parses. Re-encoding throws away
  * everything that is not pixels: what lands on disk is bytes GD wrote, not
  * bytes a browser sent. It also guarantees the stored file really is a PNG,

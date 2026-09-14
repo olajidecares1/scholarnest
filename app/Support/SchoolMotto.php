@@ -13,11 +13,11 @@ use App\Models\School;
  *   - the tagline sits under the school's name on the letterhead;
  *   - the values run along the foot of the page.
  *
- * Resolved the same way as the address - see App\Support\SchoolContact. The
+ * Resolved the same way as the address, see App\Support\SchoolContact. The
  * school's own value wins; its website is consulted only where the school has
  * left the field empty, so a Standard school that filled in its public site
  * and never opened Settings still gets a motto on its cards, and a Basic
- * school - which has no website at all - can now set one for the first time.
+ * school, which has no website at all, can now set one for the first time.
  */
 final class SchoolMotto
 {

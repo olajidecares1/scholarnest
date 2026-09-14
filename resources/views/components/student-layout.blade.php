@@ -9,7 +9,7 @@
     $student = auth('student')->user();
     $school = $student->school;
 
-    // One source for what this pupil may see - the bottom bar, the More sheet
+    // One source for what this pupil may see, the bottom bar, the More sheet
     // and the home screen all read it, so they cannot disagree.
     $portalNav = \App\Support\PortalNavigation::forStudent($student);
 
@@ -31,7 +31,7 @@
         {{-- Using the page counts as activity: see resources/js/session-keep-alive.js. --}}
         <meta name="session-keep-alive" content="{{ route('session.keep-alive', absolute: false) }}">
 
-        <title>{{ $pageTitle }} - {{ $school->name }}</title>
+        <title>{{ $pageTitle }} | {{ $school->name }}</title>
 
         <x-favicon :school="$school" />
 

@@ -29,8 +29,8 @@
                 <x-text-field name="phone" type="tel" label="Phone Number" :value="$guardian->phone" icon="M6.5 4.5h2l1.2 4-1.8 1.5a11 11 0 005.1 5.1l1.5-1.8 4 1.2v2a1.5 1.5 0 01-1.6 1.5A15 15 0 015 6.1a1.5 1.5 0 011.5-1.6z" />
 
                 {{-- Named rather than simply absent. Which children are linked
-                     to this account is the most consequential thing on it - it
-                     decides whose results this parent can read - so it is the
+                     to this account is the most consequential thing on it, it
+                     decides whose results this parent can read, so it is the
                      school's alone, and a parent should learn that here rather
                      than by hunting for a control that does not exist. --}}
                 <p class="field-hint">

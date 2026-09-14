@@ -22,7 +22,7 @@ use Database\Seeders\SubjectSeeder;
  *
  * EACH CATALOGUE ONLY WHEN IT IS EMPTY. The seeders use updateOrCreate, so
  * running them over existing rows would overwrite what the AkademicNest Team
- * has since changed - a plan price set in Super Admin, above all. An empty
+ * has since changed, a plan price set in Super Admin, above all. An empty
  * table has nothing to overwrite; a table with anything in it is left exactly
  * as it is.
  */

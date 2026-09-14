@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * The teacher's side of Class Note: upload a Word document, tick the classes.
  *
- * Available to every member of staff on every plan - the staff portal itself
+ * Available to every member of staff on every plan, the staff portal itself
  * is, and this is part of the school's own teaching work rather than an
  * outward-facing extra. What a Basic school does not have is a STUDENT portal
  * to receive the note through, which is a fact about that plan and not
@@ -53,7 +53,7 @@ class ClassNoteController extends Controller
             ->paginate(10);
 
         // How many pupils each class holds, so the teacher can see who they
-        // are about to send to - and see that a class is empty before they
+        // are about to send to, and see that a class is empty before they
         // wonder why nobody replied.
         $rollCall = Student::query()
             ->where('school_id', $school->id)
@@ -70,7 +70,7 @@ class ClassNoteController extends Controller
             'rollCall' => $rollCall,
 
             // Their own classes, so the ones they teach can be marked out in a
-            // long list. It is a convenience, not a restriction - see the
+            // long list. It is a convenience, not a restriction, see the
             // validation rule, which admits any class this school has.
             'myClassNames' => $staff->scorableClassNames(),
 
@@ -103,7 +103,7 @@ class ClassNoteController extends Controller
             'class_names.*' => ['required', 'string', Rule::in($school->configuredClassNames())],
 
             // Word documents only. `mimetypes` reads the file's own content
-            // rather than its name, and `mimes` covers the extension - a
+            // rather than its name, and `mimes` covers the extension, a
             // renamed .exe satisfies neither.
             'document' => [
                 'required',

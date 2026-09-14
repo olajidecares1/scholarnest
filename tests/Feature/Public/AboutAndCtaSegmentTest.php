@@ -19,7 +19,7 @@ function page(): string
 describe('the band above the footer', function () {
     test('it is laid out, not positioned blocks in a fixed box', function () {
         // The bug: the band drew website-builder blocks, which are placed by
-        // coordinate, into a 90px box - so the headline, the subline and the
+        // coordinate, into a 90px box, so the headline, the subline and the
         // button landed on top of one another.
         $html = page();
 

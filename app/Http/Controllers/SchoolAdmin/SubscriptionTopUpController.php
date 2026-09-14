@@ -47,7 +47,7 @@ class SubscriptionTopUpController extends Controller
             'plan' => $subscription->plan,
             'subscription' => $subscription,
 
-            // The account a school transfers to, from Payment Settings - the
+            // The account a school transfers to, from Payment Settings, the
             // same row the subscription wizard reads. This page used to carry
             // the details in its own template, so the AkademicNest Team could
             // change the account and every top-up page went on showing the
@@ -63,7 +63,7 @@ class SubscriptionTopUpController extends Controller
             // Both read through the service that enforces the limit, so this
             // page cannot show the school a capacity the system would not
             // honour. The history is the audit trail behind the single
-            // cumulative figure - not a set of separate allowances.
+            // cumulative figure, not a set of separate allowances.
             'capacity' => $this->licences->summary($school),
             'history' => $history = $this->licences->requestHistory($school),
 
@@ -117,7 +117,7 @@ class SubscriptionTopUpController extends Controller
         $reference = strtoupper(Str::slug($school->name, '')).'-TOPUP-'.now()->format('dmy').'-'.strtoupper(Str::random(4));
 
         // Recorded as a REQUEST only. Nothing here touches the school's
-        // allocation - that happens solely when a Super Admin approves it.
+        // allocation, that happens solely when a Super Admin approves it.
         $topUp = DB::transaction(fn () => SubscriptionTopUp::create([
             'subscription_id' => $subscription->id,
             'additional_students_count' => $validated['additional_students_count'],
@@ -132,7 +132,7 @@ class SubscriptionTopUpController extends Controller
 
         AuditLog::record('subscription.topup.submitted', "Requested {$topUp->additional_students_count} additional student slots.", $topUp);
 
-        // A top-up is a payment, so it gets an invoice like any other - on the
+        // A top-up is a payment, so it gets an invoice like any other, on the
         // same numbering sequence, which is why both call sites go through
         // App\Services\SubscriptionInvoiceIssuer rather than minting their own.
         $invoice = app(SubscriptionInvoiceIssuer::class)->issueForTopUp($topUp);

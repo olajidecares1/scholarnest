@@ -22,7 +22,7 @@ test('the queue waits longer than the longest job before assuming it was abandon
     // retry_after is how long the queue waits before deciding a reserved job
     // died and giving it to another worker. If it is shorter than the job's own
     // timeout, a long extraction gets picked up a second time while the first
-    // worker is still reading the document - importing the same questions twice
+    // worker is still reading the document, importing the same questions twice
     // and paying the extraction service for each pass.
     //
     // The framework default is 90 seconds. CBT extraction runs to 600.

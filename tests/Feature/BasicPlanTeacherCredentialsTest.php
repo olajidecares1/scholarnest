@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 /**
  * Teachers sign in on every plan, so their account management is not
  * plan-gated. These tests hold that for BASIC specifically, because the
- * question asked was whether it works there - and a rule nobody asserts is a
+ * question asked was whether it works there, and a rule nobody asserts is a
  * rule that quietly acquires an exception.
  */
 beforeEach(function () {

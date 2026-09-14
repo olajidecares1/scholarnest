@@ -54,7 +54,7 @@ describe('Facilities is off the menu but still on the page', function () {
 
     test('the section itself is still rendered, with its id intact', function () {
         // Off the menu is not off the site. Anything already linking to
-        // #facilities - a printed flyer, another page, a school's own post -
+        // #facilities, a printed flyer, another page, a school's own post,
         // has to keep working.
         SchoolFacility::factory()->create(['school_id' => $this->school->id, 'name' => 'Science Laboratory']);
 

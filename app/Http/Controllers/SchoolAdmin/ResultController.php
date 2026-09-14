@@ -54,7 +54,7 @@ class ResultController extends Controller
             : collect();
 
         // Which of these have been pushed, and which have been corrected
-        // since. Two queries for the page rather than one per row - see
+        // since. Two queries for the page rather than one per row, see
         // ResultRepository::stateFor().
         $repository = $examination
             ? app(ResultRepository::class)->stateFor($examination)
@@ -85,7 +85,7 @@ class ResultController extends Controller
 
             // The Principal's saved remarks, so they can drop one in rather
             // than retype it for the four hundredth time. Scoped to the acting
-            // school from the session - there is nothing in the request that
+            // school from the session, there is nothing in the request that
             // could ask for another school's library.
             'principalRemarkLibrary' => PrincipalRemark::query()
                 ->where('school_id', $request->user()->school_id)

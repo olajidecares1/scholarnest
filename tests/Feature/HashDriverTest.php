@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
  * config/hashing.php defaults to argon2id at 64MB memory cost. That is the
  * right production setting and the wrong test one: the suite hashes and
  * verifies thousands of times inside one long-lived PHP process, and when
- * that 64MB allocation fails, password_verify() does not raise - it returns
+ * that 64MB allocation fails, password_verify() does not raise, it returns
  * FALSE, which surfaces as "These credentials do not match our records" for
  * an entirely correct password.
  *

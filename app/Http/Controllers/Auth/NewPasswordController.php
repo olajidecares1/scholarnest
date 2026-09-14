@@ -19,12 +19,12 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
- * "Forgot password?" — the reset half.
+ * "Forgot password?", the reset half.
  *
  * TWO THINGS ARE REQUIRED, NOT ONE. The token in the link proves possession of
  * the URL; the six-digit code proves the email body was actually read. A link
- * that leaks - through a referrer header, a shared inbox, a screen left open in
- * a staffroom - is not by itself enough to take an administrator's account.
+ * that leaks, through a referrer header, a shared inbox, a screen left open in
+ * a staffroom, is not by itself enough to take an administrator's account.
  *
  * Laravel owns the token entirely: it generates it, decides when it expires,
  * refuses it once used, and replaces it when a new one is requested. The code
@@ -38,7 +38,7 @@ class NewPasswordController extends Controller
      * Wrong codes tolerated before this link is finished with.
      *
      * Six digits is a million possibilities and the route is already throttled,
-     * so this is not what stops a brute force - the throttle is. This stops a
+     * so this is not what stops a brute force, the throttle is. This stops a
      * SLOW one: an attacker holding the link who tries a handful an hour would
      * otherwise sit under every per-minute limit indefinitely.
      */
@@ -135,7 +135,7 @@ class NewPasswordController extends Controller
         }
 
         // Counted against the TOKEN, not the address, so somebody holding one
-        // link cannot spend another person's allowance - and so a fresh link
+        // link cannot spend another person's allowance, and so a fresh link
         // starts with a fresh allowance.
         // Positional, not named: a facade routes calls through __callStatic,
         // which cannot forward named arguments.

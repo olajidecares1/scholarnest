@@ -14,7 +14,7 @@ class ConfirmationController extends Controller
     {
         $this->authorize('view', $subscription);
 
-        // This is the last step of the SCHOOL's signup wizard - a progress bar
+        // This is the last step of the SCHOOL's signup wizard, a progress bar
         // and "Thank You! Your Payment Has Been Received". A Super Admin is
         // permitted to open any subscription, but this is not the page for it:
         // it addresses them as the school that just paid and drops them out of

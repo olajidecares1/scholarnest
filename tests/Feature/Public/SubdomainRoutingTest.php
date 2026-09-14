@@ -67,7 +67,7 @@ test('the subdomain redirect and public URL use this app\'s own scheme and port,
     config(['app.url' => 'http://localhost:8081']);
 
     // The URL generator took its root from APP_URL at boot, so changing the
-    // config alone leaves route() building http://localhost with no port -
+    // config alone leaves route() building http://localhost with no port,
     // which RedirectToCanonicalHost then correctly normalises to :8081 before
     // the tenant redirect under test ever runs. Moving the root as well is what
     // makes this test's own premise hold.
@@ -126,7 +126,7 @@ test('a school cannot claim a subdomain the platform uses itself', function () {
 });
 
 test('a name made only of punctuation still produces a usable address', function () {
-    // The fallback is "school", which is itself reserved - so it comes out
+    // The fallback is "school", which is itself reserved, so it comes out
     // suffixed. That is the two rules composing correctly rather than a quirk:
     // an empty label would be an unroutable school, and a reserved one would be
     // a school sitting at an address the platform uses.
@@ -138,7 +138,7 @@ test('a name made only of punctuation still produces a usable address', function
 });
 
 test('the label stays within the 63 characters DNS allows', function () {
-    // Longer is not merely ugly - it is not a valid hostname, and the school's
+    // Longer is not merely ugly, it is not a valid hostname, and the school's
     // website would be unreachable.
     $school = School::factory()->create(['name' => str_repeat('Long School Name ', 8)]);
 

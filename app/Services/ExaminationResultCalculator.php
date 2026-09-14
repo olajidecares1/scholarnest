@@ -46,7 +46,7 @@ class ExaminationResultCalculator
     /**
      * A single student's average/subjects-graded, computed independently of
      * the class-wide summary list (which only covers active students whose
-     * class_name matches the examination) — used as a fallback for students
+     * class_name matches the examination), used as a fallback for students
      * who fall outside that list, e.g. transferred or since-deactivated.
      *
      * @param  Collection<int, ExaminationSubject>  $subjects

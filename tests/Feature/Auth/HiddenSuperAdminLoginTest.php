@@ -35,8 +35,8 @@ beforeEach(function () {
 /**
  * Rate-limiter counters live in the cache, which outlives an individual test.
  *
- * The per-IP counter deliberately survives a successful sign-in - that is what
- * stops an attacker resetting it at will - so the failed attempts these tests
+ * The per-IP counter deliberately survives a successful sign-in, that is what
+ * stops an attacker resetting it at will, so the failed attempts these tests
  * make on purpose would otherwise still be counted against 127.0.0.1 when a
  * later file tries to log somebody in, and fail it for no visible reason.
  */
@@ -52,7 +52,7 @@ test('the registration page shows no Super Admin login entry point', function ()
     $response = $this->get(route('register'));
 
     // No nav item, no button, no anchor pointing at it. The hidden form's own
-    // action necessarily names the endpoint - that is what a form does - and
+    // action necessarily names the endpoint, that is what a form does, and
     // the design does not depend on the URL staying secret: see the direct-URL
     // tests below, which are what actually hold the door.
     $response->assertOk()
@@ -76,8 +76,8 @@ test('the registration page still offers ordinary school registration', function
 });
 
 test('the dialog markup is present but hidden until the sequence runs', function () {
-    // It ships with the page - there is no second request that would give the
-    // game away - but x-show and x-cloak keep it out of sight.
+    // It ships with the page, there is no second request that would give the
+    // game away, but x-show and x-cloak keep it out of sight.
     //
     // Identified by the dialog's own id rather than its wording, which is
     // presentation and has already changed once.
@@ -91,7 +91,7 @@ test('the dialog markup is present but hidden until the sequence runs', function
 test('other auth pages do not carry the trigger at all', function () {
     // Opt-in per page, so the sequence does not quietly exist app-wide.
     // The shared sign-in page is gone entirely, so there is no other auth
-    // screen left for the trigger to leak onto - "login" just redirects.
+    // screen left for the trigger to leak onto, "login" just redirects.
     $this->get(route('login'))->assertRedirect(route('register'));
 
     $school = School::factory()->create();
@@ -156,8 +156,8 @@ test('a School Admin with a valid password is refused at this door', function ()
         'is_active' => true,
     ]);
 
-    // Their password is genuinely correct - it works on the shared sign-in
-    // page - and it still gets them no session here.
+    // Their password is genuinely correct, it works on the shared sign-in
+    // page, and it still gets them no session here.
     //
     // They are sent to the sign-in they actually wanted rather than told their
     // password is wrong. Two real schools reached this dialog by accident and
@@ -240,7 +240,7 @@ test('failed attempts at the hidden door are throttled', function () {
         session()->forget('errors');
     }
 
-    // The sixth is refused for being too many, not for being wrong - and the
+    // The sixth is refused for being too many, not for being wrong, and the
     // correct password does not get through either.
     $this->post(route('super-admin.login'), [
         'login' => $admin->email,

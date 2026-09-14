@@ -1,14 +1,14 @@
 {{-- Score entry for one subject, one class.
 
-     Test and Exam are the only things typed. Everything to the right of them -
-     Total, Percentage, Grade, Remark - is worked out, shown live so the
+     Test and Exam are the only things typed. Everything to the right of them,
+     Total, Percentage, Grade, Remark, is worked out, shown live so the
      teacher can see what they are producing, and never editable. That is the
      point rather than a convenience: a grade somebody could type is a grade
      that can disagree with the marks it is supposed to come from.
 
      The live figures are a preview. The values that count are recalculated on
      the server from the two numbers actually submitted, against this school's
-     own grade bands - the browser is showing its working, not deciding it.
+     own grade bands, the browser is showing its working, not deciding it.
 
      Shared by the School Admin's page and the teacher's, because a teacher and
      an administrator entering the same marks must produce the same result. --}}
@@ -29,7 +29,7 @@
 @php
     use App\Models\GradeBand;
 
-    // This school's own bands, in the order it arranged them - never a
+    // This school's own bands, in the order it arranged them, never a
     // hard-coded scale. One school's C is another school's B.
     $bands = ($school->gradeBands->isNotEmpty()
         ? $school->gradeBands
@@ -153,10 +153,10 @@
                             </td>
 
                             {{-- Not an input. Nothing below is. --}}
-                            <td class="px-4 py-3 font-bold text-gray-900 dark:text-white" x-text="test === null && exam === null ? '—' : (Number(test) || 0) + (Number(exam) || 0)"></td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="percentage(test, exam) === null ? '—' : percentage(test, exam).toFixed(1) + '%'"></td>
-                            <td class="px-4 py-3 font-bold text-gray-900 dark:text-white" x-text="band(test, exam)?.letter ?? '—'"></td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="band(test, exam)?.description || '—'"></td>
+                            <td class="px-4 py-3 font-bold text-gray-900 dark:text-white" x-text="test === null && exam === null ? 'N/A' : (Number(test) || 0) + (Number(exam) || 0)"></td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="percentage(test, exam) === null ? 'N/A' : percentage(test, exam).toFixed(1) + '%'"></td>
+                            <td class="px-4 py-3 font-bold text-gray-900 dark:text-white" x-text="band(test, exam)?.letter ?? 'N/A'"></td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="band(test, exam)?.description || 'N/A'"></td>
                         </tr>
                     @empty
                         <tr>

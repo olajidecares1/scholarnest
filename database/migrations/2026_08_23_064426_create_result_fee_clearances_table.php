@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Schema;
  * The school's decision to release one student's results for one term.
  *
  * A result is withheld while fees are owed. That rule needs an exception the
- * school controls - a family on a payment plan, a bursary being processed, a
- * balance the office knows is wrong - and the exception has to be a record,
+ * school controls, a family on a payment plan, a bursary being processed, a
+ * balance the office knows is wrong, and the exception has to be a record,
  * not a setting: who released it, when, and why, per student and per term.
  *
  * Scoped to a session and a term rather than to an examination, because that

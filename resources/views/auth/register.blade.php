@@ -13,7 +13,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>Register your school - {{ config('app.name', 'AkademicNest') }}</title>
+        <title>Register your school | {{ config('app.name', 'AkademicNest') }}</title>
 
         <x-favicon />
 
@@ -39,7 +39,7 @@
             clicks: 0,
             timer: null,
             // A failed attempt redirects back here, so the dialog reopens to
-            // show why - otherwise the error lands on a page with nothing
+            // show why, otherwise the error lands on a page with nothing
             // visible to attach it to.
             open: {{ $errors->has('login') ? 'true' : 'false' }},
             registerClick() {
@@ -89,7 +89,7 @@
              slightly taller than what is actually on screen.
 
              Below "lg" the columns stack and the form alone is taller than a
-             phone, so the page keeps its natural height there - pinning it to
+             phone, so the page keeps its natural height there, pinning it to
              the viewport would clip the submit button off the bottom. --}}
         <div class="relative min-h-dvh w-full lg:h-dvh lg:min-h-0">
             {{-- THREE CELLS, PLACED DIFFERENTLY BY WIDTH: brand panel, form,
@@ -98,13 +98,13 @@
                  Below "lg" they stack in source order, so the band comes AFTER
                  the form and is the last thing on the page. It used to sit
                  inside the brand panel, which put a block of marketing between
-                 the heading and the first field - a school on a phone had to
+                 the heading and the first field, a school on a phone had to
                  scroll past it to start registering. The middle row takes any
                  spare height, so on a screen taller than the page the band is
                  still pinned to the bottom rather than floating mid-screen.
 
                  From "lg" up the band is placed back under the brand panel in
-                 the left column, and the form spans both rows on the right -
+                 the left column, and the form spans both rows on the right,
                  the desktop layout is unchanged. minmax(0,1fr) rather than 1fr
                  lets the top row shrink on a short window instead of pushing
                  the band below the fold. --}}
@@ -118,7 +118,7 @@
                              the name twice within 200px reads as a mistake.
 
                              It is also the click target for the hidden Super
-                             Admin sign-in, so it must not navigate - the first
+                             Admin sign-in, so it must not navigate, the first
                              click would leave the page and the sequence could
                              never reach five. Nothing here announces itself:
                              no title, no cursor change. --}}
@@ -150,8 +150,8 @@
 
                 {{-- ── Right: the form ───────────────────────────────────── --}}
                 {{-- Sized to fit a viewport without scrolling. The overflow is
-                     a safety net for genuinely short windows - a laptop at
-                     1366x600, a phone in landscape - where the alternative
+                     a safety net for genuinely short windows, a laptop at
+                     1366x600, a phone in landscape, where the alternative
                      would be clipping the submit button. no-scrollbar hides
                      the bar itself, so the safety net never shows. --}}
                 <div class="no-scrollbar flex items-center justify-center overflow-y-auto px-6 py-4 sm:px-10 sm:py-5 lg:col-start-2 lg:row-span-2 lg:row-start-1">
@@ -268,7 +268,7 @@
                                  THE LINKS OPEN IN A NEW TAB, deliberately. This
                                  form is long, and sending someone away from it
                                  to read the Terms would lose everything they
-                                 have typed - which is how an agreement checkbox
+                                 have typed, which is how an agreement checkbox
                                  ends up being ticked without being read.
 
                                  rel="noopener" because target="_blank" otherwise
@@ -281,7 +281,7 @@
                                  RegisterSchoolRequest, which runs on the server
                                  and rejects a submission with the box unticked,
                                  absent, or set to anything other than a true
-                                 value - including one made with the attribute
+                                 value, including one made with the attribute
                                  stripped out or the form posted directly. --}}
                             <div class="pt-0.5">
                                 <label class="flex items-start gap-2 text-[11.5px] leading-[1.55] text-[#3D5378]">

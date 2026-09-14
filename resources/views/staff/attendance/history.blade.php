@@ -55,7 +55,7 @@
                                     <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['late'] }}</td>
                                     <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['excused'] }}</td>
                                     <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['total'] }}</td>
-                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['percent'] !== null ? $row['percent'].'%' : '—' }}</td>
+                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['percent'] !== null ? $row['percent'].'%' : 'N/A' }}</td>
                                 </tr>
                             @empty
                                 <tr>

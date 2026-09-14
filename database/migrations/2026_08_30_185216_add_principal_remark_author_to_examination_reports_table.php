@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Who signed off a pupil's Principal remark, and when.
  *
  * The remark itself already sits on the report, and the session, term and
- * class come from the examination the report belongs to - kept there rather
+ * class come from the examination the report belongs to, kept there rather
  * than copied here, so there is one answer to "which term is this?" instead of
  * two that can disagree.
  *

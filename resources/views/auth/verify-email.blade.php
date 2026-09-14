@@ -1,4 +1,4 @@
-<x-auth-layout :title="'Verify Email - ' . config('app.name')" simple>
+<x-auth-layout :title="'Verify Email | ' . config('app.name')" simple>
     <x-auth-card>
         <div class="flex justify-center">
             <span class="flex h-14 w-14 items-center justify-center rounded-[5px] bg-primary-100 text-primary-600 lg:rounded-[10px]">

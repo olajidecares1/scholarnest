@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
  * THIS TEST EXISTS BECAUSE OF A REAL 500. A parallel password-reset flow was
  * deleted, and one Blade file still called route('admin.password-reset.request')
  * by name. The registration page threw for every visitor, and the cleanup had
- * been "verified" by grepping for the deleted CLASS - which found nothing,
+ * been "verified" by grepping for the deleted CLASS, which found nothing,
  * because the surviving reference was a plain string in a template.
  *
  * A route name is the one kind of reference no editor and no static analyser
@@ -38,7 +38,7 @@ test('no view or class references a route name that does not exist', function ()
             $found = preg_match_all(
                 // The global route() helper only. The lookbehind rules out
                 // $request->route('school') and $this->route(...), which read a
-                // route PARAMETER rather than name a route - a different method
+                // route PARAMETER rather than name a route, a different method
                 // that happens to share the word.
                 '/(?<![>:$\w])route\(\s*[\'"]([a-zA-Z0-9_.\-]+)[\'"]/',
                 file_get_contents($file->getPathname()),
@@ -69,7 +69,7 @@ test('the deleted reset flow is gone from the route table', function () {
     // actually failed: the routes were removed and the application still threw,
     // because one Blade file outlived them.
     //
-    // Deliberately not a text search for "admin.password-reset" - the comments
+    // Deliberately not a text search for "admin.password-reset", the comments
     // explaining why it was removed contain the name, and a test that forbids
     // writing down what happened would only get the explanation deleted.
     foreach (['admin.password-reset.request', 'admin.password-reset.show', 'admin.password-reset.complete'] as $name) {

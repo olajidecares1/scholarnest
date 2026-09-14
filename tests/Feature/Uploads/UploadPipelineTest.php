@@ -30,7 +30,7 @@ use Tests\Support\UploadFixtures;
  *   form -> validation -> processing -> storage -> database -> address -> browser
  *
  * Each test drives the real route, then follows the file all the way to what
- * a browser would receive - not just "a file exists somewhere".
+ * a browser would receive, not just "a file exists somewhere".
  */
 beforeEach(function () {
     Storage::fake('public');

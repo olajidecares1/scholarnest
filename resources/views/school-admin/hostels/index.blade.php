@@ -39,7 +39,7 @@
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $hostel->name }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $hostel->gender->label() }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">
-                                    {{ $hostel->warden_name ?? '—' }}
+                                    {{ $hostel->warden_name ?? 'N/A' }}
                                     @if ($hostel->warden_phone) <span class="text-gray-400 dark:text-gray-500">&middot; {{ $hostel->warden_phone }}</span> @endif
                                 </td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $hostel->rooms_count }}</td>

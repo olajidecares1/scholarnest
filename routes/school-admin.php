@@ -55,7 +55,7 @@ use Illuminate\Support\Facades\Route;
 |
 | Grouped from routes/authenticated.php behind ['auth', 'auth.session',
 | 'school_admin', 'school_activated'] and the 'school-admin.' name prefix.
-| Nothing in here restates that - the group is where it belongs.
+| Nothing in here restates that, the group is where it belongs.
 |
 */
 
@@ -99,7 +99,7 @@ Route::middleware('plan_feature:guardians')->name('guardians.')->group(function 
     Route::post(R::uri('guardians.toggle-active').'/{guardian}', [GuardianController::class, 'toggleActive'])->name('toggle-active');
     Route::put(R::uri('guardians.update-password').'/{guardian}/password', [GuardianController::class, 'updatePassword'])->name('update-password');
     Route::put(R::uri('guardians.credentials').'/{guardian}/credentials', [GuardianController::class, 'updateCredentials'])->name('credentials');
-    // Class, then search, then select - the picker on the guardian's page.
+    // Class, then search, then select, the picker on the guardian's page.
     Route::get(R::uri('guardians.link-candidates').'/{guardian}/link-candidates', [GuardianController::class, 'linkCandidates'])->name('link-candidates');
     Route::post(R::uri('guardians.children.store').'/{guardian}/children', [GuardianController::class, 'linkStudent'])->name('children.store');
     Route::delete(R::uri('guardians.children.destroy').'/{guardian}/children/{student}', [GuardianController::class, 'unlinkStudent'])->name('children.destroy');
@@ -225,7 +225,7 @@ Route::name('examinations.')->group(function () {
 Route::name('results.')->group(function () {
     Route::get(R::uri('results.index'), [ResultController::class, 'index'])->name('index');
 
-    // The report card template as it will be generated - the real template,
+    // The report card template as it will be generated, the real template,
     // rendered from specimen data. See SchoolAdminTemplatePreviewController.
     Route::get(R::uri('results.index').'/template', [TemplatePreviewController::class, 'reportCard'])->name('template-preview');
     Route::get(R::uri('results.show').'/{examination}/{student}', [ResultController::class, 'show'])->name('show');
@@ -264,8 +264,8 @@ Route::name('result-repository.')->group(function () {
     Route::get(R::uri('result-repository.index'), [ResultRepositoryController::class, 'index'])->name('index');
     Route::get(R::uri('result-repository.show').'/{result}', [ResultRepositoryController::class, 'show'])->name('show');
 });
-// Result tokens. Available on every plan - see
-// EnsureSchoolHasResultPinAccess - because a token is how a result
+// Result tokens. Available on every plan, see
+// EnsureSchoolHasResultPinAccess, because a token is how a result
 // reaches a parent safely, not a feature a school upgrades to.
 Route::middleware('result_pin_access')->name('result-pins.')->group(function () {
     Route::get(R::uri('result-pins.index'), [ResultCheckingPinController::class, 'index'])->name('index');
@@ -291,7 +291,7 @@ Route::middleware('result_pin_access')->name('result-pins.')->group(function () 
     // applied as a setting.
     Route::post(R::uri('result-pins.fee-release').'/{student}', [ResultCheckingPinController::class, 'toggleFeeRelease'])->name('fee-release');
 });
-// The route prefix is "diary", which is the PlanFeature's own value -
+// The route prefix is "diary", which is the PlanFeature's own value,
 // so the sidebar, the module card and this gate all reach the same
 // answer without anyone keeping a second list.
 Route::middleware('plan_feature:diary')->name('diary.')->group(function () {
@@ -409,7 +409,7 @@ Route::middleware('plan_feature:news')->name('news.')->group(function () {
     Route::put(R::uri('news.update').'/{post}', [NewsController::class, 'update'])->name('update');
     Route::delete(R::uri('news.destroy').'/{post}', [NewsController::class, 'destroy'])->name('destroy');
 });
-// The Job Portal and recruitment. Standard and Exclusive alike - PlanFeature::Careers.
+// The Job Portal and recruitment. Standard and Exclusive alike, PlanFeature::Careers.
 // Every route here is named careers.*, so the plan gate and the sidebar agree.
 Route::middleware('plan_feature:careers')->name('careers.')->group(function () {
     Route::get(R::uri('careers.index'), [JobPostingController::class, 'index'])->name('index');
@@ -486,7 +486,7 @@ Route::middleware('plan_feature:custom-domain')->name('custom-domain.')->group(f
 });
 
 // Conduct reports sent in by the public. Reviewed by the school they were
-// sent to and nobody else - see the controller.
+// sent to and nobody else, see the controller.
 // Messages and conduct reports arrive in one inbox, because that is where
 // an administrator looks for either.
 Route::name('inbox.')->group(function () {
@@ -494,7 +494,7 @@ Route::name('inbox.')->group(function () {
 
     // The listing shows what each thing is about; the body lives here. Both
     // are scoped to the signed-in administrator's own school in the
-    // controller - the uuid in the address is an identifier, never a
+    // controller, the uuid in the address is an identifier, never a
     // permission.
     Route::get(R::uri('inbox.message').'/{contactMessage}', [InboxController::class, 'showMessage'])->name('message');
     Route::get(R::uri('inbox.report').'/{misconductReport}', [InboxController::class, 'showReport'])->name('report');

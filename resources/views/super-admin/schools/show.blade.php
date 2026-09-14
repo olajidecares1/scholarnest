@@ -36,10 +36,10 @@
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Billing Details</h3>
                 <dl class="mt-3 space-y-2 text-sm">
-                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Contact Name</dt><dd class="text-gray-900 dark:text-white">{{ $school->billing_contact_name ?? '—' }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Billing Email</dt><dd class="text-gray-900 dark:text-white">{{ $school->billing_email ?? '—' }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="text-gray-900 dark:text-white">{{ $school->billing_phone ?? '—' }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-gray-900 dark:text-white">{{ $school->billing_address ?? '—' }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Contact Name</dt><dd class="text-gray-900 dark:text-white">{{ $school->billing_contact_name ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Billing Email</dt><dd class="text-gray-900 dark:text-white">{{ $school->billing_email ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="text-gray-900 dark:text-white">{{ $school->billing_phone ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-gray-900 dark:text-white">{{ $school->billing_address ?? 'N/A' }}</dd></div>
                 </dl>
             </div>
 
@@ -65,8 +65,8 @@
 
         {{-- Student capacity.
              One cumulative figure per school, however many times it has been
-             topped up. The table below is the history of how it got there -
-             each row records what the figure moved FROM and TO - but the
+             topped up. The table below is the history of how it got there,
+             each row records what the figure moved FROM and TO, but the
              school only ever draws on the single total. --}}
         @if ($capacity)
             <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
@@ -119,7 +119,7 @@
                                     <tr>
                                         <td class="px-5 py-3 text-gray-600 dark:text-gray-300">+{{ number_format($topUp->additional_students_count) }}</td>
                                         <td class="px-5 py-3 font-semibold text-gray-900 dark:text-white">
-                                            {{ $topUp->approved_students_count !== null ? '+'.number_format($topUp->approved_students_count) : '—' }}
+                                            {{ $topUp->approved_students_count !== null ? '+'.number_format($topUp->approved_students_count) : 'N/A' }}
                                         </td>
                                         <td class="px-5 py-3 text-xs text-gray-600 dark:text-gray-300">
                                             @if ($topUp->new_students_count !== null)
@@ -138,7 +138,7 @@
                                             <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $tone }}">{{ $topUp->status->label() }}</span>
                                         </td>
                                         <td class="px-5 py-3 text-xs text-gray-500 dark:text-gray-400">
-                                            {{ $topUp->verified_at ? $topUp->verified_at->format('j M Y').' · '.($topUp->verifiedBy?->name ?? '—') : 'Awaiting review' }}
+                                            {{ $topUp->verified_at ? $topUp->verified_at->format('j M Y').' · '.($topUp->verifiedBy?->name ?? 'N/A') : 'Awaiting review' }}
                                         </td>
                                     </tr>
                                 @empty
@@ -233,9 +233,9 @@
                                         <span class="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-gray-600 dark:bg-gray-700 dark:text-gray-300">Top-up</span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->licences ? number_format($invoice->licences) : '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->licences ? number_format($invoice->licences) : 'N/A' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->formattedTotal() }}</td>
-                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->payment_reference ?: '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $invoice->payment_reference ?: 'N/A' }}</td>
                                 <td class="px-5 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $invoice->statusBadgeClasses() }}">{{ $invoice->paymentStatus() }}</span>
                                 </td>
@@ -248,7 +248,7 @@
                                             <span class="block text-xs text-gray-500 dark:text-gray-400">by {{ $invoice->approvedBy()->name }}</span>
                                         @endif
                                     @else
-                                        —
+                                        N/A
                                     @endif
                                 </td>
                                 <td class="px-5 py-3">

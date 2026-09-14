@@ -110,7 +110,7 @@ class ResultController extends Controller
      * Push to Repository: publish one pupil's finished card.
      *
      * A Class Teacher may publish for the class they are the Class Teacher of,
-     * and no other. They cannot see the Repository itself - publishing into it
+     * and no other. They cannot see the Repository itself, publishing into it
      * and administering it are different jobs, and only one of them is theirs.
      */
     public function push(Request $request, School $school, Examination $examination, Student $student): JsonResponse|RedirectResponse

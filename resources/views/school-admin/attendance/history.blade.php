@@ -53,12 +53,12 @@
                         @forelse ($records as $record)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $record->date->format('M j, Y') }}</td>
-                                <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $record->student?->fullName() ?? '—' }}</td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $record->class_name ?? '—' }}</td>
+                                <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $record->student?->fullName() ?? 'N/A' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $record->class_name ?? 'N/A' }}</td>
                                 <td class="px-6 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $record->status->badgeClasses() }}">{{ $record->status->label() }}</span>
                                 </td>
-                                <td class="px-6 py-3 text-gray-500 dark:text-gray-400">{{ $record->markedBy?->name ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-500 dark:text-gray-400">{{ $record->markedBy?->name ?? 'N/A' }}</td>
                             </tr>
                         @empty
                             <tr>

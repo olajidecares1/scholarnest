@@ -1,4 +1,4 @@
-<x-auth-layout :title="'Report Submitted - ' . config('app.name')" simple>
+<x-auth-layout :title="'Report Submitted | ' . config('app.name')" simple>
     <x-auth-card>
         <div class="flex justify-center">
             <span class="flex h-14 w-14 items-center justify-center rounded-[5px] bg-green-100 text-green-600 lg:rounded-[10px]">

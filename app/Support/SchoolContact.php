@@ -5,12 +5,12 @@ namespace App\Support;
 use App\Models\School;
 
 /**
- * A school's address, telephone and email - wherever they happen to be kept.
+ * A school's address, telephone and email, wherever they happen to be kept.
  *
  * These now belong to the school itself, so every plan can set them. They used
  * to live only on the website record, which is a Standard and Exclusive
- * feature, and the two places an address matters most - the back of an ID card
- * and the letterhead on a result sheet - were the two a Basic school could not
+ * feature, and the two places an address matters most, the back of an ID card
+ * and the letterhead on a result sheet, were the two a Basic school could not
  * fill in.
  *
  * The school's own value wins. The website is consulted only where the school

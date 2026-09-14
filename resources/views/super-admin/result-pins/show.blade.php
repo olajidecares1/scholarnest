@@ -1,5 +1,5 @@
 <x-super-admin-layout
-    :page-title="$school->name.' — Result Tokens'"
+    :page-title="$school->name.' | Result Tokens'"
     page-subtitle="Every token this school has issued, and every attempt to redeem one."
 >
     <div class="space-y-6">
@@ -46,7 +46,7 @@
                         @forelse ($tokens as $token)
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3">
-                                    <p class="font-semibold text-gray-900 dark:text-white">{{ $token->boundStudent?->fullName() ?? '—' }}</p>
+                                    <p class="font-semibold text-gray-900 dark:text-white">{{ $token->boundStudent?->fullName() ?? 'N/A' }}</p>
                                     <p class="field-hint">{{ $token->boundStudent?->admission_number }}</p>
                                 </td>
                                 <td class="px-5 py-3 text-xs text-gray-600 dark:text-gray-300">
@@ -70,7 +70,7 @@
                                         {{ $token->displayStatusLabel() }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-3 text-xs text-gray-500 dark:text-gray-400">{{ $token->issued_at?->format('j M Y') ?? '—' }}</td>
+                                <td class="px-5 py-3 text-xs text-gray-500 dark:text-gray-400">{{ $token->issued_at?->format('j M Y') ?? 'N/A' }}</td>
                                 <td class="px-5 py-3">
                                     @if ($token->status->allowsAccess() || $token->status->isReversible())
                                         <form method="POST" action="{{ route('super-admin.result-pins.revoke', $token) }}" onsubmit="return confirm('Revoke this token? It will stop working immediately and the school will have to reissue.');">
@@ -117,8 +117,8 @@
                         @forelse ($accessLogs as $entry)
                             <tr>
                                 <td class="px-5 py-2.5 text-xs text-gray-600 dark:text-gray-300">{{ $entry->occurred_at->format('j M Y, g:ia') }}</td>
-                                <td class="px-5 py-2.5 text-gray-900 dark:text-white">{{ $entry->student?->fullName() ?? '—' }}</td>
-                                <td class="px-5 py-2.5 text-xs text-gray-600 dark:text-gray-300">{{ $entry->examination?->name ?? '—' }}</td>
+                                <td class="px-5 py-2.5 text-gray-900 dark:text-white">{{ $entry->student?->fullName() ?? 'N/A' }}</td>
+                                <td class="px-5 py-2.5 text-xs text-gray-600 dark:text-gray-300">{{ $entry->examination?->name ?? 'N/A' }}</td>
                                 <td class="px-5 py-2.5">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold
                                         @class([
@@ -129,7 +129,7 @@
                                         {{ $entry->outcome->label() }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-2.5 font-mono text-xs text-gray-500 dark:text-gray-400">{{ $entry->ip_address ?? '—' }}</td>
+                                <td class="px-5 py-2.5 font-mono text-xs text-gray-500 dark:text-gray-400">{{ $entry->ip_address ?? 'N/A' }}</td>
                             </tr>
                         @empty
                             <tr>

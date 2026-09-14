@@ -14,7 +14,7 @@ class CbtSeeder extends Seeder
     /**
      * Nigerian secondary/basic-education subjects, grouped by category.
      * This is standard curriculum information (not exam content) and is
-     * meant as a sensible starting point - adjust from the Subjects screen
+     * meant as a sensible starting point, adjust from the Subjects screen
      * as needed.
      *
      * @var array<string, list<string>>
@@ -121,12 +121,12 @@ class CbtSeeder extends Seeder
      * @var array<string, string>
      */
     private const EXAM_BODIES = [
-        'WAEC' => 'West African Examinations Council - conducts the WASSCE for senior secondary school students.',
-        'NECO' => 'National Examinations Council - conducts the SSCE, an alternative senior secondary certificate exam.',
-        'JAMB' => 'Joint Admissions and Matriculation Board - conducts the UTME for tertiary institution admission.',
-        'BECE' => 'Basic Education Certificate Examination - taken by JSS3 students to complete basic education.',
-        'NABTEB' => 'National Business and Technical Examinations Board - conducts NBC/NTC exams for senior secondary technical/business students.',
-        'JWAEC' => 'Junior WAEC - the West African Examinations Council\'s exam for junior secondary students.',
+        'WAEC' => 'West African Examinations Council, which conducts the WASSCE for senior secondary school students.',
+        'NECO' => 'National Examinations Council, which conducts the SSCE, an alternative senior secondary certificate exam.',
+        'JAMB' => 'Joint Admissions and Matriculation Board, which conducts the UTME for tertiary institution admission.',
+        'BECE' => 'Basic Education Certificate Examination, taken by JSS3 students to complete basic education.',
+        'NABTEB' => 'National Business and Technical Examinations Board, which conducts NBC/NTC exams for senior secondary technical/business students.',
+        'JWAEC' => 'Junior WAEC, the West African Examinations Council\'s exam for junior secondary students.',
     ];
 
     /**

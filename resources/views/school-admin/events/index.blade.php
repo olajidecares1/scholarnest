@@ -95,7 +95,7 @@
                                     {{ $event->starts_at->format('M j, Y'.($event->is_all_day ? '' : ' · g:ia')) }}
                                     @if ($event->ends_at) &rarr; {{ $event->ends_at->format('M j, Y g:ia') }} @endif
                                 </td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $event->location ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $event->location ?? 'N/A' }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $event->audience->label() }}</td>
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">

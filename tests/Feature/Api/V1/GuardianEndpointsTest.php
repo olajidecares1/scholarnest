@@ -20,7 +20,7 @@ beforeEach(function () {
     ]);
 
     // A parent signs in with their Parent ID or phone number, never their
-    // email - the same rule the portal enforces, since the API delegates to
+    // email, the same rule the portal enforces, since the API delegates to
     // the very same login request.
     $this->guardian = Guardian::factory()->create([
         'school_id' => $this->school->id,
@@ -101,7 +101,7 @@ test('a guardian cannot read a classmate\'s attendance', function () {
 });
 
 test('a child\'s own contact details are not handed to the guardian', function () {
-    // The record, not the child's phone number and address - the same line the
+    // The record, not the child's phone number and address, the same line the
     // student profile page draws.
     $this->child->update(['phone' => '08011112222', 'address' => '12 Awolowo Road']);
 

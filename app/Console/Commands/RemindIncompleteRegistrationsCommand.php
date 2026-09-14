@@ -69,7 +69,7 @@ class RemindIncompleteRegistrationsCommand extends Command
         $dryRun = (bool) $this->option('dry-run');
 
         foreach ($schools as $school) {
-            $this->line(($dryRun ? '[dry run] ' : '').$school->name.' - registered '.$school->created_at->diffForHumans());
+            $this->line(($dryRun ? '[dry run] ' : '').$school->name.', registered '.$school->created_at->diffForHumans());
 
             if ($dryRun) {
                 continue;

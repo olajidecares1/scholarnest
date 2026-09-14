@@ -4,11 +4,11 @@
  * School portals sign a person out after three minutes with no request
  * (App\Http\Middleware\LogsOutIdleUsers). "No request" is not the same as "not
  * there": a teacher choosing a question paper on a phone, drawing a signature,
- * or typing a long question makes no request for minutes at a time - and was
+ * or typing a long question makes no request for minutes at a time, and was
  * signed out mid-task, so the upload that followed failed with "error 401" and
  * the work was lost.
  *
- * So a real interaction - a key, a tap, a change to a field - tells the server
+ * So a real interaction, a key, a tap, a change to a field, tells the server
  * the person is still here, at most once a minute. A page nobody touches still
  * times out exactly as before: nothing here fires on its own.
  *
@@ -29,7 +29,7 @@ function endpoint() {
  * Tell the server the person is active, and learn whether they still have a
  * session.
  *
- * @param {{ force?: boolean }} options  force skips the once-a-minute limit -
+ * @param {{ force?: boolean }} options  force skips the once-a-minute limit,
  *     used right before an upload, where the answer matters.
  * @returns {Promise<{ ok: boolean, expired?: boolean, redirect?: string|null }>}
  *     ok is true when the session is alive OR when the check itself could not

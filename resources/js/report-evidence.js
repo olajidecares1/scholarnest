@@ -8,8 +8,8 @@
  *
  * So the selection is held here and written back to the input through a
  * DataTransfer, which is the only way to hand a browser a new FileList. The
- * input stays the thing that actually submits - no JSON, no base64, no second
- * upload endpoint - it is simply kept in step with this list.
+ * input stays the thing that actually submits, no JSON, no base64, no second
+ * upload endpoint, it is simply kept in step with this list.
  *
  * EVERYTHING HERE IS A CONVENIENCE. PublicMisconductReportController validates
  * count, size and type again on arrival, and a reporter with JavaScript off

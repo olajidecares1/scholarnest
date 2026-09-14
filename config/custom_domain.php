@@ -64,7 +64,7 @@ return [
     | (e.g. "akademicanest.com" -> "greenhill.akademicanest.com"). Left unset in local/
     | staging environments so ResolveTenantFromCustomDomain and
     | RedirectToCustomDomain never try to resolve or redirect to a domain
-    | that doesn't actually point at this app - the feature only activates
+    | that doesn't actually point at this app, the feature only activates
     | once this is explicitly configured in production, alongside real
     | wildcard DNS and a wildcard TLS certificate for it (neither of which
     | this application can set up on its own).

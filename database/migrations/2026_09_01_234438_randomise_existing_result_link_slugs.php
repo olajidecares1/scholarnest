@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 /**
  * Existing result-checking links stop naming their school.
  *
- * These were generated from the school's name - "greenfield-college" - and it
+ * These were generated from the school's name, "greenfield-college", and it
  * is the one link a school deliberately spreads: into messages to parents,
  * onto notice boards, into browser histories and referrer headers. Schools
  * created from now on get a random one; this gives the same to the schools
@@ -20,7 +20,7 @@ use Illuminate\Support\Str;
  *
  * The old slugs are NOT recorded as retired. RetiredSchoolResultLink exists to
  * stop a burnt slug being handed to another school later, and a name-derived
- * slug could only ever be re-derived from the same name - which no longer
+ * slug could only ever be re-derived from the same name, which no longer
  * happens now that generation is random. Writing them would preserve, in a
  * table, exactly the school names this migration exists to remove.
  */

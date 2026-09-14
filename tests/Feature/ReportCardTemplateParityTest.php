@@ -88,7 +88,7 @@ test('the screen card closes every element it opens', function () {
     // A single stray </div> once popped the padded page container early, so
     // the marks table, the signatures and the footer motto all escaped the A4
     // box and were clipped away by its overflow. Every segment still rendered
-    // and every other test still passed - the card simply lost its bottom
+    // and every other test still passed, the card simply lost its bottom
     // third. Counting the tags is what notices.
     $html = view('school-admin.results._report-card', ReportCardSample::for($this->school))->render();
 
@@ -116,7 +116,7 @@ test('the watermark covers 76% of the sheet on both cards', function () {
 
 test('the tagline and the footer motto are two different lines', function () {
     // The reference card carries "Raising Excellence, Building Leaders" under
-    // the school's name and "Discipline - Knowledge - Character - Excellence"
+    // the school's name and "Discipline, Knowledge, Character, Excellence"
     // along the foot. Reading both from one column collapsed them into the
     // same sentence printed twice.
     $school = School::factory()->create(['name' => 'Two Motto School']);

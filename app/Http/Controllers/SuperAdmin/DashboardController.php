@@ -235,7 +235,7 @@ class DashboardController extends Controller
             ->get()
             ->map(fn (School $school) => [
                 'name' => $school->name,
-                'plan' => $school->activeSubscription?->plan?->name ?? '—',
+                'plan' => $school->activeSubscription?->plan?->name ?? 'N/A',
                 'status' => $this->classifySchoolStatus($school),
                 'studentsCount' => $school->activeSubscription?->students_count,
                 'joinedAt' => $school->created_at,

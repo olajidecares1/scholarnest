@@ -89,7 +89,7 @@ test('the results list names the examinations without giving away a single mark'
         ->assertJsonPath('data.0.is_withheld', false);
 
     // The list is a table of contents, not the book. Asserted on the keys
-    // rather than by searching the body for "72" - a uuid or a date will
+    // rather than by searching the body for "72", a uuid or a date will
     // contain those two digits sooner or later, and a test that fails on
     // that is a test nobody trusts.
     expect(array_keys($response->json('data.0')))->toBe([

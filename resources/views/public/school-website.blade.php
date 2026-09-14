@@ -8,8 +8,8 @@
     // school calling it "Lower Primary" or "Key Stage 2" still lands
     // somewhere sensible.
     //
-    // THE COLOURS ARE THE SCHOOL'S OWN. These were four fixed hex values -
-    // a green, an amber, a blue and a purple - which meant a school whose
+    // THE COLOURS ARE THE SCHOOL'S OWN. These were four fixed hex values,
+    // a green, an amber, a blue and a purple, which meant a school whose
     // brand is crimson still got a blue Junior card and a purple Senior one.
     // They are four SHADES OF THE ONE BRAND COLOUR now, read from the CSS
     // variables the layout writes from BrandColorScale.
@@ -17,7 +17,7 @@
     // Four shades rather than one, because the point of the colours was to
     // tell the stages apart at a glance and a single value would flatten that.
     // 500 through 800 keeps the cards distinguishable while every one of them
-    // belongs to the school's own palette - and the darker end is where the
+    // belongs to the school's own palette, and the darker end is where the
     // contrast is: these tint a link a parent is meant to click.
     $academicStages = [
         'early' => [
@@ -67,11 +67,11 @@
     @php
         // A school that has never opened the website builder gets the default
         // design below. One that HAS arranged its own hero keeps the canvas it
-        // dragged - replacing that with a fixed layout would throw away work
+        // dragged, replacing that with a fixed layout would throw away work
         // somebody did by hand.
         // $hasCustomBlocks is gone with the two branches that read it. It was
         // an existence query run on every page load whose only job was to
-        // decide whether to replace this design with positioned blocks - and
+        // decide whether to replace this design with positioned blocks, and
         // nothing replaces it now.
 
         $heroTitle = $website->hero_title ?: $school->name;
@@ -81,14 +81,14 @@
         $heroSecondaryText = $website->hero_secondary_text ?: 'Explore Our School';
         $heroSecondaryUrl = $website->hero_secondary_url ?: '#academics';
 
-        // The gold that runs through the whole site - the hero tagline, the
+        // The gold that runs through the whole site, the hero tagline, the
         // section rules, the footer. Warm enough to read as gold on the navy
         // and dark enough to stay legible if a school picks a pale secondary.
         $siteGold = '#e8b04b';
         $heroNavy = $website->brand_secondary_color ?: '#0d1b3e';
     @endphp
 
-    {{-- SEGMENT 1 - the hero.
+    {{-- SEGMENT 1, the hero.
 
          FULL BLEED. The photograph is the hero: it fills the section top to
          bottom and edge to edge, and the heading, the tagline and the two
@@ -96,7 +96,7 @@
 
          This replaces a navy panel on the left with the photograph confined to
          the right, joined by a large disc. That design meant the picture only
-         ever had part of the section - and once the hero grew to fill the
+         ever had part of the section, and once the hero grew to fill the
          screen, that part was a tall narrow column that cropped a landscape
          photograph down to a slice of itself. The panel and the disc are gone;
          there is no coloured container left for the image to sit inside.
@@ -114,7 +114,7 @@
         {{-- The photographs, filling the whole section.
 
              The parallax goes on THIS wrapper, not on a slide inside it. A
-             slide owns its own transform - the slow scale - and a second
+             slide owns its own transform, the slow scale, and a second
              transform written to the same element would simply replace the
              first, so the drift would cancel the scale. --}}
         <div class="edn-parallax absolute inset-0" data-parallax-rate="0.03" data-parallax-max="18">
@@ -124,7 +124,7 @@
                      Slides cross-fade, and a cross-fade between two
                      half-transparent images lets whatever is beneath show
                      through in the middle of it. With nothing beneath, that
-                     was the section's own colour - a flash of navy between
+                     was the section's own colour, a flash of navy between
                      every pair of slides. This layer sits under all of them at
                      full opacity so the stack is never transparent, and what
                      shows through mid-fade is a photograph rather than a
@@ -138,7 +138,7 @@
                 @endif
 
                 {{-- COVER. The picture fills the section and accepts a crop
-                     where its shape and the screen's disagree - which is the
+                     where its shape and the screen's disagree, which is the
                      right trade when the alternative is bare colour around it.
 
                      The scale never goes below 1, so a slide can never be
@@ -165,7 +165,7 @@
              A gradient, and a restrained one: opaque enough on the left that
              white type holds against any photograph a school uploads, and
              clear on the right so the picture is actually seen. There is no
-             blur here and no frosted panel - the image stays sharp and the
+             blur here and no frosted panel, the image stays sharp and the
              contrast comes from darkness alone.
 
              A second, shallower wash from the bottom carries the buttons,
@@ -185,7 +185,7 @@
         {{-- z-10, so the words sit above both washes and both photograph
              layers rather than relying on document order alone. --}}
         {{-- The content drifts too, and slightly FASTER than the photograph
-             behind it - a small negative rate against the background's small
+             behind it, a small negative rate against the background's small
              positive one. Neither movement is large; what the eye reads is the
              difference between them, which is what makes the two layers feel
              like one scene with depth rather than a picture with text parked
@@ -193,12 +193,12 @@
         <div class="edn-hero edn-parallax relative z-10 mx-auto flex max-w-7xl items-center px-4 pb-24 pt-16 sm:px-6 lg:pb-28" data-parallax-rate="-0.045" data-parallax-max="26">
             {{-- Held to a measure rather than to the old 46% panel width. The
                  text is over the photograph now, not beside it, so what
-                 governs the column is how long a line should be - not where a
+                 governs the column is how long a line should be, not where a
                  navy rectangle happened to end. --}}
             {{-- THE DESIGNED HERO, for every school.
 
                  This used to be swapped out for page-builder blocks the moment
-                 a school had saved any home-page block - and those blocks are
+                 a school had saved any home-page block, and those blocks are
                  placed by absolute coordinate, which is why they collided into
                  unreadable overlapping text at any width but the one they were
                  arranged at. A school that had touched the builder once got
@@ -231,7 +231,7 @@
                         {{-- 1.3px in the school's own colour, as the brief
                              asks. The LABEL stays white: this sits on the navy
                              hero panel, and a mid-tone brand colour as type on
-                             navy is the one place the theme colour cannot go -
+                             navy is the one place the theme colour cannot go,
                              the contrast rule outranks the branding rule. The
                              border carries the brand instead, where a lower
                              contrast is not a readability problem. --}}
@@ -264,16 +264,16 @@
         @endif
     </section>
 
-    {{-- SEGMENT 2 - the figures that answer "how big, how established?".
+    {{-- SEGMENT 2, the figures that answer "how big, how established?".
 
          A white card lifted over the hero's bottom edge, four columns divided
-         by hairlines. The numbers are the school's own - see
-         SchoolWebsite::stats - and the icon beside each is chosen from what
+         by hairlines. The numbers are the school's own, see
+         SchoolWebsite::stats, and the icon beside each is chosen from what
          the school called it, so "Qualified Teachers" gets a graduate's cap
          whatever position it sits in. --}}
     @php
         // Font Awesome solid, which is the heaviest weight the free set
-        // carries - drawn as glyphs rather than hand-written SVG paths, so
+        // carries, drawn as glyphs rather than hand-written SVG paths, so
         // they match the icons used everywhere else in the application and a
         // school adding a fifth stat gets a real icon rather than a guess.
         $iconForStat = function (string $label): string {
@@ -295,7 +295,7 @@
             ->take(4)
             ->values();
 
-        // A stat's value is free text - a school writes "1,200", "25+" or
+        // A stat's value is free text, a school writes "1,200", "25+" or
         // "Grade A". Only the ones that START with a number can be counted up
         // to, so this splits off the number and whatever trails it and returns
         // null for anything else, which then renders as the plain words it is.
@@ -360,7 +360,7 @@
                                             data-count-duration="{{ 1400 + $index * 120 }}"
                                         >{{ $stat['value'] }}</span>
                                     @else
-                                        {{ $stat['value'] ?? '—' }}
+                                        {{ $stat['value'] ?? 'N/A' }}
                                     @endif
                                 </p>
                                 <p class="mt-1.5 text-[12px] font-medium leading-tight text-gray-600 sm:text-[12.5px]">{{ $stat['label'] }}</p>
@@ -372,14 +372,14 @@
         </section>
     @endif
 
-    {{-- SEGMENT 4 - academics.
+    {{-- SEGMENT 4, academics.
 
          Always on the page, because Academics is in the menu and a menu item
          must have somewhere to land. A school still setting up says so. --}}
     {{-- The background a School Admin set, or the flat colour this section has
          always had when they have not set one.
 
-         The image is the SECTION's background, not each card's - the four
+         The image is the SECTION's background, not each card's, the four
          level cards keep their own white, their own borders, their own hover
          lift. Nothing about them changes.
 
@@ -397,7 +397,7 @@
     >
         @if ($academicsBackground)
             {{-- Its OWN LAYER rather than the section's background-image,
-                 because a background cannot be transformed - only the element
+                 because a background cannot be transformed, only the element
                  carrying it can, and transforming the section would move the
                  text with it. As a layer it can drift on the compositor while
                  the content stays put.
@@ -414,7 +414,7 @@
 
             {{-- An even tint. It was a white gradient, held stronger here than
                  on the News row because this section has more bare text over
-                 the picture - but white over a photograph is what made it look
+                 the picture, but white over a photograph is what made it look
                  washed out in the first place, so the whole run of text goes
                  light instead and the tint can be one flat value. --}}
             <div class="edn-photo-scrim absolute inset-0" aria-hidden="true"></div>
@@ -458,7 +458,7 @@
 
                          The reveal is on a WRAPPER, not on the card. The card
                          already carries `transition-all duration-300` for its
-                         hover lift, and .edn-reveal sets `transition` too -
+                         hover lift, and .edn-reveal sets `transition` too,
                          one shorthand would overwrite the other and whichever
                          won would break the effect that lost. A wrapper keeps
                          the arrival and the hover as separate concerns, which
@@ -567,7 +567,7 @@
         </section>
     @endif
 
-    {{-- SEGMENT 3 - about the school.
+    {{-- SEGMENT 3, about the school.
 
          The text on the left, a photograph on the right, and beneath the
          prose the three statements a parent is actually weighing: what the
@@ -581,7 +581,7 @@
 
         // Always rendered, and always with something in it. The About
         // block is part of the design, not a section that appears once a
-        // school gets round to writing prose - a front page with a hole where
+        // school gets round to writing prose, a front page with a hole where
         // "About" should be is worse than one with a plain sentence.
         $aboutText = $aboutText ?: $school->name.' is committed to providing a nurturing and challenging environment where every pupil is known, supported and stretched.';
 
@@ -600,7 +600,7 @@
         @unless ($aboutBackground) style="background-color: #ffffff;" @endunless
     >
         @if ($aboutBackground)
-            {{-- Its own drifting layer, tinted black - the same treatment as
+            {{-- Its own drifting layer, tinted black, the same treatment as
                  the Academics and News bands. See the note on Academics for
                  why this is a layer rather than the section's own
                  background-image. --}}
@@ -620,7 +620,7 @@
                  This was two: prose on the left, a large framed photograph on
                  the right. The photograph is gone, so there is no second half
                  to balance against and no reason to hold the text to 46% of
-                 the page - it reads down the middle now, and everything in it
+                 the page, it reads down the middle now, and everything in it
                  is a size larger than it was.
 
                  max-w-4xl rather than the section's 7xl because centred prose
@@ -633,7 +633,7 @@
                 <div class="edn-reveal">
                     {{-- Every line here sits directly on the section, so when
                          there is a tinted photograph behind it the whole run
-                         goes light - the same rule as the Academics band. --}}
+                         goes light, the same rule as the Academics band. --}}
                     <p class="edn-reveal text-[12.5px] font-bold uppercase tracking-[0.18em] {{ $aboutBackground ? 'edn-on-photo-brand' : 'text-primary-700' }}">About Us</p>
 
                     <h2 class="edn-reveal mt-2.5 text-[32px] font-extrabold leading-tight tracking-tight sm:text-[38px] {{ $aboutBackground ? 'edn-on-photo' : 'text-gray-900' }}" style="--edn-delay: 110ms;">
@@ -681,7 +681,7 @@
                                 >
                                     {{-- "Our Mission", "Our Vision" and "Our
                                          Values" carry the school's colour, and
-                                         so do their icons - it was near-black
+                                         so do their icons, it was near-black
                                          type beside a coloured mark, which
                                          made the icon the only branded thing
                                          in the row.
@@ -691,7 +691,7 @@
                                          outranks the branding rule. --}}
                                     {{-- The icon INHERITS. It carried its own
                                          colour class, which had to be kept in
-                                         step with the heading's by hand - and
+                                         step with the heading's by hand, and
                                          over a photograph the two were not
                                          quite the same: the heading had the
                                          shadow that makes white type hold on a
@@ -729,7 +729,7 @@
             </div>
         </section>
 
-    {{-- SEGMENT 4 - admissions.
+    {{-- SEGMENT 4, admissions.
 
          The invitation on the left with what the school offers, and the
          process on the right as numbered steps. Both read from the school's
@@ -807,7 +807,7 @@
                 <h3 class="text-center text-[17px] font-bold text-gray-900">Our Admission Process</h3>
 
                 {{-- One column on a phone, two on a tablet, four across on a
-                     desktop - the arrows between them only make sense once
+                     desktop, the arrows between them only make sense once
                      the steps are actually in a row, so they appear at the
                      same breakpoint the row does.
 
@@ -851,14 +851,14 @@
                                      the first of a pair the next card is to
                                      the right; after the second it is on the
                                      next line, and an arrow pointing right
-                                     there would aim off the edge of the row -
+                                     there would aim off the edge of the row,
                                      so that one waits for the four-across
                                      layout, where right is true again. --}}
                                 {{-- The show/hide class goes on a WRAPPER, not
                                      on the icon itself.
 
                                      Font Awesome sets `display` on .fa-solid,
-                                     which is a single class - exactly as
+                                     which is a single class, exactly as
                                      specific as Tailwind's `hidden`. At equal
                                      specificity the later stylesheet wins, and
                                      Font Awesome is imported after the
@@ -897,7 +897,7 @@
         </div>
     </section>
 
-    {{-- SEGMENT 5 - news and events, side by side.
+    {{-- SEGMENT 5, news and events, side by side.
 
          ALWAYS RENDERED, both of them, because both are in the menu and a
          menu item must have somewhere to land. A school with no news yet says
@@ -914,7 +914,7 @@
          behind them.
 
          The white wash keeps the near-black card text and the primary-700
-         headings readable over whatever photograph a school chooses - the
+         headings readable over whatever photograph a school chooses, the
          cards themselves are white, so a dark scrim would fight them. --}}
     @php $newsEventsBackground = $website->newsEventsCardImageUrl(); @endphp
 
@@ -923,7 +923,7 @@
         @unless ($newsEventsBackground) style="background-color: #f9fafb;" @endunless
     >
         @if ($newsEventsBackground)
-            {{-- Its own drifting layer - see the note on the Academics section
+            {{-- Its own drifting layer, see the note on the Academics section
                  for why this is not the section's own background-image. --}}
             <div
                 class="edn-parallax absolute inset-x-0"
@@ -951,7 +951,7 @@
         >
             @php
                 // Three or fewer fit on the page at once, so they simply sit
-                // there - a carousel of three that a visitor can already see
+                // there, a carousel of three that a visitor can already see
                 // in full is motion for its own sake, and it hides two of them
                 // behind a thirty-second wait for no reason.
                 //
@@ -964,7 +964,7 @@
 
                  They used to end in a "View all" link, which was the only way
                  to reach anything past the one story or three events on show.
-                 That link left the site - and this is a single-page site, so
+                 That link left the site, and this is a single-page site, so
                  leaving it to read the news was the wrong shape. The panels now
                  hold everything they were given and let a visitor scroll
                  through it in place.
@@ -973,7 +973,7 @@
                  stack the pages on top of one another and show one, which
                  needs the panel clipped, and a clipped panel cannot be
                  scrolled. Now the pages sit in normal flow in a real scrolling
-                 box and the rotation moves the scroll position instead - same
+                 box and the rotation moves the scroll position instead, same
                  3s, same easing, same upward direction, same 30s dwell. --}}
             <style>
                 .marquee-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
@@ -983,7 +983,7 @@
                 .marquee-scroll::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
             </style>
 
-            {{-- Latest news, three at a time - the same shape as the events
+            {{-- Latest news, three at a time, the same shape as the events
                  panel beside it.
 
                  It used to rotate one story at a time, which is why one panel
@@ -994,7 +994,7 @@
                  to a fixed 96px with a square thumbnail: three of them plus the
                  12px gaps is exactly the 312px the events column stands at, so
                  the two panels end level rather than one trailing the other.
-                 The card is a row at every width now, too - it used to stack
+                 The card is a row at every width now, too, it used to stack
                  image-above-text on mobile, which made it 250px tall there and
                  would have put a group of three well past the fold.
 
@@ -1046,7 +1046,7 @@
                     >
                         @foreach ($newsGroups as $group)
                             {{-- The held height is what stops a short final
-                                 group - one story where the last showed three -
+                                 group, one story where the last showed three,
                                  letting the group behind it creep into view. --}}
                             <div class="mb-4 min-h-[312px] space-y-3">
                                 @foreach ($group as $post)
@@ -1145,7 +1145,7 @@
             {{-- Upcoming events, three at a time.
 
                  Each group of three rises over 3s, eased across the whole
-                 distance rather than snapping at the end, and is held 30s - a
+                 distance rather than snapping at the end, and is held 30s, a
                  33s cycle.
 
                  The grouping is done here, in PHP, from whatever the database
@@ -1155,7 +1155,7 @@
                  rotation walks the groups it finds in the page.
 
                  The held height on each group is what stops a short final
-                 group - one event where the last showed three - from letting
+                 group, one event where the last showed three, from letting
                  the next group creep up into view. --}}
             @php $eventGroups = $upcomingEvents->chunk(3)->values(); @endphp
 
@@ -1254,7 +1254,7 @@
         </div>
     </section>
 
-    {{-- SEGMENT 6 - facilities and gallery, side by side, both always here. --}}
+    {{-- SEGMENT 6, facilities and gallery, side by side, both always here. --}}
     <section class="bg-white px-4 py-14 sm:px-6 lg:py-16">
         <div class="mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
             <div id="facilities" class="scroll-mt-24">
@@ -1269,14 +1269,14 @@
                      able and the icons said nothing at all.
 
                      There is no icon column on the table, so it is inferred
-                     from the name - see [App\Support\FacilityIcon]. fa-fw keeps
+                     from the name, see [App\Support\FacilityIcon]. fa-fw keeps
                      them all the same width, which matters in a grid: a
                      droplet and a bus are very different shapes and without it
                      the labels below them sit ragged.
 
                      The row sits in its own bordered card, as the reference
                      draws it. The section behind it is white too, so the border
-                     is the only thing holding the six together as one group -
+                     is the only thing holding the six together as one group,
                      without it they float loose on the page. --}}
                 <div class="mt-5 rounded-[10px] border border-gray-200 bg-white px-5 py-6 shadow-sm">
                     <div class="grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-6">
@@ -1294,7 +1294,7 @@
                 </div>
             </div>
 
-            {{-- Our gallery, three at a time - the same behaviour as the
+            {{-- Our gallery, three at a time, the same behaviour as the
                  events and news panels.
 
                  The tile itself is untouched: the same clipped, rounded, grey
@@ -1345,8 +1345,8 @@
                         >
                             @foreach ($galleryGroups as $groupIndex => $group)
                                 {{-- The held height is what stops a short final
-                                     group - one photograph where the last showed
-                                     three - letting the group behind it creep
+                                     group, one photograph where the last showed
+                                     three, letting the group behind it creep
                                      up into view.
 
                                      The margin below is what keeps a gap
@@ -1354,7 +1354,7 @@
                                      next; without it they met edge to edge
                                      mid-slide and read as one tall picture.
                                      The track is 144 - 128 of photograph and
-                                     16 of gap - so a row still fills a page. --}}
+                                     16 of gap, so a row still fills a page. --}}
                                 <div class="mb-4 grid min-h-[128px] grid-cols-3 gap-4">
                                     @foreach ($group as $image)
                                         <button
@@ -1411,8 +1411,8 @@
                          and the photograph is object-contain inside it so it is
                          never cropped or stretched to fit.
 
-                         The controls sit outside the frame on a desktop - there
-                         is 15vw of backdrop either side to put them in - and
+                         The controls sit outside the frame on a desktop, there
+                         is 15vw of backdrop either side to put them in, and
                          come inside at the edges on small screens where there
                          is not. --}}
                     <div
@@ -1492,7 +1492,7 @@
     </section>
 
 
-    {{-- SEGMENT 6b - the Principal's Desk, and the school's own words.
+    {{-- SEGMENT 6b, the Principal's Desk, and the school's own words.
 
          Restored, and placed here on purpose: below Events, Our Facilities and
          Our Gallery, and above Contact. It reads as the school speaking for
@@ -1500,7 +1500,7 @@
          than a statement of intent before any of it.
 
          Every block is optional and the whole band disappears when a school
-         has filled none of them in - a "From the Principal's Desk" heading
+         has filled none of them in, a "From the Principal's Desk" heading
          over an empty box is worse than no section. --}}
     @php
         $hasPrincipal = filled($website->principal_message) || filled($website->principal_name);
@@ -1591,14 +1591,14 @@
         </section>
     @endif
 
-    {{-- SEGMENT 7 - get in touch, and report a concern.
+    {{-- SEGMENT 7, get in touch, and report a concern.
 
          Four columns as the reference draws them: the school's details, a
          photograph of the building, the form, and a map.
 
          The middle panel carries TWO forms behind a toggle. The first is the
          ordinary contact form. The second is for a member of the public who
-         has seen a pupil behaving badly outside school - a neighbour, a
+         has seen a pupil behaving badly outside school, a neighbour, a
          shopkeeper, a bus driver.
 
          That second form asks for as little as it can: a name, what happened,
@@ -1610,7 +1610,7 @@
         $siteContact = \App\Support\SchoolContact::for($school);
         $siteSocials = \App\Support\SchoolSocialLinks::for($school);
         // The About photo, or failing that WHATEVER THE HERO IS ACTUALLY
-        // SHOWING - the first slide when the school has slides, the single
+        // SHOWING, the first slide when the school has slides, the single
         // hero image when it has not.
         //
         // This used to read heroImageUrl() directly, which meant a school that
@@ -1644,7 +1644,7 @@
                         ['fa-location-dot', $siteContact->address],
                         ['fa-phone', $siteContact->phone],
                         ['fa-envelope', $siteContact->email],
-                        ['fa-clock', 'Mon - Fri: 8:00 AM - 4:00 PM'],
+                        ['fa-clock', 'Mon to Fri: 8:00 AM to 4:00 PM'],
                     ] as [$icon, $value])
                         @continue (blank($value))
                         <p class="flex items-start gap-3 text-[13px] leading-relaxed text-gray-900">
@@ -1788,7 +1788,7 @@
                                      button below. A file input cannot have
                                      items removed from its own FileList, so
                                      the selection is held in Alpine and
-                                     written back through a DataTransfer -
+                                     written back through a DataTransfer,
                                      which is what makes "remove this one"
                                      possible at all. --}}
                                 <input
@@ -1864,7 +1864,7 @@
                             </div>
 
                             {{-- Disabled until the evidence rules are met. The
-                                 server enforces them regardless - this only
+                                 server enforces them regardless, this only
                                  saves a reporter from a failed upload. --}}
                             <button
                                 type="submit"

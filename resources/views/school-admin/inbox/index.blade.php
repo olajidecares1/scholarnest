@@ -3,8 +3,8 @@
      The listing used to print every message and every report in full, one
      under another, with the photographs and the review form attached to each.
      Ten long reports made the page unscannable, and an administrator looking
-     for one thing had to read all of it. So this is now a list of topics -
-     what it is about, who sent it, when, and its status - and the body lives
+     for one thing had to read all of it. So this is now a list of topics,
+     what it is about, who sent it, when, and its status, and the body lives
      one click away.
 
      Nothing was dropped to achieve that. Every word is still stored and still

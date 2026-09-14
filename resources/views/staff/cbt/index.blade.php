@@ -7,7 +7,7 @@
         @endif
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="max-w-2xl text-sm text-gray-500 dark:text-gray-400">Tests you create here are delivered to students in the target class as "My Tests". Create a test first, then upload a <span class="font-semibold">Word (.docx)</span> or <span class="font-semibold">PDF</span> paper on the test's page - the questions, options and answer key are read out of it for you to check before you publish.</p>
+            <p class="max-w-2xl text-sm text-gray-500 dark:text-gray-400">Tests you create here are delivered to students in the target class as "My Tests". Create a test first, then upload a <span class="font-semibold">Word (.docx)</span> or <span class="font-semibold">PDF</span> paper on the test's page. The questions, options and answer key are read out of it for you to check before you publish.</p>
             <button
                 type="button"
                 @click="open = true"
@@ -36,7 +36,7 @@
                 </a>
             @empty
                 <div class="col-span-full rounded-[10px] border border-dashed border-gray-300 p-10 text-center dark:border-gray-700">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">No tests yet. Click "Create Test" to get started - then upload a Word or PDF question paper and AkademicNest will extract the questions for you.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No tests yet. Click "Create Test" to get started, then upload a Word or PDF question paper and AkademicNest will extract the questions for you.</p>
                 </div>
             @endforelse
         </div>

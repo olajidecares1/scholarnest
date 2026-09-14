@@ -43,7 +43,7 @@ class CodeImageGenerator
      * displayed at (cropping to fill, like CSS `object-fit: cover`) and
      * returns it as a data URI. dompdf does not reliably honor explicit
      * width/height (as HTML attributes or CSS) on an `<img>` referencing an
-     * arbitrary uploaded photo - some files render at a much larger,
+     * arbitrary uploaded photo, some files render at a much larger,
      * unrelated size regardless of any sizing given, spilling into
      * surrounding content on the tiny ID card canvas. Baking the real pixel
      * dimensions into the image itself sidesteps dompdf's sizing entirely,
@@ -98,7 +98,7 @@ class CodeImageGenerator
 
     /**
      * Same purpose as croppedImageDataUri(), but scales to fit within the
-     * given bounds while preserving aspect ratio (no cropping) - used for
+     * given bounds while preserving aspect ratio (no cropping), used for
      * images like a signature scan where cropping would cut off content.
      * Returns the data URI plus the dimensions it was rendered at, since the
      * caller needs the actual width/height to size the <img> correctly.
@@ -110,7 +110,7 @@ class CodeImageGenerator
      *
      * The fade is baked into the image rather than applied with CSS, because
      * dompdf does not honour opacity on an <img> and ignores it on a
-     * background - a watermark drawn the CSS way looks right on screen and
+     * background, a watermark drawn the CSS way looks right on screen and
      * comes out of the printer at full strength, obliterating the marks
      * underneath it.
      *

@@ -1,6 +1,6 @@
 @php
     $examinationOptions = $examinations->mapWithKeys(fn ($examination) => [
-        $examination->id => "{$examination->name} — {$examination->class_name} ({$examination->term->label()}, {$examination->session})",
+        $examination->id => "{$examination->name}, {$examination->class_name} ({$examination->term->label()}, {$examination->session})",
     ]);
 @endphp
 
@@ -89,7 +89,7 @@
 
         {{-- Freshly issued tokens, shown once. After this page is left they can
              only be recovered one at a time through "Show token", which is
-             audited - so this is the moment to print or copy them. --}}
+             audited, so this is the moment to print or copy them. --}}
         @if (! empty($issuedTokens))
             <div class="rounded-[5px] border-2 border-green-300 bg-green-50 p-6 dark:border-green-800 dark:bg-green-900/20 lg:rounded-[10px]">
                 <div class="flex flex-wrap items-start justify-between gap-3">
@@ -150,7 +150,7 @@
                      The narrowing is a convenience only. What is submitted is
                      an examination id and a student id, and the server checks
                      both belong to this school and to each other before it
-                     will issue anything - see ResultTokenIssuer. --}}
+                     will issue anything, see ResultTokenIssuer. --}}
                 <div
                     class="mt-4 space-y-3"
                     x-data="{
@@ -164,7 +164,7 @@
                             'id' => $exam->id,
                             'session' => $exam->session,
                             'term' => $exam->term->value,
-                            'label' => $exam->name.' — '.$exam->class_name,
+                            'label' => $exam->name.', '.$exam->class_name,
                         ])->values()),
                         get available() {
                             return this.examinations.filter(
@@ -196,7 +196,7 @@
 
                     {{-- No Examination field. The year, the term and the
                          student's own class name it completely, so the server
-                         works it out - see App\Services\ExaminationResolver.
+                         works it out, see App\Services\ExaminationResolver.
                          Asking for it here meant a school with none recorded
                          met an empty dropdown and could issue nothing. --}}
 
@@ -206,7 +206,7 @@
                             <option value="">Choose a student…</option>
                             @foreach ($students as $student)
                                 <option value="{{ $student->id }}" @selected(old('student_id') == $student->id)>
-                                    {{ $student->fullName() }} — {{ $student->class_name }} ({{ $student->admission_number }})
+                                    {{ $student->fullName() }} to {{ $student->class_name }} ({{ $student->admission_number }})
                                 </option>
                             @endforeach
                         </select>
@@ -242,7 +242,7 @@
                 {{-- The class is chosen from the school's own class list, never
                      typed. A typed class name is how a school ends up with its
                      students filed under "SSS 1 Science" and a batch issued
-                     against "SSS1 Science" - two classes, one empty, and no
+                     against "SSS1 Science", two classes, one empty, and no
                      obvious reason why the batch came out at zero. The server
                      validates it against the same list. --}}
                 <div
@@ -406,9 +406,9 @@
                                             <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Not used</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $row['used_by'] ?? '—' }}</td>
+                                    <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $row['used_by'] ?? 'N/A' }}</td>
                                     <td class="px-6 py-3 text-gray-500 dark:text-gray-400">
-                                        {{ $row['used_at']?->format('j M Y, g:ia') ?? '—' }}
+                                        {{ $row['used_at']?->format('j M Y, g:ia') ?? 'N/A' }}
                                     </td>
                                 </tr>
                             @endforeach
@@ -461,7 +461,7 @@
                         @forelse ($tokens as $token)
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3">
-                                    <p class="font-semibold text-gray-900 dark:text-white">{{ $token->boundStudent?->fullName() ?? '—' }}</p>
+                                    <p class="font-semibold text-gray-900 dark:text-white">{{ $token->boundStudent?->fullName() ?? 'N/A' }}</p>
                                     <p class="field-hint">{{ $token->boundStudent?->admission_number }}</p>
                                 </td>
                                 <td class="px-5 py-3 text-xs text-gray-600 dark:text-gray-300">
@@ -552,7 +552,7 @@
                         @forelse ($recentAccess as $entry)
                             <tr>
                                 <td class="px-5 py-3 text-xs text-gray-600 dark:text-gray-300">{{ $entry->occurred_at->format('j M Y, g:ia') }}</td>
-                                <td class="px-5 py-3 text-gray-900 dark:text-white">{{ $entry->student?->fullName() ?? '—' }}</td>
+                                <td class="px-5 py-3 text-gray-900 dark:text-white">{{ $entry->student?->fullName() ?? 'N/A' }}</td>
                                 <td class="px-5 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold
                                         @class([
@@ -563,7 +563,7 @@
                                         {{ $entry->outcome->label() }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{{ $entry->ip_address ?? '—' }}</td>
+                                <td class="px-5 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{{ $entry->ip_address ?? 'N/A' }}</td>
                             </tr>
                         @empty
                             <tr>

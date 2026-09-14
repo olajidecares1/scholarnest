@@ -35,7 +35,7 @@ class PaymentMethodController extends Controller
 
             // Whatever the AkademicNest Team has enabled, with the details they
             // entered. Nothing about how to pay is written into the template
-            // any more - see App\Services\AvailablePaymentMethods.
+            // any more, see App\Services\AvailablePaymentMethods.
             'paymentMethods' => $this->available->all(),
         ]);
     }
@@ -48,7 +48,7 @@ class PaymentMethodController extends Controller
 
         $school = auth()->user()->school;
 
-        // Screened before it is stored. This only ever turns a file away - it
+        // Screened before it is stored. This only ever turns a file away, it
         // never approves anything, and the AkademicNest Team still activates every
         // subscription by hand.
         $screening = $this->screening->screen(

@@ -12,7 +12,7 @@ use App\Models\User;
  * Regression coverage for the "schools got full access before payment
  * confirmation" security fix: routes/web.php now gates the entire School
  * Admin content route group behind the school_activated middleware, which
- * requires School::hasActiveSubscription() - not merely a submitted
+ * requires School::hasActiveSubscription(), not merely a submitted
  * subscription.
  */
 function subscribedSchoolAdmin(?SubscriptionStatus $status, bool $isActive = true): User
@@ -22,7 +22,7 @@ function subscribedSchoolAdmin(?SubscriptionStatus $status, bool $isActive = tru
 
     if ($status !== null) {
         // Plan::factory() still burns one of Faker's only 3 unique PlanKey
-        // slots even when "key" is overridden afterwards - checking for an
+        // slots even when "key" is overridden afterwards, checking for an
         // existing row first avoids ever touching the factory more than once
         // across a test that creates several schools (e.g. the loop test below).
         $plan = Plan::where('key', PlanKey::Standard)->first()

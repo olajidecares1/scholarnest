@@ -1,7 +1,7 @@
 # AkademicNest
 
 A multi-tenant school management platform: one installation, many schools, each
-with its own staff, pupils, parents, records — and its own public website.
+with its own staff, pupils, parents, records, and its own public website.
 
 Built on Laravel 12 and PHP 8.2.
 
@@ -19,24 +19,24 @@ Built on Laravel 12 and PHP 8.2.
 | Student | Results, assignments, attendance, timetable, CBT |
 | Guardian | Their children's results, attendance, fees, messages |
 
-**Running a school** — pupils, staff and guardians; academic levels, terms,
+**Running a school**: pupils, staff and guardians; academic levels, terms,
 classes, subjects and offerings; teacher assignments; attendance; examinations,
 scores and grade bands; report cards with PDF and Word export; ID cards with
 public QR verification; fees, invoices and payments; library, transport,
 hostels and co-curricular activities; timetables.
 
-**Computer-based testing** — question papers uploaded as `.docx` or `.pdf` and
+**Computer-based testing**: question papers uploaded as `.docx` or `.pdf` and
 read into structured questions locally, with no API key and no network. The
 paper's rubric and per-question marks come across with it.
 
-**A public website per school** — a block-based builder, news, events, gallery,
+**A public website per school**: a block-based builder, news, events, gallery,
 testimonials, facilities and job postings, with custom domains and
 verification.
 
 **Three plans**, with per-feature gating, a subscription wizard, top-ups and
 student licences the Super Admin is the authority on.
 
-**An HTTP API** for the mobile clients — see [docs/API.md](docs/API.md).
+**An HTTP API** for the mobile clients, see [docs/API.md](docs/API.md).
 
 ---
 
@@ -71,7 +71,7 @@ php artisan test --compact
 ```
 
 The suite runs against SQLite in memory and needs no database of its own. It
-does need `npm run build` to have been run at least once — Blade views call
+does need `npm run build` to have been run at least once, Blade views call
 `@vite`, and `@vite` throws without a manifest.
 
 ### Formatting
@@ -104,7 +104,7 @@ CI runs `pint --test`, `composer audit` and the suite on every push.
 Standard Laravel 12, with a few things worth knowing before you go looking:
 
 - **Routes are split by area.** `routes/web.php` is a manifest naming nine
-  files in the order they are registered — and that order is part of the
+  files in the order they are registered, and that order is part of the
   behaviour, not tidiness. `routes/api.php` does the same for the API.
 - **Tenancy is `school_id`, everywhere.** One check, in
   `AuthorizesSchoolOwnership`.
@@ -112,7 +112,7 @@ Standard Laravel 12, with a few things worth knowing before you go looking:
   once in the `PlanFeature` enum.
 - **URLs carry UUIDs**, never the database's own integer keys.
 - **Uploads are named from their content**, not from what the browser called
-  the file — `App\Support\StoredUpload`.
+  the file, `App\Support\StoredUpload`.
 
 ---
 

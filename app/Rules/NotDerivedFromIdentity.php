@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
  * A password must not be made out of the account it protects.
  *
  * Password::defaults() already demands length, mixed case, a number and a
- * symbol - and "Greenfield2026!" satisfies every one of them while being the
+ * symbol, and "Greenfield2026!" satisfies every one of them while being the
  * first thing anybody would try against Greenfield College. Complexity rules
  * measure the shape of a password, not how guessable it is, and the most
  * guessable passwords on a platform like this are built from the two things
@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
  *
  * IT COMPARES THE NORMALISED FORMS, not the literal strings. A rule that
  * only caught the exact word would be satisfied by "Gr33nf13ld!", which is no
- * harder to guess - so case, punctuation, spacing and the usual digit-for-
+ * harder to guess, so case, punctuation, spacing and the usual digit-for-
  * letter substitutions are all flattened before comparing.
  */
 final class NotDerivedFromIdentity implements ValidationRule
@@ -50,7 +50,7 @@ final class NotDerivedFromIdentity implements ValidationRule
 
     /**
      * @param  list<string|null>  $identifiers  The school's name, the email
-     *                                          address, the login id - whatever
+     *                                          address, the login id, whatever
      *                                          this account is publicly known by.
      */
     public function __construct(private readonly array $identifiers) {}
@@ -84,7 +84,7 @@ final class NotDerivedFromIdentity implements ValidationRule
      *
      * An email is broken up as well as taken whole: the part before the @ is
      * what people actually reuse, and the domain's own name is worth refusing
-     * too - "greenfieldcollege" out of admin@greenfieldcollege.com is the same
+     * too, "greenfieldcollege" out of admin@greenfieldcollege.com is the same
      * guess as the school's name.
      *
      * @return list<string>
@@ -108,8 +108,8 @@ final class NotDerivedFromIdentity implements ValidationRule
 
             // Individual words too, so "Greenfield International College"
             // refuses "Greenfield!2026" and not merely the whole phrase. In
-            // this context the generic half is guessable as well - every
-            // customer here is a school, an academy or a college - so nothing
+            // this context the generic half is guessable as well, every
+            // customer here is a school, an academy or a college, so nothing
             // is exempted as too common.
             $parts = [...$parts, ...preg_split('/[^\p{L}\p{N}]+/u', $identifier, -1, PREG_SPLIT_NO_EMPTY)];
 
@@ -127,7 +127,7 @@ final class NotDerivedFromIdentity implements ValidationRule
 
     /**
      * Lower-cased, stripped of everything that is not a letter or a digit, and
-     * with the usual substitutions undone - so "Gr33n-F13ld" and "greenfield"
+     * with the usual substitutions undone, so "Gr33n-F13ld" and "greenfield"
      * are the same string by the time they are compared.
      */
     private function normalise(string $value): string

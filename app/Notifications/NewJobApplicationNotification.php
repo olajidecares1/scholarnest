@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notification;
 
 /**
  * Tells a School Admin that somebody has applied for one of the school's
- * vacancies - who, for what, how to reach them, and where the application is.
+ * vacancies, who, for what, how to reach them, and where the application is.
  *
  * Only contact details and the position travel in the notification. The cover
  * letter and CV stay behind the application page, which checks the school.

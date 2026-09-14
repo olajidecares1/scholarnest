@@ -6,7 +6,7 @@
 ## What happened
 
 A fresh Laravel 13 project was started in `C:\xampp\htdocs\AkademicNest`, which was
-an empty folder at the time, following the project brief's roadmap ("Stage 1 —
+an empty folder at the time, following the project brief's roadmap ("Stage 1,
 Set up the Laravel 13 project").
 
 Configuring its database surfaced the problem. Running the migrations failed
@@ -53,7 +53,7 @@ again.
 The deciding evidence was the state of this codebase:
 
 - **941 passing tests** with 2,411 assertions
-- **Tenant isolation applied consistently** — 45 of 48 controllers that bind a
+- **Tenant isolation applied consistently**: 45 of 48 controllers that bind a
   school-owned model check ownership, and the 3 that do not are correct to skip
   it (two are Super Admin, one is deliberately public QR verification)
 - **Sequential ids already kept out of URLs**, with tests proving it
@@ -68,8 +68,8 @@ arrive back at features that already work, and would have put 143 students'
 records, 2,691 attendance rows and 1,227 examination scores through an
 unnecessary migration.
 
-The gaps that do exist — no per-IP rate limiting, no block on script execution
-in upload directories, Laravel 12 rather than 13 — are all reachable from here,
+The gaps that do exist, no per-IP rate limiting, no block on script execution
+in upload directories, Laravel 12 rather than 13, are all reachable from here,
 and are tracked in [docs/SECURITY-AUDIT.md](../../SECURITY-AUDIT.md) and
 [TODO.md](../../../TODO.md).
 
@@ -87,7 +87,7 @@ and are tracked in [docs/SECURITY-AUDIT.md](../../SECURITY-AUDIT.md) and
 ## Related fix
 
 The same investigation found that `public/storage` was a junction pointing at
-`C:\xampp\htdocs\AkademicNest\storage\app\public` — the old location, which is now
+`C:\xampp\htdocs\AkademicNest\storage\app\public` the old location, which is now
 an unrelated empty project. Every uploaded student photo, staff photo and school
 logo on the site was a broken image.
 

@@ -29,8 +29,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Staff Portal — same school-slug-scoped, readable convention as the Student/Parent Portals above.
-// The school is identified by an opaque key, not its slug - see
+// Staff Portal, same school-slug-scoped, readable convention as the Student/Parent Portals above.
+// The school is identified by an opaque key, not its slug, see
 // routes/student.php for why, and the add_portal_key_to_schools_table
 // migration for what the key is. The parameter is still "school" and still
 // resolves to a School, so no controller or route() call changed.
@@ -80,7 +80,7 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
 
             // The diary is a Standard and Exclusive feature, and only a
             // teacher keeps one. Gated by plan here as well as in the School
-            // Admin panel, because the staff portal is open on every plan -
+            // Admin panel, because the staff portal is open on every plan,
             // without this a Basic school's teachers would reach it.
             Route::middleware(['staff_is_teacher', 'plan_feature:diary'])->name('diary.')->prefix('diary')->group(function () {
                 Route::get('/', [StaffDiaryController::class, 'index'])->name('index');
@@ -94,7 +94,7 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
             // on all three plans and this is the school's own teaching work.
             // What Basic lacks is a STUDENT portal for the note to arrive in,
             // which is a fact about that plan rather than a rule about this
-            // route - see routes/student.php, where the pupil's side sits
+            // route, see routes/student.php, where the pupil's side sits
             // behind portal_access and is therefore absent on Basic.
             Route::name('class-notes.')->prefix('class-notes')->group(function () {
                 Route::get('/', [StaffClassNoteController::class, 'index'])->name('index');
@@ -125,7 +125,7 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
                 // There is deliberately no print route and no pdf route here.
                 // Taking the buttons off the page would have left the URLs
                 // answering to anyone who typed them, and a report card is a
-                // document the school issues - the teacher who marks it is not
+                // document the school issues, the teacher who marks it is not
                 // the one who hands it out. Removed rather than gated, so
                 // there is no endpoint left to reach: /results/{exam}/students/
                 // {student}/print and .../pdf now 404 for the staff guard.

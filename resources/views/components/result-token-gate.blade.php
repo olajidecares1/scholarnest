@@ -2,11 +2,11 @@
 
      Three states, and the component draws whichever applies:
 
-       withheld  - the school is holding the result over unpaid fees. No token
+       withheld, the school is holding the result over unpaid fees. No token
                    will open it, so no token is asked for.
-       locked    - the token has not been entered in this session. The button
+       locked, the token has not been entered in this session. The button
                    opens a modal asking for it.
-       unlocked  - already redeemed. The caller renders its own View/Download
+       unlocked, already redeemed. The caller renders its own View/Download
                    controls in the slot.
 
      Shared by the student and guardian portals so the two cannot drift into

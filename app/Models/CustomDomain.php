@@ -61,7 +61,7 @@ class CustomDomain extends Model
     }
 
     /**
-     * The DNS TXT record host the school must add to prove ownership - scoped
+     * The DNS TXT record host the school must add to prove ownership, scoped
      * under a fixed prefix so it never collides with the domain's other
      * records, and works identically for root domains and subdomains.
      */

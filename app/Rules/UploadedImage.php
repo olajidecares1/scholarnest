@@ -20,7 +20,7 @@ use Illuminate\Http\UploadedFile;
  *    for size, instead of "failed to upload";
  *  - its size is within the profile's limit;
  *  - its content is a JPEG, PNG, WebP, GIF or BMP image (or HEIC where the
- *    server can convert it), identified from the bytes - a PHP script renamed
+ *    server can convert it), identified from the bytes, a PHP script renamed
  *    photo.jpg is not an image, whatever the name says;
  *  - it can actually be read, and is not so large in pixels that decoding it
  *    would exhaust memory.

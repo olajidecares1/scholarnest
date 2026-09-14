@@ -3,7 +3,7 @@
 {{-- A school's Job Portal.
 
      SEPARATE FROM THE WEBSITE, deliberately: it needs no published website and
-     carries only what an applicant needs - who the school is, where it is, how
+     carries only what an applicant needs, who the school is, where it is, how
      to reach it, and its vacancies. Most applicants arrive from a link shared
      on WhatsApp or Facebook, on a phone, so the page is built phone-first.
 

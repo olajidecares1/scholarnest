@@ -21,13 +21,13 @@ use Illuminate\Support\Str;
  *
  *  - story(): 1080 x 1350, the shape Instagram, WhatsApp Status and Facebook
  *    feeds show largest. The vacancy's own address is printed on it with a QR
- *    code, so somebody who only ever sees the image - a forwarded WhatsApp
- *    picture, an Instagram post - can still reach that exact vacancy.
+ *    code, so somebody who only ever sees the image, a forwarded WhatsApp
+ *    picture, an Instagram post, can still reach that exact vacancy.
  *  - card(): 1200 x 630, the link-preview shape. It is the og:image of the
  *    vacancy's page, so pasting the link anywhere shows the school's logo,
  *    name, the job title and the job image, and tapping it opens the vacancy.
  *
- * Both are built from the school's own profile - logo, name, address - and its
+ * Both are built from the school's own profile, logo, name, address, and its
  * brand colour, so the image cannot drift from the school it advertises.
  */
 class JobShareImage
@@ -125,7 +125,7 @@ class JobShareImage
     }
 
     /**
-     * The job image, cropped to fill the box - or, with none, the school's brand
+     * The job image, cropped to fill the box, or, with none, the school's brand
      * colour, so a vacancy without a photo still makes a clean image.
      *
      * @param  array{0: int, 1: int, 2: int}  $brand

@@ -71,7 +71,7 @@
                                 <td class="px-5 py-3">
                                     <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">{{ $user->role->label() }}</span>
                                 </td>
-                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $user->school->name ?? '—' }}</td>
+                                <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $user->school->name ?? 'N/A' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $user->created_at->format('M j, Y') }}</td>
                                 <td class="px-5 py-3">
                                     @if ($user->is_active)

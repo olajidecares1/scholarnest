@@ -40,7 +40,7 @@ class ResultController extends Controller
                     && $score->subject->examination->term === $currentTerm->term ? 0 : 1,
                 -($score->subject->examination->exam_date?->timestamp ?? 0),
             ])
-            ->groupBy(fn ($score) => $score->subject->examination->name.' — '.$score->subject->examination->session);
+            ->groupBy(fn ($score) => $score->subject->examination->name.' ('.$score->subject->examination->session.')');
 
         return view('guardian.children.results', [
             'school' => $school,
@@ -114,8 +114,8 @@ class ResultController extends Controller
     /**
      * Refuse a result the school is withholding over unpaid fees.
      *
-     * On the server, on every route that can produce the document - the JSON
-     * view, the printable page and the PDF - because the portal's own list
+     * On the server, on every route that can produce the document, the JSON
+     * view, the printable page and the PDF, because the portal's own list
      * only stops someone who uses the portal. Editing the address is not a way
      * round a balance.
      */

@@ -109,7 +109,7 @@ test('the bottom bar stays short and hands the rest to More', function () {
     // just a menu that happens to be at the bottom.
     expect(count($nav['primary']))->toBeLessThanOrEqual(4);
 
-    // And nothing is lost by keeping it short - the rest is in the sheet.
+    // And nothing is lost by keeping it short, the rest is in the sheet.
     $labels = collect($nav['categories'])->flatten(1)->pluck('label');
 
     expect($labels)->toContain('Settings')
@@ -158,7 +158,7 @@ test('a Basic teacher is not offered the premium features', function () {
         ->and($routes)->not->toContain('staff.id-card.show')
         ->and($routes)->not->toContain('staff.timetable')
 
-        // What every plan buys is still there - this portal is not premium.
+        // What every plan buys is still there, this portal is not premium.
         ->and($routes)->toContain('staff.attendance.index')
         ->and($routes)->toContain('staff.exams.index');
 });
@@ -288,13 +288,13 @@ test('the menu takes the school colour and reads in both modes', function () {
         ->and($html)->toContain('dark:bg-primary-900/40')
         ->and($html)->toContain('dark:text-primary-300')
 
-        // The bottom bar included - it is fixed over the page, so losing its
+        // The bottom bar included, it is fixed over the page, so losing its
         // background would leave the page scrolling underneath the labels.
         ->and($html)->toContain('dark:bg-gray-900/95');
 });
 
 // ---------------------------------------------------------------------------
-// Mobile and tablet only - there is no desktop layout behind these three
+// Mobile and tablet only, there is no desktop layout behind these three
 // ---------------------------------------------------------------------------
 
 test('no portal has a desktop sidebar or the offset that paired with it', function () {
@@ -310,8 +310,8 @@ test('no portal has a desktop sidebar or the offset that paired with it', functi
 test('the bottom bar is present at desktop width, not hidden above lg', function () {
     $nav = file_get_contents(resource_path('views/components/portal-bottom-nav.blade.php'));
 
-    // The bar IS the navigation here. Hiding it above lg - which is what it
-    // did while a sidebar existed to take over - would leave a wide browser
+    // The bar IS the navigation here. Hiding it above lg, which is what it
+    // did while a sidebar existed to take over, would leave a wide browser
     // with no navigation at all.
     expect($nav)->not->toContain('lg:hidden');
 });

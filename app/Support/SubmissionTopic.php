@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
  * "(no subject)" tells an administrator nothing they could act on.
  *
  * The first SENTENCE, where the body has one, because that is usually the
- * whole of what happened - "Two pupils were fighting at the bus stop." Failing
+ * whole of what happened, "Two pupils were fighting at the bus stop." Failing
  * that, the opening words. Either way it is trimmed to something that fits a
  * table row on a phone.
  */
@@ -37,7 +37,7 @@ final class SubmissionTopic
         if ($body === '') {
             // Nothing at all to go on. Validation does not allow this from
             // either public form, so it only happens to a record written some
-            // other way - and even then the row stays readable.
+            // other way, and even then the row stays readable.
             return 'Untitled';
         }
 

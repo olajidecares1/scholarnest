@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
  * carries the password in clear. Generating safe links and accepting unsafe
  * requests are two different things, and only the first was being done.
  *
- * A redirect cannot protect a password that has already been sent - the first
- * request is already on the wire before this runs - which is exactly why HSTS
+ * A redirect cannot protect a password that has already been sent, the first
+ * request is already on the wire before this runs, which is exactly why HSTS
  * matters alongside it (see SecurityHeaders). The redirect is what teaches the
  * browser to ask for HSTS in the first place; after that the browser stops
  * sending the plaintext request at all.

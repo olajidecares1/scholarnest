@@ -8,7 +8,7 @@ use App\Models\School;
 /**
  * The card every school starts from.
  *
- * The reference design is not one school's card - it is the DEFAULT, which
+ * The reference design is not one school's card, it is the DEFAULT, which
  * each school then edits into its own. That makes where the defaults live a
  * real decision rather than a detail: they were written out five times over,
  * once in each card face and once more in the template editor, so a school
@@ -54,7 +54,7 @@ final class IdCardDesign
      * What the back of the card says when a school has not written its own.
      *
      * Phrased as the reference card phrases it, with the school's own name
-     * where the reference has its own - a default a school can accept as it
+     * where the reference has its own, a default a school can accept as it
      * stands, not a placeholder it has to replace.
      */
     public static function instructions(School $school): string

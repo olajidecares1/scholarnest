@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
  * A password must not be made out of the account it protects.
  *
  * Password::defaults() already demands 8 characters, mixed case, a number and
- * a symbol - and "Greenfield2026!" clears every one of them while being the
+ * a symbol, and "Greenfield2026!" clears every one of them while being the
  * first thing anybody would type against Greenfield College. Complexity rules
  * measure a password's SHAPE; they say nothing about how guessable it is, and
  * on a platform where the school's name and email sit at the top of its own
@@ -73,7 +73,7 @@ describe('what the rule refuses', function () {
 
     test('a password that is merely a slice of the identifier', function () {
         // Caught in both directions: the identifier inside the password is the
-        // common case, and this is the other one - a password cut out of the
+        // common case, and this is the other one, a password cut out of the
         // middle of the school's own name.
         expect(passwordPasses('fieldcoll', ['Greenfield College']))->toBeFalse();
     });
@@ -167,7 +167,7 @@ describe('where it applies', function () {
                 'password_confirmation' => 'Greenfield-College-1!',
             ])
             // This form validates into its own error bag, so the assertion has
-            // to name it - against the default bag it would pass whether the
+            // to name it, against the default bag it would pass whether the
             // password was refused or not.
             ->assertSessionHasErrors('password', null, 'updatePassword');
     });
@@ -176,7 +176,7 @@ describe('where it applies', function () {
         $member = Staff::factory()->create(['school_id' => $this->school->id]);
 
         // Submitting a different school name alongside the password must not
-        // change which name is checked against - the school is read from the
+        // change which name is checked against, the school is read from the
         // account being edited.
         $this->actingAs($this->admin)
             ->put(route('staff.credentials', $member), [

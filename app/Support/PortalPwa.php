@@ -11,7 +11,7 @@ use App\Models\School;
  * The web app manifest is what turns a page into something with an icon on a
  * home screen, and every field in it that identifies the app is school-scoped:
  * the name, the icons, the colour, and above all the start URL. That last one
- * is the whole point of the feature - once installed, tapping the icon opens
+ * is the whole point of the feature, once installed, tapping the icon opens
  * THIS school's portal and no other, without anybody having to remember an
  * address or keep a bookmark.
  *
@@ -44,7 +44,7 @@ final class PortalPwa
     {
         return [
             'id' => $this->portal->manifestId($this->school),
-            'name' => "{$this->school->name} — {$this->portal->label()}",
+            'name' => "{$this->school->name} {$this->portal->label()}",
             'short_name' => $this->shortName(),
             'description' => "{$this->portal->label()} for {$this->school->name}.",
             'start_url' => $this->portal->startUrl($this->school),
@@ -64,7 +64,7 @@ final class PortalPwa
      * What a launcher shows under the icon.
      *
      * The school first, because a phone with two schools' apps on it is the
-     * case that has to work - a parent with children at two schools sees two
+     * case that has to work, a parent with children at two schools sees two
      * icons, and "Parent" twice would tell them nothing. Truncation is the
      * launcher's business; giving it the distinguishing word first is ours.
      */
@@ -94,7 +94,7 @@ final class PortalPwa
      * Both sizes Android requires, each declared twice.
      *
      * "any" is the icon as uploaded. "maskable" is the same image, which the
-     * launcher may crop to whatever shape it likes - a circle, a squircle -
+     * launcher may crop to whatever shape it likes, a circle, a squircle,
      * and the icon route pads the artwork into the safe zone so that cropping
      * cannot take a bite out of a school's crest.
      *
@@ -115,7 +115,7 @@ final class PortalPwa
     }
 
     /**
-     * The AkademicNest icon - no school in it.
+     * The AkademicNest icon, no school in it.
      *
      * The app on the home screen is AkademicNest's, so the icon is the
      * platform's mark for every school alike. What distinguishes one school's
@@ -144,8 +144,8 @@ final class PortalPwa
     }
 
     /**
-     * Derived only from what the icon is actually drawn from - the bundled
-     * platform artwork - so it is the same for every school, and changes only
+     * Derived only from what the icon is actually drawn from, the bundled
+     * platform artwork, so it is the same for every school, and changes only
      * when that artwork is redrawn.
      */
     public function iconFingerprint(): string

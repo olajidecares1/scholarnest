@@ -25,8 +25,8 @@
         <x-slot:trailing>
             {{-- Font Awesome, which the app already loads, rather than a
                  hand-drawn SVG. Changing it here changes every password field
-                 in the application - portal sign-ins, settings, staff and
-                 student password forms - since they all come through this
+                 in the application, portal sign-ins, settings, staff and
+                 student password forms, since they all come through this
                  component. Sized against the field so it never outgrows it. --}}
             <button
                 type="button"

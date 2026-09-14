@@ -7,7 +7,7 @@
      screen: an icon, the name beneath it in <small>, grouped under a heading.
 
      This replaced a grid of large cards. The cards were navigation wearing the
-     costume of content - each one a bordered, shadowed, aspect-square block
+     costume of content, each one a bordered, shadowed, aspect-square block
      whose entire job was to be tapped once. Four of them filled a phone
      screen, so a pupil scrolled past three screens of chrome to reach
      "Results". At this size the same screen holds a dozen, grouped, and the

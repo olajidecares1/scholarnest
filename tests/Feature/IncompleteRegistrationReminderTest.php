@@ -134,7 +134,7 @@ test('a dry run reports without sending or marking anything', function () {
 });
 
 /**
- * The link exactly as the reminder email carries it - not one built here.
+ * The link exactly as the reminder email carries it, not one built here.
  *
  * These tests used to sign their own URL with URL::temporarySignedRoute(),
  * which signs the ABSOLUTE address. The email signs a RELATIVE one, so the

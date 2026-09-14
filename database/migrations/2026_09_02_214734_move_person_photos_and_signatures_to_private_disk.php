@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\Storage;
  * Photographs of people and every signature move off the public disk.
  *
  * They were public FILES: /storage/students/<uuid>.jpg, no access control at
- * all. The name was unguessable and that was the whole protection - so anyone
+ * all. The name was unguessable and that was the whole protection, so anyone
  * who ever obtained an address, from a shared screenshot, a referrer header, a
  * cached page, could fetch that child's photograph for ever, from any network,
  * signed in or not.
  *
  * The database columns do not change. They hold a path relative to a disk, and
- * only the disk moved - which is why nothing had to be rewritten row by row.
+ * only the disk moved, which is why nothing had to be rewritten row by row.
  *
  * THE FILES ARE MOVED, NOT COPIED. A copy left behind on the public disk would
  * still be served at its old address, and this migration would have achieved
@@ -48,7 +48,7 @@ return new class extends Migration
 
     /**
      * Reversible, because a rollback that stranded every photograph would make
-     * this migration frightening to run - and a migration people are afraid of
+     * this migration frightening to run, and a migration people are afraid of
      * is one that does not get run.
      */
     public function down(): void

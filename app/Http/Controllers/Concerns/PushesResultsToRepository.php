@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
  * is written once: the same completeness check, the same message when it is
  * refused, the same audit entry.
  *
- * Each controller still says WHO may press it - a teacher only for their own
+ * Each controller still says WHO may press it, a teacher only for their own
  * class, an admin for any class in their school. That is the part that
  * genuinely differs, and it stays where it can be read next to the route.
  */

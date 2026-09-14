@@ -39,7 +39,7 @@ test('a school admin with no active subscription cannot access ID card managemen
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
     // Blocked earlier by the school_activated gate (no subscription at all) before
-    // the ID-card plan-tier check ever runs - redirected to the dashboard, not 403'd.
+    // the ID-card plan-tier check ever runs, redirected to the dashboard, not 403'd.
     $this->actingAs($admin)
         ->get(route('id-cards.index'))
         ->assertRedirect(route('dashboard'));
@@ -300,8 +300,8 @@ test('the student role badge always uses a fixed red colour regardless of the te
     $response = $this->actingAs($admin)->getJson(route('id-cards.preview', ['student', $student]));
 
     // The reference card's red, which the badge shares with the tagline and
-    // the rule under the header. The rule this test protects is unchanged -
-    // the badge ignores the school's own colours - only the shade moved, from
+    // the rule under the header. The rule this test protects is unchanged,
+    // the badge ignores the school's own colours, only the shade moved, from
     // a stand-in to the one the supplied design actually uses.
     expect($response->json('front'))->toContain('#c8102e');
     expect($response->json('front'))->not->toContain('background-color: #00ff00');
@@ -338,7 +338,7 @@ test('the card back shows the default instructions wording when the template has
     // Escaped, because the card is HTML and the school's name is the one part
     // of this sentence the school supplies. Comparing against the raw name
     // passed only until Faker happened to generate one with an apostrophe in
-    // it - "Erdman, D'Amore and Lind" renders as D&#039;Amore - which made
+    // it, "Erdman, D'Amore and Lind" renders as D&#039;Amore, which made
     // this test fail on roughly one run in ten for a reason that had nothing
     // to do with the wording it is here to check.
     expect($response->json('back'))->toContain('This card is the property of '.e($school->name).'.');

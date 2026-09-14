@@ -53,7 +53,7 @@ function tokenPayload(array $overrides = []): array
  * Make the next request in this test look at the database again.
  *
  * One container serves a whole test, so a guard that has already resolved a
- * user hands the same instance back next time - which would let a revoked
+ * user hands the same instance back next time, which would let a revoked
  * token and a deactivated account both go on working here while failing
  * properly in production, where every request builds its own container.
  */
@@ -136,7 +136,7 @@ test('a deactivated student is refused a token', function () {
 test('a Basic school\'s pupil is not given a token', function () {
     // Student and guardian portals are the premium tier. If the API handed
     // out tokens regardless, it would be a way round a restriction the browser
-    // enforces - which is the one thing a second interface onto the same data
+    // enforces, which is the one thing a second interface onto the same data
     // must never become.
     $basic = Plan::firstOrCreate(['key' => PlanKey::Basic], Plan::factory()->make(['key' => PlanKey::Basic])->toArray());
     $this->school->subscriptions()->update(['plan_id' => $basic->id]);
@@ -224,7 +224,7 @@ test('no token at all is refused', function () {
 test('a browser session does not authenticate the API', function () {
     // Sanctum's default is to try the web session before the bearer token.
     // This API carries no CSRF protection, so a cookie authenticating a
-    // request here would be a session-riding surface - and the session user is
+    // request here would be a session-riding surface, and the session user is
     // a School Admin, which none of these endpoints are written for.
     $admin = User::factory()->create([
         'role' => UserRole::SchoolAdmin,

@@ -16,7 +16,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 /**
  * Issuing and revoking API tokens.
  *
- * The credential check is the portal's, unchanged - see IssueTokenRequest.
+ * The credential check is the portal's, unchanged, see IssueTokenRequest.
  * What differs is what happens once it passes: instead of a session cookie the
  * caller is handed a bearer token, and the guard's in-memory login is thrown
  * away with the request.
@@ -92,7 +92,7 @@ class TokenController extends Controller
      * round a restriction the browser enforces, which is the one thing a
      * second interface onto the same data must never become.
      *
-     * A Basic school's parents are not shut out of results by this - they
+     * A Basic school's parents are not shut out of results by this, they
      * reach them through the result-token flow, which needs no account.
      *
      * @throws ValidationException
@@ -127,7 +127,7 @@ class TokenController extends Controller
     }
 
     /**
-     * Sign every device out - what somebody wants after losing a phone.
+     * Sign every device out, what somebody wants after losing a phone.
      */
     public function destroyAll(Request $request): JsonResponse
     {

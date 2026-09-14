@@ -1,7 +1,7 @@
 {{-- Class Note: one Word document, sent to as many classes as are ticked.
 
      The class list is checkboxes rather than a multi-select, because a
-     multi-select on a phone is a scrolling list with invisible state - and
+     multi-select on a phone is a scrolling list with invisible state, and
      this page is used on a phone. The server re-checks every ticked class
      against the school's own list; this is the convenience, not the
      boundary. --}}
@@ -57,7 +57,7 @@
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <div>
                             <label for="title" class="field-label">Note Title</label>
-                            <input id="title" name="title" type="text" required maxlength="150" value="{{ old('title') }}" placeholder="e.g. Photosynthesis — Week 4" class="mt-1">
+                            <input id="title" name="title" type="text" required maxlength="150" value="{{ old('title') }}" placeholder="e.g. Photosynthesis, Week 4" class="mt-1">
                             <x-input-error :messages="$errors->get('title')" class="mt-1" />
                         </div>
 

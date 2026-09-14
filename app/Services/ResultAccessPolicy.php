@@ -21,8 +21,8 @@ use Illuminate\Support\Facades\DB;
  *
  * The rule itself is short: a result is withheld while the student owes the
  * school money, unless the school has released that student's results for
- * that term. The school always has the final say - a bursary, a payment plan,
- * a balance the office knows is wrong - and the release is a record of who
+ * that term. The school always has the final say, a bursary, a payment plan,
+ * a balance the office knows is wrong, and the release is a record of who
  * decided, not a switch.
  *
  * A school with no fees on record owes nothing, so nothing is withheld. That
@@ -128,8 +128,8 @@ class ResultAccessPolicy
     /**
      * Every release this school has granted, read once.
      *
-     * A school has a handful of these - they are exceptions, not the normal
-     * case - so fetching all of them once is cheaper than asking per student,
+     * A school has a handful of these, they are exceptions, not the normal
+     * case, so fetching all of them once is cheaper than asking per student,
      * and it is what stops a screen listing a class from running a query per
      * row. Held for the life of this instance, which is one request.
      *
@@ -164,7 +164,7 @@ class ResultAccessPolicy
      * The difference is who is asking: a vague token error protects against
      * someone guessing at tokens, whereas this message is only ever reached
      * by a person who has already proved they are entitled to THIS student's
-     * result. Telling them the balance is the whole point - it is the one
+     * result. Telling them the balance is the whole point, it is the one
      * thing they can act on.
      */
     public function lockMessage(Student $student, Examination $examination): ?string

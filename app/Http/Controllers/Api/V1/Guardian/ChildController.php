@@ -47,7 +47,7 @@ class ChildController extends Controller
      *
      * The link, not the school. Two children at the same school are both
      * "in this tenant", and a guardian may see exactly the ones they are
-     * recorded against - so the school check is necessary and nowhere near
+     * recorded against, so the school check is necessary and nowhere near
      * sufficient, and both are made here rather than at three call sites.
      */
     private function authorizeChild(Request $request, Student $student): Student

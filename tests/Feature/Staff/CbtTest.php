@@ -33,7 +33,7 @@ test('a non-teacher staff member cannot access CBT management', function () {
 });
 
 // Asserted on the LINK rather than the label. These two used to look for the
-// words "CBT Management", which the mobile menu shortened to "CBT" - and once
+// words "CBT Management", which the mobile menu shortened to "CBT", and once
 // it did, the negative test below would have passed no matter what, because
 // "CBT Management" appears nowhere for anyone. The route is what the rule is
 // actually about: can this person reach CBT from their dashboard.

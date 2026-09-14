@@ -355,7 +355,7 @@ test('four options on a single line become four options', function () {
 });
 
 test('a split only happens at the next label in sequence', function () {
-    // "D." after A does not open a new option - only "B." can. This is what
+    // "D." after A does not open a new option, only "B." can. This is what
     // keeps an option whose wording contains a letter and a stop intact.
     $result = parseQuestions("1. Which?\nA. See figure D. below\nB. Something else\nAnswer: B");
 

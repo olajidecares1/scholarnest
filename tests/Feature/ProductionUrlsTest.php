@@ -10,7 +10,7 @@ use App\Support\ProductionConfiguration;
  * and the default target schools point their custom domains at.
  *
  * Get it wrong and the application still starts, serves pages happily, and
- * hands out links to somewhere unreachable - and a school following one is
+ * hands out links to somewhere unreachable, and a school following one is
  * signed out, because the session cookie belongs to the host they left. That
  * failure is silent, so it is refused at boot instead.
  *
@@ -95,7 +95,7 @@ describe('production refuses to serve with a wrong platform address', function (
 
     test('console commands are never refused, so the fix can be applied', function () {
         // If this ran in the console, a bad value cached into config:cache would
-        // make `php artisan config:clear` refuse to run - locking the deployer
+        // make `php artisan config:clear` refuse to run, locking the deployer
         // out of the one command that fixes it.
         config(['app.url' => 'http://lvh.me', 'app.debug' => true]);
 
@@ -145,7 +145,7 @@ describe('the readiness report', function () {
 
     test('a missing subdomain base is a warning, not a failure', function () {
         // Standard schools fall back to /p/{key} paths. Not what was sold, but
-        // it works - so it must not block a deploy.
+        // it works, so it must not block a deploy.
         config([
             'app.url' => 'https://akademicanest.com',
             'basic_portal.token' => str_repeat('a', 32),

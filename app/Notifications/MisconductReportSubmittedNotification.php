@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
  * The notification carries who reported it and a first line of what they said,
  * and nothing else. The description may name a child, describe an injury or
  * repeat an accusation, and a notification is the least private place in the
- * application - it sits in a bell menu, on a phone's lock screen. Whoever
+ * application, it sits in a bell menu, on a phone's lock screen. Whoever
  * needs the detail opens the report.
  */
 class MisconductReportSubmittedNotification extends Notification
@@ -42,7 +42,7 @@ class MisconductReportSubmittedNotification extends Notification
 
             // Where to go when it is clicked. Without this the reader is
             // sent to a generic dashboard instead of the thing they asked
-            // to see - see NotificationController.
+            // to see, see NotificationController.
             'url' => route('inbox.index', ['tab' => 'reports']),
             'attachments' => $this->report->attachments()->count(),
         ];

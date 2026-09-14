@@ -42,8 +42,8 @@ class SettingsController extends Controller
             'current_session' => ['nullable', 'string', 'max:20'],
 
             // On every plan. These print on result letterheads and on the back
-            // of ID cards, and until now they lived only on the website - a
-            // Standard and Exclusive feature - so a Basic school had no way to
+            // of ID cards, and until now they lived only on the website, a
+            // Standard and Exclusive feature, so a Basic school had no way to
             // give an address at all.
             'contact_address' => ['nullable', 'string', 'max:500'],
             'contact_phone' => ['nullable', 'string', 'max:60'],
@@ -52,13 +52,13 @@ class SettingsController extends Controller
             // The two lines of words a school prints on its own documents: the
             // motto under its name on a letterhead and an ID card, the values
             // along the foot of a report card. On every plan, for the same
-            // reason the address is - see App\Support\SchoolMotto.
+            // reason the address is, see App\Support\SchoolMotto.
             'motto' => ['nullable', 'string', 'max:160'],
             'core_values' => ['nullable', 'string', 'max:200'],
 
             // Social handles, on every plan. Accepted with or without a
-            // scheme - schools write "facebook.com/ourschool" as often as they
-            // paste a full address - and turned into a working link when it is
+            // scheme, schools write "facebook.com/ourschool" as often as they
+            // paste a full address, and turned into a working link when it is
             // rendered, by App\Support\SchoolSocialLinks.
             'facebook_url' => ['nullable', 'string', 'max:255'],
             'instagram_url' => ['nullable', 'string', 'max:255'],
@@ -71,14 +71,14 @@ class SettingsController extends Controller
             // The name printed under the Principal's ruled line. The
             // SIGNATURE is not settable here: School Admin is the Principal,
             // so it is registered against their own account through the
-            // signature pad - one authoritative signature per school, not a
+            // signature pad, one authoritative signature per school, not a
             // school column and an account record free to disagree.
             'principal_name' => ['nullable', 'string', 'max:150'],
 
             'logo' => UploadedImage::rules(ImageProfile::Logo),
             'favicon' => UploadedImage::rules(ImageProfile::Favicon),
 
-            // The official stamp. On every plan - see School::hasStamp().
+            // The official stamp. On every plan, see School::hasStamp().
             'stamp' => UploadedImage::rules(ImageProfile::Signature),
             'remove_stamp' => ['nullable', 'boolean'],
             'school_code' => [
@@ -99,8 +99,8 @@ class SettingsController extends Controller
         $validated['auto_generate_admission_numbers'] = $request->boolean('auto_generate_admission_numbers');
         $validated['auto_generate_staff_ids'] = $request->boolean('auto_generate_staff_ids');
 
-        // Processed before storage - upright, within size, transparency kept,
-        // metadata removed - see App\Services\Uploads\ImageProcessor.
+        // Processed before storage, upright, within size, transparency kept,
+        // metadata removed, see App\Services\Uploads\ImageProcessor.
         $logoPath = $request->hasFile('logo')
             ? $this->uploads->storeImage($request->file('logo'), 'public', 'school-logos', ImageProfile::Logo, 'logo')->path
             : null;
@@ -109,8 +109,8 @@ class SettingsController extends Controller
             ? $this->uploads->storeImage($request->file('favicon'), 'public', 'school-favicons', ImageProfile::Favicon, 'favicon')->path
             : null;
 
-        // The stamp is lifted off its paper before it is stored - see
-        // App\Services\StampImage - and lands on the PRIVATE disk, like a
+        // The stamp is lifted off its paper before it is stored, see
+        // App\Services\StampImage, and lands on the PRIVATE disk, like a
         // signature. A refusal is reported against the field rather than
         // thrown, so a school that photographed a blank sheet is told what
         // went wrong instead of meeting a 500.

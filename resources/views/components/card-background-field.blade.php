@@ -10,7 +10,7 @@
      One component, used by the News & Events card and by Academic Excellence,
      so the two controls cannot drift apart in wording or behaviour.
 
-     The preview is of the file CHOSEN, not the file saved - read straight off
+     The preview is of the file CHOSEN, not the file saved, read straight off
      the input with a FileReader before anything is uploaded, so an
      administrator sees what they picked before committing to it. Choosing a
      new file and thinking better of it costs nothing. --}}

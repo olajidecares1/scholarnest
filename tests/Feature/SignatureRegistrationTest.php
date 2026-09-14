@@ -16,8 +16,8 @@ use Illuminate\Support\Str;
  * Registering a handwritten signature drawn on a canvas.
  *
  * The rule this file exists to hold down: a signature belongs exclusively to
- * the person who drew it, and no request - form field, query string, route
- * parameter or JSON key - can make it belong to anybody else.
+ * the person who drew it, and no request, form field, query string, route
+ * parameter or JSON key, can make it belong to anybody else.
  *
  * That is enforced in three places, and each is tested here:
  *
@@ -38,7 +38,7 @@ beforeEach(function () {
 });
 
 /**
- * A real, tiny PNG as a data URL - what the canvas posts.
+ * A real, tiny PNG as a data URL, what the canvas posts.
  */
 function drawnSignature(int $width = 240, int $height = 90): string
 {
@@ -317,7 +317,7 @@ test('what lands on disk is a PNG we wrote, not the bytes that were posted', fun
 test('a rolled-back registration does not destroy the signature already there', function () {
     // A filesystem has no rollback. Deleting the replaced file inline meant a
     // transaction that later rolled back left the row pointing at the old
-    // path and the old FILE already gone - a signature that exists everywhere
+    // path and the old FILE already gone, a signature that exists everywhere
     // except on disk, which renders as nothing at all.
     //
     // This is not hypothetical: it is how a real school's Principal signature

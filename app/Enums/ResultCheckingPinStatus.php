@@ -6,7 +6,7 @@ namespace App\Enums;
  * The state of a result token.
  *
  * Only Active can be redeemed. Everything else is a refusal, and the person
- * redeeming is never told which - see App\Enums\ResultTokenAccessOutcome.
+ * redeeming is never told which, see App\Enums\ResultTokenAccessOutcome.
  */
 enum ResultCheckingPinStatus: string
 {
@@ -20,7 +20,7 @@ enum ResultCheckingPinStatus: string
     case Revoked = 'revoked';
 
     /**
-     * Temporarily withdrawn - typically while an access pattern is looked
+     * Temporarily withdrawn, typically while an access pattern is looked
      * into. Unlike Revoked this can be lifted, which is the point of having
      * both: revoking a token a parent legitimately holds means reissuing it.
      */

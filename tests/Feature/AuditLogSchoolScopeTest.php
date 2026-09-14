@@ -19,7 +19,7 @@ beforeEach(function () {
 test('audit entries carry the school they belong to', function () {
     // This is the assertion that was missing. SQLite quotes identifiers with
     // double quotes, and a double-quoted name it cannot resolve to a column it
-    // silently treats as a STRING LITERAL - so "school_id" = 45 evaluated as
+    // silently treats as a STRING LITERAL, so "school_id" = 45 evaluated as
     // 'school_id' = 45, which is false, which is nought rows and no error. The
     // same query on MySQL threw 1054 and returned a 500. Nothing about the
     // dashboard's behaviour caught that; only the schema does.
@@ -58,7 +58,7 @@ test('every guard is recognised, not just school admins', function () {
     $this->actingAs($teacher, 'staff');
 
     // Recorded with an actor NAME, which is the path that deliberately skips
-    // Auth::user() - the school still has to be found.
+    // Auth::user(), the school still has to be found.
     $entry = AuditLog::record('result.pushed', 'Pushed results.', null, $teacher->fullName());
 
     expect($entry->school_id)->toBe($this->school->id)

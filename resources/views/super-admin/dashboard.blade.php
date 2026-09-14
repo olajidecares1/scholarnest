@@ -208,7 +208,7 @@
                                             {{ $statusLabels[$school['status']] }}
                                         </span>
                                     </td>
-                                    <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $school['studentsCount'] ?? '—' }}</td>
+                                    <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $school['studentsCount'] ?? 'N/A' }}</td>
                                     <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $school['joinedAt']->format('M j, Y') }}</td>
                                 </tr>
                             @endforeach

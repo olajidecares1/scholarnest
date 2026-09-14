@@ -13,13 +13,13 @@ use Illuminate\Support\Facades\Storage;
  * Both segments were rendering empty. The About block had no headline, no
  * mission, no vision, no values and no photograph, so it came out as a heading
  * over one fallback sentence; and the band had nothing to say at all. Neither
- * was a layout problem - there was simply nothing in the database.
+ * was a layout problem, there was simply nothing in the database.
  *
  * Every field is written ONLY IF IT IS BLANK. A school that has written its own
  * mission statement must not have it replaced by this one, and this seeder is
  * run against live-ish data often enough for that to matter.
  *
- * The About photograph is drawn rather than photographed - see
+ * The About photograph is drawn rather than photographed, see
  * [SchoolGallerySeeder] for the same reasoning at more length. It is a plate to
  * hold the space until a real photograph of the school arrives.
  */
@@ -81,7 +81,7 @@ class SchoolWebsiteContentSeeder extends Seeder
     }
 
     /**
-     * A 4:3 plate for the About column - a soft wash and a vignette, no text.
+     * A 4:3 plate for the About column, a soft wash and a vignette, no text.
      *
      * Deliberately quieter than the gallery plates: those are captioned and
      * numbered so they can be told apart while testing the rotation, and this

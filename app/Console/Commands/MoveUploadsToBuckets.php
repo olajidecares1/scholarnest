@@ -13,7 +13,7 @@ use Throwable;
  *
  * Uploads live in the database while no bucket is attached (see
  * DatabaseStorageFallback). Once buckets are attached and the app redeployed,
- * each disk IS the bucket - and the files saved in the meantime are still in
+ * each disk IS the bucket, and the files saved in the meantime are still in
  * the database, invisible to it. This moves them across, file by file,
  * checking each arrived intact before removing the database copy.
  *

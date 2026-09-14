@@ -2,7 +2,7 @@
 landscape and portrait layouts in _front.blade.php. Colon is its own column
 (not glued to the value's text) so the gap on both sides of it is a fixed,
 deliberate `$colonGap`, not whatever happens to fall out of the label's own
-width - keeps every row's colon aligned and the label-to-value gap
+width, keeps every row's colon aligned and the label-to-value gap
 consistent regardless of how long any individual label or value is. --}}
 @php
     $colonGap = $colonGap ?? 4;

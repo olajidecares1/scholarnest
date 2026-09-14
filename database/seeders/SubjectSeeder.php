@@ -12,7 +12,7 @@ class SubjectSeeder extends Seeder
      * Run the database seeds.
      *
      * Seeds the platform-wide senior-secondary subject catalogue schools pick
-     * from when configuring what each of their classes offers - not tied to
+     * from when configuring what each of their classes offers, not tied to
      * any single school. Subjects taught across more than one stream (e.g.
      * Mathematics, Economics) are seeded once as General rather than
      * duplicated per stream.

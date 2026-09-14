@@ -23,21 +23,21 @@
             <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Personal Details</h3>
                 <dl class="mt-4 space-y-3 text-sm">
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Gender</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->gender?->label() ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Date of Birth</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->date_of_birth?->format('M j, Y') ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->phone ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->email ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-right font-medium text-gray-900 dark:text-white">{{ $staff->address ?? '—' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Gender</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->gender?->label() ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Date of Birth</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->date_of_birth?->format('M j, Y') ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->phone ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->email ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-right font-medium text-gray-900 dark:text-white">{{ $staff->address ?? 'N/A' }}</dd></div>
                 </dl>
             </div>
 
             <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Employment Details</h3>
                 <dl class="mt-4 space-y-3 text-sm">
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Qualification</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->qualification ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Employment Date</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->employment_date?->format('M j, Y') ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Emergency Contact</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->emergency_contact_name ?? '—' }}</dd></div>
-                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Emergency Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->emergency_contact_phone ?? '—' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Qualification</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->qualification ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Employment Date</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->employment_date?->format('M j, Y') ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Emergency Contact</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->emergency_contact_name ?? 'N/A' }}</dd></div>
+                    <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Emergency Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->emergency_contact_phone ?? 'N/A' }}</dd></div>
                 </dl>
                 <p class="mt-6 text-xs text-gray-400 dark:text-gray-500">To update these details, please contact your school office.</p>
             </div>

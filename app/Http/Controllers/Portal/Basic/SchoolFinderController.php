@@ -13,7 +13,7 @@ use Illuminate\View\View;
  * The portal's front door, for every plan.
  *
  * Name your school, land on that school's portal hub, pick the portal you
- * need - and which portals are offered there is decided by the school's plan,
+ * need, and which portals are offered there is decided by the school's plan,
  * on the hub itself, not here.
  *
  * It began as the Basic-plan entry point, which is why it still lives under
@@ -31,7 +31,7 @@ use Illuminate\View\View;
  *
  * Standard and Exclusive schools are ALSO reached directly, at their own
  * subdomain or their own domain. That remains the better address when
- * somebody has it - this is the fallback for everybody who does not.
+ * somebody has it, this is the fallback for everybody who does not.
  * See docs/BASIC-PLAN-PORTAL.md.
  */
 class SchoolFinderController extends Controller
@@ -56,9 +56,9 @@ class SchoolFinderController extends Controller
      *
      * Three outcomes:
      *
-     *   one match    - redirect straight to that school's page
-     *   several      - show them to choose from, rather than guessing
-     *   none         - say so, without hinting whether the name exists on
+     *   one match, redirect straight to that school's page
+     *   several, show them to choose from, rather than guessing
+     *   none, say so, without hinting whether the name exists on
      *                  another plan
      */
     public function find(FindSchoolRequest $request, PortalSchoolFinder $finder, ?string $token = null): View|RedirectResponse
@@ -81,7 +81,7 @@ class SchoolFinderController extends Controller
             // that plan includes.
             //
             // The MODEL, not the slug. The route binds on portal_key, so
-            // passing a slug string builds an address that no longer matches -
+            // passing a slug string builds an address that no longer matches,
             // and one that would name the school if it did.
             return redirect()->route('portal.index', $school);
         }

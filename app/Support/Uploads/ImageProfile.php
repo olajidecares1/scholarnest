@@ -6,7 +6,7 @@ namespace App\Support\Uploads;
  * What an uploaded image is FOR, and so how it is prepared before storage.
  *
  * One list, so the decision "how big may a school logo be kept" is made once
- * rather than re-made - differently - at every upload site. Each case sets:
+ * rather than re-made, differently, at every upload site. Each case sets:
  *
  *  - the longest edge the stored image is scaled down to (never up), chosen
  *    from the largest size it is ever shown or printed at, with headroom for

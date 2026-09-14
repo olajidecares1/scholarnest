@@ -46,7 +46,7 @@
                                     <div class="min-w-0">
                                         <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $entry->subject }}</p>
                                         <p class="field-hint">
-                                            {{ \Illuminate\Support\Carbon::parse($entry->start_time)->format('h:i A') }} – {{ \Illuminate\Support\Carbon::parse($entry->end_time)->format('h:i A') }}
+                                            {{ \Illuminate\Support\Carbon::parse($entry->start_time)->format('h:i A') }} to {{ \Illuminate\Support\Carbon::parse($entry->end_time)->format('h:i A') }}
                                             @if ($entry->room)
                                                 &middot; {{ $entry->room }}
                                             @endif

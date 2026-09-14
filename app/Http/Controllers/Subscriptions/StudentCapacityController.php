@@ -14,9 +14,9 @@ use Illuminate\View\View;
  * How many students the school is onboarding, and what that costs.
  *
  * A step of its own rather than a field tucked onto the plan cards. For a
- * school billed per student this number IS the subscription - it decides the
+ * school billed per student this number IS the subscription, it decides the
  * price and becomes the capacity the school is held to for the rest of the
- * term - so it gets its own place in the progress bar and its own screen to be
+ * term, so it gets its own place in the progress bar and its own screen to be
  * checked on.
  *
  * BASIC AND STANDARD both reach here now. Standard used to be a flat

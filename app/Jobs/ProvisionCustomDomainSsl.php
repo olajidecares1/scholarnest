@@ -13,7 +13,7 @@ use Illuminate\Foundation\Queue\Queueable;
  *
  * In a real deployment, certificate issuance is handled by the hosting/edge
  * layer in front of this app (e.g. Cloudflare Universal SSL, or Let's
- * Encrypt via Forge/Certbot) - this app cannot call a live Certificate
+ * Encrypt via Forge/Certbot), this app cannot call a live Certificate
  * Authority itself. This job is the extension point where that integration
  * would be wired in; today it faithfully tracks the status transition a real
  * provider would report (Pending -> Issuing -> Active) so the School Admin

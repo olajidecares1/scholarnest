@@ -10,7 +10,7 @@ namespace App\Support;
  * Deliberately separate from {@see ThemePreset}, which serves a different,
  * unrelated concern (5 fixed platform-wide presets for the internal admin UI).
  *
- * Mirrored in `resources/js/color-scale.js` for instant client-side preview —
+ * Mirrored in `resources/js/color-scale.js` for instant client-side preview,
  * keep the ratio tables below identical in both files.
  */
 final class BrandColorScale
@@ -77,7 +77,7 @@ final class BrandColorScale
     }
 
     /**
-     * @return string CSS custom property declarations (no `:root` wrapper — caller wraps it).
+     * @return string CSS custom property declarations (no `:root` wrapper, caller wraps it).
      */
     public static function cssVariables(string $prefix, string $hex): string
     {

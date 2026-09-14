@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 /**
  * The School Admin issuing someone their login details.
  *
- * Two fields - the username they sign in with, and the password - on each of
+ * Two fields, the username they sign in with, and the password, on each of
  * the three account types. Which column the username is depends on the
  * account: Staff ID for a teacher, Admission Number for a student, phone
  * number for a parent.
@@ -30,14 +30,14 @@ function credentialsSchool(PlanKey $planKey = PlanKey::Standard): array
 }
 
 // -----------------------------------------------------------------------------
-// Teachers and staff - every plan
+// Teachers and staff, every plan
 // -----------------------------------------------------------------------------
 
 test('the staff page offers a login details card on every plan', function (PlanKey $planKey) {
     [$school, $admin] = credentialsSchool($planKey);
     $member = Staff::factory()->create(['school_id' => $school->id, 'role' => StaffRole::Teacher]);
 
-    // Teachers sign in on every plan - they do the school's own work - so this
+    // Teachers sign in on every plan, they do the school's own work, so this
     // card is not plan-gated.
     $this->actingAs($admin)
         ->get(route('staff.show', $member))
@@ -73,7 +73,7 @@ test('the school admin sets the password, and the id is left alone', function ()
         ->and(Hash::check('Str0ng-Passw0rd!', $member->password))->toBeTrue()
 
         // The flag exists to force a first-login password change, and users
-        // are no longer permitted to change their own - leaving it set would
+        // are no longer permitted to change their own, leaving it set would
         // lock the account out with nowhere to go.
         ->and($member->must_change_password)->toBeFalse();
 });
@@ -106,14 +106,14 @@ test('the two passwords have to match', function () {
         ])
         ->assertSessionHasErrors('password');
 
-    // Nothing moved - not the password, and not the username either, which a
+    // Nothing moved, not the password, and not the username either, which a
     // partial save would have changed on its way to failing.
     expect($member->fresh()->password)->toBe($before)
         ->and($member->fresh()->staff_number)->toBe('STF-BEFORE');
 });
 
 // -----------------------------------------------------------------------------
-// Students and parents - Standard and Exclusive only
+// Students and parents, Standard and Exclusive only
 // -----------------------------------------------------------------------------
 
 test('a student\'s login id is their admission number, shown but not editable', function () {
@@ -146,7 +146,7 @@ test('a guardian\'s login id is a generated parent id', function () {
         'phone' => '08000000000',
     ]);
 
-    // A phone number is not the school's to control - it changes with the
+    // A phone number is not the school's to control, it changes with the
     // handset, two parents may share one, and it cannot be issued at the
     // moment the account is created. So parents carry an ID like everybody
     // else.
@@ -190,7 +190,7 @@ test('one person\'s id cannot be taken by another through the credentials route'
     Staff::factory()->create(['school_id' => $school->id, 'staff_number' => 'STF-001']);
     $member = Staff::factory()->create(['school_id' => $school->id, 'staff_number' => 'STF-002']);
 
-    // Not refused with a validation error - simply ignored. The route sets a
+    // Not refused with a validation error, simply ignored. The route sets a
     // password and nothing else, so there is no id collision to have.
     $this->actingAs($admin)
         ->put(route('staff.credentials', $member), [
@@ -264,7 +264,7 @@ test('a school admin cannot issue credentials to another school\'s accounts', fu
     $this->actingAs($admin)->put(route('students.credentials', $theirStudent), $payload)->assertForbidden();
     $this->actingAs($admin)->put(route('guardians.credentials', $theirGuardian), $payload)->assertForbidden();
 
-    // Untouched, including the login ids - a refusal that still renamed the
+    // Untouched, including the login ids, a refusal that still renamed the
     // account would be worse than one that did nothing.
     expect([$theirStaff->fresh()->password, $theirStudent->fresh()->password, $theirGuardian->fresh()->password])->toBe($before)
         ->and($theirStaff->fresh()->staff_number)->not->toBe('TAKEN-001');

@@ -1,7 +1,7 @@
 @php
     $totalScore = $subjects->sum(fn ($subject) => (float) ($subject->scores->first()?->score ?? 0));
     $totalMax = $subjects->sum('max_score');
-    $overallGrade = $summary['average'] === null ? '—' : \App\Models\GradeBand::resolve($school, $summary['average']);
+    $overallGrade = $summary['average'] === null ? 'N/A' : \App\Models\GradeBand::resolve($school, $summary['average']);
 @endphp
 
 <div class="space-y-5 text-left">
@@ -16,7 +16,7 @@
         <div><p class="field-hint">Class</p><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->class_name }}</p></div>
         <div><p class="field-hint">Session</p><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->session }}</p></div>
         <div><p class="field-hint">Term</p><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->term->label() }}</p></div>
-        <div><p class="field-hint">Position</p><p class="font-semibold text-gray-900 dark:text-white">{{ $summary['position'] ? $summary['position'].($summary['position'] === 1 ? 'st' : ($summary['position'] === 2 ? 'nd' : ($summary['position'] === 3 ? 'rd' : 'th'))) : '—' }}</p></div>
+        <div><p class="field-hint">Position</p><p class="font-semibold text-gray-900 dark:text-white">{{ $summary['position'] ? $summary['position'].($summary['position'] === 1 ? 'st' : ($summary['position'] === 2 ? 'nd' : ($summary['position'] === 3 ? 'rd' : 'th'))) : 'N/A' }}</p></div>
     </div>
 
     <div class="overflow-x-auto rounded-[8px] border border-gray-200 dark:border-gray-700">
@@ -35,13 +35,13 @@
                     <tr>
                         <td class="px-3 py-2 font-semibold text-gray-900 dark:text-white">{{ $subject->name }}</td>
                         <td class="px-3 py-2 font-semibold text-gray-900 dark:text-gray-200">
-                            {{ $score ? rtrim(rtrim($score->score, '0'), '.') : '—' }} / {{ $subject->max_score }}
+                            {{ $score ? rtrim(rtrim($score->score, '0'), '.') : 'N/A' }} / {{ $subject->max_score }}
                             @if ($score?->test_score !== null && $score?->exam_score !== null)
                                 <span class="text-[10px] font-semibold text-gray-700 dark:text-gray-300">(T{{ rtrim(rtrim($score->test_score, '0'), '.') }}+E{{ rtrim(rtrim($score->exam_score, '0'), '.') }})</span>
                             @endif
                         </td>
-                        <td class="px-3 py-2 font-semibold text-gray-900 dark:text-gray-200">{{ $score ? $score->percentage().'%' : '—' }}</td>
-                        <td class="px-3 py-2 font-semibold text-gray-900 dark:text-gray-200">{{ $score ? $score->grade() : '—' }}</td>
+                        <td class="px-3 py-2 font-semibold text-gray-900 dark:text-gray-200">{{ $score ? $score->percentage().'%' : 'N/A' }}</td>
+                        <td class="px-3 py-2 font-semibold text-gray-900 dark:text-gray-200">{{ $score ? $score->grade() : 'N/A' }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="4" class="px-3 py-6 text-center font-semibold text-gray-700 dark:text-gray-300">No subjects recorded for this examination yet.</td></tr>
@@ -52,7 +52,7 @@
                     <tr>
                         <td class="px-3 py-2">Total</td>
                         <td class="px-3 py-2">{{ rtrim(rtrim((string) $totalScore, '0'), '.') }} / {{ $totalMax }}</td>
-                        <td class="px-3 py-2">{{ $summary['average'] !== null ? $summary['average'].'%' : '—' }}</td>
+                        <td class="px-3 py-2">{{ $summary['average'] !== null ? $summary['average'].'%' : 'N/A' }}</td>
                         <td class="px-3 py-2">{{ $overallGrade }}</td>
                     </tr>
                 </tfoot>
@@ -78,7 +78,7 @@
             @if ($canEditTeacherRemark)
                 <textarea id="result-teacher-remark" rows="2" class="mt-1 w-full">{{ $report->teacher_remark }}</textarea>
             @else
-                <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-200">{{ $report->teacher_remark ?: '—' }}</p>
+                <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-200">{{ $report->teacher_remark ?: 'N/A' }}</p>
             @endif
         </div>
         <div>
@@ -87,7 +87,7 @@
                 {{-- Pick a saved one OR write a new one. Choosing from the
                      library fills the box rather than locking it, so a
                      Principal can start from a saved sentence and adjust it
-                     for the pupil in front of them - which is what most
+                     for the pupil in front of them, which is what most
                      remarks actually are. --}}
                 @if (($principalRemarkLibrary ?? collect())->isNotEmpty())
                     <select
@@ -110,7 +110,7 @@
                     Save this remark to my library for next time
                 </label>
             @else
-                <p class="mt-1 text-sm font-semibold italic text-gray-900 dark:text-gray-200">{{ $report->principal_remark ?: '—' }}</p>
+                <p class="mt-1 text-sm font-semibold italic text-gray-900 dark:text-gray-200">{{ $report->principal_remark ?: 'N/A' }}</p>
             @endif
         </div>
     </div>

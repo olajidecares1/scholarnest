@@ -102,7 +102,7 @@ test('one memorandum addressed to everyone reaches all three groups', function (
     $guardian = Guardian::factory()->create(['school_id' => $this->school->id, 'is_active' => true]);
     $guardian->students()->attach($student->id);
 
-    // One memorandum, not three written out separately - which is the point of
+    // One memorandum, not three written out separately, which is the point of
     // the option, and is how it should still read a term later.
     $this->actingAs($this->admin)->post(route('notices.store'), [
         'title' => 'Speech Day',
@@ -144,7 +144,7 @@ test('a class filter narrows students and their parents, but not staff', functio
     Notification::assertNotSentTo($otherParent, NewNoticePosted::class);
 
     // Staff do not belong to a class, so narrowing by one does not exclude
-    // them - they are told about the trip either way.
+    // them, they are told about the trip either way.
     Notification::assertSentTo($staff, NewNoticePosted::class);
 });
 

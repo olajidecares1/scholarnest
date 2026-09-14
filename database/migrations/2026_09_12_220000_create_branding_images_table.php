@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * They used to live only on the "public" disk. In production that disk is a
  * directory on a filesystem Laravel Cloud wipes on every deploy, gives each
- * replica its own copy of, and does not serve at /storage at all - so an upload
+ * replica its own copy of, and does not serve at /storage at all, so an upload
  * reported success and every page asked for a file that was never reachable.
  * The database is the one store every replica shares and every deploy keeps.
  *
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Schema;
  * the address it asks at changes with every upload, so it asks once.
  *
  * BASE64 IN A LONGTEXT rather than a binary column, because "binary" is a 64KB
- * BLOB on MySQL - a real favicon set does not fit - and longText means the
+ * BLOB on MySQL, a real favicon set does not fit, and longText means the
  * same, unlimited, thing on MySQL, Postgres and SQLite alike.
  */
 return new class extends Migration

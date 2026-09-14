@@ -42,7 +42,7 @@ class TeacherAssignmentController extends Controller
             ->values();
 
         // Classes with configured subject offerings get a constrained
-        // dropdown in the Add Assignment form instead of free text - classes
+        // dropdown in the Add Assignment form instead of free text, classes
         // that haven't been configured yet (the common case today) keep the
         // free-text + datalist behavior unaffected.
         $offeringsByClass = $school->subjectOfferings()

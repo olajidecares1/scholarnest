@@ -16,7 +16,7 @@ use App\Models\User;
  * application cannot write to resources/ anyway.
  *
  * What is being protected here is that the editor is careful in the ways a
- * contract deserves - its own permission, an audit entry for every save, and a
+ * contract deserves, its own permission, an audit entry for every save, and a
  * slug that cannot be renamed out from under the links schools already hold.
  */
 beforeEach(function () {
@@ -40,7 +40,7 @@ describe('the team can find and read them', function () {
 
     test('the editor shows the actual page, not a placeholder', function () {
         // The point of the request: clicking through to the Privacy Policy has
-        // to show what a school really reads, rendered - not an empty stub.
+        // to show what a school really reads, rendered, not an empty stub.
         $this->actingAs($this->admin)
             ->get(route('super-admin.legal.edit', 'privacy'))
             ->assertOk()
@@ -83,7 +83,7 @@ describe('an edit reaches schools', function () {
     test('the slug cannot be changed, however it is submitted', function () {
         // It is the public URL, printed on the registration form and soon in
         // emails and bookmarks. It is not in $fillable, so a slug in the
-        // request is not rejected - it is simply not read, which is stronger
+        // request is not rejected, it is simply not read, which is stronger
         // than rejecting it, since a check can be forgotten.
         $this->actingAs($this->admin)
             ->put(route('super-admin.legal.update', 'privacy'), [
@@ -153,6 +153,8 @@ describe('an edit reaches schools', function () {
     });
 
     test('the audit entry records the version it moved to', function () {
+        $previous = LegalDocument::published('terms')->version;
+
         $this->actingAs($this->admin)
             ->put(route('super-admin.legal.update', 'terms'), [
                 'title' => 'Terms & Conditions',
@@ -163,7 +165,7 @@ describe('an edit reaches schools', function () {
 
         expect(AuditLog::latest('id')->first()->description)
             ->toContain('version 2.0')
-            ->toContain('was 1.0');
+            ->toContain('was '.$previous);
     });
 });
 

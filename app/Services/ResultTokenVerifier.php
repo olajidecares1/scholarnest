@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\DB;
  * revoked, one that belongs to another term and one whose result is not
  * published all produce the same refusal. Distinguishing them would let
  * somebody map which tokens are real, which students exist, and which results
- * are out - so the reason goes to the log and never to the screen.
+ * are out, so the reason goes to the log and never to the screen.
  */
 class ResultTokenVerifier
 {
@@ -45,8 +45,8 @@ class ResultTokenVerifier
      *
      * $forStudent and $forExamination are for the portals, where the reader is
      * already signed in and the result they are opening is already known. On
-     * the public check-result page there is nothing to compare against - the
-     * token names its own student, which is the whole point - but in a portal
+     * the public check-result page there is nothing to compare against, the
+     * token names its own student, which is the whole point, but in a portal
      * a token for another child must be refused even though it is perfectly
      * valid, and refused BEFORE it is counted as used, so that trying somebody
      * else's token cannot spend it.
@@ -97,7 +97,7 @@ class ResultTokenVerifier
             }
 
             // Before the use is counted, so a parent who mistypes their own
-            // token - or tries one belonging to another child - has not spent
+            // token, or tries one belonging to another child, has not spent
             // anything.
             $boundElsewhere = ($forStudent !== null && $token->bound_student_id !== $forStudent->id)
                 || ($forExamination !== null && $token->examination_id !== $forExamination->id);
@@ -158,8 +158,8 @@ class ResultTokenVerifier
     /**
      * Is there actually a result behind this token yet?
      *
-     * A token can legitimately be issued before scores are entered - a school
-     * may print them with the report cards - so this is checked at redemption
+     * A token can legitimately be issued before scores are entered, a school
+     * may print them with the report cards, so this is checked at redemption
      * rather than assumed at issue. With no scores there is nothing to show,
      * and showing an empty result would look like a mistake by the school.
      */

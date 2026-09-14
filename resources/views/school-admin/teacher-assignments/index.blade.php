@@ -118,7 +118,7 @@
                                             <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $typeBadge($assignment->type) }}">{{ $assignment->type->label() }}</span>
                                         </td>
                                         <td class="px-6 py-2.5 text-gray-700 dark:text-gray-200">{{ $assignment->class_name }}</td>
-                                        <td class="px-6 py-2.5 text-gray-700 dark:text-gray-200">{{ $assignment->subject ?? '—' }}</td>
+                                        <td class="px-6 py-2.5 text-gray-700 dark:text-gray-200">{{ $assignment->subject ?? 'N/A' }}</td>
                                         <td class="px-6 py-2.5 text-right">
                                             <form method="POST" action="{{ route('teacher-assignments.destroy', $assignment) }}" onsubmit="return confirm('Remove this assignment for {{ $staffMember->fullName() }}?');">
                                                 @csrf @method('DELETE')

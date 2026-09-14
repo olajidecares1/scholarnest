@@ -5,8 +5,8 @@ namespace App\Enums;
 /**
  * Where an applicant is in a school's recruitment.
  *
- * The School Admin may move an application to any status at any time - real
- * recruitment goes back as well as forward - and every move is recorded in
+ * The School Admin may move an application to any status at any time, real
+ * recruitment goes back as well as forward, and every move is recorded in
  * job_application_events.
  */
 enum JobApplicationStatus: string

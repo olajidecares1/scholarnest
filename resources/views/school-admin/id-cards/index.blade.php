@@ -144,7 +144,7 @@
                                         <td class="px-4 py-3"><input type="checkbox" name="records[]" value="{{ $member->uuid }}" x-model="selected"></td>
                                         <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">{{ $member->fullName() }}</td>
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->staff_number }}</td>
-                                        <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->department ?? '—' }}</td>
+                                        <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->department ?? 'N/A' }}</td>
                                         <td class="px-4 py-3 text-right">
                                             <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', ['teaching_staff', $member]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Preview</button>
                                         </td>
@@ -214,7 +214,7 @@
                                         <td class="px-4 py-3"><input type="checkbox" name="records[]" value="{{ $member->uuid }}" x-model="selected"></td>
                                         <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">{{ $member->fullName() }}</td>
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->staff_number }}</td>
-                                        <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->department ?? '—' }}</td>
+                                        <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->department ?? 'N/A' }}</td>
                                         <td class="px-4 py-3 text-right">
                                             <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', ['non_teaching_staff', $member]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Preview</button>
                                         </td>

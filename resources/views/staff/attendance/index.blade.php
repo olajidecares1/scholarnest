@@ -4,8 +4,8 @@
     $presentCount = $existing->filter(fn ($record) => $record->status->isPresentForStats())->count();
 
     // Written out as complete, literal peer-checked:* strings (not built via
-    // concatenation) so Tailwind's v4 content scanner actually picks them up
-    // - matches the exact same reasoning already documented in the
+    // concatenation) so Tailwind's v4 content scanner actually picks them up.
+    // This matches the exact same reasoning already documented in the
     // School Admin attendance view this page mirrors.
     $statusSelectedClasses = [
         \App\Enums\AttendanceStatus::Present->value => 'peer-checked:bg-green-500 peer-checked:shadow-green-500/30',

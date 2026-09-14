@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
  *
  * The rows seeded here carry those exact values, so nothing changes for a
  * school mid-subscription on the day this ships. They are placeholders and
- * they look it - the Payment Settings page says so until they are replaced.
+ * they look it, the Payment Settings page says so until they are replaced.
  *
  * `details` is JSON because a bank transfer needs a bank name, an account name
  * and a number, while a card gateway needs none of those and will want keys
@@ -39,7 +39,7 @@ return new class extends Migration
             $table->string('description')->nullable();
 
             // The switch in the brief. A disabled method is refused on the
-            // server, not merely dropped from the page - see
+            // server, not merely dropped from the page, see
             // App\Services\AvailablePaymentMethods.
             $table->boolean('is_enabled')->default(false);
 

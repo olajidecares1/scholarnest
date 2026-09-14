@@ -5,8 +5,8 @@ namespace App\Services\DocumentExtraction;
 /**
  * What a question paper says about itself.
  *
- * Papers carry a heading before the first question - subject, class, session,
- * term, a title - and reading it saves the person uploading from retyping what
+ * Papers carry a heading before the first question, subject, class, session,
+ * term, a title, and reading it saves the person uploading from retyping what
  * is already written on the page they are holding.
  *
  * Every field is nullable and every field is a SUGGESTION. Nothing here is

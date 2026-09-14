@@ -7,14 +7,14 @@
 |
 | Read-only, and deliberately so for a first version. Everything here answers
 | a question a mobile client needs to draw a screen; nothing here changes a
-| record. Writes - submitting homework, marking a register - are a second
+| record. Writes, submitting homework, marking a register, are a second
 | conversation about idempotency and offline conflict that this version does
 | not start.
 |
 | Three middleware do the work on every signed-in route:
 |
 |   auth:sanctum   the token is real and unexpired
-|   api.active     the account and its school are still active - checked per
+|   api.active     the account and its school are still active, checked per
 |                  request, because a token outlives a sign-in by weeks
 |   api.actor      this KIND of account may be here at all; a student's token
 |                  is a perfectly valid token at a guardian's endpoint
@@ -53,7 +53,7 @@ Route::middleware(['auth:sanctum', 'api.active'])->group(function () {
         Route::get('results', [ResultController::class, 'index'])->name('results.index');
 
         // The exam token travels with this request. There is no session to
-        // remember an unlocked result in - see the controller.
+        // remember an unlocked result in, see the controller.
         Route::post('results/{examination}', [ResultController::class, 'show'])->name('results.show');
 
         Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');

@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * The first is that a school can READ what it is agreeing to. The registration
  * form used to carry three links that all pointed at "#", so a school ticked a
- * box agreeing to documents it had no way of opening - and one of the three had
+ * box agreeing to documents it had no way of opening, and one of the three had
  * never existed at all.
  *
  * The second is that the box is a REAL gate. The checkbox carries `required`,
@@ -44,7 +44,7 @@ describe('the documents are readable without an account', function () {
 
     test('the version and date are shown, so an agreement can name what was agreed', function () {
         // The date comes from the row's own updated_at now, not from a line in
-        // the file - so it moves when the AkademicNest Team edits the document,
+        // the file, so it moves when the AkademicNest Team edits the document,
         // which is the whole point of it being on the page.
         $document = LegalDocument::published('terms');
 
@@ -65,8 +65,8 @@ describe('the documents are readable without an account', function () {
 
 describe('the internal notes never reach a school', function () {
     test('no published page carries a passage written for counsel', function (string $slug) {
-        // These documents contain passages addressed to a lawyer - "this
-        // transfer needs a lawful basis", "not yet reviewed" - and a school
+        // These documents contain passages addressed to a lawyer, "this
+        // transfer needs a lawful basis", "not yet reviewed", and a school
         // being asked to agree to the Terms must not be shown them. They are
         // fenced in the source and stripped on the way out.
         //
@@ -88,7 +88,7 @@ describe('the internal notes never reach a school', function () {
         // Stripping must not become a way of quietly removing anything
         // unflattering. These are the honest admissions, and they stay.
         $this->get(route('legal.show', 'privacy'))
-            ->assertSee('Anthropic')
+            ->assertSee('is not sent to any outside service')
             ->assertSee('Blood group is health information');
 
         $this->get(route('legal.show', 'terms'))
@@ -109,7 +109,7 @@ describe('a slug cannot name a file', function () {
 
     test('a traversal attempt is simply not a document', function () {
         // The slug is a KEY into a fixed list, never part of a path, so there
-        // is nothing to escape from - "../.env" is not a key.
+        // is nothing to escape from, "../.env" is not a key.
         foreach (['..%2F..%2F.env', 'terms-and-conditions', 'anything'] as $attempt) {
             $this->get('/legal/'.$attempt)->assertNotFound();
         }
@@ -123,7 +123,7 @@ describe('a slug cannot name a file', function () {
 
     test('an unpublished document is a 404, not a half-rendered page', function () {
         // A page that exists but is not ready is worse than one that is
-        // honestly missing - and a school must never be shown a document it is
+        // honestly missing, and a school must never be shown a document it is
         // being asked to agree to in a state the team has taken down.
         LegalDocument::where('slug', 'security')->update(['is_published' => false]);
 

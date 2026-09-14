@@ -20,7 +20,7 @@ Worth knowing before you build against it.
 - **No staff endpoints yet** beyond sign-in and `/me`. The token type exists so
   a client can authenticate; the register and score-entry surface is not built.
 - **No password change.** An account the school has told to change its password
-  is refused a token and sent to the web portal — see below.
+  is refused a token and sent to the web portal, see below.
 
 ---
 
@@ -62,23 +62,23 @@ Send it as `Authorization: Bearer <token>` on every later request.
 **422** covers every failure: wrong password, wrong school code, deactivated
 account, an account that must change its password, and a school whose plan does
 not include the app. A bad school code is answered identically to a bad
-password on purpose — telling a client which half of the guess was wrong is
+password on purpose, telling a client which half of the guess was wrong is
 telling them half the answer.
 
 The plan gate is the browser's, unchanged: student and guardian accounts need
 **Standard or Exclusive**, staff need any active subscription. A Basic school's
-parents are not shut out of results by this — they reach them through the
+parents are not shut out of results by this, they reach them through the
 result-token flow, which needs no account at all.
 
 Tokens expire after **60 days**. There is no refresh; the client signs in again.
 
 ### Rate limits
 
-- `POST /tokens` — 10 a minute per IP, on top of the per-account, per-school
+- `POST /tokens` 10 a minute per IP, on top of the per-account, per-school
   limiter the web sign-in already applies. The two answer different questions:
   that one stops somebody guessing at one account, this one stops somebody
   working through many.
-- Everything else — 60 a minute, keyed on the **token**. Two devices get a
+- Everything else, 60 a minute, keyed on the **token**. Two devices get a
   budget each, so a retry loop on one does not lock a person out of the other.
 
 ### Signing out
@@ -95,7 +95,7 @@ DELETE /api/v1/tokens           → every device, for a phone that is gone
 Three checks run before any controller does:
 
 1. the token is real and unexpired;
-2. the account **and its school** are still active — re-checked on every
+2. the account **and its school** are still active, re-checked on every
    request, not just at sign-in, because a token lives for weeks and a student
    can be withdrawn inside that window;
 3. this *kind* of account belongs at this endpoint. A student's token is a
@@ -119,7 +119,7 @@ All under `/api/v1/student`, and all scoped to the signed-in student.
 
 | Endpoint | Returns |
 | --- | --- |
-| `GET /results` | Every examination they have a mark in — **and no marks** |
+| `GET /results` | Every examination they have a mark in, **and no marks** |
 | `POST /results/{examination}` | One full report card, in exchange for its exam token |
 | `GET /attendance` | Their own attendance. `from`, `to`, `per_page` |
 | `GET /timetable` | Their class's timetable, unpaginated |
@@ -151,7 +151,7 @@ POST /api/v1/student/results/{examination}
 
 The web portal remembers an unlocked result in the session. There is no session
 here, so the token travels with the request that wants the result. That is a
-real difference in feel — a client must ask for the token each time — and it is
+real difference in feel, a client must ask for the token each time, and it is
 the honest way to do it statelessly. The alternative is inventing a second,
 longer-lived unlock credential, which is one more thing to steal.
 
@@ -172,7 +172,7 @@ trying the wrong one costs nothing.
 | `GET /guardian/children/{student}` | One of them |
 | `GET /guardian/children/{student}/attendance` | That child's attendance |
 
-A child who is not theirs is **404**, not 403 — whether that pupil exists is
+A child who is not theirs is **404**, not 403, whether that pupil exists is
 not this guardian's business either. Being at the same school is not enough:
 the link is what is checked.
 
@@ -184,7 +184,7 @@ get the record, not the child's phone number and address.
 ## Identifiers
 
 Every `id` in this API is a **UUID**. The database's own integer keys are never
-serialised — the whole application addresses records this way so an id cannot
+serialised, the whole application addresses records this way so an id cannot
 be counted up from 1, and an API that leaked the integer would undo that
 everywhere at once.
 
@@ -193,5 +193,5 @@ everywhere at once.
 ## Versioning
 
 The version is the first path segment so it can be the one a client keeps
-writing. v2 means a new file under `routes/api/`, not edits to v1 — which is
+writing. v2 means a new file under `routes/api/`, not edits to v1, which is
 what versioning is for.

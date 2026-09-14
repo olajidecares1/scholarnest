@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * Staff have had one since the beginning and students have their admission
  * number; a parent's login was their phone number, which is not the school's
- * to control - it changes when they change handset, two parents in one family
+ * to control, it changes when they change handset, two parents in one family
  * may share one, and it cannot be issued at the moment the account is created.
  *
  * So guardians now carry {school_code}-PARENT-001 like everybody else, and the
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * Existing guardians are backfilled in the order they were created, so a
  * school's oldest parent account is 001. Their phone and email keep working as
- * sign-in identifiers - an account that could no longer be signed into would
+ * sign-in identifiers, an account that could no longer be signed into would
  * be a worse outcome than an inconsistent one.
  */
 return new class extends Migration

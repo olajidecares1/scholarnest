@@ -46,7 +46,7 @@ class AcademicTerm extends Model
 
     /**
      * The configured date range for a given school/session/term, or null if
-     * the school admin hasn't set one yet - callers must handle that rather
+     * the school admin hasn't set one yet, callers must handle that rather
      * than guessing a range.
      */
     public static function rangeFor(School $school, string $session, ExamTerm $term): ?self
@@ -63,7 +63,7 @@ class AcademicTerm extends Model
      * Read from the dates the school entered rather than guessed from the
      * month, because a school that runs to its own calendar is exactly the
      * school a guess gets wrong. Null when today falls outside every recorded
-     * term - the holidays, or a school that has not filled its calendar in -
+     * term, the holidays, or a school that has not filled its calendar in,
      * and callers treat that as "no term is current" rather than inventing one.
      */
     public static function currentFor(School $school): ?self

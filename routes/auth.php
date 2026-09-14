@@ -25,7 +25,7 @@ Route::middleware('guest')->group(function () {
     Route::post(R::uri('login'), [AuthenticatedSessionController::class, 'store']);
 
     // The hidden Super Admin sign-in, revealed by the logo click sequence on
-    // the registration page. Only the DIALOG is hidden - this endpoint applies
+    // the registration page. Only the DIALOG is hidden, this endpoint applies
     // the full credential, role, status, throttle and CSRF checks to every
     // request that reaches it, however it got here. See
     // App\Http\Controllers\Auth\SuperAdminSessionController.
@@ -57,8 +57,8 @@ Route::middleware('guest')->group(function () {
             ->name('password.store');
     });
 
-    // There was a second, parallel reset flow here - its own token table, its
-    // own broker, its own four pages - and NOTHING LINKED TO IT. The sign-in
+    // There was a second, parallel reset flow here, its own token table, its
+    // own broker, its own four pages, and NOTHING LINKED TO IT. The sign-in
     // page pointed at password.request above, so every administrator who ever
     // clicked "Forgot password?" used the route without the verification code,
     // while the stronger flow sat unreachable and unaudited.

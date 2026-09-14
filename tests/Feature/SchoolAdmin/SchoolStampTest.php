@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * The school's official stamp.
  *
- * A school does not have a stamp as a file - it has a rubber stamp, and what
+ * A school does not have a stamp as a file, it has a rubber stamp, and what
  * it can give us is a photograph of that stamp pressed onto paper. So the
  * upload is PROCESSED rather than kept: the paper is made transparent, the
  * margins are trimmed, and what is stored is the mark itself.
@@ -93,7 +93,7 @@ describe('extracting the stamp from a photograph', function () {
         // 127 (invisible).
         expect((imagecolorat($image, 0, 0) >> 24) & 0x7F)->toBe(127);
 
-        // And something is still there - the ring.
+        // And something is still there, the ring.
         $visible = 0;
 
         for ($y = 0; $y < imagesy($image); $y += 2) {

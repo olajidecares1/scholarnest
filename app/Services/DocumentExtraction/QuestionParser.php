@@ -11,7 +11,7 @@ namespace App\Services\DocumentExtraction;
  *
  * The approach is a line-by-line state machine rather than one large regular
  * expression. Question papers are written by people, and the thing that varies
- * is never the whole layout at once - it is one detail at a time. A paper may
+ * is never the whole layout at once, it is one detail at a time. A paper may
  * number questions "1." and options "(a)", or number them "Q1)" and use "A -",
  * and a monolithic pattern that assumes one house style fails completely on the
  * next document. Walking the lines lets each signal be recognised on its own.
@@ -41,7 +41,7 @@ class QuestionParser
     private const OPTION_PATTERN = '/^\s*\(?\s*([A-Ha-h])\s*[\)\.\:\-–]\s*(.*)$/u';
 
     /**
-     * The answer key: "Answer: B", "Correct Answer - C", "Ans: (D)", "Key: A".
+     * The answer key: "Answer: B", "Correct Answer, C", "Ans: (D)", "Key: A".
      */
     private const ANSWER_PATTERN = '/^\s*(?:Correct\s+)?(?:Answer|Ans|Key|Correct|Solution)\s*(?:Answer)?\s*[\:\-–\.\)]?\s*\(?\s*([A-Ha-h])\s*\)?\s*\.?\s*$/iu';
 
@@ -74,8 +74,8 @@ class QuestionParser
      * Turn document text into the structure the importer already understands.
      *
      * The shape returned is deliberately identical to what the hosted model
-     * used to produce, so everything downstream - validation, review flagging,
-     * the importers - is untouched by this change.
+     * used to produce, so everything downstream, validation, review flagging,
+     * the importers, is untouched by this change.
      *
      * @return array{questions: list<array<string, mixed>>, instructions: ?string}
      */
@@ -130,7 +130,7 @@ class QuestionParser
             }
 
             // Only a question already opened can take options. Without this a
-            // document's own preamble - "A. Answer all questions" - would
+            // document's own preamble, "A. Answer all questions", would
             // become an orphan option.
             if ($current !== null && preg_match(self::OPTION_PATTERN, $line, $m)) {
                 foreach ($this->splitInlineOptions(strtoupper($m[1]), trim($m[2])) as $option) {
@@ -144,7 +144,7 @@ class QuestionParser
 
             // Checked only after every structural pattern has been tried, so
             // an option like "B. 1960" is read as the option it is. What is
-            // left - a short line that is essentially just a year - marks where
+            // left, a short line that is essentially just a year, marks where
             // one paper ends and the next begins, which is how a "past
             // questions 2010-2018" compilation is laid out.
             if (($heading = $this->yearHeading($line)) !== null) {
@@ -203,7 +203,7 @@ class QuestionParser
      *     A. passing of entries      B. consistency convention
      *     C. matching concept        D. adjusting for revenue
      *
-     * A PDF has no columns - it has text in a position - so extraction flattens
+     * A PDF has no columns, it has text in a position, so extraction flattens
      * each row into a single line holding two options. Read naively that gives
      * one option whose text swallows the next, and a question with four choices
      * arrives with two. On a real JAMB paper this affected 506 lines, which was

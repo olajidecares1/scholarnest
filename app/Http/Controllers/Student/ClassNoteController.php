@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * A pupil's class notes.
  *
  * TWO CONDITIONS ON EVERY QUERY, always together: the pupil's own school, and
- * the pupil's own class. Either alone is a hole - two schools may each have a
+ * the pupil's own class. Either alone is a hole, two schools may each have a
  * class called "JSS 1A", so a class-only filter would hand one school's notes
  * to the other's pupils, and a school-only filter would show a pupil every
  * class's work.

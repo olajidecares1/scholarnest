@@ -15,8 +15,8 @@ class ReceiptUploadService
      * Stores a payment receipt for a school, on the private disk.
      *
      * A photographed receipt goes through the image processor, which removes
-     * its EXIF metadata (a phone photo carries GPS coordinates) and - unlike
-     * the stripping this used to do - applies its orientation first, so a
+     * its EXIF metadata (a phone photo carries GPS coordinates) and, unlike
+     * the stripping this used to do, applies its orientation first, so a
      * receipt photographed upright is not stored sideways and unreadable.
      * A PDF is stored exactly as uploaded.
      *

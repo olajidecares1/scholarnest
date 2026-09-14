@@ -1,7 +1,7 @@
 {{-- The panel beside the page canvas, for the block currently selected.
 
-     EVERY CONTROL SAYS WHAT IT DOES. These are typographic and CSS terms -
-     letter spacing, line height, text transform, opacity, blur - and a school
+     EVERY CONTROL SAYS WHAT IT DOES. These are typographic and CSS terms,
+     letter spacing, line height, text transform, opacity, blur, and a school
      administrator is not obliged to know them. Each one is described by what a
      visitor to the website will see, not by the property it sets. --}}
 <div class="rounded-[10px] border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">

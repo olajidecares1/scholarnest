@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Uploaded files, kept in the database when no object storage is attached.
  *
  * On Laravel Cloud the server's own filesystem is wiped by every deploy and is
- * different on every instance, so an upload written there is lost - which is
+ * different on every instance, so an upload written there is lost, which is
  * exactly how every school logo in production came to be a broken image. Object
  * storage buckets are the long-term home for uploads; until they are attached,
  * the database is the one store every instance shares and every deploy keeps.
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Schema;
  *
  *  - A single column holding a whole file would have to be sent to the
  *    database in one packet, and MySQL refuses packets over its
- *    max_allowed_packet - a 20MB CBT document or a video would fail to save.
+ *    max_allowed_packet, a 20MB CBT document or a video would fail to save.
  *    One megabyte at a time never comes near it.
  *  - Reading a file, or part of one for a video seek, fetches only the chunks
  *    needed, rather than loading every byte into memory.

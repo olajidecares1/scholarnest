@@ -21,7 +21,7 @@ use Illuminate\View\View;
  * An administrative store, not a portal. Teachers push into it and never see
  * it; pupils and parents read out of it through the result-checking link and
  * never see it either. This controller lives inside the School Admin route
- * group, which is what confines it to them - there is no second check here
+ * group, which is what confines it to them, there is no second check here
  * pretending to do that job.
  *
  * Every query goes through RepositoryResult::forSchool(). A repository holds
@@ -38,7 +38,7 @@ class ResultRepositoryController extends Controller
     ) {}
 
     /**
-     * Class, then academic year, then term - the order the brief asks for, and
+     * Class, then academic year, then term, the order the brief asks for, and
      * the order a School Admin actually thinks in.
      */
     public function index(Request $request): View
@@ -113,7 +113,7 @@ class ResultRepositoryController extends Controller
     /**
      * Which of these have been corrected since they were published.
      *
-     * One extra query for the whole page rather than one per row - see
+     * One extra query for the whole page rather than one per row, see
      * ResultRepository::fingerprintsFor().
      *
      * @param  Collection<int, RepositoryResult>  $results
@@ -125,8 +125,8 @@ class ResultRepositoryController extends Controller
             return [];
         }
 
-        // The examination the marks live in now. It can be absent - a school
-        // may have deleted it - in which case there is nothing to compare
+        // The examination the marks live in now. It can be absent, a school
+        // may have deleted it, in which case there is nothing to compare
         // against and nothing is flagged.
         $examination = Examination::query()
             ->where('school_id', $schoolId)

@@ -31,7 +31,7 @@
         {{-- Using the page counts as activity: see resources/js/session-keep-alive.js. --}}
         <meta name="session-keep-alive" content="{{ route('session.keep-alive', absolute: false) }}">
 
-        <title>{{ $pageTitle }} - {{ $school->name }}</title>
+        <title>{{ $pageTitle }} | {{ $school->name }}</title>
 
         <x-favicon :school="$school" />
 
@@ -153,7 +153,7 @@
             </header>
 
             @php
-                // Prev/next walks the same menu as everything else - which is
+                // Prev/next walks the same menu as everything else, which is
                 // already bound to the child being viewed, so a swipe cannot
                 // wander onto a sibling's pages.
                 $pageNavItems = collect([

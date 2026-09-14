@@ -10,8 +10,8 @@ use Throwable;
  * One way in for every supported document type.
  *
  * The callers upstream know they have "a file the teacher uploaded"; they
- * should not also have to know which library reads it. Adding a format later -
- * or adding OCR for scanned PDFs - means adding a branch here and nothing else.
+ * should not also have to know which library reads it. Adding a format later,
+ * or adding OCR for scanned PDFs, means adding a branch here and nothing else.
  */
 class DocumentTextExtractor
 {
@@ -54,7 +54,7 @@ class DocumentTextExtractor
 
             return new ExtractedDocument(
                 text: '',
-                warnings: ['The Word document could not be opened — it may be corrupted, incomplete, or not a real .docx file.'],
+                warnings: ['The Word document could not be opened. It may be corrupted, incomplete, or not a real .docx file.'],
             );
         }
 

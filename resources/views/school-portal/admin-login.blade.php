@@ -37,7 +37,7 @@
 
             {{-- Forgot-password lived on the shared sign-in page, which no
                  longer exists. This is where School Admins actually sign in,
-                 so the link belongs here - without it they would have no way
+                 so the link belongs here, without it they would have no way
                  to reset a password at all. Deliberately absent from the
                  student, staff and guardian portals, where a reset is the
                  school's job rather than self-service. --}}

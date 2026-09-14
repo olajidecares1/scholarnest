@@ -307,7 +307,7 @@ test('the basic plan keeps the link-and-token route, with no portal in the way',
     [$school, $admin, $examination, $student] = portalSchool(PlanKey::Basic);
     $token = tokenFor($school, $student, $examination, $admin);
 
-    // No account, no modal, no portal - the token is typed into the school's
+    // No account, no modal, no portal, the token is typed into the school's
     // own result address and the result comes back.
     // Step one: the token is only checked against a pupil already named.
     identifyForResultCheck($school, $student, false);

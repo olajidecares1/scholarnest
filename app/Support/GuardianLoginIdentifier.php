@@ -21,8 +21,8 @@ use Illuminate\Support\Collection;
  *    while the parent types "+234 803 123 4567", and both are the same
  *    telephone. Comparing them needs normalising, which SQL does badly.
  *
- * 2. Phone numbers are not unique. Two parents of the same child - or a
- *    mistyped record - can share one, and "the first row that matches" is the
+ * 2. Phone numbers are not unique. Two parents of the same child, or a
+ *    mistyped record, can share one, and "the first row that matches" is the
  *    wrong answer when the question is who somebody is. An ambiguous phone
  *    number is refused rather than guessed at.
  *
@@ -45,7 +45,7 @@ final class GuardianLoginIdentifier
      *
      * Returns an instance whose guardian is null when nothing matched, and
      * whose $ambiguous is true when a phone number belongs to more than one
-     * parent - a case that must be refused, not resolved.
+     * parent, a case that must be refused, not resolved.
      */
     public static function resolve(School $school, string $input): self
     {
@@ -107,8 +107,8 @@ final class GuardianLoginIdentifier
 
         // Normalising happens in PHP, over this school's stored numbers.
         //
-        // The obvious optimisation - a LIKE on the last digits to narrow the
-        // set first - is wrong, and quietly so: it matches the RAW column, so
+        // The obvious optimisation, a LIKE on the last digits to narrow the
+        // set first, is wrong, and quietly so: it matches the RAW column, so
         // a school that records "0803 123 4567" with spaces would never match
         // "08031234567", which is exactly the difference this method exists to
         // see past. It cost nothing to write and would have locked those

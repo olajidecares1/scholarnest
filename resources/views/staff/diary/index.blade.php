@@ -87,7 +87,7 @@
                         rows="3"
                         required
                         :value="old('topic')"
-                        placeholder="e.g. Quadratic equations — factorisation and the difference of two squares."
+                        placeholder="e.g. Quadratic equations: factorisation and the difference of two squares."
                     />
 
                     <div class="flex justify-end pt-1">

@@ -48,8 +48,8 @@ test('one school registration produces exactly one notification', function () {
 });
 
 test('one sign-in writes one audit entry, not two', function () {
-    // The listener was registered twice - once by Laravel's discovery of
-    // app/Listeners and once by hand in AppServiceProvider - so every login
+    // The listener was registered twice, once by Laravel's discovery of
+    // app/Listeners and once by hand in AppServiceProvider, so every login
     // wrote its entry twice. A school's User carries the school's name, which
     // is why the AkademicNest Team saw the same school name appear twice.
     $user = User::factory()->create([
@@ -174,7 +174,7 @@ test('the team holds one registration notification, and it reaches the dashboard
     auth()->logout();
 
     // One RECORD is the thing being asserted. The dashboard shows it in two
-    // places - the bell and the activity panel - which is one notification
+    // places, the bell and the activity panel, which is one notification
     // presented twice, not two notifications, and is how every other
     // notification on that page behaves.
     expect($this->team->notifications()->count())->toBe(1);
@@ -192,7 +192,7 @@ test('the team holds one registration notification, and it reaches the dashboard
 
 test('every notification to the team is claimed under an event key', function () {
     // If a new "tell the team" call site is added that sends directly, this
-    // fails - which is the point. The rule is meant to hold for the workflow,
+    // fails, which is the point. The rule is meant to hold for the workflow,
     // not just for registration.
     $offenders = [];
 

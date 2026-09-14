@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * One attempt to redeem a result token.
  *
  * Written for every attempt, including the ones that identified nothing. Rows
- * are only ever created - nothing in the application updates or deletes one,
+ * are only ever created, nothing in the application updates or deletes one,
  * because a log that can be rewritten after the fact is not evidence.
  *
  * The token itself is never stored here, only its hash, which is enough to see

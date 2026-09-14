@@ -9,8 +9,8 @@ use App\Models\IssuedIdCard;
  * The detail rows printed on the front of a card.
  *
  * Which rows appear, in which order, under which labels, was written out three
- * separate times - in the screen card, in the PDF card, and again in the PDF's
- * shared row partial - each with its own copy of the conditions. Three copies
+ * separate times, in the screen card, in the PDF card, and again in the PDF's
+ * shared row partial, each with its own copy of the conditions. Three copies
  * of "show House only for a pupil who has one" is three chances for a card to
  * print something a school did not intend, and for the printed card to differ
  * from the one the School Admin approved on screen.

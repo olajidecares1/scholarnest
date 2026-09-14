@@ -21,7 +21,7 @@ final class ExtractedDocument
      * @param  list<string>  $warnings  Things worth telling a person, none of
      *                                  which stop the extraction.
      * @param  bool  $looksScanned  True when the file is a PDF that yielded no
-     *                              usable text - almost always a scan.
+     *                              usable text, almost always a scan.
      */
     public function __construct(
         public readonly string $text,

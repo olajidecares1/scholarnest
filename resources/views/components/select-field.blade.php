@@ -3,7 +3,7 @@
      This used to be a bespoke drum-roll picker: a button 52px tall with the
      label inside it and a scrolling wheel in a popover. It behaved unlike
      every other control in the application and could not be made to match the
-     registration page, because it was not a field — it was a button pretending
+     registration page, because it was not a field, it was a button pretending
      to be one.
 
      It is a native <select> now. The base rules in app.css give it the same
@@ -37,7 +37,7 @@
         ->values();
 
     // Only when the caller has not already supplied an empty option of their
-    // own - a filter whose first entry is "All Classes" does not need a second
+    // own, a filter whose first entry is "All Classes" does not need a second
     // blank row above it saying "Select an option".
     $needsPlaceholderOption = $optionList->doesntContain(fn (array $option) => $option['value'] === '');
 @endphp

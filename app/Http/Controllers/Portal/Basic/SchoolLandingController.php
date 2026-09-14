@@ -33,8 +33,8 @@ class SchoolLandingController extends Controller
             return view('school-portal.index', ['school' => $school]);
         }
 
-        // Standard and Exclusive schools have their own front door - a
-        // subdomain, or their own domain - and their public website lives
+        // Standard and Exclusive schools have their own front door, a
+        // subdomain, or their own domain, and their public website lives
         // there. Send them to it rather than serving a second, competing
         // entry point from the platform root.
         //

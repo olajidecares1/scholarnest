@@ -2,7 +2,7 @@
 
      There is no profile form here and no route behind one: a student who could
      change their own email or phone could change where their school's messages
-     go. What they can do is ask, and the school decides - which is what the
+     go. What they can do is ask, and the school decides, which is what the
      request card below is for. --}}
 <x-student-layout page-title="Settings" page-subtitle="Your account details">
     <div class="mx-auto max-w-2xl space-y-6">
@@ -34,7 +34,7 @@
                 ] as [$label, $value])
                     <div class="flex justify-between gap-4 py-2.5">
                         <dt class="text-gray-500 dark:text-gray-400">{{ $label }}</dt>
-                        <dd class="text-right font-semibold text-gray-900 dark:text-white">{{ $value ?: '—' }}</dd>
+                        <dd class="text-right font-semibold text-gray-900 dark:text-white">{{ $value ?: 'N/A' }}</dd>
                     </div>
                 @endforeach
             </dl>

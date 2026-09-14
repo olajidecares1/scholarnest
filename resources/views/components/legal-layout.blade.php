@@ -41,7 +41,7 @@
 
                 {{-- Back to registration, because that is where most people
                      arrive from. It opens in this tab and the form is still
-                     filled in behind it - the link that brought them here
+                     filled in behind it, the link that brought them here
                      opened a new one. --}}
                 <a href="{{ route('register') }}" class="text-[12.5px] font-semibold text-primary-600 hover:underline">
                     Register your school

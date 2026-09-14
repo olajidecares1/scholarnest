@@ -72,7 +72,7 @@ class Setting extends Model
     /**
      * The platform logo's address, or a bundled mark when none is uploaded.
      *
-     * SERVED BY THE APPLICATION, from the database - see BrandingImage. Every
+     * SERVED BY THE APPLICATION, from the database, see BrandingImage. Every
      * template used to point straight at the disk, first through Storage::url()
      * on the wrong disk and then through the right one, and neither survived
      * production: that disk is a directory that is not served at /storage and

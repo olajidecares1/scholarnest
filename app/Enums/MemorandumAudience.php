@@ -9,7 +9,7 @@ use App\Models\School;
  *
  * "All" is a value of its own rather than a shorthand the interface expands
  * before saving, because a school that addressed everybody should still read
- * as having addressed everybody a term later - not as three separate memos
+ * as having addressed everybody a term later, not as three separate memos
  * that happen to share a timestamp.
  */
 enum MemorandumAudience: string
@@ -46,7 +46,7 @@ enum MemorandumAudience: string
      *
      * Teachers sign in on every plan; students and parents have portals only
      * on Standard and Exclusive. Offering a Basic school "Parents/Guardians"
-     * would be offering to send a memorandum to accounts that do not exist -
+     * would be offering to send a memorandum to accounts that do not exist,
      * so the option is not shown rather than shown and quietly ignored.
      *
      * "Everyone" stays available on every plan and means everyone that school
