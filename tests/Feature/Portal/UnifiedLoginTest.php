@@ -7,18 +7,29 @@ use App\Models\School;
 use App\Models\Staff;
 use App\Models\Student;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
     $this->school = School::factory()->create(['is_active' => true]);
     activateSchool($this->school);
 });
 
-test('a school admin can sign in through the unified portal on the default host using a school code', function () {
+// -----------------------------------------------------------------------------
+// No school code, for every kind of account.
+// -----------------------------------------------------------------------------
+
+test('the shared sign-in page does not ask for a school code', function () {
+    $this->get(route('portal.show'))
+        ->assertOk()
+        ->assertDontSee('School Code')
+        ->assertDontSee('name="school_code"', false);
+});
+
+test('a school admin signs in on the shared page without a school code', function () {
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
 
     $response = $this->post(route('portal.attempt'), [
         'role' => 'web',
-        'school_code' => $this->school->school_code,
         'login' => $admin->email,
         'password' => 'password',
     ]);
@@ -27,133 +38,237 @@ test('a school admin can sign in through the unified portal on the default host 
     $response->assertRedirect(route('dashboard', absolute: false));
 
     $portalSession = PortalSession::where('guard', 'web')->first();
-    expect($portalSession)->not->toBeNull();
-    expect($portalSession->school_id)->toBe($this->school->id);
-    expect($portalSession->authenticatable_id)->toBe($admin->id);
-    expect(strlen($portalSession->token))->toBeGreaterThanOrEqual(22);
+    expect($portalSession)->not->toBeNull()
+        ->and($portalSession->school_id)->toBe($this->school->id)
+        ->and($portalSession->authenticatable_id)->toBe($admin->id)
+        ->and(strlen($portalSession->token))->toBeGreaterThanOrEqual(22);
 });
 
-test('a student can sign in through the unified portal on the default host using a school code', function () {
+test('a student signs in on the shared page without a school code', function () {
     $student = Student::factory()->create(['school_id' => $this->school->id]);
 
     $response = $this->post(route('portal.attempt'), [
         'role' => 'student',
-        'school_code' => $this->school->school_code,
         'login' => $student->admission_number,
         'password' => 'password',
     ]);
 
     $this->assertAuthenticatedAs($student, 'student');
     $response->assertRedirect(route('student.dashboard', $this->school, absolute: false));
-
-    expect(PortalSession::where('guard', 'student')->where('school_id', $this->school->id)->exists())->toBeTrue();
 });
 
-test('a staff member can sign in through the unified portal on the default host using a school code', function () {
+test('a staff member signs in on the shared page without a school code', function () {
     $staff = Staff::factory()->create(['school_id' => $this->school->id]);
 
     $response = $this->post(route('portal.attempt'), [
         'role' => 'staff',
-        'school_code' => $this->school->school_code,
         'login' => $staff->staff_number,
         'password' => 'password',
     ]);
 
     $this->assertAuthenticatedAs($staff, 'staff');
     $response->assertRedirect(route('staff.dashboard', $this->school, absolute: false));
-
-    expect(PortalSession::where('guard', 'staff')->where('school_id', $this->school->id)->exists())->toBeTrue();
 });
 
-test('a guardian can sign in through the unified portal on the default host using a school code', function () {
-    // A parent's login is their Parent ID or phone number, never their email -
-    // and the unified form's own field is already called "login", so the
-    // guardian branch is no longer a special case here.
+test('a parent signs in on the shared page with a Parent ID or a phone number', function () {
     $guardian = Guardian::factory()->create([
         'school_id' => $this->school->id,
         'guardian_number' => 'PAR-UNIFIED-1',
+        'phone' => '0803 123 4567',
     ]);
 
-    $response = $this->post(route('portal.attempt'), [
+    $this->post(route('portal.attempt'), [
         'role' => 'guardian',
-        'school_code' => $this->school->school_code,
         'login' => 'PAR-UNIFIED-1',
         'password' => 'password',
-    ]);
+    ])->assertRedirect(route('guardian.dashboard', $this->school, absolute: false));
 
     $this->assertAuthenticatedAs($guardian, 'guardian');
-    $response->assertRedirect(route('guardian.dashboard', $this->school, absolute: false));
 
-    expect(PortalSession::where('guard', 'guardian')->where('school_id', $this->school->id)->exists())->toBeTrue();
+    auth('guardian')->logout();
+
+    $this->post(route('portal.attempt'), [
+        'role' => 'guardian',
+        'login' => '+2348031234567',
+        'password' => 'password',
+    ])->assertRedirect(route('guardian.dashboard', $this->school, absolute: false));
+
+    $this->assertAuthenticatedAs($guardian, 'guardian');
 });
 
-test('the default host requires a school code and rejects an unknown one without revealing whether it exists', function () {
-    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+// -----------------------------------------------------------------------------
+// The same identifier at two schools.
+// -----------------------------------------------------------------------------
 
-    $response = $this->post(route('portal.attempt'), [
-        'role' => 'web',
-        'school_code' => 'NOT-A-REAL-CODE',
-        'login' => $admin->email,
-        'password' => 'password',
+test('the password decides between two schools that share an admission number', function () {
+    $other = School::factory()->create(['is_active' => true]);
+    activateSchool($other);
+
+    Student::factory()->create(['school_id' => $other->id, 'admission_number' => 'ADM-001']);
+    $mine = Student::factory()->create([
+        'school_id' => $this->school->id,
+        'admission_number' => 'ADM-001',
+        'password' => Hash::make('Mine@12345'),
     ]);
 
-    $response->assertSessionHasErrors('login');
+    $this->post(route('portal.attempt'), [
+        'role' => 'student',
+        'login' => 'ADM-001',
+        'password' => 'Mine@12345',
+    ])->assertRedirect(route('student.dashboard', $this->school, absolute: false));
+
+    $this->assertAuthenticatedAs($mine, 'student');
+});
+
+test('a person with the same details at two schools is asked which school, and shown only those', function () {
+    $second = School::factory()->create(['is_active' => true, 'name' => 'Second School']);
+    activateSchool($second);
+    $unrelated = School::factory()->create(['is_active' => true, 'name' => 'Unrelated School']);
+
+    Staff::factory()->create(['school_id' => $this->school->id, 'staff_number' => 'TCH-100']);
+    $atSecond = Staff::factory()->create(['school_id' => $second->id, 'staff_number' => 'TCH-100']);
+
+    $this->post(route('portal.attempt'), [
+        'role' => 'staff',
+        'login' => 'TCH-100',
+        'password' => 'password',
+    ])->assertSessionHasErrors('school');
+
+    $this->assertGuest('staff');
+
+    $this->get(route('portal.show'))
+        ->assertSee('Choose your school')
+        ->assertSee('Second School')
+        ->assertSee($this->school->name)
+        ->assertDontSee('Unrelated School');
+
+    $this->post(route('portal.attempt'), [
+        'role' => 'staff',
+        'login' => 'TCH-100',
+        'password' => 'password',
+        'school' => $second->portal_key,
+    ])->assertRedirect(route('staff.dashboard', $second, absolute: false));
+
+    $this->assertAuthenticatedAs($atSecond, 'staff');
+});
+
+test('a school that was not offered cannot be chosen', function () {
+    $other = School::factory()->create(['is_active' => true]);
+    activateSchool($other);
+    Staff::factory()->create(['school_id' => $other->id, 'staff_number' => 'TCH-200']);
+
+    $this->post(route('portal.attempt'), [
+        'role' => 'staff',
+        'login' => 'TCH-200',
+        'password' => 'password',
+        'school' => $other->portal_key,
+    ])->assertSessionHasErrors('login');
+
+    $this->assertGuest('staff');
+});
+
+// -----------------------------------------------------------------------------
+// Failing safely.
+// -----------------------------------------------------------------------------
+
+test('a wrong password fails without saying whether the account exists', function () {
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+
+    $wrong = $this->post(route('portal.attempt'), [
+        'role' => 'web',
+        'login' => $admin->email,
+        'password' => 'wrong-password',
+    ]);
+
+    $unknown = $this->post(route('portal.attempt'), [
+        'role' => 'web',
+        'login' => 'nobody@example.test',
+        'password' => 'wrong-password',
+    ]);
+
+    $wrong->assertSessionHasErrors(['login' => trans('auth.failed')]);
+    $unknown->assertSessionHasErrors(['login' => trans('auth.failed')]);
     $this->assertGuest('web');
     expect(PortalSession::count())->toBe(0);
 });
 
-test('the school code field is not required when the school is resolved from the tenant domain', function () {
-    config(['custom_domain.tenant_base_domain' => 'akademicnest-test.com']);
-    config(['app.url' => 'https://akademicnest-test.com']);
-
+test('the shared sign-in is rate limited after five failed attempts', function () {
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
 
-    $response = $this->post("http://{$this->school->subdomain}.akademicnest-test.com/portal/sign-in", [
+    for ($i = 0; $i < 5; $i++) {
+        $this->post(route('portal.attempt'), [
+            'role' => 'web',
+            'login' => $admin->email,
+            'password' => 'wrong-password',
+        ]);
+    }
+
+    $this->post(route('portal.attempt'), [
         'role' => 'web',
         'login' => $admin->email,
         'password' => 'password',
-    ]);
+    ])->assertSessionHasErrors('login');
 
-    $this->assertAuthenticatedAs($admin, 'web');
-    $portalSession = PortalSession::where('guard', 'web')->first();
-    expect($portalSession->school_id)->toBe($this->school->id);
+    $this->assertGuest('web');
 });
 
-test('a wrong password fails to authenticate and creates no portal session', function () {
+test('a deactivated account at the only matching school is still refused', function () {
+    $staff = Staff::factory()->create(['school_id' => $this->school->id, 'is_active' => false]);
+
+    $this->post(route('portal.attempt'), [
+        'role' => 'staff',
+        'login' => $staff->staff_number,
+        'password' => 'password',
+    ])->assertSessionHasErrors('login');
+
+    $this->assertGuest('staff');
+});
+
+// -----------------------------------------------------------------------------
+// What already worked keeps working.
+// -----------------------------------------------------------------------------
+
+test('a school code is still accepted when one is sent', function () {
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
 
     $this->post(route('portal.attempt'), [
         'role' => 'web',
         'school_code' => $this->school->school_code,
         'login' => $admin->email,
-        'password' => 'wrong-password',
-    ])->assertSessionHasErrors('login');
+        'password' => 'password',
+    ]);
+
+    $this->assertAuthenticatedAs($admin, 'web');
+});
+
+test('an unknown school code is refused without revealing whether it exists', function () {
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
+
+    $this->post(route('portal.attempt'), [
+        'role' => 'web',
+        'school_code' => 'NOT-A-REAL-CODE',
+        'login' => $admin->email,
+        'password' => 'password',
+    ])->assertSessionHasErrors(['login' => trans('auth.failed')]);
 
     $this->assertGuest('web');
     expect(PortalSession::count())->toBe(0);
 });
 
-test('the unified login is rate limited after five failed attempts', function () {
+test('on a school address the school comes from the address', function () {
+    config(['custom_domain.tenant_base_domain' => 'akademicnest-test.com']);
+    config(['app.url' => 'https://akademicnest-test.com']);
+
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
 
-    for ($i = 0; $i < 5; $i++) {
-        $this->post(route('portal.attempt'), [
-            'role' => 'web',
-            'school_code' => $this->school->school_code,
-            'login' => $admin->email,
-            'password' => 'wrong-password',
-        ]);
-    }
-
-    $response = $this->post(route('portal.attempt'), [
+    $this->post("http://{$this->school->subdomain}.akademicnest-test.com/portal/sign-in", [
         'role' => 'web',
-        'school_code' => $this->school->school_code,
         'login' => $admin->email,
         'password' => 'password',
     ]);
 
-    $response->assertSessionHasErrors('login');
-    $this->assertGuest('web');
+    $this->assertAuthenticatedAs($admin, 'web');
+    expect(PortalSession::where('guard', 'web')->first()->school_id)->toBe($this->school->id);
 });
 
 test('the old per-guard login pages keep working untouched alongside the new unified one', function () {

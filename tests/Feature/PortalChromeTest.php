@@ -47,6 +47,10 @@ describe('the portals have no header bar', function () {
 
     test('the logo is there instead, in the top-left corner', function () {
         foreach (portalChromePages($this->school) as $label => $url) {
+            if ($label === 'unified sign-in') {
+                continue;
+            }
+
             $html = $this->get($url)->assertOk()->getContent();
 
             expect($html)->toContain('absolute left-4 top-4');
@@ -101,6 +105,17 @@ describe('pages that still need a header keep one', function () {
             ->assertOk()
             ->assertSee('<header', false)
             ->assertSee('Greenfield College');
+    });
+});
+
+describe('the shared sign-in puts its logo above the card', function () {
+    // Same reason as the school finder below: on a phone the corner logo sat
+    // on the card's top-left corner.
+    test('it has no corner logo, and the logo comes first', function () {
+        $html = $this->get(route('portal.show'))->assertOk()->getContent();
+
+        expect($html)->not->toContain('absolute left-4 top-4')
+            ->and(strpos($html, 'mb-6 inline-block'))->toBeLessThan(strpos($html, 'AkademicNest Portal</h1>'));
     });
 });
 
