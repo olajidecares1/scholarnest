@@ -43,7 +43,7 @@ class QuestionParser
     /**
      * The answer key: "Answer: B", "Correct Answer, C", "Ans: (D)", "Key: A".
      */
-    private const ANSWER_PATTERN = '/^\s*(?:Correct\s+)?(?:Answer|Ans|Key|Correct|Solution)\s*(?:Answer)?\s*[\:\-–\.\)]?\s*\(?\s*([A-Ha-h])\s*\)?\s*\.?\s*$/iu';
+    private const ANSWER_PATTERN = '/^[\s\p{S}\p{P}]*(?:Correct\s+)?(?:Answer|Ans|Key|Correct|Solution)\s*(?:Answer)?\s*[\:\-–\.\)]?\s*\(?\s*([A-Ha-h])\s*\)?\s*\.?\s*$/iu';
 
     /**
      * An explanation following the answer, which some papers print.
@@ -59,6 +59,65 @@ class QuestionParser
      * A per-question mark allocation: "[2 marks]", "(3 Marks)".
      */
     private const MARKS_PATTERN = '/[\[\(]\s*(\d{1,2})\s*marks?\s*[\]\)]/iu';
+
+    /**
+     * The start of an option run printed inside a question's own line.
+     *
+     * Requires a space before the "A", so it can never match at the very start
+     * of the text, and requires a "B" to follow somewhere after it. That
+     * lookahead is what separates a real set of choices from a sentence that
+     * merely contains a letter and a full stop.
+     */
+    private const INLINE_OPTION_RUN_PATTERN = '/\s\(?A\s*[\)\.\:\-–]\s+(?=.*\s\(?B\s*[\)\.\:\-–]\s+)/iu';
+
+    /**
+     * The same run, in a document that printed no space before its labels.
+     *
+     * A real JAMB compilation reads "...is given to you?A. Type AB. Type BC.
+     * Type CD. Type D" on one line: the label is welded to the end of the text
+     * before it, so the pattern above, which requires a space, matches nothing
+     * and the whole paper imports as questions with no options at all.
+     *
+     * Dropping that space is a real loosening, so it is only ever tried after
+     * the strict pattern has failed, and the separator it demands is stricter
+     * in exchange: a label here must be followed by a full stop, bracket or
+     * colon AND a space, which "J.C.De" and "Mrs. B" do not satisfy.
+     */
+    private const INLINE_OPTION_RUN_WELDED_PATTERN = '/\(?A\s*[\)\.\:]\s+(?=.*\(?B\s*[\)\.\:]\s+)/iu';
+
+    /**
+     * A heading that hands the next several questions a shared passage:
+     * "Questions 2 to 5 are based on J.C. De Graft's Sons and Daughters".
+     *
+     * In a welded document this arrives glued to the end of the last option,
+     * so option D of one question ends up carrying the reading instruction for
+     * the next four. It is lifted out and kept as the passage it is.
+     */
+    private const PASSAGE_HEADING_PATTERN = '/Questions?\s+\d{1,3}\s*(?:to|and|[-–])\s*\d{1,3}\s+(?:are\s+|is\s+)?based\s+on\b/iu';
+
+    /**
+     * How many options a recovered run must yield before it is believed.
+     */
+    private const MINIMUM_RECOVERED_OPTIONS = 2;
+
+    /**
+     * A true/false or yes/no question, whose choices are printed as one line
+     * rather than as lettered options: "TRUE / FALSE", "Yes / No", "T/F".
+     *
+     * Teachers mix these freely with lettered questions in the same paper, and
+     * they are perfectly good CBT questions: two options, one of them right.
+     * Read as prose they produced a question with no options at all, so every
+     * one of them was silently dropped from the imported test.
+     */
+    private const BOOLEAN_OPTIONS_PATTERN = '/^\s*\(?\s*(TRUE|YES|T)\s*\)?\s*[\/\\\\|]\s*\(?\s*(FALSE|NO|F)\s*\)?\s*[\.\?]?\s*$/iu';
+
+    /**
+     * What to print for a shorthand true/false pair, so an option never reads
+     * as a bare "T".
+     *
+     * @var array<string, string>
+     */
+    private const BOOLEAN_WORDS = ['T' => 'True', 'F' => 'False'];
 
     /**
      * A heading that announces which year's paper follows: "2019",
@@ -81,7 +140,7 @@ class QuestionParser
      */
     public function parse(string $text): array
     {
-        $lines = preg_split('/\R/u', $text) ?: [];
+        $lines = preg_split('/\R/u', $this->decodeEntities($text)) ?: [];
 
         /** @var list<array<string, mixed>> $questions */
         $questions = [];
@@ -125,6 +184,23 @@ class QuestionParser
 
                 $current = $this->start((int) $m[1], trim($m[2]));
                 $context = 'question';
+
+                continue;
+            }
+
+            // A true/false or yes/no line is the whole of that question's
+            // choices. Checked before the option pattern, though neither
+            // "TRUE" nor "YES" begins with a label letter, so that the two
+            // rules are read in the order they are written.
+            if ($current !== null && $current['options'] === [] && preg_match(self::BOOLEAN_OPTIONS_PATTERN, $line, $m)) {
+                $current['options'] = [
+                    ['label' => 'A', 'text' => $this->booleanWord($m[1])],
+                    ['label' => 'B', 'text' => $this->booleanWord($m[2])],
+                ];
+
+                // Nothing continues a pair of choices; a line after this
+                // belongs to the question, not to "False".
+                $context = null;
 
                 continue;
             }
@@ -182,6 +258,25 @@ class QuestionParser
     }
 
     /**
+     * Turn HTML entities back into the characters they stand for.
+     *
+     * Papers are routinely assembled from a web page and saved to Word, and
+     * the conversion carries the entities across literally: a document arrives
+     * containing "&#039;" where it means an apostrophe and "&quot;" where it
+     * means a quotation mark. Nothing downstream decodes them, and the student
+     * view prints text rather than markup, quite rightly, so a candidate sat
+     * an examination reading `&quot;If you touch me...&quot;`.
+     *
+     * Decoding here rather than in the view is deliberate: the stored question
+     * should hold the sentence a student is meant to read, not markup that
+     * every future reader of the row has to know to undo.
+     */
+    private function decodeEntities(string $text): string
+    {
+        return html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function start(int $number, string $text): array
@@ -215,19 +310,40 @@ class QuestionParser
      *
      * @return list<array{label: string, text: string}>
      */
-    private function splitInlineOptions(string $label, string $text): array
+    private function splitInlineOptions(string $label, string $text, bool $requireSpace = true): array
     {
         $options = [];
 
         while ($label < 'H') {
             $next = chr(ord($label) + 1);
 
-            if (! preg_match('/\s('.$next.')\s*[\)\.\:\-–]\s+/u', $text, $m, PREG_OFFSET_CAPTURE)) {
+            // Case-insensitive, and the open bracket optional, because "(a)
+            // one (b) two" is as ordinary a house style as "A. one B. two".
+            // Without the "i" this matched only an upper-case label, so a
+            // paper written in lower case split at nothing: the first option
+            // swallowed every one that followed, leaving a single option where
+            // there were three, and a question with one option is not usable.
+            // That is one flag, and it failed whole documents.
+            //
+            // A welded document has no space to require, so the separator
+            // carries the weight there instead: see the two run patterns.
+            $pattern = $requireSpace
+                ? '/\s\(?('.$next.')\s*[\)\.\:\-–]\s+/iu'
+                : '/\(?('.$next.')\s*[\)\.\:]\s+/iu';
+
+            if (! preg_match($pattern, $text, $m, PREG_OFFSET_CAPTURE)) {
                 break;
             }
 
+            // preg_match reports this offset in BYTES, so every slice taken
+            // from it must be byte-based as well. Cutting with mb_substr here
+            // silently ate one character of an option's text for every
+            // multi-byte character earlier in the line, which on a paper using
+            // curly quotes turned "Fosuwa and Maidservant" into "suwa and
+            // Maidservant". The match boundaries are ASCII, so a byte slice
+            // always lands on a character boundary.
             $cut = (int) $m[0][1];
-            $before = trim(mb_substr($text, 0, $cut));
+            $before = trim(substr($text, 0, $cut));
 
             // A label with nothing before it is not a second column; it is the
             // start of this option's own text.
@@ -236,13 +352,130 @@ class QuestionParser
             }
 
             $options[] = ['label' => $label, 'text' => $before];
-            $text = trim(mb_substr($text, $cut + mb_strlen($m[0][0])));
+            $text = trim(substr($text, $cut + strlen($m[0][0])));
             $label = $next;
         }
 
         $options[] = ['label' => $label, 'text' => trim($text)];
 
         return $options;
+    }
+
+    /**
+     * How a true/false choice should read once imported.
+     *
+     * Printed in whatever case the paper used, expanded when it was written
+     * as a single letter, so the teacher reviewing the question sees "True"
+     * and not "t".
+     */
+    private function booleanWord(string $raw): string
+    {
+        $word = strtoupper(trim($raw));
+
+        return self::BOOLEAN_WORDS[$word] ?? ucfirst(strtolower($word));
+    }
+
+    /**
+     * Rescue options that were printed on the question's own line.
+     *
+     * Every pattern in this class is anchored to the start of a line, which is
+     * what stops a capital letter mid-sentence from being read as a label. But
+     * a PDF has no lines of its own, it has glyphs at positions, and the text
+     * layer a paper produces often puts a question and all of its choices on
+     * one of them:
+     *
+     *     1. Which organelle releases energy? A. Ribosome B. Mitochondrion ...
+     *
+     * Read line by line that is one question carrying no options at all, and a
+     * question with fewer than two options is not usable. So a document laid
+     * out this way failed as a whole rather than in part: every question found,
+     * none of them importable, and the teacher told the file "needs its layout
+     * corrected" when the layout was one this parser simply could not see.
+     *
+     * The recovery is deliberately narrow. It runs only when a question closed
+     * with no options at all, it requires the run to begin at A and to reach at
+     * least B, and it keeps the result only if two or more options came out of
+     * it. Those three conditions are what stop an ordinary sentence that
+     * happens to contain "A." from being torn into pieces.
+     *
+     * @param  array<string, mixed>  $current
+     */
+    private function recoverInlineOptions(array &$current): void
+    {
+        // A question that found its options the ordinary way is never touched.
+        if ($current['options'] !== []) {
+            return;
+        }
+
+        $text = (string) $current['question_text'];
+
+        // The spaced layout is tried first and kept whenever it works, so a
+        // document that already parsed is never re-read by the looser rule.
+        foreach ([[self::INLINE_OPTION_RUN_PATTERN, true], [self::INLINE_OPTION_RUN_WELDED_PATTERN, false]] as [$pattern, $spaced]) {
+            if (! preg_match($pattern, $text, $m, PREG_OFFSET_CAPTURE)) {
+                continue;
+            }
+
+            $cut = (int) $m[0][1];
+            $question = trim(substr($text, 0, $cut));
+
+            // Nothing before the first label means this is a bare list of
+            // options with no question above it, not something to guess at.
+            if ($question === '') {
+                continue;
+            }
+
+            $options = $this->splitInlineOptions(
+                'A',
+                trim(substr($text, $cut + strlen($m[0][0]))),
+                $spaced,
+            );
+
+            if (count($options) < self::MINIMUM_RECOVERED_OPTIONS) {
+                continue;
+            }
+
+            $current['question_text'] = $question;
+            $current['options'] = $options;
+
+            return;
+        }
+    }
+
+    /**
+     * Lift a "Questions 6 to 10 are based on..." heading off the last option.
+     *
+     * A welded paper prints the heading immediately after the final option,
+     * with nothing between them, so the option imports carrying the reading
+     * instruction for the questions that follow. Students then see a choice
+     * that is half answer and half instruction.
+     *
+     * @param  array<string, mixed>  $current
+     */
+    private function liftPassageHeading(array &$current): void
+    {
+        if ($current['options'] === []) {
+            return;
+        }
+
+        $last = count($current['options']) - 1;
+        $text = $current['options'][$last]['text'];
+
+        if (! preg_match(self::PASSAGE_HEADING_PATTERN, $text, $m, PREG_OFFSET_CAPTURE)) {
+            return;
+        }
+
+        $cut = (int) $m[0][1];
+        $option = rtrim(trim(substr($text, 0, $cut)), '.');
+
+        // A heading with no option text before it is the whole cell; leave it
+        // rather than replace a real choice with an empty string.
+        if ($option === '') {
+            return;
+        }
+
+        $current['options'][$last]['text'] = $option;
+        $current['passage'] = trim(substr($text, $cut));
     }
 
     /**
@@ -276,6 +509,9 @@ class QuestionParser
      */
     private function finish(array $current, ?int $year = null): array
     {
+        $this->recoverInlineOptions($current);
+        $this->liftPassageHeading($current);
+
         $text = (string) $current['question_text'];
         $marks = null;
 
@@ -292,6 +528,10 @@ class QuestionParser
             'number' => $current['number'],
             'question_text' => $text,
             'options' => $current['options'],
+
+            // The shared reading a run of questions refers to, when the paper
+            // printed one. Null on an ordinary standalone question.
+            'passage' => $current['passage'] ?? null,
             'correct_label' => $current['correct_label'],
 
             // The same vocabulary the importer already reads. A key printed in
