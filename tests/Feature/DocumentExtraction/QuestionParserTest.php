@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\DocumentExtraction\QuestionParser;
+use App\Services\ExtractedQuestionSet;
 
 function parseQuestions(string $text): array
 {
@@ -381,4 +382,301 @@ test('side-by-side options still wrap correctly onto the next line', function ()
 
     expect($options)->toHaveCount(2)
         ->and($options[1]['text'])->toBe('the second choice which continues here');
+});
+
+// -----------------------------------------------------------------------------
+// Options printed on the question's own line.
+//
+// Every pattern in the parser is anchored to the start of a line, but a PDF has
+// no lines: it has glyphs at positions. A paper whose text layer flattens a
+// question and all of its choices onto one line produced questions with no
+// options at all, which made every one of them unusable and failed the document
+// as a whole ("only 0 of the 32 questions could be read properly").
+// -----------------------------------------------------------------------------
+
+test('a question carrying its options on the same line is read whole', function () {
+    $result = parseQuestions('1. Which organelle releases energy? A. Ribosome B. Mitochondrion C. Nucleus D. Golgi body');
+
+    $q = $result['questions'][0];
+
+    expect($q['question_text'])->toBe('Which organelle releases energy?')
+        ->and($q['options'])->toHaveCount(4)
+        ->and($q['options'][0])->toBe(['label' => 'A', 'text' => 'Ribosome'])
+        ->and($q['options'][3])->toBe(['label' => 'D', 'text' => 'Golgi body']);
+});
+
+test('inline options are read when the run is set in brackets', function () {
+    $result = parseQuestions('1. The basic unit of life is (A) tissue (B) cell (C) organ (D) system');
+
+    $q = $result['questions'][0];
+
+    expect($q['question_text'])->toBe('The basic unit of life is')
+        ->and($q['options'])->toHaveCount(4)
+        ->and($q['options'][1])->toBe(['label' => 'B', 'text' => 'cell']);
+});
+
+test('an answer key still applies to a question whose options were inline', function () {
+    $result = parseQuestions("1. Chlorophyll is found in the A. mitochondria B. chloroplast C. ribosome D. nucleus\nAnswer: B");
+
+    expect($result['questions'][0]['options'])->toHaveCount(4)
+        ->and($result['questions'][0]['correct_label'])->toBe('B')
+        ->and($result['questions'][0]['answer_source'])->toBe('found_in_document');
+});
+
+test('a whole paper laid out inline yields usable questions throughout', function () {
+    $body = collect(range(1, 12))
+        ->map(fn (int $n) => "{$n}. Question number {$n}? A. first B. second C. third D. fourth")
+        ->implode("\n");
+
+    $result = parseQuestions($body);
+
+    expect($result['questions'])->toHaveCount(12)
+        ->and(collect($result['questions'])->every(fn (array $q) => count($q['options']) === 4))->toBeTrue();
+});
+
+test('a question that found its options normally is left alone', function () {
+    // The recovery must never touch a question that already parsed, or prose
+    // mentioning an initial would be torn into options.
+    $result = parseQuestions("1. In 1960 A. Smith wrote about cells. Was he right?\nA. True\nB. False");
+
+    $q = $result['questions'][0];
+
+    expect($q['options'])->toHaveCount(2)
+        ->and($q['question_text'])->toBe('In 1960 A. Smith wrote about cells. Was he right?');
+});
+
+test('a sentence containing a lone initial is not split into options', function () {
+    // No "B." run follows, so there is nothing that looks like a set of
+    // choices and the wording is left exactly as printed.
+    $result = parseQuestions('1. Name the scientist A. van Leeuwenhoek worked with.');
+
+    expect($result['questions'][0]['options'])->toHaveCount(0)
+        ->and($result['questions'][0]['question_text'])->toBe('Name the scientist A. van Leeuwenhoek worked with.');
+});
+
+test('a bare list of options with no question above it is not guessed at', function () {
+    $result = parseQuestions('1. A. one B. two C. three');
+
+    expect($result['questions'][0]['options'])->toHaveCount(0);
+});
+
+// -----------------------------------------------------------------------------
+// Lower-case option labels.
+//
+// A real JSS1 paper: "(a) Snake (b) Python (c) Scratch". The split between one
+// option and the next matched only an upper-case label, so the run never split
+// at all, option A swallowed B and C, and a three-choice question arrived with
+// one. One option is below the minimum, so every question in the paper was
+// unusable and the document failed as a whole: "0 of the 32 questions".
+// -----------------------------------------------------------------------------
+
+test('a lower-case bracketed run splits into every option', function () {
+    $result = parseQuestions("1. Which is not a programming language?\n(a) Snake (b) Python (c) Scratch");
+
+    $options = $result['questions'][0]['options'];
+
+    expect($options)->toHaveCount(3)
+        ->and($options[0])->toBe(['label' => 'A', 'text' => 'Snake'])
+        ->and($options[1])->toBe(['label' => 'B', 'text' => 'Python'])
+        ->and($options[2])->toBe(['label' => 'C', 'text' => 'Scratch']);
+});
+
+test('a lower-case run of four options splits into four', function () {
+    $result = parseQuestions("1. What can you create?\n(a) Games (b) Stories (c) Animations (d) All of the above");
+
+    expect($result['questions'][0]['options'])->toHaveCount(4)
+        ->and($result['questions'][0]['options'][3]['text'])->toBe('All of the above');
+});
+
+test('option labels are matched whatever case the paper used', function (string $body) {
+    $result = parseQuestions("1. Capital of Nigeria?\n".$body);
+
+    expect($result['questions'][0]['options'])->toHaveCount(3)
+        ->and($result['questions'][0]['options'][1]['text'])->toBe('Abuja');
+})->with([
+    '(a) Lagos (b) Abuja (c) Kano',
+    'a. Lagos b. Abuja c. Kano',
+    'a) Lagos b) Abuja c) Kano',
+    'A. Lagos b. Abuja C. Kano',
+]);
+
+// -----------------------------------------------------------------------------
+// True/false and yes/no questions.
+//
+// Teachers mix these freely with lettered questions in one paper. Read as prose
+// they gave a question with no options at all, so each one was dropped from the
+// imported test without anything being said about it.
+// -----------------------------------------------------------------------------
+
+test('a true or false line becomes two options', function () {
+    $result = parseQuestions("4. Scratch prepares children for future learning.\nTRUE / FALSE");
+
+    $q = $result['questions'][0];
+
+    expect($q['question_text'])->toBe('Scratch prepares children for future learning.')
+        ->and($q['options'])->toBe([
+            ['label' => 'A', 'text' => 'True'],
+            ['label' => 'B', 'text' => 'False'],
+        ]);
+});
+
+test('a yes or no line becomes two options', function () {
+    $result = parseQuestions("5. Does Scratch improve logical thinking?\nYES / NO");
+
+    expect($result['questions'][0]['options'])->toBe([
+        ['label' => 'A', 'text' => 'Yes'],
+        ['label' => 'B', 'text' => 'No'],
+    ]);
+});
+
+test('a true or false pair is read in every common wording', function (string $line) {
+    $result = parseQuestions("1. Scratch teaches teamwork.\n".$line);
+
+    expect($result['questions'][0]['options'])->toHaveCount(2);
+})->with(['TRUE / FALSE', 'True/False', 'true / false', 'YES / NO', 'Yes/No', 'T/F']);
+
+test('a shorthand true or false pair is written out in full', function () {
+    $result = parseQuestions("1. Scratch teaches teamwork.\nT/F");
+
+    expect($result['questions'][0]['options'][0]['text'])->toBe('True')
+        ->and($result['questions'][0]['options'][1]['text'])->toBe('False');
+});
+
+test('a true or false line before any question is not an orphan question', function () {
+    $result = parseQuestions("TRUE / FALSE\n1. Scratch teaches teamwork.\nYES / NO");
+
+    expect($result['questions'])->toHaveCount(1)
+        ->and($result['questions'][0]['options'])->toHaveCount(2);
+});
+
+test('a true or false line does not overwrite options already read', function () {
+    $result = parseQuestions("1. Capital?\nA. Lagos\nB. Abuja\nTRUE / FALSE");
+
+    expect($result['questions'][0]['options'])->toHaveCount(2)
+        ->and($result['questions'][0]['options'][0]['text'])->toBe('Lagos');
+});
+
+// -----------------------------------------------------------------------------
+// The whole document, judged as the importer judges it.
+//
+// The two bugs above were each invisible on their own: the parser returned 32
+// questions and reported no error, and only the usable-ratio check downstream
+// turned that into "0 of the 32 questions could be read properly". A test that
+// stops at "questions were found" would have passed throughout. This one asks
+// the question the importer asks.
+// -----------------------------------------------------------------------------
+
+test('a JSS1 paper mixing lower-case, true/false and free-response questions imports', function () {
+    // The layout of a paper that failed completely in production.
+    $result = parseQuestions(<<<'TXT'
+    1. __________ is not a programming language.
+    (a) Snake (b) Python (c) Scratch
+    2. __________ helps children learn how to think and solve problems.
+    (a) Scratch (b) Play (c) AI
+    3. Scratch prepares children for future learning in computer technology.
+    TRUE / FALSE
+    4. Scratch builds confidence when children create their own projects.
+    YES / NO
+    5. List the three (3) components of Scratch.
+    6. __________ teaches the basics of coding in a simple and fun way.
+    (a) Scratch (b) Keyboard (c) Monitor
+    TXT);
+
+    $set = ExtractedQuestionSet::fromExtraction($result);
+
+    expect($set->count())->toBe(6)
+        ->and($set->usable())->toHaveCount(5)
+        ->and($set->isAcceptable())->toBeTrue()
+        ->and($set->rejectionReason())->toBeNull();
+});
+
+// -----------------------------------------------------------------------------
+// Welded layouts: a JAMB compilation with no space before its labels.
+//
+// Taken from the document that imported 430 questions into production with no
+// options on any of them. Each question is one line, "...to you?A. Type AB.
+// Type BC. Type CD. Type D", and the answer follows on the next line behind a
+// tick. Nothing here parsed: no options, no answers, and HTML entities printed
+// to candidates verbatim.
+// -----------------------------------------------------------------------------
+
+test('a welded question line yields its question and every option', function () {
+    $result = parseQuestions('1. Which paper type is given to you?A. Type AB. Type BC. Type CD. Type D');
+
+    $q = $result['questions'][0];
+
+    expect($q['question_text'])->toBe('Which paper type is given to you?')
+        ->and($q['options'])->toHaveCount(4)
+        ->and($q['options'][0]['text'])->toBe('Type A')
+        ->and($q['options'][3]['text'])->toBe('Type D');
+});
+
+test('an answer key is read through a tick or bullet in front of it', function (string $line) {
+    $result = parseQuestions("1. Capital?A. LagosB. AbujaC. KanoD. Ibadan\n".$line);
+
+    expect($result['questions'][0]['correct_label'])->toBe('B')
+        ->and($result['questions'][0]['answer_source'])->toBe('found_in_document');
+})->with(['✓ Correct Answer: B', '✔ Answer: B', '• Correct Answer: B', '- Ans: B', '→ Key: B']);
+
+test('html entities are decoded before a candidate ever sees them', function () {
+    $result = parseQuestions('1. &quot;If you touch me&quot;, said Don&#039;t who?A. AwereB. MaananC. JamesD. Aaron');
+
+    expect($result['questions'][0]['question_text'])
+        ->toBe('"If you touch me", said Don\'t who?');
+});
+
+test('a multi-byte character earlier in the line does not truncate an option', function () {
+    // The offsets preg_match reports are byte offsets. Slicing them with
+    // mb_substr dropped one character per multi-byte character seen earlier,
+    // so a paper using curly quotes lost the front of its first option:
+    // "Fosuwa and Maidservant" imported as "suwa and Maidservant".
+    $result = parseQuestions('2. „I simply don’t understand — who?A. Fosuwa and MaidservantB. Hannah and GeorgeC. Aaron and MaananD. Lawyer B');
+
+    expect($result['questions'][0]['options'][0]['text'])->toBe('Fosuwa and Maidservant')
+        ->and($result['questions'][0]['options'][3]['text'])->toBe('Lawyer B');
+});
+
+test('a passage heading is lifted off the option it was welded to', function () {
+    $result = parseQuestions('5. Where does the play take place?A. On the streetB. In George&#039;s placeC. In Aunt&#039;s houseD. In Ofosu&#039;s place.Questions 6 to 10 are based on Romeo and Juliet');
+
+    $q = $result['questions'][0];
+
+    expect($q['options'])->toHaveCount(4)
+        ->and($q['options'][3]['text'])->toBe("In Ofosu's place")
+        ->and($q['passage'])->toBe('Questions 6 to 10 are based on Romeo and Juliet');
+});
+
+test('an ordinary question carries no passage', function () {
+    $result = parseQuestions("1. Capital?\nA. Lagos\nB. Abuja\nAnswer: B");
+
+    expect($result['questions'][0]['passage'])->toBeNull();
+});
+
+test('the spaced layout is still preferred over the welded rule', function () {
+    // "Mrs. B" and "J.C.De" must not be read as labels. A paper that parses
+    // under the strict rule must never be re-read by the looser one.
+    $result = parseQuestions("1. Who said it?\nA. Mrs. B and Lawyer B\nB. J.C.De Graft\nAnswer: A");
+
+    expect($result['questions'][0]['options'])->toHaveCount(2)
+        ->and($result['questions'][0]['options'][0]['text'])->toBe('Mrs. B and Lawyer B')
+        ->and($result['questions'][0]['options'][1]['text'])->toBe('J.C.De Graft');
+});
+
+test('a welded JAMB paper imports as a usable examination', function () {
+    $result = parseQuestions(<<<'TXT'
+    1. Which paper type is given to you?A. Type AB. Type BC. Type CD. Type DQuestions 2 to 4 are based on Sons and Daughters
+    ✓ Correct Answer: A
+    2. The traditional order is represented by .A. Mrs. BB. HannahC. MaananD. Aunt
+    ✓ Correct Answer: D
+    3. The play is mostly written in .A. blank verseB. free verseC. metresD. foot.
+    ✓ Correct Answer: B
+    TXT);
+
+    $set = ExtractedQuestionSet::fromExtraction($result);
+
+    expect($set->count())->toBe(3)
+        ->and($set->usable())->toHaveCount(3)
+        ->and($set->isAcceptable())->toBeTrue()
+        ->and(collect($result['questions'])->every(fn (array $q) => count($q['options']) === 4))->toBeTrue()
+        ->and(collect($result['questions'])->pluck('correct_label')->all())->toBe(['A', 'D', 'B']);
 });
