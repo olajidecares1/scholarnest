@@ -35,6 +35,6 @@ class PasswordChangedNotification extends Notification
             ->line('Time: '.now()->toDayDateTimeString())
             ->line('If you made this change, no further action is needed.')
             ->line('If you did not change your password, please reset it immediately and contact support.')
-            ->action('Reset Password Again', route('password.request'));
+            ->action('Reset Password Again', rtrim((string) config('app.url'), '/').route('password.request', absolute: false));
     }
 }

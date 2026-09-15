@@ -11,18 +11,19 @@ use App\Http\Requests\Subscriptions\ApproveTopUpRequest;
 use App\Http\Requests\SuperAdmin\BulkSubscriptionRequest;
 use App\Http\Requests\SuperAdmin\RejectSubscriptionRequest;
 use App\Models\AuditLog;
+use App\Models\EmailDelivery;
 use App\Models\Plan;
 use App\Models\Subscription;
-use App\Models\SubscriptionInvoice;
 use App\Models\SubscriptionTopUp;
-use App\Notifications\SubscriptionApprovedNotification;
 use App\Notifications\SubscriptionRejectedNotification;
-use App\Notifications\SubscriptionTopUpApprovedNotification;
 use App\Notifications\SubscriptionTopUpRejectedNotification;
+use App\Services\Mail\SubscriptionEmails;
+use App\Services\Mail\TransactionalMailer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -73,14 +74,42 @@ class SubscriptionApprovalController extends Controller
 
         return view('super-admin.subscriptions.show', [
             'subscription' => $subscription,
+            'emailDeliveries' => SubscriptionEmails::latestFor($subscription),
         ]);
     }
 
     public function approve(Subscription $subscription): RedirectResponse
     {
-        $this->activate($subscription);
+        abort_unless($subscription->status === SubscriptionStatus::PendingVerification, 409, 'This subscription has already been reviewed.');
 
-        return back()->with('status', "Subscription for {$subscription->school->name} has been approved and activated.");
+        $deliveries = $this->activate($subscription);
+
+        return $this->withEmailOutcome(
+            back(),
+            "Subscription for {$subscription->school->name} has been approved and activated.",
+            $deliveries,
+        );
+    }
+
+    /**
+     * Send the welcome email and invoice again, to whoever has not received
+     * them. For after the mail settings have been fixed.
+     */
+    public function resendEmails(Subscription $subscription, SubscriptionEmails $emails): RedirectResponse
+    {
+        abort_unless($subscription->status === SubscriptionStatus::Active, 409, 'Only an approved subscription has emails to send.');
+
+        return $this->withEmailOutcome(back(), "Emails for {$subscription->school->name}:", $emails->approved($subscription, onlyUndelivered: true), resend: true);
+    }
+
+    /**
+     * The same, for an approved top-up.
+     */
+    public function resendTopUpEmails(SubscriptionTopUp $topUp, SubscriptionEmails $emails): RedirectResponse
+    {
+        abort_unless($topUp->status === SubscriptionTopUpStatus::Approved, 409, 'Only an approved top-up has emails to send.');
+
+        return $this->withEmailOutcome(back(), "Top-up emails for {$topUp->subscription->school->name}:", $emails->topUpApproved($topUp, onlyUndelivered: true), resend: true);
     }
 
     public function reject(RejectSubscriptionRequest $request, Subscription $subscription): RedirectResponse
@@ -96,9 +125,9 @@ class SubscriptionApprovalController extends Controller
             ->where('status', SubscriptionStatus::PendingVerification)
             ->get();
 
-        $subscriptions->each(fn (Subscription $subscription) => $this->activate($subscription));
+        $deliveries = $subscriptions->flatMap(fn (Subscription $subscription) => $this->activate($subscription));
 
-        return back()->with('status', "{$subscriptions->count()} subscription(s) approved and activated.");
+        return $this->withEmailOutcome(back(), "{$subscriptions->count()} subscription(s) approved and activated.", $deliveries);
     }
 
     public function bulkReject(BulkSubscriptionRequest $request): RedirectResponse
@@ -129,11 +158,12 @@ class SubscriptionApprovalController extends Controller
 
         $approved = (int) $request->validated('approved_students_count');
 
-        $this->activateTopUp($topUp, $approved, $request->validated('notes'));
+        $deliveries = $this->activateTopUp($topUp, $approved, $request->validated('notes'));
 
-        return back()->with(
-            'status',
-            "Allocated {$approved} student licence(s) to {$topUp->subscription->school->name}."
+        return $this->withEmailOutcome(
+            back(),
+            "Allocated {$approved} student licence(s) to {$topUp->subscription->school->name}.",
+            $deliveries,
         );
     }
 
@@ -230,7 +260,41 @@ class SubscriptionApprovalController extends Controller
             ->whereHas('school.subscriptions', fn ($q) => $q->where('status', SubscriptionStatus::Active));
     }
 
-    private function activate(Subscription $subscription): void
+    /**
+     * Tell the Super Admin exactly what happened to the emails.
+     *
+     * A failure is never folded into a green message. The approval itself has
+     * been saved, and saying so is true, so the page says both: approved, and
+     * which emails did not go and why, with a button to send them again.
+     *
+     * @param  Collection<int, EmailDelivery>  $deliveries
+     */
+    private function withEmailOutcome(RedirectResponse $response, string $done, Collection $deliveries, bool $resend = false): RedirectResponse
+    {
+        $sent = $deliveries->filter->wasSent();
+        $failure = TransactionalMailer::failureSummary($deliveries);
+
+        if ($deliveries->isEmpty() && $resend) {
+            return $response->with('status', $done.' every email had already been delivered, so nothing was sent again.');
+        }
+
+        $status = $sent->isEmpty()
+            ? $done
+            : $done.' '.$sent->count().' email(s) sent to '.$sent->pluck('recipient')->unique()->implode(', ').'.';
+
+        $response->with('status', $status);
+
+        if ($failure !== null) {
+            $response->with('email_error', $failure.' Fix the mail settings, then use "Resend emails".');
+        }
+
+        return $response;
+    }
+
+    /**
+     * @return Collection<int, EmailDelivery>
+     */
+    private function activate(Subscription $subscription): Collection
     {
         DB::transaction(function () use ($subscription) {
             $subscription->update([
@@ -246,18 +310,12 @@ class SubscriptionApprovalController extends Controller
             ]);
         });
 
-        // The welcome email, and this is the only place it is sent from, see
-        // the notification for why it belongs here and nowhere earlier.
-        //
-        // $subscription is re-read so the email quotes the dates the
-        // activation above just wrote, rather than the nulls it was holding.
-        $invoice = SubscriptionInvoice::where('subscription_id', $subscription->id)->first();
-
-        $subscription->school->users()->each(
-            fn ($user) => $user->notify(new SubscriptionApprovedNotification($subscription->fresh(), $invoice))
-        );
-
         AuditLog::record('subscription.approved', "Approved subscription for {$subscription->school->name}.", $subscription);
+
+        // The welcome email and the paid invoice, sent now, after the approval
+        // is saved, and the only place they are sent from. See
+        // App\Services\Mail\SubscriptionEmails.
+        return app(SubscriptionEmails::class)->approved($subscription);
     }
 
     private function rejectOne(Subscription $subscription, ?string $reason): void
@@ -287,7 +345,10 @@ class SubscriptionApprovalController extends Controller
      * subscription grows by. The school's requested figure stays on the row as
      * `additional_students_count` so the two can be compared later.
      */
-    private function activateTopUp(SubscriptionTopUp $topUp, int $approvedStudentsCount, ?string $notes = null): void
+    /**
+     * @return Collection<int, EmailDelivery>
+     */
+    private function activateTopUp(SubscriptionTopUp $topUp, int $approvedStudentsCount, ?string $notes = null): Collection
     {
         DB::transaction(function () use ($topUp, $approvedStudentsCount, $notes) {
             // Locked for the duration: two Super Admins approving different
@@ -316,10 +377,6 @@ class SubscriptionApprovalController extends Controller
 
         $topUp->refresh();
 
-        $topUp->subscription->school->users()->each(
-            fn ($user) => $user->notify(new SubscriptionTopUpApprovedNotification($topUp))
-        );
-
         AuditLog::record(
             'subscription.topup.approved',
             sprintf(
@@ -332,6 +389,9 @@ class SubscriptionApprovalController extends Controller
             ),
             $topUp,
         );
+
+        // The top-up confirmation and the paid invoice for it.
+        return app(SubscriptionEmails::class)->topUpApproved($topUp);
     }
 
     private function rejectTopUpOne(SubscriptionTopUp $topUp, ?string $reason): void

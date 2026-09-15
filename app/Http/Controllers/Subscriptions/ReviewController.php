@@ -13,6 +13,7 @@ use App\Models\Plan;
 use App\Models\Subscription;
 use App\Notifications\NewSubscriptionSubmittedNotification;
 use App\Notifications\SubscriptionInvoiceIssuedNotification;
+use App\Services\Mail\TransactionalMailer;
 use App\Services\SubscriptionInvoiceIssuer;
 use App\Services\SubscriptionWizardService;
 use App\Services\TeamNotifier;
@@ -105,8 +106,15 @@ class ReviewController extends Controller
         // Issuing is idempotent, so a replayed submission cannot bill twice.
         $invoice = $this->invoices->issueForSubscription($subscription);
 
-        $school->users()->each(
-            fn ($user) => $user->notify(new SubscriptionInvoiceIssuedNotification($invoice))
+        // Sent now and recorded, never allowed to break the submission: the
+        // payment is already saved, and a mail problem is shown to the
+        // AkademicNest Team rather than turning the school's checkout into an error.
+        app(TransactionalMailer::class)->sendToEach(
+            $school->users()->whereNotNull('email')->get(),
+            fn () => new SubscriptionInvoiceIssuedNotification($invoice),
+            'invoice-issued',
+            $subscription,
+            $school->id,
         );
 
         AuditLog::record('subscription.submitted', "Submitted a {$subscription->plan->name} subscription for review.", $subscription);

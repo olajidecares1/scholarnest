@@ -183,16 +183,43 @@
             This subscription becomes active once a {{ $settings->site_name ?: config('app.name') }}
             administrator has reviewed and approved the payment. You will be emailed as soon as that happens.
         </div>
-    @elseif ($invoice->approvedAt())
-        <div class="box" style="margin-top: 18px;">
-            <span class="label">Approved</span>
-            <div style="margin-top: 3px;">
-                {{ $invoice->approvedAt()->format('j F Y') }}
-                @if ($invoice->approvedBy())
-                    by {{ $invoice->approvedBy()->name }}
-                @endif
-            </div>
-        </div>
+    @endif
+
+    @php
+        $topUp = $invoice->topUp;
+        $details = array_filter([
+            'Payment method' => $invoice->paymentMethodLabel(),
+            'Payment reference' => $invoice->payment_reference,
+            'Payment date' => $invoice->paidOn()?->format('j F Y'),
+            'Approved on' => $invoice->approvedAt()
+                ? $invoice->approvedAt()->format('j F Y').($invoice->approvedBy() ? ' by '.$invoice->approvedBy()->name : '')
+                : null,
+            'Capacity before' => $topUp?->previous_students_count !== null ? number_format($topUp->previous_students_count).' students' : null,
+            'Capacity added' => $topUp?->approved_students_count !== null ? number_format($topUp->approved_students_count).' students' : null,
+            'Capacity after' => $topUp?->new_students_count !== null ? number_format($topUp->new_students_count).' students' : null,
+        ], fn ($value) => filled($value));
+    @endphp
+
+    @if ($details !== [])
+        <table style="margin-top: 18px;">
+            <tr>
+                <td class="box">
+                    <div class="label" style="margin-bottom: 6px;">Payment Details</div>
+                    <table>
+                        @foreach (array_chunk($details, 2, true) as $pair)
+                            <tr>
+                                @foreach ($pair as $label => $value)
+                                    <td style="width: 50%; padding: 3px 0; vertical-align: top;">
+                                        <span class="muted">{{ $label }}:</span>
+                                        <strong>{{ $value }}</strong>
+                                    </td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                    </table>
+                </td>
+            </tr>
+        </table>
     @endif
 
     <div class="footer">

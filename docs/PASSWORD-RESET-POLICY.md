@@ -20,9 +20,8 @@ flow, because there is nobody above them inside the school to ask.
 
 | Account type | Can reset their own forgotten password? | Who resets it |
 | ------------ | --------------------------------------- | ------------- |
-| Super Admin | Yes | Self-service |
-| School Admin | Yes | Self-service (link + 6-digit code) |
-
+| Super Admin | Yes | Self-service (6-digit code) |
+| School Admin | Yes | Self-service (6-digit code) |
 | Staff | **No** | Their School Admin |
 | Student | **No** | Their School Admin |
 | Parent/Guardian | **No** | Their School Admin |
@@ -51,59 +50,50 @@ achieves nothing, because the interface is not what enforces it.
 
 ## How the administrator flow works
 
-Laravel's own password broker, with one addition.
+Three steps on one page, each checked on the server
+(`App\Http\Controllers\Auth\PasswordResetController`, with the codes in
+`App\Services\Auth\PasswordResetCodes`).
 
 ```
-Forgot password?  ->  enter email  ->  always the same answer
-                                        ↓
-                          email: "Reset Your AkademicNest Password"
-                          [ Reset Password ]  +  6-digit code
-                                        ↓
-                      reset page: code + new password + confirm
-                                        ↓
-                          password updated  ->  sign in
+Forgot password?  ->  enter email  ->  the same answer for every address
+                                        |
+                          email: "Your AkademicNest Password Reset Code"
+                                  6-digit code, no link
+                                        |
+                   enter the code  ->  wrong: "Invalid verification code...",
+                                        password fields stay hidden
+                                        |
+                          right: New Password + Confirm Password
+                                        |
+                  password updated, code spent  ->  "Go to Sign In"
 ```
 
-**Laravel owns the token.** It generates it, decides when it expires
-(`auth.passwords.users.expire`, 60 minutes), refuses it once used, and replaces
-it when a new one is requested. None of that is re-implemented here.
+**Who can use it.** Active accounts with the Super Admin or School Admin role.
 
-**The code is the addition, and it is derived rather than stored.** It is an
-HMAC of the token under the application key, see `App\Support\PasswordResetCode`.
-That means it expires with the token, is replaced with the token, and is deleted
-with the token, without a second table that could disagree with the first.
-Someone holding the link holds the token and nothing else; without the key they
-cannot compute the code, so the link alone remains insufficient.
+**The code.** Six random digits, stored only as a hash in
+`password_reset_tokens`. It expires after 15 minutes, allows 5 wrong attempts
+before it is cancelled, and a new request replaces it. Once verified, the hash
+is replaced with the hash of a one-time key held only in that browser's
+session, so the same code cannot be entered again and the password can only be
+set by the browser that entered it. The row is deleted when the password
+changes.
 
-Why a code at all: the link travels through mail servers, sits in an inbox that
-may be shared or open on a staffroom screen, and leaks through referrer headers
-and browser history. Requiring the code means whoever resets the password had to
-read the email body, not merely acquire the URL from it.
+**What the email step reveals.** Every address moves on to the code step with
+the same sentence, whether or not it has an account. The one exception is
+deliberate: when an account exists and the email could not be sent, the page
+says so rather than pretending a code is on its way.
 
-**What the request endpoint never reveals.** The answer is the same sentence
-whether the address has an account, has no account, or asked too recently.
-Laravel's default says "We can't find a user with that email address", which
-turns the form into a free way to test who is a AkademicNest administrator.
+**Rate limits.** Each step has its own per-IP limit (5 requests a minute to
+send, 10 to verify, 5 to set the password), and one address is sent at most
+one code a minute and five an hour.
 
-**Where the link points.** The URL is built from `APP_URL`, not from the request.
-Laravel's `route()` takes its host from the incoming request, so a forged Host
-header on the forgot-password endpoint would otherwise put an attacker's domain
-in the victim's email, and the victim would hand over their token by clicking
-it.
+**Delivery.** The code email is sent immediately (not queued) through
+`App\Services\Mail\TransactionalMailer` and recorded in `email_deliveries`.
 
-**What is recorded.** Every request is written to the application log, including
-the ones that matched nothing, because a run of misses is what enumeration looks
-like. Successful resets additionally write an audit entry and send the account
-holder a "your password was changed" notification, the one message that reaches
-somebody whose account was taken by whoever controls their inbox.
-
-> **There used to be two flows.** A second, parallel reset, its own token table,
-> its own broker, its own four pages, existed alongside this one, and nothing
-> linked to it. The sign-in page pointed at the route *without* the verification
-> code, so every administrator who ever clicked "Forgot password?" used the
-> weaker path while the stronger one sat unreachable and unaudited. The code
-> moved onto the linked route and the parallel flow was deleted.
-
+**What is recorded.** Every request is written to the application log,
+including the ones that matched nothing. Sent codes, cancelled codes and
+completed resets are written to the audit log, and the account holder is
+emailed that their password was changed.
 ### 1. The routes do not exist
 
 There is no forgot-password route registered for the `student`, `staff` or

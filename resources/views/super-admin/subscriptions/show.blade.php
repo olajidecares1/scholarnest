@@ -22,6 +22,8 @@
             </div>
         @endif
 
+        @include('super-admin.subscriptions._email-outcome')
+
         @if ($errors->any())
             <div class="rounded-[5px] bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
                 <ul class="list-inside list-disc space-y-1">
@@ -178,6 +180,59 @@
                         <span x-show="submitting" x-cloak>Rejecting&hellip;</span>
                     </button>
                 </form>
+            </div>
+        @endif
+
+        {{-- The emails the school was sent when this was approved, and whether
+             each one was actually delivered. --}}
+        @if ($subscription->status === \App\Enums\SubscriptionStatus::Active)
+            <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5 dark:border-gray-700">
+                    <div>
+                        <h2 class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+                            <i class="fa-solid fa-envelope-open-text text-primary-600" aria-hidden="true"></i> Emails to the school
+                        </h2>
+                        <p class="field-hint mt-0.5">The welcome email and the paid invoice.</p>
+                    </div>
+
+                    <form method="POST" action="{{ route('super-admin.subscriptions.resend-emails', $subscription) }}" x-data="{ sending: false }" @submit="sending = true">
+                        @csrf
+                        <button type="submit" :disabled="sending" class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                            <span x-show="! sending">Resend emails</span>
+                            <span x-show="sending" x-cloak>Sending&hellip;</span>
+                        </button>
+                    </form>
+                </div>
+
+                @if ($emailDeliveries->isEmpty())
+                    <p class="p-5 text-sm text-gray-500 dark:text-gray-400">No emails have been recorded for this subscription yet.</p>
+                @else
+                    <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @foreach ($emailDeliveries as $delivery)
+                            <li class="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                        {{ \Illuminate\Support\Str::headline($delivery->kind) }}
+                                    </p>
+                                    <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $delivery->recipient }}</p>
+                                    @if (! $delivery->wasSent() && $delivery->error)
+                                        <p class="mt-1 break-words text-xs text-red-600 dark:text-red-400">{{ $delivery->error }}</p>
+                                    @endif
+                                </div>
+                                @if ($delivery->wasSent())
+                                    <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                        <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Sent {{ $delivery->sent_at?->format('j M Y, g:ia') }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                        <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Not sent
+                                    </span>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
             </div>
         @endif
 

@@ -77,7 +77,7 @@ that list once no verified domain relies on an old prefix.
 | `SESSION_DRIVER` | `redis` (or `database`) | `file` does not survive more than one web node. |
 | `CACHE_STORE` | `redis` | Same reason. |
 | `QUEUE_CONNECTION` | `redis` (or `database`) | Used by a worker when one is running. CBT extraction works without one. |
-| `MAIL_MAILER` | a real transport | Password resets, result notices and credential handovers all go by mail. |
+| `MAIL_MAILER` | `smtp` (with `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`) | Welcome emails, invoices, top-up confirmations and password reset codes. Left on `log`, nothing is delivered: the app refuses to call those emails sent and shows the reason. Prove delivery with `php artisan mail:test you@example.com` or **Settings -> Email delivery -> Send test email**. |
 | `LOG_LEVEL` | `warning` | `debug` writes request detail to disk indefinitely. |
 
 ## A queue worker is optional

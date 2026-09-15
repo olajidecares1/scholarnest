@@ -16,6 +16,8 @@
             </div>
         @endif
 
+        @include('super-admin.subscriptions._email-outcome')
+
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-amber-600 dark:text-amber-400">Pending Approvals</p>
@@ -283,6 +285,17 @@
                                                     </form>
                                                 </div>
                                             </div>
+                                        @elseif ($topUp->status->value === 'approved')
+                                            {{-- The top-up confirmation and its invoice, sent again to
+                                                 whoever has not received them. --}}
+                                            <form method="POST" action="{{ route('super-admin.subscriptions.top-ups.resend-emails', $topUp) }}" x-data="{ sending: false }" @submit="sending = true">
+                                                @csrf
+                                                <button type="submit" :disabled="sending" class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                                                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                                                    <span x-show="! sending">Resend emails</span>
+                                                    <span x-show="sending" x-cloak>Sending&hellip;</span>
+                                                </button>
+                                            </form>
                                         @endif
                                     </td>
                                 </tr>

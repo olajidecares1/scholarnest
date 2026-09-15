@@ -4,9 +4,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
-use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SuperAdminSessionController;
 use App\Http\Controllers\Auth\VerifyEmailController;
@@ -34,28 +33,32 @@ Route::middleware('guest')->group(function () {
 
     Route::post(R::uri('super-admin.login'), [SuperAdminSessionController::class, 'store']);
 
-    Route::get(R::uri('password.request'), [PasswordResetLinkController::class, 'create'])
+    // "Forgot password?" for the AkademicNest Team and School Admins: email,
+    // then a 6-digit code, then the new password, all on this one page.
+    // See App\Http\Controllers\Auth\PasswordResetController.
+    Route::get(R::uri('password.request'), [PasswordResetController::class, 'show'])
         ->name('password.request');
 
-    Route::get(R::uri('password.reset').'/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
+    Route::post(R::uri('password.restart'), [PasswordResetController::class, 'restart'])
+        ->name('password.restart');
 
-    // Both of these are limited per IP address.
+    // Limited per IP address, on top of the per-address limits inside the
+    // controller: one visitor must not be able to spray codes at many
+    // accounts, or try codes quickly enough to guess one.
     //
-    // Laravel's password broker already refuses to send a second link for the
-    // SAME email address within 60 seconds. What it does not stop is one
-    // address requesting links for thousands of DIFFERENT accounts, which
-    // would spray reset emails at a school's users and get AkademicNest's sending
-    // domain marked as spam.
-    //
-    // The same limit protects password.store from having reset tokens guessed.
-    Route::middleware('throttle:5,1')->group(function () {
-        Route::post(R::uri('password.request'), [PasswordResetLinkController::class, 'store'])
-            ->name('password.email');
+    // Each step has its own allowance (the third throttle argument names it),
+    // so a person who mistypes a code is not locked out of setting a password.
+    Route::post(R::uri('password.request'), [PasswordResetController::class, 'sendCode'])
+        ->middleware('throttle:5,1,password-email')
+        ->name('password.email');
 
-        Route::post(R::uri('password.store'), [NewPasswordController::class, 'store'])
-            ->name('password.store');
-    });
+    Route::post(R::uri('password.verify'), [PasswordResetController::class, 'verifyCode'])
+        ->middleware('throttle:10,1,password-verify')
+        ->name('password.verify');
+
+    Route::post(R::uri('password.store'), [PasswordResetController::class, 'reset'])
+        ->middleware('throttle:5,1,password-store')
+        ->name('password.store');
 
     // There was a second, parallel reset flow here, its own token table, its
     // own broker, its own four pages, and NOTHING LINKED TO IT. The sign-in

@@ -2,34 +2,26 @@
 
 namespace App\Notifications;
 
-use App\Support\PasswordResetCode;
+use App\Services\Auth\PasswordResetCodes;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * The password-reset email, in AkademicNest's own words rather than Laravel's.
+ * The password-reset email: a 6-digit code, and nothing else that unlocks the
+ * account.
  *
- * THE LINK IS BUILT FROM APP_URL, NOT FROM THE REQUEST. That is the one thing
- * in this class that is a security control rather than presentation. Laravel's
- * route() takes its host from the incoming request, so an attacker who sends a
- * forged Host header to the forgot-password endpoint would have the reset link
- * in the victim's email point at the attacker's domain, and the victim would
- * hand over their token by clicking it. Building the URL from configuration
- * makes the header irrelevant.
+ * There is no link. The code is typed on the page the person is already on, so
+ * a copy of this email forwarded, left open or read over a shoulder is only
+ * useful for EXPIRES_MINUTES, and only in the browser that asked for it.
  *
- * The six-digit code is deliberately in the BODY and never in the URL. Putting
- * it in the link would defeat the point of having it: the whole reason it
- * exists is that possession of the URL should not be enough.
+ * It never contains a password, old or new.
  */
 class ResetPasswordNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(
-        public string $token,
-        public string $email,
-    ) {}
+    public function __construct(#[\SensitiveParameter] public string $code) {}
 
     /**
      * @return array<int, string>
@@ -41,32 +33,16 @@ class ResetPasswordNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $minutes = (int) config('auth.passwords.users.expire', 60);
+        $minutes = PasswordResetCodes::EXPIRES_MINUTES;
 
         return (new MailMessage)
-            ->subject('Reset Your AkademicNest Password')
+            ->subject('Your AkademicNest Password Reset Code')
             ->greeting('Hello '.($notifiable->name ?: 'there').',')
-            ->line('We received a request to reset your AkademicNest account password. Click the button below to create a new password.')
-            ->action('Reset Password', $this->resetUrl())
-            ->line('You will be asked for this verification code:')
-            ->line('**'.PasswordResetCode::for($this->token).'**')
-            ->line("This link and code expire in {$minutes} minutes and can only be used once.")
-            // Said plainly because the code is the second half of the reset:
-            // anyone holding both it and the link can change the password.
+            ->line('We received a request to reset the password for your AkademicNest account. Enter this verification code on the password reset page:')
+            ->line('# '.$this->code)
+            ->line("The code expires in {$minutes} minutes and can only be used once.")
             ->line('Keep this code to yourself. AkademicNest staff will never ask you for it.')
-            ->line('If you did not request a password reset, you can safely ignore this email. Your password will not be changed.')
+            ->line('If you did not ask to reset your password, you can safely ignore this email. Your password will not be changed.')
             ->salutation('Regards, AkademicNest Team');
-    }
-
-    /**
-     * Always the official address, whatever host the request arrived at.
-     */
-    private function resetUrl(): string
-    {
-        $path = route('password.reset', ['token' => $this->token], absolute: false);
-
-        return rtrim((string) config('app.url'), '/')
-            .$path
-            .'?email='.urlencode($this->email);
     }
 }

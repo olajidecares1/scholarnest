@@ -6,7 +6,6 @@ namespace App\Models;
 use App\Enums\UserRole;
 use App\Models\Concerns\HasProtectedPhoto;
 use App\Models\Concerns\HasSignature;
-use App\Notifications\ResetPasswordNotification;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -108,16 +107,13 @@ class User extends Authenticatable
     }
 
     /**
-     * AkademicNest's own reset email, not Laravel's default.
-     *
-     * Overridden here rather than configured with ResetPassword::toMailUsing()
-     * in a service provider, because this is the only model that has a reset
-     * flow at all, Staff, Student and Guardian deliberately do not, see
-     * docs/PASSWORD-RESET-POLICY.md, and a global callback would suggest
-     * otherwise to anyone reading it.
+     * Laravel's link-based reset is not used. "Forgot password?" sends a
+     * 6-digit code instead, see App\Http\Controllers\Auth\PasswordResetController.
+     * Refusing here means nothing can quietly fall back to Laravel's default
+     * email with a link in it.
      */
     public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
     {
-        $this->notify(new ResetPasswordNotification($token, $this->email));
+        throw new \LogicException('Password resets use a 6-digit code. See PasswordResetController.');
     }
 }

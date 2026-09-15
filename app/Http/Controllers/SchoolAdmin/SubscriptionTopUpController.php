@@ -11,6 +11,7 @@ use App\Models\PaymentMethodSetting;
 use App\Models\SubscriptionTopUp;
 use App\Notifications\NewSubscriptionTopUpSubmittedNotification;
 use App\Notifications\SubscriptionInvoiceIssuedNotification;
+use App\Services\Mail\TransactionalMailer;
 use App\Services\PaymentReceiptScreening;
 use App\Services\ReceiptUploadService;
 use App\Services\StudentLicenceAllocation;
@@ -137,8 +138,12 @@ class SubscriptionTopUpController extends Controller
         // App\Services\SubscriptionInvoiceIssuer rather than minting their own.
         $invoice = app(SubscriptionInvoiceIssuer::class)->issueForTopUp($topUp);
 
-        $school->users()->each(
-            fn ($user) => $user->notify(new SubscriptionInvoiceIssuedNotification($invoice))
+        app(TransactionalMailer::class)->sendToEach(
+            $school->users()->whereNotNull('email')->get(),
+            fn () => new SubscriptionInvoiceIssuedNotification($invoice),
+            'top-up-invoice-issued',
+            $topUp,
+            $school->id,
         );
 
         AuditLog::record('invoice.issued', "Issued invoice {$invoice->number} to {$school->name}.", $invoice);

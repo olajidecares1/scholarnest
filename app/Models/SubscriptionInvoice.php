@@ -157,6 +157,26 @@ class SubscriptionInvoice extends Model
             : $this->payment()?->verifiedBy;
     }
 
+    /**
+     * How the school paid: "Bank Transfer", read from the payment record.
+     */
+    public function paymentMethodLabel(): ?string
+    {
+        return $this->subscription_top_up_id
+            ? $this->topUp?->payment_method?->label()
+            : $this->payment()?->method?->label();
+    }
+
+    /**
+     * When the school made the payment and submitted its proof.
+     */
+    public function paidOn(): ?Carbon
+    {
+        return $this->subscription_top_up_id
+            ? $this->topUp?->created_at
+            : $this->payment()?->created_at;
+    }
+
     public function statusBadgeClasses(): string
     {
         return match ($this->paymentStatus()) {

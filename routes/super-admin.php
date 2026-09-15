@@ -76,6 +76,11 @@ Route::name('subscriptions.')->middleware('permission:manage_subscriptions')->gr
     Route::post(R::uri('super-admin.subscriptions.top-ups.approve').'/{topUp}', [SubscriptionApprovalController::class, 'approveTopUp'])->name('top-ups.approve');
     Route::post(R::uri('super-admin.subscriptions.top-ups.reject').'/{topUp}', [SubscriptionApprovalController::class, 'rejectTopUp'])->name('top-ups.reject');
 
+    // Sending the welcome, top-up and invoice emails again, to whoever has not
+    // received them, once the mail settings have been fixed.
+    Route::post(R::uri('super-admin.subscriptions.resend-emails').'/{subscription}', [SubscriptionApprovalController::class, 'resendEmails'])->name('resend-emails');
+    Route::post(R::uri('super-admin.subscriptions.top-ups.resend-emails').'/{topUp}', [SubscriptionApprovalController::class, 'resendTopUpEmails'])->name('top-ups.resend-emails');
+
     // Receipts live on the private disk, so they are streamed through
     // the application behind this middleware rather than served from
     // public storage where anyone guessing a filename could read them.
@@ -240,6 +245,7 @@ Route::name('media.')->middleware('permission:manage_media')->group(function () 
 
 Route::get(R::uri('super-admin.settings.index'), [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
 Route::put(R::uri('super-admin.settings.index'), [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage_settings');
+Route::post(R::uri('super-admin.settings.test-email'), [SettingsController::class, 'sendTestEmail'])->name('settings.test-email')->middleware(['permission:manage_settings', 'throttle:6,1']);
 
 /*
  * Payment settings: how schools may pay, and what they pay into.

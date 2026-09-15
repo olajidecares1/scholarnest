@@ -110,5 +110,61 @@
                 Save Settings
             </button>
         </form>
+
+        {{-- Proving that this server can deliver email. Welcome emails, invoices,
+             top-up confirmations and password reset codes all depend on it. --}}
+        <div id="email-delivery" class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <h2 class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+                <i class="fa-solid fa-envelope-circle-check text-primary-600" aria-hidden="true"></i> Email delivery
+            </h2>
+            <p class="field-hint mt-0.5">These settings come from the server environment (MAIL_*). The password is never shown.</p>
+
+            @if ($mailProblem)
+                <div class="mt-3 flex items-start gap-2 rounded-[8px] border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation mt-0.5" aria-hidden="true"></i>
+                    <span>{{ $mailProblem }}</span>
+                </div>
+            @endif
+
+            <dl class="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+                @foreach ($mailSettings as $label => $value)
+                    <div class="flex justify-between gap-3 rounded-[8px] bg-gray-50 px-3 py-2 dark:bg-gray-900/40">
+                        <dt class="text-gray-500 dark:text-gray-400">{{ $label }}</dt>
+                        <dd class="break-all text-right font-semibold text-gray-900 dark:text-white">{{ $value }}</dd>
+                    </div>
+                @endforeach
+            </dl>
+
+            @if (session('mail_test_status'))
+                <div class="mt-3 flex items-start gap-2 rounded-[8px] border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/30 dark:text-green-300" role="status">
+                    <i class="fa-solid fa-circle-check mt-0.5" aria-hidden="true"></i>
+                    <span>{{ session('mail_test_status') }}</span>
+                </div>
+            @endif
+
+            @if (session('mail_test_error'))
+                <div class="mt-3 flex items-start gap-2 rounded-[8px] border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300" role="alert">
+                    <i class="fa-solid fa-circle-xmark mt-0.5" aria-hidden="true"></i>
+                    <span class="break-words">{{ session('mail_test_error') }}</span>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('super-admin.settings.test-email') }}#email-delivery" class="mt-4 grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end" x-data="{ sending: false }" @submit="sending = true">
+                @csrf
+                <x-text-field
+                    name="test_email"
+                    type="email"
+                    label="Send a test email to"
+                    icon="fa-at"
+                    :value="old('test_email', auth()->user()->email)"
+                    required
+                />
+                <button type="submit" :disabled="sending" class="inline-flex h-[var(--field-height)] items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 text-sm font-bold text-white hover:bg-primary-600 disabled:opacity-60">
+                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                    <span x-show="! sending">Send test email</span>
+                    <span x-show="sending" x-cloak>Sending&hellip;</span>
+                </button>
+            </form>
+        </div>
     </div>
 </x-super-admin-layout>

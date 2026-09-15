@@ -1,393 +1,373 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Models\EmailDelivery;
+use App\Models\School;
 use App\Models\User;
 use App\Notifications\PasswordChangedNotification;
 use App\Notifications\ResetPasswordNotification;
-use App\Support\PasswordResetCode;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Routing\Middleware\ThrottleRequests;
+use App\Services\Auth\PasswordResetCodes;
+use App\Services\Mail\MailReadiness;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
 /**
- * "Forgot password?", on Laravel's own broker.
+ * "Forgot password?" for the AkademicNest Team (Super Admin) and School Admins.
  *
- * Laravel owns the token: it generates it, decides when it expires, refuses it
- * once used, and replaces it when a new one is asked for. Nothing here
- * re-implements any of that.
+ *   1. Enter email     -> a 6-digit code is emailed
+ *   2. Enter the code  -> a wrong code is refused, password fields stay hidden
+ *   3. New password    -> only after the code is verified
  *
- * What this application adds is a six-digit code, derived from that token and
- * printed in the email body. The token proves possession of the URL; the code
- * proves the email itself was read. A link that leaks, a referrer header, a
- * shared inbox, a screen left open in a staffroom, is not on its own enough to
- * take an administrator's account.
+ * Every step is checked on the server. See PasswordResetController.
  */
 beforeEach(function () {
     Notification::fake();
 
-    $this->admin = User::factory()->create([
+    $this->school = School::factory()->create(['name' => 'Greenfield College']);
+
+    $this->schoolAdmin = User::factory()->create([
         'role' => UserRole::SchoolAdmin,
+        'school_id' => $this->school->id,
         'email' => 'principal@greenfield.test',
         'name' => 'Adaeze Okonkwo',
+        'password' => Hash::make('Old!Passw0rd'),
+    ]);
+
+    $this->superAdmin = User::factory()->create([
+        'role' => UserRole::SuperAdmin,
+        'school_id' => null,
+        'email' => 'team@akademicanest.test',
+        'name' => 'Grace Adeyemi',
+        'password' => Hash::make('Old!Passw0rd'),
     ]);
 });
 
 /**
- * Request a reset and return the token Laravel put in the email.
+ * Ask for a code and return the one that was emailed.
  */
-function requestResetToken(User $user): string
+function requestResetCode(User $user): string
 {
-    test()->post(route('password.email'), ['email' => $user->email]);
+    test()->post(route('password.email'), ['email' => $user->email])->assertSessionHasNoErrors();
 
-    $token = null;
+    $code = null;
 
-    Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) use (&$token) {
-        $token = $notification->token;
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function (ResetPasswordNotification $notification) use (&$code) {
+        $code = $notification->code;
 
         return true;
     });
 
-    return $token;
+    return $code;
 }
 
-describe('requesting a link', function () {
-    test('an administrator is sent one', function () {
-        $this->post(route('password.email'), ['email' => $this->admin->email])
+/**
+ * A code that is certainly not the right one.
+ */
+function wrongCode(string $right): string
+{
+    return $right === '111111' ? '222222' : '111111';
+}
+
+dataset('administrators', [
+    'School Admin' => ['schoolAdmin'],
+    'AkademicNest Super Admin' => ['superAdmin'],
+]);
+
+describe('the complete reset, start to finish', function () {
+    test('works for every administrator', function (string $who) {
+        $user = $this->{$who};
+
+        // Step 1: the email field, then a code sent to the account.
+        $this->get(route('password.request'))
+            ->assertOk()
+            ->assertSee('name="email"', false)
+            ->assertDontSee('name="code"', false)
+            ->assertDontSee('name="password"', false);
+
+        $code = requestResetCode($user);
+
+        expect($code)->toMatch('/^\d{6}$/');
+
+        // Step 2: the code field appears, the password fields do not.
+        $this->get(route('password.request'))
+            ->assertOk()
+            ->assertSee('name="code"', false)
+            ->assertSee('Check Your Email')
+            ->assertDontSee('name="password"', false);
+
+        // A wrong code: a clear error, and still no password fields.
+        $this->post(route('password.verify'), ['code' => wrongCode($code)])
+            ->assertSessionHasErrors(['code' => PasswordResetController::INVALID_CODE]);
+
+        $this->get(route('password.request'))
+            ->assertSee(PasswordResetController::INVALID_CODE)
+            ->assertSee('name="code"', false)
+            ->assertDontSee('name="password"', false);
+
+        // The same wrong code cannot set a password either, whatever is posted.
+        $this->post(route('password.store'), [
+            'password' => 'Brand!New2Pass',
+            'password_confirmation' => 'Brand!New2Pass',
+        ])->assertSessionHasErrors('email');
+
+        expect(Hash::check('Old!Passw0rd', $user->fresh()->password))->toBeTrue();
+
+        // Ask again: the reset had to start over after that refused attempt.
+        $code = requestResetCode($user->fresh());
+
+        // The right code: straight on to the password fields.
+        $this->post(route('password.verify'), ['code' => $code])
             ->assertSessionHasNoErrors()
-            ->assertSessionHas('status');
+            ->assertRedirect(route('password.request'));
 
-        Notification::assertSentTo($this->admin, ResetPasswordNotification::class);
-    });
+        $this->get(route('password.request'))
+            ->assertOk()
+            ->assertSee('name="password"', false)
+            ->assertSee('name="password_confirmation"', false)
+            ->assertDontSee('name="code"', false);
 
-    test('the answer never reveals whether the account exists', function () {
-        // Laravel's default says "We can't find a user with that email address",
-        // which turns this form into a free way to test who is a AkademicNest
-        // administrator, useful to anyone writing a phishing email.
-        $real = $this->post(route('password.email'), ['email' => $this->admin->email]);
-        $fake = $this->post(route('password.email'), ['email' => 'nobody@nowhere.test']);
+        // Step 3: the new password.
+        $this->post(route('password.store'), [
+            'password' => 'Brand!New2Pass',
+            'password_confirmation' => 'Brand!New2Pass',
+        ])->assertSessionHasNoErrors();
 
-        expect($fake->getSession()->get('status'))->toBe($real->getSession()->get('status'));
+        $this->get(route('password.request'))
+            ->assertOk()
+            ->assertSee('Password Reset')
+            ->assertSee('Go to Sign In');
 
-        $fake->assertSessionHasNoErrors();
-        Notification::assertNothingSentTo(User::factory()->make(['email' => 'nobody@nowhere.test']));
-    });
+        // The new password works and the old one no longer does.
+        $fresh = $user->fresh();
 
-    test('asking again too soon is answered the same way, not with a throttle message', function () {
-        // "You asked too recently" also confirms the address belongs to
-        // somebody, so it is folded into the same sentence.
-        $first = $this->post(route('password.email'), ['email' => $this->admin->email]);
-        $second = $this->post(route('password.email'), ['email' => $this->admin->email]);
+        expect(Hash::check('Brand!New2Pass', $fresh->password))->toBeTrue()
+            ->and(Hash::check('Old!Passw0rd', $fresh->password))->toBeFalse()
+            ->and(Auth::guard('web')->validate(['email' => $user->email, 'password' => 'Brand!New2Pass']))->toBeTrue()
+            ->and(Auth::guard('web')->validate(['email' => $user->email, 'password' => 'Old!Passw0rd']))->toBeFalse();
 
-        expect($second->getSession()->get('status'))->toBe($first->getSession()->get('status'));
-        $second->assertSessionHasNoErrors();
-    });
+        // The same code cannot be used again.
+        $this->withSession(['password_reset.email' => $user->email])
+            ->post(route('password.verify'), ['code' => $code])
+            ->assertSessionHasErrors(['code' => PasswordResetController::INVALID_CODE]);
+    })->with('administrators');
 
-    test('a new request replaces the previous link', function () {
-        // Laravel's broker does this. The test is here because the code is
-        // derived from the token, so replacing the token must also retire the
-        // code that went with it.
-        $first = requestResetToken($this->admin);
+    test('a used code is rejected even in the same session', function (string $who) {
+        $user = $this->{$who};
+        $code = requestResetCode($user);
 
-        $this->travel(61)->seconds();
-        $second = requestResetToken($this->admin);
+        $this->post(route('password.verify'), ['code' => $code])->assertSessionHasNoErrors();
+        $this->post(route('password.store'), [
+            'password' => 'Brand!New2Pass',
+            'password_confirmation' => 'Brand!New2Pass',
+        ])->assertSessionHasNoErrors();
 
-        expect($second)->not->toBe($first)
-            ->and(Password::broker()->tokenExists($this->admin, $first))->toBeFalse()
-            ->and(Password::broker()->tokenExists($this->admin, $second))->toBeTrue();
+        // Start again with the same address, and replay the old code.
+        $this->post(route('password.restart'));
+        $this->withSession(['password_reset.email' => $user->email])
+            ->post(route('password.verify'), ['code' => $code])
+            ->assertSessionHasErrors(['code' => PasswordResetController::INVALID_CODE]);
+
+        expect(Hash::check('Brand!New2Pass', $user->fresh()->password))->toBeTrue();
+    })->with('administrators');
+
+    test('after a reset, each lands on its own sign-in page', function () {
+        $code = requestResetCode($this->superAdmin);
+        $this->post(route('password.verify'), ['code' => $code]);
+        $this->post(route('password.store'), ['password' => 'Brand!New2Pass', 'password_confirmation' => 'Brand!New2Pass']);
+
+        $this->get(route('password.request'))->assertSee(route('super-admin.login'), false);
+
+        $this->post(route('password.restart'));
+
+        $code = requestResetCode($this->schoolAdmin);
+        $this->post(route('password.verify'), ['code' => $code]);
+        $this->post(route('password.store'), ['password' => 'Brand!New2Pass', 'password_confirmation' => 'Brand!New2Pass']);
+
+        $this->get(route('password.request'))->assertSee($this->school->portalLoginUrl('web'), false);
     });
 });
 
 describe('the email', function () {
-    test('it is AkademicNest\'s, not Laravel\'s', function () {
-        $token = requestResetToken($this->admin);
+    test('carries the code, and never a password or a link to reset', function () {
+        $code = requestResetCode($this->schoolAdmin);
 
-        $mail = (new ResetPasswordNotification($token, $this->admin->email))->toMail($this->admin);
+        $mail = (new ResetPasswordNotification($code))->toMail($this->schoolAdmin);
+        $body = implode(' ', array_merge($mail->introLines, $mail->outroLines));
 
-        expect($mail->subject)->toBe('Reset Your AkademicNest Password')
-            ->and($mail->greeting)->toBe('Hello Adaeze Okonkwo,')
-            ->and($mail->actionText)->toBe('Reset Password')
-            ->and($mail->salutation)->toBe('Regards, AkademicNest Team');
-
-        expect(implode(' ', $mail->introLines))
-            ->toContain('We received a request to reset your AkademicNest account password');
-
-        expect(implode(' ', $mail->outroLines))
-            ->toContain('you can safely ignore this email');
+        expect($mail->subject)->toBe('Your AkademicNest Password Reset Code')
+            ->and($body)->toContain($code)
+            ->and($body)->toContain('15 minutes')
+            ->and($body)->not->toContain('Old!Passw0rd')
+            ->and($mail->actionUrl)->toBeNull();
     });
 
-    test('Laravel\'s default notification is never used', function () {
-        $this->post(route('password.email'), ['email' => $this->admin->email]);
+    test('is recorded as delivered', function () {
+        requestResetCode($this->schoolAdmin);
 
-        Notification::assertNotSentTo($this->admin, ResetPassword::class);
+        expect(EmailDelivery::where('kind', 'password-reset-code')->where('recipient', $this->schoolAdmin->email)->value('status'))
+            ->toBe(EmailDelivery::SENT);
     });
 
-    test('the link points at the official domain, whatever Host header was sent', function () {
-        // The attack this closes: a forged Host header on the forgot-password
-        // request would otherwise put the attacker's domain in the victim's
-        // email, and the victim would hand over their token by clicking it.
-        config(['app.url' => 'https://akademicanest.com']);
+    test('is not claimed as sent when mail is not configured, and no code is left behind', function () {
+        // What a production server with MAIL_MAILER=log reports.
+        $this->mock(MailReadiness::class, fn ($mock) => $mock->shouldReceive('problem')->andReturn('Email is not set up on this server.'));
 
-        $token = requestResetToken($this->admin);
-        $mail = (new ResetPasswordNotification($token, $this->admin->email))->toMail($this->admin);
-
-        expect($mail->actionUrl)->toStartWith('https://akademicanest.com/');
-    });
-
-    test('it carries the code in the body and never in the link', function () {
-        // Putting the code in the URL would defeat the point of having one.
-        $token = requestResetToken($this->admin);
-        $code = PasswordResetCode::for($token);
-
-        $mail = (new ResetPasswordNotification($token, $this->admin->email))->toMail($this->admin);
-
-        // The whole body, not one bucket: MailMessage sorts lines into intro
-        // and outro depending on whether they were added before or after the
-        // action button, and which side the code lands on is presentation.
-        $body = implode(' ', [...$mail->introLines, ...$mail->outroLines]);
-
-        expect($body)->toContain($code)
-            ->and($mail->actionUrl)->not->toContain($code);
-    });
-
-    test('it never contains a password', function () {
-        $token = requestResetToken($this->admin);
-        $mail = (new ResetPasswordNotification($token, $this->admin->email))->toMail($this->admin);
-
-        $body = implode(' ', [...$mail->introLines, ...$mail->outroLines, $mail->actionUrl]);
-
-        expect(strtolower($body))->not->toContain('password:')
-            ->and($body)->not->toContain($this->admin->password);
-    });
-});
-
-describe('resetting the password', function () {
-    test('the link and the correct code together work', function () {
-        $token = requestResetToken($this->admin);
-
-        $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => PasswordResetCode::for($token),
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Str0ng!NewPassw0rd',
-        ])
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('login'));
-
-        expect(Hash::check('Str0ng!NewPassw0rd', $this->admin->fresh()->password))->toBeTrue();
-    });
-
-    test('THE LINK ALONE IS NOT ENOUGH', function () {
-        // The whole reason the code exists.
-        $token = requestResetToken($this->admin);
-        $before = $this->admin->password;
-
-        $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => '000000',
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Str0ng!NewPassw0rd',
-        ])->assertSessionHasErrors('code');
-
-        expect($this->admin->fresh()->password)->toBe($before);
-    });
-
-    test('a missing code is refused', function () {
-        $token = requestResetToken($this->admin);
-
-        $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Str0ng!NewPassw0rd',
-        ])->assertSessionHasErrors('code');
-    });
-
-    test('guessing the code is given a small number of tries per link', function () {
-        // The ROUTE throttle is deliberately turned off here. Laravel keys it
-        // by domain and IP rather than by URI, so it is shared across every
-        // route in the guest group, six requests in a minute exhausts it
-        // whatever they were for. That is a real second layer and it is
-        // asserted separately below; this test is about the per-link attempt
-        // limit, which has to hold on its own.
-        $this->withoutMiddleware(ThrottleRequests::class);
-
-        $token = requestResetToken($this->admin);
-
-        $wrong = fn () => $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => '111111',
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Str0ng!NewPassw0rd',
-        ]);
-
-        for ($i = 0; $i < 5; $i++) {
-            $wrong()->assertSessionHasErrors('code');
-        }
-
-        // Exhausted. Even the CORRECT code no longer works on this link.
-        $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => PasswordResetCode::for($token),
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Str0ng!NewPassw0rd',
-        ])->assertSessionHasErrors('code');
-
-        expect(Hash::check('Str0ng!NewPassw0rd', $this->admin->fresh()->password))->toBeFalse();
-    });
-
-    test('a token cannot be used twice', function () {
-        $token = requestResetToken($this->admin);
-        $code = PasswordResetCode::for($token);
-
-        $payload = [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => $code,
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Str0ng!NewPassw0rd',
-        ];
-
-        $this->post(route('password.store'), $payload)->assertSessionHasNoErrors();
-
-        $this->post(route('password.store'), [...$payload, 'password' => 'An0ther!Passw0rd', 'password_confirmation' => 'An0ther!Passw0rd'])
+        $this->post(route('password.email'), ['email' => $this->schoolAdmin->email])
             ->assertSessionHasErrors('email');
 
-        expect(Hash::check('An0ther!Passw0rd', $this->admin->fresh()->password))->toBeFalse();
-    });
+        Notification::assertNothingSent();
 
-    test('an expired token is refused', function () {
-        $token = requestResetToken($this->admin);
-
-        $this->travel(config('auth.passwords.users.expire') + 1)->minutes();
-
-        $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => PasswordResetCode::for($token),
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Str0ng!NewPassw0rd',
-        ])->assertSessionHasErrors('email');
-    });
-
-    test('a weak password is refused even with a valid link and code', function () {
-        $token = requestResetToken($this->admin);
-
-        $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => PasswordResetCode::for($token),
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ])->assertSessionHasErrors('password');
-    });
-
-    test('the confirmation must match', function () {
-        $token = requestResetToken($this->admin);
-
-        $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => PasswordResetCode::for($token),
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Different!Passw0rd',
-        ])->assertSessionHasErrors('password');
-    });
-
-    test('a successful reset tells the account holder it happened', function () {
-        // The one message that reaches somebody whose account was taken by
-        // whoever controls their inbox.
-        $token = requestResetToken($this->admin);
-
-        $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => PasswordResetCode::for($token),
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Str0ng!NewPassw0rd',
-        ]);
-
-        Notification::assertSentTo($this->admin, PasswordChangedNotification::class);
-    });
-
-    test('a successful reset is written to the audit log', function () {
-        $token = requestResetToken($this->admin);
-
-        $this->post(route('password.store'), [
-            'token' => $token,
-            'email' => $this->admin->email,
-            'code' => PasswordResetCode::for($token),
-            'password' => 'Str0ng!NewPassw0rd',
-            'password_confirmation' => 'Str0ng!NewPassw0rd',
-        ]);
-
-        $this->assertDatabaseHas('audit_logs', ['action' => 'password-reset.requested']);
+        expect(DB::table('password_reset_tokens')->count())->toBe(0)
+            ->and(EmailDelivery::where('kind', 'password-reset-code')->value('status'))->toBe(EmailDelivery::FAILED);
     });
 });
 
-describe('the code itself', function () {
-    test('it is six digits', function () {
-        expect(PasswordResetCode::for('any-token-at-all'))->toMatch('/^\d{6}$/');
+describe('security', function () {
+    test('the codes are stored hashed, never in readable form', function () {
+        $code = requestResetCode($this->schoolAdmin);
+
+        $row = DB::table('password_reset_tokens')->first();
+
+        expect($row->token)->not->toBe($code)
+            ->and(Hash::check($code, $row->token))->toBeTrue();
     });
 
-    test('a different token gives a different code', function () {
-        expect(PasswordResetCode::for('token-one'))->not->toBe(PasswordResetCode::for('token-two'));
+    test('an address with no account gets the same answer, and no email', function () {
+        $known = $this->post(route('password.email'), ['email' => $this->schoolAdmin->email]);
+        $knownStatus = session('status');
+        $this->post(route('password.restart'));
+        $unknown = $this->post(route('password.email'), ['email' => 'nobody@example.test']);
+        $unknownStatus = session('status');
+
+        expect(str_replace($this->schoolAdmin->email, 'X', $knownStatus))
+            ->toBe(str_replace('nobody@example.test', 'X', $unknownStatus));
+
+        $known->assertRedirect(route('password.request'));
+        $unknown->assertRedirect(route('password.request'));
+
+        Notification::assertSentTimes(ResetPasswordNotification::class, 1);
     });
 
-    test('the same token always gives the same code', function () {
-        // It has to, or the code in an email sent a minute ago would stop
-        // matching. This is what lets it be derived rather than stored.
-        expect(PasswordResetCode::for('stable'))->toBe(PasswordResetCode::for('stable'));
-    });
-
-    test('it cannot be computed without the application key', function () {
-        // Which is what keeps it a second factor: somebody holding the link
-        // holds the token and nothing else.
-        $token = 'a-token';
-        $first = PasswordResetCode::for($token);
-
-        config(['app.key' => 'base64:'.base64_encode(random_bytes(32))]);
-
-        expect(PasswordResetCode::for($token))->not->toBe($first);
-    });
-});
-
-describe('only administrators have this at all', function () {
-    test('there is no reset route for staff, students or guardians', function () {
-        // Not "the link is hidden", there is no endpoint behind it. See
-        // docs/PASSWORD-RESET-POLICY.md for why schools are different.
+    test('staff, students and parents cannot use it', function () {
         foreach (['staff.password.request', 'student.password.request', 'guardian.password.request'] as $name) {
             expect(Route::has($name))->toBeFalse();
         }
+
+        $deactivated = User::factory()->create(['role' => UserRole::SchoolAdmin, 'is_active' => false]);
+
+        $this->post(route('password.email'), ['email' => $deactivated->email]);
+
+        Notification::assertNothingSent();
     });
 
-    test('the parallel admin reset flow is gone', function () {
-        // It existed, nothing linked to it, and it was a second way into the
-        // same account without the verification code.
-        foreach (['admin.password-reset.request', 'admin.password-reset.show', 'admin.password-reset.complete'] as $name) {
-            expect(Route::has($name))->toBeFalse();
+    test('a new request replaces the earlier code', function () {
+        $first = requestResetCode($this->schoolAdmin);
+
+        $this->travel(2)->minutes();
+        Notification::fake();
+
+        $second = requestResetCode($this->schoolAdmin);
+
+        if ($first === $second) {
+            $this->markTestSkipped('The two random codes happened to match.');
         }
-    });
-});
 
-describe('the routes are rate limited', function () {
-    test('a burst of requests is cut off', function () {
-        // The second layer, above the per-link attempt limit. Laravel's broker
-        // already refuses a second link for the SAME address within 60 seconds;
-        // this is what stops one address requesting links for hundreds of
-        // DIFFERENT accounts and getting AkademicNest's sending domain marked as
-        // spam.
+        $this->post(route('password.verify'), ['code' => $first])
+            ->assertSessionHasErrors(['code' => PasswordResetController::INVALID_CODE]);
+
+        $this->post(route('password.verify'), ['code' => $second])->assertSessionHasNoErrors();
+    });
+
+    test('codes expire', function () {
+        $code = requestResetCode($this->schoolAdmin);
+
+        $this->travel(PasswordResetCodes::EXPIRES_MINUTES + 1)->minutes();
+
+        $this->post(route('password.verify'), ['code' => $code])
+            ->assertSessionHasErrors('code');
+
+        $this->get(route('password.request'))->assertDontSee('name="password"', false);
+    });
+
+    test('too many wrong codes cancel the code', function () {
+        $code = requestResetCode($this->schoolAdmin);
+
+        for ($i = 0; $i < PasswordResetCodes::MAX_ATTEMPTS; $i++) {
+            $this->post(route('password.verify'), ['code' => wrongCode($code)]);
+        }
+
+        // Even the right code is now refused: a new one must be requested.
+        $this->post(route('password.verify'), ['code' => $code])
+            ->assertSessionHasErrors('code');
+
+        expect(DB::table('password_reset_tokens')->count())->toBe(0);
+    });
+
+    test('asking again straight away does not send another code', function () {
+        requestResetCode($this->schoolAdmin);
+
+        $this->post(route('password.email'), ['email' => $this->schoolAdmin->email])
+            ->assertSessionHasNoErrors();
+
+        Notification::assertSentTimes(ResetPasswordNotification::class, 1);
+    });
+
+    test('the password fields cannot be reached without verifying a code', function () {
+        requestResetCode($this->schoolAdmin);
+
+        // Posting straight to the last step, with a made-up session key.
+        $this->withSession(['password_reset.key' => str_repeat('x', 64)])
+            ->post(route('password.store'), [
+                'password' => 'Brand!New2Pass',
+                'password_confirmation' => 'Brand!New2Pass',
+            ])->assertSessionHasErrors('email');
+
+        expect(Hash::check('Old!Passw0rd', $this->schoolAdmin->fresh()->password))->toBeTrue();
+    });
+
+    test('the new password must meet the rules and match its confirmation', function () {
+        $code = requestResetCode($this->schoolAdmin);
+        $this->post(route('password.verify'), ['code' => $code]);
+
+        $this->post(route('password.store'), ['password' => 'weak', 'password_confirmation' => 'weak'])
+            ->assertSessionHasErrors('password');
+
+        $this->post(route('password.store'), ['password' => 'Brand!New2Pass', 'password_confirmation' => 'Different!2Pass'])
+            ->assertSessionHasErrors('password');
+
+        $this->post(route('password.store'), ['password' => 'Greenfield College1!', 'password_confirmation' => 'Greenfield College1!'])
+            ->assertSessionHasErrors('password');
+
+        expect(Hash::check('Old!Passw0rd', $this->schoolAdmin->fresh()->password))->toBeTrue();
+    });
+
+    test('a successful reset tells the account holder and is audited', function () {
+        $code = requestResetCode($this->schoolAdmin);
+        $this->post(route('password.verify'), ['code' => $code]);
+        $this->post(route('password.store'), ['password' => 'Brand!New2Pass', 'password_confirmation' => 'Brand!New2Pass']);
+
+        Notification::assertSentTo($this->schoolAdmin, PasswordChangedNotification::class);
+
+        $this->assertDatabaseHas('audit_logs', ['action' => 'password-reset.requested']);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'password-reset.completed']);
+    });
+
+    test('a burst of requests from one address is cut off', function () {
         for ($i = 0; $i < 5; $i++) {
             $this->post(route('password.email'), ['email' => "person{$i}@example.test"]);
         }
 
         $this->post(route('password.email'), ['email' => 'person99@example.test'])
             ->assertStatus(429);
+    });
+
+    test('the parallel and link-based reset routes are gone', function () {
+        foreach (['password.reset', 'admin.password-reset.request', 'admin.password-reset.show', 'admin.password-reset.complete'] as $name) {
+            expect(Route::has($name))->toBeFalse();
+        }
     });
 });
