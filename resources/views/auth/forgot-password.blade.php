@@ -52,7 +52,8 @@
             @endforeach
         </ol>
 
-        @if (session('status') && $step !== 'done')
+        {{-- On the code step the note sits under the address instead (below). --}}
+        @if (session('status') && ! in_array($step, ['code', 'done'], true))
             <div class="mt-4 flex items-start gap-2 rounded-[8px] border border-green-200 bg-green-50 p-3 text-sm text-green-800" role="status">
                 <i class="fa-solid fa-circle-info mt-0.5" aria-hidden="true"></i>
                 <span>{{ session('status') }}</span>
@@ -63,7 +64,12 @@
             <form method="POST" action="{{ route('password.email') }}" class="mt-6 space-y-3" x-data="{ sending: false }" @submit="sending = true">
                 @csrf
 
-                <x-auth-email-input :value="old('email')" autofocus helper="The email address you use to sign in." />
+                {{-- A refused address shakes the field twice, so the error is
+                     noticed without reading it. Each refused attempt is a fresh
+                     page load, so it plays every time. --}}
+                <div @class(['reset-bounce-twice' => $errors->has('email')])>
+                    <x-auth-email-input :value="old('email')" autofocus helper="The email address you use to sign in." />
+                </div>
 
                 <button type="submit" class="{{ $button }}" :disabled="sending">
                     <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
@@ -76,6 +82,12 @@
                 <i class="fa-solid fa-at text-gray-400" aria-hidden="true"></i>
                 <span class="font-semibold">{{ $email }}</span>
             </p>
+
+            @if (session('status'))
+                <p class="mt-1 text-center" role="status"><small class="text-green-700">{{ session('status') }}</small></p>
+            @elseif (session('warning'))
+                <p class="mt-1 text-center" role="alert"><small class="text-amber-700">{{ session('warning') }}</small></p>
+            @endif
 
             <form method="POST" action="{{ route('password.verify') }}" class="mt-4 space-y-3" x-data="{ sending: false }" @submit="sending = true">
                 @csrf
