@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\DocumentExtraction\LocalQuestionExtractor;
 use App\Services\DocumentExtraction\QuestionExtractionProvider;
+use App\Services\Mail\MailLogo;
 use App\Services\QueueWorkerHealth;
 use App\Support\PortalLoginRedirect;
 use App\Support\ProductionConfiguration;
@@ -12,6 +13,7 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -84,6 +86,16 @@ class AppServiceProvider extends ServiceProvider
          * lean on it. See App\Support\PortalLoginRedirect.
          */
         Authenticate::redirectUsing(fn (Request $request) => PortalLoginRedirect::for($request));
+
+        /*
+         * The logo at the top of every email. The header asks for it as
+         * cid:akademicnest-logo, and this attaches the image just before the
+         * message goes, so every notification and mailable gets it without
+         * each one having to remember.
+         */
+        Event::listen(function (MessageSending $event): void {
+            app(MailLogo::class)->embedInto($event->message);
+        });
 
         /*
          * Which school and portal this browser last signed in to.
