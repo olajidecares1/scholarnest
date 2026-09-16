@@ -67,6 +67,10 @@
                                 <td class="px-5 py-3">
                                     <a href="{{ route('super-admin.schools.show', $school) }}" class="font-semibold text-gray-900 transition-colors duration-200 hover:text-primary-500 dark:text-white dark:hover:text-primary-400">{{ $school->name }}</a>
                                     <p class="field-hint">{{ $school->billing_email ?? 'N/A' }}</p>
+                                    @if ($school->subdomain)
+                                        {{-- The address, whether or not it is being served right now; the school's page says which. --}}
+                                        <p class="field-hint font-mono">{{ $school->subdomain }}{{ config('custom_domain.tenant_base_domain') ? '.'.config('custom_domain.tenant_base_domain') : '' }}</p>
+                                    @endif
                                 </td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $school->subscriptionForDisplay()?->plan?->name ?? 'No plan yet' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $school->users->count() }}</td>
