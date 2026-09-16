@@ -55,6 +55,17 @@ class RedirectToCanonicalHost
         $canonical = $this->canonicalHttpHost();
         $canonicalHost = parse_url((string) config('app.url'), PHP_URL_HOST);
 
+        // www.akademicanest.com is the platform under another name, never a
+        // school, so it goes to the platform whatever the path. Handled here,
+        // before routing, because most platform paths do not exist in the
+        // tenant route group and would 404 there before any tenant middleware
+        // could redirect them.
+        if ($canonical !== null && $this->isWwwAliasOfPlatform($request->getHost(), (string) $canonicalHost)) {
+            $scheme = parse_url((string) config('app.url'), PHP_URL_SCHEME) ?: $request->getScheme();
+
+            return redirect()->away($scheme.'://'.$canonical.$request->getRequestUri(), 301);
+        }
+
         // Two things get corrected, and nothing else:
         //
         //   the IP,   127.0.0.1:8000  ->  lvh.me
@@ -87,6 +98,23 @@ class RedirectToCanonicalHost
         // 301, so a browser that has been going to the IP stops doing it on its
         // own rather than being corrected on every request for ever.
         return redirect()->away($scheme.'://'.$canonical.$request->getRequestUri(), 301);
+    }
+
+    private function isWwwAliasOfPlatform(string $host, string $canonicalHost): bool
+    {
+        $host = strtolower($host);
+        $candidates = array_filter([
+            strtolower($canonicalHost),
+            strtolower((string) config('custom_domain.tenant_base_domain')),
+        ]);
+
+        foreach ($candidates as $platform) {
+            if (! str_starts_with($platform, 'www.') && $host === "www.{$platform}") {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
