@@ -9,6 +9,7 @@ use App\Jobs\ProcessCbtDocumentUpload;
 use App\Models\AuditLog;
 use App\Models\CbtDocumentUpload;
 use App\Models\CbtExamBody;
+use App\Models\CbtQuestion;
 use App\Models\CbtSubject;
 use App\Services\CbtDocumentImportService;
 use App\Services\CbtExtractionAvailability;
@@ -19,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class CbtDocumentUploadController extends Controller
@@ -52,9 +54,33 @@ class CbtDocumentUploadController extends Controller
             'file' => $this->documentRules(),
             'cbt_exam_body_id' => ['nullable', 'integer', 'exists:cbt_exam_bodies,id'],
             'cbt_subject_id' => ['nullable', 'integer', 'exists:cbt_subjects,id'],
+            'upload_again' => ['nullable', 'boolean'],
         ]);
 
         $file = $request->file('file');
+        $hash = hash_file('sha256', (string) $file->getRealPath()) ?: null;
+
+        // The same document uploaded again would import every question again.
+        // Caught here, before anything is stored, unless it is deliberate.
+        $previous = $hash ? CbtDocumentUpload::where('file_hash', $hash)
+            ->where('status', '!=', CbtDocumentUploadStatus::Failed)
+            ->latest()
+            ->first() : null;
+
+        if ($previous && ! $request->boolean('upload_again')) {
+            throw ValidationException::withMessages([
+                'file' => sprintf(
+                    'This exact document was already uploaded on %s as "%s". Open that upload to review or publish it. '
+                        .'To import it again anyway, tick "Upload this document again".',
+                    $previous->created_at->format('j M Y, g:ia'),
+                    $previous->original_filename,
+                ),
+
+                // Named so the upload form knows to offer "Upload this
+                // document again" rather than just showing the message.
+                'upload_again' => 'This document has been uploaded before.',
+            ]);
+        }
         // Used to record which format this is, not to name the file: the
         // stored name comes from the content (StoredUpload). The validation
         // rule above has already restricted this to the two we read.
@@ -69,6 +95,7 @@ class CbtDocumentUploadController extends Controller
             'disk' => 'local',
             'path' => $path,
             'mime_type' => $extension === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'file_hash' => $hash,
             'status' => CbtDocumentUploadStatus::Pending,
         ]);
 
@@ -123,14 +150,52 @@ class CbtDocumentUploadController extends Controller
             $upload
         );
 
-        return back()->with('status', "Imported {$result['extracted']} question(s), {$result['needs_review']} need review.");
+        return back()->with('status', "Imported {$result['extracted']} question(s), {$result['needs_review']} need review. Review them below, then publish.");
+    }
+
+    /**
+     * Make an upload's reviewed questions available to students.
+     */
+    public function publish(CbtDocumentUpload $upload, CbtDocumentImportService $importer): RedirectResponse
+    {
+        abort_unless($upload->status === CbtDocumentUploadStatus::Completed, 409, 'Only a finished extraction can be published.');
+
+        $result = $importer->publish($upload);
+
+        AuditLog::record(
+            'cbt.document.published',
+            "Published {$result['published']} question(s) from \"{$upload->original_filename}\".",
+            $upload
+        );
+
+        return back()->with('status', $result['held_back'] > 0
+            ? "Published {$result['published']} question(s). {$result['held_back']} still need review and stay hidden from students until they are corrected in the question bank."
+            : "Published {$result['published']} question(s). Students can now practise them.");
+    }
+
+    /**
+     * Hide an upload's questions from students again.
+     */
+    public function unpublish(CbtDocumentUpload $upload): RedirectResponse
+    {
+        $count = CbtQuestion::where('cbt_document_upload_id', $upload->id)->update(['is_published' => false]);
+        $upload->update(['published_at' => null]);
+
+        AuditLog::record('cbt.document.unpublished', "Unpublished {$count} question(s) from \"{$upload->original_filename}\".", $upload);
+
+        return back()->with('status', "{$count} question(s) are hidden from students again.");
     }
 
     public function destroy(CbtDocumentUpload $upload): RedirectResponse
     {
         Storage::disk($upload->disk)->delete($upload->path);
 
-        foreach ($upload->extracted_images ?? [] as $imagePath) {
+        // Questions students have never seen go with the upload. Published
+        // ones stay in the question bank, and so do the pictures they use.
+        CbtQuestion::where('cbt_document_upload_id', $upload->id)->where('is_published', false)->delete();
+        $inUse = CbtQuestion::whereIn('image_path', $upload->extracted_images ?? [])->pluck('image_path')->all();
+
+        foreach (array_diff($upload->extracted_images ?? [], $inUse) as $imagePath) {
             Storage::disk('public')->delete($imagePath);
         }
 
@@ -178,6 +243,14 @@ class CbtDocumentUploadController extends Controller
      */
     public function retry(CbtDocumentUpload $upload, CbtExtractionRunner $runner): RedirectResponse
     {
+        // Reading again replaces this upload's questions. Once students can see
+        // them, that would take away questions they may already have answered.
+        if (CbtQuestion::where('cbt_document_upload_id', $upload->id)->where('is_published', true)->exists()) {
+            return back()->withErrors([
+                'upload' => 'Questions from this upload are already published, so it cannot be read again. Unpublish it first, or correct individual questions in the question bank.',
+            ]);
+        }
+
         $upload->update([
             'status' => CbtDocumentUploadStatus::Pending,
             'error_message' => null,

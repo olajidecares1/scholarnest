@@ -36,6 +36,9 @@ class CbtTestDocumentUpload extends Model
         'ai_response',
         'extracted_images',
         'processed_at',
+        'file_hash',
+        'warnings',
+        'duplicates_skipped',
     ];
 
     /**
@@ -50,6 +53,7 @@ class CbtTestDocumentUpload extends Model
             'ai_response' => 'array',
             'extracted_images' => 'array',
             'processed_at' => 'datetime',
+            'warnings' => 'array',
         ];
     }
 

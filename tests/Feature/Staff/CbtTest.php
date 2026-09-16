@@ -241,3 +241,48 @@ test('uploading a document dispatches the extraction job', function () {
 
     Bus::assertDispatched(ProcessCbtTestDocumentUpload::class, fn ($job) => $job->upload->is($upload));
 });
+
+test('the same paper uploaded to the same test twice is refused unless the teacher means it', function () {
+    Bus::fake();
+    Storage::fake('local');
+
+    $test = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
+    $store = route('staff.cbt.tests.uploads.store', [$this->school, $test]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->postJson($store, ['file' => UploadedFile::fake()->createWithContent('term-test.pdf', 'identical bytes')])
+        ->assertCreated();
+
+    // Renamed, but the same document.
+    $this->actingAs($this->teacher, 'staff')
+        ->postJson($store, ['file' => UploadedFile::fake()->createWithContent('term-test-final.pdf', 'identical bytes')])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['file', 'upload_again']);
+
+    expect($test->documentUploads()->count())->toBe(1);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->postJson($store, [
+            'file' => UploadedFile::fake()->createWithContent('term-test-final.pdf', 'identical bytes'),
+            'upload_again' => '1',
+        ])
+        ->assertCreated();
+
+    expect($test->documentUploads()->count())->toBe(2);
+});
+
+test('the same paper may be uploaded to a different test', function () {
+    Bus::fake();
+    Storage::fake('local');
+
+    $first = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
+    $second = CbtTest::factory()->create(['school_id' => $this->school->id, 'staff_id' => $this->teacher->id]);
+
+    foreach ([$first, $second] as $test) {
+        $this->actingAs($this->teacher, 'staff')
+            ->postJson(route('staff.cbt.tests.uploads.store', [$this->school, $test]), [
+                'file' => UploadedFile::fake()->createWithContent('shared-paper.pdf', 'identical bytes'),
+            ])
+            ->assertCreated();
+    }
+});

@@ -14,10 +14,21 @@
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $attempt->correctCount() }} of {{ $attempt->total_questions }} correct &middot; {{ $attempt->passed() ? 'Passed' : 'Not passed' }} (pass mark {{ $attempt->exam->pass_mark }}%)</p>
         </div>
 
+        @php $lastPassage = null; @endphp
         @foreach ($questions as $index => $question)
             @php $answer = $answersByQuestion->get($question->id); @endphp
             <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $index + 1 }}. {{ $question->question_text }}</p>
+                {{-- The passage is repeated only when it changes, so a run of
+                     questions on one passage reads the way the paper did. --}}
+                @if (filled($question->passage) && $question->passage !== $lastPassage)
+                    <div class="mb-4 max-h-64 overflow-y-auto whitespace-pre-line rounded-[8px] border border-gray-200 bg-gray-50 p-4 text-sm leading-relaxed text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300">{{ $question->passage }}</div>
+                @endif
+                @php $lastPassage = $question->passage; @endphp
+
+                <p class="whitespace-pre-line text-sm font-bold text-gray-900 dark:text-white">{{ $question->question_number ?? $index + 1 }}. {{ $question->question_text }}</p>
+                @if ($question->imageUrl())
+                    <img src="{{ $question->imageUrl() }}" alt="" class="mt-3 max-h-64 rounded-[8px] border border-gray-200 dark:border-gray-700">
+                @endif
 
                 <div class="mt-4 space-y-2">
                     @foreach ($question->options as $option)
@@ -42,6 +53,12 @@
                         <p class="text-xs italic text-gray-400 dark:text-gray-500">You did not answer this question.</p>
                     @endif
                 </div>
+
+                @if (filled($question->explanation))
+                    <p class="mt-3 rounded-[8px] bg-sky-50 px-3 py-2 text-xs leading-relaxed text-sky-800 dark:bg-sky-900/20 dark:text-sky-300">
+                        <span class="font-semibold"><i class="fa-solid fa-lightbulb mr-1"></i>Why:</span> {{ $question->explanation }}
+                    </p>
+                @endif
             </div>
         @endforeach
     </div>

@@ -20,6 +20,8 @@ use Throwable;
  */
 class PdfTextExtractor
 {
+    public function __construct(private readonly PdfLayoutReader $layout = new PdfLayoutReader) {}
+
     /**
      * Below this many characters of extracted text, a PDF is treated as a scan.
      *
@@ -33,7 +35,18 @@ class PdfTextExtractor
     {
         try {
             $pdf = (new Parser)->parseFile($absolutePath);
-            $text = $this->tidy($pdf->getText());
+            $printed = $this->layout->read($pdf);
+            $stored = $this->tidy($pdf->getText());
+
+            // Printed order first, because that is what a person sees, with
+            // the library's own stored order kept as a second reading. Which
+            // one a document suits cannot be told from the text: a paper set
+            // in two columns needs the first, and a paper whose answer key is
+            // laid out in four narrow columns comes out better from the
+            // second. Both are offered and the one that yields the better
+            // questions is the one used. See LocalQuestionExtractor.
+            $text = $printed === null ? $stored : $this->tidy($printed);
+            $alternatives = $printed === null ? [] : [$stored];
         } catch (Throwable $e) {
             // A PDF this library cannot open is not necessarily corrupt, some
             // encrypted or unusual producers defeat it. Either way the file is
@@ -52,7 +65,7 @@ class PdfTextExtractor
             );
         }
 
-        return new ExtractedDocument(text: $text);
+        return new ExtractedDocument(text: $text, alternatives: $alternatives);
     }
 
     /**

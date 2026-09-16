@@ -204,6 +204,16 @@
                         <input id="cbt-test-upload-file" type="file" name="file" accept=".pdf,.doc,.docx" required class="mt-1 w-full">
                         <x-input-error :messages="$errors->get('file')" class="mt-2" />
                     </div>
+
+                    {{-- Only shown once this exact document has been refused as already
+                         uploaded, so nobody ticks it out of habit. --}}
+                    <label x-show="alreadyUploaded" x-cloak class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-200">
+                        <input type="checkbox" name="upload_again" value="1" class="mt-0.5 rounded border-gray-300 text-primary-600">
+                        <span>
+                            Upload this document again
+                            <span class="field-hint block">Questions already in this test are still skipped, so nothing is duplicated.</span>
+                        </span>
+                    </label>
                 </x-upload-progress-form>
 
                 @if ($test->documentUploads->isNotEmpty())

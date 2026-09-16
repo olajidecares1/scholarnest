@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class DocumentUploadController extends Controller
@@ -28,9 +29,36 @@ class DocumentUploadController extends Controller
 
         $validated = $request->validate([
             'file' => $this->documentRules(),
+            'upload_again' => ['nullable', 'boolean'],
         ]);
 
         $file = $validated['file'];
+        $hash = hash_file('sha256', (string) $file->getRealPath()) ?: null;
+
+        // The same paper uploaded to the same test twice would read every
+        // question again. Caught here, before anything is stored, unless the
+        // teacher says they mean it.
+        $previous = $hash ? $test->documentUploads()
+            ->where('file_hash', $hash)
+            ->where('status', '!=', CbtDocumentUploadStatus::Failed)
+            ->latest()
+            ->first() : null;
+
+        if ($previous && ! $request->boolean('upload_again')) {
+            throw ValidationException::withMessages([
+                'file' => sprintf(
+                    'You already uploaded this exact document to this test on %s as "%s". Open that upload to see its questions. '
+                        .'To read it again anyway, tick "Upload this document again".',
+                    $previous->created_at->format('j M Y, g:ia'),
+                    $previous->original_filename,
+                ),
+
+                // Named so the upload form knows to offer "Upload this
+                // document again" rather than just showing the message.
+                'upload_again' => 'This document has been uploaded before.',
+            ]);
+        }
+
         // Used to record which format this is, not to name the file: the
         // stored name comes from the content (StoredUpload). The validation
         // rule above has already restricted this to the two we read.
@@ -43,6 +71,7 @@ class DocumentUploadController extends Controller
             'disk' => 'local',
             'path' => $path,
             'mime_type' => $extension === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'file_hash' => $hash,
             'status' => CbtDocumentUploadStatus::Pending,
         ]);
 

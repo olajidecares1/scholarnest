@@ -177,6 +177,114 @@ test('submit finalizes using only autosaved answers, ignoring any request payloa
     expect(CbtAttemptAnswer::where('cbt_attempt_id', $attempt->id)->count())->toBe(1);
 });
 
+// -----------------------------------------------------------------------------
+// What the page is allowed to know, and what it is allowed to save.
+// -----------------------------------------------------------------------------
+
+test('the take page never tells the browser which option is correct', function () {
+    $attempt = CbtAttempt::factory()->create([
+        'student_id' => $this->student->id,
+        'cbt_exam_id' => $this->exam->id,
+        'expires_at' => now()->addMinutes(30),
+        'total_questions' => 2,
+    ]);
+
+    $html = $this->actingAs($this->student, 'student')
+        ->get(route('student.cbt-practice.attempts.show', [$this->school, $attempt]))
+        ->assertOk()
+        ->getContent();
+
+    // Both options are on the page; nothing on it says which one scores.
+    expect($html)->toContain($this->q1Correct->option_text)
+        ->and($html)->toContain($this->q1Wrong->option_text)
+        ->and($html)->not->toContain('is_correct');
+});
+
+test('an answer belonging to another question is refused', function () {
+    $attempt = CbtAttempt::factory()->create([
+        'student_id' => $this->student->id,
+        'cbt_exam_id' => $this->exam->id,
+        'expires_at' => now()->addMinutes(30),
+        'total_questions' => 2,
+    ]);
+
+    // Question 1 answered with question 2's correct option: a request no
+    // honest page makes, and one that used to score a mark.
+    $this->actingAs($this->student, 'student')
+        ->post(route('student.cbt-practice.attempts.answer', [$this->school, $attempt]), [
+            'cbt_question_id' => $this->q1->id,
+            'cbt_question_option_id' => $this->q2Correct->id,
+        ])
+        ->assertStatus(422);
+
+    expect(CbtAttemptAnswer::where('cbt_attempt_id', $attempt->id)->count())->toBe(0);
+});
+
+test('a question from another paper cannot be answered', function () {
+    $otherExam = CbtExam::factory()->create(['cbt_exam_body_id' => $this->exam->cbt_exam_body_id]);
+    $foreign = CbtQuestion::factory()->create(['cbt_exam_id' => $otherExam->id]);
+    $foreignOption = CbtQuestionOption::factory()->create(['cbt_question_id' => $foreign->id, 'is_correct' => true]);
+
+    $attempt = CbtAttempt::factory()->create([
+        'student_id' => $this->student->id,
+        'cbt_exam_id' => $this->exam->id,
+        'expires_at' => now()->addMinutes(30),
+        'total_questions' => 2,
+    ]);
+
+    $this->actingAs($this->student, 'student')
+        ->post(route('student.cbt-practice.attempts.answer', [$this->school, $attempt]), [
+            'cbt_question_id' => $foreign->id,
+            'cbt_question_option_id' => $foreignOption->id,
+        ])
+        ->assertStatus(422);
+
+    expect(CbtAttemptAnswer::where('cbt_attempt_id', $attempt->id)->count())->toBe(0);
+});
+
+test('a question that is not published cannot be answered', function () {
+    $draft = CbtQuestion::factory()->create(['cbt_exam_id' => $this->exam->id, 'is_published' => false]);
+    $draftOption = CbtQuestionOption::factory()->create(['cbt_question_id' => $draft->id, 'is_correct' => true]);
+
+    $attempt = CbtAttempt::factory()->create([
+        'student_id' => $this->student->id,
+        'cbt_exam_id' => $this->exam->id,
+        'expires_at' => now()->addMinutes(30),
+        'total_questions' => 2,
+    ]);
+
+    $this->actingAs($this->student, 'student')
+        ->post(route('student.cbt-practice.attempts.answer', [$this->school, $attempt]), [
+            'cbt_question_id' => $draft->id,
+            'cbt_question_option_id' => $draftOption->id,
+        ])
+        ->assertStatus(422);
+});
+
+test('clearing an answer is saved as no answer at all', function () {
+    $attempt = CbtAttempt::factory()->create([
+        'student_id' => $this->student->id,
+        'cbt_exam_id' => $this->exam->id,
+        'expires_at' => now()->addMinutes(30),
+        'total_questions' => 2,
+    ]);
+
+    $this->actingAs($this->student, 'student')->post(route('student.cbt-practice.attempts.answer', [$this->school, $attempt]), [
+        'cbt_question_id' => $this->q1->id,
+        'cbt_question_option_id' => $this->q1Correct->id,
+    ]);
+
+    $this->actingAs($this->student, 'student')->post(route('student.cbt-practice.attempts.answer', [$this->school, $attempt]), [
+        'cbt_question_id' => $this->q1->id,
+        'cbt_question_option_id' => null,
+    ])->assertOk();
+
+    $answer = CbtAttemptAnswer::where('cbt_attempt_id', $attempt->id)->firstOrFail();
+
+    expect($answer->cbt_question_option_id)->toBeNull()
+        ->and($answer->is_correct)->toBeFalse();
+});
+
 test('a student cannot autosave into another student\'s attempt', function () {
     $otherStudent = Student::factory()->create(['school_id' => $this->school->id]);
     $attempt = CbtAttempt::factory()->create([

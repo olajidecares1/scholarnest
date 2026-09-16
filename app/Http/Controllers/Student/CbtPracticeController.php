@@ -33,14 +33,35 @@ class CbtPracticeController extends Controller
         ]);
     }
 
+    /**
+     * Past papers for one exam body, a year at a time.
+     *
+     * The years are whichever years actually have questions a student can sit,
+     * newest first. Nothing is listed for a year until the AkademicNest Team
+     * has published it, so this list grows as papers are added and never
+     * promises a paper that turns out to be empty.
+     */
     public function show(Request $request, School $school, CbtExamBody $examBody): View
     {
         $this->authorizeExamBody($request, $examBody);
 
+        $exams = $examBody->exams()
+            ->with('subject')
+            ->withCount(['publishedQuestions as questions_count'])
+            ->orderByDesc('year')
+            ->get()
+            ->filter(fn (CbtExam $exam) => $exam->questions_count > 0)
+            ->values();
+
+        $years = $exams->pluck('year')->unique()->sortDesc()->values();
+        $requestedYear = (int) $request->integer('year');
+
         return view('student.cbt-practice.show', [
             'school' => $school,
             'examBody' => $examBody,
-            'exams' => $examBody->exams()->with('subject')->withCount('questions')->orderByDesc('year')->get(),
+            'years' => $years,
+            'selectedYear' => $years->contains($requestedYear) ? $requestedYear : $years->first(),
+            'examsByYear' => $exams->groupBy('year'),
         ]);
     }
 
@@ -49,13 +70,18 @@ class CbtPracticeController extends Controller
         $this->authorizeExamBody($request, $exam->examBody);
 
         $student = $request->user('student');
+        $total = $exam->publishedQuestions()->count();
+
+        if ($total === 0) {
+            return back()->withErrors(['exam' => 'This paper has no questions yet. Try another year or subject.']);
+        }
 
         $attempt = CbtAttempt::create([
             'student_id' => $student->id,
             'cbt_exam_id' => $exam->id,
             'started_at' => now(),
             'expires_at' => now()->addMinutes($exam->duration_minutes),
-            'total_questions' => $exam->questions()->count(),
+            'total_questions' => $total,
         ]);
 
         return redirect()->route('student.cbt-practice.attempts.show', [$school, $attempt]);

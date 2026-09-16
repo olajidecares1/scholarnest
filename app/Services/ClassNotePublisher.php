@@ -158,7 +158,7 @@ class ClassNotePublisher
         try {
             // A real local file from whichever disk holds the note.
             $absolute = $this->uploads->localPath(ClassNote::DISK, $path);
-            $text = $absolute === null ? '' : trim($this->extractor->extract($absolute)['text'] ?? '');
+            $text = $absolute === null ? '' : $this->extractor->plainText($absolute);
 
             return $text === '' ? null : $text;
         } catch (Throwable $e) {

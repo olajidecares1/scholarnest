@@ -22,12 +22,18 @@ final class ExtractedDocument
      *                                  which stop the extraction.
      * @param  bool  $looksScanned  True when the file is a PDF that yielded no
      *                              usable text, almost always a scan.
+     * @param  list<string>  $alternatives  Other readings of the same file,
+     *                                      for a reader that cannot be sure
+     *                                      which one a document suits. The
+     *                                      one that yields the better
+     *                                      questions is the one used.
      */
     public function __construct(
         public readonly string $text,
         public readonly array $images = [],
         public readonly array $warnings = [],
         public readonly bool $looksScanned = false,
+        public readonly array $alternatives = [],
     ) {}
 
     public function hasText(): bool
@@ -37,6 +43,19 @@ final class ExtractedDocument
 
     public function withWarning(string $warning): self
     {
-        return new self($this->text, $this->images, [...$this->warnings, $warning], $this->looksScanned);
+        return new self($this->text, $this->images, [...$this->warnings, $warning], $this->looksScanned, $this->alternatives);
+    }
+
+    /**
+     * Every reading of this file worth trying, best guess first.
+     *
+     * @return list<string>
+     */
+    public function readings(): array
+    {
+        return array_values(array_unique(array_filter(
+            [$this->text, ...$this->alternatives],
+            fn (string $text) => trim($text) !== '',
+        )));
     }
 }

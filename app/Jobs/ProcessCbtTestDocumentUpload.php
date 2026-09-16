@@ -28,9 +28,10 @@ class ProcessCbtTestDocumentUpload implements ShouldQueue
 
     /**
      * Local parsing is fast, but a 20MB scanned PDF still takes a while to open
-     * and a very long paper takes a while to walk.
+     * and a long two-column paper has to be read position by position to come
+     * out in printed order, twice, so the better reading can be kept.
      */
-    public int $timeout = 300;
+    public int $timeout = 1800;
 
     /**
      * Retried, because the failures worth retrying are transient: a locked
@@ -190,17 +191,46 @@ class ProcessCbtTestDocumentUpload implements ShouldQueue
             CbtTestQuestion::where('cbt_test_document_upload_id', $this->upload->id)->delete();
 
             $sortOrder = $test->questions()->count();
+            $images = $this->upload->extracted_images ?? [];
+
+            // A question already in this test, from another upload of the same
+            // paper or typed in by the teacher, is not added a second time.
+            $existing = $test->questions()->whereNotNull('fingerprint')->pluck('fingerprint')->flip();
+            $duplicates = 0;
+            $imported = 0;
+            $needingReview = 0;
 
             foreach ($questions->questions as $question) {
+                $fingerprint = $question->fingerprint();
+
+                if (isset($existing[$fingerprint])) {
+                    $duplicates++;
+
+                    continue;
+                }
+
+                $existing[$fingerprint] = true;
+
                 $record = CbtTestQuestion::create([
                     'cbt_test_id' => $test->id,
                     'cbt_test_document_upload_id' => $this->upload->id,
                     'question_text' => $question->text,
+                    'question_number' => $question->number,
+                    'passage' => $question->passage,
+                    'explanation' => $question->explanation,
+                    'fingerprint' => $fingerprint,
+                    'image_path' => $question->imageIndex !== null ? ($images[$question->imageIndex] ?? null) : null,
                     'marks' => $question->marks,
                     'sort_order' => $sortOrder++,
                     'needs_review' => $question->needsReview(),
                     'review_notes' => $question->reviewNotes(),
                 ]);
+
+                $imported++;
+
+                if ($record->needs_review) {
+                    $needingReview++;
+                }
 
                 foreach ($question->options as $option) {
                     $record->options()->create([
@@ -211,11 +241,19 @@ class ProcessCbtTestDocumentUpload implements ShouldQueue
                 }
             }
 
+            $warnings = $questions->warnings();
+
+            if ($duplicates > 0) {
+                $warnings[] = "{$duplicates} question(s) were already in this test and were skipped rather than added twice.";
+            }
+
             $this->upload->update([
                 'status' => CbtDocumentUploadStatus::Completed,
                 'error_message' => null,
-                'questions_extracted_count' => $questions->count(),
-                'questions_needing_review_count' => $questions->needingReviewCount(),
+                'questions_extracted_count' => $imported,
+                'questions_needing_review_count' => $needingReview,
+                'duplicates_skipped' => $duplicates,
+                'warnings' => $warnings,
                 'processed_at' => now(),
             ]);
         });

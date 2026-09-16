@@ -63,6 +63,62 @@ final class ExtractedQuestionSet
     }
 
     /**
+     * What a reviewer should be told about the set as a whole: question
+     * numbers the document skipped, which is how a question the reader could
+     * not follow shows itself, and numbering that restarted with no heading.
+     *
+     * @return list<string>
+     */
+    public function warnings(string $label = ''): array
+    {
+        $prefix = $label !== '' ? $label.': ' : '';
+        $numbers = $this->questions->map(fn (ExtractedQuestion $question) => $question->number)->unique()->sort()->values();
+        $warnings = [];
+
+        if ($numbers->isNotEmpty()) {
+            $missing = array_values(array_diff(range(1, (int) $numbers->last()), $numbers->all()));
+
+            if ($missing !== []) {
+                $one = count($missing) === 1;
+                $warnings[] = $prefix.($one ? 'question ' : 'questions ').self::ranges($missing)
+                    .' could not be read from the document and '.($one ? 'was' : 'were')
+                    .' not imported. Add '.($one ? 'it' : 'them').' by hand if needed.';
+            }
+        }
+
+        if ($this->questions->contains(fn (ExtractedQuestion $question) => $question->numberingRestarted)) {
+            $warnings[] = $prefix.'the question numbering started again part-way through with no year heading, '
+                .'so some questions may belong to a different paper. Check their year.';
+        }
+
+        return $warnings;
+    }
+
+    /**
+     * [11, 12, 13, 20] -> "11-13, 20".
+     *
+     * @param  list<int>  $numbers
+     */
+    private static function ranges(array $numbers): string
+    {
+        $parts = [];
+        $start = $previous = array_shift($numbers);
+
+        foreach ([...$numbers, null] as $number) {
+            if ($number !== null && $number === $previous + 1) {
+                $previous = $number;
+
+                continue;
+            }
+
+            $parts[] = $start === $previous ? (string) $start : "{$start}-{$previous}";
+            $start = $previous = $number;
+        }
+
+        return implode(', ', $parts);
+    }
+
+    /**
      * Did this document produce something worth importing at all?
      */
     public function isAcceptable(): bool

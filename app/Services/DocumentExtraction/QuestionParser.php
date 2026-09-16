@@ -93,7 +93,7 @@ class QuestionParser
      * so option D of one question ends up carrying the reading instruction for
      * the next four. It is lifted out and kept as the passage it is.
      */
-    private const PASSAGE_HEADING_PATTERN = '/Questions?\s+\d{1,3}\s*(?:to|and|[-–])\s*\d{1,3}\s+(?:are\s+|is\s+)?based\s+on\b/iu';
+    private const PASSAGE_HEADING_PATTERN = '/(?:Questions?\s+\d{1,3}\s*(?:to|and|[-–])\s*\d{1,3}\s+(?:are\s+|is\s+)?based\s+on\b|\b(?:Use|Read|Study)\s+the\s+(?:\w+\s+){1,3}(?:below|above)\s+(?:to\s+)?answer\s+questions?\b)/iu';
 
     /**
      * How many options a recovered run must yield before it is believed.
@@ -120,6 +120,90 @@ class QuestionParser
     private const BOOLEAN_WORDS = ['T' => 'True', 'F' => 'False'];
 
     /**
+     * The line that opens an answer-key block: "ANSWER KEYS", "Answer Key:",
+     * "ANSWERS KEY", "Marking scheme".
+     */
+    private const KEY_HEADING_PATTERN = '/^\s*(?:answers?\s*keys?|answers?|marking\s*(?:scheme|guide)|solutions?)\s*[\:\-–]?\s*$/iu';
+
+    /**
+     * One entry in an answer key: "1. A", "1) A", "Q1: A", "1 A".
+     */
+    private const KEY_ENTRY_PATTERN = '/(?:^|\s)(?:Q(?:uestion)?\s*\.?\s*)?(\d{1,3})\s*[\.\)\:\-–]?\s*\(?([A-Ha-h])\)?(?=\s|$|,|;)/u';
+
+    /**
+     * A shared block that names the questions it applies to.
+     *
+     * @var list<string>
+     */
+    private const RANGED_BLOCK_PATTERNS = [
+        '/^questions?\s*,?\s*\d{1,3}\s*(?:to|and|[-–])\s*\d{1,3}\b/iu',
+        '/^in\s+(?:each\s+)?(?:of\s+)?(?:the\s+)?questions?\s*,?\s*\d{1,3}\s*(?:to|and|[-–])\s*\d{1,3}/iu',
+        '/^(?:use|read|study|refer\s+to|answer)\b.{0,80}\bquestions?\s*,?\s*\d{1,3}\s*(?:to|and|[-–])\s*\d{1,3}/iu',
+        '/^(?:for|from)\s+questions?\s*\d{1,3}\s*(?:to|and|[-–])\s*\d{1,3}/iu',
+    ];
+
+    /**
+     * A shared block that names no range: a titled passage, or an
+     * instruction to read one.
+     *
+     * @var list<string>
+     */
+    private const UNRANGED_BLOCK_PATTERNS = [
+        '/^(?:passage|extract|excerpt|poem)\s+(?:[IVXLC]{1,5}|\d{1,2}|[A-D])\b(?:\s*[\:\.\-–].*)?$/iu',
+        '/^comprehension\b/iu',
+        '/^(?:read|study)\s+(?:the|each|this)\s+(?:following\s+)?(?:passages?|extracts?|poems?|texts?|excerpts?)\b/iu',
+    ];
+
+    /**
+     * How many questions a passage that names no range is shown with, at
+     * most, before it is assumed to have ended.
+     */
+    private const UNRANGED_PASSAGE_QUESTIONS = 10;
+
+    /**
+     * Words in a year heading that are not the subject.
+     */
+    private const HEADING_NOISE_PATTERN = '/\b(?:past\s+questions?(?:\s+and\s+(?:correct\s+)?answers?)?|questions?\s+and\s+(?:correct\s+)?answers?|questions?|answers?|jamb|utme|ume|waec|neco|ssce|gce|wassce|bece|nabteb|post|papers?|exams?|examinations?|cbt|objectives?|may|june|nov|dec|november|december|year|session)\b/iu';
+
+    /**
+     * Words that make a line with a year in it read as a heading rather than
+     * prose.
+     */
+    private const HEADING_WORDS_PATTERN = '/\b(?:jamb|utme|ume|waec|neco|ssce|gce|wassce|bece|nabteb|exam|examination|paper|questions|past|session)\b/iu';
+
+    /** @var list<array<string, mixed>> */
+    private array $questions = [];
+
+    /** @var array<string, mixed>|null */
+    private ?array $current = null;
+
+    private ?string $context = null;
+
+    private ?int $year = null;
+
+    private ?string $subject = null;
+
+    private int $section = 0;
+
+    private int $sectionStart = 0;
+
+    /** @var array<int, string> */
+    private array $sectionKey = [];
+
+    /** @var array{text: string, range: array{0: int, 1: int}|false, used: bool}|null */
+    private ?array $block = null;
+
+    /** @var list<array{from: int, to: int, text: string}> */
+    private array $rangedPassages = [];
+
+    /** @var array{text: string, remaining: int}|null */
+    private ?array $openPassage = null;
+
+    private int $lastNumber = 0;
+
+    private bool $headingSinceQuestion = true;
+
+    /**
      * A heading that announces which year's paper follows: "2019",
      * "JAMB 2019", "2019 WAEC Mathematics", "MAY/JUNE 2018".
      *
@@ -134,7 +218,15 @@ class QuestionParser
      *
      * The shape returned is deliberately identical to what the hosted model
      * used to produce, so everything downstream, validation, review flagging,
-     * the importers, is untouched by this change.
+     * the importers, is untouched by this change. Each question additionally
+     * carries the year, subject and section it was printed under, the passage
+     * or instruction it shares with its neighbours, and whether its numbering
+     * restarted without a heading to say why.
+     *
+     * A past-questions compilation is read as a series of sections. A heading
+     * such as "UTME 2010 USE OF ENGLISH QUESTIONS" opens one; the numbering
+     * starts again from 1 inside it; and an "ANSWER KEYS" block at its end
+     * answers that section's questions only, never the next year's question 1.
      *
      * @return array{questions: list<array<string, mixed>>, instructions: ?string}
      */
@@ -142,48 +234,127 @@ class QuestionParser
     {
         $lines = preg_split('/\R/u', $this->decodeEntities($text)) ?: [];
 
-        /** @var list<array<string, mixed>> $questions */
-        $questions = [];
-        $current = null;
-        $context = null;          // 'question' | 'option' | 'explanation'
+        $this->questions = [];
+        $this->current = null;
+        $this->context = null;
+        $this->year = null;
+        $this->subject = null;
+        $this->section = 0;
+        $this->sectionStart = 0;
+        $this->sectionKey = [];
+        $this->block = null;
+        $this->rangedPassages = [];
+        $this->openPassage = null;
+        $this->lastNumber = 0;
+        $this->headingSinceQuestion = true;
+
         $preamble = [];
-        $year = null;
+        $keyMode = false;
 
         foreach ($lines as $rawLine) {
             $line = trim((string) $rawLine);
 
-            if ($line === '') {
+            // Blank lines, and the page numbers a PDF leaves between pages.
+            if ($line === '' || preg_match('/^\d{1,3}$/', $line)) {
                 continue;
             }
 
-            // A year heading between questions marks where one paper ends and
-            // the next begins, which is how a "past questions 2010-2018"
-            // compilation is laid out. Checked before the question pattern so
-            // a line like "2019" cannot be read as question 2019.
+            // A heading the Word reader recognised by its style. Never a
+            // question, an option or part of one.
+            if (str_starts_with($line, '## ')) {
+                $heading = trim(substr($line, 3));
+                $keyMode = false;
+                $this->closeQuestion();
+
+                if (preg_match(self::KEY_HEADING_PATTERN, $heading)) {
+                    $keyMode = true;
+
+                    continue;
+                }
+
+                $this->openSection($this->yearHeading($heading), $heading);
+
+                continue;
+            }
+
+            // An answer key printed at the end of a section: "1. A", "2. C".
+            // Read as answers, never as questions with options.
+            if ($keyMode) {
+                if ($this->readKeyLine($line)) {
+                    continue;
+                }
+
+                $keyMode = false;
+            }
+
+            if (preg_match(self::KEY_HEADING_PATTERN, $line) && ($this->current !== null || $this->questions !== [])) {
+                $this->closeQuestion();
+                $keyMode = true;
+
+                continue;
+            }
+
             // An answer key belongs to the question already open; checked
             // before the option pattern because "Ans: B" would otherwise be
-            // read as an option labelled A.
-            if ($current !== null && preg_match(self::ANSWER_PATTERN, $line, $m)) {
-                $current['correct_label'] = strtoupper($m[1]);
-                $context = null;
+            // read as an option labelled A. A passage heading printed between
+            // a question and its answer does not change which question the
+            // answer is for.
+            if ($this->current !== null && preg_match(self::ANSWER_PATTERN, $line, $m)) {
+                $this->current['correct_label'] = strtoupper($m[1]);
+
+                if ($this->context !== 'block') {
+                    $this->context = null;
+                }
 
                 continue;
             }
 
-            if ($current !== null && preg_match(self::EXPLANATION_PATTERN, $line, $m)) {
-                $current['explanation'] = trim($m[1]);
-                $context = 'explanation';
+            if ($this->current !== null && $this->context !== 'block' && preg_match(self::EXPLANATION_PATTERN, $line, $m)) {
+                $this->current['explanation'] = trim($m[1]);
+                $this->context = 'explanation';
+
+                continue;
+            }
+
+            // "The passage below has gaps numbered 16 to" then "25. Immediately
+            // following each gap..." is one instruction wrapped across two
+            // lines, not question 25.
+            if ($this->context === 'block' && preg_match(self::QUESTION_PATTERN, $line, $m)
+                && preg_match('/\d{1,3}\s*(?:to|and|[-–])$/iu', rtrim($this->block['text']))) {
+                $this->block['text'] .= ' '.$line;
 
                 continue;
             }
 
             if (preg_match(self::QUESTION_PATTERN, $line, $m)) {
-                if ($current !== null) {
-                    $questions[] = $this->finish($current, $year);
+                $this->closeQuestion();
+                $this->openQuestion((int) $m[1], trim($m[2]));
+
+                continue;
+            }
+
+            // A passage, extract or instruction shared by several questions:
+            // "PASSAGE II", "Questions 21 to 30 are based on...", "In each of
+            // questions 26 to 35, select the option...". Its text runs until the
+            // next question.
+            if (($range = $this->blockStart($line)) !== null) {
+                $this->startBlock($line, $range);
+
+                continue;
+            }
+
+            if ($this->context === 'block') {
+                // Inside a passage a year on its own is a citation ("Adopted
+                // from VANGUARD, 19th March," then "2008"), so only a heading
+                // that names an examination ends the passage.
+                if (preg_match(self::HEADING_WORDS_PATTERN, $line) && ($heading = $this->yearHeading($line)) !== null) {
+                    $this->closeQuestion();
+                    $this->openSection($heading, $line);
+
+                    continue;
                 }
 
-                $current = $this->start((int) $m[1], trim($m[2]));
-                $context = 'question';
+                $this->block['text'] .= "\n".$line;
 
                 continue;
             }
@@ -192,15 +363,15 @@ class QuestionParser
             // choices. Checked before the option pattern, though neither
             // "TRUE" nor "YES" begins with a label letter, so that the two
             // rules are read in the order they are written.
-            if ($current !== null && $current['options'] === [] && preg_match(self::BOOLEAN_OPTIONS_PATTERN, $line, $m)) {
-                $current['options'] = [
+            if ($this->current !== null && $this->current['options'] === [] && preg_match(self::BOOLEAN_OPTIONS_PATTERN, $line, $m)) {
+                $this->current['options'] = [
                     ['label' => 'A', 'text' => $this->booleanWord($m[1])],
                     ['label' => 'B', 'text' => $this->booleanWord($m[2])],
                 ];
 
                 // Nothing continues a pair of choices; a line after this
                 // belongs to the question, not to "False".
-                $context = null;
+                $this->context = null;
 
                 continue;
             }
@@ -208,12 +379,12 @@ class QuestionParser
             // Only a question already opened can take options. Without this a
             // document's own preamble, "A. Answer all questions", would
             // become an orphan option.
-            if ($current !== null && preg_match(self::OPTION_PATTERN, $line, $m)) {
+            if ($this->current !== null && preg_match(self::OPTION_PATTERN, $line, $m)) {
                 foreach ($this->splitInlineOptions(strtoupper($m[1]), trim($m[2])) as $option) {
-                    $current['options'][] = $option;
+                    $this->current['options'][] = $option;
                 }
 
-                $context = 'option';
+                $this->context = 'option';
 
                 continue;
             }
@@ -221,40 +392,483 @@ class QuestionParser
             // Checked only after every structural pattern has been tried, so
             // an option like "B. 1960" is read as the option it is. What is
             // left, a short line that is essentially just a year, marks where
-            // one paper ends and the next begins, which is how a "past
-            // questions 2010-2018" compilation is laid out.
+            // one paper ends and the next begins.
             if (($heading = $this->yearHeading($line)) !== null) {
-                // Closed against the year it was printed under, not the one
-                // just announced: the question above a heading belongs to the
-                // paper that ended, not the one beginning.
-                if ($current !== null) {
-                    $questions[] = $this->finish($current, $year);
-                    $current = null;
-                    $context = null;
-                }
-
-                $year = $heading;
+                $this->closeQuestion();
+                $this->openSection($heading, $line);
 
                 continue;
             }
 
-            if ($current === null) {
+            if ($this->isSectionTitle($line)) {
+                $this->settleBlock();
+                $this->openPassage = null;
+                $this->context = null;
+
+                continue;
+            }
+
+            if ($this->current === null) {
                 $preamble[] = $line;
 
                 continue;
             }
 
-            $this->appendContinuation($current, $context, $line);
+            $this->appendContinuation($this->current, $this->context, $line);
         }
 
-        if ($current !== null) {
-            $questions[] = $this->finish($current, $year);
-        }
+        $this->closeQuestion();
+        $this->applySectionKey();
 
         return [
-            'questions' => $questions,
+            'questions' => $this->questions,
             'instructions' => $this->instructionsFrom($preamble),
         ];
+    }
+
+    /**
+     * Start a new paper: a year heading, or a plain section heading.
+     */
+    private function openSection(?int $year, string $heading): void
+    {
+        $this->applySectionKey();
+
+        if ($year !== null) {
+            $this->year = $year;
+            $this->subject = $this->headingSubject($heading, $year) ?? $this->subject;
+        }
+
+        $this->section++;
+        $this->sectionStart = count($this->questions);
+        $this->sectionKey = [];
+        $this->rangedPassages = [];
+        $this->openPassage = null;
+        $this->block = null;
+        $this->context = null;
+        $this->lastNumber = 0;
+        $this->headingSinceQuestion = true;
+    }
+
+    private function openQuestion(int $number, string $text): void
+    {
+        // The passage or instruction printed above this question now belongs
+        // to the questions it names.
+        $this->settleBlock();
+
+        $restarted = false;
+
+        // Only a real restart counts: back to 1, or far below where the paper
+        // had got to. A PDF that prints two columns out of order (43, 44, 40)
+        // is still one paper.
+        if (($number === 1 || $number < intdiv($this->lastNumber, 2)) && $number <= $this->lastNumber && ! $this->headingSinceQuestion) {
+            // Numbering went back without a heading to say a new paper began.
+            // Kept apart as its own section, and flagged, because the year it
+            // belongs to cannot be known.
+            $this->applySectionKey();
+            $this->section++;
+            $this->sectionStart = count($this->questions);
+            $this->sectionKey = [];
+            $this->rangedPassages = [];
+            $this->openPassage = null;
+            $restarted = true;
+        }
+
+        $this->current = $this->start($number, $text);
+        $this->current['numbering_restarted'] = $restarted;
+        $this->context = 'question';
+        $this->lastNumber = $number;
+        $this->headingSinceQuestion = false;
+    }
+
+    private function closeQuestion(): void
+    {
+        if ($this->current === null) {
+            return;
+        }
+
+        $this->recoverInlineOptions($this->current);
+        $this->resplitOptions($this->current);
+        $this->liftPassageHeading($this->current);
+        $question = $this->finish($this->current, $this->year);
+        $question['subject'] = $this->subject;
+        $question['section'] = $this->section;
+        $question['numbering_restarted'] = (bool) ($this->current['numbering_restarted'] ?? false);
+        $question['passage'] = $this->passageFor((int) $question['number']);
+
+        // A "Questions 6 to 10 are based on..." heading welded to the end of
+        // this question's last option belongs to the questions it names.
+        if (filled($this->current['lifted_passage'] ?? null)) {
+            $this->startBlock($this->current['lifted_passage'], $this->rangeOf($this->current['lifted_passage']));
+            $this->settleBlock();
+        }
+
+        $this->questions[] = $question;
+        $this->current = null;
+        $this->context = null;
+    }
+
+    /**
+     * Split options that only showed their neighbours once their wrapped lines
+     * were joined: "A. stubborn children B." then "negligent parents C." reads
+     * as one option until the lines meet.
+     *
+     * @param  array<string, mixed>  $current
+     */
+    private function resplitOptions(array &$current): void
+    {
+        if ($current['options'] === []) {
+            return;
+        }
+
+        $rebuilt = [];
+
+        foreach ($current['options'] as $option) {
+            array_push($rebuilt, ...$this->splitInlineOptions($option['label'], $option['text']));
+        }
+
+        $labels = array_column($rebuilt, 'label');
+
+        // Kept only when it found more options and every label is still unique.
+        if (count($rebuilt) === count($current['options']) || count($labels) !== count(array_unique($labels))) {
+            return;
+        }
+
+        $current['options'] = $rebuilt;
+    }
+
+    /**
+     * @param  array{0: int, 1: int}|false  $range  false when the block names no questions
+     */
+    private function startBlock(string $line, array|false $range): void
+    {
+        // An instruction and the passage that follows it ("COMPREHENSION: Read
+        // each passage..." then "PASSAGE I") are one shared text until a
+        // question has used them.
+        if ($this->block !== null && ! $this->block['used'] && $range === false && $this->block['range'] === false) {
+            $this->block['text'] .= "\n".$line;
+            $this->context = 'block';
+
+            return;
+        }
+
+        // "Questions 41 to 50 are based on Literary Appreciation. Use the
+        // extract below to answer" then "questions 41 and 42." The second line
+        // finishes the first one's sentence. The general heading still covers
+        // the whole range; the finished sentence covers the narrower one.
+        if ($this->block !== null && ! $this->block['used'] && $range !== false && $this->block['range'] !== false
+            && ! preg_match('/[\.\:\?\!]["”’\']?$/u', rtrim($this->block['text']))) {
+            $text = $this->block['text'];
+            $cut = max((int) mb_strrpos($text, '. '), (int) mb_strrpos($text, ".\n"));
+
+            if ($cut > 0) {
+                $this->rangedPassages[] = [
+                    'from' => $this->block['range'][0],
+                    'to' => $this->block['range'][1],
+                    'text' => trim(mb_substr($text, 0, $cut + 1)),
+                ];
+                $text = trim(mb_substr($text, $cut + 1));
+            }
+
+            $this->block = ['text' => trim($text.' '.$line), 'range' => $range, 'used' => false];
+            $this->context = 'block';
+
+            return;
+        }
+
+        $this->settleBlock();
+
+        $this->block = ['text' => $line, 'range' => $range, 'used' => false];
+        $this->context = 'block';
+
+        if ($range === false) {
+            $this->openPassage = null;
+        }
+    }
+
+    /**
+     * File the block that has just ended under the questions it applies to.
+     */
+    private function settleBlock(): void
+    {
+        if ($this->block === null) {
+            return;
+        }
+
+        $text = trim($this->block['text']);
+        [$text, $gaps] = $this->clozeQuestions($text);
+
+        if ($gaps > 0) {
+            // A gap-fill passage has become its own questions; it is not also
+            // a passage for whatever follows it.
+            $this->block = null;
+
+            if ($this->context === 'block') {
+                $this->context = null;
+            }
+
+            return;
+        }
+
+        if ($this->block['range'] !== false) {
+            [$from, $to] = $this->block['range'];
+            $this->rangedPassages[] = ['from' => $from, 'to' => $to, 'text' => $text];
+        } else {
+            $this->openPassage = ['text' => $text, 'remaining' => self::UNRANGED_PASSAGE_QUESTIONS];
+        }
+
+        $this->block = null;
+
+        if ($this->context === 'block') {
+            $this->context = null;
+        }
+    }
+
+    /**
+     * Turn a gap-fill passage into one question per gap.
+     *
+     * JAMB prints these as "...the … 16 … [A. ideology B. phenomenon C. idea
+     * D. component] is usually accompanied by...". Each gap is a question: its
+     * options are in the brackets and the passage, with the brackets taken
+     * out, is what the candidate reads.
+     *
+     * @return array{0: string, 1: int} the passage without its brackets, and how many gaps were found
+     */
+    private function clozeQuestions(string $text): array
+    {
+        // The gap is written many ways in real papers: "… 16 …", "……16….",
+        // "… .. 17….", ".... 18…". The choices sit in square or round brackets.
+        $pattern = '/[…\.][…\.\s]*?(\d{1,3})\s*[…\.]+\s*[\[\(]([^\]\)]{3,400})[\]\)]/u';
+
+        if (! preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
+            return [$text, 0];
+        }
+
+        $passage = trim((string) preg_replace($pattern, '…$1…', $text));
+        $gaps = 0;
+
+        foreach ($matches as $match) {
+            $options = $this->clozeOptions(trim((string) preg_replace('/\s+/u', ' ', $match[2])));
+
+            if (count($options) < self::MINIMUM_RECOVERED_OPTIONS) {
+                continue;
+            }
+
+            $number = (int) $match[1];
+
+            $this->questions[] = [
+                'number' => $number,
+                'question_text' => "Choose the option that best fills gap {$number} in the passage.",
+                'options' => $options,
+                'passage' => $passage,
+                'correct_label' => null,
+                'answer_source' => 'not_found',
+                'has_diagram' => false,
+                'diagram_description' => null,
+                'marks' => null,
+                'explanation' => null,
+                'year' => $this->year,
+                'subject' => $this->subject,
+                'section' => $this->section,
+                'numbering_restarted' => false,
+            ];
+
+            $this->lastNumber = max($this->lastNumber, $number);
+            $gaps++;
+        }
+
+        return [$passage, $gaps];
+    }
+
+    /**
+     * The choices inside a gap's brackets, in whichever style the paper used:
+     * "A. well-define, B. fast-paced, c. favorable, D. social" or
+     * "A repercussions B clouds C pressure D implication".
+     *
+     * Labels are looked for in order, A then B then C, so the article "a" in
+     * "B a foremost" is never taken for a label: only the next letter due can
+     * open the next option.
+     *
+     * @return list<array{label: string, text: string}>
+     */
+    private function clozeOptions(string $choices): array
+    {
+        $found = [];
+        $offset = 0;
+
+        foreach (['A', 'B', 'C', 'D', 'E'] as $label) {
+            $pattern = '/(?:^|[\s,;])\(?'.$label.'(?:\s*[\.\)\:]\s*|\s+)/iu';
+
+            if (! preg_match($pattern, $choices, $m, PREG_OFFSET_CAPTURE, $offset)) {
+                break;
+            }
+
+            $found[] = ['label' => $label, 'start' => (int) $m[0][1], 'end' => (int) $m[0][1] + strlen($m[0][0])];
+            $offset = (int) $m[0][1] + strlen($m[0][0]);
+        }
+
+        if ($found === [] || $found[0]['label'] !== 'A' || trim(substr($choices, 0, $found[0]['start'])) !== '') {
+            return [];
+        }
+
+        $options = [];
+
+        foreach ($found as $index => $label) {
+            $end = $found[$index + 1]['start'] ?? strlen($choices);
+            $text = trim(substr($choices, $label['end'], $end - $label['end']), " \t,;.");
+
+            if ($text !== '') {
+                $options[] = ['label' => $label['label'], 'text' => $text];
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * The shared text a question should be shown with, if any.
+     */
+    private function passageFor(int $number): ?string
+    {
+        foreach (array_reverse($this->rangedPassages) as $passage) {
+            if ($number >= $passage['from'] && $number <= $passage['to']) {
+                return $passage['text'];
+            }
+        }
+
+        if ($this->openPassage !== null) {
+            $text = $this->openPassage['text'];
+
+            // A passage that names no range cannot be allowed to run on for
+            // the rest of the paper.
+            if (--$this->openPassage['remaining'] <= 0) {
+                $this->openPassage = null;
+            }
+
+            return $text;
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether a line opens a shared passage or instruction, and the question
+     * range it names.
+     *
+     * @return array{0: int, 1: int}|false|null null when the line opens nothing,
+     *                                          false when it opens a block naming no range
+     */
+    private function blockStart(string $line): array|false|null
+    {
+        foreach (self::RANGED_BLOCK_PATTERNS as $pattern) {
+            if (preg_match($pattern, $line)) {
+                return $this->rangeOf($line) ?: false;
+            }
+        }
+
+        foreach (self::UNRANGED_BLOCK_PATTERNS as $pattern) {
+            if (preg_match($pattern, $line)) {
+                return false;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * "questions 26 to 35" -> [26, 35].
+     *
+     * @return array{0: int, 1: int}|false
+     */
+    private function rangeOf(string $line): array|false
+    {
+        if (! preg_match('/questions?\s*,?\s*(\d{1,3})\s*(?:to|and|[-–])\s*(\d{1,3})/iu', $line, $m)) {
+            return false;
+        }
+
+        $from = (int) $m[1];
+        $to = (int) $m[2];
+
+        return $from <= $to ? [$from, $to] : false;
+    }
+
+    /**
+     * Read one line of an answer-key block. False when it is not one.
+     */
+    private function readKeyLine(string $line): bool
+    {
+        if (preg_match('/^\s*\d{1,3}\s*[\.\)\:\-–]?\s*(?:no\s+answer|nil|none|-+)\s*$/iu', $line)) {
+            return true;
+        }
+
+        if (! preg_match_all(self::KEY_ENTRY_PATTERN, $line, $matches, PREG_SET_ORDER)) {
+            return false;
+        }
+
+        // The whole line has to be key entries. A question line that happens
+        // to begin "1. A..." has words after the letter.
+        $rest = trim((string) preg_replace(self::KEY_ENTRY_PATTERN, '', $line), " \t,;|");
+
+        if ($rest !== '') {
+            return false;
+        }
+
+        foreach ($matches as $match) {
+            $this->sectionKey[(int) $match[1]] = strtoupper($match[2]);
+        }
+
+        return true;
+    }
+
+    /**
+     * Answer this section's unanswered questions from its key.
+     */
+    private function applySectionKey(): void
+    {
+        if ($this->sectionKey === []) {
+            return;
+        }
+
+        for ($index = $this->sectionStart; $index < count($this->questions); $index++) {
+            $question = $this->questions[$index];
+            $label = $this->sectionKey[$question['number']] ?? null;
+
+            if ($label === null || $question['correct_label'] !== null) {
+                continue;
+            }
+
+            // A key naming an option the question does not have has drifted
+            // out of step, and is left for a person rather than trusted.
+            if (! in_array($label, array_column($question['options'], 'label'), true)) {
+                continue;
+            }
+
+            $this->questions[$index]['correct_label'] = $label;
+            $this->questions[$index]['answer_source'] = 'found_in_answer_key';
+        }
+
+        $this->sectionKey = [];
+    }
+
+    /**
+     * The subject a year heading names: "UTME 2010 USE OF ENGLISH QUESTIONS"
+     * -> "Use of English".
+     */
+    private function headingSubject(string $heading, int $year): ?string
+    {
+        $text = str_replace((string) $year, ' ', $heading);
+        $text = (string) preg_replace(self::HEADING_NOISE_PATTERN, ' ', $text);
+        $text = trim((string) preg_replace('/[\s\-–—:|•,\/()]+/u', ' ', $text));
+
+        if (mb_strlen($text) < 3 || mb_strlen($text) > 60 || ! preg_match('/\p{L}{3}/u', $text)) {
+            return null;
+        }
+
+        $words = array_map(
+            fn (string $word) => in_array(mb_strtolower($word), ['of', 'in', 'and'], true) ? mb_strtolower($word) : mb_convert_case($word, MB_CASE_TITLE),
+            explode(' ', $text),
+        );
+
+        return implode(' ', $words);
     }
 
     /**
@@ -475,7 +1089,7 @@ class QuestionParser
         }
 
         $current['options'][$last]['text'] = $option;
-        $current['passage'] = trim(substr($text, $cut));
+        $current['lifted_passage'] = trim(substr($text, $cut));
     }
 
     /**
@@ -510,7 +1124,7 @@ class QuestionParser
     private function finish(array $current, ?int $year = null): array
     {
         $this->recoverInlineOptions($current);
-        $this->liftPassageHeading($current);
+        $this->takeInlineAnswer($current);
 
         $text = (string) $current['question_text'];
         $marks = null;
@@ -529,9 +1143,9 @@ class QuestionParser
             'question_text' => $text,
             'options' => $current['options'],
 
-            // The shared reading a run of questions refers to, when the paper
-            // printed one. Null on an ordinary standalone question.
-            'passage' => $current['passage'] ?? null,
+            // The shared reading a run of questions refers to, filled in by
+            // closeQuestion(). Null on an ordinary standalone question.
+            'passage' => null,
             'correct_label' => $current['correct_label'],
 
             // The same vocabulary the importer already reads. A key printed in
@@ -549,11 +1163,58 @@ class QuestionParser
     }
 
     /**
+     * An answer printed on the same line as the last option or the question:
+     * "D. spirit beings ✓ Correct Answer: D".
+     *
+     * @param  array<string, mixed>  $current
+     */
+    private function takeInlineAnswer(array &$current): void
+    {
+        $pattern = '/\s*[✓✔•→\-\*]*\s*(?:Correct\s+)?(?:Answer|Ans)\s*[\:\-–\.]?\s*\(?\s*([A-Ha-h])\s*\)?\s*\.?\s*$/u';
+
+        $last = count($current['options']) - 1;
+
+        if ($last >= 0 && preg_match($pattern, $current['options'][$last]['text'], $m, PREG_OFFSET_CAPTURE) && $m[0][1] > 0) {
+            $current['correct_label'] ??= strtoupper($m[1][0]);
+            $current['options'][$last]['text'] = trim(substr($current['options'][$last]['text'], 0, $m[0][1]));
+
+            return;
+        }
+
+        if (preg_match($pattern, (string) $current['question_text'], $m, PREG_OFFSET_CAPTURE) && $m[0][1] > 0) {
+            $current['correct_label'] ??= strtoupper($m[1][0]);
+            $current['question_text'] = trim(substr((string) $current['question_text'], 0, $m[0][1]));
+        }
+    }
+
+    /**
+     * A short line in capitals that names a part of the paper: "LEXIS,
+     * STRUCTURE AND ORAL FORMS". It ends whatever passage was running.
+     */
+    private function isSectionTitle(string $line): bool
+    {
+        return mb_strlen($line) >= 5
+            && mb_strlen($line) <= 60
+            && str_word_count($line) >= 2
+            && ! preg_match('/[\d\p{Ll}]/u', $line)
+            && preg_match('/^[\p{Lu}\s,&\'\-–:\/]+$/u', $line);
+    }
+
+    /**
      * The year a heading announces, or null if the line is not one.
      */
     private function yearHeading(string $line): ?int
     {
         if (! preg_match(self::YEAR_HEADING_PATTERN, $line, $m)) {
+            return null;
+        }
+
+        // "In 1962, a team of scientists..." is a sentence. A heading either
+        // names an examination, or is only a few words long with no
+        // punctuation of a sentence in it.
+        $rest = trim(str_replace($m[1], '', $line), " \t-–—:|•");
+
+        if ($rest !== '' && ! preg_match(self::HEADING_WORDS_PATTERN, $rest) && (str_word_count($rest) > 4 || preg_match('/[,\.;\?!]/u', $rest))) {
             return null;
         }
 

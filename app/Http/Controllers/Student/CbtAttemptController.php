@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\CbtAttempt;
+use App\Models\CbtQuestion;
 use App\Models\CbtQuestionOption;
 use App\Models\School;
 use Illuminate\Http\JsonResponse;
@@ -23,18 +24,22 @@ class CbtAttemptController extends Controller
 
         $attempt->load(['exam.subject', 'exam.examBody', 'answers']);
 
+        // Only published questions, so a paper still being reviewed by the
+        // AkademicNest Team never reaches a student mid-review.
+        $questions = $attempt->exam->publishedQuestions()->with('options')->get();
+
         if ($attempt->isSubmitted()) {
             return view('student.cbt-practice.result', [
                 'school' => $school,
                 'attempt' => $attempt,
-                'questions' => $attempt->exam->questions()->with('options')->get(),
+                'questions' => $questions,
             ]);
         }
 
         return view('student.cbt-practice.take', [
             'school' => $school,
             'attempt' => $attempt,
-            'questions' => $attempt->exam->questions()->with('options')->get(),
+            'questions' => $questions,
             'answeredMap' => $attempt->answers->mapWithKeys(fn ($answer) => [(string) $answer->cbt_question_id => $answer->cbt_question_option_id]),
         ]);
     }
@@ -54,16 +59,31 @@ class CbtAttemptController extends Controller
         }
 
         $validated = $request->validate([
-            'cbt_question_id' => ['required', 'integer', 'exists:cbt_questions,id'],
-            'cbt_question_option_id' => ['nullable', 'integer', 'exists:cbt_question_options,id'],
+            'cbt_question_id' => ['required', 'integer'],
+            'cbt_question_option_id' => ['nullable', 'integer'],
         ]);
 
-        $option = $validated['cbt_question_option_id'] ?? null
-            ? CbtQuestionOption::find($validated['cbt_question_option_id'])
+        // The question must be one of this paper's published questions, and the
+        // option must be one of that question's own options. Checked here
+        // rather than with a bare exists: rule, so a crafted request cannot
+        // answer a question from another paper or score itself with somebody
+        // else's option.
+        $question = CbtQuestion::where('cbt_exam_id', $attempt->cbt_exam_id)
+            ->where('is_published', true)
+            ->find($validated['cbt_question_id']);
+
+        abort_if($question === null, 422, 'That question is not part of this practice.');
+
+        $option = filled($validated['cbt_question_option_id'] ?? null)
+            ? CbtQuestionOption::where('cbt_question_id', $question->id)->find($validated['cbt_question_option_id'])
             : null;
 
+        abort_if(filled($validated['cbt_question_option_id'] ?? null) && $option === null, 422, 'That answer does not belong to this question.');
+
+        // is_correct is worked out here and never sent to the browser. What the
+        // page knows is the label and the text of each option, nothing more.
         $attempt->answers()->updateOrCreate(
-            ['cbt_question_id' => $validated['cbt_question_id']],
+            ['cbt_question_id' => $question->id],
             ['cbt_question_option_id' => $option?->id, 'is_correct' => (bool) $option?->is_correct],
         );
 

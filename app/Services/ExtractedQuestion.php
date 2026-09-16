@@ -52,7 +52,36 @@ final class ExtractedQuestion
         public readonly ?string $diagramDescription,
         public readonly int $marks,
         public readonly array $problems,
+        public readonly ?string $passage = null,
+        public readonly ?string $explanation = null,
+        public readonly ?int $imageIndex = null,
+        public readonly bool $numberingRestarted = false,
     ) {}
+
+    /**
+     * An [[image:N]] marker the document reader left where a picture sat.
+     */
+    public const IMAGE_MARKER = '/\[\[image:(\d+)\]\]/';
+
+    /**
+     * A correct answer printed in the wording itself, which must never reach
+     * a candidate.
+     */
+    private const LEAKED_ANSWER = '/[✓✔]?\s*\bCorrect\s+Answer\s*[\:\-–]\s*\(?[A-Ha-h]\)?/u';
+
+    /**
+     * The question's identity for spotting duplicates: its wording and its
+     * options, with case, spacing and punctuation ignored.
+     */
+    public function fingerprint(): string
+    {
+        $normalise = fn (string $value) => preg_replace('/[^\p{L}\p{N}]+/u', '', mb_strtolower($value));
+
+        return hash('sha256', $normalise($this->text).'|'.implode('|', array_map(
+            fn (array $option) => $normalise($option['text']),
+            $this->options,
+        )));
+    }
 
     /**
      * Build one from the raw extraction payload.
@@ -65,7 +94,38 @@ final class ExtractedQuestion
     {
         $problems = [];
 
-        $text = trim((string) ($raw['question_text'] ?? ''));
+        // Pictures the reader marked in the wording. The first one in the
+        // question becomes its image; any others are left for a person.
+        $images = [];
+        $text = self::takeImages((string) ($raw['question_text'] ?? ''), $images);
+
+        foreach (is_array($raw['options'] ?? null) ? $raw['options'] : [] as $index => $option) {
+            if (is_array($option)) {
+                $optionImages = [];
+                $raw['options'][$index]['text'] = self::takeImages((string) ($option['text'] ?? ''), $optionImages);
+
+                if ($optionImages !== []) {
+                    $problems[] = 'An answer option contains a picture, which options cannot show. Attach it to the question or retype the option.';
+                }
+            }
+        }
+
+        $passageImages = [];
+        $passage = self::takeImages((string) ($raw['passage'] ?? ''), $passageImages);
+        $images = [...$passageImages, ...$images];
+
+        if (count($images) > 1) {
+            $problems[] = sprintf('This question has %d pictures in the document; only the first was attached.', count($images));
+        }
+
+        // A correct answer printed inside the wording would be shown to the
+        // candidate. It is taken out, and the question flagged.
+        if (preg_match(self::LEAKED_ANSWER, $text)) {
+            $text = trim((string) preg_replace(self::LEAKED_ANSWER, '', $text));
+            $problems[] = 'The document printed the correct answer inside the question. It was removed; check the wording.';
+        }
+
+        $text = trim($text);
 
         if ($text === '') {
             $problems[] = 'No question text was found.';
@@ -85,7 +145,9 @@ final class ExtractedQuestion
             $options,
         );
 
-        $hasDiagram = (bool) ($raw['has_diagram'] ?? false);
+        // A figure the question mentions needs no manual attaching when the
+        // document's own picture was found beside it.
+        $hasDiagram = (bool) ($raw['has_diagram'] ?? false) && $images === [];
         $diagramDescription = trim((string) ($raw['diagram_description'] ?? '')) ?: null;
 
         return new self(
@@ -97,7 +159,26 @@ final class ExtractedQuestion
             diagramDescription: $diagramDescription,
             marks: max(1, (int) ($raw['marks'] ?? 1)),
             problems: $problems,
+            passage: trim($passage) !== '' ? trim($passage) : null,
+            explanation: filled($raw['explanation'] ?? null) ? trim((string) $raw['explanation']) : null,
+            imageIndex: $images[0] ?? null,
+            numberingRestarted: (bool) ($raw['numbering_restarted'] ?? false),
         );
+    }
+
+    /**
+     * Remove the image markers from a piece of text, collecting their indexes.
+     *
+     * @param  list<int>  $images
+     */
+    private static function takeImages(string $text, array &$images): string
+    {
+        if (preg_match_all(self::IMAGE_MARKER, $text, $matches)) {
+            array_push($images, ...array_map('intval', $matches[1]));
+            $text = (string) preg_replace(self::IMAGE_MARKER, '', $text);
+        }
+
+        return trim((string) preg_replace("/[ \t]*\n[ \t]*\n+/", "\n", $text));
     }
 
     /**
@@ -177,7 +258,7 @@ final class ExtractedQuestion
      */
     private static function resolveCorrectLabel(array $raw, array $options, array &$problems): ?string
     {
-        $claimsAnswer = ($raw['answer_source'] ?? 'not_found') === 'found_in_document';
+        $claimsAnswer = in_array($raw['answer_source'] ?? 'not_found', ['found_in_document', 'found_in_answer_key'], true);
         $label = self::normaliseLabel($raw['correct_label'] ?? '');
 
         if (! $claimsAnswer || $label === null) {

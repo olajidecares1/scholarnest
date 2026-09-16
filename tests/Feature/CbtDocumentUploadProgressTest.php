@@ -265,7 +265,9 @@ test('an upload stuck reading far longer than any document takes is released to 
         'staff_id' => $this->teacher->id,
         'status' => CbtDocumentUploadStatus::Processing,
     ]);
-    $upload->forceFill(['updated_at' => now()->subMinutes(20)])->saveQuietly();
+    // Longer than a sixty-page two-column compilation takes to read, which is
+    // what the runner's own limit is set against.
+    $upload->forceFill(['updated_at' => now()->subMinutes(40)])->saveQuietly();
 
     $this->actingAs($this->teacher, 'staff')
         ->getJson(route('staff.cbt.tests.uploads.status', [$this->school, $test, $upload]))

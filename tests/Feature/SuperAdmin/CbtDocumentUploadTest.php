@@ -5,7 +5,9 @@ use App\Enums\UserRole;
 use App\Jobs\ProcessCbtDocumentUpload;
 use App\Models\AdminRole;
 use App\Models\CbtDocumentUpload;
+use App\Models\CbtExam;
 use App\Models\CbtExamBody;
+use App\Models\CbtQuestion;
 use App\Models\CbtSubject;
 use App\Models\User;
 use App\Services\CbtDocumentImportService;
@@ -215,6 +217,126 @@ test('super admin can confirm exam body mapping and import the extracted questio
 
     expect($upload->fresh()->status)->toBe(CbtDocumentUploadStatus::Completed);
     expect($upload->fresh()->questions_extracted_count)->toBe(1);
+});
+
+// -----------------------------------------------------------------------------
+// Uploading the same paper twice, and the review stage before students see it.
+// -----------------------------------------------------------------------------
+
+test('the same document uploaded twice is refused, and allowed on a second try', function () {
+    Storage::fake('local');
+    Queue::fake();
+
+    $contents = 'the same bytes both times';
+
+    $this->actingAs($this->superAdmin)->post(route('super-admin.cbt.uploads.store'), [
+        'file' => UploadedFile::fake()->createWithContent('jamb-english.pdf', $contents),
+    ])->assertSessionHasNoErrors();
+
+    // The same paper, even renamed, is the same paper.
+    $refused = $this->actingAs($this->superAdmin)->post(route('super-admin.cbt.uploads.store'), [
+        'file' => UploadedFile::fake()->createWithContent('jamb-english-copy.pdf', $contents),
+    ])->assertSessionHasErrors('file');
+
+    expect(session('errors')->first('file'))->toContain('already uploaded')
+        ->and($refused->getTargetUrl())->not->toBeEmpty()
+        ->and(CbtDocumentUpload::count())->toBe(1);
+
+    // Deliberately, then: it goes through, and the importer is what stops the
+    // questions themselves being duplicated.
+    $this->actingAs($this->superAdmin)->post(route('super-admin.cbt.uploads.store'), [
+        'file' => UploadedFile::fake()->createWithContent('jamb-english-copy.pdf', $contents),
+        'upload_again' => '1',
+    ])->assertSessionHasNoErrors();
+
+    expect(CbtDocumentUpload::count())->toBe(2);
+});
+
+test('a repeated document is refused in a way the upload form can offer the override for', function () {
+    // The upload form sends the file in the background and reads a JSON reply,
+    // so the refusal has to say which kind it is, or the "Upload this document
+    // again" box never appears.
+    Storage::fake('local');
+    Queue::fake();
+
+    $this->actingAs($this->superAdmin)->post(route('super-admin.cbt.uploads.store'), [
+        'file' => UploadedFile::fake()->createWithContent('jamb.pdf', 'identical bytes'),
+    ]);
+
+    $this->actingAs($this->superAdmin)
+        ->postJson(route('super-admin.cbt.uploads.store'), [
+            'file' => UploadedFile::fake()->createWithContent('jamb.pdf', 'identical bytes'),
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['file', 'upload_again']);
+
+    // A file refused for any other reason does not offer it.
+    $this->actingAs($this->superAdmin)
+        ->postJson(route('super-admin.cbt.uploads.store'), [
+            'file' => UploadedFile::fake()->create('notes.txt', 10, 'text/plain'),
+        ])
+        ->assertUnprocessable()
+        ->assertJsonMissingValidationErrors('upload_again');
+});
+
+test('super admin can publish an upload and hide it again', function () {
+    $upload = CbtDocumentUpload::factory()->create(['status' => CbtDocumentUploadStatus::Completed]);
+    $exam = CbtExam::factory()->create();
+    $question = CbtQuestion::factory()->create([
+        'cbt_exam_id' => $exam->id,
+        'cbt_document_upload_id' => $upload->id,
+        'is_published' => false,
+        'needs_review' => false,
+    ]);
+
+    $this->actingAs($this->superAdmin)
+        ->post(route('super-admin.cbt.uploads.publish', $upload))
+        ->assertRedirect();
+
+    expect($question->fresh()->is_published)->toBeTrue()
+        ->and($upload->fresh()->published_at)->not->toBeNull();
+
+    $this->actingAs($this->superAdmin)
+        ->post(route('super-admin.cbt.uploads.unpublish', $upload))
+        ->assertRedirect();
+
+    expect($question->fresh()->is_published)->toBeFalse()
+        ->and($upload->fresh()->published_at)->toBeNull();
+});
+
+test('a published upload cannot be read again until it is unpublished', function () {
+    Queue::fake();
+
+    $upload = CbtDocumentUpload::factory()->create(['status' => CbtDocumentUploadStatus::Completed]);
+    CbtQuestion::factory()->create([
+        'cbt_exam_id' => CbtExam::factory()->create()->id,
+        'cbt_document_upload_id' => $upload->id,
+        'is_published' => true,
+    ]);
+
+    $this->actingAs($this->superAdmin)
+        ->post(route('super-admin.cbt.uploads.retry', $upload))
+        ->assertSessionHasErrors('upload');
+
+    Queue::assertNotPushed(ProcessCbtDocumentUpload::class);
+    expect($upload->fresh()->status)->toBe(CbtDocumentUploadStatus::Completed);
+});
+
+test('deleting an upload keeps the questions students can already see', function () {
+    Storage::fake('local');
+    $path = UploadedFile::fake()->create('mixed.pdf', 10, 'application/pdf')->storeAs('cbt-uploads/documents', 'mixed.pdf', 'local');
+    $upload = CbtDocumentUpload::factory()->create(['path' => $path]);
+    $exam = CbtExam::factory()->create();
+
+    $published = CbtQuestion::factory()->create(['cbt_exam_id' => $exam->id, 'cbt_document_upload_id' => $upload->id, 'is_published' => true]);
+    $draft = CbtQuestion::factory()->create(['cbt_exam_id' => $exam->id, 'cbt_document_upload_id' => $upload->id, 'is_published' => false]);
+
+    $this->actingAs($this->superAdmin)
+        ->delete(route('super-admin.cbt.uploads.destroy', $upload))
+        ->assertRedirect();
+
+    expect(CbtQuestion::find($published->id))->not->toBeNull()
+        ->and(CbtQuestion::find($draft->id))->toBeNull();
 });
 
 test('super admin can delete an upload', function () {

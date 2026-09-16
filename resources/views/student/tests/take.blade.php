@@ -12,8 +12,9 @@
         x-data="cbtAttempt({
             questions: @js($questions->map(fn ($q, $i) => [
                 'id' => $q->id,
-                'number' => $i + 1,
+                'number' => $q->question_number ?? $i + 1,
                 'text' => $q->question_text,
+                'passage' => $q->passage,
                 'marks' => $q->marks,
                 'image' => $q->imageUrl(),
                 'options' => $q->options->map(fn ($o) => ['id' => $o->id, 'label' => $o->label, 'text' => $o->option_text]),
@@ -100,8 +101,22 @@
         <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <template x-for="(question, index) in questions" :key="question.id">
                 <div x-show="current === index">
+                    {{-- A comprehension or cloze passage, printed above the
+                         questions that belong to it, as the paper had it. --}}
+                    <template x-if="question.passage">
+                        <div class="mb-4">
+                            <p class="text-xs font-bold uppercase tracking-wide text-primary-600 dark:text-primary-400">
+                                <i class="fa-solid fa-align-left mr-1.5"></i>Read the passage
+                            </p>
+                            <div
+                                class="mt-2 max-h-72 overflow-y-auto whitespace-pre-line rounded-[8px] border border-gray-200 bg-gray-50 p-4 text-sm leading-relaxed text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300"
+                                x-text="question.passage"
+                            ></div>
+                        </div>
+                    </template>
+
                     <div class="flex items-start justify-between gap-3">
-                        <p class="text-sm font-bold leading-[1.7] text-gray-900 dark:text-white">
+                        <p class="whitespace-pre-line text-sm font-bold leading-[1.7] text-gray-900 dark:text-white">
                             <span class="text-primary-600 dark:text-primary-400" x-text="question.number + '.'"></span>
                             <span x-text="question.text"></span>
                         </p>

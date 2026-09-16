@@ -35,19 +35,31 @@ class LocalQuestionExtractor implements QuestionExtractionProvider
             );
         }
 
-        // The key block is cut off before parsing: a key entry ("1. B") is
-        // indistinguishable from a question followed by an option, so a paper
-        // with a key would otherwise come out with phantom questions on the end.
-        $parsed = $this->parser->parse($this->heading->bodyOf($document->text));
+        // The whole document goes to the parser, answer keys included: a
+        // past-questions compilation prints a key after EVERY year, and the
+        // parser reads each one against its own year's questions, so a key
+        // is never mistaken for questions and 2011's question 1 is never
+        // answered from 2010's key.
+        //
+        // A PDF may offer more than one reading of itself (see
+        // PdfTextExtractor). Each is parsed and the one that produced the
+        // better questions is kept, which is a judgement only the parser can
+        // make: the text alone does not say which reading a document suits.
+        $best = null;
+        $text = $document->text;
 
-        // A key printed at the end fills in the questions that did not carry
-        // their answer beside them. Applied after parsing, because it needs
-        // to know which questions exist before it can match numbers to them.
-        $questions = $this->heading->applyAnswerKey($parsed['questions'], $document->text);
+        foreach ($document->readings() as $reading) {
+            $parsed = $this->parser->parse($reading);
+
+            if ($best === null || $this->score($parsed['questions']) > $this->score($best['questions'])) {
+                $best = $parsed;
+                $text = $reading;
+            }
+        }
 
         return new ExtractionResult(
-            questions: $questions,
-            instructions: $parsed['instructions'],
+            questions: $best['questions'],
+            instructions: $best['instructions'],
             images: $document->images,
             warnings: $document->warnings,
             looksScanned: $document->looksScanned,
@@ -55,7 +67,38 @@ class LocalQuestionExtractor implements QuestionExtractionProvider
             // What the paper says it is, subject, class, session, term,
             // title. Suggestions for the review screen, never applied on
             // their own. See DocumentMetadata.
-            metadata: $this->heading->metadata($document->text),
+            metadata: $this->heading->metadata($text),
         );
+    }
+
+    /**
+     * How usable a reading of a document turned out to be.
+     *
+     * Counted in what a student needs, not in how much text came out: a
+     * question with its full set of lettered options is worth something, and
+     * one that also has its answer is worth more, because it can be marked
+     * without anybody typing the answer in by hand. A reading that produces
+     * more questions by cutting them in half scores lower than one that
+     * produces fewer whole ones.
+     *
+     * @param  list<array<string, mixed>>  $questions
+     */
+    private function score(array $questions): int
+    {
+        $score = 0;
+
+        foreach ($questions as $question) {
+            $options = count($question['options'] ?? []);
+
+            if ($options >= 4 && $options <= 5) {
+                $score++;
+            }
+
+            if (filled($question['correct_label'] ?? null)) {
+                $score += 2;
+            }
+        }
+
+        return $score;
     }
 }

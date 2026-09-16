@@ -23,3 +23,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Real past-question papers used by the JAMB extraction tests. Kept out of
+# the repository: they are somebody else's compilation, and they are large.
+# Drop the documents in and those tests run; without them they skip.
+/tests/Fixtures/jamb

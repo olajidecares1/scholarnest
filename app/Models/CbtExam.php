@@ -61,6 +61,17 @@ class CbtExam extends Model
         return $this->hasMany(CbtQuestion::class)->orderBy('sort_order');
     }
 
+    /**
+     * The questions students can see: everything except questions read from a
+     * document that the AkademicNest Team has not yet reviewed and published.
+     *
+     * @return HasMany<CbtQuestion, $this>
+     */
+    public function publishedQuestions(): HasMany
+    {
+        return $this->questions()->where('is_published', true);
+    }
+
     public function title(): string
     {
         return "{$this->examBody->code} {$this->subject->name} {$this->year}";

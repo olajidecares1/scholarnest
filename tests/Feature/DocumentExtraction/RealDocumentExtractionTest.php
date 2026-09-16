@@ -154,6 +154,70 @@ test('a real multi-page PDF is read across its pages', function () {
         ->and(array_column($result->questions, 'number'))->toBe(range(1, 60));
 });
 
+/**
+ * A paper printed in two columns, the way every past-question compilation is.
+ *
+ * @param  list<string>  $lines
+ */
+function writeTwoColumnPdf(string $path, array $lines): string
+{
+    $half = (int) ceil(count($lines) / 2);
+    $column = function (array $part) {
+        $html = '';
+
+        foreach ($part as $line) {
+            $html .= '<div>'.htmlspecialchars($line).'</div>';
+        }
+
+        return $html;
+    };
+
+    $html = '<html><body style="font-family:sans-serif;font-size:10pt">'
+        .'<table width="100%" cellspacing="0" cellpadding="0"><tr>'
+        .'<td width="45%" style="vertical-align:top">'.$column(array_slice($lines, 0, $half)).'</td>'
+        .'<td width="10%"></td>'
+        .'<td width="45%" style="vertical-align:top">'.$column(array_slice($lines, $half)).'</td>'
+        .'</tr></table></body></html>';
+
+    file_put_contents($path, Pdf::loadHTML($html)->output());
+
+    return $path;
+}
+
+test('a two-column PDF is read one column at a time, not braided together', function () {
+    // The failure this was written for: asking a PDF for "its text" returns
+    // the order the file stores it in, which on two columns is question 1,
+    // then question 11, then the rest of question 1.
+    $path = writeTwoColumnPdf(scratchPath('two-column.pdf'), paperLines(20));
+
+    $result = app(QuestionExtractionProvider::class)->extract($path, 'application/pdf');
+
+    expect($result->questions)->toHaveCount(20)
+        ->and(array_column($result->questions, 'number'))->toBe(range(1, 20))
+        ->and(collect($result->questions)->every(fn ($q) => count($q['options']) === 4))->toBeTrue()
+        ->and(collect($result->questions)->every(fn ($q) => $q['correct_label'] === 'B'))->toBeTrue();
+
+    foreach ($result->questions as $index => $question) {
+        expect($question['question_text'])->toContain('Question number '.($index + 1).':');
+    }
+});
+
+test('a raised exponent is read as part of the line it belongs to', function () {
+    $html = '<html><body style="font-family:sans-serif;font-size:11pt">'
+        .'<div>1. Solve x<sup>2</sup> + 3x = 0 for x</div>'
+        .'<div>A. 0</div><div>B. -3</div><div>C. 3</div><div>D. 1</div>'
+        .'<div>Answer: B</div></body></html>';
+
+    $path = scratchPath('exponent.pdf');
+    file_put_contents($path, Pdf::loadHTML($html)->output());
+
+    $result = app(QuestionExtractionProvider::class)->extract($path, 'application/pdf');
+
+    expect($result->questions)->toHaveCount(1)
+        ->and($result->questions[0]['question_text'])->toContain('x²')
+        ->and($result->questions[0]['question_text'])->not->toContain("\n");
+});
+
 // -----------------------------------------------------------------------------
 // Files that are not what they claim.
 // -----------------------------------------------------------------------------

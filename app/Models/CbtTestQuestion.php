@@ -29,6 +29,10 @@ class CbtTestQuestion extends Model
         'sort_order',
         'needs_review',
         'review_notes',
+        'question_number',
+        'passage',
+        'explanation',
+        'fingerprint',
     ];
 
     /**

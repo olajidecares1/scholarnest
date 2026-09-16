@@ -223,6 +223,8 @@ Route::name('cbt.')->middleware('permission:manage_cbt')->group(function () {
         Route::get(R::uri('super-admin.cbt.uploads.show').'/{upload}/status', [CbtDocumentUploadController::class, 'status'])->name('status');
         Route::post(R::uri('super-admin.cbt.uploads.retry').'/{upload}', [CbtDocumentUploadController::class, 'retry'])->name('retry');
         Route::put(R::uri('super-admin.cbt.uploads.mapping').'/{upload}', [CbtDocumentUploadController::class, 'confirmMapping'])->name('mapping');
+        Route::post(R::uri('super-admin.cbt.uploads.publish').'/{upload}', [CbtDocumentUploadController::class, 'publish'])->name('publish');
+        Route::post(R::uri('super-admin.cbt.uploads.unpublish').'/{upload}', [CbtDocumentUploadController::class, 'unpublish'])->name('unpublish');
         Route::delete(R::uri('super-admin.cbt.uploads.destroy').'/{upload}', [CbtDocumentUploadController::class, 'destroy'])->name('destroy');
     });
 });

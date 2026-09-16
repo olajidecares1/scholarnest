@@ -69,6 +69,16 @@
                     />
                 </div>
 
+                {{-- Only shown once this exact document has been refused as already
+                     uploaded, so nobody ticks it out of habit. --}}
+                <label x-show="alreadyUploaded" x-cloak class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-200">
+                    <input type="checkbox" name="upload_again" value="1" class="mt-0.5 rounded border-gray-300 text-primary-600">
+                    <span>
+                        Upload this document again
+                        <span class="field-hint block">Questions already in the bank are still skipped, so nothing is duplicated.</span>
+                    </span>
+                </label>
+
             </x-upload-progress-form>
         </div>
 

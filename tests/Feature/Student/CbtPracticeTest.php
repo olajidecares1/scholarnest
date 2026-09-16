@@ -101,6 +101,67 @@ test('a student cannot view an exam body outside their stage even by direct url'
         ->assertForbidden();
 });
 
+// -----------------------------------------------------------------------------
+// Choosing a year.
+// -----------------------------------------------------------------------------
+
+test('the years offered are the years that actually have questions', function () {
+    $jamb = CbtExamBody::factory()->create(['name' => 'JAMB', 'academic_stages' => [AcademicStage::JuniorSecondary->value]]);
+
+    foreach ([2018, 2016] as $year) {
+        $exam = CbtExam::factory()->create(['cbt_exam_body_id' => $jamb->id, 'year' => $year]);
+        CbtQuestion::factory()->count(2)->create(['cbt_exam_id' => $exam->id, 'is_published' => true]);
+    }
+
+    // A year with nothing in it, and a year still being reviewed: neither is
+    // a year a student can be offered.
+    CbtExam::factory()->create(['cbt_exam_body_id' => $jamb->id, 'year' => 2017]);
+    $draft = CbtExam::factory()->create(['cbt_exam_body_id' => $jamb->id, 'year' => 2015]);
+    CbtQuestion::factory()->count(2)->create(['cbt_exam_id' => $draft->id, 'is_published' => false]);
+
+    $this->actingAs($this->student, 'student')
+        ->get(route('student.cbt-practice.show', [$this->school, $jamb]))
+        ->assertOk()
+        ->assertSee('Choose a Year')
+        ->assertSee('2018')
+        ->assertSee('2016')
+        ->assertDontSee('2017')
+        ->assertDontSee('2015');
+});
+
+test('an attempt counts and shows only the published questions of its paper', function () {
+    $examBody = CbtExamBody::factory()->create(['academic_stages' => [AcademicStage::JuniorSecondary->value]]);
+    $exam = CbtExam::factory()->create(['cbt_exam_body_id' => $examBody->id]);
+
+    CbtQuestion::factory()->create(['cbt_exam_id' => $exam->id, 'is_published' => true, 'question_text' => 'A published question?']);
+    CbtQuestion::factory()->create(['cbt_exam_id' => $exam->id, 'is_published' => false, 'question_text' => 'Still being reviewed?']);
+
+    $this->actingAs($this->student, 'student')
+        ->post(route('student.cbt-practice.start', [$this->school, $exam]));
+
+    $attempt = CbtAttempt::where('student_id', $this->student->id)->firstOrFail();
+
+    expect($attempt->total_questions)->toBe(1);
+
+    $this->actingAs($this->student, 'student')
+        ->get(route('student.cbt-practice.attempts.show', [$this->school, $attempt]))
+        ->assertOk()
+        ->assertSee('A published question?')
+        ->assertDontSee('Still being reviewed?');
+});
+
+test('a paper with nothing published cannot be started', function () {
+    $examBody = CbtExamBody::factory()->create(['academic_stages' => [AcademicStage::JuniorSecondary->value]]);
+    $exam = CbtExam::factory()->create(['cbt_exam_body_id' => $examBody->id]);
+    CbtQuestion::factory()->create(['cbt_exam_id' => $exam->id, 'is_published' => false]);
+
+    $this->actingAs($this->student, 'student')
+        ->post(route('student.cbt-practice.start', [$this->school, $exam]))
+        ->assertSessionHasErrors('exam');
+
+    expect(CbtAttempt::where('student_id', $this->student->id)->exists())->toBeFalse();
+});
+
 test('a student cannot start an exam outside their stage', function () {
     $waec = CbtExamBody::factory()->create(['name' => 'WAEC', 'academic_stages' => [AcademicStage::SeniorSecondary->value]]);
     $exam = CbtExam::factory()->create(['cbt_exam_body_id' => $waec->id]);

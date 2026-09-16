@@ -19,7 +19,7 @@
         />
 
         @if ($upload->status->value === 'completed')
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <p class="text-sm font-medium text-primary-600 dark:text-primary-400">Questions Extracted</p>
                     <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ $upload->questions_extracted_count }}</p>
@@ -28,7 +28,25 @@
                     <p class="text-sm font-medium text-amber-600 dark:text-amber-400">Needing Review</p>
                     <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ $upload->questions_needing_review_count }}</p>
                 </div>
+                <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <p class="text-sm font-medium text-sky-600 dark:text-sky-400">Already in This Test</p>
+                    <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ $upload->duplicates_skipped ?? 0 }}</p>
+                </div>
             </div>
+
+            @if (! empty($upload->warnings))
+                <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-6 dark:border-amber-800 dark:bg-amber-900/20">
+                    <p class="text-sm font-bold text-amber-800 dark:text-amber-300"><i class="fa-solid fa-circle-exclamation mr-1.5"></i>Check These Before Using the Test</p>
+                    <ul class="mt-2 space-y-1.5">
+                        @foreach ($upload->warnings as $warning)
+                            <li class="flex gap-2 text-xs text-amber-800 dark:text-amber-300">
+                                <i class="fa-solid fa-angle-right mt-0.5 shrink-0"></i>
+                                <span>{{ $warning }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             @if (! empty($upload->extracted_images))
                 <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -48,16 +66,28 @@
                     <a href="{{ route('staff.cbt.tests.show', [$school, $test]) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage on Test Page</a>
                 </div>
                 <div class="divide-y divide-gray-100 p-6 dark:divide-gray-700">
+                    @php $lastPassage = null; @endphp
                     @foreach ($upload->questions as $question)
+                        @if (filled($question->passage) && $question->passage !== $lastPassage)
+                            <div class="py-4 first:pt-0">
+                                <p class="text-xs font-bold uppercase tracking-wide text-primary-600 dark:text-primary-400"><i class="fa-solid fa-align-left mr-1.5"></i>Passage</p>
+                                <div class="mt-2 max-h-64 overflow-y-auto whitespace-pre-line rounded-[8px] border border-gray-200 bg-gray-50 p-4 text-sm leading-relaxed text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300">{{ $question->passage }}</div>
+                            </div>
+                        @endif
+                        @php $lastPassage = $question->passage; @endphp
+
                         <div class="py-4 first:pt-0 last:pb-0">
                             <div class="flex items-start justify-between gap-3">
-                                <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $loop->iteration }}. {{ $question->question_text }}</p>
+                                <p class="whitespace-pre-line text-sm font-semibold text-gray-900 dark:text-white">{{ $question->question_number ?? $loop->iteration }}. {{ $question->question_text }}</p>
                                 @if ($question->needs_review)
                                     <span class="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Needs review</span>
                                 @endif
                             </div>
                             @if ($question->review_notes)
                                 <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">{{ $question->review_notes }}</p>
+                            @endif
+                            @if ($question->imageUrl())
+                                <img src="{{ $question->imageUrl() }}" alt="" class="mt-3 max-h-56 rounded-[8px] border border-gray-200 dark:border-gray-700">
                             @endif
                             <div class="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                                 @foreach ($question->options as $option)

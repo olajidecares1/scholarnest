@@ -36,10 +36,11 @@ class CbtExtractionRunner
     private const PICK_UP_AFTER_SECONDS = 15;
 
     /**
-     * Far longer than any document takes to read. An upload still marked as
-     * reading after this was interrupted.
+     * Far longer than any document takes to read, the sixty-page two-column
+     * compilations included, and longer than the job's own timeout. An upload
+     * still marked as reading after this was interrupted.
      */
-    private const INTERRUPTED_AFTER_MINUTES = 10;
+    private const INTERRUPTED_AFTER_MINUTES = 35;
 
     /**
      * A waiting upload this old, after a page has already tried to read it,

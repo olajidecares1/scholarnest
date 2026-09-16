@@ -636,14 +636,15 @@ test('a multi-byte character earlier in the line does not truncate an option', f
         ->and($result['questions'][0]['options'][3]['text'])->toBe('Lawyer B');
 });
 
-test('a passage heading is lifted off the option it was welded to', function () {
-    $result = parseQuestions('5. Where does the play take place?A. On the streetB. In George&#039;s placeC. In Aunt&#039;s houseD. In Ofosu&#039;s place.Questions 6 to 10 are based on Romeo and Juliet');
+test('a passage heading is lifted off the option it was welded to, and given to the questions it names', function () {
+    $result = parseQuestions("5. Where does the play take place?A. On the streetB. In George&#039;s placeC. In Aunt&#039;s houseD. In Ofosu&#039;s place.Questions 6 to 10 are based on Romeo and Juliet\n6. Who is banished?A. RomeoB. TybaltC. ParisD. Juliet");
 
-    $q = $result['questions'][0];
+    [$five, $six] = $result['questions'];
 
-    expect($q['options'])->toHaveCount(4)
-        ->and($q['options'][3]['text'])->toBe("In Ofosu's place")
-        ->and($q['passage'])->toBe('Questions 6 to 10 are based on Romeo and Juliet');
+    expect($five['options'])->toHaveCount(4)
+        ->and($five['options'][3]['text'])->toBe("In Ofosu's place")
+        ->and($five['passage'])->toBeNull()
+        ->and($six['passage'])->toBe('Questions 6 to 10 are based on Romeo and Juliet');
 });
 
 test('an ordinary question carries no passage', function () {

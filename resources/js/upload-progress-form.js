@@ -28,6 +28,13 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
         /** True when reloading the page is the fix (an expired form token). */
         needsReload: false,
 
+        /**
+         * True once the server has refused this exact document as already
+         * uploaded. Kept through "Try again", so the page can offer the
+         * override at the moment it is needed and not before.
+         */
+        alreadyUploaded: false,
+
         /** Percent complete, or null when no honest number exists. */
         percent: null,
 
@@ -119,6 +126,7 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
                 }
 
                 if (xhr.status === 422) {
+                    this.alreadyUploaded = this.alreadyUploaded || this.refusedAsDuplicate(xhr);
                     this.fail(this.validationMessage(xhr));
 
                     return;
@@ -282,6 +290,18 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
             this.percent = 100;
             this.heading = 'Failed';
             this.message = message;
+        },
+
+        /**
+         * Was the file refused because this exact document was uploaded
+         * before? The server says so by naming the upload_again field.
+         */
+        refusedAsDuplicate(xhr) {
+            try {
+                return Boolean(JSON.parse(xhr.responseText).errors?.upload_again);
+            } catch {
+                return false;
+            }
         },
 
         /**

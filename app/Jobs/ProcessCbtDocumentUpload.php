@@ -32,7 +32,14 @@ class ProcessCbtDocumentUpload implements ShouldQueue
 {
     use Queueable;
 
-    public int $timeout = 300;
+    /**
+     * A JAMB compilation runs to sixty-odd pages of two-column text, every
+     * page is read position by position to come out in printed order, and a
+     * PDF is read twice so the better reading can be kept. Measured at around
+     * thirteen minutes for the largest paper seen, so the limit is set well
+     * clear of it: a slow read is not a failure.
+     */
+    public int $timeout = 1800;
 
     public int $tries = 3;
 
@@ -74,7 +81,11 @@ class ProcessCbtDocumentUpload implements ShouldQueue
             $this->upload->update([
                 'extracted_images' => $result->images,
                 'ai_response' => $payload,
-                'detected_years' => collect($payload['years'])->pluck('year')->all(),
+                'detected_years' => collect($payload['years'])->pluck('year')->unique()->values()->all(),
+                'warnings' => array_values(array_filter([
+                    $result->looksScanned ? 'Parts of this document are scanned images with no selectable text, so they could not be read. Upload a typed (Word or text-based PDF) copy for those pages.' : null,
+                    ...$result->warnings,
+                ])),
             ]);
 
             if ($result->isEmpty()) {
@@ -126,23 +137,29 @@ class ProcessCbtDocumentUpload implements ShouldQueue
     {
         $fallbackYear = (int) ($this->upload->created_at?->year ?? now()->year);
 
+        // One group per year and subject, in the order the years run. The
+        // subject is the one the year's heading printed ("UTME 2010 USE OF
+        // ENGLISH"), when it printed one.
         $grouped = collect($result->questions)
-            ->groupBy(fn (array $question) => (int) ($question['year'] ?? 0) ?: $fallbackYear)
-            ->map(fn ($questions, $year) => [
-                'year' => (int) $year,
+            ->groupBy(fn (array $question) => ((int) ($question['year'] ?? 0) ?: $fallbackYear).'|'.($question['subject'] ?? ''))
+            ->map(fn ($questions, $key) => [
+                'year' => (int) explode('|', (string) $key, 2)[0],
+                'subject' => explode('|', (string) $key, 2)[1] ?: null,
                 'instructions' => $result->instructions,
 
                 // values() so the group is a list, and the order within a
                 // paper is the order the document printed.
                 'questions' => $questions->values()->all(),
             ])
-            ->sortKeys()
+            ->sortBy(fn (array $group) => [$group['year'], $group['subject']])
             ->values()
             ->all();
 
+        $detectedSubject = collect($result->questions)->pluck('subject')->filter()->countBy()->sortDesc()->keys()->first();
+
         return [
             'exam_body' => (string) ($this->upload->examBody?->code ?? ''),
-            'subject' => (string) ($this->upload->subject?->name ?? ''),
+            'subject' => (string) ($this->upload->subject?->name ?? $detectedSubject ?? ''),
             'years' => $grouped,
         ];
     }
@@ -194,6 +211,6 @@ class ProcessCbtDocumentUpload implements ShouldQueue
             return null;
         }
 
-        return CbtSubject::whereRaw('LOWER(name) = ?', [strtolower($name)])->first();
+        return CbtDocumentImportService::matchSubject($name);
     }
 }

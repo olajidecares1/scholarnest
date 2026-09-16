@@ -1,11 +1,22 @@
-<x-student-layout :page-title="$attempt->exam->title()" page-subtitle="Answer each question, then move to the next">
+{{--
+    The practice paper, laid out the way a real CBT hall screen is: one question
+    at a time, its passage above it, the options as lettered buttons, a timer, and
+    a numbered palette that shows at a glance what is answered and what is not.
+
+    WHAT THIS PAGE IS NOT GIVEN: which option is correct. The questions are sent
+    to the browser with their label and text only, so nothing on this page (or in
+    its network traffic) can be read to find the answer before submitting.
+--}}
+<x-student-layout :page-title="$attempt->exam->title()" page-subtitle="Answer each question, then submit">
     <div
         x-data="cbtAttempt({
-            questions: @js($questions->map(fn ($q) => [
+            questions: @js($questions->values()->map(fn ($q, $i) => [
                 'id' => $q->id,
+                'number' => $q->question_number ?? $i + 1,
                 'text' => $q->question_text,
+                'passage' => $q->passage,
                 'image' => $q->imageUrl(),
-                'options' => $q->options->map(fn ($o) => ['id' => $o->id, 'label' => $o->label, 'text' => $o->option_text]),
+                'options' => $q->options->map(fn ($o) => ['id' => $o->id, 'label' => $o->label, 'text' => $o->option_text])->values(),
             ])),
             answers: @js($answeredMap),
             expiresAt: @js($attempt->expires_at?->toIso8601String()),
@@ -13,6 +24,7 @@
             submitUrl: @js(route('student.cbt-practice.attempts.submit', [$school, $attempt])),
         })"
         x-init="init()"
+        @keydown.window="onKey($event)"
         class="space-y-4"
     >
         {{-- Sticky header: question counter, timer, progress bar --}}
@@ -20,30 +32,50 @@
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <span class="text-sm font-bold text-gray-900 dark:text-white" x-text="`Question ${current + 1} of ${questions.length}`"></span>
                 <span
-                    class="flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold"
+                    class="flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold tabular-nums"
                     :class="secondsLeft !== null && secondsLeft < 60 ? 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" /><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    <i class="fa-regular fa-clock"></i>
                     <span x-text="timeDisplay"></span>
                 </span>
             </div>
             <div class="mt-3 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
                 <div class="h-2 rounded-full bg-primary-600 transition-all duration-300 ease-out" :style="`width: ${progressPct}%`"></div>
             </div>
-            <p class="field-hint mt-1.5"><span x-text="Object.keys(answers).length"></span> of <span x-text="questions.length"></span> answered</p>
+            <p class="field-hint mt-1.5"><span x-text="answeredCount"></span> of <span x-text="questions.length"></span> answered</p>
         </div>
 
         {{-- Current question --}}
         <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <template x-for="(question, index) in questions" :key="question.id">
                 <div x-show="current === index">
-                    <p class="text-sm font-bold text-gray-900 dark:text-white" x-text="question.text"></p>
-                    <img x-show="question.image" :src="question.image" class="mt-3 max-h-56 rounded-[8px]" alt="">
+                    {{-- The comprehension or cloze passage the question belongs
+                         to, exactly as the paper printed it. --}}
+                    <template x-if="question.passage">
+                        <div class="mb-4">
+                            <p class="text-xs font-bold uppercase tracking-wide text-primary-600 dark:text-primary-400">
+                                <i class="fa-solid fa-align-left mr-1.5"></i>Read the passage
+                            </p>
+                            <div
+                                class="mt-2 max-h-72 overflow-y-auto whitespace-pre-line rounded-[8px] border border-gray-200 bg-gray-50 p-4 text-sm leading-relaxed text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300"
+                                x-text="question.passage"
+                            ></div>
+                        </div>
+                    </template>
+
+                    <div class="flex gap-2">
+                        <span class="shrink-0 text-sm font-bold text-primary-600 dark:text-primary-400" x-text="question.number + '.'"></span>
+                        <p class="whitespace-pre-line text-sm font-bold text-gray-900 dark:text-white" x-text="question.text"></p>
+                    </div>
+
+                    <template x-if="question.image">
+                        <img :src="question.image" class="mt-3 max-h-64 rounded-[8px] border border-gray-200 dark:border-gray-700" alt="">
+                    </template>
 
                     <div class="mt-4 space-y-2">
                         <template x-for="option in question.options" :key="option.id">
                             <label
-                                class="flex cursor-pointer items-center gap-3 rounded-[8px] border p-3 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                                class="flex cursor-pointer items-start gap-3 rounded-[8px] border p-3 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
                                 :class="answers[question.id] === option.id ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-200 dark:border-gray-700'"
                             >
                                 <input
@@ -52,18 +84,40 @@
                                     :value="option.id"
                                     :checked="answers[question.id] === option.id"
                                     @change="select(question.id, option.id)"
-                                    class="w-4 shrink-0 text-primary-600"
+                                    class="sr-only"
                                 >
-                                <span><span class="font-semibold" x-text="option.label + '.'"></span> <span x-text="option.text"></span></span>
+                                <span
+                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-colors duration-150"
+                                    :class="answers[question.id] === option.id
+                                        ? 'border-primary-600 bg-primary-600 text-white'
+                                        : 'border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-300'"
+                                    x-text="option.label"
+                                ></span>
+                                <span class="whitespace-pre-line" x-text="option.text"></span>
                             </label>
                         </template>
                     </div>
+
+                    <button
+                        type="button"
+                        x-show="answers[question.id]"
+                        x-cloak
+                        @click="select(question.id, null)"
+                        class="mt-3 text-xs font-semibold text-gray-500 transition-colors duration-150 hover:text-red-600 dark:text-gray-400"
+                    >
+                        <i class="fa-solid fa-eraser mr-1"></i>Clear my answer
+                    </button>
                 </div>
             </template>
         </div>
 
         {{-- Question palette --}}
         <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
+                <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-[4px] bg-primary-600"></span>Current</span>
+                <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-[4px] bg-primary-100 dark:bg-primary-900/40"></span>Answered</span>
+                <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-[4px] bg-gray-100 dark:bg-gray-700"></span>Not answered</span>
+            </div>
             <div class="grid grid-cols-8 gap-1.5 sm:grid-cols-10">
                 <template x-for="(question, index) in questions" :key="question.id">
                     <button
@@ -73,7 +127,7 @@
                         :class="current === index
                             ? 'bg-primary-600 text-white'
                             : (answers[question.id] ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400')"
-                        x-text="index + 1"
+                        x-text="question.number"
                     ></button>
                 </template>
             </div>
@@ -87,26 +141,31 @@
                 :disabled="current === 0"
                 class="rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
-                Previous
+                <i class="fa-solid fa-chevron-left mr-1.5 text-xs"></i>Previous
             </button>
 
-            <button
-                type="button"
-                x-show="current < questions.length - 1"
-                @click="next()"
-                class="rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md"
-            >
-                Next
-            </button>
+            <span class="hidden text-xs text-gray-400 sm:block dark:text-gray-500">
+                Tip: use <kbd class="rounded border border-gray-300 px-1 dark:border-gray-600">&larr;</kbd> <kbd class="rounded border border-gray-300 px-1 dark:border-gray-600">&rarr;</kbd> to move, <kbd class="rounded border border-gray-300 px-1 dark:border-gray-600">A</kbd>&ndash;<kbd class="rounded border border-gray-300 px-1 dark:border-gray-600">E</kbd> to answer
+            </span>
 
-            <button
-                type="button"
-                x-show="current === questions.length - 1"
-                @click="confirmSubmit()"
-                class="rounded-[8px] bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-md"
-            >
-                Submit Exam
-            </button>
+            <div class="flex gap-3">
+                <button
+                    type="button"
+                    x-show="current < questions.length - 1"
+                    @click="next()"
+                    class="rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md"
+                >
+                    Next<i class="fa-solid fa-chevron-right ml-1.5 text-xs"></i>
+                </button>
+
+                <button
+                    type="button"
+                    @click="confirmSubmit()"
+                    class="rounded-[8px] bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-md"
+                >
+                    <i class="fa-solid fa-paper-plane mr-1.5"></i>Submit Exam
+                </button>
+            </div>
         </div>
 
         <form :action="submitUrl" method="POST" x-ref="submitForm" class="hidden">
@@ -122,9 +181,12 @@
                 secondsLeft: null,
                 timeDisplay: '--:--',
                 timerHandle: null,
+                get answeredCount() {
+                    return Object.values(this.answers).filter((value) => value).length;
+                },
                 get progressPct() {
                     if (this.questions.length === 0) return 0;
-                    return Math.round((Object.keys(this.answers).length / this.questions.length) * 100);
+                    return Math.round((this.answeredCount / this.questions.length) * 100);
                 },
                 init() {
                     if (!this.expiresAt) return;
@@ -157,6 +219,24 @@
                         }
                     });
                 },
+                // The hall keyboard: arrows to move between questions, a letter
+                // to answer the one on screen.
+                onKey(event) {
+                    if (event.metaKey || event.ctrlKey || event.altKey) return;
+                    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return;
+
+                    if (event.key === 'ArrowRight') return this.next();
+                    if (event.key === 'ArrowLeft') return this.prev();
+
+                    const question = this.questions[this.current];
+                    if (!question) return;
+
+                    const option = question.options.find((o) => o.label.toUpperCase() === event.key.toUpperCase());
+                    if (option) {
+                        event.preventDefault();
+                        this.select(question.id, option.id);
+                    }
+                },
                 next() {
                     if (this.current < this.questions.length - 1) this.current++;
                 },
@@ -164,8 +244,11 @@
                     if (this.current > 0) this.current--;
                 },
                 confirmSubmit() {
-                    const unanswered = this.questions.length - Object.keys(this.answers).length;
-                    if (unanswered > 0 && !confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
+                    const unanswered = this.questions.length - this.answeredCount;
+                    const message = unanswered > 0
+                        ? `${unanswered} question(s) are still unanswered. Submit anyway? You cannot change your answers after this.`
+                        : 'Submit your answers? You cannot change them after this.';
+                    if (!confirm(message)) return;
                     this.doSubmit();
                 },
                 doSubmit() {

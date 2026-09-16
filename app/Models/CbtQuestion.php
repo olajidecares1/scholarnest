@@ -29,6 +29,11 @@ class CbtQuestion extends Model
         'sort_order',
         'needs_review',
         'review_notes',
+        'question_number',
+        'passage',
+        'explanation',
+        'fingerprint',
+        'is_published',
     ];
 
     /**
@@ -40,6 +45,7 @@ class CbtQuestion extends Model
     {
         return [
             'needs_review' => 'boolean',
+            'is_published' => 'boolean',
         ];
     }
 
