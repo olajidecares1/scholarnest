@@ -62,6 +62,12 @@ function writeTestDocx(string $path, array $lines): string
         $section->addText($line);
     }
 
+    // The storage folder is git-ignored, so on a fresh checkout (CI) it does
+    // not exist yet, and PhpWord cannot close a zip into a missing folder.
+    if (! is_dir(dirname($path))) {
+        mkdir(dirname($path), 0777, true);
+    }
+
     IOFactory::createWriter($word, 'Word2007')->save($path);
 
     return $path;
