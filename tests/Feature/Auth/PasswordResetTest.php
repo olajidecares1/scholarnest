@@ -9,6 +9,7 @@ use App\Notifications\PasswordChangedNotification;
 use App\Notifications\ResetPasswordNotification;
 use App\Services\Auth\PasswordResetCodes;
 use App\Services\Mail\MailReadiness;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -262,7 +263,7 @@ describe('security', function () {
         $this->mock(MailReadiness::class, fn ($mock) => $mock->shouldReceive('problem')->andReturn('Email is not set up on this server.'));
 
         for ($i = 0; $i < 6; $i++) {
-            $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class)
+            $this->withoutMiddleware(ThrottleRequests::class)
                 ->post(route('password.email'), ['email' => $this->schoolAdmin->email]);
         }
 
