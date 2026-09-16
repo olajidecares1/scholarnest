@@ -6,6 +6,8 @@ use App\Services\DocumentExtraction\LocalQuestionExtractor;
 use App\Services\DocumentExtraction\QuestionExtractionProvider;
 use App\Services\Mail\MailLogo;
 use App\Services\QueueWorkerHealth;
+use App\Services\Tenancy\TenantResolver;
+use App\Support\CurrentTenant;
 use App\Support\PortalLoginRedirect;
 use App\Support\ProductionConfiguration;
 use App\Support\Storage\DatabaseStorageFallback;
@@ -38,6 +40,12 @@ class AppServiceProvider extends ServiceProvider
         // swapped in later by changing one line, without the local extractor
         // ever ceasing to be the default that works on its own.
         $this->app->bind(QuestionExtractionProvider::class, LocalQuestionExtractor::class);
+
+        // The school a tenant host resolved to. Scoped, so it is flushed
+        // between requests and one school's tenant can never outlive the
+        // request it was resolved for. See App\Services\Tenancy\TenantResolver.
+        $this->app->scoped(CurrentTenant::class);
+        $this->app->scoped(TenantResolver::class);
 
         // Uploads live in the database on Laravel Cloud until object storage
         // buckets are attached, instead of on a filesystem every deploy wipes.
