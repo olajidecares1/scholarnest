@@ -9,14 +9,8 @@
 <x-auth-layout :title="'Check Result | '.$school->name" :school="$school" simple>
     <x-auth-card>
         @php
-            $onSchoolResultLink = request()->routeIs('school-result.*');
-            $schoolValue = $onSchoolResultLink ? $school->result_link_slug : $school;
-            $verifyUrl = $onSchoolResultLink
-                ? route('school-result.verify', ['school' => $schoolValue])
-                : route('check-result.verify', $school);
-            $backUrl = $onSchoolResultLink
-                ? route('school-result.show', ['school' => $schoolValue])
-                : route('check-result.show', $school);
+            $verifyUrl = \App\Support\ResultCheckRoutes::url('verify', $school);
+            $backUrl = \App\Support\ResultCheckRoutes::url('show', $school);
         @endphp
 
         <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-primary-600">
