@@ -179,14 +179,15 @@ class CheckProductionUrls extends Command
         // families with no account at all.
         $this->line('    Pupil sign-in     '.$site.'/portal/'.$this->hint('token').'/login  <fg=gray>(results in-portal)</>');
         $this->line('    Parent sign-in    '.$site.'/parent-portal/'.$this->hint('token').'/login  <fg=gray>(results in-portal)</>');
-        $this->line('    Results           '.($appUrl ?: 'https://'.$base).'/'.$this->hint('result_link_slug').'/result  <fg=gray>(platform host, every plan)</>');
+        $this->line('    Results           '.$site.'/results  <fg=gray>(on the school\'s own site, Standard and Exclusive)</>');
+        $this->line('    Results link      '.($appUrl ?: 'https://'.$base).'/'.$this->hint('result_link_slug').'/result  <fg=gray>(platform host, every plan)</>');
         $this->newLine();
         $this->line('    <fg=gray>The Basic paths above keep working too. They are not withdrawn.</>');
         $this->newLine();
         $this->line('    <fg=yellow>Requires, outside this application:</>');
-        $this->line('      DNS   a wildcard A/AAAA record  *.'.$base);
-        $this->line('      TLS   a wildcard certificate    *.'.$base);
-        $this->line('      Without both, every Standard school gets a certificate warning.');
+        $this->line('      DNS   a wildcard record         *.'.$base.'  (on Laravel Cloud: the CNAME Cloud shows for the wildcard)');
+        $this->line('      TLS   a wildcard certificate    *.'.$base.'  (on Laravel Cloud: add *.'.$base.' under Domains, keep _acme-challenge)');
+        $this->line('      Without both, no school subdomain resolves, or every one shows a certificate warning.');
     }
 
     private function exclusive(?string $host): void
