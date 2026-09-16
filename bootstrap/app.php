@@ -4,6 +4,7 @@ use App\Exceptions\FeatureRequiresUpgrade;
 use App\Http\Middleware\Api\EnsureApiAccountIsActive;
 use App\Http\Middleware\Api\EnsureApiActorIs;
 use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Middleware\EnforceTenantHostBoundary;
 use App\Http\Middleware\EnsureGuardianIsActive;
 use App\Http\Middleware\EnsureHasPermission;
 use App\Http\Middleware\EnsurePasswordHasBeenChanged;
@@ -26,6 +27,7 @@ use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrackPageView;
 use App\Http\Middleware\ValidateBasicPortalToken;
 use App\Http\Middleware\ValidateSchoolPortalToken;
+use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -130,10 +132,22 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(append: [
+            // After StartSession so it can see who is signed in, and (by the
+            // priority entry below) before auth, so a platform page asked for
+            // on a school's host goes straight to the platform instead of via
+            // a sign-in page on the school's host first. See the class.
+            EnforceTenantHostBoundary::class,
             CheckMaintenanceMode::class,
             TrackPageView::class,
             LogsOutIdleUsers::class,
         ]);
+
+        // The tenant host check runs before authentication. See the comment on
+        // its web() entry above.
+        $middleware->prependToPriorityList(
+            before: AuthenticatesRequests::class,
+            prepend: EnforceTenantHostBoundary::class,
+        );
 
         // Laravel 11 stopped throttling the api group by default. An API
         // without a limiter is an invitation to page through a school's
