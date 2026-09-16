@@ -5,11 +5,13 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\StoreSchoolRequest;
+use App\Http\Requests\SuperAdmin\UpdateSchoolSubdomainRequest;
 use App\Models\AuditLog;
 use App\Models\School;
 use App\Models\User;
 use App\Services\DefaultAcademicStructure;
 use App\Services\StudentLicenceAllocation;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -111,6 +113,41 @@ class SchoolController extends Controller
         AuditLog::record('school.activated', "Activated school {$school->name}.", $school);
 
         return back()->with('status', "{$school->name} has been activated.");
+    }
+
+    /**
+     * Give a school a different website address.
+     *
+     * The old address stops resolving immediately, TenantResolver looks up by
+     * the column and keeps no history, so anyone still using it gets the
+     * "no school website at this address" page. Recorded in the audit log
+     * with both values, because a link that suddenly stops working is the
+     * first thing a school will ask about.
+     */
+    public function updateSubdomain(UpdateSchoolSubdomainRequest $request, School $school): RedirectResponse
+    {
+        $previous = $school->subdomain;
+        $subdomain = $request->validated('subdomain');
+
+        if ($previous === $subdomain) {
+            return back()->with('status', 'The website address is unchanged.');
+        }
+
+        try {
+            // Not mass assignable on purpose: only this action may change it.
+            $school->forceFill(['subdomain' => $subdomain])->save();
+        } catch (UniqueConstraintViolationException) {
+            // Claimed by another school between validation and the write.
+            return back()->withErrors(['subdomain' => 'Another school already uses that address.'])->withInput();
+        }
+
+        AuditLog::record(
+            'school.subdomain_changed',
+            "Changed the website address of {$school->name} from {$previous} to {$subdomain}.",
+            $school,
+        );
+
+        return back()->with('status', "{$school->name}'s website address is now {$subdomain}.");
     }
 
     public function deactivate(School $school): RedirectResponse
