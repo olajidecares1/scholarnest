@@ -8,17 +8,22 @@ use Symfony\Component\Mime\Email;
 use Throwable;
 
 /**
- * The AkademicNest logo at the top of every email.
+ * The company's logo at the top of every email.
  *
  * EMBEDDED, NOT LINKED. The image travels inside the email as an inline
  * attachment and the header points at it with a cid: reference. A linked image
  * is hidden by Outlook and many other clients until the reader clicks "show
  * images", so most people would never see it.
  *
- * WHICH LOGO. The one a Super Admin uploaded under Themes when there is one,
- * otherwise the bundled mark, the same choice the invoice PDF makes. An upload
- * in a format mail clients cannot show (an .ico, or .webp, which Outlook does
- * not display) falls back to the bundled mark rather than a broken image.
+ * WHICH LOGO. Whatever logo the Super Admin has uploaded under Themes, read
+ * fresh for every email, so changing the logo there changes the next email
+ * sent, with nothing to redeploy. The bundled mark is only used while no logo
+ * has been uploaded (the same fallback the website and the invoice PDF use),
+ * or if the uploaded file cannot be read at all.
+ *
+ * ANY UPLOADED FORMAT. Outlook and several other clients cannot show WebP, so
+ * a WebP (or any other format GD can read) is converted to PNG for the email.
+ * The upload itself is left as it is.
  *
  * TRIMMED. A PNG with a transparent border (the bundled mark is half border)
  * is cropped to what is drawn, so the logo fills the size it is given instead
@@ -41,6 +46,21 @@ class MailLogo
     private const BUNDLED = 'images/logo-mark.png';
 
     private const SHOWABLE = ['image/png', 'image/jpeg', 'image/gif'];
+
+    /**
+     * The company name shown with the logo: the Site Name from Super Admin
+     * settings, so renaming the company there renames it in every email.
+     */
+    public static function companyName(): string
+    {
+        try {
+            $name = trim((string) Setting::current()->site_name);
+        } catch (Throwable) {
+            $name = '';
+        }
+
+        return $name !== '' ? $name : (string) config('app.name');
+    }
 
     /** @var array{bytes: string, type: string, width: int, height: int}|false|null */
     private array|false|null $image = null;
@@ -104,12 +124,19 @@ class MailLogo
     {
         try {
             $path = Setting::current()->logo_path;
+            $bytes = $path ? BrandingImage::contents($path) : null;
 
-            if (! $path || ! in_array(BrandingImage::typeFor($path), self::SHOWABLE, true)) {
+            if (! $bytes) {
                 return null;
             }
 
-            return $this->sized(BrandingImage::contents($path), BrandingImage::typeFor($path));
+            $type = BrandingImage::typeFor($path);
+
+            if (! in_array($type, self::SHOWABLE, true)) {
+                [$bytes, $type] = [$this->asPng($bytes), 'image/png'];
+            }
+
+            return $this->sized($bytes, $type);
         } catch (Throwable) {
             return null;
         }
@@ -139,6 +166,27 @@ class MailLogo
         }
 
         return ['bytes' => $bytes, 'type' => $type, 'width' => $width, 'height' => $height];
+    }
+
+    /**
+     * Any image GD can read, re-encoded as PNG with its transparency, or null
+     * when GD cannot read it (an .ico, for one).
+     */
+    private function asPng(string $bytes): ?string
+    {
+        $image = @imagecreatefromstring($bytes);
+
+        if ($image === false) {
+            return null;
+        }
+
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+
+        ob_start();
+        imagepng($image, null, 9);
+
+        return ob_get_clean() ?: null;
     }
 
     /**
