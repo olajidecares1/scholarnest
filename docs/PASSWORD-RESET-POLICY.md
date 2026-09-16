@@ -55,7 +55,11 @@ Three steps on one page, each checked on the server
 `App\Services\Auth\PasswordResetCodes`).
 
 ```
-Forgot password?  ->  enter email  ->  the same answer for every address
+Forgot password?  ->  enter email  ->  no account: "We could not find an
+                                        administrator account..." (field shakes)
+                                        |
+                          account: "Code sent to <email>. Check your inbox
+                                    or spam folder."
                                         |
                           email: "Your AkademicNest Password Reset Code"
                                   6-digit code, no link
@@ -78,14 +82,23 @@ session, so the same code cannot be entered again and the password can only be
 set by the browser that entered it. The row is deleted when the password
 changes.
 
-**What the email step reveals.** Every address moves on to the code step with
-the same sentence, whether or not it has an account. The one exception is
-deliberate: when an account exists and the email could not be sent, the page
+**What the email step says.** An address with no active administrator account
+is told so on the email step, the field shakes twice, and nothing is sent. An
+address with one moves on to the code step with a short note saying where the
+code went. When an account exists and the email could not be sent, the page
 says so rather than pretending a code is on its way.
+
+This is a deliberate trade: administrators who mistype their address find out
+immediately, at the cost of the form confirming whether an address belongs to
+an administrator. The per-IP limit below, and every miss being logged, are what
+keep that from being used to sweep a list of addresses.
 
 **Rate limits.** Each step has its own per-IP limit (5 requests a minute to
 send, 10 to verify, 5 to set the password), and one address is sent at most
-one code a minute and five an hour.
+one code a minute and five an hour. Only codes that were actually delivered
+count towards the hourly five, so a mail outage does not lock an administrator
+out; once the five are used, the code step says so instead of claiming another
+code was sent.
 
 **Delivery.** The code email is sent immediately (not queued) through
 `App\Services\Mail\TransactionalMailer` and recorded in `email_deliveries`.
