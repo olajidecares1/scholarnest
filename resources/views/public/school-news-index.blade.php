@@ -11,7 +11,7 @@
             @else
                 <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($posts as $post)
-                        <a href="{{ route('public.school-news.show', [$school, $post]) }}" class="overflow-hidden rounded-[10px] border border-gray-200 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
+                        <a href="{{ $school->publicUrl('public.school-news.show', ['post' => $post]) }}" class="overflow-hidden rounded-[10px] border border-gray-200 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
                             <div class="h-40 overflow-hidden bg-gray-100">
                                 @if ($post->imageUrl())
                                     <img src="{{ $post->imageUrl() }}" class="h-full w-full object-cover">

@@ -718,7 +718,7 @@
                          sets `transition` too. --}}
                     <div class="edn-reveal" style="--edn-delay: 600ms;">
                         <a
-                            href="{{ route('public.school-about.index', $school) }}"
+                            href="{{ $school->publicUrl('public.school-about.index') }}"
                             class="mt-7 inline-flex items-center gap-2 rounded-[8px] bg-primary-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-800 hover:shadow-md"
                         >
                             Learn More
@@ -1051,7 +1051,7 @@
                             <div class="mb-4 min-h-[312px] space-y-3">
                                 @foreach ($group as $post)
                                     <a
-                                        href="{{ route('public.school-news.show', [$school, $post]) }}"
+                                        href="{{ $school->publicUrl('public.school-news.show', ['post' => $post]) }}"
                                         class="edn-translucent-card group flex h-24 overflow-hidden rounded-[10px] border shadow-sm transition-shadow duration-300 ease-out hover:shadow-md"
                                     >
                                         <div class="h-full w-24 shrink-0 overflow-hidden bg-gray-100">
@@ -1105,7 +1105,7 @@
                     <div class="mt-4 space-y-3">
                         @forelse ($latestNews as $post)
                             <a
-                                href="{{ route('public.school-news.show', [$school, $post]) }}"
+                                href="{{ $school->publicUrl('public.school-news.show', ['post' => $post]) }}"
                                 class="edn-translucent-card group flex h-24 overflow-hidden rounded-[10px] border shadow-sm transition-shadow duration-300 ease-out hover:shadow-md"
                             >
                                 <div class="h-full w-24 shrink-0 overflow-hidden bg-gray-100">
@@ -1260,7 +1260,7 @@
             <div id="facilities" class="scroll-mt-24">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="edn-reveal text-[11.5px] font-bold uppercase tracking-[0.18em] text-primary-700">Our Facilities</h2>
-                    <a href="{{ route('public.school-facilities.index', $school) }}" class="text-[12px] font-semibold text-primary-700 hover:text-primary-800">View all &rarr;</a>
+                    <a href="{{ $school->publicUrl('public.school-facilities.index') }}" class="text-[12px] font-semibold text-primary-700 hover:text-primary-800">View all &rarr;</a>
                 </div>
 
                 {{-- Each facility gets an icon that means something. This row
