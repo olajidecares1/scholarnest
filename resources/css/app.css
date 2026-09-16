@@ -835,6 +835,25 @@
     display: none;
 }
 
+/* The email field on "Forgot password?" when the address has no account:
+   two quick side-to-side shakes, then still. Reduced motion skips it; the
+   error message underneath says the same thing. */
+@keyframes reset-bounce {
+    0%, 100% { transform: translateX(0); }
+    12.5%, 62.5% { transform: translateX(-6px); }
+    37.5%, 87.5% { transform: translateX(6px); }
+}
+
+.reset-bounce-twice {
+    animation: reset-bounce 0.25s ease-in-out 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reset-bounce-twice {
+        animation: none;
+    }
+}
+
 /* The success tick on the password-reset confirmation.
    Drawn once on arrival: the ring wipes in, then the check strokes itself.
    Both respect prefers-reduced-motion by simply appearing already drawn. */
