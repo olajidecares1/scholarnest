@@ -30,11 +30,11 @@ use Throwable;
  *   2. Code.     A wrong code is refused and the password fields stay hidden.
  *   3. Password. Only after the code is verified, and only in the same browser.
  *
- * WHAT THE EMAIL STEP REVEALS. Every address moves on to the code step with
- * the same sentence, whether or not it has an account, so the form cannot be
- * used to find out who is an administrator. The one exception is honest: when
- * an account exists and the email could not be sent, the page says so instead
- * of pretending a code is on its way.
+ * WHAT THE EMAIL STEP SAYS. An address with no administrator account is told
+ * so on the email step, and nothing is sent. An address with one moves on to
+ * the code step with a short note saying where the code went. When the email
+ * could not be sent, the page says so instead of pretending a code is on its
+ * way, and that failed attempt does not count towards the hourly limit.
  *
  * Staff, students and parents have no self-service reset. Their School Admin
  * resets them. See docs/PASSWORD-RESET-POLICY.md.
@@ -48,10 +48,15 @@ class PasswordResetController extends Controller
     private const SESSION_DONE = 'password_reset.done';
 
     /**
-     * Codes requested for one address in an hour, beyond which the request is
-     * quietly not sent. Keeps the form from being used to flood an inbox.
+     * Codes sent to one address in an hour, beyond which no more are sent.
+     * Keeps the form from being used to flood an inbox. Only codes that were
+     * actually delivered count.
      */
     private const REQUESTS_PER_HOUR = 5;
+
+    public const NO_ACCOUNT = 'We could not find an administrator account with that email address. Check the address and try again.';
+
+    public const THROTTLED = 'Too many codes have been requested for this address. Use the latest code we sent, or try again in an hour.';
 
     public const INVALID_CODE = 'Invalid verification code. Please check the code sent to your email and try again.';
 
@@ -96,9 +101,16 @@ class PasswordResetController extends Controller
             default => 'send',
         };
 
-        if ($outcome === 'send') {
-            RateLimiter::hit($throttleKey, 3600);
+        if ($outcome === 'no-account') {
+            $this->record($email, $outcome, $request->ip());
+            $request->session()->forget([self::SESSION_EMAIL, self::SESSION_KEY, self::SESSION_DONE]);
 
+            return redirect()->route('password.request')
+                ->withInput(['email' => $validated['email']])
+                ->withErrors(['email' => self::NO_ACCOUNT]);
+        }
+
+        if ($outcome === 'send') {
             $code = $this->codes->issue($user);
             $delivery = $mailer->send($user, new ResetPasswordNotification($code), 'password-reset-code', $user);
 
@@ -112,6 +124,10 @@ class PasswordResetController extends Controller
                     ->withErrors(['email' => 'We could not send the verification code right now. Please try again in a few minutes. If this keeps happening, contact AkademicNest support.']);
             }
 
+            // Counted only once the code has actually gone out, so a mail
+            // outage cannot lock an administrator out of their own reset.
+            RateLimiter::hit($throttleKey, 3600);
+
             AuditLog::record('password-reset.requested', "A password reset code was sent to {$user->email}.", actorName: 'System');
         }
 
@@ -120,9 +136,13 @@ class PasswordResetController extends Controller
         $request->session()->put(self::SESSION_EMAIL, $email);
         $request->session()->forget([self::SESSION_KEY, self::SESSION_DONE]);
 
+        if ($outcome === 'throttled') {
+            return redirect()->route('password.request')->with('warning', self::THROTTLED);
+        }
+
         return redirect()->route('password.request')->with(
             'status',
-            "If {$email} belongs to an AkademicNest administrator account, a 6-digit verification code has been sent to it. Check your inbox (and spam folder) and enter the code below."
+            "Code sent to {$email}. Check your inbox or spam folder."
         );
     }
 
