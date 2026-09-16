@@ -9,6 +9,7 @@ use App\Notifications\PasswordChangedNotification;
 use App\Notifications\ResetPasswordNotification;
 use App\Services\Auth\PasswordResetCodes;
 use App\Services\Mail\MailReadiness;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -236,20 +237,39 @@ describe('security', function () {
             ->and(Hash::check($code, $row->token))->toBeTrue();
     });
 
-    test('an address with no account gets the same answer, and no email', function () {
-        $known = $this->post(route('password.email'), ['email' => $this->schoolAdmin->email]);
-        $knownStatus = session('status');
-        $this->post(route('password.restart'));
-        $unknown = $this->post(route('password.email'), ['email' => 'nobody@example.test']);
-        $unknownStatus = session('status');
+    test('an address with no account is told so on the email step, and nothing is sent', function () {
+        $this->post(route('password.email'), ['email' => 'nobody@example.test'])
+            ->assertRedirect(route('password.request'))
+            ->assertSessionHasErrors(['email' => PasswordResetController::NO_ACCOUNT]);
 
-        expect(str_replace($this->schoolAdmin->email, 'X', $knownStatus))
-            ->toBe(str_replace('nobody@example.test', 'X', $unknownStatus));
+        $this->get(route('password.request'))
+            ->assertSee('reset-bounce-twice', false)
+            ->assertSee('name="email"', false)
+            ->assertDontSee('name="code"', false);
 
-        $known->assertRedirect(route('password.request'));
-        $unknown->assertRedirect(route('password.request'));
+        Notification::assertNothingSent();
+    });
 
-        Notification::assertSentTimes(ResetPasswordNotification::class, 1);
+    test('an address with an account gets a short note saying where the code went', function () {
+        $this->post(route('password.email'), ['email' => $this->schoolAdmin->email])
+            ->assertSessionHas('status', "Code sent to {$this->schoolAdmin->email}. Check your inbox or spam folder.");
+
+        $this->get(route('password.request'))
+            ->assertSee('<small class="text-green-700">Code sent to', false)
+            ->assertSee('name="code"', false);
+    });
+
+    test('sends that failed do not use up the hourly limit', function () {
+        $this->mock(MailReadiness::class, fn ($mock) => $mock->shouldReceive('problem')->andReturn('Email is not set up on this server.'));
+
+        for ($i = 0; $i < 6; $i++) {
+            $this->withoutMiddleware(ThrottleRequests::class)
+                ->post(route('password.email'), ['email' => $this->schoolAdmin->email]);
+        }
+
+        $this->forgetMock(MailReadiness::class);
+
+        requestResetCode($this->schoolAdmin);
     });
 
     test('staff, students and parents cannot use it', function () {
