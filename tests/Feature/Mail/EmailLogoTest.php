@@ -1,12 +1,15 @@
 <?php
 
+use App\Enums\UserRole;
 use App\Models\BrandingImage;
 use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\MailDeliveryTestNotification;
 use App\Notifications\ResetPasswordNotification;
 use App\Services\Mail\MailLogo;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Part\DataPart;
 
@@ -74,7 +77,7 @@ test('a password reset code email carries the logo inside it', function () {
         ->and($mime)->toContain('Content-ID: <'.$part->getContentId().'>');
 
     expect($email->getHtmlBody())
-        ->toContain('alt="'.config('app.name').'"')
+        ->toContain('alt="'.Setting::current()->site_name.'"')
         ->toContain('123456');
 });
 
@@ -104,6 +107,85 @@ test('a logo uploaded by the Super Admin is used instead of the bundled one', fu
         // 300x100 with no border to trim, shown 64 high, is 192 wide.
         ->toContain('width="192"')
         ->toContain('height="64"');
+});
+
+/**
+ * A solid PNG, or WebP, of the given size and colour, as the Themes page would store it.
+ */
+function brandingImage(int $width, int $height, array $rgb, string $format = 'png'): string
+{
+    $image = imagecreatetruecolor($width, $height);
+    imagefill($image, 0, 0, imagecolorallocate($image, ...$rgb));
+
+    ob_start();
+    $format === 'webp' ? imagewebp($image) : imagepng($image);
+
+    return ob_get_clean();
+}
+
+/**
+ * Upload a logo the way the Themes page records it.
+ */
+function uploadCompanyLogo(string $path, string $bytes): void
+{
+    BrandingImage::remember($path, $bytes);
+    Setting::current()->update(['logo_path' => $path]);
+}
+
+test('when the company changes its logo, the very next email carries the new one', function () {
+    $first = brandingImage(200, 100, [200, 30, 30]);
+    uploadCompanyLogo('branding/logo-first.png', $first);
+
+    expect(logoPart(sentEmail(new MailDeliveryTestNotification('before the change')))->getBody())->toBe($first);
+
+    $second = brandingImage(100, 100, [30, 160, 60]);
+    uploadCompanyLogo('branding/logo-second.png', $second);
+
+    $email = sentEmail(new MailDeliveryTestNotification('after the change'));
+
+    expect(logoPart($email)->getBody())->toBe($second)
+        ->and($email->getHtmlBody())->toContain('width="64"')->toContain('height="64"');
+});
+
+test('a logo uploaded on the Themes page is the one the next email carries', function () {
+    Storage::fake('public');
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    // A logo with a wide 4:1 shape, so it cannot be mistaken for the square mark.
+    $this->actingAs($superAdmin)
+        ->post(route('super-admin.themes.logo.update'), ['logo' => UploadedFile::fake()->image('new-logo.png', 400, 100)])
+        ->assertSessionHasNoErrors();
+
+    $stored = BrandingImage::contents(Setting::current()->logo_path);
+    $sent = logoPart(sentEmail(new MailDeliveryTestNotification('the test suite')))->getBody();
+    $size = getimagesizefromstring($sent);
+
+    expect($stored)->not->toBeNull()
+        ->and([$size[0], $size[1]])->toBe([400, 100])
+        ->and($sent)->toBe($stored);
+});
+
+test('a WebP logo is sent as a PNG, since Outlook cannot show WebP', function () {
+    uploadCompanyLogo('branding/logo.webp', brandingImage(240, 80, [20, 60, 180], 'webp'));
+
+    $part = logoPart(sentEmail(new MailDeliveryTestNotification('the test suite')));
+    $size = getimagesizefromstring($part->getBody());
+
+    // Still the company's logo: its 3:1 shape, not the bundled square mark.
+    expect($part->getMediaSubtype())->toBe('png')
+        ->and($size['mime'])->toBe('image/png')
+        ->and([$size[0], $size[1]])->toBe([240, 80]);
+});
+
+test('the company name with the logo is the Site Name from settings', function () {
+    Setting::current()->update(['site_name' => 'Brightpath Learning']);
+
+    $email = sentEmail(new MailDeliveryTestNotification('the test suite'));
+
+    expect($email->getHtmlBody())
+        ->toContain('alt="Brightpath Learning"')
+        ->toContain('© '.date('Y').' Brightpath Learning.')
+        ->and($email->getTextBody())->toContain('Brightpath Learning');
 });
 
 test('an uploaded logo mail clients cannot show falls back to the bundled mark', function () {
