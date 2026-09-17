@@ -90,6 +90,11 @@ Route::group([
     // result link; the school comes from the host, so nothing in these URLs
     // names or identifies it. Only Standard and Exclusive schools resolve on a
     // tenant host at all, so Basic keeps its existing result link unchanged.
+    // "/result" is what people type and what gets printed on letters to
+    // parents; send it, and the older check-result wording, to the real page.
+    Route::permanentRedirect('/result', '/results')->name('results.alias');
+    Route::permanentRedirect('/check-result', '/results')->name('results.check-result-alias');
+
     Route::prefix('results')->name('results.')->group(function () {
         Route::get('/', [CheckResultController::class, 'create'])->name('show');
         Route::post('/identify', [CheckResultController::class, 'identify'])->middleware('honeypot')->name('identify');
