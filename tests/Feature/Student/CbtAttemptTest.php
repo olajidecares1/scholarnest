@@ -200,6 +200,36 @@ test('the take page never tells the browser which option is correct', function (
         ->and($html)->not->toContain('is_correct');
 });
 
+test('a question saved by the old reader never shows its answer or its escaped punctuation', function () {
+    // Real questions imported before the reader was fixed: the correct answer
+    // was welded into the wording, and apostrophes were stored as HTML. They
+    // should be read again from the document, but no student sees the answer
+    // in the meantime.
+    $question = CbtQuestion::factory()->create([
+        'cbt_exam_id' => $this->exam->id,
+        'is_published' => true,
+        'question_text' => 'Who wrote De Graft&#039;s Sons and Daughters? ✓ Correct Answer: A',
+    ]);
+    CbtQuestionOption::factory()->create(['cbt_question_id' => $question->id, 'label' => 'A', 'option_text' => 'J.C. De Graft', 'is_correct' => true]);
+    CbtQuestionOption::factory()->create(['cbt_question_id' => $question->id, 'label' => 'B', 'option_text' => 'Wole Soyinka', 'is_correct' => false]);
+
+    $attempt = CbtAttempt::factory()->create([
+        'student_id' => $this->student->id,
+        'cbt_exam_id' => $this->exam->id,
+        'expires_at' => now()->addMinutes(30),
+        'total_questions' => 3,
+    ]);
+
+    $html = $this->actingAs($this->student, 'student')
+        ->get(route('student.cbt-practice.attempts.show', [$this->school, $attempt]))
+        ->assertOk()
+        ->getContent();
+
+    expect($html)->toContain('Sons and Daughters')
+        ->and($html)->not->toContain('Correct Answer')
+        ->and($html)->not->toContain('&#039;');
+});
+
 test('an answer belonging to another question is refused', function () {
     $attempt = CbtAttempt::factory()->create([
         'student_id' => $this->student->id,

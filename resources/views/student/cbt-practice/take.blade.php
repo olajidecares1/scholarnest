@@ -13,10 +13,10 @@
             questions: @js($questions->values()->map(fn ($q, $i) => [
                 'id' => $q->id,
                 'number' => $q->question_number ?? $i + 1,
-                'text' => $q->question_text,
-                'passage' => $q->passage,
+                'text' => \App\Support\CandidateText::clean($q->question_text),
+                'passage' => \App\Support\CandidateText::clean($q->passage),
                 'image' => $q->imageUrl(),
-                'options' => $q->options->map(fn ($o) => ['id' => $o->id, 'label' => $o->label, 'text' => $o->option_text])->values(),
+                'options' => $q->options->map(fn ($o) => ['id' => $o->id, 'label' => $o->label, 'text' => \App\Support\CandidateText::clean($o->option_text)])->values(),
             ])),
             answers: @js($answeredMap),
             expiresAt: @js($attempt->expires_at?->toIso8601String()),
@@ -111,28 +111,6 @@
             </template>
         </div>
 
-        {{-- Question palette --}}
-        <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
-                <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-[4px] bg-primary-600"></span>Current</span>
-                <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-[4px] bg-primary-100 dark:bg-primary-900/40"></span>Answered</span>
-                <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-[4px] bg-gray-100 dark:bg-gray-700"></span>Not answered</span>
-            </div>
-            <div class="grid grid-cols-8 gap-1.5 sm:grid-cols-10">
-                <template x-for="(question, index) in questions" :key="question.id">
-                    <button
-                        type="button"
-                        @click="current = index"
-                        class="flex h-8 w-8 items-center justify-center rounded-[6px] text-xs font-bold transition-colors duration-150"
-                        :class="current === index
-                            ? 'bg-primary-600 text-white'
-                            : (answers[question.id] ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400')"
-                        x-text="question.number"
-                    ></button>
-                </template>
-            </div>
-        </div>
-
         {{-- Navigation --}}
         <div class="flex items-center justify-between gap-3">
             <button
@@ -165,6 +143,28 @@
                 >
                     <i class="fa-solid fa-paper-plane mr-1.5"></i>Submit Exam
                 </button>
+            </div>
+        </div>
+
+        {{-- Question palette --}}
+        <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
+                <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-[4px] bg-primary-600"></span>Current</span>
+                <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-[4px] bg-primary-100 dark:bg-primary-900/40"></span>Answered</span>
+                <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-[4px] bg-gray-100 dark:bg-gray-700"></span>Not answered</span>
+            </div>
+            <div class="grid grid-cols-8 gap-1.5 sm:grid-cols-10">
+                <template x-for="(question, index) in questions" :key="question.id">
+                    <button
+                        type="button"
+                        @click="current = index"
+                        class="flex h-8 w-8 items-center justify-center rounded-[6px] text-xs font-bold transition-colors duration-150"
+                        :class="current === index
+                            ? 'bg-primary-600 text-white'
+                            : (answers[question.id] ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400')"
+                        x-text="question.number"
+                    ></button>
+                </template>
             </div>
         </div>
 

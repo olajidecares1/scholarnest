@@ -45,6 +45,7 @@ class CbtDocumentImportService
 
         DB::transaction(function () use ($upload, $examBody, $subject, $data, $images, &$extractedCount, &$reviewCount, &$duplicates, &$warnings) {
             // A retry replaces this upload's own questions, and only those.
+            $previousExams = CbtQuestion::where('cbt_document_upload_id', $upload->id)->distinct()->pluck('cbt_exam_id');
             CbtQuestion::where('cbt_document_upload_id', $upload->id)->delete();
 
             foreach ($data['years'] ?? [] as $yearBlock) {
@@ -120,6 +121,15 @@ class CbtDocumentImportService
             if ($duplicates > 0) {
                 $warnings[] = "{$duplicates} question(s) were already in the question bank and were skipped rather than added twice.";
             }
+
+            // A paper the earlier reading filed wrongly (all nine years under
+            // the year of upload, say) is left with nothing in it once this
+            // reading files the questions properly. It goes, unless a student
+            // has handed in an attempt at it.
+            CbtExam::whereIn('id', $previousExams)
+                ->whereDoesntHave('questions')
+                ->whereDoesntHave('attempts', fn ($query) => $query->whereNotNull('submitted_at'))
+                ->delete();
 
             $upload->update([
                 'cbt_exam_body_id' => $examBody->id,

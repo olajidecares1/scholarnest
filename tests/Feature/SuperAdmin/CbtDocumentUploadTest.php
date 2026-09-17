@@ -322,6 +322,76 @@ test('a published upload cannot be read again until it is unpublished', function
     expect($upload->fresh()->status)->toBe(CbtDocumentUploadStatus::Completed);
 });
 
+test('the review page offers to read a finished document again, once nothing is published', function () {
+    $upload = CbtDocumentUpload::factory()->create(['status' => CbtDocumentUploadStatus::Completed]);
+    $question = CbtQuestion::factory()->create([
+        'cbt_exam_id' => CbtExam::factory()->create()->id,
+        'cbt_document_upload_id' => $upload->id,
+        'is_published' => false,
+    ]);
+
+    $this->actingAs($this->superAdmin)
+        ->get(route('super-admin.cbt.uploads.show', $upload))
+        ->assertOk()
+        ->assertSee('Read This Document Again')
+        ->assertDontSee('Unpublish first');
+
+    $question->update(['is_published' => true]);
+
+    $this->actingAs($this->superAdmin)
+        ->get(route('super-admin.cbt.uploads.show', $upload))
+        ->assertOk()
+        ->assertSee('Unpublish first');
+});
+
+test('reading a document again clears the paper its first reading filed wrongly', function () {
+    // What the old reader did with a nine-year compilation: no year headings
+    // found, so every question went into one paper under the year of upload.
+    $examBody = CbtExamBody::factory()->create(['code' => 'JAMB']);
+    $subject = CbtSubject::factory()->create(['name' => 'Literature in English']);
+
+    $upload = CbtDocumentUpload::factory()->create([
+        'cbt_exam_body_id' => $examBody->id,
+        'cbt_subject_id' => $subject->id,
+        'ai_response' => ['years' => [['year' => 2026, 'questions' => [[
+            'number' => 1,
+            'question_text' => 'Everything welded into one paper?',
+            'has_diagram' => false,
+            'options' => [['label' => 'A', 'text' => 'Yes'], ['label' => 'B', 'text' => 'No']],
+            'correct_label' => 'A',
+            'answer_source' => 'found_in_document',
+        ]]]]],
+    ]);
+
+    app(CbtDocumentImportService::class)->import($upload, $examBody, $subject);
+    $wrong = CbtExam::where('year', 2026)->firstOrFail();
+
+    // Read again, this time with the years the document actually names.
+    $upload->update(['ai_response' => ['years' => [
+        ['year' => 2010, 'questions' => [[
+            'number' => 1,
+            'question_text' => 'A 2010 question?',
+            'has_diagram' => false,
+            'options' => [['label' => 'A', 'text' => 'Yes'], ['label' => 'B', 'text' => 'No']],
+            'correct_label' => 'A',
+            'answer_source' => 'found_in_document',
+        ]]],
+        ['year' => 2011, 'questions' => [[
+            'number' => 1,
+            'question_text' => 'A 2011 question?',
+            'has_diagram' => false,
+            'options' => [['label' => 'A', 'text' => 'Yes'], ['label' => 'B', 'text' => 'No']],
+            'correct_label' => 'A',
+            'answer_source' => 'found_in_document',
+        ]]],
+    ]]]);
+
+    app(CbtDocumentImportService::class)->import($upload->fresh(), $examBody, $subject);
+
+    expect(CbtExam::find($wrong->id))->toBeNull()
+        ->and(CbtExam::where('cbt_exam_body_id', $examBody->id)->pluck('year')->sort()->values()->all())->toBe([2010, 2011]);
+});
+
 test('deleting an upload keeps the questions students can already see', function () {
     Storage::fake('local');
     $path = UploadedFile::fake()->create('mixed.pdf', 10, 'application/pdf')->storeAs('cbt-uploads/documents', 'mixed.pdf', 'local');

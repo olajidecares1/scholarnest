@@ -34,6 +34,8 @@ class CbtTest extends Model
         'available_from',
         'available_until',
         'shuffle_questions',
+        'source_upload_id',
+        'source_year',
     ];
 
     /**
@@ -81,6 +83,17 @@ class CbtTest extends Model
     public function documentUploads(): HasMany
     {
         return $this->hasMany(CbtTestDocumentUpload::class);
+    }
+
+    /**
+     * The upload this test was made from, when it holds one year of a
+     * multi-year document.
+     *
+     * @return BelongsTo<CbtTestDocumentUpload, $this>
+     */
+    public function sourceUpload(): BelongsTo
+    {
+        return $this->belongsTo(CbtTestDocumentUpload::class, 'source_upload_id');
     }
 
     /**

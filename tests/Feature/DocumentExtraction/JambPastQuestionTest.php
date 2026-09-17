@@ -1,11 +1,22 @@
 <?php
 
 use App\Enums\CbtDocumentUploadStatus;
+use App\Enums\PlanKey;
+use App\Enums\StaffRole;
+use App\Enums\SubscriptionStatus;
 use App\Jobs\ProcessCbtDocumentUpload;
+use App\Jobs\ProcessCbtTestDocumentUpload;
 use App\Models\CbtDocumentUpload;
 use App\Models\CbtExam;
 use App\Models\CbtExamBody;
 use App\Models\CbtSubject;
+use App\Models\CbtTest;
+use App\Models\CbtTestDocumentUpload;
+use App\Models\CbtTestQuestion;
+use App\Models\Plan;
+use App\Models\School;
+use App\Models\Staff;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Services\CbtDocumentImportService;
 use App\Services\DocumentExtraction\QuestionExtractionProvider;
@@ -114,6 +125,61 @@ test('a Mathematics compilation keeps its formulae and its five options', functi
     $withPowers = $questions->filter(fn (array $q) => preg_match('/[⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ°]/u', $q['question_text']) === 1);
     expect($withPowers->count())->toBeGreaterThan(20);
 })->group('slow');
+
+test('a real compilation uploaded by a teacher becomes one test per year', function () {
+    $path = jambPaper('literature-in-english.docx');
+
+    Storage::fake('local');
+    Storage::fake('public');
+
+    $school = School::factory()->create();
+    $plan = Plan::firstOrCreate(['key' => PlanKey::Standard], Plan::factory()->make(['key' => PlanKey::Standard])->toArray());
+    Subscription::factory()->create(['school_id' => $school->id, 'plan_id' => $plan->id, 'status' => SubscriptionStatus::Active]);
+
+    $teacher = Staff::factory()->create(['school_id' => $school->id, 'role' => StaffRole::Teacher]);
+    $test = CbtTest::factory()->create([
+        'school_id' => $school->id,
+        'staff_id' => $teacher->id,
+        'title' => 'JAMB Literature Practice',
+    ]);
+
+    $stored = 'cbt-test-uploads/documents/jamb-literature.docx';
+    Storage::disk('local')->put($stored, file_get_contents($path));
+
+    $upload = CbtTestDocumentUpload::factory()->create([
+        'cbt_test_id' => $test->id,
+        'staff_id' => $teacher->id,
+        'path' => $stored,
+        'mime_type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'status' => CbtDocumentUploadStatus::Pending,
+    ]);
+
+    (new ProcessCbtTestDocumentUpload($upload))->handle(app(QuestionExtractionProvider::class));
+
+    $tests = CbtTest::where('school_id', $school->id)->orderBy('source_year')->get();
+
+    expect($upload->fresh()->status)->toBe(CbtDocumentUploadStatus::Completed)
+        ->and($tests)->toHaveCount(9)
+        ->and($tests->pluck('source_year')->all())->toBe([2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018])
+
+        // A year's paper, not a year's worth of everything.
+        ->and($tests->map(fn (CbtTest $test) => $test->questions()->count())->min())->toBeGreaterThanOrEqual(40)
+        ->and($tests->map(fn (CbtTest $test) => $test->questions()->count())->max())->toBeLessThanOrEqual(60);
+
+    // The wording is the question, not the question plus its options plus the
+    // answer, which is what the old reader stored.
+    $questions = CbtTestQuestion::whereIn('cbt_test_id', $tests->pluck('id'))->with('options')->get();
+
+    expect($questions->filter(fn (CbtTestQuestion $q) => str_contains($q->question_text, 'Correct Answer')))->toHaveCount(0)
+        ->and($questions->filter(fn (CbtTestQuestion $q) => str_contains($q->question_text, '&#')))->toHaveCount(0)
+        ->and($questions->filter(fn (CbtTestQuestion $q) => $q->options->count() === 4)->count() / $questions->count())->toBeGreaterThan(0.85);
+
+    $first = $tests->first()->questions()->with('options')->first();
+
+    expect($first->question_text)->toBe('Which literature in English Question Paper Type is given to you?')
+        ->and($first->options->pluck('option_text')->all())->toBe(['Type A', 'Type B', 'Type C', 'Type D'])
+        ->and($first->options->firstWhere('is_correct', true)->label)->toBe('A');
+});
 
 test('a real compilation imports as published-ready papers, one per year', function () {
     $path = jambPaper('literature-in-english.docx');

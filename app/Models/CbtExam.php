@@ -72,6 +72,14 @@ class CbtExam extends Model
         return $this->questions()->where('is_published', true);
     }
 
+    /**
+     * @return HasMany<CbtAttempt, $this>
+     */
+    public function attempts(): HasMany
+    {
+        return $this->hasMany(CbtAttempt::class);
+    }
+
     public function title(): string
     {
         return "{$this->examBody->code} {$this->subject->name} {$this->year}";

@@ -7,6 +7,7 @@ use App\Http\Controllers\Concerns\AcceptsCbtDocumentUploads;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessCbtTestDocumentUpload;
 use App\Models\CbtTest;
+use App\Models\CbtTestAttempt;
 use App\Models\CbtTestDocumentUpload;
 use App\Models\School;
 use App\Services\CbtExtractionRunner;
@@ -95,13 +96,23 @@ class DocumentUploadController extends Controller
 
         $runner->catchUp($upload, new ProcessCbtTestDocumentUpload($upload));
 
-        $upload->load('questions.options');
+        $upload->load([
+            'questions' => fn ($query) => $query->with(['options', 'test'])->orderBy('cbt_test_id')->orderBy('sort_order'),
+        ]);
 
         return view('staff.cbt.upload', [
             'stalled' => $runner->isStalled($upload),
             'school' => $school,
             'test' => $test,
             'upload' => $upload,
+
+            // Every test this document filled, earliest year first, when it
+            // held more than one year.
+            'yearTests' => CbtTest::where('source_upload_id', $upload->id)
+                ->orWhere(fn ($query) => $query->where('id', $test->id)->whereNotNull('source_year'))
+                ->withCount('questions')
+                ->orderBy('source_year')
+                ->get(),
         ]);
     }
 
@@ -157,6 +168,25 @@ class DocumentUploadController extends Controller
     {
         $this->authorizeTest($request, $test);
         abort_unless($upload->cbt_test_id === $test->id, 403);
+
+        // Reading again replaces this document's questions in every test it
+        // filled. A student's answers are tied to those questions, so once
+        // anyone has answered or handed in, the paper stays as it is.
+        $tests = $upload->questions()->distinct()->pluck('cbt_test_id')
+            ->merge(CbtTest::where('source_upload_id', $upload->id)->pluck('id'))
+            ->push($test->id)
+            ->unique();
+
+        $answered = CbtTestAttempt::whereIn('cbt_test_id', $tests)
+            ->where(fn ($query) => $query->whereNotNull('submitted_at')->orWhereHas('answers'))
+            ->exists();
+
+        if ($answered) {
+            return back()->withErrors([
+                'upload' => 'Students have already answered questions from this document, so it cannot be read again: '
+                    .'that would remove their answers. Duplicate the test and upload the document to the copy instead.',
+            ]);
+        }
 
         $upload->update([
             'status' => CbtDocumentUploadStatus::Pending,

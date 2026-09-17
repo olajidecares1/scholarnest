@@ -13,11 +13,11 @@
             questions: @js($questions->map(fn ($q, $i) => [
                 'id' => $q->id,
                 'number' => $q->question_number ?? $i + 1,
-                'text' => $q->question_text,
-                'passage' => $q->passage,
+                'text' => \App\Support\CandidateText::clean($q->question_text),
+                'passage' => \App\Support\CandidateText::clean($q->passage),
                 'marks' => $q->marks,
                 'image' => $q->imageUrl(),
-                'options' => $q->options->map(fn ($o) => ['id' => $o->id, 'label' => $o->label, 'text' => $o->option_text]),
+                'options' => $q->options->map(fn ($o) => ['id' => $o->id, 'label' => $o->label, 'text' => \App\Support\CandidateText::clean($o->option_text)]),
             ])),
             answers: @js((object) $answeredMap),
             instructions: @js($attempt->test->instructions),
@@ -156,38 +156,6 @@
             </template>
         </div>
 
-        {{-- Palette. --}}
-        <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                <span class="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-                    <span class="h-3 w-3 rounded-[4px] bg-primary-600"></span> Current
-                </span>
-                <span class="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-                    <span class="h-3 w-3 rounded-[4px] bg-primary-100 dark:bg-primary-900/40"></span> Answered
-                </span>
-                <span class="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-                    <span class="h-3 w-3 rounded-[4px] bg-gray-100 dark:bg-gray-700"></span> Not answered
-                </span>
-            </div>
-
-            <div class="grid grid-cols-8 gap-1.5 sm:grid-cols-10 lg:grid-cols-12">
-                <template x-for="(question, index) in questions" :key="question.id">
-                    <button
-                        type="button"
-                        x-on:click="go(index)"
-                        class="flex h-8 w-8 items-center justify-center rounded-[6px] text-xs font-bold transition-colors duration-150"
-                        :class="current === index
-                            ? 'bg-primary-600 text-white'
-                            : (isAnswered(question.id)
-                                ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300'
-                                : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400')"
-                        :aria-label="`Question ${question.number}${isAnswered(question.id) ? ', answered' : ', not answered'}`"
-                        x-text="question.number"
-                    ></button>
-                </template>
-            </div>
-        </div>
-
         {{-- Navigation. Submit stays reachable throughout, so a student who has
              finished early is not made to page to the end to hand in. --}}
         <div class="flex flex-wrap items-center justify-between gap-3">
@@ -219,6 +187,38 @@
                     Next
                     <i class="fa-solid fa-chevron-right text-[11px]"></i>
                 </button>
+            </div>
+        </div>
+
+        {{-- Palette. --}}
+        <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                <span class="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                    <span class="h-3 w-3 rounded-[4px] bg-primary-600"></span> Current
+                </span>
+                <span class="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                    <span class="h-3 w-3 rounded-[4px] bg-primary-100 dark:bg-primary-900/40"></span> Answered
+                </span>
+                <span class="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                    <span class="h-3 w-3 rounded-[4px] bg-gray-100 dark:bg-gray-700"></span> Not answered
+                </span>
+            </div>
+
+            <div class="grid grid-cols-8 gap-1.5 sm:grid-cols-10 lg:grid-cols-12">
+                <template x-for="(question, index) in questions" :key="question.id">
+                    <button
+                        type="button"
+                        x-on:click="go(index)"
+                        class="flex h-8 w-8 items-center justify-center rounded-[6px] text-xs font-bold transition-colors duration-150"
+                        :class="current === index
+                            ? 'bg-primary-600 text-white'
+                            : (isAnswered(question.id)
+                                ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300'
+                                : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400')"
+                        :aria-label="`Question ${question.number}${isAnswered(question.id) ? ', answered' : ', not answered'}`"
+                        x-text="question.number"
+                    ></button>
+                </template>
             </div>
         </div>
 

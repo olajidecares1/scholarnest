@@ -147,6 +147,32 @@
                 </div>
             </div>
 
+            {{-- The way out of a document read badly, including one read before
+                 the reader was fixed: read it again from the stored file. --}}
+            <div class="flex flex-col gap-3 rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+                <div>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">Questions look wrong?</p>
+                    <p class="field-hint mt-0.5">
+                        @if ($publishedCount > 0)
+                            Unpublish first, then read this document again. Its questions are replaced, split by year, and never added twice.
+                        @else
+                            Read this document again from the stored file. Its questions are replaced, split by year, and never added twice.
+                        @endif
+                    </p>
+                </div>
+                <form method="POST" action="{{ route('super-admin.cbt.uploads.retry', $upload) }}" onsubmit="return confirm('Read this document again? The questions it produced are replaced.');" class="shrink-0">
+                    @csrf
+                    <button
+                        type="submit"
+                        @disabled($publishedCount > 0)
+                        class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
+                        <i class="fa-solid fa-rotate-right"></i>
+                        Read This Document Again
+                    </button>
+                </form>
+            </div>
+
             @if (! empty($upload->extracted_images))
                 <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white"><i class="fa-solid fa-images mr-1.5"></i>Images Found in the Document</h2>
