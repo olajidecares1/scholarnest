@@ -70,5 +70,13 @@ return [
     | this application can set up on its own).
     |
     */
-    'tenant_base_domain' => env('TENANT_BASE_DOMAIN'),
+    // Production falls back to APP_URL's host (akademicanest.com), where the
+    // wildcard DNS record and certificate already exist, so a missing
+    // environment variable no longer silently turns every Standard school's
+    // subdomain into a /p/{portal_key} path. Local, staging and tests stay off
+    // unless TENANT_BASE_DOMAIN is set explicitly.
+    'tenant_base_domain' => env('TENANT_BASE_DOMAIN')
+        ?: (env('APP_ENV') === 'production'
+            ? (parse_url((string) env('APP_URL'), PHP_URL_HOST) ?: null)
+            : null),
 ];
