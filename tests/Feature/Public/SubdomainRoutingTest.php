@@ -29,12 +29,16 @@ test('a standard-plan school\'s subdomain serves its public website', function (
         ->assertSee($school->name);
 });
 
-test('an exclusive-plan school does not resolve as an akademicanest.com subdomain', function () {
+test('an exclusive-plan school also serves its website on its akademicanest.com subdomain', function () {
+    // Exclusive is Standard plus an optional own domain, never Standard minus
+    // the subdomain. This used to 404.
     $school = School::factory()->create(['is_active' => true]);
     activateSchool($school, PlanKey::Exclusive);
-    $school->website()->create(['is_published' => true]);
+    $school->website()->create(['hero_title' => 'Welcome to '.$school->name, 'is_published' => true]);
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")->assertNotFound();
+    $this->get("http://{$school->subdomain}.akademicanest.com/")
+        ->assertOk()
+        ->assertSee($school->name);
 });
 
 test('an unknown slug on the subdomain pattern returns 404', function () {
@@ -45,7 +49,10 @@ test('an inactive standard-plan school does not resolve on its subdomain', funct
     $school = standardSchoolWithSubdomain();
     $school->update(['is_active' => false]);
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")->assertNotFound();
+    $this->get("http://{$school->subdomain}.akademicanest.com/")
+        ->assertStatus(503)
+        ->assertSee('temporarily unavailable')
+        ->assertDontSee($school->name);
 });
 
 test('the default path redirects to the subdomain for a standard-plan school', function () {

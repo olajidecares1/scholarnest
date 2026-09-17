@@ -2,90 +2,81 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\CustomDomainStatus;
-use App\Enums\PlanKey;
-use App\Models\CustomDomain;
-use App\Models\School;
+use App\Services\Tenancy\TenantResolution;
+use App\Services\Tenancy\TenantResolver;
+use App\Support\CurrentTenant;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Resolves which School a request on a tenant domain belongs to, then
- * injects it as the route's "school" parameter, letting the exact same
- * PublicSchoolWebsiteController methods (which already expect School $school
- * from the path-based {school:slug} routes) serve domain-based requests too,
- * with no controller duplication. Two kinds of tenant domain are handled
- * here: an Exclusive school's own verified custom domain, and a Standard
- * school's free {slug}.{TENANT_BASE_DOMAIN} subdomain.
+ * Resolves which School a request on a tenant host belongs to, then injects it
+ * as the route's parameter, so the same controllers that serve the default
+ * /p/{portal_key} paths serve school subdomains and custom domains too, with no
+ * controller duplication.
+ *
+ *   greenfield.akademicanest.com      Standard or Exclusive school's subdomain
+ *   greenfieldschool.com              Exclusive school's verified own domain
+ *
+ * The decision itself lives in {@see TenantResolver}; this only acts on it:
+ *
+ *   resolved       bind the school and carry on
+ *   www            301 to the platform
+ *   unavailable    a status page (suspended, expired, pending, or Basic)
+ *   unknown        404
  */
 class ResolveTenantFromCustomDomain
 {
+    public function __construct(
+        private readonly TenantResolver $resolver,
+        private readonly CurrentTenant $tenant,
+    ) {}
+
     /**
-     * Handle an incoming request.
-     *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $host = $request->getHost();
+        $resolution = $this->resolver->resolve($request->getHost());
 
-        $school = $this->resolveFromCustomDomain($host) ?? $this->resolveFromSubdomain($host);
+        if ($resolution->status === TenantResolution::PLATFORM_ALIAS) {
+            return redirect()->away(rtrim((string) config('app.url'), '/').$request->getRequestUri(), 301);
+        }
 
-        abort_unless($school, 404);
+        if (! $resolution->resolved()) {
+            return $this->unavailable($resolution);
+        }
+
+        $school = $resolution->school;
 
         // Replace the wildcard "tenantDomain" parameter with the resolved School
-        // rather than adding a separate "school" parameter alongside it, leaving
-        // both in place means the route ends up with two parameters for a
-        // controller action that only takes one, and Laravel's ControllerDispatcher
-        // passes route parameters positionally, so the raw domain string would be
-        // passed as the first (and wrongly typed) argument.
+        // rather than adding a separate "school" parameter alongside it. Laravel
+        // passes route parameters positionally, so leaving the raw host string
+        // in place would hand it to the controller's School argument.
         $request->route()->setParameter('tenantDomain', $school);
+
+        $this->tenant->set($school);
+        $request->attributes->set('tenant', $school);
+        View::share('currentTenant', $school);
 
         return $next($request);
     }
 
-    private function resolveFromCustomDomain(string $host): ?School
+    private function unavailable(TenantResolution $resolution): Response
     {
-        // Eager-loads the chain hasPlanAccess() needs below so it doesn't run a
-        // second query, this middleware runs on every request to a custom
-        // domain, so it stays a single indexed lookup either way.
-        $domain = CustomDomain::with('school.activeSubscription.plan')
-            ->where('domain', $host)
-            ->where('status', CustomDomainStatus::Verified)
-            ->first();
+        // An unknown address and a Basic school's address both answer 404: a
+        // Basic school has no website, so there is nothing at that address to
+        // be "unavailable". A real website that is paused answers 503, which
+        // tells search engines the pause is temporary and not to drop it.
+        $status = match ($resolution->reason) {
+            'suspended', 'subscription' => 503,
+            default => 404,
+        };
 
-        if (! $domain) {
-            return null;
-        }
-
-        $school = $domain->school;
-
-        // Re-checked at request time, not just when the domain was set up,
-        // otherwise a school that downgrades from Exclusive, or whose
-        // subscription lapses, would keep silently serving its old custom
-        // domain forever.
-        return $school && $school->is_active && $school->hasPlanAccess(PlanKey::Exclusive) ? $school : null;
-    }
-
-    private function resolveFromSubdomain(string $host): ?School
-    {
-        $baseDomain = config('custom_domain.tenant_base_domain');
-
-        if (! $baseDomain || ! str_ends_with($host, ".{$baseDomain}")) {
-            return null;
-        }
-
-        $label = Str::beforeLast($host, ".{$baseDomain}");
-
-        // Looked up by the subdomain column, which is what School::publicUrl()
-        // and RedirectToCustomDomain both build the address from. It is not the
-        // slug: the slug has hyphens and the address deliberately does not, so
-        // matching on it here would 404 every school with more than one word in
-        // its name.
-        $school = School::with('activeSubscription.plan')->where('subdomain', $label)->first();
-
-        return $school && $school->is_active && $school->hasPlanAccess(PlanKey::Standard) ? $school : null;
+        return response()->view('errors.tenant-unavailable', [
+            'reason' => $status === 404 ? 'not-found' : $resolution->reason,
+            'platformUrl' => rtrim((string) config('app.url'), '/'),
+        ], $status)->header('Cache-Control', 'no-store, private');
     }
 }

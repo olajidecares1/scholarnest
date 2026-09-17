@@ -68,9 +68,9 @@ class RedirectToCustomDomain
     /**
      * Unlike Exclusive's custom domain (which has an explicit
      * redirect_default_domain toggle, since a school may want to verify it
-     * works before forcing visitors over), a Standard school's subdomain has
-     * no such opt-out, it's the only address it has, so the redirect is
-     * unconditional once TENANT_BASE_DOMAIN is configured.
+     * works before forcing visitors over), a school's subdomain has no such
+     * opt-out, so the redirect to it is unconditional once TENANT_BASE_DOMAIN
+     * is configured. Exclusive schools fall back to their subdomain too.
      */
     private function resolveRedirectHost(School $school): ?string
     {
@@ -80,15 +80,10 @@ class RedirectToCustomDomain
             if ($primary && $primary->status === CustomDomainStatus::Verified && $primary->redirect_default_domain) {
                 return $primary->domain;
             }
-
-            return null;
         }
 
-        $baseDomain = config('custom_domain.tenant_base_domain');
-
-        // The subdomain column, not the slug, it has no hyphens in it, and it
-        // must be the same value ResolveTenantFromCustomDomain looks up by, or
-        // this redirects to an address that then 404s.
-        return $baseDomain && $school->hasPlanAccess(PlanKey::Standard) ? "{$school->subdomain}.{$baseDomain}" : null;
+        // The subdomain column, not the slug, and the same value TenantResolver
+        // looks up by, or this would redirect to an address that then 404s.
+        return $school->subdomainHost();
     }
 }

@@ -24,13 +24,10 @@
         @endif
 
         @php
-            // One form, two addresses: a school's own /greenfield-college/result
-            // and the older /schools/{slug}/check-result. It has to post back to
-            // whichever one the parent actually opened.
-            $onSchoolResultLink = request()->routeIs('school-result.*');
-            $identifyUrl = $onSchoolResultLink
-                ? route('school-result.identify', ['school' => $school->result_link_slug])
-                : route('check-result.identify', $school);
+            // One form, three addresses: the school's own website
+            // (/results on its subdomain), its shareable result link, and the
+            // older default path. It posts back to whichever one was opened.
+            $identifyUrl = \App\Support\ResultCheckRoutes::url('identify', $school);
         @endphp
 
         <form method="POST" action="{{ $identifyUrl }}" class="mt-6 space-y-2">

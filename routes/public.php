@@ -41,7 +41,11 @@ use Illuminate\Support\Facades\Route;
 // domain-constrained one for the same "/" URI, even on a foreign host.
 Route::group([
     'domain' => '{tenantDomain}',
-    'where' => ['tenantDomain' => '^(?!'.preg_quote(parse_url(config('app.url'), PHP_URL_HOST) ?: 'localhost', '/').'$)(?!localhost$)(?!127\.0\.0\.1$).+$'],
+    // Never the platform's own host, nor the bare base domain school
+    // subdomains live under, when that differs from APP_URL (e.g. staging).
+    'where' => ['tenantDomain' => '^(?!'.preg_quote(parse_url(config('app.url'), PHP_URL_HOST) ?: 'localhost', '/').'$)'
+        .(config('custom_domain.tenant_base_domain') ? '(?!'.preg_quote((string) config('custom_domain.tenant_base_domain'), '/').'$)' : '')
+        .'(?!localhost$)(?!127\.0\.0\.1$).+$'],
     'middleware' => 'resolve_tenant_domain',
     'as' => 'tenant.',
 ], function () {
@@ -80,6 +84,20 @@ Route::group([
     Route::middleware(['throttle:10,60', 'honeypot'])
         ->post('/contact-message', [PublicContactMessageController::class, 'store'])
         ->name('contact-message.store');
+
+    // Result checking on the school's own website, greenfield.akademicanest.com/results.
+    // The same controller and the same token rules as the school's shareable
+    // result link; the school comes from the host, so nothing in these URLs
+    // names or identifies it. Only Standard and Exclusive schools resolve on a
+    // tenant host at all, so Basic keeps its existing result link unchanged.
+    Route::prefix('results')->name('results.')->group(function () {
+        Route::get('/', [CheckResultController::class, 'create'])->name('show');
+        Route::post('/identify', [CheckResultController::class, 'identify'])->middleware('honeypot')->name('identify');
+        Route::get('/confirm', [CheckResultController::class, 'confirm'])->name('confirm');
+        Route::post('/', [CheckResultController::class, 'verify'])->middleware('honeypot')->name('verify');
+        Route::get('/view/{usage}', [CheckResultController::class, 'result'])->name('result');
+        Route::get('/view/{usage}/download', [CheckResultController::class, 'download'])->name('download');
+    });
 
     // Mirrors the Portal hub and all four logins so a school reached at its
     // subdomain never has to jump back to the default "/p/{portal_key}/..."

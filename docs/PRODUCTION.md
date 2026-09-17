@@ -35,7 +35,7 @@ Each tier fails differently, which is why only the first is enforced at boot:
 | --- | --- | --- |
 | **Platform** | `APP_URL` | Every generated link goes nowhere. **Refused at boot.** |
 | **Basic** | `BASIC_PORTAL_TOKEN` | The portal 404s, and a Basic school has *no other way in*. Generate with `php artisan basic-portal:token`. |
-| **Standard** | `TENANT_BASE_DOMAIN` | Subdomains silently fall back to `/p/{key}` paths. Works, but is not what the plan sells. |
+| **Standard / Exclusive** | `TENANT_BASE_DOMAIN` | Subdomains silently fall back to `/p/{key}` paths. Works, but is not what the plans sell. See [SCHOOL-SUBDOMAINS.md](SCHOOL-SUBDOMAINS.md). |
 | **Exclusive** | `CUSTOM_DOMAIN_A_RECORD_IP` | The setup wizard cannot tell a school which A record to create. |
 
 A Basic misconfiguration takes one tier down. Refusing every request over it
@@ -132,10 +132,12 @@ Two consequences worth knowing before selling a plan:
   Cloud to route it and issue its certificate. Pointing DNS alone is not
   enough. Custom domains are capped per plan (Starter includes 10) and billed
   beyond that.
-- **The Standard plan's wildcard needs pre-verification.** A wildcard
-  certificate requires the DCV delegation `CNAME` under `_acme-challenge` to
-  stay in place permanently, or renewal fails silently months later. Leave
-  `TENANT_BASE_DOMAIN` blank until the wildcard is verified.
+- **School subdomains need `*.akademicanest.com` added under Domains, and
+  pre-verified.** Cloud shows three records for it (CNAME `*`, TXT
+  `_cf-custom-hostname`, CNAME `_acme-challenge`), which go into the Hostinger
+  DNS zone. The `_acme-challenge` CNAME must stay in place permanently, or
+  certificate renewal fails silently months later. Step by step:
+  [SCHOOL-SUBDOMAINS.md](SCHOOL-SUBDOMAINS.md).
 
 ## Backups
 

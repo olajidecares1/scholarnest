@@ -92,6 +92,7 @@ CI runs `pint --test`, `composer audit` and the suite on every push.
 | [docs/PRODUCTION.md](docs/PRODUCTION.md) | What must change before this is served to real schools |
 | [docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md) | The audit, its findings, and what closed each one |
 | [docs/PASSWORD-RESET-POLICY.md](docs/PASSWORD-RESET-POLICY.md) | Who may reset whose password, and why |
+| [docs/SCHOOL-SUBDOMAINS.md](docs/SCHOOL-SUBDOMAINS.md) | School subdomains: resolution, isolation, DNS, SSL, Laravel Cloud setup |
 | [docs/BASIC-PLAN-PORTAL.md](docs/BASIC-PLAN-PORTAL.md) | How Basic-plan schools are reached without a website |
 | [docs/BASIC-PLAN-STUDENT-LICENCES.md](docs/BASIC-PLAN-STUDENT-LICENCES.md) | How student capacity is sold and enforced |
 | [docs/GITHUB.md](docs/GITHUB.md) | Branching, commit style, and the day-to-day workflow |
@@ -107,7 +108,8 @@ Standard Laravel 12, with a few things worth knowing before you go looking:
   files in the order they are registered, and that order is part of the
   behaviour, not tidiness. `routes/api.php` does the same for the API.
 - **Tenancy is `school_id`, everywhere.** One check, in
-  `AuthorizesSchoolOwnership`.
+  `AuthorizesSchoolOwnership`. Which school a *host* belongs to is decided in
+  one place too, `App\Services\Tenancy\TenantResolver`.
 - **Plan restrictions are one middleware**, `plan_feature:<feature>`, described
   once in the `PlanFeature` enum.
 - **URLs carry UUIDs**, never the database's own integer keys.

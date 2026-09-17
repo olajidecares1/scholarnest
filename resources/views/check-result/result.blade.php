@@ -75,9 +75,7 @@
                  same checks again rather than trusting the referrer. --}}
             {{-- Inline @php, matching line 53, a block @php after an inline one
                  is not compiled correctly in this file. --}}
-            @php($downloadUrl = request()->routeIs('school-result.*')
-                ? route('school-result.download', ['school' => $school->result_link_slug, 'usage' => $usage])
-                : route('check-result.download', ['school' => $school, 'usage' => $usage]))
+            @php($downloadUrl = \App\Support\ResultCheckRoutes::url('download', $school, ['usage' => $usage]))
 
             <div class="flex flex-wrap items-center gap-2">
             <a

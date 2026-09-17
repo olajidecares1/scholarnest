@@ -52,6 +52,10 @@ Route::name('schools.')->middleware('permission:manage_schools')->group(function
     Route::post(R::uri('super-admin.schools.activate').'/{school}', [SchoolController::class, 'activate'])->name('activate');
     Route::post(R::uri('super-admin.schools.deactivate').'/{school}', [SchoolController::class, 'deactivate'])->name('deactivate');
 
+    // Renaming a school's website address, {subdomain}.akademicanest.com. The
+    // old address stops resolving at once: there are no aliases.
+    Route::post(R::uri('super-admin.schools.subdomain').'/{school}', [SchoolController::class, 'updateSubdomain'])->name('subdomain');
+
     // Deleting a school erases everything belonging to it, students,
     // staff, results, invoices, 43 tables in all, and cannot be
     // undone. Deactivating is the reversible option and is what the
