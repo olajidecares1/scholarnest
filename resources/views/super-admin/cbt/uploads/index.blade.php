@@ -2,6 +2,7 @@
     $statusStyles = [
         'pending' => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
         'processing' => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+        'importing' => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
         'needs_mapping' => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
         'completed' => 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
         'failed' => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
@@ -108,7 +109,7 @@
                                     {{ $upload->examBody?->code ?? 'N/A' }} @if ($upload->subject) &middot; {{ $upload->subject->name }} @endif
                                 </td>
                                 <td class="px-6 py-3">
-                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $statusStyles[$upload->status->value] }}">{{ $upload->status->label() }}</span>
+                                    <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $statusStyles[$upload->status->value] ?? $statusStyles['pending'] }}">{{ $upload->status->label() }}</span>
                                 </td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">
                                     {{ $upload->questions_extracted_count }}
