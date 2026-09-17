@@ -30,6 +30,23 @@ test('super admin can view the uploads index', function () {
         ->assertSee('waec-2015-2020.pdf');
 });
 
+test('the uploads index renders an upload in every status, importing included', function () {
+    foreach (CbtDocumentUploadStatus::cases() as $status) {
+        CbtDocumentUpload::factory()->create([
+            'original_filename' => "paper-{$status->value}.pdf",
+            'status' => $status,
+        ]);
+    }
+
+    $response = $this->actingAs($this->superAdmin)
+        ->get(route('super-admin.cbt.uploads.index'))
+        ->assertStatus(200);
+
+    foreach (CbtDocumentUploadStatus::cases() as $status) {
+        $response->assertSee("paper-{$status->value}.pdf");
+    }
+});
+
 test('uploading a document stores the file and dispatches the extraction job', function () {
     Storage::fake('local');
     Queue::fake();
