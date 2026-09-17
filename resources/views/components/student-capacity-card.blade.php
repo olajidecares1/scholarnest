@@ -16,6 +16,14 @@
     'action' => true,
 ])
 
+{{-- Nothing to draw when the plan records no capacity, which is a school on a
+     per-student plan whose student count was never set. Every page that shows
+     this card guards against it, and this is the second line: a missing figure
+     should leave a card out, never throw the page away. --}}
+@if ($capacity === null)
+    @php return; @endphp
+@endif
+
 @php
     $exhausted = $capacity['remaining'] === 0;
     $runningLow = ! $exhausted && ($capacity['runningLow'] ?? false);

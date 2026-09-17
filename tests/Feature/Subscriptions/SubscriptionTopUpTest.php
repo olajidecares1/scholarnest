@@ -144,3 +144,28 @@ test('a school admin cannot approve or reject top-ups', function () {
         ->post(route('super-admin.subscriptions.top-ups.approve', $topUp))
         ->assertForbidden();
 });
+
+test('a subscription with no recorded student count says so instead of throwing', function () {
+    // students_count is nullable, and a per-student subscription that never
+    // recorded one used to take the whole page down: the capacity card was
+    // handed nothing and read a figure out of it. The school met a server
+    // error on the page whose entire purpose is to sell them more students.
+    [$admin] = basicSchoolAdminWithSubscription();
+    $admin->school->activeSubscription->update(['students_count' => null]);
+
+    $this->actingAs($admin)
+        ->get(route('subscription-top-up.create'))
+        ->assertOk()
+        ->assertSee('Your student/pupil capacity is not recorded yet')
+        ->assertDontSee('Request Additional Student/Pupil Spaces');
+});
+
+test('the capacity card leaves itself out rather than throwing when there is no capacity', function () {
+    [$admin] = basicSchoolAdminWithSubscription();
+    $admin->school->activeSubscription->update(['students_count' => null]);
+
+    $this->actingAs($admin)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertDontSee('Student/Pupil Capacity');
+});

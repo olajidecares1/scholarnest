@@ -6,10 +6,31 @@
             </div>
         @endif
 
-        {{-- The same card the dashboard shows, minus the button that leads
-             here. One component, so the figures cannot diverge between the
-             page that reports capacity and the page that asks for more. --}}
-        <x-student-capacity-card :capacity="$capacity" :action="false" />
+        @if ($capacity === null)
+            {{-- A per-student plan whose student count was never recorded. The
+                 request below adds to a capacity, so there is nothing honest
+                 to add to, and inventing a starting figure would misreport
+                 what the school paid for. --}}
+            <div class="rounded-[5px] border border-amber-200 bg-amber-50 p-6 dark:border-amber-800 dark:bg-amber-900/20 lg:rounded-[10px]">
+                <p class="flex items-center gap-2 text-sm font-bold text-amber-900 dark:text-amber-200">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    Your student/pupil capacity is not recorded yet
+                </p>
+                <p class="mt-2 text-sm leading-relaxed text-amber-900/90 dark:text-amber-200/90">
+                    This subscription does not say how many students/pupils it covers, so additional spaces cannot be
+                    requested against it. Please contact the AkademicNest Team and they will set it for your school.
+                    Nothing is wrong with your account, and your existing students/pupils are unaffected.
+                </p>
+                <a href="{{ route('dashboard') }}" class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-900 underline dark:text-amber-200">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                    Back to the dashboard
+                </a>
+            </div>
+        @else
+            {{-- The same card the dashboard shows, minus the button that leads
+                 here. One component, so the figures cannot diverge between the
+                 page that reports capacity and the page that asks for more. --}}
+            <x-student-capacity-card :capacity="$capacity" :action="false" />
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Request Additional Student/Pupil Spaces</h2>
@@ -220,5 +241,6 @@
                 <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">You have not requested any additional spaces yet.</p>
             @endif
         </div>
+        @endif
     </div>
 </x-dashboard-layout>
