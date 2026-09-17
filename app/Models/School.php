@@ -1242,15 +1242,41 @@ class School extends Model
             }
         }
 
+        return $this->subdomainHost();
+    }
+
+    /**
+     * This school's address on the platform's own domain,
+     * greenfield.akademicanest.com, or null when it has none.
+     *
+     * Standard AND Exclusive. Exclusive used to be left out, which gave an
+     * Exclusive school without a verified domain no website address at all and
+     * made its subdomain 404. Null when TENANT_BASE_DOMAIN is unset (subdomains
+     * switched off) or the plan does not include a website.
+     */
+    public function subdomainHost(): ?string
+    {
         $baseDomain = config('custom_domain.tenant_base_domain');
 
-        if ($baseDomain && $this->hasPlanAccess(PlanKey::Standard)) {
-            // The subdomain column, not the slug: a website address should not
-            // carry the slug's hyphens. See availableSubdomain().
-            return "{$this->subdomain}.{$baseDomain}";
+        if (! $baseDomain || ! $this->subdomain || ! $this->hasPlanAccess(PlanKey::Standard, PlanKey::Exclusive)) {
+            return null;
         }
 
-        return null;
+        // The subdomain column, not the slug: a website address should not
+        // carry the slug's hyphens. See availableSubdomain().
+        return "{$this->subdomain}.{$baseDomain}";
+    }
+
+    /**
+     * The absolute address of this school's subdomain, https://greenfield.akademicanest.com,
+     * whether or not a website has been published there yet. For the Super
+     * Admin and the school's own dashboard; public links use websiteUrl().
+     */
+    public function subdomainUrl(): ?string
+    {
+        $host = $this->subdomainHost();
+
+        return $host ? TenantUrl::build($host, '/') : null;
     }
 
     /**

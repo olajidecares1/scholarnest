@@ -13,6 +13,7 @@ use App\Services\ResultAccessPolicy;
 use App\Services\ResultCheckIdentity;
 use App\Services\ResultRepository;
 use App\Services\ResultTokenVerifier;
+use App\Support\ResultCheckRoutes;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -86,9 +87,7 @@ class CheckResultController extends Controller
 
         $this->identity->remember($request, $school, $student);
 
-        return redirect()->route($this->routeName('confirm', $school), [
-            'school' => $this->schoolRouteValue($school),
-        ]);
+        return redirect()->to(ResultCheckRoutes::url('confirm', $school));
     }
 
     /**
@@ -104,9 +103,7 @@ class CheckResultController extends Controller
         $student = $this->identity->resolve($request, $school);
 
         if ($student === null) {
-            return redirect()->route($this->routeName('show', $school), [
-                'school' => $this->schoolRouteValue($school),
-            ]);
+            return redirect()->to(ResultCheckRoutes::url('show', $school));
         }
 
         return view('check-result.confirm', [
@@ -125,9 +122,7 @@ class CheckResultController extends Controller
         $student = $this->identity->resolve($request, $school);
 
         if ($student === null) {
-            return redirect()->route($this->routeName('show', $school), [
-                'school' => $this->schoolRouteValue($school),
-            ])->withErrors(['admission_number' => 'Please enter the School ID or Admission Number again.']);
+            return redirect()->to(ResultCheckRoutes::url('show', $school))->withErrors(['admission_number' => 'Please enter the School ID or Admission Number again.']);
         }
 
         try {
@@ -164,10 +159,7 @@ class CheckResultController extends Controller
 
         $request->clearLimiter($school);
 
-        return redirect()->route($this->routeName('result', $school), [
-            'school' => $this->schoolRouteValue($school),
-            'usage' => $usage,
-        ]);
+        return redirect()->to(ResultCheckRoutes::url('result', $school, ['usage' => $usage]));
     }
 
     /**
@@ -352,30 +344,5 @@ class CheckResultController extends Controller
         if (request()->routeIs('school-result.*')) {
             abort_unless($school->resultLinkIsLive(), 404);
         }
-    }
-
-    /**
-     * The sibling route in whichever group this request arrived through.
-     *
-     * One controller serves two addresses, a school's own
-     * /greenfield-college/result and the older /schools/{slug}/check-result,
-     * and a redirect has to stay inside the one the visitor is actually using.
-     */
-    private function routeName(string $action, School $school): string
-    {
-        return request()->routeIs('school-result.*')
-            ? "school-result.{$action}"
-            : "check-result.{$action}";
-    }
-
-    /**
-     * What to put in the URL for this school: its result-link address on the
-     * school-result routes, and the school itself elsewhere.
-     */
-    private function schoolRouteValue(School $school): string|School
-    {
-        return request()->routeIs('school-result.*')
-            ? $school->result_link_slug
-            : $school;
     }
 }

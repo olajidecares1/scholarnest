@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\School;
+use App\Services\Tenancy\TenantResolver;
 use Illuminate\Http\Request;
 
 /**
@@ -122,13 +123,10 @@ final class PortalLoginRedirect
 
             // Normally the parameter is already a School, model binding has
             // run. This is the fallback for a request that failed before
-            // binding, where all we have is the raw segment.
-            //
-            // BOTH COLUMNS, because the two parameters carry different things:
-            // "school" is now a portal_key on the portal routes, while
-            // "tenantDomain" is a subdomain built from the slug. Checking only
-            // one silently loses half the cases.
-            if (is_string($value) && $value !== '') {
+            // binding, where all we have is the raw segment. Only "school"
+            // carries a key; an unbound "tenantDomain" is a HOST, which
+            // fromHost() below resolves properly.
+            if ($parameter === 'school' && is_string($value) && $value !== '') {
                 $school = School::where('portal_key', $value)
                     ->orWhere('slug', $value)
                     ->first();
@@ -142,16 +140,15 @@ final class PortalLoginRedirect
         return null;
     }
 
+    /**
+     * The school this host is the address of: its subdomain or its verified
+     * own domain, through the same resolver the tenant routes use. It used to
+     * match the SLUG against the host, and a slug has hyphens a subdomain does
+     * not, so it never found a multi-word school.
+     */
     private static function fromHost(Request $request): ?School
     {
-        $host = $request->getHost();
-        $base = parse_url((string) config('app.url'), PHP_URL_HOST);
-
-        if (! $base || $host === $base || ! str_ends_with($host, ".{$base}")) {
-            return null;
-        }
-
-        return School::where('slug', substr($host, 0, -(strlen($base) + 1)))->first();
+        return app(TenantResolver::class)->schoolFor($request->getHost());
     }
 
     /**

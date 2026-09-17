@@ -32,6 +32,8 @@
             @endif
         </div>
 
+        @include('super-admin.schools.partials.website-address')
+
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Billing Details</h3>

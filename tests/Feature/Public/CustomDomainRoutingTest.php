@@ -68,7 +68,12 @@ test('a verified custom domain stops resolving once the school\'s subscription i
     $school = exclusiveSchoolWithCustomDomain('www.lapsed.com');
     $school->activeSubscription->update(['status' => SubscriptionStatus::Expired]);
 
-    $this->get('http://www.lapsed.com/')->assertNotFound();
+    // Paused rather than gone: a status page, 503 so search engines treat it
+    // as temporary, and none of the school's content.
+    $this->get('http://www.lapsed.com/')
+        ->assertStatus(503)
+        ->assertSee('temporarily unavailable')
+        ->assertDontSee($school->name);
 });
 
 test('visiting the default path redirects to the verified primary custom domain', function () {
