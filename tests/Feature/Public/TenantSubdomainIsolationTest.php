@@ -229,6 +229,13 @@ test('results open on the school subdomain and stay there through each step', fu
         ->assertSee($student->first_name ?? $student->admission_number);
 });
 
+test('/result and /check-result on a school subdomain go to the results page', function () {
+    [$school] = tenantSchoolWithResult('Greenfield School');
+
+    $this->get(tenantUrl($school, '/result'))->assertStatus(301)->assertRedirect('/results');
+    $this->get(tenantUrl($school, '/check-result'))->assertStatus(301)->assertRedirect('/results');
+});
+
 test('a subdomain only considers its own school\'s pupils and tokens', function () {
     [$greenfield, $examination, $pupil] = tenantSchoolWithResult('Greenfield School');
     [$bright, , $brightPupil] = tenantSchoolWithResult('Bright Future School');
