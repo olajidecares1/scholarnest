@@ -1,4 +1,4 @@
-<x-auth-layout :simple="true" :header="false" :title="'Portal · '.$school->name">
+<x-auth-layout :simple="true" :header="false" :title="'Portal · '.$school->name" :school="$school" pwaPortal="hub">
     <x-auth-card>
         @php
             // Which doors this school actually has.
