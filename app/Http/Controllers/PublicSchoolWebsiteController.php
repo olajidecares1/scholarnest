@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\PlanFeature;
 use App\Enums\PlanKey;
+use App\Exceptions\SchoolWebsiteNotPublished;
 use App\Models\NewsPost;
 use App\Models\School;
 use App\Models\SchoolWebsite;
@@ -146,11 +147,36 @@ class PublicSchoolWebsiteController extends Controller
      * (which has no front-facing website) would keep serving its old public
      * site forever.
      */
+    /**
+     * The school's published website, or an answer for the address instead.
+     *
+     * TWO DIFFERENT SITUATIONS, and they used to share one bare 404:
+     *
+     *   the plan has no website    Basic. There is no address either, the
+     *                              tenant resolver already refuses the host,
+     *                              so this is only reachable by the default
+     *                              path and 404 is the honest answer.
+     *
+     *   nothing published yet      A live school, at its own live address,
+     *                              which registration gave it the moment it
+     *                              signed up. Its portal already works there.
+     *                              What is missing is a website, and saying
+     *                              "404 NOT FOUND" to that makes a correct
+     *                              address look like a broken platform, on
+     *                              the day a school is most likely to try it.
+     *
+     * The second now renders the school's own holding page. See
+     * App\Exceptions\SchoolWebsiteNotPublished.
+     */
     private function publishedWebsite(School $school): SchoolWebsite
     {
+        abort_unless($school->hasPlanAccess(PlanKey::Standard, PlanKey::Exclusive), 404);
+
         $website = $school->website;
 
-        abort_unless($website && $website->is_published && $school->hasPlanAccess(PlanKey::Standard, PlanKey::Exclusive), 404);
+        if (! $website || ! $website->is_published) {
+            throw new SchoolWebsiteNotPublished($school);
+        }
 
         return $website;
     }
