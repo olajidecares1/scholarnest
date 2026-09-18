@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Enums\PortalApp;
 use App\Models\School;
+use App\Models\Setting;
 
 /**
  * A school's portal, described as an installable application.
@@ -29,6 +30,13 @@ final class PortalPwa
      * light home screen looks like a failed install.
      */
     private const FALLBACK_THEME = '#4f46e5';
+
+    /**
+     * Memoised for this instance, which is one page render. Not static: a
+     * static would outlive the request on a long-running worker and go on
+     * serving the fingerprint of a logo that has since been replaced.
+     */
+    private ?string $fingerprint = null;
 
     public function __construct(
         public readonly School $school,
@@ -124,8 +132,8 @@ final class PortalPwa
      *
      * Fingerprinted because a launcher caches the icon it was handed at
      * install time and has no reason to ask for the same URL again; a new
-     * fingerprint is the only way a redrawn mark ever reaches a phone that
-     * installed the app last term.
+     * fingerprint is the only way a re-uploaded mark ever reaches a phone
+     * that installed the app last term. See iconFingerprint().
      */
     public function iconUrl(int $size): string
     {
@@ -144,17 +152,45 @@ final class PortalPwa
     }
 
     /**
-     * Derived only from what the icon is actually drawn from, the bundled
-     * platform artwork, so it is the same for every school, and changes only
-     * when that artwork is redrawn.
+     * Derived from what the icon is actually drawn from: the AkademicNest logo
+     * the Super Admin has uploaded, or the bundled artwork when there is none.
+     *
+     * THIS IS WHAT MAKES A NEW LOGO REACH AN ALREADY-INSTALLED APP. A launcher
+     * caches the icon it was handed at install time and never asks for that
+     * URL again, so replacing the bytes behind a fixed address changes nothing
+     * on a phone that installed the app last term. What it does do is re-read
+     * the manifest, which is served with a five-minute cache; a different logo
+     * gives a different fingerprint, which gives a different icon URL in that
+     * manifest, which the browser fetches and puts in place of the old icon.
+     *
+     * The stored path changes on every upload, see ThemeController, so the
+     * path alone is enough and no file has to be read to compute this.
+     *
+     * Memoised per instance, which is one page render: this is asked once per
+     * icon in the manifest plus once for apple-touch-icon, and that should not
+     * be six settings queries for a value that cannot change mid-request.
      */
     public function iconFingerprint(): string
     {
+        return $this->fingerprint ??= substr(hash('sha256', $this->iconSource()), 0, 10);
+    }
+
+    /**
+     * A string that changes when, and only when, the icon's artwork does.
+     */
+    private function iconSource(): string
+    {
+        $uploaded = Setting::platformLogoPath();
+
+        if ($uploaded) {
+            return 'logo:'.$uploaded;
+        }
+
         $path = public_path('images/pwa-512x512.png');
 
-        return substr(hash('sha256', is_file($path)
-            ? (string) filesize($path).'-'.(string) filemtime($path)
-            : 'no-artwork'), 0, 10);
+        return is_file($path)
+            ? 'bundled:'.filesize($path).'-'.filemtime($path)
+            : 'no-artwork';
     }
 
     private function isHexColour(?string $value): bool
