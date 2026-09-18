@@ -70,6 +70,18 @@ class Setting extends Model
     }
 
     /**
+     * The uploaded platform logo's stored path, or null.
+     *
+     * READ-ONLY, and creates nothing, unlike current(). The PWA icon route is
+     * public and is fetched by a browser before anybody signs in, so it must
+     * never be the thing that writes a settings row.
+     */
+    public static function platformLogoPath(): ?string
+    {
+        return self::query()->value('logo_path') ?: null;
+    }
+
+    /**
      * The platform logo's address, or a bundled mark when none is uploaded.
      *
      * SERVED BY THE APPLICATION, from the database, see BrandingImage. Every
