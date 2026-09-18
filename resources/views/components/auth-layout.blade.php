@@ -37,6 +37,17 @@
     // and name instead of AkademicNest's, because a parent checking their child's
     // result should see their child's school.
     'school' => null,
+
+    // Which portal this page is the front door of, when it is one.
+    //
+    // OPT-IN, page by page, and that is deliberate: this layout also dresses
+    // the REGISTRATION page, and an install prompt there would be asking
+    // somebody to put a school portal on their phone before they have a
+    // school. Only the Portal hub and the four sign-in pages set this, so
+    // the offer appears where somebody is entering a school's portal and
+    // nowhere else. Needs `school` as well; without one there is no app to
+    // install. See resources/views/components/pwa.blade.php.
+    'pwaPortal' => null,
 ])
 
 @php
@@ -62,6 +73,10 @@
         <title>{{ $title ?? config('app.name', 'AkademicNest') }}</title>
 
         <x-favicon />
+
+        @if ($school && $pwaPortal)
+            <x-pwa :school="$school" :portal="$pwaPortal" />
+        @endif
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />

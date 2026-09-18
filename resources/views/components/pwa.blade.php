@@ -50,4 +50,17 @@
     // worker registration. Read from the DOM rather than bundled, because
     // every value here is per school and the bundle is shared by all of them.
     window.AkademicNestPwa = @json($pwaSettings);
+
+    // CAUGHT HERE, IN THE HEAD, and not in the bundle. A browser fires
+    // beforeinstallprompt once and does not fire it again; the bundle is a
+    // module and therefore deferred, so on a fast connection the event can
+    // come and go before a listener there exists, and the install offer
+    // silently never appears. This stashes the event for resources/js/pwa.js
+    // to pick up whenever it runs.
+    window.AkademicNestPwaPrompt = null;
+    window.addEventListener('beforeinstallprompt', function (event) {
+        event.preventDefault();
+        window.AkademicNestPwaPrompt = event;
+        window.dispatchEvent(new CustomEvent('akademicnest:installable'));
+    });
 </script>
