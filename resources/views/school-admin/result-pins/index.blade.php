@@ -94,9 +94,10 @@
             <div class="rounded-[5px] border-2 border-green-300 bg-green-50 p-6 dark:border-green-800 dark:bg-green-900/20 lg:rounded-[10px]">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <h2 class="text-sm font-bold text-green-900 dark:text-green-300">Tokens issued</h2>
+                        <h2 class="text-sm font-bold text-green-900 dark:text-green-300">Tokens</h2>
                         <p class="mt-0.5 text-xs text-green-800 dark:text-green-400">
-                            Copy or print these now. For security they are not shown again on this page.
+                            Copy or print these now. They are not shown again until you ask for them,
+                            with Reveal on a student's row or by running the class batch again.
                         </p>
                     </div>
                     <button type="button" onclick="window.print()" class="rounded-[8px] bg-green-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-800 print:hidden">
