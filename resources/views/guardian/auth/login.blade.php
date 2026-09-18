@@ -1,4 +1,4 @@
-<x-auth-layout :simple="true" :header="false" :title="'Parent Portal · '.$school->name">
+<x-auth-layout :simple="true" :header="false" :title="'Parent Portal · '.$school->name" :school="$school" pwaPortal="guardian">
     <x-auth-card>
         <div class="text-center">
             @if ($school->logoUrl())
