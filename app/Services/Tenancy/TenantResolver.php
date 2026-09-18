@@ -116,22 +116,87 @@ class TenantResolver
         }
 
         // One DNS label only. a.b.akademicanest.com is not a school address,
-        // and a label outside [a-z0-9] cannot be one either, so neither costs a
-        // database query.
-        if (! preg_match('/^[a-z0-9]{1,63}$/', $label)) {
+        // and anything outside the characters a hostname label may contain
+        // cannot be one either, so neither costs a database query.
+        //
+        // HYPHENS ARE ADMITTED HERE, and they were not before. The canonical
+        // address has none, see School::availableSubdomain(), but the school's
+        // slug does, and the hyphenated form is the one that gets typed:
+        // it is the school's address on the platform host, so it is what
+        // people copy, shorten and print. Refusing it at the pattern meant
+        // "vincent-martins-college.akademicanest.com" never reached a query at
+        // all and 404'd, while a one-word school, whose slug and subdomain are
+        // the same string, worked. That is exactly the shape of "it works for
+        // some schools and not others".
+        if (! preg_match('/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/', $label)) {
             return new TenantResolution(TenantResolution::NOT_FOUND, via: 'subdomain');
         }
 
         // Looked up by the subdomain column, which is what School::publicUrl()
-        // builds the address from. Never the slug: it has hyphens and the
-        // address deliberately does not.
+        // builds the address from.
         $school = School::with(['activeSubscription.plan', 'website'])->where('subdomain', $label)->first();
+
+        if ($school) {
+            return $this->gate($school, 'subdomain', fn (School $s) => self::planIncludesSubdomain($s));
+        }
+
+        return $this->resolveSubdomainAlias($label);
+    }
+
+    /**
+     * A school reached at a label that is not its canonical subdomain.
+     *
+     * Two of them, and both are addresses the application itself has handed
+     * out at one time or another:
+     *
+     *   vincent-martins-college   the slug, the school's address on the
+     *                             platform host, and what anybody who knows
+     *                             the school's web address would try first
+     *   vincentmartinscollege     the canonical subdomain, handled above
+     *
+     * A school whose subdomain is NULL is reached this way too, which is what
+     * saves any row the backfill in add_subdomain_to_schools_table never
+     * reached: its slug still finds it, and `schools:subdomains --repair`
+     * fills the column in.
+     *
+     * Both lookups are single indexed reads on unique columns, so an unknown
+     * address still costs two queries and nothing more.
+     *
+     * The answer is a REDIRECT, never a second address serving the same site:
+     * one school, one canonical host, so sessions, cookies, cached pages and
+     * search results cannot fragment across two spellings of it.
+     */
+    private function resolveSubdomainAlias(string $label): TenantResolution
+    {
+        $stripped = preg_replace('/[^a-z0-9]/', '', $label);
+
+        $school = $stripped !== '' && $stripped !== $label
+            ? School::with(['activeSubscription.plan', 'website'])->where('subdomain', $stripped)->first()
+            : null;
+
+        $school ??= School::with(['activeSubscription.plan', 'website'])->where('slug', $label)->first();
 
         if (! $school) {
             return new TenantResolution(TenantResolution::NOT_FOUND, via: 'subdomain');
         }
 
-        return $this->gate($school, 'subdomain', fn (School $s) => self::planIncludesSubdomain($s));
+        // Gated first. A suspended school, a lapsed subscription or a Basic
+        // school must answer exactly as it does on its canonical address,
+        // never be redirected to an address that then says something else.
+        $gated = $this->gate($school, 'subdomain', fn (School $s) => self::planIncludesSubdomain($s));
+
+        if (! $gated->resolved()) {
+            return $gated;
+        }
+
+        $canonical = $school->subdomainHost();
+
+        // No canonical host to send them to (the column is empty and the
+        // repair command has not run): serve it here rather than 404, which
+        // is the whole point of finding it by slug.
+        return $canonical === null
+            ? $gated
+            : new TenantResolution(TenantResolution::ALIAS, $school, 'subdomain');
     }
 
     private function resolveCustomDomain(string $host): TenantResolution
