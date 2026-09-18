@@ -12,6 +12,7 @@ use App\Models\ResultCheckingPin;
 use App\Models\ResultTokenAccessLog;
 use App\Models\School;
 use App\Models\Student;
+use App\Notifications\ResultTokenIssuedNotification;
 use App\Services\ExaminationResolver;
 use App\Services\ResultAccessPolicy;
 use App\Services\ResultTokenIssuer;
@@ -171,8 +172,14 @@ class ResultCheckingPinController extends Controller
             $issued['token'],
         );
 
+        $status = "A result token was issued for {$student->fullName()}.";
+
+        if ($this->resultsArePending($examination)) {
+            $status .= " No marks have been entered for {$examination->name} yet, so this token will not open anything until you publish the result.";
+        }
+
         return back()
-            ->with('status', "A result token was issued for {$student->fullName()}.")
+            ->with('status', $status)
             ->with('issued_tokens', [[
                 'student' => $student->fullName(),
                 'admission_number' => $student->admission_number,
@@ -280,9 +287,37 @@ class ResultCheckingPinController extends Controller
             ->values()
             ->all();
 
+        $status = $this->bulkStatus($examination->class_name, $issued->count(), $existing->count());
+
+        if ($this->resultsArePending($examination)) {
+            $status .= " No marks have been entered for {$examination->name} yet, so these tokens will not open anything until you publish the results.";
+        }
+
         return back()
-            ->with('status', $this->bulkStatus($examination->class_name, $issued->count(), $existing->count()))
+            ->with('status', $status)
             ->with('issued_tokens', $tokens);
+    }
+
+    /**
+     * Have any marks been entered for this examination at all?
+     *
+     * THE ANSWER A SCHOOL NEEDS BEFORE IT HANDS TOKENS OUT. A token is bound
+     * to an examination, and the verifier refuses it while that examination
+     * carries no score for the pupil, so tokens issued before the marks are
+     * entered are tokens that do not work yet. The school sees a live token
+     * and the parent is turned away, and neither can explain the other.
+     *
+     * Worse where the examination was created for them: issuing for a term a
+     * school has not recorded yet creates the examination, which is empty by
+     * definition, so the first batch a new school issues is exactly the batch
+     * that cannot open anything.
+     *
+     * Saying so at the moment of issue costs one query and removes the whole
+     * confusion.
+     */
+    private function resultsArePending(Examination $examination): bool
+    {
+        return ! $examination->subjects()->whereHas('scores')->exists();
     }
 
     /**
@@ -391,6 +426,93 @@ class ResultCheckingPinController extends Controller
             'session' => $pin->examination?->session,
             'token' => $pin->plainToken(),
         ]]);
+    }
+
+    /**
+     * Send a token to the pupil and to every guardian linked to them.
+     *
+     * The school no longer has to hand a slip to each family. One action puts
+     * the token in the pupil's portal and in each linked guardian's, at the
+     * same moment, and emails all of them to say it is waiting there.
+     *
+     * WHO GETS IT IS THE LINK, not a list typed here: the guardians are the
+     * ones attached to this pupil, so a parent with two children at the school
+     * receives each child's token separately and nobody receives a token for a
+     * child who is not theirs.
+     *
+     * The token is delivered to the portal and not into the email itself. See
+     * App\Notifications\ResultTokenIssuedNotification for why.
+     */
+    public function send(Request $request, ResultCheckingPin $pin): RedirectResponse
+    {
+        $this->authorizeSchoolOwnership($pin);
+
+        $student = $pin->boundStudent;
+        $examination = $pin->examination;
+        $plain = $pin->plainToken();
+
+        // Nothing to send, and each of these is a different mistake, so none
+        // of them is reported as "sent".
+        if (! $student || ! $examination || ! $plain) {
+            return back()->withErrors(['send' => 'That token is not bound to a pupil and a result yet, so there is nothing to send.']);
+        }
+
+        if ($pin->accessRefusalReason() !== null) {
+            return back()->withErrors(['send' => 'That token cannot be used at the moment, so sending it would only mislead. Reissue it first.']);
+        }
+
+        $notification = new ResultTokenIssuedNotification($examination, $student, $plain);
+
+        $guardians = $student->guardians()->get();
+
+        $student->notify($notification);
+        $guardians->each(fn ($guardian) => $guardian->notify(new ResultTokenIssuedNotification($examination, $student, $plain)));
+
+        AuditLog::record(
+            'result-token.sent',
+            "Sent {$student->fullName()}'s result token to the pupil and {$guardians->count()} linked guardian(s).",
+            $pin,
+        );
+
+        // The guardian count is in the message on purpose. Zero is the case a
+        // school needs to see: it means nobody is linked to that pupil yet,
+        // and silence would look like success.
+        return back()->with('status', $guardians->isEmpty()
+            ? "Sent to {$student->fullName()}'s portal. No guardian is linked to this pupil yet, so nobody else received it."
+            : "Sent to {$student->fullName()}'s portal and {$guardians->count()} linked guardian(s).");
+    }
+
+    /**
+     * Delete a token outright.
+     *
+     * DIFFERENT FROM REVOKING, and both are wanted. Revoking keeps the row:
+     * the record that a token was issued, to whom, and when it stopped working
+     * survives, which is what an audit of "who could see this result" needs.
+     * Deleting removes it, for the token issued by mistake, against the wrong
+     * pupil or the wrong term, which should not sit in a school's list for
+     * ever explaining itself.
+     *
+     * The audit entry is written BEFORE the row goes, and names what it was,
+     * so deleting a token is not a way to erase that it existed.
+     */
+    public function destroy(Request $request, ResultCheckingPin $pin): RedirectResponse
+    {
+        $this->authorizeSchoolOwnership($pin);
+
+        $student = $pin->boundStudent?->fullName() ?? 'an unbound pupil';
+        $examination = $pin->examination;
+
+        AuditLog::record(
+            'result-token.deleted',
+            $examination
+                ? "Deleted the result token for {$student} ({$examination->name}, {$examination->term->label()}, {$examination->session})."
+                : 'Deleted an unissued result token.',
+            $pin,
+        );
+
+        $pin->delete();
+
+        return back()->with('status', "That token was deleted. Issue a new one if {$student} still needs it.");
     }
 
     public function revoke(Request $request, ResultCheckingPin $pin): RedirectResponse
