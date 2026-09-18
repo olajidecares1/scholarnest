@@ -239,12 +239,71 @@ test('a class where everyone already holds one says THAT, and not the other thin
 
     // Run again with nobody new. This is the case the old message described,
     // and it is the only case that should get it.
-    $this->actingAs($admin)
+    //
+    // It also HANDS THE TOKENS BACK rather than stopping there. "Everyone
+    // already has one" was true and useless: the plain values are shown once
+    // at issue, so an admin who missed that moment, or who is running the
+    // batch after a colleague did, was told the work was done and given no
+    // way to reach it short of revealing thirty tokens one at a time.
+    $response = $this->actingAs($admin)
         ->post(route('result-pins.store-bulk'), $payload)
-        ->assertSessionHas('status', fn (string $status) => str_contains($status, 'already has a token')
+        ->assertSessionHas('status', fn (string $status) => str_contains($status, 'already had a token')
             && ! str_contains($status, 'No active students'));
 
+    $response->assertSessionHas('issued_tokens', fn (array $tokens) => count($tokens) === 2
+        && collect($tokens)->every(fn (array $row) => filled($row['token'])));
+
+    // Shown, not reissued. Nobody holding one is handed a second.
     expect(ResultCheckingPin::count())->toBe(2);
+});
+
+test('the tokens handed back are the ones the students actually hold', function () {
+    [$school, $admin, $examination] = tokenClassSchool('SSS 1 Science', 2);
+
+    $payload = [
+        'class_name' => 'SSS 1 Science',
+        'session' => $examination->session,
+        'term' => $examination->term->value,
+    ];
+
+    $first = $this->actingAs($admin)->post(route('result-pins.store-bulk'), $payload);
+    $issued = collect(session('issued_tokens'))->pluck('token', 'student');
+
+    $this->actingAs($admin)->post(route('result-pins.store-bulk'), $payload);
+    $shown = collect(session('issued_tokens'))->pluck('token', 'student');
+
+    // Same student, same token. A different value here would mean the page
+    // was showing something a parent cannot use.
+    expect($shown->all())->toBe($issued->all());
+});
+
+test('a half-done class gets the new tokens and the old ones together', function () {
+    [$school, $admin, $examination] = tokenClassSchool('SSS 1 Science', 2);
+
+    $payload = [
+        'class_name' => 'SSS 1 Science',
+        'session' => $examination->session,
+        'term' => $examination->term->value,
+    ];
+
+    $this->actingAs($admin)->post(route('result-pins.store-bulk'), $payload);
+
+    // Two more pupils join the class after the first batch.
+    Student::factory()->count(2)->create([
+        'school_id' => $school->id,
+        'class_name' => 'SSS 1 Science',
+        'is_active' => true,
+    ]);
+
+    $this->actingAs($admin)
+        ->post(route('result-pins.store-bulk'), $payload)
+        ->assertSessionHas('status', fn (string $status) => str_contains($status, '2 result token(s) were issued')
+            && str_contains($status, 'other 2 student(s) already had one'))
+        // All four, so the list on screen matches the class the admin chose
+        // rather than showing two and leaving them to wonder about the rest.
+        ->assertSessionHas('issued_tokens', fn (array $tokens) => count($tokens) === 4);
+
+    expect(ResultCheckingPin::count())->toBe(4);
 });
 
 test('a class with students reports how many tokens were issued', function () {
