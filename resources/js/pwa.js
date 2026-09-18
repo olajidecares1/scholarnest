@@ -34,6 +34,15 @@ const isSafari = () =>
     /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(window.navigator.userAgent)
 
 /**
+ * Safari on a Mac, which is the desktop half of the same problem as iOS: it
+ * fires no beforeinstallprompt either, and installs through File -> Add to
+ * Dock instead. Recognised as "Safari, on a Mac, with no touch screen", which
+ * is what separates it from an iPad reporting itself as MacIntel.
+ */
+const isDesktopSafari = () =>
+    isSafari() && !isIos() && /macintosh|mac os x/i.test(window.navigator.userAgent)
+
+/**
  * Whether this browser was told not to ask again.
  *
  * Storage can throw outright in a private window, and a portal that fails to
@@ -129,6 +138,60 @@ function buildBanner({ title, body, actionLabel, onAction, onDismiss }) {
     return wrap
 }
 
+/** Nothing to offer: already running as an app, or already told to stop. */
+const settled = (settings) => isStandalone() || wasDismissed(settings.dismissKey)
+
+/**
+ * The one-tap offer, on the browsers that give us an event to fire.
+ */
+function offerInstall(settings, event) {
+    if (settled(settings) || document.querySelector('.pwa-install-banner')) {
+        return
+    }
+
+    buildBanner({
+        title: `Install ${settings.school}`,
+        body: `Add the ${settings.portalLabel} to your home screen. It opens straight to your school.`,
+        actionLabel: 'Install',
+        onAction: async (banner) => {
+            banner.remove()
+            event.prompt()
+
+            const choice = await event.userChoice.catch(() => null)
+
+            // "dismissed" is not "never", they may install later from the
+            // browser menu, but asking again on the next page load would
+            // be pestering.
+            if (choice && choice.outcome === 'dismissed') {
+                remember(settings.dismissKey)
+            }
+        },
+        onDismiss: () => remember(settings.dismissKey),
+    })
+}
+
+/**
+ * The explanation, on the browsers that install only through a menu.
+ *
+ * Late, so it does not land on top of a page still arriving, and so it never
+ * competes with the sign-in form for a first-time visitor's attention.
+ */
+function explainInstall(settings, body) {
+    window.setTimeout(() => {
+        if (settled(settings) || document.querySelector('.pwa-install-banner')) {
+            return
+        }
+
+        buildBanner({
+            title: `Install ${settings.school}`,
+            body,
+            actionLabel: null,
+            onAction: null,
+            onDismiss: () => remember(settings.dismissKey),
+        })
+    }, 2500)
+}
+
 export default function initPortalInstall() {
     const settings = config()
 
@@ -140,68 +203,58 @@ export default function initPortalInstall() {
 
     // Already installed: there is nothing to offer, and offering anyway is how
     // an app ends up nagging the people who did what it asked.
-    if (isStandalone() || wasDismissed(settings.dismissKey)) {
+    if (settled(settings)) {
         return
     }
 
     // ---------------------------------------------------------------
-    // Chrome, Edge, Samsung Internet, and Android generally
+    // Chrome, Edge, Samsung Internet, Android generally, and the same
+    // browsers on a laptop or desktop, where installing puts the portal
+    // in the applications list rather than on a home screen.
     // ---------------------------------------------------------------
-    window.addEventListener('beforeinstallprompt', (event) => {
-        // Stops the browser's own minimal offer, so there is one prompt
-        // rather than two saying different things.
-        event.preventDefault()
+    //
+    // The event may already have fired: this module is deferred, and the
+    // page head catches it for us. See resources/views/components/pwa.blade.php.
+    if (window.AkademicNestPwaPrompt) {
+        offerInstall(settings, window.AkademicNestPwaPrompt)
+    }
 
-        if (isStandalone() || wasDismissed(settings.dismissKey)) {
-            return
+    window.addEventListener('akademicnest:installable', () => {
+        if (window.AkademicNestPwaPrompt) {
+            offerInstall(settings, window.AkademicNestPwaPrompt)
         }
+    })
 
-        buildBanner({
-            title: `Install ${settings.school}`,
-            body: `Add the ${settings.portalLabel} to your home screen. It opens straight to your school.`,
-            actionLabel: 'Install',
-            onAction: async (banner) => {
-                banner.remove()
-                event.prompt()
-
-                const choice = await event.userChoice.catch(() => null)
-
-                // "dismissed" is not "never", they may install later from the
-                // browser menu, but asking again on the next page load would
-                // be pestering.
-                if (choice && choice.outcome === 'dismissed') {
-                    remember(settings.dismissKey)
-                }
-            },
-            onDismiss: () => remember(settings.dismissKey),
-        })
+    // Belt and braces: if the head script is ever absent, this still works.
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault()
+        offerInstall(settings, event)
     })
 
     // ---------------------------------------------------------------
-    // iOS, where there is no event and no button that can work
+    // iPhone and iPad, where there is no event and no button that can work
     // ---------------------------------------------------------------
     if (isIos() && isSafari()) {
-        // Late, so it does not land on top of a page still arriving, and so it
-        // never competes with the sign-in form for a first-time visitor's
-        // attention.
-        window.setTimeout(() => {
-            if (isStandalone() || wasDismissed(settings.dismissKey)) {
-                return
-            }
+        explainInstall(
+            settings,
+            `Tap Share, then "Add to Home Screen", to open the ${settings.portalLabel} straight from your device.`,
+        )
+    }
 
-            buildBanner({
-                title: `Install ${settings.school}`,
-                body: `Tap Share, then "Add to Home Screen", to open the ${settings.portalLabel} straight from your phone.`,
-                actionLabel: null,
-                onAction: null,
-                onDismiss: () => remember(settings.dismissKey),
-            })
-        }, 2500)
+    // ---------------------------------------------------------------
+    // Safari on a Mac, which installs through the File menu
+    // ---------------------------------------------------------------
+    if (isDesktopSafari()) {
+        explainInstall(
+            settings,
+            `Choose File, then "Add to Dock", to keep the ${settings.portalLabel} one click away.`,
+        )
     }
 
     // Nothing to keep offering once it is done.
     window.addEventListener('appinstalled', () => {
         remember(settings.dismissKey)
+        window.AkademicNestPwaPrompt = null
         document.querySelector('.pwa-install-banner')?.remove()
     })
 }
