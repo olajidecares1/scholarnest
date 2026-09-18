@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\FeatureRequiresUpgrade;
+use App\Exceptions\SchoolWebsiteNotPublished;
 use App\Http\Middleware\Api\EnsureApiAccountIsActive;
 use App\Http\Middleware\Api\EnsureApiActorIs;
 use App\Http\Middleware\CheckMaintenanceMode;
@@ -27,6 +28,7 @@ use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrackPageView;
 use App\Http\Middleware\ValidateBasicPortalToken;
 use App\Http\Middleware\ValidateSchoolPortalToken;
+use App\Models\School;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -206,6 +208,46 @@ return Application::configure(basePath: dirname(__DIR__))
                 'feature' => $exception->feature,
                 'currentPlanName' => $school?->activeSubscription?->plan?->name ?? 'Basic Plan',
             ], 403);
+        });
+
+        /*
+         * A school's address, before it has published a website.
+         *
+         * Registration hands a school its subdomain at once; building the
+         * website is something somebody sits down with later. Between the
+         * two, greenfield.akademicanest.com answered a bare "404 NOT FOUND",
+         * so the first thing a new school saw at its own address was the
+         * platform apparently broken, with nothing on the page to say the
+         * address was right or that their portal was already live at it.
+         *
+         * 200 for the HTML, because this is not an error page standing in for
+         * something that was asked for: it is a real page, at a real address,
+         * carrying the school's name and a working way into their portal. It
+         * declares noindex, so an unfinished site is not indexed as the
+         * school's web presence. Anything reading a status code still gets
+         * the 404 the exception carries.
+         */
+        $exceptions->render(function (SchoolWebsiteNotPublished $exception, Request $request) {
+            $school = $exception->school;
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $exception->getMessage()], 404);
+            }
+
+            // On the school's own host the portal is simply /portal. Reached
+            // by the default path instead, it is the /p/{portal_key}/ one.
+            $onOwnHost = $request->attributes->get('tenant') instanceof School;
+            $host = $request->getHost();
+
+            return response()->view('public.school-website-unpublished', [
+                'school' => $school,
+                'portalUrl' => $onOwnHost
+                    ? route('tenant.portal.index', ['tenantDomain' => $host], absolute: false)
+                    : route('portal.index', $school, absolute: false),
+                'resultsUrl' => $onOwnHost
+                    ? route('tenant.results.show', ['tenantDomain' => $host], absolute: false)
+                    : $school->resultLinkUrl(),
+            ], 200);
         });
 
         $exceptions->render(function (HttpExceptionInterface $exception, Request $request) {
