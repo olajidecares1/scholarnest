@@ -80,7 +80,25 @@ class ResultAccessPolicy
             ->leftJoinSub($paid, 'paid', 'paid.invoice_id', '=', 'invoices.id')
             ->whereIn('invoices.student_id', $studentIds)
             ->groupBy('invoices.student_id')
-            ->selectRaw('invoices.student_id, SUM(MAX(invoices.amount - COALESCE(paid.paid, 0), 0)) as balance')
+            // A CASE, not MAX(x, 0), AND NOT GREATEST(x, 0) EITHER.
+            //
+            // A two-argument MAX() is SQLite's, and only SQLite's. MySQL and
+            // MariaDB have MAX() as an AGGREGATE that takes exactly one
+            // argument, so this was a syntax error on every production query
+            // that reached it, and the tests could not see it because they run
+            // on SQLite. GREATEST() is the MySQL spelling and is the mirror
+            // image of the same trap: SQLite does not have it.
+            //
+            // CASE is in the SQL standard and behaves identically on both, so
+            // this no longer depends on which database happens to be running.
+            //
+            // The clamp itself matters: an overpaid invoice has a negative
+            // balance, and summed with the rest it would quietly pay off a
+            // sibling's unpaid one and release a result that is not settled.
+            ->selectRaw(
+                'invoices.student_id, SUM(CASE WHEN invoices.amount - COALESCE(paid.paid, 0) > 0'
+                .' THEN invoices.amount - COALESCE(paid.paid, 0) ELSE 0 END) as balance'
+            )
             ->pluck('balance', 'student_id')
             ->map(fn ($balance) => round((float) $balance, 2))
             ->all();
