@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\PlanKey;
 use App\Enums\PortalApp;
+use App\Models\BrandingImage;
 use App\Models\School;
+use App\Models\Setting;
 use App\Support\PortalPwa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Vite;
@@ -51,6 +53,16 @@ class PwaController extends Controller
      * whatever it likes, usually black.
      */
     private const ICON_BACKGROUND = '#FFFFFF';
+
+    /**
+     * How much of the tile an uploaded logo may occupy.
+     *
+     * A maskable icon is cropped by the launcher to whatever shape it likes,
+     * and the shape it is guaranteed not to cut into is a circle of 80% of
+     * the tile. Anything outside that can be shaved off, so an uploaded
+     * wordmark is fitted inside it.
+     */
+    private const ICON_SAFE_ZONE = 0.8;
 
     /**
      * The platform's app-icon artwork, largest first.
@@ -102,11 +114,20 @@ class PwaController extends Controller
      * platform. Two schools' apps are told apart by their NAME under the icon,
      * which is where the school's identity belongs.
      *
-     * The artwork is the purpose-drawn set in public/images, at the exact
-     * pixel sizes a launcher asks for. The Super Admin's uploaded platform
-     * logo is deliberately NOT used: those uploads are wordmarks and lockups
-     * sized for a page header, and one squeezed into a 192px tile comes out
-     * illegible.
+     * The artwork is the AkademicNest logo the Super Admin has uploaded,
+     * whatever it currently is, and the bundled set in public/images only
+     * when nothing has been uploaded. NOT A FIXED FILE, deliberately:
+     * re-uploading the logo has to reach the phones that already installed
+     * the app, and it does, because the URL carries a fingerprint derived
+     * from the stored logo, see PortalPwa::iconFingerprint(). A new logo is
+     * a new fingerprint, a new icon URL in a manifest the browser re-reads
+     * every few minutes, and the launcher replaces the old icon with it.
+     *
+     * An uploaded logo is a wordmark or a lockup drawn for a page header, so
+     * it is CONTAINED inside the tile with the safe-zone margin a maskable
+     * icon needs, never stretched to fill it. The bundled artwork is already
+     * drawn as an app icon, with its own margin, so that one is drawn full
+     * size. See drawIcon().
      */
     public function icon(Request $request, int $size): HttpResponse
     {
@@ -196,22 +217,11 @@ class PwaController extends Controller
         imagefilledrectangle($canvas, 0, 0, $size, $size, imagecolorallocate($canvas, $r, $g, $b));
         imagealphablending($canvas, true);
 
-        $source = $this->platformArtwork();
+        // The uploaded logo first, the bundled app icon only as a fallback.
+        [$source, $contain] = $this->artwork();
 
         if ($source) {
-            imagecopyresampled(
-                $canvas,
-                $source,
-                0,
-                0,
-                0,
-                0,
-                $size,
-                $size,
-                imagesx($source),
-                imagesy($source),
-            );
-
+            $this->drawOnto($canvas, $source, $size, $contain);
             imagedestroy($source);
         }
 
@@ -221,6 +231,89 @@ class PwaController extends Controller
         imagedestroy($canvas);
 
         return $bytes;
+    }
+
+    /**
+     * The artwork to draw, and whether it has to be contained inside the tile.
+     *
+     * @return array{0: ?\GdImage, 1: bool}
+     */
+    private function artwork(): array
+    {
+        $uploaded = $this->uploadedLogo();
+
+        return $uploaded ? [$uploaded, true] : [$this->platformArtwork(), false];
+    }
+
+    /**
+     * The AkademicNest logo as the Super Admin last uploaded it.
+     *
+     * From the database rather than the disk, see BrandingImage: the disk the
+     * upload was written to is not reachable in production and is wiped by
+     * every deploy, so reading it from there would give a correct-looking
+     * icon locally and nothing at all in production.
+     */
+    private function uploadedLogo(): ?\GdImage
+    {
+        $path = Setting::platformLogoPath();
+
+        if (! $path) {
+            return null;
+        }
+
+        $bytes = BrandingImage::contents($path);
+
+        if (! $bytes) {
+            return null;
+        }
+
+        $image = @imagecreatefromstring($bytes);
+
+        return $image ?: null;
+    }
+
+    /**
+     * Draw $source onto $canvas.
+     *
+     * CONTAINED means: scaled to fit whole inside the safe zone and centred,
+     * keeping its aspect ratio. A wordmark is much wider than it is tall, and
+     * stretching one to a square turns the letters into a smear; and a
+     * launcher that crops a maskable icon to a circle takes roughly the outer
+     * tenth off each edge, so the mark has to sit inside that.
+     *
+     * Not contained means the artwork is already an app icon with its own
+     * margin, and insetting it a second time would leave a small mark
+     * floating in a large white square.
+     */
+    private function drawOnto(\GdImage $canvas, \GdImage $source, int $size, bool $contain): void
+    {
+        $sourceWidth = imagesx($source);
+        $sourceHeight = imagesy($source);
+
+        if (! $contain || $sourceWidth < 1 || $sourceHeight < 1) {
+            imagecopyresampled($canvas, $source, 0, 0, 0, 0, $size, $size, $sourceWidth, $sourceHeight);
+
+            return;
+        }
+
+        $safe = (int) round($size * self::ICON_SAFE_ZONE);
+        $scale = min($safe / $sourceWidth, $safe / $sourceHeight);
+
+        $width = max(1, (int) round($sourceWidth * $scale));
+        $height = max(1, (int) round($sourceHeight * $scale));
+
+        imagecopyresampled(
+            $canvas,
+            $source,
+            (int) round(($size - $width) / 2),
+            (int) round(($size - $height) / 2),
+            0,
+            0,
+            $width,
+            $height,
+            $sourceWidth,
+            $sourceHeight,
+        );
     }
 
     /**
