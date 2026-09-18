@@ -38,6 +38,23 @@ class ResultTokenVerifier
     public const GENERIC_FAILURE_MESSAGE = 'Invalid Result Token. The token you entered is invalid or cannot be used to access this result. Please check the token provided by your school and try again.';
 
     /**
+     * The one failure that is NOT kept generic.
+     *
+     * A token that is real, live, and bound to the very pupil the person has
+     * already identified, pointing at an examination whose marks have not been
+     * entered yet, is not an invalid token. Calling it one sent parents back
+     * to the school insisting their token was broken while the school, looking
+     * at a token it had just issued and could see was Active, had nothing to
+     * tell them. Both were right and neither could get past it.
+     *
+     * This leaks nothing the person has not already proved: they named the
+     * pupil at step one and hold that pupil's own token. The generic message
+     * still covers everything else, which is where the secrecy actually
+     * matters, a revoked token, another child's, one that does not exist.
+     */
+    public const RESULT_PENDING_MESSAGE = 'This token is valid, but the result for this pupil has not been published yet. Please try again after your school releases it.';
+
+    /**
      * Attempt to redeem a token.
      *
      * Returns the recorded usage on success, or null on any failure. Either
@@ -51,6 +68,16 @@ class ResultTokenVerifier
      * valid, and refused BEFORE it is counted as used, so that trying somebody
      * else's token cannot spend it.
      */
+    /**
+     * Why the last call to verify() ended as it did.
+     *
+     * Read by the caller to choose what to SAY, which is not the same question
+     * as what to allow: every outcome here refuses access just as it did
+     * before. The verifier is resolved per request, so this never carries an
+     * answer from one attempt into another.
+     */
+    public ?ResultTokenAccessOutcome $lastOutcome = null;
+
     public function verify(
         School $school,
         string $plainToken,
@@ -60,6 +87,7 @@ class ResultTokenVerifier
         ?Model $redeemedBy = null,
     ): ?ResultCheckingPinUsage {
         $hash = ResultCheckingPin::hashToken($plainToken);
+        $this->lastOutcome = null;
 
         return DB::transaction(function () use ($school, $hash, $plainToken, $request, $forStudent, $forExamination, $redeemedBy): ?ResultCheckingPinUsage {
             // Scoped to this school as well as the hash. Without the school
@@ -186,6 +214,10 @@ class ResultTokenVerifier
         Request $request,
         ?string $attemptedHash,
     ): void {
+        // Every outcome passes through here, success and refusal alike, so
+        // this is the one place that has to remember it.
+        $this->lastOutcome = $outcome;
+
         $userAgent = $request->userAgent();
 
         ResultTokenAccessLog::create([
