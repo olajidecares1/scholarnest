@@ -5,7 +5,8 @@ namespace App\Enums;
 use App\Models\School;
 
 /**
- * The four portals, as installable applications.
+ * The school portal, and each of the four role portals, as installable
+ * applications.
  *
  * A school does not have "an app", it has four, one per audience, and they
  * are genuinely different products: a parent's app opens on their children's
@@ -20,6 +21,22 @@ use App\Models\School;
  */
 enum PortalApp: string
 {
+    /**
+     * The school's Portal hub, the page every role's sign-in is reached from.
+     *
+     * THE ONE MOST PEOPLE INSTALL, and the reason it exists here at all: the
+     * install prompt has to appear when somebody arrives at their school's
+     * portal, which is before they have signed in and therefore before the
+     * application knows whether they are a parent, a pupil or a teacher. The
+     * hub is the answer that is right for all of them, and it is still THIS
+     * school's hub, so the installed icon opens their own school and no other.
+     *
+     * Somebody who knows which portal they want still gets that portal's own
+     * app offered on its sign-in page, and installing it is what puts the more
+     * specific icon on the home screen.
+     */
+    case Hub = 'hub';
+
     case Student = 'student';
     case Staff = 'staff';
     case Guardian = 'guardian';
@@ -29,9 +46,12 @@ enum PortalApp: string
      * The guard this portal signs in on. Also the key everything else is
      * derived from, so these cannot drift apart.
      */
-    public function guard(): string
+    public function guard(): ?string
     {
         return match ($this) {
+            // The hub is a public page in front of all four guards, so it
+            // belongs to none of them.
+            self::Hub => null,
             self::Student => 'student',
             self::Staff => 'staff',
             self::Guardian => 'guardian',
@@ -45,6 +65,7 @@ enum PortalApp: string
     public function label(): string
     {
         return match ($this) {
+            self::Hub => 'Portal',
             self::Student => 'Student Portal',
             self::Staff => 'Staff Portal',
             self::Guardian => 'Parent Portal',
@@ -63,6 +84,7 @@ enum PortalApp: string
     public function shortName(): string
     {
         return match ($this) {
+            self::Hub => 'Portal',
             self::Student => 'Student',
             self::Staff => 'Staff',
             self::Guardian => 'Parent',
@@ -88,6 +110,11 @@ enum PortalApp: string
     public function startUrl(School $school): string
     {
         return match ($this) {
+            // The hub itself. Public, so it opens for anybody, and it is the
+            // page each role's own sign-in is reached from, which is what
+            // makes one icon serve a household with a pupil and a parent in
+            // it. Signed in already, the links there go straight through.
+            self::Hub => route('portal.index', $school, absolute: false),
             self::Student => route('student.dashboard', $school, absolute: false),
             self::Staff => route('staff.dashboard', $school, absolute: false),
             self::Guardian => route('guardian.dashboard', $school, absolute: false),
@@ -111,6 +138,9 @@ enum PortalApp: string
     {
         return match ($this) {
             self::Admin => '/',
+            // The hub's parent is /p/{key}/, so following a link from the hub
+            // to a role's sign-in and on into that role's dashboard all stays
+            // inside the installed app rather than bouncing out to a tab.
             default => $this->parentPath($this->startUrl($school)),
         };
     }
