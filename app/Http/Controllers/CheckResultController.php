@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResultTokenAccessOutcome;
 use App\Http\Requests\IdentifyStudentRequest;
 use App\Http\Requests\VerifyResultPinRequest;
 use App\Models\ResultCheckingPinUsage;
@@ -148,12 +149,22 @@ class CheckResultController extends Controller
         if ($usage === null) {
             $request->hit($school);
 
-            // One message for every kind of failure. Saying which check failed
-            // would let someone learn that a token is real but revoked, or that
-            // a student exists but has no published result, each of which is a
-            // fact worth keeping to ourselves.
+            // One message for every kind of failure, with ONE exception.
+            //
+            // Saying which check failed would let someone learn that a token
+            // is real but revoked, or that it belongs to another child, and
+            // each of those is a fact worth keeping to ourselves.
+            //
+            // A result that has not been published yet is not such a fact. To
+            // reach this line with that outcome, the person has already named
+            // the pupil and holds that pupil's own live token, so they are
+            // told what is actually wrong. "Invalid Result Token" here sent
+            // parents back to a school that could see the token was fine, and
+            // left both of them stuck.
             throw ValidationException::withMessages([
-                'code' => ResultTokenVerifier::GENERIC_FAILURE_MESSAGE,
+                'code' => $this->verifier->lastOutcome === ResultTokenAccessOutcome::ResultUnavailable
+                    ? ResultTokenVerifier::RESULT_PENDING_MESSAGE
+                    : ResultTokenVerifier::GENERIC_FAILURE_MESSAGE,
             ]);
         }
 
