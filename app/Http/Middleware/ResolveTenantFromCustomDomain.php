@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Services\Tenancy\TenantResolution;
 use App\Services\Tenancy\TenantResolver;
 use App\Support\CurrentTenant;
+use App\Support\TenantUrl;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
  * The decision itself lives in {@see TenantResolver}; this only acts on it:
  *
  *   resolved       bind the school and carry on
+ *   alias          301 to the school's canonical subdomain
  *   www            301 to the platform
  *   unavailable    a status page (suspended, expired, pending, or Basic)
  *   unknown        404
@@ -42,6 +44,24 @@ class ResolveTenantFromCustomDomain
 
         if ($resolution->status === TenantResolution::PLATFORM_ALIAS) {
             return redirect()->away(rtrim((string) config('app.url'), '/').$request->getRequestUri(), 301);
+        }
+
+        // A real school, reached at its slug or at the hyphenated spelling of
+        // its subdomain. Send it to the one canonical address, keeping the
+        // path and query, so a link printed with the older spelling still
+        // lands on the right page rather than on the school's front door.
+        if ($resolution->status === TenantResolution::ALIAS && $resolution->school) {
+            $canonical = $resolution->school->subdomainHost();
+
+            if ($canonical !== null) {
+                return redirect()->away(
+                    TenantUrl::build($canonical, $request->getPathInfo(), $request->getQueryString()),
+                    // 308 for anything with a body. A 301 tells the browser it
+                    // may repeat the request as a GET, which silently throws
+                    // away a submitted form; 308 keeps the method and the body.
+                    $request->isMethodSafe() ? 301 : 308,
+                );
+            }
         }
 
         if (! $resolution->resolved()) {
