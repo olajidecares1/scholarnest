@@ -373,10 +373,17 @@ describe('readability without blurring the photograph', function () {
     test('the wash survives a navy that is not a six-digit hex', function () {
         // It is a school setting and can be any colour CSS accepts, so
         // appending an alpha suffix would produce nonsense for a named colour.
-        $this->website->update(['brand_secondary_color' => 'midnightblue']);
+        //
+        // "navy" RATHER THAN "midnightblue", and the difference is not
+        // cosmetic. The column is seven characters, sized for "#RRGGBB", so
+        // twelve characters is a value the database cannot hold: on MySQL it
+        // is a truncation error, and only SQLite, which does not enforce
+        // string lengths, let this test write it at all. A test that stores
+        // what production cannot store proves nothing about production.
+        $this->website->update(['brand_secondary_color' => 'navy']);
 
-        expect(brandedPage($this->school))->toContain('color-mix(in srgb, midnightblue 68%, transparent)')
-            ->not->toContain('midnightbluee6');
+        expect(brandedPage($this->school))->toContain('color-mix(in srgb, navy 68%, transparent)')
+            ->not->toContain('navye6');
     });
 });
 
