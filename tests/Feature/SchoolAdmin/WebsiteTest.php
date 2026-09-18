@@ -110,8 +110,16 @@ test('a school admin can publish and unpublish the website', function () {
     expect($this->school->fresh()->website->is_published)->toBeFalse();
 });
 
-test('the public website page 404s when unpublished', function () {
-    $this->get(route('public.school-website', $this->school))->assertNotFound();
+test('the public website page holds the address while it is unpublished', function () {
+    // It used to 404. A school's address is live from the moment it
+    // registers, and the website is built later, so a bare "404 NOT FOUND"
+    // was the first thing most new schools saw at their own address. The
+    // draft is still not served; what is served is the school's own holding
+    // page, with a way into the portal that already works there.
+    $this->get(route('public.school-website', $this->school))
+        ->assertOk()
+        ->assertSee('Website coming soon')
+        ->assertSee($this->school->name);
 });
 
 test('the public website page shows content once published', function () {
@@ -122,12 +130,12 @@ test('the public website page shows content once published', function () {
         ->assertSee($this->school->fresh()->website->hero_title);
 });
 
-test('the public about us page 404s when unpublished', function () {
-    $this->get(route('public.school-about.index', $this->school))->assertNotFound();
-});
-
-test('the public contact us page 404s when unpublished', function () {
-    $this->get(route('public.school-contact.index', $this->school))->assertNotFound();
+test('the marketing pages hold the address too, rather than each 404ing', function () {
+    foreach (['public.school-about.index', 'public.school-contact.index'] as $route) {
+        $this->get(route($route, $this->school))
+            ->assertOk()
+            ->assertSee('Website coming soon');
+    }
 });
 
 test('the public contact us page shows content once published', function () {
