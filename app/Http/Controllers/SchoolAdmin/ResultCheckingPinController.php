@@ -219,41 +219,121 @@ class ResultCheckingPinController extends Controller
 
         $issued = $this->issuer->issueForExamination($school, $examination, $request->user());
 
-        if ($issued->isEmpty()) {
-            // TWO DIFFERENT THINGS, and they were being reported as one.
-            //
-            // Nothing issued means either that everybody already holds a
-            // token, or that the class has nobody in it. A school with an
-            // empty class was told "every student already has a token" while
-            // holding none at all, which is not merely unhelpful, it is
-            // untrue, and it sent them looking for tokens that were never
-            // generated.
-            $roll = $school->students()
-                ->where('is_active', true)
-                ->where('class_name', $examination->class_name)
-                ->count();
+        // NOBODY TO ISSUE TO is a different thing from everybody already
+        // holding one, and they were reported as one. A school with an empty
+        // class was told "every student already has a token" while holding
+        // none at all, which is untrue, and it sent them looking for tokens
+        // that were never generated.
+        $roll = $school->students()
+            ->where('is_active', true)
+            ->where('class_name', $examination->class_name)
+            ->count();
 
-            return back()->with('status', $roll === 0
-                ? "No active students in {$examination->class_name} yet, so there was nobody to issue a token to. Add students to the class first."
-                : "Every student in {$examination->class_name} already has a token for this result.");
+        if ($roll === 0) {
+            return back()->with('status', "No active students in {$examination->class_name} yet, so there was nobody to issue a token to. Add students to the class first.");
         }
 
-        AuditLog::record(
-            'result-token.issued-bulk',
-            "Issued {$issued->count()} result tokens for {$examination->name} ({$examination->term->label()}, {$examination->session}).",
-            $examination,
-        );
+        // The tokens this class already holds, which is what made "every
+        // student already has a token" a dead end: true, and useless. The
+        // plain values are shown once at issue, so an admin who missed that
+        // moment, or who is issuing for a class a colleague did earlier, was
+        // told the work was done and given no way to reach it. Their only
+        // route was to reveal each student's token one at a time, which
+        // nobody does for thirty students.
+        //
+        // They are shown here instead. It grants no new authority: the same
+        // admin can already reveal any one of these on this page, and doing
+        // it in a batch is that same action repeated. It is audited as a
+        // reveal, separately from the issue, so the record still says which
+        // tokens were created and which were merely read.
+        $existing = $this->existingTokensFor($school, $examination, $issued->pluck('token.id')->all());
+
+        if ($issued->isNotEmpty()) {
+            AuditLog::record(
+                'result-token.issued-bulk',
+                "Issued {$issued->count()} result tokens for {$examination->name} ({$examination->term->label()}, {$examination->session}).",
+                $examination,
+            );
+        }
+
+        if ($existing->isNotEmpty()) {
+            AuditLog::record(
+                'result-token.revealed-bulk',
+                "Displayed {$existing->count()} existing result token(s) for {$examination->name} ({$examination->term->label()}, {$examination->session}).",
+                $examination,
+            );
+        }
+
+        $row = fn (Student $student, ?string $plain): array => [
+            'student' => $student->fullName(),
+            'admission_number' => $student->admission_number,
+            'examination' => $examination->name,
+            'term' => $examination->term->label(),
+            'session' => $examination->session,
+            'token' => $plain,
+        ];
+
+        $tokens = $issued
+            ->map(fn (array $issuedRow): array => $row($issuedRow['student'], $issuedRow['plain']))
+            ->concat($existing->map(fn (ResultCheckingPin $pin): array => $row($pin->boundStudent, $pin->plainToken())))
+            ->sortBy('student')
+            ->values()
+            ->all();
 
         return back()
-            ->with('status', "{$issued->count()} result token(s) were issued for {$examination->class_name}.")
-            ->with('issued_tokens', $issued->map(fn (array $row): array => [
-                'student' => $row['student']->fullName(),
-                'admission_number' => $row['student']->admission_number,
-                'examination' => $examination->name,
-                'term' => $examination->term->label(),
-                'session' => $examination->session,
-                'token' => $row['plain'],
-            ])->all());
+            ->with('status', $this->bulkStatus($examination->class_name, $issued->count(), $existing->count()))
+            ->with('issued_tokens', $tokens);
+    }
+
+    /**
+     * What the school is told after a batch, which depends on what happened.
+     *
+     * Three outcomes and three sentences. A single "N tokens were issued" hid
+     * the case that matters most: a class where some students were skipped,
+     * where the count on screen did not match the class the admin had just
+     * chosen and nothing said why.
+     */
+    private function bulkStatus(string $className, int $issued, int $existing): string
+    {
+        if ($issued === 0) {
+            return "Every student in {$className} already had a token for this result. Their tokens are shown below.";
+        }
+
+        if ($existing === 0) {
+            return "{$issued} result token(s) were issued for {$className}.";
+        }
+
+        return "{$issued} result token(s) were issued for {$className}. The other {$existing} student(s) already had one, shown below with them.";
+    }
+
+    /**
+     * The usable tokens this examination's class already holds.
+     *
+     * Active and suspended only, matching what the issuer treats as "already
+     * holding one", so the list shown back is exactly the set that was
+     * skipped. A revoked or expired token is not reissued by showing it, and
+     * would only mislead.
+     *
+     * @param  array<int, int>  $exclude  Tokens created a moment ago, already in hand.
+     * @return Collection<int, ResultCheckingPin>
+     */
+    private function existingTokensFor(School $school, Examination $examination, array $exclude): Collection
+    {
+        $studentIds = $school->students()
+            ->where('is_active', true)
+            ->where('class_name', $examination->class_name)
+            ->pluck('id');
+
+        return ResultCheckingPin::query()
+            ->forSchool($school)
+            ->where('examination_id', $examination->id)
+            ->whereIn('bound_student_id', $studentIds)
+            ->whereIn('status', [ResultCheckingPinStatus::Active, ResultCheckingPinStatus::Suspended])
+            ->whereNotIn('id', $exclude)
+            ->with('boundStudent')
+            ->get()
+            ->filter(fn (ResultCheckingPin $pin): bool => $pin->boundStudent !== null)
+            ->values();
     }
 
     /**
