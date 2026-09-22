@@ -354,7 +354,9 @@ describe('applying', function () {
         expect($application->school_id)->toBe($this->school->id)
             ->and($application->job_posting_id)->toBe($this->job->id)
             ->and($application->status)->toBe(JobApplicationStatus::New)
-            ->and($application->answers)->toBe([['question' => 'Are you TRCN registered?', 'answer' => 'Yes']])
+            // toEqual, not toBe: MySQL's JSON type keeps its own key order, so the
+            // pair comes back answer-first there and question-first on SQLite.
+            ->and($application->answers)->toEqual([['question' => 'Are you TRCN registered?', 'answer' => 'Yes']])
             ->and($application->cv_original_name)->toBe('Ada CV.pdf')
             ->and($application->documents)->toHaveCount(1)
             ->and($application->events)->toHaveCount(1);
