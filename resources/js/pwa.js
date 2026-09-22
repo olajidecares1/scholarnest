@@ -42,6 +42,83 @@ const isSafari = () =>
 const isDesktopSafari = () =>
     isSafari() && !isIos() && /macintosh|mac os x/i.test(window.navigator.userAgent)
 
+const isAndroid = () => /android/i.test(window.navigator.userAgent)
+
+/**
+ * An app's own built-in browser: Facebook, Instagram, Messenger, TikTok,
+ * Snapchat, Telegram, LINE, or a bare Android WebView. This is where most
+ * portal links are opened, because schools share them in WhatsApp groups and
+ * on social media, and none of these can install anything. Chrome or Safari
+ * has to open the page first.
+ */
+const isInAppBrowser = () => {
+    const ua = window.navigator.userAgent
+
+    return (
+        /FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger|musical_ly|TikTok|BytedanceWebview|Snapchat|Telegram|Line\/|WhatsApp/i.test(ua) ||
+        // Android WebView marks itself "; wv)".
+        (isAndroid() && /;\s*wv\)/i.test(ua))
+    )
+}
+
+/**
+ * Whether installing here, on Android, produces a REAL APP: one that is in the
+ * app drawer, in Settings > Apps, and on the home screen.
+ *
+ * THIS IS THE BUG SCHOOLS REPORTED. On Android only two browsers do that:
+ * Google Chrome (it has Google's WebAPK service mint a small APK) and Samsung
+ * Internet. Every other browser, Edge, Opera, Brave, Firefox, Phoenix (the
+ * default on Tecno, Infinix and itel phones), Mi Browser, UC, Vivo, HeyTap
+ * and the rest, only ever adds a HOME-SCREEN SHORTCUT: an icon with the
+ * browser's badge that never appears in the app drawer. Several of them still
+ * fire beforeinstallprompt, so the banner offered "Install", the person said
+ * yes, and what they got was a shortcut. From their side that is an install
+ * that did not work.
+ *
+ * So off Chrome and Samsung Internet the banner no longer offers an install
+ * that cannot deliver an app. It offers to open this same page in Chrome,
+ * where it can.
+ */
+const canInstallRealAndroidApp = () => {
+    const ua = window.navigator.userAgent
+    const brands = (window.navigator.userAgentData?.brands || []).map((b) => b.brand)
+
+    if (/SamsungBrowser/i.test(ua)) {
+        return true
+    }
+
+    if (isInAppBrowser() || window.navigator.brave) {
+        return false
+    }
+
+    // The brand list, where the browser gives one, is the honest answer:
+    // Chrome says "Google Chrome", Edge "Microsoft Edge", Opera "Opera", and
+    // most rebadged Chromium browsers only "Chromium".
+    if (brands.length) {
+        return brands.includes('Google Chrome')
+    }
+
+    return (
+        /Chrome\/\d+/i.test(ua) &&
+        !/EdgA|Edg\/|OPR\/|Opera|OPX|OPT\/|Brave|YaBrowser|UCBrowser|UCWEB|MiuiBrowser|XiaoMi|HuaweiBrowser|HeyTapBrowser|VivoBrowser|OppoBrowser|PHX\/|Phoenix|Silk|DuckDuckGo|Firefox|Version\/\d/i.test(ua)
+    )
+}
+
+/**
+ * A link that opens this exact page in Google Chrome on Android.
+ *
+ * The intent: scheme is how Android hands a URL to one specific app. If Chrome
+ * is not on the phone at all, the fallback takes them to it on Play Store
+ * rather than leaving the tap doing nothing.
+ */
+const chromeIntentUrl = () => {
+    const here = new URL(window.location.href)
+    const fallback = encodeURIComponent('https://play.google.com/store/apps/details?id=com.android.chrome')
+    const scheme = here.protocol.replace(':', '')
+
+    return `intent://${here.host}${here.pathname}${here.search}#Intent;scheme=${scheme};package=com.android.chrome;S.browser_fallback_url=${fallback};end`
+}
+
 /**
  * Whether this browser was told not to ask again.
  *
@@ -90,7 +167,7 @@ function registerServiceWorker(url) {
  * The banner. Built here rather than in Blade so it can be shown from the
  * event, which arrives long after the page has rendered.
  */
-function buildBanner({ title, body, actionLabel, onAction, onDismiss }) {
+function buildBanner({ title, body, actionLabel, actionHref = null, onAction, onDismiss, dismissLabel = null }) {
     const wrap = document.createElement('div')
     wrap.className = 'pwa-install-banner'
     wrap.setAttribute('role', 'dialog')
@@ -112,7 +189,16 @@ function buildBanner({ title, body, actionLabel, onAction, onDismiss }) {
     const actions = document.createElement('div')
     actions.className = 'pwa-install-banner__actions'
 
-    if (onAction) {
+    if (actionHref) {
+        // A real link rather than a scripted navigation: an in-app browser
+        // is far more willing to hand an intent: link it can see to Android.
+        const open = document.createElement('a')
+        open.className = 'pwa-install-banner__install'
+        open.href = actionHref
+        open.rel = 'noopener'
+        open.textContent = actionLabel
+        actions.append(open)
+    } else if (onAction) {
         const install = document.createElement('button')
         install.type = 'button'
         install.className = 'pwa-install-banner__install'
@@ -125,7 +211,7 @@ function buildBanner({ title, body, actionLabel, onAction, onDismiss }) {
     dismiss.type = 'button'
     dismiss.className = 'pwa-install-banner__dismiss'
     dismiss.setAttribute('aria-label', 'Not now')
-    dismiss.textContent = onAction ? 'Not now' : 'Got it'
+    dismiss.textContent = dismissLabel || (onAction || actionHref ? 'Not now' : 'Got it')
     dismiss.addEventListener('click', () => {
         onDismiss()
         wrap.remove()
@@ -149,6 +235,15 @@ function offerInstall(settings, event) {
         return
     }
 
+    // An Android browser that would only make a shortcut: send them to
+    // Chrome instead of letting its install produce something that is not
+    // in the app drawer. See canInstallRealAndroidApp().
+    if (isAndroid() && !canInstallRealAndroidApp()) {
+        offerChrome(settings)
+
+        return
+    }
+
     buildBanner({
         title: `Install ${settings.school}`,
         body: `Add the ${settings.portalLabel} to your home screen. It opens straight to your school.`,
@@ -168,6 +263,47 @@ function offerInstall(settings, event) {
         },
         onDismiss: () => remember(settings.dismissKey),
     })
+}
+
+/**
+ * On Android, off Chrome: open this page in Chrome, where installing gives a
+ * real app. Nothing is remembered as dismissed when they take the link,
+ * because the point is for Chrome to offer the install next.
+ */
+function offerChrome(settings) {
+    if (settled(settings) || document.querySelector('.pwa-install-banner')) {
+        return
+    }
+
+    buildBanner({
+        title: `Install ${settings.school}`,
+        body: isInAppBrowser()
+            ? `This app's browser can't install the ${settings.portalLabel}. Open it in Chrome, then tap Install, and it will appear with your other apps.`
+            : `This browser only adds a shortcut. Open in Chrome and tap Install to get the ${settings.portalLabel} as an app in your app drawer.`,
+        actionLabel: 'Open in Chrome',
+        actionHref: chromeIntentUrl(),
+        onDismiss: () => remember(settings.dismissKey),
+    })
+}
+
+/**
+ * Tell them where the app went. On Android the new icon lands in the app
+ * drawer and, depending on the launcher, not always on the home screen, so
+ * somebody who looks only at the home screen can believe nothing happened.
+ */
+function confirmInstalled(settings) {
+    document.querySelector('.pwa-install-banner')?.remove()
+
+    const banner = buildBanner({
+        title: `${settings.name} is installed`,
+        body: 'Find it with your other apps in the app drawer. It opens straight to your school.',
+        actionLabel: null,
+        onAction: null,
+        onDismiss: () => {},
+        dismissLabel: 'OK',
+    })
+
+    window.setTimeout(() => banner.remove(), 12000)
 }
 
 /**
@@ -234,11 +370,43 @@ export default function initPortalInstall() {
     // ---------------------------------------------------------------
     // iPhone and iPad, where there is no event and no button that can work
     // ---------------------------------------------------------------
-    if (isIos() && isSafari()) {
-        explainInstall(
-            settings,
-            `Tap Share, then "Add to Home Screen", to open the ${settings.portalLabel} straight from your device.`,
-        )
+    //
+    // Every browser on iOS 16.4 and later can add a web app to the Home
+    // Screen, not only Safari, so Chrome, Edge and Firefox users are told too;
+    // before, they saw nothing at all. The in-app browsers inside Facebook,
+    // Instagram, TikTok and the like cannot, and are sent to Safari.
+    //
+    // "Open as Web App" is spelled out because iOS 26 shows it as a switch on
+    // the Add to Home Screen sheet, and with it off the icon is a bookmark
+    // that opens a Safari tab, not an app.
+    if (isIos()) {
+        if (isInAppBrowser()) {
+            explainInstall(
+                settings,
+                `Open this page in Safari first (tap ••• or the compass icon, then "Open in Safari"). Then tap Share, "Add to Home Screen", and keep "Open as Web App" on.`,
+            )
+        } else if (isSafari()) {
+            explainInstall(
+                settings,
+                `Tap Share (on newer iPhones it's under •••), then "Add to Home Screen", keep "Open as Web App" on, and tap Add. The ${settings.portalLabel} then opens from your Home Screen like an app.`,
+            )
+        } else {
+            explainInstall(
+                settings,
+                `Tap the Share icon in the address bar (or ••• then Share), then "Add to Home Screen" and Add. The ${settings.portalLabel} then opens from your Home Screen like an app.`,
+            )
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Android browsers that cannot make a real app, where no event may
+    // ever arrive: in-app browsers, and most non-Chrome browsers
+    // ---------------------------------------------------------------
+    //
+    // Late, like explainInstall(), so that where a browser DOES fire the
+    // event, offerInstall() gets there first and routes it the same way.
+    if (isAndroid() && !canInstallRealAndroidApp()) {
+        window.setTimeout(() => offerChrome(settings), 2500)
     }
 
     // ---------------------------------------------------------------
@@ -256,5 +424,9 @@ export default function initPortalInstall() {
         remember(settings.dismissKey)
         window.AkademicNestPwaPrompt = null
         document.querySelector('.pwa-install-banner')?.remove()
+
+        if (isAndroid()) {
+            confirmInstalled(settings)
+        }
     })
 }
