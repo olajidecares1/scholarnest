@@ -25,6 +25,13 @@ class AttendanceRecord extends Model
         'class_name',
         'date',
         'status',
+
+        // Set by a QR scan at the gate, left null by a register marked by
+        // hand. See App\Services\Attendance\CheckInService.
+        'arrived_at',
+        'departed_at',
+        'source',
+
         'marked_by',
         'marked_by_staff_id',
         'notes',
@@ -39,6 +46,8 @@ class AttendanceRecord extends Model
     {
         return [
             'date' => 'date:Y-m-d',
+            'arrived_at' => 'datetime',
+            'departed_at' => 'datetime',
             'status' => AttendanceStatus::class,
         ];
     }

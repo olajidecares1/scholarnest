@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AttendanceMode;
 use App\Enums\PlanFeature;
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
@@ -64,6 +65,17 @@ class School extends Model
         'is_active',
         'deactivated_at',
         'automatic_grading',
+
+        // QR check-in: the poster's secret, where the school is, and how far
+        // from it a scan still counts. See the add_qr_check_in_attendance
+        // migration for why the coordinates are not optional.
+        'check_in_enabled',
+        'student_attendance_mode',
+        'check_in_token',
+        'latitude',
+        'longitude',
+        'check_in_radius_metres',
+
         'school_code',
         'result_link_slug',
         'result_link_enabled',
@@ -87,6 +99,9 @@ class School extends Model
     protected $attributes = [
         'is_active' => true,
         'automatic_grading' => true,
+        'check_in_enabled' => false,
+        'student_attendance_mode' => 'manual',
+        'check_in_radius_metres' => 150,
         'auto_generate_admission_numbers' => false,
         'next_admission_sequence' => 1,
         'auto_generate_staff_ids' => false,
@@ -253,6 +268,11 @@ class School extends Model
             'auto_generate_staff_ids' => 'boolean',
             'result_link_enabled' => 'boolean',
             'registration_reminder_sent_at' => 'datetime',
+            'check_in_enabled' => 'boolean',
+            'student_attendance_mode' => AttendanceMode::class,
+            'latitude' => 'float',
+            'longitude' => 'float',
+            'check_in_radius_metres' => 'integer',
         ];
     }
 
@@ -903,6 +923,22 @@ class School extends Model
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);
+    }
+
+    /**
+     * @return HasMany<StaffAttendanceRecord, $this>
+     */
+    public function staffAttendanceRecords(): HasMany
+    {
+        return $this->hasMany(StaffAttendanceRecord::class);
+    }
+
+    /**
+     * @return HasMany<AttendanceScan, $this>
+     */
+    public function attendanceScans(): HasMany
+    {
+        return $this->hasMany(AttendanceScan::class);
     }
 
     /**

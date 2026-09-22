@@ -5,10 +5,7 @@
 <x-dashboard-layout page-title="Attendance History" page-subtitle="Browse past attendance records.">
     <div class="space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex gap-2 rounded-[8px] border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
-                <a href="{{ route('attendance.index') }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Take Attendance</a>
-                <span class="rounded-[6px] bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white">History</span>
-            </div>
+            @include('school-admin.attendance._tabs', ['current' => 'history'])
         </div>
 
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
@@ -46,6 +43,8 @@
                             <th class="px-6 py-3 font-semibold">Student</th>
                             <th class="px-6 py-3 font-semibold">Class</th>
                             <th class="px-6 py-3 font-semibold">Status</th>
+                            <th class="px-6 py-3 font-semibold">Arrived</th>
+                            <th class="px-6 py-3 font-semibold">Left</th>
                             <th class="px-6 py-3 font-semibold">Marked By</th>
                         </tr>
                     </thead>
@@ -58,11 +57,14 @@
                                 <td class="px-6 py-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $record->status->badgeClasses() }}">{{ $record->status->label() }}</span>
                                 </td>
-                                <td class="px-6 py-3 text-gray-500 dark:text-gray-400">{{ $record->markedBy?->name ?? 'N/A' }}</td>
+                                {{-- Filled in by a QR scan at the gate; a dash on a register marked by hand. --}}
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $record->arrived_at?->format('g:i:sa') ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $record->departed_at?->format('g:i:sa') ?? '—' }}</td>
+                                <td class="px-6 py-3 text-gray-500 dark:text-gray-400">{{ $record->markedBy?->name ?? ($record->source === 'qr' ? 'QR check-in' : 'N/A') }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No attendance records match your filters.</td>
+                                <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No attendance records match your filters.</td>
                             </tr>
                         @endforelse
                     </tbody>

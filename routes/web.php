@@ -34,6 +34,10 @@ require __DIR__.'/pwa.php';
 require __DIR__.'/branding.php';
 require __DIR__.'/session.php';
 
+// The QR poster's own route, which belongs to no single portal: pupils and
+// staff scan the same piece of paper and sign in on different guards.
+require __DIR__.'/check-in.php';
+
 require __DIR__.'/student.php';
 require __DIR__.'/guardian.php';
 require __DIR__.'/staff.php';

@@ -5,6 +5,7 @@ use App\Http\Controllers\SchoolAdmin\AssignmentController;
 use App\Http\Controllers\SchoolAdmin\AttendanceController;
 use App\Http\Controllers\SchoolAdmin\CbtPracticeController;
 use App\Http\Controllers\SchoolAdmin\CbtTestController as CbtTestOversightController;
+use App\Http\Controllers\SchoolAdmin\CheckInController as SchoolCheckInController;
 use App\Http\Controllers\SchoolAdmin\ClassSubjectController;
 use App\Http\Controllers\SchoolAdmin\CoCurricularController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
@@ -199,6 +200,18 @@ Route::name('attendance.')->group(function () {
     Route::get(R::uri('attendance.index'), [AttendanceController::class, 'index'])->name('index');
     Route::post(R::uri('attendance.index'), [AttendanceController::class, 'store'])->name('store');
     Route::get(R::uri('attendance.history'), [AttendanceController::class, 'history'])->name('history');
+
+    // QR check-in: the setting, the poster, and the staff register the poster
+    // fills in. Under attendance because that is what it is, a second way of
+    // taking the same register, not a separate module.
+    Route::name('check-in.')->group(function () {
+        Route::get(R::uri('attendance.check-in'), [SchoolCheckInController::class, 'edit'])->name('edit');
+        Route::put(R::uri('attendance.check-in'), [SchoolCheckInController::class, 'update'])->name('update');
+        Route::post(R::uri('attendance.check-in.rotate'), [SchoolCheckInController::class, 'rotate'])->name('rotate');
+        Route::get(R::uri('attendance.check-in.poster'), [SchoolCheckInController::class, 'poster'])->name('poster');
+    });
+
+    Route::get(R::uri('attendance.staff'), [SchoolCheckInController::class, 'staff'])->name('staff');
 });
 Route::name('examinations.')->group(function () {
     Route::get(R::uri('examinations.index'), [ExaminationController::class, 'index'])->name('index');
