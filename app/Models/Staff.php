@@ -94,6 +94,17 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
     }
 
     /**
+     * This member of staff's own register: when they arrived and when they
+     * left, one row per day. See App\Models\StaffAttendanceRecord.
+     *
+     * @return HasMany<StaffAttendanceRecord, $this>
+     */
+    public function attendanceRecords(): HasMany
+    {
+        return $this->hasMany(StaffAttendanceRecord::class);
+    }
+
+    /**
      * @return BelongsTo<School, $this>
      */
     public function school(): BelongsTo
