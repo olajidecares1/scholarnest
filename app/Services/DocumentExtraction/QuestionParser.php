@@ -41,9 +41,27 @@ class QuestionParser
     private const OPTION_PATTERN = '/^\s*\(?\s*([A-Ha-h])\s*[\)\.\:\-–]\s*(.*)$/u';
 
     /**
-     * The answer key: "Answer: B", "Correct Answer, C", "Ans: (D)", "Key: A".
+     * The words that open an answer line, in every wording the papers use:
+     * "Answer", "Ans", "Correct Answer", "Correct option", "Key", "The
+     * correct answer is", "Answer is". What follows them is read by
+     * answerLabel(), which is where "Option B", "B. 5" and "(B) 5" are
+     * accepted and "Answer all questions" is not.
      */
-    private const ANSWER_PATTERN = '/^[\s\p{S}\p{P}]*(?:Correct\s+)?(?:Answer|Ans|Key|Correct|Solution)\s*(?:Answer)?\s*[\:\-–\.\)]?\s*\(?\s*([A-Ha-h])\s*\)?\s*\.?\s*$/iu';
+    private const ANSWER_LEAD = '(?:the\s+)?(?:correct\s+)?(?:answer|ans|key|correct|solution)(?:\s+(?:option|answer))?(?:\s+is)?';
+
+    /**
+     * A question number printed on a line of its own, its wording on the
+     * next: "Question 1", "Question 1:", "Q1.", "1.", or "Question 1 (JAMB
+     * 2010)". The bracket, when there is one, is kept so the year in it is
+     * read.
+     */
+    private const QUESTION_ALONE_PATTERN = '/^\s*(?:Q(?:uestion)?\s*\.?\s*(\d{1,3})\s*[\.\)\:\-–]?|(\d{1,3})\s*[\.\)])\s*([\(\[][^\)\]]{1,40}[\)\]])?\s*$/iu';
+
+    /**
+     * The examinations a question may be tagged with: "(JAMB 2010)",
+     * "[UTME 2011]", "(WAEC/2014)".
+     */
+    private const EXAM_TAG = '(?:JAMB|UTME|UME|WAEC|WASSCE|SSCE|NECO|GCE|BECE|NABTEB|POST[\s\-]?UTME)';
 
     /**
      * An explanation following the answer, which some papers print.
@@ -299,8 +317,8 @@ class QuestionParser
             // read as an option labelled A. A passage heading printed between
             // a question and its answer does not change which question the
             // answer is for.
-            if ($this->current !== null && preg_match(self::ANSWER_PATTERN, $line, $m)) {
-                $this->current['correct_label'] = strtoupper($m[1]);
+            if ($this->current !== null && ($label = $this->answerLabel($line)) !== null) {
+                $this->current['correct_label'] = $label;
 
                 if ($this->context !== 'block') {
                     $this->context = null;
@@ -329,6 +347,16 @@ class QuestionParser
             if (preg_match(self::QUESTION_PATTERN, $line, $m)) {
                 $this->closeQuestion();
                 $this->openQuestion((int) $m[1], trim($m[2]));
+
+                continue;
+            }
+
+            // "Question 1" on a line of its own, the wording on the next line.
+            // Before this, a paper laid out that way produced no questions at
+            // all: every line was read as preamble.
+            if ($this->context !== 'block' && preg_match(self::QUESTION_ALONE_PATTERN, $line, $m)) {
+                $this->closeQuestion();
+                $this->openQuestion((int) ($m[1] !== '' ? $m[1] : $m[2]), trim($m[3] ?? ''));
 
                 continue;
             }
@@ -1136,6 +1164,12 @@ class QuestionParser
             $text = trim((string) preg_replace(self::MARKS_PATTERN, '', $text));
         }
 
+        // A question tagged with the paper it came from, "(JAMB 2010)", is
+        // filed under that year, whatever heading it sits under. The tag is
+        // taken out of the wording: it tells a student the answer's source,
+        // not anything they are being asked.
+        [$text, $taggedYear] = $this->takeYearTag($text);
+
         $mentionsDiagram = (bool) preg_match(self::DIAGRAM_PATTERN, $text);
 
         return [
@@ -1158,8 +1192,69 @@ class QuestionParser
 
             // Which paper this question came from, when the document is a
             // multi-year compilation. Null for an ordinary single paper.
-            'year' => $year,
+            'year' => $taggedYear ?? $year,
         ];
+    }
+
+    /**
+     * The letter an answer line gives, or null when the line is not one.
+     *
+     * Accepts "Answer: B", "Ans. (B)", "Correct Answer: Option B", "The
+     * correct answer is B", "Correct option: (B) 5", "Answer: B. 5", "Answer:
+     * B (5)". The letter must stand alone, or be followed by the separator an
+     * option label has, so "Answer all questions" and "Solution: A car
+     * travels..." are not read as answers.
+     */
+    private function answerLabel(string $line): ?string
+    {
+        $pattern = '/^[\s\p{S}\p{P}]*'.self::ANSWER_LEAD.'\s*[\:\-–\.\)]?\s*(?:option\s*)?(\()?\s*([A-Ha-h])\s*(\))?(.*)$/iu';
+
+        if (! preg_match($pattern, $line, $m)) {
+            return null;
+        }
+
+        $rest = trim($m[4]);
+
+        if ($rest === '' || preg_match('/^[\.\:]$/u', $rest) || $m[3] !== '' || preg_match('/^(?:[\.\:\-–,]\s*\S|\()/u', $rest)) {
+            return strtoupper($m[2]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Take a year tag off the start or end of a question's wording.
+     *
+     * @return array{0: string, 1: ?int}
+     */
+    private function takeYearTag(string $text): array
+    {
+        $year = '((?:19|20)\d{2})';
+        $tag = self::EXAM_TAG;
+        $inside = '\s*(?:'.$tag.'[\s\/,\-]*)?'.$year.'(?:\s*[\/,\-]?\s*'.$tag.')?\s*';
+
+        $patterns = [
+            '/\s*[\(\[]'.$inside.'[\)\]]\s*$/iu',
+            '/^\s*[\(\[]'.$inside.'[\)\]]\s*/iu',
+            '/\s*[\-–—|]?\s*'.$tag.'\s*'.$year.'\s*$/iu',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $text, $m, PREG_OFFSET_CAPTURE)) {
+                $found = (int) $m[1][0];
+
+                if ($found < 1960 || $found > (int) date('Y') + 1) {
+                    continue;
+                }
+
+                $remaining = trim(substr_replace($text, ' ', $m[0][1], strlen($m[0][0])));
+
+                // A question that is nothing but its tag keeps its wording.
+                return $remaining === '' ? [$text, $found] : [$remaining, $found];
+            }
+        }
+
+        return [$text, null];
     }
 
     /**
@@ -1170,21 +1265,48 @@ class QuestionParser
      */
     private function takeInlineAnswer(array &$current): void
     {
-        $pattern = '/\s*[✓✔•→\-\*]*\s*(?:Correct\s+)?(?:Answer|Ans)\s*[\:\-–\.]?\s*\(?\s*([A-Ha-h])\s*\)?\s*\.?\s*$/u';
-
         $last = count($current['options']) - 1;
 
-        if ($last >= 0 && preg_match($pattern, $current['options'][$last]['text'], $m, PREG_OFFSET_CAPTURE) && $m[0][1] > 0) {
-            $current['correct_label'] ??= strtoupper($m[1][0]);
-            $current['options'][$last]['text'] = trim(substr($current['options'][$last]['text'], 0, $m[0][1]));
+        if ($last >= 0 && ($cut = $this->inlineAnswerAt($current['options'][$last]['text'])) !== null) {
+            $current['correct_label'] ??= $cut[1];
+            $current['options'][$last]['text'] = $cut[0];
 
             return;
         }
 
-        if (preg_match($pattern, (string) $current['question_text'], $m, PREG_OFFSET_CAPTURE) && $m[0][1] > 0) {
-            $current['correct_label'] ??= strtoupper($m[1][0]);
-            $current['question_text'] = trim(substr((string) $current['question_text'], 0, $m[0][1]));
+        if (($cut = $this->inlineAnswerAt((string) $current['question_text'])) !== null) {
+            $current['correct_label'] ??= $cut[1];
+            $current['question_text'] = $cut[0];
         }
+    }
+
+    /**
+     * An answer welded to the end of a line, "D. 7 Correct Answer: Option B",
+     * split off it: the text before, and the letter. Null when the end of the
+     * line is not an answer, so the text is left exactly as it was.
+     *
+     * @return array{0: string, 1: string}|null
+     */
+    private function inlineAnswerAt(string $text): ?array
+    {
+        if (! preg_match_all('/(?:^|[\s✓✔•→\*])(?='.self::ANSWER_LEAD.'\b)/iu', $text, $matches, PREG_OFFSET_CAPTURE)) {
+            return null;
+        }
+
+        foreach ($matches[0] as [$match, $offset]) {
+            if ($offset === 0) {
+                continue;
+            }
+
+            $label = $this->answerLabel(substr($text, $offset));
+            $before = rtrim(substr($text, 0, $offset), " \t✓✔•→*-–");
+
+            if ($label !== null && trim($before) !== '') {
+                return [trim($before), $label];
+            }
+        }
+
+        return null;
     }
 
     /**
