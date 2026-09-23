@@ -119,6 +119,21 @@ describe('the manifest is what makes an installed app a school', function () {
         expect($icons->pluck('sizes')->unique()->values()->all())->toBe(['192x192', '512x512'])
             ->and($icons->pluck('purpose')->unique()->values()->all())->toBe(['any', 'maskable']);
     });
+
+    test('it names itself as a related app, so the page can tell a real install from a shortcut', function () {
+        $school = pwaSchool();
+        $url = route('pwa.manifest', ['school' => $school, 'portal' => 'guardian']);
+
+        $manifest = $this->get($url)->json();
+
+        // getInstalledRelatedApps() only answers for an entry that points at
+        // the manifest itself, and relative so it holds on every host.
+        expect($manifest['related_applications'])->toBe([
+            ['platform' => 'webapp', 'url' => route('pwa.manifest', ['school' => $school, 'portal' => 'guardian'], absolute: false)],
+        ])
+            ->and($manifest['related_applications'][0]['url'])->toStartWith('/')
+            ->and($manifest['prefer_related_applications'])->toBeFalse();
+    });
 });
 
 describe('what a school is not offered', function () {
