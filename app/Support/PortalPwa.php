@@ -65,6 +65,18 @@ final class PortalPwa
             'dir' => 'ltr',
             'categories' => ['education'],
             'icons' => $this->icons(),
+            // Points at THIS manifest, which is what lets the page ask Android
+            // "is this app already installed?" through getInstalledRelatedApps().
+            // Chrome only answers yes for a real installed app (a WebAPK), never
+            // for a home-screen shortcut, so resources/js/pwa.js can stop
+            // offering an install to somebody who already has the app, and keep
+            // offering it to somebody who only ever got a shortcut. Relative,
+            // like every other path here, and resolved against this manifest.
+            'related_applications' => [
+                ['platform' => 'webapp', 'url' => $this->manifestUrl()],
+            ],
+            // Never send anybody to a store instead: the web app IS the app.
+            'prefer_related_applications' => false,
         ];
     }
 
