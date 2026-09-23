@@ -59,6 +59,11 @@ class ProcessCbtDocumentUpload implements ShouldQueue
         return [10, 60];
     }
 
+    /**
+     * Set when some questions had to be filed under the year of upload.
+     */
+    private ?string $undatedWarning = null;
+
     public function __construct(public CbtDocumentUpload $upload) {}
 
     public function handle(QuestionExtractionProvider $extractor, CbtDocumentImportService $importer): void
@@ -83,6 +88,7 @@ class ProcessCbtDocumentUpload implements ShouldQueue
                 'ai_response' => $payload,
                 'detected_years' => collect($payload['years'])->pluck('year')->unique()->values()->all(),
                 'warnings' => array_values(array_filter([
+                    $this->undatedWarning,
                     $result->looksScanned ? 'Parts of this document are scanned images with no selectable text, so they could not be read. Upload a typed (Word or text-based PDF) copy for those pages.' : null,
                     ...$result->warnings,
                 ])),
@@ -135,7 +141,7 @@ class ProcessCbtDocumentUpload implements ShouldQueue
      */
     private function groupByYear(ExtractionResult $result): array
     {
-        $fallbackYear = (int) ($this->upload->created_at?->year ?? now()->year);
+        $fallbackYear = $this->fallbackYear($result);
 
         // One group per year and subject, in the order the years run. The
         // subject is the one the year's heading printed ("UTME 2010 USE OF
@@ -162,6 +168,57 @@ class ProcessCbtDocumentUpload implements ShouldQueue
             'subject' => (string) ($this->upload->subject?->name ?? $detectedSubject ?? ''),
             'years' => $grouped,
         ];
+    }
+
+    /**
+     * The year for questions the document never dates.
+     *
+     * In order: the year the uploader typed; the one year the file name
+     * names ("JAMB Mathematics 2015.pdf"); the one year the document's
+     * opening lines name. Only when none of those exists is it the year of
+     * upload, and the upload then says so, because "2026" on a 2015 paper
+     * is exactly the misfiling the reviewer has to catch.
+     */
+    private function fallbackYear(ExtractionResult $result): int
+    {
+        if ($this->upload->year) {
+            return (int) $this->upload->year;
+        }
+
+        foreach ([(string) $this->upload->original_filename, (string) $result->instructions] as $source) {
+            $years = self::yearsIn($source);
+
+            if (count($years) === 1) {
+                return $years[0];
+            }
+        }
+
+        $undated = collect($result->questions)->contains(fn (array $question) => empty($question['year']));
+        $year = (int) ($this->upload->created_at?->year ?? now()->year);
+
+        if ($undated) {
+            $this->undatedWarning = "Some questions carry no examination year in the document, so they were filed under {$year}. "
+                .'If that is wrong, upload the document again with its Examination Year filled in.';
+        }
+
+        return $year;
+    }
+
+    /**
+     * The distinct plausible examination years a piece of text names.
+     *
+     * @return list<int>
+     */
+    private static function yearsIn(string $text): array
+    {
+        preg_match_all('/(?<!\d)((?:19|20)\d{2})(?!\d)/', $text, $m);
+
+        return collect($m[1])
+            ->map(fn ($year) => (int) $year)
+            ->filter(fn (int $year) => $year >= 1960 && $year <= now()->year + 1)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**
