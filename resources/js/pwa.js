@@ -228,9 +228,40 @@ function buildBanner({ title, body, actionLabel, actionHref = null, onAction, on
 const settled = (settings) => isStandalone() || wasDismissed(settings.dismissKey)
 
 /**
+ * Whether this portal is already on the phone as a REAL app.
+ *
+ * The manifest names itself in related_applications, and Chrome on Android
+ * answers getInstalledRelatedApps() with it only when a WebAPK is installed,
+ * never for a home-screen shortcut. So a yes here means "in the app drawer",
+ * and a no means there is still something worth offering. Browsers without
+ * the API say nothing, which is read as "not known to be installed".
+ */
+async function isInstalledAsApp() {
+    try {
+        if (typeof window.navigator.getInstalledRelatedApps !== 'function') {
+            return false
+        }
+
+        const apps = await window.navigator.getInstalledRelatedApps()
+
+        return Array.isArray(apps) && apps.some((app) => app.platform === 'webapp')
+    } catch (e) {
+        return false
+    }
+}
+
+/** The banner currently on screen, if it is only an explanation. */
+const hintBanner = () => document.querySelector('.pwa-install-banner[data-pwa-hint]')
+
+/**
  * The one-tap offer, on the browsers that give us an event to fire.
  */
 function offerInstall(settings, event) {
+    // The event can arrive late on a slow connection, after the "use the
+    // menu" hint below has already gone up. A real Install button beats an
+    // explanation, so the hint gives way to it.
+    hintBanner()?.remove()
+
     if (settled(settings) || document.querySelector('.pwa-install-banner')) {
         return
     }
@@ -296,7 +327,7 @@ function confirmInstalled(settings) {
 
     const banner = buildBanner({
         title: `${settings.name} is installed`,
-        body: 'Find it with your other apps in the app drawer. It opens straight to your school.',
+        body: 'Find it with your other apps in the app drawer (swipe up from the home screen). It opens straight to your school.',
         actionLabel: null,
         onAction: null,
         onDismiss: () => {},
@@ -312,20 +343,34 @@ function confirmInstalled(settings) {
  * Late, so it does not land on top of a page still arriving, and so it never
  * competes with the sign-in form for a first-time visitor's attention.
  */
-function explainInstall(settings, body) {
-    window.setTimeout(() => {
+function explainInstall(settings, body, { delay = 2500, hint = false, unlessInstalled = false } = {}) {
+    window.setTimeout(async () => {
         if (settled(settings) || document.querySelector('.pwa-install-banner')) {
             return
         }
 
-        buildBanner({
+        // Asked only where it matters, because the answer takes a moment.
+        if (unlessInstalled && (await isInstalledAsApp())) {
+            return
+        }
+
+        // Checked again: the install event may have come in while we asked.
+        if (settled(settings) || document.querySelector('.pwa-install-banner')) {
+            return
+        }
+
+        const banner = buildBanner({
             title: `Install ${settings.school}`,
             body,
             actionLabel: null,
             onAction: null,
             onDismiss: () => remember(settings.dismissKey),
         })
-    }, 2500)
+
+        if (hint) {
+            banner.setAttribute('data-pwa-hint', '')
+        }
+    }, delay)
 }
 
 export default function initPortalInstall() {
@@ -388,12 +433,12 @@ export default function initPortalInstall() {
         } else if (isSafari()) {
             explainInstall(
                 settings,
-                `Tap Share (on newer iPhones it's under •••), then "Add to Home Screen", keep "Open as Web App" on, and tap Add. The ${settings.portalLabel} then opens from your Home Screen like an app.`,
+                `Tap Share (on newer iPhones it's under •••), then "Add to Home Screen", keep "Open as Web App" on, and tap Add. The icon goes on your Home Screen (iPhone never lists web apps in the App Library), on the last page if the others are full.`,
             )
         } else {
             explainInstall(
                 settings,
-                `Tap the Share icon in the address bar (or ••• then Share), then "Add to Home Screen" and Add. The ${settings.portalLabel} then opens from your Home Screen like an app.`,
+                `Tap the Share icon in the address bar (or ••• then Share), then "Add to Home Screen", keep "Open as Web App" on, and tap Add. The icon goes on your Home Screen (iPhone never lists web apps in the App Library).`,
             )
         }
     }
@@ -410,6 +455,30 @@ export default function initPortalInstall() {
     }
 
     // ---------------------------------------------------------------
+    // Chrome and Samsung Internet on Android, when no event arrives
+    // ---------------------------------------------------------------
+    //
+    // These CAN make a real app, but the event does not always come: the
+    // page was opened in a Chrome Custom Tab inside Gmail, Telegram or
+    // another app (which looks exactly like Chrome and cannot install), the
+    // browser is still deciding, or the connection was too slow for the
+    // service worker to be ready. Before, those people saw nothing at all.
+    //
+    // So after a generous wait, and only if Android does not already report
+    // the app as installed, the menu route is spelled out, "Install app"
+    // being the entry that makes a real app rather than a shortcut. If the
+    // event turns up after all, offerInstall() replaces this with a button.
+    if (isAndroid() && canInstallRealAndroidApp()) {
+        explainInstall(
+            settings,
+            /SamsungBrowser/i.test(window.navigator.userAgent)
+                ? `Tap the menu (≡), then "Add page to", then "Home screen". The ${settings.portalLabel} then appears with your other apps.`
+                : `Tap ⋮ (top right), then "Install app" (or "Add to home screen", then Install, not "Create shortcut"). If you opened this from another app, tap ⋮ then "Open in Chrome" first.`,
+            { delay: 10000, hint: true, unlessInstalled: true },
+        )
+    }
+
+    // ---------------------------------------------------------------
     // Safari on a Mac, which installs through the File menu
     // ---------------------------------------------------------------
     if (isDesktopSafari()) {
@@ -421,9 +490,20 @@ export default function initPortalInstall() {
 
     // Nothing to keep offering once it is done.
     window.addEventListener('appinstalled', () => {
-        remember(settings.dismissKey)
         window.AkademicNestPwaPrompt = null
         document.querySelector('.pwa-install-banner')?.remove()
+
+        // A browser that only makes shortcuts still fires this when somebody
+        // uses its own menu to "install". What they got is a shortcut, not an
+        // app, so the honest thing is to say so and point them at Chrome, and
+        // NOT to remember a dismissal, so the offer is still here next time.
+        if (isAndroid() && !canInstallRealAndroidApp()) {
+            offerChrome(settings)
+
+            return
+        }
+
+        remember(settings.dismissKey)
 
         if (isAndroid()) {
             confirmInstalled(settings)
