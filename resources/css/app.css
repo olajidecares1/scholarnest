@@ -1760,7 +1760,11 @@
     .pwa-install-banner { animation: none; }
 }
 
-.pwa-install-banner__text { min-width: 0; flex: 1; }
+/* Wraps: with two wide buttons ("Open in Chrome", "Not now") on a phone the
+   text would otherwise be squeezed to a one-word column. Below ~200px of
+   room the actions drop under the text instead, aligned to the right. */
+.pwa-install-banner { flex-wrap: wrap; }
+.pwa-install-banner__text { min-width: 0; flex: 1 1 200px; }
 
 .pwa-install-banner__title {
     margin: 0;
@@ -1778,6 +1782,7 @@
 
 .pwa-install-banner__actions {
     display: flex;
+    margin-left: auto;
     flex-shrink: 0;
     align-items: center;
     gap: 6px;
@@ -1792,6 +1797,15 @@
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
+}
+
+/* The "Open in Chrome" offer is a link, not a button, so it needs the button
+   look spelled out: no underline, and on one line beside "Not now". */
+a.pwa-install-banner__install {
+    display: inline-block;
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 
 .pwa-install-banner__install:hover { background: var(--color-primary-700, #4338CA); }
