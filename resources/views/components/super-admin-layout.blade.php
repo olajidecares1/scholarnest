@@ -132,19 +132,9 @@
                         @click="open = !open"
                         class="{{ $navLinkClasses(request()->routeIs('super-admin.subscriptions.*')) }} w-full"
                     >
-                        <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" stroke="currentColor" stroke-width="1.75" />
-                            <path d="M3.5 9.5h17" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                            <path d="M7 13.5l2.2 2.2L14 11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fa-solid fa-credit-card {{ $navIconClasses }} text-[14px] leading-none" aria-hidden="true"></i>
                         <span class="flex-1 text-left">Subscriptions</span>
-                        <svg
-                            class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out"
-                            :class="{ 'rotate-180': open }"
-                            viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i :class="{ 'rotate-180': open }" class="fa-solid fa-chevron-down shrink-0 transition-transform duration-300 ease-out text-[14px] leading-none" aria-hidden="true"></i>
                     </button>
                     <div
                         x-show="open"
@@ -189,19 +179,9 @@
                             @click="open = !open"
                             class="{{ $navLinkClasses(request()->routeIs('super-admin.cbt.*')) }} w-full"
                         >
-                            <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="4" y="4.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.75" />
-                                <path d="M8 9.5h8M8 13h5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                                <path d="M8.5 16.3l1.3 1.3L12.3 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
+                            <i class="fa-solid fa-note-sticky {{ $navIconClasses }} text-[14px] leading-none" aria-hidden="true"></i>
                             <span class="flex-1 text-left">CBT</span>
-                            <svg
-                                class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out"
-                                :class="{ 'rotate-180': open }"
-                                viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
+                            <i :class="{ 'rotate-180': open }" class="fa-solid fa-chevron-down shrink-0 transition-transform duration-300 ease-out text-[14px] leading-none" aria-hidden="true"></i>
                         </button>
                         <div
                             x-show="open"
@@ -290,13 +270,14 @@
                 <p class="mt-1 text-xs text-primary-50">You have full access to all platform features.</p>
                 <a
                     href="{{ route('super-admin.settings.index') }}"
-                    class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
+                    class="btn mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
                 >
                     System Settings
                 </a>
             </div>
 
             <p class="px-5 pb-5 text-xs text-primary-100">&copy; {{ now()->year }} AkademicNest. All rights reserved.</p>
+            <x-app-version class="-mt-4 px-5 pb-5 text-primary-100 dark:text-primary-100" />
         </aside>
 
         {{-- The desktop sidebar. White, Font Awesome, and permission-gated by
@@ -347,19 +328,17 @@
                     @click="sidebarOpen = true"
                     class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
                 >
-                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                    </svg>
+                    <i class="fa-solid fa-bars text-[20px] leading-none" aria-hidden="true"></i>
                 </button>
 
                 <div class="min-w-0 flex-1">
                     <h1 class="truncate text-lg font-bold text-gray-900 dark:text-white">{{ $pageTitle }}</h1>
                     @if ($pageSubtitle)
-                        <p class="truncate text-sm text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</p>
+                        <small class="block truncate text-sm text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</small>
                     @endif
                 </div>
 
-                <p
+                <small
                     x-data="{ time: '' }"
                     x-init="
                         const tick = () => time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -368,7 +347,7 @@
                     "
                     x-text="time"
                     class="hidden shrink-0 text-sm font-medium tabular-nums text-gray-500 dark:text-gray-400 lg:block"
-                ></p>
+                ></small>
 
                 <div class="relative hidden md:block" x-data="{
                     open: false,
@@ -385,10 +364,7 @@
                     },
                 }">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
-                            <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        </svg>
+                        <i class="fa-solid fa-magnifying-glass text-[14px] leading-none" aria-hidden="true"></i>
                     </span>
                     <input
                         type="text"
@@ -408,7 +384,7 @@
                         class="absolute right-0 z-30 mt-2 w-80 rounded-[8px] border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800"
                     >
                         <template x-if="!loading && results.schools.length === 0 && results.users.length === 0 && results.subscriptions.length === 0">
-                            <p class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No results found.</p>
+                            <small class="block px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No results found.</small>
                         </template>
 
                         <template x-if="results.schools.length > 0">
@@ -417,7 +393,7 @@
                                 <template x-for="item in results.schools" :key="item.url">
                                     <a :href="item.url" class="block rounded-[8px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <span class="font-medium text-gray-900 dark:text-white" x-text="item.title"></span>
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></span>
+                                        <small class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></small>
                                     </a>
                                 </template>
                             </div>
@@ -429,7 +405,7 @@
                                 <template x-for="item in results.users" :key="item.url">
                                     <a :href="item.url" class="block rounded-[8px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <span class="font-medium text-gray-900 dark:text-white" x-text="item.title"></span>
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></span>
+                                        <small class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></small>
                                     </a>
                                 </template>
                             </div>
@@ -441,7 +417,7 @@
                                 <template x-for="item in results.subscriptions" :key="item.url">
                                     <a :href="item.url" class="block rounded-[8px] px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <span class="font-medium text-gray-900 dark:text-white" x-text="item.title"></span>
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></span>
+                                        <small class="block text-xs text-gray-500 dark:text-gray-400" x-text="item.subtitle"></small>
                                     </a>
                                 </template>
                             </div>
@@ -458,21 +434,13 @@
                     "
                     class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800"
                 >
-                    <svg class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75" />
-                    </svg>
-                    <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fa-solid fa-sun dark:hidden text-[17px] leading-none" aria-hidden="true"></i>
+                    <i class="fa-solid fa-moon hidden dark:block text-[17px] leading-none" aria-hidden="true"></i>
                 </button>
 
                 <div class="relative" x-data="{ open: false }">
                     <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                            <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                        </svg>
+                        <i class="fa-solid fa-bell text-[17px] leading-none" aria-hidden="true"></i>
                         @if ($unreadCount > 0)
                             <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
                         @endif
@@ -512,12 +480,12 @@
                                     @endif
                                     <span>
                                         <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</span>
-                                        <span class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
+                                        <small class="block text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</small>
+                                        <small class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</small>
                                     </span>
                                 </a>
                             @empty
-                                <p class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
+                                <small class="block px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</small>
                             @endforelse
                         </div>
                     </div>
@@ -540,7 +508,7 @@
                         </span>
                         <span class="hidden text-left sm:block">
                             <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{ auth()->user()->name }}</span>
-                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{ auth()->user()->role->label() }}</span>
+                            <small class="block text-xs text-gray-500 dark:text-gray-400">{{ auth()->user()->role->label() }}</small>
                         </span>
                     </button>
 

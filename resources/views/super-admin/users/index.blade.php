@@ -9,11 +9,9 @@
         <div class="flex justify-end">
             <a
                 href="{{ route('super-admin.users.create') }}"
-                class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
+                class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                </svg>
+                <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                 Add Admin
             </a>
         </div>
@@ -22,10 +20,7 @@
             <form method="GET" action="{{ route('super-admin.users.index') }}" class="flex flex-wrap items-center gap-3 p-4">
                 <div class="relative flex-1 min-w-[200px]">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
-                            <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        </svg>
+                        <i class="fa-solid fa-magnifying-glass text-[14px] leading-none" aria-hidden="true"></i>
                     </span>
                     <input
                         type="text"
@@ -44,7 +39,7 @@
                     />
                 </div>
 
-                <button type="submit" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                     Filter
                 </button>
             </form>
@@ -66,7 +61,7 @@
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3">
                                     <p class="font-semibold text-gray-900 dark:text-white">{{ $user->name }}</p>
-                                    <p class="field-hint">{{ $user->email }}</p>
+                                    <small class="field-hint">{{ $user->email }}</small>
                                 </td>
                                 <td class="px-5 py-3">
                                     <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">{{ $user->role->label() }}</span>
@@ -86,12 +81,12 @@
                                     @elseif ($user->is_active)
                                         <form method="POST" action="{{ route('super-admin.users.deactivate', $user) }}" onsubmit="return confirm('Deactivate {{ $user->name }}?');">
                                             @csrf
-                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Deactivate</button>
+                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Deactivate</button>
                                         </form>
                                     @else
                                         <form method="POST" action="{{ route('super-admin.users.activate', $user) }}">
                                             @csrf
-                                            <button type="submit" class="rounded-[8px] border border-green-300 px-3 py-1.5 text-xs font-semibold text-green-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-50 hover:shadow-sm dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Activate</button>
+                                            <button type="submit" class="btn rounded-[8px] border border-green-300 px-3 py-1.5 text-xs font-semibold text-green-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-50 hover:shadow-sm dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Activate</button>
                                         </form>
                                     @endif
                                 </td>

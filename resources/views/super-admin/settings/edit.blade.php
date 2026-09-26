@@ -72,7 +72,7 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]" x-data="{ maintenance: {{ old('maintenance_mode', $settings->maintenance_mode) ? 'true' : 'false' }} }">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Maintenance Mode</h2>
-                <p class="field-hint mt-1">While enabled, school admins and visitors see a maintenance page. AkademicNest Teams can still access the platform.</p>
+                <small class="field-hint mt-1">While enabled, school admins and visitors see a maintenance page. AkademicNest Teams can still access the platform.</small>
 
                 <div class="mt-4 flex items-center justify-between rounded-[5px] border border-gray-200 p-3 dark:border-gray-700 lg:rounded-[10px]">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Enable maintenance mode</span>
@@ -105,7 +105,7 @@
 
             <button
                 type="submit"
-                class="flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
+                class="btn flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
             >
                 Save Settings
             </button>
@@ -117,7 +117,7 @@
             <h2 class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
                 <i class="fa-solid fa-envelope-circle-check text-primary-600" aria-hidden="true"></i> Email delivery
             </h2>
-            <p class="field-hint mt-0.5">These settings come from the server environment (MAIL_*). The password is never shown.</p>
+            <small class="field-hint mt-0.5">These settings come from the server environment (MAIL_*). The password is never shown.</small>
 
             @if ($mailProblem)
                 <div class="mt-3 flex items-start gap-2 rounded-[8px] border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300" role="alert">
@@ -159,7 +159,7 @@
                     :value="old('test_email', auth()->user()->email)"
                     required
                 />
-                <button type="submit" :disabled="sending" class="inline-flex h-[var(--field-height)] items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 text-sm font-bold text-white hover:bg-primary-600 disabled:opacity-60">
+                <button type="submit" :disabled="sending" class="btn inline-flex h-[var(--field-height)] items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 text-sm font-bold text-white hover:bg-primary-600 disabled:opacity-60">
                     <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
                     <span x-show="! sending">Send test email</span>
                     <span x-show="sending" x-cloak>Sending&hellip;</span>

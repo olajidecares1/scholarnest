@@ -15,7 +15,7 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ $ticket->subject }}</h2>
-                        <p class="field-hint mt-1">Opened by {{ $ticket->openedBy->name }} &middot; {{ $ticket->created_at->diffForHumans() }}</p>
+                        <small class="field-hint mt-1">Opened by {{ $ticket->openedBy->name }} &middot; {{ $ticket->created_at->diffForHumans() }}</small>
                     </div>
                     <span class="rounded-full px-3 py-1 text-xs font-bold uppercase {{ $statusColors[$ticket->status->value] ?? 'bg-gray-100 text-gray-600' }}">
                         {{ $ticket->status->label() }}
@@ -28,7 +28,7 @@
                 <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
                         <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $reply->user->name }}</p>
-                        <p class="text-xs text-gray-400">{{ $reply->created_at->diffForHumans() }}</p>
+                        <small class="block text-xs text-gray-400">{{ $reply->created_at->diffForHumans() }}</small>
                     </div>
                     <p class="mt-2 whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">{{ $reply->message }}</p>
                 </div>
@@ -50,7 +50,7 @@
                     />
                     <button
                         type="submit"
-                        class="flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
+                        class="btn flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
                     >
                         Send Reply
                     </button>
@@ -87,7 +87,7 @@
 
                     <button
                         type="submit"
-                        class="w-full rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-md dark:bg-gray-700 dark:hover:bg-gray-600"
+                        class="btn w-full rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-md dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
                         Update Ticket
                     </button>
@@ -99,7 +99,7 @@
                 <a href="{{ route('super-admin.schools.show', $ticket->school) }}" class="mt-2 block text-sm font-semibold text-primary-500 hover:text-primary-600">
                     {{ $ticket->school->name }}
                 </a>
-                <p class="field-hint mt-1">Priority: {{ $ticket->priority->label() }}</p>
+                <small class="field-hint mt-1">Priority: {{ $ticket->priority->label() }}</small>
             </div>
         </div>
     </div>

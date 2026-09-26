@@ -199,17 +199,17 @@
                             {{ $subscription->status->label() }}
                         </span>
                         @if ($subscription->ends_at)
-                            <p class="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                            <small class="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                                 <span>Valid Until</span>
                                 <span class="font-semibold text-gray-900 dark:text-gray-100">{{ $subscription->ends_at->format('M j, Y') }}</span>
-                            </p>
+                            </small>
                         @endif
                     @else
-                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">No active subscription yet.</p>
+                        <small class="block mt-2 text-xs text-gray-500 dark:text-gray-400">No active subscription yet.</small>
                     @endif
                     <a
                         href="{{ route('subscriptions.choose-plan') }}"
-                        class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-2 text-xs font-semibold text-gray-900 dark:text-gray-100 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:scale-[0.97]"
+                        class="btn mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-2 text-xs font-semibold text-gray-900 dark:text-gray-100 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:scale-[0.97]"
                     >
                         {{ $subscription ? 'Upgrade Plan' : 'Choose a Plan' }}
                     </a>
@@ -217,10 +217,10 @@
 
                 <div class="rounded-[8px] bg-gray-100 dark:bg-gray-800 p-4 text-center transition-colors duration-300 hover:bg-white/[0.15]">
                     <p class="text-sm font-semibold">Need Help?</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Contact our support team.</p>
+                    <small class="block mt-1 text-xs text-gray-500 dark:text-gray-400">Contact our support team.</small>
                     <a
                         href="{{ route('support-tickets.create') }}"
-                        class="mt-3 inline-flex w-full items-center justify-center rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-[#111a35] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]"
+                        class="btn mt-3 inline-flex w-full items-center justify-center rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-[#111a35] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]"
                     >
                         Contact Support
                     </a>
@@ -235,11 +235,9 @@
                     </span>
                     <span class="min-w-0 flex-1">
                         <span class="block truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{{ auth()->user()->name }}</span>
-                        <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ auth()->user()->role->label() }}</span>
+                        <small class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ auth()->user()->role->label() }}</small>
                     </span>
-                    <svg class="h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-out" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i :class="{ 'rotate-180': open }" class="fa-solid fa-chevron-down shrink-0 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-out text-[14px] leading-none" aria-hidden="true"></i>
                 </button>
 
                 <div
@@ -256,7 +254,8 @@
                 </div>
             </div>
 
-            <p class="px-5 pb-4 text-xs text-gray-500 dark:text-gray-400">&copy; {{ now()->year }} {{ config('app.name', 'AkademicNest') }}. All rights reserved.</p>
+            <small class="block px-5 pb-4 text-xs text-gray-500 dark:text-gray-400">&copy; {{ now()->year }} {{ config('app.name', 'AkademicNest') }}. All rights reserved.</small>
+            <x-app-version class="-mt-3 px-5 pb-4" />
             </div>
         </aside>
 
@@ -270,7 +269,7 @@
                 <div class="min-w-0 flex-1">
                     <h1 class="truncate text-base font-bold text-gray-900 dark:text-white">{{ $pageTitle }}</h1>
                     @if ($pageSubtitle)
-                        <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</p>
+                        <small class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</small>
                     @endif
                 </div>
 
@@ -289,10 +288,7 @@
                     },
                 }">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-gray-500">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
-                            <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        </svg>
+                        <i class="fa-solid fa-magnifying-glass text-[14px] leading-none" aria-hidden="true"></i>
                     </span>
                     <input
                         type="text"
@@ -312,7 +308,7 @@
                         class="absolute right-0 z-30 mt-2 w-80 rounded-[8px] border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800"
                     >
                         <template x-if="!loading && results.students.length === 0 && results.staff.length === 0 && results.classes.length === 0">
-                            <p class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No results found.</p>
+                            <small class="block px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No results found.</small>
                         </template>
 
                         <template x-if="results.students.length > 0">
@@ -361,12 +357,10 @@
                 <a
                     href="{{ $publishedWebsiteUrl ?? route('website.index') }}"
                     target="{{ $publishedWebsiteUrl ? '_blank' : '_self' }}"
-                    class="hidden items-center gap-1.5 rounded-[8px] border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-600 transition-all duration-200 hover:border-blue-300 hover:text-blue-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-blue-700 sm:flex"
+                    class="btn hidden items-center gap-1.5 rounded-[8px] border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-600 transition-all duration-200 hover:border-blue-300 hover:text-blue-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-blue-700 sm:flex"
                 >
                     School Website
-                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 17L17 7M17 7H9M17 7v8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[12px] leading-none" aria-hidden="true"></i>
                 </a>
                 @endif
 
@@ -401,10 +395,7 @@
 
                     <div class="relative" x-data="{ open: false }">
                         <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                                <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            </svg>
+                            <i class="fa-solid fa-bell text-[17px] leading-none" aria-hidden="true"></i>
                             @if ($unreadCount > 0)
                                 <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
                             @endif
@@ -444,12 +435,12 @@
                                         @endif
                                         <span>
                                             <span class="block text-sm font-semibold text-gray-900 dark:text-white">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</span>
-                                            <span class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
+                                            <small class="block text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</small>
+                                            <small class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</small>
                                         </span>
                                     </a>
                                 @empty
-                                    <p class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
+                                    <small class="block px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</small>
                                 @endforelse
                             </div>
                         </div>
@@ -475,13 +466,8 @@
                             :class="dark ? 'translate-x-5' : 'translate-x-0.5'"
                             class="inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md ring-0 transition-transform duration-300 ease-in-out"
                         >
-                            <svg x-show="!dark" class="h-3 w-3 text-amber-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75" />
-                            </svg>
-                            <svg x-show="dark" style="display: none;" class="h-3 w-3 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
-                            </svg>
+                            <i x-show="!dark" class="fa-solid fa-sun text-amber-500 text-[10px] leading-none" aria-hidden="true"></i>
+                            <i x-show="dark" style="display: none;" class="fa-solid fa-moon text-blue-600 text-[10px] leading-none" aria-hidden="true"></i>
                         </span>
                     </button>
                 </div>
@@ -586,11 +572,7 @@
                     </a>
 
                     <button type="button" @click="moreOpen = true" class="{{ $bottomNavItemClasses(false) }}">
-                        <svg class="{{ $bottomNavIconClasses(false) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="5" cy="12" r="1.6" fill="currentColor" />
-                            <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-                            <circle cx="19" cy="12" r="1.6" fill="currentColor" />
-                        </svg>
+                        <i class="fa-solid fa-ellipsis {{ $bottomNavIconClasses(false) }} text-[14px] leading-none" aria-hidden="true"></i>
                         More
                     </button>
                 </div>
@@ -675,7 +657,7 @@
                 <form method="POST" action="{{ route('portal.admin.logout', $school) }}" class="border-t border-gray-100 px-3 py-3 dark:border-gray-700">
                     @csrf
                     <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold text-red-600 transition-colors duration-200 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H6a2 2 0 01-2-2V5a2 2 0 012-2h3M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                        <i class="fa-solid fa-right-from-bracket text-[14px] leading-none" aria-hidden="true"></i>
                         Log Out
                     </button>
                 </form>

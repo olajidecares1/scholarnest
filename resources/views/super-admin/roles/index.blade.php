@@ -10,15 +10,13 @@
             <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Roles</h2>
-                    <p class="field-hint">Custom permission sets for your team.</p>
+                    <small class="field-hint">Custom permission sets for your team.</small>
                 </div>
                 <a
                     href="{{ route('super-admin.roles.create') }}"
-                    class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
+                    class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                    </svg>
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Add Role
                 </a>
             </div>
@@ -41,11 +39,11 @@
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $role->users_count }}</td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('super-admin.roles.edit', $role) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</a>
+                                        <a href="{{ route('super-admin.roles.edit', $role) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</a>
                                         <form method="POST" action="{{ route('super-admin.roles.destroy', $role) }}" onsubmit="return confirm('Delete {{ $role->name }}? Team members using it will get full access.');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -64,15 +62,13 @@
             <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">AkademicNest Team Team</h2>
-                    <p class="field-hint">Everyone with AkademicNest Team access.</p>
+                    <small class="field-hint">Everyone with AkademicNest Team access.</small>
                 </div>
                 <a
                     href="{{ route('super-admin.roles.team.create') }}"
-                    class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
+                    class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                    </svg>
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Add Team Member
                 </a>
             </div>

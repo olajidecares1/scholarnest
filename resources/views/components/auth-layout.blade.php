@@ -197,7 +197,7 @@
                             <span class="hidden sm:inline">{{ $authQuestion }}</span>
                             <a
                                 href="{{ $authLinkRoute }}"
-                                class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
+                                class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
                             >
                                 {{ $authLinkLabel }}
                             </a>
@@ -254,6 +254,7 @@
             <footer class="border-t border-gray-200 bg-white">
                 <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-sm text-gray-500 sm:flex-row sm:px-6 lg:px-8">
                     <span>&copy; {{ now()->year }} AkademicNest. All rights reserved.</span>
+                    <span>Version {{ config('app.version') }}</span>
                     <div class="flex items-center gap-4">
                         {{-- All three were href="#", on the page where a
                              school signs up. --}}

@@ -77,15 +77,15 @@
                 @if ($payment)
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <div>
-                            <p class="field-hint">Method</p>
+                            <small class="field-hint">Method</small>
                             <p class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">{{ $payment->method?->label() ?? $payment->method ?? 'N/A' }}</p>
                         </div>
                         <div>
-                            <p class="field-hint">Status</p>
+                            <small class="field-hint">Status</small>
                             <p class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">{{ $payment->status?->label() ?? 'N/A' }}</p>
                         </div>
                         <div>
-                            <p class="field-hint">Verified</p>
+                            <small class="field-hint">Verified</small>
                             <p class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">
                                 {{ $payment->verified_at ? $payment->verified_at->format('j M Y, g:ia').' by '.($payment->verifiedBy?->name ?? 'unknown') : 'Not yet' }}
                             </p>
@@ -97,16 +97,13 @@
                             href="{{ route('super-admin.subscriptions.receipt', $subscription) }}"
                             target="_blank"
                             rel="noopener"
-                            class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                            class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.5" />
-                                <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            </svg>
+                            <i class="fa-solid fa-file-lines text-[14px] leading-none" aria-hidden="true"></i>
                             View uploaded receipt
                         </a>
                     @else
-                        <p class="text-sm text-gray-500 dark:text-gray-400">No receipt was uploaded with this payment.</p>
+                        <small class="block text-sm text-gray-500 dark:text-gray-400">No receipt was uploaded with this payment.</small>
                     @endif
 
                     @if ($payment->notes)
@@ -115,7 +112,7 @@
                         </div>
                     @endif
                 @else
-                    <p class="text-sm text-gray-500 dark:text-gray-400">No payment has been recorded against this subscription.</p>
+                    <small class="block text-sm text-gray-500 dark:text-gray-400">No payment has been recorded against this subscription.</small>
                 @endif
             </div>
         </div>
@@ -124,9 +121,9 @@
         @if ($isPending)
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Decision</h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     Activating grants {{ $school->name }} its plan immediately. Nothing else activates a school.
-                </p>
+                </small>
 
                 <div class="mt-4 flex flex-wrap items-center gap-2">
                     <form method="POST" action="{{ route('super-admin.subscriptions.approve', $subscription) }}" x-data="{ submitting: false }" @submit="submitting = true">
@@ -134,7 +131,7 @@
                         <button
                             type="submit"
                             :disabled="submitting"
-                            class="rounded-[8px] bg-green-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-green-600/30 transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            class="btn rounded-[8px] bg-green-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-green-600/30 transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             <span x-show="! submitting">Activate subscription</span>
                             <span x-show="submitting" x-cloak>Activating&hellip;</span>
@@ -144,7 +141,7 @@
                     <button
                         type="button"
                         @click="rejecting = ! rejecting"
-                        class="rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                        class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
                         Reject
                     </button>
@@ -174,7 +171,7 @@
                     <button
                         type="submit"
                         :disabled="submitting"
-                        class="mt-3 rounded-[8px] bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-red-600/30 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        class="btn mt-3 rounded-[8px] bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-red-600/30 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         <span x-show="! submitting">Reject subscription</span>
                         <span x-show="submitting" x-cloak>Rejecting&hellip;</span>
@@ -192,12 +189,12 @@
                         <h2 class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
                             <i class="fa-solid fa-envelope-open-text text-primary-600" aria-hidden="true"></i> Emails to the school
                         </h2>
-                        <p class="field-hint mt-0.5">The welcome email and the paid invoice.</p>
+                        <small class="field-hint mt-0.5">The welcome email and the paid invoice.</small>
                     </div>
 
                     <form method="POST" action="{{ route('super-admin.subscriptions.resend-emails', $subscription) }}" x-data="{ sending: false }" @submit="sending = true">
                         @csrf
-                        <button type="submit" :disabled="sending" class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                        <button type="submit" :disabled="sending" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                             <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
                             <span x-show="! sending">Resend emails</span>
                             <span x-show="sending" x-cloak>Sending&hellip;</span>
@@ -206,7 +203,7 @@
                 </div>
 
                 @if ($emailDeliveries->isEmpty())
-                    <p class="p-5 text-sm text-gray-500 dark:text-gray-400">No emails have been recorded for this subscription yet.</p>
+                    <small class="block p-5 text-sm text-gray-500 dark:text-gray-400">No emails have been recorded for this subscription yet.</small>
                 @else
                     <ul class="divide-y divide-gray-100 dark:divide-gray-700">
                         @foreach ($emailDeliveries as $delivery)
@@ -215,7 +212,7 @@
                                     <p class="text-sm font-semibold text-gray-900 dark:text-white">
                                         {{ \Illuminate\Support\Str::headline($delivery->kind) }}
                                     </p>
-                                    <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $delivery->recipient }}</p>
+                                    <small class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $delivery->recipient }}</small>
                                     @if (! $delivery->wasSent() && $delivery->error)
                                         <p class="mt-1 break-words text-xs text-red-600 dark:text-red-400">{{ $delivery->error }}</p>
                                     @endif
@@ -237,7 +234,7 @@
         @endif
 
         <div class="flex flex-wrap gap-2">
-            <a href="{{ route('super-admin.schools.show', $school) }}" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+            <a href="{{ route('super-admin.schools.show', $school) }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                 View school
             </a>
         </div>

@@ -15,7 +15,7 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ $report->reference }}</h2>
-                        <p class="field-hint mt-1">Submitted {{ $report->created_at->diffForHumans() }}</p>
+                        <small class="field-hint mt-1">Submitted {{ $report->created_at->diffForHumans() }}</small>
                     </div>
                     <span class="rounded-full px-3 py-1 text-xs font-bold uppercase {{ $statusColors[$report->status->value] ?? 'bg-gray-100 text-gray-600' }}">
                         {{ $report->status->label() }}
@@ -26,11 +26,9 @@
                 @if ($report->media_path)
                     <a
                         href="{{ route('super-admin.reports.media', $report) }}"
-                        class="mt-4 inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                        class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3M12 4v12m0-12l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
                         Download Attached Media
                     </a>
                 @endif
@@ -94,7 +92,7 @@
 
                     <button
                         type="submit"
-                        class="w-full rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-md dark:bg-gray-700 dark:hover:bg-gray-600"
+                        class="btn w-full rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-md dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
                         Update Report
                     </button>

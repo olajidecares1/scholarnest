@@ -16,18 +16,18 @@
                         <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">Inactive</span>
                     @endif
                 </div>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Joined {{ $school->created_at->format('F j, Y') }}</p>
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">Joined {{ $school->created_at->format('F j, Y') }}</small>
             </div>
 
             @if ($school->is_active)
                 <form method="POST" action="{{ route('super-admin.schools.deactivate', $school) }}" onsubmit="return confirm('Deactivate {{ $school->name }}? Their admins will lose access immediately.');">
                     @csrf
-                    <button type="submit" class="rounded-[8px] border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Deactivate School</button>
+                    <button type="submit" class="btn rounded-[8px] border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Deactivate School</button>
                 </form>
             @else
                 <form method="POST" action="{{ route('super-admin.schools.activate', $school) }}">
                     @csrf
-                    <button type="submit" class="rounded-[8px] border border-green-300 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Activate School</button>
+                    <button type="submit" class="btn rounded-[8px] border border-green-300 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Activate School</button>
                 </form>
             @endif
         </div>
@@ -55,7 +55,7 @@
                             </span>
                             <span>
                                 <span class="block font-medium text-gray-900 dark:text-white">{{ $user->name }}</span>
-                                <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}</span>
+                                <small class="block text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}</small>
                             </span>
                         </li>
                     @empty
@@ -74,9 +74,9 @@
             <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <div class="border-b border-gray-100 p-5 dark:border-gray-700">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Student Capacity</h3>
-                    <p class="field-hint mt-0.5">
+                    <small class="field-hint mt-0.5">
                         Billed per student. This is the ceiling the school is held to when admitting students.
-                    </p>
+                    </small>
                 </div>
 
                 <div class="grid grid-cols-2 gap-px bg-gray-100 lg:grid-cols-4 dark:bg-gray-700">
@@ -87,7 +87,7 @@
                         ['Remaining', number_format($capacity['remaining']), $capacity['remaining'] === 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'],
                     ] as [$label, $value, $tone])
                         <div class="bg-white p-4 dark:bg-gray-800">
-                            <p class="field-hint">{{ $label }}</p>
+                            <small class="field-hint">{{ $label }}</small>
                             <p class="mt-1 text-2xl font-extrabold {{ $tone }}">{{ $value }}</p>
                         </div>
                     @endforeach
@@ -206,7 +206,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Payments &amp; Invoices</h3>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Every invoice raised against this school, with its payment and approval.</p>
+                <small class="block mt-1 text-xs text-gray-500 dark:text-gray-400">Every invoice raised against this school, with its payment and approval.</small>
             </div>
 
             <div class="overflow-x-auto">
@@ -247,7 +247,7 @@
                                     @if ($invoice->approvedAt())
                                         {{ $invoice->approvedAt()->format('M j, Y') }}
                                         @if ($invoice->approvedBy())
-                                            <span class="block text-xs text-gray-500 dark:text-gray-400">by {{ $invoice->approvedBy()->name }}</span>
+                                            <small class="block text-xs text-gray-500 dark:text-gray-400">by {{ $invoice->approvedBy()->name }}</small>
                                         @endif
                                     @else
                                         N/A

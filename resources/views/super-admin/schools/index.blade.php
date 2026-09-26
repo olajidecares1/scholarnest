@@ -9,11 +9,9 @@
         <div class="flex justify-end">
             <a
                 href="{{ route('super-admin.schools.create') }}"
-                class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
+                class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                </svg>
+                <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                 Add School
             </a>
         </div>
@@ -22,10 +20,7 @@
             <form method="GET" action="{{ route('super-admin.schools.index') }}" class="flex flex-wrap items-center gap-3 p-4">
                 <div class="relative flex-1 min-w-[200px]">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
-                            <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        </svg>
+                        <i class="fa-solid fa-magnifying-glass text-[14px] leading-none" aria-hidden="true"></i>
                     </span>
                     <input
                         type="text"
@@ -44,7 +39,7 @@
                     />
                 </div>
 
-                <button type="submit" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                     Filter
                 </button>
             </form>
@@ -66,10 +61,10 @@
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3">
                                     <a href="{{ route('super-admin.schools.show', $school) }}" class="font-semibold text-gray-900 transition-colors duration-200 hover:text-primary-500 dark:text-white dark:hover:text-primary-400">{{ $school->name }}</a>
-                                    <p class="field-hint">{{ $school->billing_email ?? 'N/A' }}</p>
+                                    <small class="field-hint">{{ $school->billing_email ?? 'N/A' }}</small>
                                     @if ($school->subdomain)
                                         {{-- The address, whether or not it is being served right now; the school's page says which. --}}
-                                        <p class="field-hint font-mono">{{ $school->subdomain }}{{ config('custom_domain.tenant_base_domain') ? '.'.config('custom_domain.tenant_base_domain') : '' }}</p>
+                                        <small class="field-hint font-mono">{{ $school->subdomain }}{{ config('custom_domain.tenant_base_domain') ? '.'.config('custom_domain.tenant_base_domain') : '' }}</small>
                                     @endif
                                 </td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $school->subscriptionForDisplay()?->plan?->name ?? 'No plan yet' }}</td>
@@ -100,16 +95,16 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('super-admin.schools.show', $school) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">View</a>
+                                        <a href="{{ route('super-admin.schools.show', $school) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">View</a>
                                         @if ($school->is_active)
                                             <form method="POST" action="{{ route('super-admin.schools.deactivate', $school) }}" onsubmit="return confirm('Suspend {{ $school->name }}? Their admins will lose access immediately. This does not change their subscription.');">
                                                 @csrf
-                                                <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Suspend</button>
+                                                <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Suspend</button>
                                             </form>
                                         @else
                                             <form method="POST" action="{{ route('super-admin.schools.activate', $school) }}">
                                                 @csrf
-                                                <button type="submit" class="rounded-[8px] border border-green-300 px-3 py-1.5 text-xs font-semibold text-green-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-50 hover:shadow-sm dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Restore</button>
+                                                <button type="submit" class="btn rounded-[8px] border border-green-300 px-3 py-1.5 text-xs font-semibold text-green-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-50 hover:shadow-sm dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Restore</button>
                                             </form>
                                         @endif
 
@@ -201,7 +196,7 @@
                         <button
                             type="button"
                             @click="deleting = null"
-                            class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                            class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
                             Cancel
                         </button>
@@ -212,7 +207,7 @@
                         <button
                             type="submit"
                             :disabled="typed.trim() !== deleting?.name || submitting"
-                            class="rounded-[8px] bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-red-600/30 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            class="btn rounded-[8px] bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-red-600/30 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <span x-show="! submitting">Delete permanently</span>
                             <span x-show="submitting" x-cloak>Deleting&hellip;</span>

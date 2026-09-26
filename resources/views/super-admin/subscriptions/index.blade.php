@@ -22,22 +22,22 @@
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-amber-600 dark:text-amber-400">Pending Approvals</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['pending']) }}</p>
-                <p class="field-hint">Schools awaiting approval</p>
+                <small class="field-hint">Schools awaiting approval</small>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-primary-600 dark:text-primary-400">Auto-Activate Eligible</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['autoActivate']) }}</p>
-                <p class="field-hint">Returning schools, fast-track review</p>
+                <small class="field-hint">Returning schools, fast-track review</small>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-green-600 dark:text-green-400">Active Subscriptions</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['active']) }}</p>
-                <p class="field-hint">Currently active schools</p>
+                <small class="field-hint">Currently active schools</small>
             </div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <p class="text-sm font-medium text-purple-600 dark:text-purple-400">Expiring Soon (30 Days)</p>
                 <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($stats['expiringSoon']) }}</p>
-                <p class="field-hint">Subscriptions expiring soon</p>
+                <small class="field-hint">Subscriptions expiring soon</small>
             </div>
         </div>
 
@@ -57,7 +57,7 @@
                 @if ($tab !== 'top-ups')
                     <a
                         href="{{ route('super-admin.subscriptions.export', request()->query()) }}"
-                        class="mb-2 flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
+                        class="btn mb-2 flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
                     >
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3M12 4v12m0-12l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -72,10 +72,7 @@
 
                 <div class="relative flex-1 min-w-[200px]">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
-                            <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        </svg>
+                        <i class="fa-solid fa-magnifying-glass text-[14px] leading-none" aria-hidden="true"></i>
                     </span>
                     <input
                         type="text"
@@ -121,11 +118,9 @@
 
                 <button
                     type="submit"
-                    class="flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                    class="btn flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                    </svg>
+                    <i class="fa-solid fa-filter text-[14px] leading-none" aria-hidden="true"></i>
                     Filter
                 </button>
             </form>
@@ -135,10 +130,10 @@
                     <span x-text="selectedIds.length"></span> selected
                 </p>
                 <div class="flex items-center gap-2">
-                    <button type="button" @click="$refs.bulkApproveForm.submit()" class="rounded-[8px] bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700">
+                    <button type="button" @click="$refs.bulkApproveForm.submit()" class="btn rounded-[8px] bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700">
                         Approve Selected
                     </button>
-                    <button type="button" @click="rejectingBulk = true" class="rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">
+                    <button type="button" @click="rejectingBulk = true" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">
                         Reject Selected
                     </button>
                 </div>
@@ -170,8 +165,8 @@
                         />
                     </div>
                     <div class="mt-3 flex justify-end gap-2">
-                        <button type="button" @click="rejectingBulk = false" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="button" @click="$refs.bulkRejectForm.submit()" class="rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Subscriptions</button>
+                        <button type="button" @click="rejectingBulk = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="button" @click="$refs.bulkRejectForm.submit()" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Subscriptions</button>
                     </div>
                 </div>
             </div>
@@ -194,7 +189,7 @@
                                 <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50" x-data="{ rejecting: false }">
                                     <td class="px-5 py-3">
                                         <p class="font-semibold text-gray-900 dark:text-white">{{ $topUp->subscription->school->name }}</p>
-                                        <p class="field-hint">{{ $topUp->subscription->plan->name }} &middot; {{ $topUp->reference }}</p>
+                                        <small class="field-hint">{{ $topUp->subscription->plan->name }} &middot; {{ $topUp->reference }}</small>
                                     </td>
                                     <td class="px-5 py-3">
                                         {{-- What the school ASKED for. What is actually
@@ -210,7 +205,7 @@
                                     <td class="px-5 py-3">
                                         <p class="font-medium text-gray-900 dark:text-white">&#8358;{{ number_format($topUp->additional_amount, 2) }}</p>
                                         @if ($topUp->price_per_student !== null)
-                                            <p class="field-hint">&#8358;{{ number_format($topUp->price_per_student, 2) }} per student</p>
+                                            <small class="field-hint">&#8358;{{ number_format($topUp->price_per_student, 2) }} per student</small>
                                         @endif
                                         @if (filled($topUp->receipt_path))
                                             <a
@@ -260,8 +255,8 @@
                                                         class="w-28"
                                                     >
                                                 </div>
-                                                <button type="submit" class="h-8 rounded-[8px] bg-green-600 px-3 text-xs font-semibold text-white hover:bg-green-700">Approve</button>
-                                                <button type="button" @click="rejecting = true" class="h-8 rounded-[8px] bg-red-600 px-3 text-xs font-semibold text-white hover:bg-red-700">Reject</button>
+                                                <button type="submit" class="btn h-8 rounded-[8px] bg-green-600 px-3 text-xs font-semibold text-white hover:bg-green-700">Approve</button>
+                                                <button type="button" @click="rejecting = true" class="btn h-8 rounded-[8px] bg-red-600 px-3 text-xs font-semibold text-white hover:bg-red-700">Reject</button>
                                             </form>
 
                                             @error('approved_students_count')
@@ -279,8 +274,8 @@
                                                             placeholder="Reason (optional, sent to the school)"
                                                         />
                                                         <div class="mt-3 flex justify-end gap-2">
-                                                            <button type="button" @click="rejecting = false" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                                                            <button type="submit" class="rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Top-Up</button>
+                                                            <button type="button" @click="rejecting = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                                                            <button type="submit" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Top-Up</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -290,7 +285,7 @@
                                                  whoever has not received them. --}}
                                             <form method="POST" action="{{ route('super-admin.subscriptions.top-ups.resend-emails', $topUp) }}" x-data="{ sending: false }" @submit="sending = true">
                                                 @csrf
-                                                <button type="submit" :disabled="sending" class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                                                <button type="submit" :disabled="sending" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                                                     <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
                                                     <span x-show="! sending">Resend emails</span>
                                                     <span x-show="sending" x-cloak>Sending&hellip;</span>
@@ -358,7 +353,7 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">{{ $subscription->plan->name }}</span>
-                                    <p class="field-hint mt-1">{{ $subscription->billing_cycle->label() }}</p>
+                                    <small class="field-hint mt-1">{{ $subscription->billing_cycle->label() }}</small>
                                 </td>
                                 <td class="px-5 py-3 font-medium text-gray-900 dark:text-white">&#8358;{{ number_format($subscription->amount, 2) }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $subscription->latestPayment?->method?->label() ?? 'N/A' }}</td>
@@ -381,7 +376,7 @@
                                     <div class="flex items-center gap-2" x-data="{ open: false, rejecting: false }">
                                         <a
                                             href="{{ route('super-admin.subscriptions.show', $subscription) }}"
-                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             View
                                         </a>
@@ -389,11 +384,7 @@
                                         @if ($subscription->status->value === 'pending_verification')
                                             <div class="relative">
                                                 <button type="button" @click="open = !open" @click.outside="open = false" class="flex h-8 w-8 items-center justify-center rounded-[8px] border border-gray-300 text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
-                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <circle cx="12" cy="5" r="1.5" fill="currentColor" />
-                                                        <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-                                                        <circle cx="12" cy="19" r="1.5" fill="currentColor" />
-                                                    </svg>
+                                                    <i class="fa-solid fa-ellipsis-vertical text-[14px] leading-none" aria-hidden="true"></i>
                                                 </button>
 
                                                 <div x-show="open" x-transition style="display: none;" class="absolute right-0 z-10 mt-1 w-56 rounded-[5px] border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
@@ -420,8 +411,8 @@
                                                             placeholder="Reason (optional, sent to the school)"
                                                         />
                                                         <div class="mt-3 flex justify-end gap-2">
-                                                            <button type="button" @click="rejecting = false" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                                                            <button type="submit" class="rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Subscription</button>
+                                                            <button type="button" @click="rejecting = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                                                            <button type="submit" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Subscription</button>
                                                         </div>
                                                     </form>
                                                 </div>

@@ -32,9 +32,9 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-5 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Global token settings</h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     The defaults every school's newly issued tokens inherit. Changing these does not affect tokens already issued.
-                </p>
+                </small>
             </div>
 
             <form method="POST" action="{{ route('super-admin.result-pins.settings') }}" class="flex flex-wrap items-end gap-4 p-5">
@@ -69,13 +69,13 @@
                         value="{{ old('result_token_expiry_days', $settings->result_token_expiry_days) }}"
                         class="mt-1 w-full"
                     >
-                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Leave blank so tokens never expire on their own.</p>
+                    <small class="block mt-1 text-xs text-gray-400 dark:text-gray-500">Leave blank so tokens never expire on their own.</small>
                     @error('result_token_expiry_days')
                         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600">
+                <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600">
                     Save settings
                 </button>
             </form>
@@ -127,7 +127,7 @@
                         class="w-full"
                     >
                 </div>
-                <button type="submit" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                     Search
                 </button>
             </form>
@@ -151,7 +151,7 @@
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ number_format($school->active_pins_count) }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ number_format($school->revoked_pins_count) }}</td>
                                 <td class="px-5 py-3">
-                                    <a href="{{ route('super-admin.result-pins.show', $school) }}" class="rounded-[6px] bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300">
+                                    <a href="{{ route('super-admin.result-pins.show', $school) }}" class="btn rounded-[6px] bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300">
                                         Inspect
                                     </a>
                                 </td>

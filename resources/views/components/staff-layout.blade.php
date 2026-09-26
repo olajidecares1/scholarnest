@@ -59,7 +59,7 @@
                 <div class="min-w-0 flex-1">
                     <h1 class="truncate text-base font-bold text-gray-900 dark:text-white">{{ $pageTitle }}</h1>
                     @if ($pageSubtitle)
-                        <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</p>
+                        <small class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $pageSubtitle }}</small>
                     @endif
                 </div>
 
@@ -107,6 +107,8 @@
 
             <main class="edn-portal-main p-3 sm:p-5 dark:bg-gray-900">
                 {{ $slot }}
+
+                <x-app-version class="mt-6 text-center" />
             </main>
         </div>
 

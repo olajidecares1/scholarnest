@@ -47,7 +47,7 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3">
                                     <p class="font-semibold text-gray-900 dark:text-white">{{ $token->boundStudent?->fullName() ?? 'N/A' }}</p>
-                                    <p class="field-hint">{{ $token->boundStudent?->admission_number }}</p>
+                                    <small class="field-hint">{{ $token->boundStudent?->admission_number }}</small>
                                 </td>
                                 <td class="px-5 py-3 text-xs text-gray-600 dark:text-gray-300">
                                     @if ($token->examination)
@@ -75,7 +75,7 @@
                                     @if ($token->status->allowsAccess() || $token->status->isReversible())
                                         <form method="POST" action="{{ route('super-admin.result-pins.revoke', $token) }}" onsubmit="return confirm('Revoke this token? It will stop working immediately and the school will have to reissue.');">
                                             @csrf
-                                            <button type="submit" class="rounded-[6px] bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300">Revoke</button>
+                                            <button type="submit" class="btn rounded-[6px] bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300">Revoke</button>
                                         </form>
                                     @else
                                         <span class="text-xs text-gray-400">&mdash;</span>
@@ -99,7 +99,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Result access log</h2>
-                <p class="field-hint mt-0.5">Every attempt against this school, successful or not.</p>
+                <small class="field-hint mt-0.5">Every attempt against this school, successful or not.</small>
             </div>
 
             <div class="overflow-x-auto">

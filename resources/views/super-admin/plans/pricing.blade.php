@@ -34,7 +34,7 @@
                             {{ $plan->key->value }}
                         </span>
                     </div>
-                    <p class="field-hint mt-1">{{ $plan->tagline }}</p>
+                    <small class="field-hint mt-1">{{ $plan->tagline }}</small>
 
                     <div class="mt-4 space-y-3">
                         {{-- Basic AND Standard are sold per student now, Standard's
@@ -91,7 +91,7 @@
                         <p class="mt-2 text-xs font-medium text-red-600">{{ $message }}</p>
                     @enderror
 
-                    <button type="submit" class="mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                    <button type="submit" class="btn mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
                         Save {{ $plan->name }} pricing
                     </button>
                 </form>

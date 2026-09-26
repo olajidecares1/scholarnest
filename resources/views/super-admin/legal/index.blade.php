@@ -49,9 +49,9 @@
                             </div>
 
                             @if ($document->summary)
-                                <p class="mt-1 max-w-2xl text-[12.5px] leading-[1.6] text-gray-500 dark:text-gray-400">
+                                <small class="block mt-1 max-w-2xl text-[12.5px] leading-[1.6] text-gray-500 dark:text-gray-400">
                                     {{ $document->summary }}
-                                </p>
+                                </small>
                             @endif
 
                             <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] text-gray-500 dark:text-gray-400">
@@ -94,14 +94,14 @@
                                     href="{{ route('legal.show', $document->slug) }}"
                                     target="_blank"
                                     rel="noopener"
-                                    class="rounded-[8px] border border-gray-300 px-3.5 py-2 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    class="btn rounded-[8px] border border-gray-300 px-3.5 py-2 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
                                     View live
                                 </a>
                             @endif
                             <a
                                 href="{{ route('super-admin.legal.edit', $document) }}"
-                                class="rounded-[8px] bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                                class="btn rounded-[8px] bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                             >
                                 Edit
                             </a>

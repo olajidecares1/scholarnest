@@ -52,7 +52,7 @@
                         </div>
 
                         @if ($method->description)
-                            <p class="mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">{{ $method->description }}</p>
+                            <small class="block mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">{{ $method->description }}</small>
                         @endif
 
                         {{-- Said loudly, because money sent to a placeholder
@@ -72,7 +72,7 @@
                         <button
                             type="button"
                             @click="editing = ! editing"
-                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-bold text-gray-600 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-bold text-gray-600 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
                             <span x-show="!editing">Edit details</span>
                             <span x-show="editing" x-cloak>Cancel</span>
@@ -82,7 +82,7 @@
                             @csrf
                             <button
                                 type="submit"
-                                class="rounded-[8px] px-3 py-1.5 text-xs font-bold text-white transition {{ $method->is_enabled ? 'bg-gray-500 hover:bg-gray-600' : 'bg-green-600 hover:bg-green-700' }}"
+                                class="btn rounded-[8px] px-3 py-1.5 text-xs font-bold text-white transition {{ $method->is_enabled ? 'bg-gray-500 hover:bg-gray-600' : 'bg-green-600 hover:bg-green-700' }}"
                             >
                                 {{ $method->is_enabled ? 'Disable' : 'Enable' }}
                             </button>
@@ -102,15 +102,15 @@
                             @endforeach
                         </dl>
                     @else
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                        <small class="block text-sm text-gray-500 dark:text-gray-400">
                             No account details entered. Schools choosing this method will see the instructions only.
-                        </p>
+                        </small>
                     @endif
 
                     @if ($method->instructions)
-                        <p class="mt-4 rounded-[8px] bg-gray-50 p-3 text-[12.5px] leading-[1.7] text-gray-600 dark:bg-gray-900/40 dark:text-gray-300">
+                        <small class="block mt-4 rounded-[8px] bg-gray-50 p-3 text-[12.5px] leading-[1.7] text-gray-600 dark:bg-gray-900/40 dark:text-gray-300">
                             {{ $method->instructions }}
-                        </p>
+                        </small>
                     @endif
                 </div>
 
@@ -156,10 +156,10 @@
                     />
 
                     <div class="flex items-center gap-3">
-                        <button type="submit" class="rounded-[8px] bg-primary-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary-700">
+                        <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary-700">
                             Save
                         </button>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Schools see the change immediately.</p>
+                        <small class="block text-xs text-gray-500 dark:text-gray-400">Schools see the change immediately.</small>
                     </div>
                 </form>
             </div>

@@ -14,7 +14,7 @@
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900">{{ $ticket->subject }}</h2>
-                    <p class="mt-1 text-xs text-gray-500">Opened {{ $ticket->created_at->diffForHumans() }}</p>
+                    <small class="block mt-1 text-xs text-gray-500">Opened {{ $ticket->created_at->diffForHumans() }}</small>
                 </div>
                 <span class="rounded-full px-3 py-1 text-xs font-bold uppercase {{ $statusColors[$ticket->status->value] ?? 'bg-gray-100 text-gray-600' }}">
                     {{ $ticket->status->label() }}
@@ -28,7 +28,7 @@
                 <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm lg:rounded-[10px]">
                     <div class="flex items-center justify-between">
                         <p class="text-sm font-semibold text-gray-900">{{ $reply->user->name }}</p>
-                        <p class="text-xs text-gray-400">{{ $reply->created_at->diffForHumans() }}</p>
+                        <small class="block text-xs text-gray-400">{{ $reply->created_at->diffForHumans() }}</small>
                     </div>
                     <p class="mt-2 whitespace-pre-line text-sm text-gray-700">{{ $reply->message }}</p>
                 </div>
@@ -51,7 +51,7 @@
                 />
                 <button
                     type="submit"
-                    class="flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
+                    class="btn flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
                 >
                     Send Reply
                 </button>
