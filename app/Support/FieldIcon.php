@@ -27,7 +27,10 @@ class FieldIcon
         'M15.5 8.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0zM13 11l-6.5 6.5' => 'fa-key',
         'M4 6.5h16a1 1 0 011 1V17a1 1 0 01-1 1H4a1 1 0 01-1-1V7.5a1 1 0 011-1z' => 'fa-id-card',
         'M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7' => 'fa-envelope',
-        'M6.5 3.5h11a1 1 0 011 1v15a1 1 0 01-1 1h-11a1 1 0 01-1-1v-15a1 1 0 011-1z' => 'fa-id-card',
+        'M6.5 3.5h11a1 1 0 011 1v15a1 1 0 01-1 1h-11a1 1 0 01-1-1v-15a1 1 0 011-1z' => 'fa-mobile-screen-button',
+        'M4 21h16M6 21V8l6-4 6 4v13M10 21v-4h4v4' => 'fa-school',
+        'M3 7l9 6 9-6M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z' => 'fa-envelope',
+        'M6.5 3h3l1.5 4-2 1.5a12 12 0 005.5 5.5L16 12l4 1.5v3a2 2 0 01-2.2 2A16.5 16.5 0 014.5 5.2 2 2 0 016.5 3z' => 'fa-phone',
         'M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7' => 'fa-user',
         'M6.5 4.5h2l1.2 4-1.8 1.5a11 11 0 005.1 5.1l1.5-1.8 4 1.2v2a1.5 1.5 0 01-1.6 1.5A15 15 0 015 6.1a1.5 1.5 0 011.5-1.6z' => 'fa-phone',
         'M4 21h16 M5 21V10M19 21V10 M3 10l9-6 9 6 M8 10v11M12 10v11M16 10v11' => 'fa-building-columns',
@@ -85,6 +88,25 @@ class FieldIcon
         }
 
         return self::BY_PATH[$icon] ?? self::BY_PATH[preg_replace('/\s+/', ' ', $icon)] ?? self::FALLBACK;
+    }
+
+    /**
+     * The icon a field of this input type should show when the form did not
+     * choose one. Only the types whose meaning is unmistakable; a plain text
+     * field is left without an icon rather than given a guess.
+     */
+    public static function forType(?string $type): ?string
+    {
+        return match ($type) {
+            'email' => 'fa-envelope',
+            'tel' => 'fa-phone',
+            'password' => 'fa-lock',
+            'date', 'datetime-local' => 'fa-calendar',
+            'time' => 'fa-clock',
+            'url' => 'fa-link',
+            'search' => 'fa-magnifying-glass',
+            default => null,
+        };
     }
 
     /**

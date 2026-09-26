@@ -190,3 +190,31 @@ test('the sign-in and find-your-school pages carry the 1.2 buttons and small pri
         }
     }
 });
+
+test('a field keeps its text clear of its icon on hover and focus, and animates when clicked', function () {
+    $css = file_get_contents(resource_path('css/app.css'));
+
+    preg_match('/textarea:hover:not\(:disabled, :focus, \.border-0\) \{(.*?)\}/s', $css, $hover);
+
+    expect($hover[1] ?? '')->not->toContain('padding')
+        ->and($css)->toContain('.relative:has(> .pointer-events-none.absolute.left-0) > input,')
+        ->toContain('padding-left: calc(var(--field-height) + var(--field-icon-gap));')
+        ->toContain('box-shadow: 0 0 0 3px var(--field-focus-ring);')
+        ->toContain('.relative:focus-within > .pointer-events-none.absolute.left-0 {');
+});
+
+test('the sign-up and find-your-school fields show matching Font Awesome icons', function () {
+    foreach ([
+        'M4 21h16M6 21V8l6-4 6 4v13M10 21v-4h4v4' => 'fa-school',
+        'M3 7l9 6 9-6M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z' => 'fa-envelope',
+        'M6.5 3h3l1.5 4-2 1.5a12 12 0 005.5 5.5L16 12l4 1.5v3a2 2 0 01-2.2 2A16.5 16.5 0 014.5 5.2 2 2 0 016.5 3z' => 'fa-phone',
+    ] as $path => $icon) {
+        expect(\App\Support\FieldIcon::fa($path))->toBe($icon);
+    }
+
+    expect(\App\Support\FieldIcon::forType('email'))->toBe('fa-envelope')
+        ->and(\App\Support\FieldIcon::forType('text'))->toBeNull()
+        ->and(file_get_contents(resource_path('views/portal/basic/finder.blade.php')))->toContain('fa-school');
+
+    $this->get(route('portal.find.show'))->assertOk()->assertSee('fa-school', false);
+});

@@ -29,6 +29,9 @@
 ])
 
 @php
+    // An email, phone, password or date field that was not given an icon gets
+    // the obvious one, so no field of those kinds is left bare.
+    $icon = $icon ?: \App\Support\FieldIcon::forType($type);
     $id = $attributes->get('id') ?? $name;
     $bag = $errors->getBag($errorBag);
     $errorMessages = $bag->get($name);

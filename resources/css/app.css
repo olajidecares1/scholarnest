@@ -1164,7 +1164,6 @@ textarea:hover:not(:disabled, :focus, .border-0) {
     --control-hover-edge: var(--field-border-hover);
     border-width: var(--control-hover-border-width);
     border-style: solid;
-    padding-inline: calc(var(--field-padding-x) - (var(--control-hover-border-width) - var(--field-border-width)));
     box-shadow:
         var(--tw-inset-shadow, 0 0 #0000),
         inset 0 0 0 0.5px var(--control-hover-edge),
@@ -1173,13 +1172,99 @@ textarea:hover:not(:disabled, :focus, .border-0) {
         var(--tw-shadow, 0 0 #0000);
 }
 
-input[type="file"]:hover:not(:disabled, :focus, .border-0, .sr-only),
-input[type="color"]:hover:not(:disabled, :focus, .border-0) {
-    padding-inline: 0;
-}
-
 input[type="color"]:hover:not(:disabled, :focus, .border-0) {
     padding: calc(3px - (var(--control-hover-border-width) - var(--field-border-width)));
+}
+
+/* --------------------------------------------------------------------------
+   Fields with an icon, and what a field does when it is clicked.
+
+   THE ICON NEVER SITS UNDER THE TEXT. The hover rule above no longer touches
+   padding (it used to, and being unlayered it beat the pl-9 that keeps text
+   clear of the icon, so the text slid under the icon the moment the pointer
+   arrived). The room for the icon is now set here, from the icon itself: any
+   field sharing a wrapper with a left-hand icon gets a left padding one field
+   height wide plus a gap, whatever utilities the page wrote on it, and a
+   right-hand button (show password) gets the same on the right.
+
+   ONE ICON BOX. Every left-hand icon sits in a square the height of the field,
+   centred, at one size, so the icons line up down a form and between pages,
+   on a phone as on a desktop.
+
+   CLICKING. The border takes the brand colour and a soft ring grows out of
+   it, and the icon takes the same colour with a small lift. Transitions only,
+   no layout change, and nothing at all for anyone who asked for less motion.
+   -------------------------------------------------------------------------- */
+:root {
+    --field-icon-size: 14px;
+    --field-icon-gap: 4px;
+    --field-focus-ring: color-mix(in srgb, var(--color-primary-500) 16%, transparent);
+}
+
+input:not([type="checkbox"], [type="radio"], [type="range"], [type="hidden"], [type="submit"], [type="button"], [type="reset"], [type="image"], [type="file"], [type="color"]),
+select,
+textarea {
+    transition:
+        border-color 0.2s ease-out,
+        box-shadow 0.25s ease-out,
+        background-color 0.2s ease-out;
+}
+
+input:not([type="checkbox"], [type="radio"], [type="range"], [type="hidden"], [type="submit"], [type="button"], [type="reset"], [type="image"]):focus:not(.border-0, .sr-only),
+select:focus:not(.border-0),
+textarea:focus:not(.border-0) {
+    border-color: var(--field-border-focus);
+    box-shadow: 0 0 0 3px var(--field-focus-ring);
+}
+
+::placeholder {
+    transition: color 0.2s ease-out;
+}
+
+.relative:has(> input, > select, > textarea) > .pointer-events-none.absolute.left-0 {
+    z-index: 1;
+    top: 0;
+    bottom: auto;
+    width: var(--field-height);
+    height: var(--field-height);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.relative:has(> input, > select, > textarea) > .pointer-events-none.absolute.left-0 > i {
+    font-size: var(--field-icon-size);
+    line-height: 1;
+}
+
+.relative:has(> .pointer-events-none.absolute.left-0) > input,
+.relative:has(> .pointer-events-none.absolute.left-0) > select,
+.relative:has(> .pointer-events-none.absolute.left-0) > textarea {
+    padding-left: calc(var(--field-height) + var(--field-icon-gap));
+}
+
+.relative:has(> button.absolute.right-0, > div.absolute.right-0) > input {
+    padding-right: calc(var(--field-height) + var(--field-icon-gap));
+}
+
+.relative:focus-within > .pointer-events-none.absolute.left-0 {
+    color: var(--color-primary-500);
+    transform: scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    input,
+    select,
+    textarea,
+    .relative > .pointer-events-none.absolute.left-0 {
+        transition: none;
+    }
+
+    .relative:focus-within > .pointer-events-none.absolute.left-0 {
+        transform: none;
+    }
 }
 
 .btn {

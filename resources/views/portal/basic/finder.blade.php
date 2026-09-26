@@ -21,6 +21,10 @@
 
             <div>
                 <label for="school" class="field-label mb-1">School name or email</label>
+                <div class="relative">
+                <span class="pointer-events-none absolute left-0 top-0 flex items-center justify-center text-[#9AAAC4]">
+                    <i class="fa-solid fa-school" aria-hidden="true"></i>
+                </span>
                 <input
                     id="school"
                     name="school"
@@ -32,6 +36,7 @@
                     placeholder="e.g. Greenfield College, or admin@greenfield.com"
                     class="@error('school') field-invalid @enderror"
                 />
+                </div>
                 @error('school')
                     <p class="mt-1 text-[11px] font-medium leading-[1.45] text-red-600">{{ $message }}</p>
                 @enderror
