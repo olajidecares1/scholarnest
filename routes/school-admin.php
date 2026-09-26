@@ -39,6 +39,7 @@ use App\Http\Controllers\SchoolAdmin\SettingsController as SchoolSettingsControl
 use App\Http\Controllers\SchoolAdmin\SignatureController as SchoolAdminSignatureController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
+use App\Http\Controllers\SchoolAdmin\StudentImportController;
 use App\Http\Controllers\SchoolAdmin\SubscriptionTopUpController;
 use App\Http\Controllers\SchoolAdmin\TeacherAssignmentController;
 use App\Http\Controllers\SchoolAdmin\TemplatePreviewController;
@@ -70,6 +71,16 @@ Route::name('subscription-top-up.')->group(function () {
 Route::name('students.')->group(function () {
     Route::get(R::uri('students.index'), [StudentController::class, 'index'])->name('index');
     Route::post(R::uri('students.index'), [StudentController::class, 'store'])->name('store');
+
+    // Bulk upload: optional, alongside Add Student. Upload a class list,
+    // review what was read, then confirm. See StudentImportController.
+    Route::get(R::uri('students.import'), [StudentImportController::class, 'create'])->name('import.create');
+    Route::post(R::uri('students.import'), [StudentImportController::class, 'preview'])->name('import.preview');
+    Route::get(R::uri('students.import.template'), [StudentImportController::class, 'template'])->name('import.template');
+    Route::get(R::uri('students.import.review').'/{token}', [StudentImportController::class, 'review'])->where('token', '[A-Za-z0-9]{40}')->name('import.review');
+    Route::post(R::uri('students.import.review').'/{token}', [StudentImportController::class, 'store'])->where('token', '[A-Za-z0-9]{40}')->name('import.store');
+    Route::delete(R::uri('students.import.review').'/{token}', [StudentImportController::class, 'cancel'])->where('token', '[A-Za-z0-9]{40}')->name('import.cancel');
+
     Route::get(R::uri('students.show').'/{student}', [StudentController::class, 'show'])->name('show');
     Route::put(R::uri('students.update').'/{student}', [StudentController::class, 'update'])->name('update');
     Route::delete(R::uri('students.destroy').'/{student}', [StudentController::class, 'destroy'])->name('destroy');
