@@ -195,7 +195,23 @@ class StudentLicenceAllocation
      */
     public function withCapacity(School $school, Closure $work): mixed
     {
-        return DB::transaction(function () use ($school, $work) {
+        return $this->withCapacityFor($school, 1, $work);
+    }
+
+    /**
+     * withCapacity() for several students at once, a bulk import. Either the
+     * school has room for every one of them and $work runs, or it does not
+     * and nothing is created: an import that stopped half way at the limit
+     * would leave the school guessing which pupils made it in.
+     *
+     * @template TReturn
+     *
+     * @param  Closure(): TReturn  $work
+     * @return TReturn|null
+     */
+    public function withCapacityFor(School $school, int $count, Closure $work): mixed
+    {
+        return DB::transaction(function () use ($school, $count, $work) {
             $allocated = $this->allocated($school);
 
             // Uncapped plan: nothing to check.
@@ -213,7 +229,7 @@ class StudentLicenceAllocation
                 ->lockForUpdate()
                 ->count();
 
-            if ($used >= $allocated) {
+            if ($used + max(1, $count) > $allocated) {
                 return null;
             }
 
