@@ -106,6 +106,16 @@
                     @endif
                 </form>
 
+                <div class="flex flex-wrap items-center gap-2">
+                {{-- Optional: a whole class from one file. Adding one at a
+                     time below stays exactly as it was. --}}
+                <a
+                    href="{{ route('students.import.create') }}"
+                    class="flex items-center gap-2 rounded-[8px] border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-md dark:hover:bg-blue-900/20"
+                >
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16V4m0 0L8 8m4-4l4 4M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    Bulk Upload
+                </a>
                 <button
                     type="button"
                     @click="editing = null; newClassName = ''; open = true"
@@ -114,6 +124,7 @@
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                     Add Student
                 </button>
+                </div>
             </div>
 
             <div class="overflow-x-auto">
@@ -196,7 +207,7 @@
                                     @if (request('search') || request('class'))
                                         No students match your filters.
                                     @else
-                                        No students yet. Click "Add Student" to enroll your first one.
+                                        No students yet. Click "Add Student" to enroll your first one, or "Bulk Upload" to add a whole class from a file.
                                     @endif
                                 </td>
                             </tr>
