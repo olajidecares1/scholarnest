@@ -32,9 +32,9 @@
         <i class="fa-solid fa-key text-primary-500"></i>
         Login Details
     </h4>
-    <p class="field-hint mt-0.5">
+    <small class="field-hint mt-0.5">
         {{ $usernameHint ?? 'The credentials this person signs in with.' }}
-    </p>
+    </small>
 
     <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
@@ -52,7 +52,7 @@
             <p class="mt-1 flex h-[36px] items-center rounded-[8px] border border-dashed border-[#CBD6E6] bg-white px-3 font-mono text-[12.5px] text-[#0F2A5C] dark:border-gray-600 dark:bg-gray-900/40 dark:text-gray-200">
                 <span x-text="{{ $usernameModel }} || 'Generated on save'"></span>
             </p>
-            <p class="field-hint mt-1">Generated automatically &mdash; cannot be edited.</p>
+            <small class="field-hint mt-1">Generated automatically &mdash; cannot be edited.</small>
         </div>
 
         <div>
@@ -76,7 +76,7 @@
                     <i class="fa-solid text-[12px]" :class="showLoginPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                 </button>
             </div>
-            <p class="field-hint mt-1">{{ $passwordHint }}</p>
+            <small class="field-hint mt-1">{{ $passwordHint }}</small>
         </div>
     </div>
 </div>

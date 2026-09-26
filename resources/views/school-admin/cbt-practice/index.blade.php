@@ -12,12 +12,12 @@
                     </div>
                     <p class="mt-3 text-sm font-bold text-gray-900 dark:text-white">{{ $examBody->name }}</p>
                     @if ($examBody->description)
-                        <p class="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $examBody->description }}</p>
+                        <small class="block mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $examBody->description }}</small>
                     @endif
-                    <p class="mt-3 text-xs font-medium text-gray-500 dark:text-gray-400">{{ $examBody->subjects_count }} subject(s) &middot; {{ $examBody->exams_count }} exam(s)</p>
+                    <small class="block mt-3 text-xs font-medium text-gray-500 dark:text-gray-400">{{ $examBody->subjects_count }} subject(s) &middot; {{ $examBody->exams_count }} exam(s)</small>
                 </a>
             @empty
-                <p class="col-span-full py-10 text-center text-sm text-gray-500 dark:text-gray-400">No exam bodies have been added to the practice bank yet.</p>
+                <small class="block col-span-full py-10 text-center text-sm text-gray-500 dark:text-gray-400">No exam bodies have been added to the practice bank yet.</small>
             @endforelse
         </div>
     </div>

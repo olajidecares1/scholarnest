@@ -95,7 +95,7 @@
 
         <form method="POST" action="{{ $logoutUrl }}" class="mt-2 border-t border-gray-100 px-3 pt-3 dark:border-gray-700">
             @csrf
-            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-[10px] bg-red-50 px-4 py-3 text-sm font-bold text-red-600 transition-colors duration-200 hover:bg-red-100 active:bg-red-200 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-900/40">
+            <button type="submit" class="btn flex w-full items-center justify-center gap-2 rounded-[10px] bg-red-50 px-4 py-3 text-sm font-bold text-red-600 transition-colors duration-200 hover:bg-red-100 active:bg-red-200 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-900/40">
                 <i class="fa-solid fa-right-from-bracket fa-fw"></i>
                 Log Out
             </button>

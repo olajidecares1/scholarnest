@@ -29,10 +29,10 @@
                             <i class="fa-solid {{ $application->status->icon() }}" aria-hidden="true"></i>{{ $application->status->label() }}
                         </span>
                     </div>
-                    <p class="mt-1 text-[13px] text-gray-500 dark:text-gray-400">
+                    <small class="block mt-1 text-[13px] text-gray-500 dark:text-gray-400">
                         <i class="fa-solid fa-briefcase mr-1" aria-hidden="true"></i>{{ $job->title }}
                         · Applied {{ $local($application->created_at)->format('j M Y, g:i A') }}
-                    </p>
+                    </small>
                 </div>
             </div>
 
@@ -80,7 +80,7 @@
                                 <i class="fa-solid fa-file-pdf text-[20px] text-red-500" aria-hidden="true"></i>
                                 <span class="min-w-0 flex-1">
                                     <span class="block text-[13.5px] font-bold text-gray-900 dark:text-white">CV / Résumé</span>
-                                    <span class="block truncate text-[12px] text-gray-500 dark:text-gray-400">{{ $application->cv_original_name }} · {{ $readableSize($application->cv_size_bytes) }}</span>
+                                    <small class="block truncate text-[12px] text-gray-500 dark:text-gray-400">{{ $application->cv_original_name }} · {{ $readableSize($application->cv_size_bytes) }}</small>
                                 </span>
                                 <i class="fa-solid fa-download text-primary-600" aria-hidden="true"></i>
                             </a>
@@ -91,7 +91,7 @@
                                     <i class="fa-solid fa-paperclip text-[18px] text-gray-500" aria-hidden="true"></i>
                                     <span class="min-w-0 flex-1">
                                         <span class="block truncate text-[13.5px] font-semibold text-gray-900 dark:text-white">{{ $document->original_name }}</span>
-                                        <span class="block text-[12px] text-gray-500 dark:text-gray-400">{{ $readableSize($document->size_bytes) }}</span>
+                                        <small class="block text-[12px] text-gray-500 dark:text-gray-400">{{ $readableSize($document->size_bytes) }}</small>
                                     </span>
                                     <i class="fa-solid fa-download text-primary-600" aria-hidden="true"></i>
                                 </a>
@@ -131,7 +131,7 @@
                         @csrf @method('PUT')
                         <x-select-field name="status" label="Status" icon="fa-flag" :options="$statusOptions" :selected="$application->status->value" required />
                         <x-textarea-field name="note" label="Note (optional)" rows="2" placeholder="e.g. Strong candidate, check references" />
-                        <button type="submit" class="inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] bg-primary-600 text-[13px] font-bold text-white hover:bg-primary-700">
+                        <button type="submit" class="btn inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] bg-primary-600 text-[13px] font-bold text-white hover:bg-primary-700">
                             <i class="fa-solid fa-check" aria-hidden="true"></i> Update status
                         </button>
                     </form>
@@ -142,7 +142,7 @@
                                 <form method="POST" action="{{ route('careers.applications.status', $application) }}">
                                     @csrf @method('PUT')
                                     <input type="hidden" name="status" value="{{ $quick->value }}">
-                                    <button type="submit" class="inline-flex h-[38px] w-full items-center justify-center gap-1.5 rounded-[8px] border text-[12.5px] font-bold {{ $quick === JobApplicationStatus::Rejected ? 'border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400' : 'border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200' }}">
+                                    <button type="submit" class="btn inline-flex h-[38px] w-full items-center justify-center gap-1.5 rounded-[8px] border text-[12.5px] font-bold {{ $quick === JobApplicationStatus::Rejected ? 'border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400' : 'border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200' }}">
                                         <i class="fa-solid {{ $icon }}" aria-hidden="true"></i> {{ $label }}
                                     </button>
                                 </form>
@@ -154,7 +154,7 @@
                 {{-- Interview invitation. --}}
                 <section class="{{ $card }}" x-data="{ mode: @js(old('mode', InterviewMode::Physical->value)) }">
                     <h3 class="{{ $heading }}"><i class="fa-solid fa-calendar-plus text-primary-500" aria-hidden="true"></i>Invite to interview</h3>
-                    <p class="mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">{{ $application->full_name }} is emailed the details at {{ $application->email }}. Times are in {{ $timezone }}.</p>
+                    <small class="block mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">{{ $application->full_name }} is emailed the details at {{ $application->email }}. Times are in {{ $timezone }}.</small>
                     <form method="POST" action="{{ route('careers.applications.interview', $application) }}" class="mt-4 space-y-3">
                         @csrf
                         <div class="grid grid-cols-2 gap-3">
@@ -170,7 +170,7 @@
                         </div>
                         <x-textarea-field name="instructions" label="Interview instructions" rows="3" placeholder="e.g. Bring your original certificates and a valid ID." />
                         <x-textarea-field name="message" label="Additional message" rows="2" placeholder="Optional" />
-                        <button type="submit" class="inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] bg-gray-900 text-[13px] font-bold text-white hover:bg-gray-800 dark:bg-gray-700">
+                        <button type="submit" class="btn inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] bg-gray-900 text-[13px] font-bold text-white hover:bg-gray-800 dark:bg-gray-700">
                             <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send invitation
                         </button>
                     </form>

@@ -23,10 +23,10 @@
 
             <div class="min-w-0 flex-1">
                 <p class="text-sm font-bold text-gray-900 dark:text-white">Card background</p>
-                <p class="field-hint mt-0.5">Upcoming Events shares a card with Latest News, so they share one background image.</p>
+                <small class="field-hint mt-0.5">Upcoming Events shares a card with Latest News, so they share one background image.</small>
             </div>
 
-            <a href="{{ route('news.index') }}" class="shrink-0 rounded-[8px] border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">
+            <a href="{{ route('news.index') }}" class="btn shrink-0 rounded-[8px] border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">
                 Manage it on the News page
             </a>
         </div>
@@ -46,7 +46,7 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <div class="flex gap-1 rounded-[8px] border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-900">
                         @foreach (['upcoming' => 'Upcoming', 'past' => 'Past', 'all' => 'All'] as $value => $label)
-                            <a href="{{ route('events.index', ['when' => $value]) }}" class="rounded-[6px] px-3 py-1.5 text-xs font-semibold transition-colors duration-150 {{ $when === $value ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">{{ $label }}</a>
+                            <a href="{{ route('events.index', ['when' => $value]) }}" class="btn rounded-[6px] px-3 py-1.5 text-xs font-semibold transition-colors duration-150 {{ $when === $value ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">{{ $label }}</a>
                         @endforeach
                     </div>
                     <form method="GET" class="flex items-center gap-2">
@@ -64,9 +64,9 @@
                 <button
                     type="button"
                     @click="editing = null; open = true"
-                    class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                    class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     New Event
                 </button>
             </div>
@@ -88,7 +88,7 @@
                                 <td class="px-6 py-3">
                                     <p class="font-semibold text-gray-900 dark:text-white">{{ $event->title }}</p>
                                     @if ($event->description)
-                                        <p class="mt-0.5 max-w-xs truncate text-xs text-gray-500 dark:text-gray-400">{{ $event->description }}</p>
+                                        <small class="block mt-0.5 max-w-xs truncate text-xs text-gray-500 dark:text-gray-400">{{ $event->description }}</small>
                                     @endif
                                 </td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">
@@ -111,13 +111,13 @@
                                                 'starts_at' => $event->starts_at->format('Y-m-d\TH:i'),
                                                 'ends_at' => $event->ends_at?->format('Y-m-d\TH:i'),
                                             ]); open = true"
-                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             Edit
                                         </button>
                                         <form method="POST" action="{{ route('events.destroy', $event) }}" onsubmit="return confirm('Delete {{ $event->title }}?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -170,8 +170,8 @@
                     <x-textarea-field name="description" label="Description" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="3" x-text="editing ? editing.description : ''" />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Event</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Event</button>
                     </div>
                 </form>
             </div>

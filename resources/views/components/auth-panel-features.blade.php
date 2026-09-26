@@ -8,7 +8,7 @@
         </span>
         <div>
             <p class="font-semibold text-gray-900">Secure &amp; Protected</p>
-            <p class="text-sm text-gray-600">Enterprise-grade security keeps your school&rsquo;s data safe.</p>
+            <small class="block text-sm text-gray-600">Enterprise-grade security keeps your school&rsquo;s data safe.</small>
         </div>
     </li>
     <li class="flex items-start gap-4">
@@ -22,7 +22,7 @@
         </span>
         <div>
             <p class="font-semibold text-gray-900">Manage Everything</p>
-            <p class="text-sm text-gray-600">Students, staff, attendance, results and more in one dashboard.</p>
+            <small class="block text-sm text-gray-600">Students, staff, attendance, results and more in one dashboard.</small>
         </div>
     </li>
     <li class="flex items-start gap-4">
@@ -33,7 +33,7 @@
         </span>
         <div>
             <p class="font-semibold text-gray-900">Powerful Dashboard</p>
-            <p class="text-sm text-gray-600">Real-time insights and analytics to help your school thrive.</p>
+            <small class="block text-sm text-gray-600">Real-time insights and analytics to help your school thrive.</small>
         </div>
     </li>
 </ul>

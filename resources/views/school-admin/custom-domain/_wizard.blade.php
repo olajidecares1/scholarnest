@@ -18,13 +18,13 @@
                 </svg>
             </span>
             <h3 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Connect Your Own Domain</h3>
-            <p class="mx-auto mt-1 max-w-md text-sm text-gray-600 dark:text-gray-300">Serve your school's website at your own branded domain (e.g. www.schoolname.com) instead of the default AkademicNest link. Custom Domain is available on the Exclusive plan.</p>
+            <small class="block mx-auto mt-1 max-w-md text-sm text-gray-600 dark:text-gray-300">Serve your school's website at your own branded domain (e.g. www.schoolname.com) instead of the default AkademicNest link. Custom Domain is available on the Exclusive plan.</small>
             <a
                 href="{{ route('subscriptions.choose-plan') }}"
-                class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-emerald-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg"
+                class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-emerald-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg"
             >
                 Upgrade to Exclusive
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
             </a>
         </div>
     @else
@@ -36,13 +36,13 @@
 
         @if (! $primary)
             <div class="rounded-[5px] border border-dashed border-gray-300 p-10 text-center dark:border-gray-700 lg:rounded-[10px]">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Connect your school's own web address instead of the default AkademicNest link (e.g. www.schoolname.com).</p>
+                <small class="block text-sm text-gray-500 dark:text-gray-400">Connect your school's own web address instead of the default AkademicNest link (e.g. www.schoolname.com).</small>
                 <button
                     type="button"
                     @click="editing = null; open = true"
-                    class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                    class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Add Your Domain
                 </button>
             </div>
@@ -100,7 +100,7 @@
                         @endif
                     @endforeach
                 </div>
-                <p class="mt-2 text-xs font-semibold text-gray-500 dark:text-gray-400">Step {{ $currentStepNumber }} of {{ count($steps) }}</p>
+                <small class="block mt-2 text-xs font-semibold text-gray-500 dark:text-gray-400">Step {{ $currentStepNumber }} of {{ count($steps) }}</small>
 
                 @if ($isLive)
                     <div class="mt-5 rounded-[8px] bg-green-50 p-6 text-center dark:bg-green-900/20">
@@ -114,7 +114,7 @@
 
                     <div class="mt-4 space-y-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
                         <p class="text-sm font-bold text-gray-900 dark:text-white">1. Add these DNS records at your domain provider</p>
-                        <p class="field-hint">Changing your DNS records tells the internet where visitors should be sent when they type your domain name.</p>
+                        <small class="field-hint">Changing your DNS records tells the internet where visitors should be sent when they type your domain name.</small>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs">
                                 <thead>
@@ -145,7 +145,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <p class="text-[11px] text-gray-400 dark:text-gray-500">Root/apex domains (without "www") may need your provider's ALIAS/ANAME or CNAME-flattening option instead of a plain CNAME. Most registrars list this under advanced DNS settings. DNS changes can take a few minutes to a few hours to fully take effect.</p>
+                        <small class="block text-[11px] text-gray-400 dark:text-gray-500">Root/apex domains (without "www") may need your provider's ALIAS/ANAME or CNAME-flattening option instead of a plain CNAME. Most registrars list this under advanced DNS settings. DNS changes can take a few minutes to a few hours to fully take effect.</small>
                     </div>
 
                     <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
@@ -154,16 +154,16 @@
                             @if ($primary->last_check_error)
                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $primary->last_check_error }}</p>
                             @else
-                                <p class="field-hint mt-1">Once you've added the records above, click verify. We also automatically re-check every few minutes in the background.</p>
+                                <small class="field-hint mt-1">Once you've added the records above, click verify. We also automatically re-check every few minutes in the background.</small>
                             @endif
                             @if ($primary->last_checked_at)
-                                <p class="mt-1 text-[11px] text-gray-400 dark:text-gray-500">Last checked {{ $primary->last_checked_at->diffForHumans() }}</p>
+                                <small class="block mt-1 text-[11px] text-gray-400 dark:text-gray-500">Last checked {{ $primary->last_checked_at->diffForHumans() }}</small>
                             @endif
                         </div>
                         <form method="POST" action="{{ route('custom-domain.verify', $primary) }}" x-data="{ submitting: false }" @submit="submitting = true">
                             @csrf
-                            <button type="submit" :disabled="submitting" class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-blue-700 disabled:cursor-wait disabled:opacity-70">
-                                <svg x-show="submitting" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                            <button type="submit" :disabled="submitting" class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-blue-700 disabled:cursor-wait disabled:opacity-70">
+                                <i x-show="submitting" class="fa-solid fa-circle-notch animate-spin text-[14px] leading-none" aria-hidden="true"></i>
                                 <span x-text="submitting ? 'Verifying…' : 'Verify Domain'"></span>
                             </button>
                         </form>
@@ -181,11 +181,11 @@
                     <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
                         <div>
                             <p class="text-sm font-bold text-gray-900 dark:text-white">Redirect the default AkademicNest link</p>
-                            <p class="field-hint mt-0.5">Visitors to your default AkademicNest web address are redirected to {{ $primary->domain }}.</p>
+                            <small class="field-hint mt-0.5">Visitors to your default AkademicNest web address are redirected to {{ $primary->domain }}.</small>
                         </div>
                         <form method="POST" action="{{ route('custom-domain.toggle-redirect', $primary) }}">
                             @csrf
-                            <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                                 {{ $primary->redirect_default_domain ? 'On' : 'Off' }}
                             </button>
                         </form>
@@ -216,7 +216,7 @@
                                         ])>{{ $domain->status->label() }}</span>
                                     </div>
                                     @if ($domain->status !== CustomDomainStatus::Verified)
-                                        <p class="mt-1 text-[11px] text-gray-500 dark:text-gray-400">TXT {{ $domain->verificationRecordHost() }} = {{ $domain->verification_token }} &middot; CNAME {{ $domain->domain }} &rarr; {{ $cnameTarget }}</p>
+                                        <small class="block mt-1 text-[11px] text-gray-500 dark:text-gray-400">TXT {{ $domain->verificationRecordHost() }} = {{ $domain->verification_token }} &middot; CNAME {{ $domain->domain }} &rarr; {{ $cnameTarget }}</small>
                                         @if ($domain->last_check_error)
                                             <p class="mt-1 text-[11px] text-red-600 dark:text-red-400">{{ $domain->last_check_error }}</p>
                                         @endif
@@ -227,30 +227,30 @@
                                 <div class="flex shrink-0 flex-wrap items-center gap-2">
                                     <form method="POST" action="{{ route('custom-domain.verify', $domain) }}">
                                         @csrf
-                                        <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                                             {{ $domain->status === CustomDomainStatus::Verified ? 'Recheck' : 'Verify Now' }}
                                         </button>
                                     </form>
                                     <form method="POST" action="{{ route('custom-domain.set-primary', $domain) }}">
                                         @csrf
-                                        <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Set as Primary</button>
+                                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Set as Primary</button>
                                     </form>
                                     <button
                                         type="button"
                                         @click="editing = @js(['uuid' => $domain->uuid, 'domain' => $domain->domain]); open = true"
-                                        class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                     >
                                         Replace
                                     </button>
                                     <form method="POST" action="{{ route('custom-domain.destroy', $domain) }}" onsubmit="return confirm('Remove {{ $domain->domain }}?');">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Remove</button>
+                                        <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Remove</button>
                                     </form>
                                 </div>
                             </div>
                         </div>
                     @empty
-                        <p class="field-hint">No subdomains yet. For example, add "portal.{{ $primary->domain }}" if you'd like a dedicated address for a specific area of your site.</p>
+                        <small class="field-hint">No subdomains yet. For example, add "portal.{{ $primary->domain }}" if you'd like a dedicated address for a specific area of your site.</small>
                     @endforelse
                 </div>
             </div>
@@ -271,8 +271,8 @@
                     <x-text-field name="domain" label="Domain" icon="M12 3a9 9 0 100 18 9 9 0 000-18z" placeholder="www.schoolname.com or portal.schoolname.com" x-model="editing ? editing.domain : ''" required helper="A domain you already own, without http:// or a trailing slash. You will be given DNS records to add at whoever you bought it from, and your website starts serving here once they have taken effect." />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save</button>
                     </div>
                 </form>
             </div>

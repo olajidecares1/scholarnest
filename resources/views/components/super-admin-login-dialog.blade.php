@@ -136,7 +136,7 @@
             <button
                 type="submit"
                 :disabled="submitting"
-                class="!mt-5 flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 text-[13px] font-bold text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                class="btn !mt-5 flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 text-[13px] font-bold text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <span x-show="! submitting" class="flex items-center gap-2">
                     <i class="fa-solid fa-right-to-bracket text-[12px]"></i> Sign In
@@ -147,9 +147,9 @@
             </button>
         </form>
 
-        <p class="mt-5 flex items-center justify-center gap-1.5 border-t border-gray-100 pt-4 text-[10.5px] text-[#8194B3]">
+        <small class="mt-5 flex items-center justify-center gap-1.5 border-t border-gray-100 pt-4 text-[10.5px] text-[#8194B3]">
             <i class="fa-solid fa-shield-halved text-[10px]"></i>
             Restricted access &middot; All sign-ins are logged
-        </p>
+        </small>
     </div>
 </div>

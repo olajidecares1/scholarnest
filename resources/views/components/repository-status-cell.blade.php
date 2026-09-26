@@ -46,7 +46,7 @@
             <button
                 type="submit"
                 title="{{ $published === null ? 'Push this result to the Repository' : 'Push this result again, replacing the published version' }}"
-                class="inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-gray-300 px-2.5 text-[11.5px] font-bold text-gray-600 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-primary-900/20"
+                class="btn inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-gray-300 px-2.5 text-[11.5px] font-bold text-gray-600 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-primary-900/20"
             >
                 <i class="fa-solid fa-cloud-arrow-up text-[11px]"></i>
                 {{ $published === null ? 'Push' : 'Re-push' }}

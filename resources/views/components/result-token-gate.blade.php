@@ -44,7 +44,7 @@
             <button
                 type="button"
                 @click="open = true; $nextTick(() => $refs.token?.focus())"
-                class="flex shrink-0 items-center gap-1.5 rounded-[8px] border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/20 dark:text-primary-300"
+                class="btn flex shrink-0 items-center gap-1.5 rounded-[8px] border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/20 dark:text-primary-300"
             >
                 <i class="fa-solid fa-key text-[10px]"></i>
                 Enter Exam Token
@@ -72,9 +72,9 @@
                             <i class="fa-solid fa-key text-lg"></i>
                         </span>
                         <h2 id="{{ $gateId }}-title" class="mt-3 text-sm font-bold text-gray-900 dark:text-white">Enter Exam Token</h2>
-                        <p class="field-hint mt-1">
+                        <small class="field-hint mt-1">
                             {{ $examination->name }} &middot; {{ $examination->term->label() }}, {{ $examination->session }}
-                        </p>
+                        </small>
                     </div>
 
                     <form method="POST" action="{{ $unlockUrl }}" class="px-5 py-4" x-data="{ submitting: false }" @submit="submitting = true">
@@ -101,11 +101,11 @@
                             </p>
                         @endif
 
-                        <p class="field-hint mt-2">
+                        <small class="field-hint mt-2">
                             This is the token your school issued for
                             <span class="font-semibold">{{ $student->fullName() }}</span>&rsquo;s
                             {{ $examination->term->label() }} result. A token for another student or another term will not work.
-                        </p>
+                        </small>
 
                         <div class="mt-4 flex gap-2">
                             <button

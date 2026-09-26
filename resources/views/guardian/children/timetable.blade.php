@@ -11,7 +11,7 @@
                             <div class="min-w-0">
                                 <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $entry->subject }}</p>
                                 @if ($entry->room)
-                                    <p class="field-hint">{{ $entry->room }}</p>
+                                    <small class="field-hint">{{ $entry->room }}</small>
                                 @endif
                             </div>
                             <span class="shrink-0 text-xs font-semibold text-gray-500 dark:text-gray-400">
@@ -19,7 +19,7 @@
                             </span>
                         </div>
                     @empty
-                        <p class="px-5 py-6 text-center text-xs text-gray-400 dark:text-gray-500">No classes scheduled.</p>
+                        <small class="block px-5 py-6 text-center text-xs text-gray-400 dark:text-gray-500">No classes scheduled.</small>
                     @endforelse
                 </div>
             </div>

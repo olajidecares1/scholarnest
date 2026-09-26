@@ -46,7 +46,7 @@
     <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $title }}</h3>
 
     @if ($description)
-        <p class="field-hint mt-1">{{ $description }}</p>
+        <small class="field-hint mt-1">{{ $description }}</small>
     @endif
 
     <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="mt-4">
@@ -73,9 +73,9 @@
             </template>
         </div>
 
-        <p x-show="preview" x-cloak class="field-hint mt-2">
+        <small x-show="preview" x-cloak class="field-hint mt-2">
             This is the image you have chosen. It is not saved until you press Save.
-        </p>
+        </small>
 
         <div class="mt-3">
             <label for="bg-{{ Str::slug($title) }}" class="field-label">Choose an image</label>
@@ -87,7 +87,7 @@
                 x-on:change="choose($event)"
                 class="mt-1.5 w-full"
             >
-            <p class="field-hint mt-1">JPEG, PNG or WebP, up to 5MB, at least 1200 &times; 500 pixels &mdash; wider is better. It is stretched across the full width of the page, so a small image will look soft.</p>
+            <small class="field-hint mt-1">JPEG, PNG or WebP, up to 5MB, at least 1200 &times; 500 pixels &mdash; wider is better. It is stretched across the full width of the page, so a small image will look soft.</small>
 
             <p x-show="tooBig" x-cloak class="mt-1 text-[11.5px] font-semibold text-red-700">
                 That image is larger than 5MB. Please choose a smaller one.
@@ -100,7 +100,7 @@
             <button
                 type="submit"
                 x-bind:disabled="tooBig"
-                class="rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                class="btn rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
                 {{ $current ? 'Replace image' : 'Save image' }}
             </button>
@@ -113,7 +113,7 @@
                     type="submit"
                     name="remove"
                     value="1"
-                    class="rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
+                    class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
                 >
                     Remove image
                 </button>

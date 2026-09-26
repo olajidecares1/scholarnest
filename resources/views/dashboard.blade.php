@@ -8,7 +8,7 @@
                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 9v4m0 4h.01M10.3 3.9L2.5 17a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Your school&rsquo;s account has been suspended</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Please contact AkademicNest support to resolve this before you can continue using your account.</p>
+                        <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">Please contact AkademicNest support to resolve this before you can continue using your account.</small>
                     </div>
                     @break
 
@@ -21,15 +21,13 @@
                             </svg>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">You don&rsquo;t have an active subscription yet</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Choose a plan to unlock AkademicNest for {{ $school->name }}.</p>
+                        <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">Choose a plan to unlock AkademicNest for {{ $school->name }}.</small>
                         <a
                             href="{{ route('subscriptions.choose-plan') }}"
-                            class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
+                            class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                         >
                             Choose a Plan
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
+                            <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
                         </a>
                     </div>
                     @break
@@ -40,9 +38,9 @@
                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" /><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Awaiting activation</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Your account is awaiting payment confirmation and activation by the AkademicNest Team.</p>
+                        <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">Your account is awaiting payment confirmation and activation by the AkademicNest Team.</small>
                         @if ($subscription?->reference)
-                            <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Reference {{ $subscription->reference }} &middot; submitted {{ $subscription->created_at->diffForHumans() }}</p>
+                            <small class="block mt-2 text-xs text-gray-400 dark:text-gray-500">Reference {{ $subscription->reference }} &middot; submitted {{ $subscription->created_at->diffForHumans() }}</small>
                         @endif
                     </div>
                     @break
@@ -53,12 +51,12 @@
                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Your subscription was not approved</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                        <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">
                             {{ $subscription?->latestPayment?->notes ?? 'Please review your payment details and try again.' }}
-                        </p>
+                        </small>
                         <a
                             href="{{ route('subscriptions.choose-plan') }}"
-                            class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-amber-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-amber-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-amber-700 hover:shadow-lg"
+                            class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] bg-amber-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-amber-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-amber-700 hover:shadow-lg"
                         >
                             Choose a Plan Again
                         </a>
@@ -71,10 +69,10 @@
                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" /><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Your subscription has expired</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Renew your plan to regain access to AkademicNest for {{ $school->name }}.</p>
+                        <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">Renew your plan to regain access to AkademicNest for {{ $school->name }}.</small>
                         <a
                             href="{{ route('subscriptions.choose-plan') }}"
-                            class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
+                            class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                         >
                             Renew Your Plan
                         </a>
@@ -137,7 +135,7 @@
                 </div>
 
                 @if ($attendanceSummary['percent'] === null)
-                    <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">No register has been taken today.</p>
+                    <small class="block mt-3 text-sm text-gray-500 dark:text-gray-400">No register has been taken today.</small>
                 @else
                     <p class="mt-3 text-3xl font-bold leading-none text-gray-900 dark:text-white">{{ $attendanceSummary['percent'] }}%</p>
                     <small class="mt-1 block text-[12px] text-gray-500 dark:text-gray-400">
@@ -172,7 +170,7 @@
                 </div>
 
                 @if ($resultsSummary['examinations'] === 0)
-                    <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">No examinations recorded for {{ $school->currentSession() }} yet.</p>
+                    <small class="block mt-3 text-sm text-gray-500 dark:text-gray-400">No examinations recorded for {{ $school->currentSession() }} yet.</small>
                 @else
                     <dl class="mt-3 space-y-2.5 text-sm">
                         <div class="flex items-center justify-between gap-3">
@@ -219,7 +217,7 @@
                         </span>
                     </div>
                 @empty
-                    <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Nothing needs your attention.</p>
+                    <small class="block mt-3 text-sm text-gray-500 dark:text-gray-400">Nothing needs your attention.</small>
                 @endforelse
 
                 <small class="mt-4 block border-t border-gray-100 pt-3 text-[11.5px] text-gray-500 dark:border-gray-700 dark:text-gray-400">
@@ -245,7 +243,7 @@
                         <small class="shrink-0 text-[11px] text-gray-400 dark:text-gray-500">{{ $entry->created_at?->diffForHumans() }}</small>
                     </div>
                 @empty
-                    <p class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Nothing has happened yet.</p>
+                    <small class="block px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Nothing has happened yet.</small>
                 @endforelse
             </div>
         </div>

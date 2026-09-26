@@ -29,6 +29,19 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | The release the portals show at the foot of the sidebar and on the sign-in
+    | pages. Bumped by hand with each release; APP_VERSION can override it for a
+    | staging build.
+    |
+    */
+
+    'version' => env('APP_VERSION', '1.2'),
+
     'env' => env('APP_ENV', 'production'),
 
     /*

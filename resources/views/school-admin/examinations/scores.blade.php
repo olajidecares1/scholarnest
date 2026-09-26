@@ -14,7 +14,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $subject->name }} &middot; Total {{ $subject->max_score }}</h2>
-                <p class="field-hint mt-0.5">Enter the Test and Exam scores. Everything else on this page is worked out from them.</p>
+                <small class="field-hint mt-0.5">Enter the Test and Exam scores. Everything else on this page is worked out from them.</small>
             </div>
 
             <x-score-entry-grid

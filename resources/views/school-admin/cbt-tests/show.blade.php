@@ -43,7 +43,7 @@
                     <x-text-field name="pass_mark" type="number" label="Pass Mark (%)" :value="$test->pass_mark" min="1" max="100" required />
                 </div>
                 <div class="sm:col-span-2">
-                    <button type="submit" class="rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-700">Save Changes</button>
+                    <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-700">Save Changes</button>
                 </div>
             </form>
 
@@ -70,11 +70,11 @@
                         <i class="fa-solid {{ $isLocked ? 'fa-lock-open' : 'fa-lock' }} text-[12px]" aria-hidden="true"></i>
                         {{ $isLocked ? 'Unlock' : 'Lock' }}
                     </button>
-                    <button type="submit" name="status" value="published" class="rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700">Publish</button>
-                    <button type="submit" name="status" value="archived" class="rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
+                    <button type="submit" name="status" value="published" class="btn rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700">Publish</button>
+                    <button type="submit" name="status" value="archived" class="btn rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
                 </div>
                 @if ($test->hasStudentAttempts())
-                    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled because students have already started this test. You can still archive it.</p>
+                    <small class="block mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled because students have already started this test. You can still archive it.</small>
                 @endif
             </form>
         </div>

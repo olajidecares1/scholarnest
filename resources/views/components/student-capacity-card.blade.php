@@ -39,9 +39,9 @@
                 <i class="fa-solid fa-user-group text-primary-500"></i>
                 Student/Pupil Capacity
             </h2>
-            <p class="field-hint mt-0.5">
+            <small class="field-hint mt-0.5">
                 Your Basic plan is billed per student, per term. This is one cumulative capacity, not separate batches.
-            </p>
+            </small>
         </div>
 
         @if ($action && \Illuminate\Support\Facades\Route::has('subscription-top-up.create'))

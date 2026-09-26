@@ -1,6 +1,6 @@
 ---
 title: School Data Processing & Responsibilities Framework
-version: "1.1"
+version: "1.2"
 effective_date: "[TO BE PROVIDED]"
 last_updated: 2026-09-13
 status: Awaiting legal review, intended as the basis for a Data Processing Agreement
@@ -8,7 +8,7 @@ status: Awaiting legal review, intended as the basis for a Data Processing Agree
 
 # School Data Processing & Responsibilities Framework
 
-**Version 1.1 · Effective [TO BE PROVIDED] · Last updated 13 September 2026**
+**Version 1.2 · Effective [TO BE PROVIDED] · Last updated 26 September 2026**
 
 <!-- internal:start -->
 > **Draft.** This is written to serve as the basis for a **Data Processing

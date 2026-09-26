@@ -1,6 +1,6 @@
 ---
 title: Terms & Conditions
-version: "1.1"
+version: "1.2"
 effective_date: "[TO BE PROVIDED]"
 last_updated: 2026-09-13
 status: Awaiting legal review
@@ -8,7 +8,7 @@ status: Awaiting legal review
 
 # AkademicNest Terms & Conditions
 
-**Version 1.1 · Effective [TO BE PROVIDED] · Last updated 13 September 2026**
+**Version 1.2 · Effective [TO BE PROVIDED] · Last updated 26 September 2026**
 
 <!-- internal:start -->
 > **Draft.** This document has not yet been reviewed by a qualified lawyer and

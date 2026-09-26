@@ -13,13 +13,13 @@
                             <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $notification->data['title'] ?? 'Notification' }}</p>
                             <span class="text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
                         </div>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{{ $notification->data['body'] ?? '' }}</p>
+                        <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">{{ $notification->data['body'] ?? '' }}</small>
                     </div>
                 </div>
             </div>
         @empty
             <div class="rounded-[10px] border border-dashed border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
+                <small class="block text-sm text-gray-500 dark:text-gray-400">No notifications yet.</small>
             </div>
         @endforelse
 

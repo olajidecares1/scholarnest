@@ -16,7 +16,7 @@
                     <tr>
                         <td class="px-4 py-3">
                             <a href="{{ route('cbt-tests.show', $test) }}" class="font-semibold text-primary-600 hover:text-primary-700">{{ $test->title }}</a>
-                            <p class="field-hint">{{ $test->subject }}</p>
+                            <small class="field-hint">{{ $test->subject }}</small>
                         </td>
                         <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $test->staff->fullName() }}</td>
                         <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $test->class_name }}</td>

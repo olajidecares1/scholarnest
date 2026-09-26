@@ -10,7 +10,7 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
             </span>
             <h1 class="mt-3 text-xl font-bold text-gray-900">Find your school</h1>
-            <p class="mt-2 text-sm text-gray-500">Enter your school name or registered email to continue to its portal.</p>
+            <small class="block mt-2 text-sm text-gray-500">Enter your school name or registered email to continue to its portal.</small>
         </div>
 
         {{-- Posts back to whichever door it was opened at: /portal, or the
@@ -39,10 +39,10 @@
 
             <button
                 type="submit"
-                class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
                 Continue
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
             </button>
         </form>
 
@@ -80,7 +80,7 @@
                                 {{-- The school code is what actually separates two
                                      schools with similar names, and it is meant to
                                      be shared, unlike the slug, which is generated. --}}
-                                <span class="block truncate text-xs text-gray-500">School code: {{ $match->school_code }}</span>
+                                <small class="block truncate text-xs text-gray-500">School code: {{ $match->school_code }}</small>
                             </span>
                             <i class="fa-solid fa-chevron-right text-xs text-gray-300 transition-colors duration-200 group-hover:text-primary-400"></i>
                         </a>
@@ -89,8 +89,8 @@
             </div>
         @endif
 
-        <p class="mt-6 text-center text-xs text-gray-500">
+        <small class="block mt-6 text-center text-xs text-gray-500">
             Not sure of the exact name? Ask your school for the name they registered with AkademicNest.
-        </p>
+        </small>
     </x-auth-card>
 </x-auth-layout>

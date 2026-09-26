@@ -9,7 +9,7 @@
             @click="open = true"
             class="flex h-full min-h-[7rem] w-full flex-col items-center justify-center gap-1.5 rounded-[10px] border-2 border-dashed border-gray-300 p-4 text-gray-400 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-blue-400 hover:text-blue-500 dark:border-gray-600 dark:text-gray-500 dark:hover:border-blue-600"
         >
-            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+            <i class="fa-solid fa-plus text-[17px] leading-none" aria-hidden="true"></i>
             <span class="text-xs font-semibold">Add Class</span>
         </button>
     </template>
@@ -28,7 +28,7 @@
                     <option value="{{ $option->value }}" @selected($stream === $option)>{{ $option->label() }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="rounded-[6px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Add</button>
+            <button type="submit" class="btn rounded-[6px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Add</button>
         </form>
     </template>
 </div>

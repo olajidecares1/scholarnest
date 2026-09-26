@@ -1,14 +1,31 @@
 ---
 title: AkademicNest Team Technical Runbook
 audience: Authorised AkademicNest technical and support personnel only
-version: 1.0
-last_updated: 2026-09-01
+version: 1.2
+last_updated: 2026-09-26
 classification: Internal
 ---
 
 # AkademicNest Team Technical Runbook
 
-**Version 1.0 · 1 September 2026 · Internal**
+**Version 1.2 · 26 September 2026 · Internal**
+
+> **Release 1.2 (26 September 2026)**
+>
+> - **Student bulk import.** `StudentImportController` reads CSV, .xlsx, .docx
+>   and PDF class lists (`App\Services\StudentImport`), shows a preview held in
+>   the cache for 60 minutes, then creates the pupils under one capacity lock
+>   (`StudentLicenceAllocation::withCapacityFor`). All or nothing against a
+>   Basic school's licences. Audit action: `students.imported`.
+> - **UI consistency.** `.btn` in `resources/css/app.css` sizes every text button
+>   to the field height (36px); fields and buttons take a 1.5px border on
+>   hover. Field icons are Font Awesome via `App\Support\FieldIcon`.
+>   `tests/Feature/Release12UiConsistencyTest.php` fails the build if a new page
+>   drifts.
+> - **Version.** `config('app.version')` (env `APP_VERSION`, default 1.2).
+> - **Migration** `2026_09_26_120000_bump_legal_documents_to_version_1_2` moves
+>   legal documents still at 1.1 to 1.2. Needs `php artisan migrate --force`.
+
 
 For authorised AkademicNest technical and support staff. **Not to be shared with
 schools.** The school-facing book is `school-runbook.md`; nothing here should be

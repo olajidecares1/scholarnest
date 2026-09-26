@@ -161,7 +161,7 @@
 
             <form method="POST" action="{{ $retryUrl }}" class="mt-3">
                 @csrf
-                <button type="submit" class="flex items-center gap-1.5 rounded-[8px] border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 dark:border-amber-700 dark:bg-transparent dark:text-amber-300">
+                <button type="submit" class="btn flex items-center gap-1.5 rounded-[8px] border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 dark:border-amber-700 dark:bg-transparent dark:text-amber-300">
                     <i class="fa-solid fa-rotate-right text-[11px]"></i>
                     Try again
                 </button>
@@ -181,7 +181,7 @@
 
             <form method="POST" action="{{ $retryUrl }}" class="mt-3">
                 @csrf
-                <button type="submit" class="flex items-center gap-1.5 rounded-[8px] border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-700 dark:bg-transparent dark:text-red-400">
+                <button type="submit" class="btn flex items-center gap-1.5 rounded-[8px] border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-700 dark:bg-transparent dark:text-red-400">
                     <i class="fa-solid fa-rotate-right text-[11px]"></i>
                     Try extracting again
                 </button>

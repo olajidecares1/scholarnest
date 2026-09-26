@@ -22,14 +22,14 @@
         <div class="min-w-0">
             <h3 class="text-sm font-bold text-gray-900 dark:text-white">Check Result</h3>
 
-            <p class="mt-1.5 max-w-lg text-[12.5px] leading-[1.7] text-gray-500 dark:text-gray-400">
+            <small class="block mt-1.5 max-w-lg text-[12.5px] leading-[1.7] text-gray-500 dark:text-gray-400">
                 @if ($name)
                     Enter the exam token your school issued for {{ $name }} to open a result.
                 @else
                     Enter the exam token your school issued for you to open a result.
                 @endif
                 Each term has its own token, and a result stays open once its token has been accepted.
-            </p>
+            </small>
 
             @if ($locked > 0 || $unlocked > 0)
                 <p class="mt-3 flex flex-wrap items-center gap-3 text-[12px] font-semibold">
@@ -52,7 +52,7 @@
 
         <a
             href="{{ $resultsUrl }}"
-            class="flex h-[38px] shrink-0 items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-4 text-[13px] font-bold text-white transition hover:bg-primary-700"
+            class="btn flex h-[38px] shrink-0 items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-4 text-[13px] font-bold text-white transition hover:bg-primary-700"
         >
             <i class="fa-solid fa-unlock-keyhole text-[12px]"></i>
             Check Result

@@ -41,7 +41,7 @@
 
         <button
             type="submit"
-            class="mt-2 flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
+            class="btn mt-2 flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"
         >
             <i class="fa-solid fa-arrow-up-from-bracket text-[13px]"></i>
             {{ $label }}
@@ -72,19 +72,19 @@
             ></div>
         </div>
 
-        <p class="field-hint" x-text="message"></p>
+        <small class="field-hint" x-text="message"></small>
 
         {{-- Bytes sent, so a slow connection looks slow rather than stuck. --}}
-        <p x-show="phase === 'uploading' && totalBytes > 0" class="field-hint tabular-nums" x-cloak>
+        <small x-show="phase === 'uploading' && totalBytes > 0" class="field-hint tabular-nums" x-cloak>
             <span x-text="formatBytes(sentBytes)"></span> of <span x-text="formatBytes(totalBytes)"></span>
-        </p>
+        </small>
 
         <div x-show="phase === 'failed'" x-cloak class="flex flex-wrap items-center gap-2">
             {{-- Signed out: signing in is the fix, not trying again. --}}
             <a
                 x-show="signInUrl"
                 :href="signInUrl"
-                class="flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-600"
+                class="btn flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-600"
             >
                 <i class="fa-solid fa-right-to-bracket text-[11px]"></i>
                 Sign in again
@@ -94,7 +94,7 @@
                 type="button"
                 x-show="needsReload"
                 x-on:click="window.location.reload()"
-                class="flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-600"
+                class="btn flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-600"
             >
                 <i class="fa-solid fa-rotate-right text-[11px]"></i>
                 Reload page
@@ -104,7 +104,7 @@
                 type="button"
                 x-show="! signInUrl && ! needsReload"
                 x-on:click="reset()"
-                class="flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                class="btn flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
                 <i class="fa-solid fa-rotate-left text-[11px]"></i>
                 Try again
@@ -114,7 +114,7 @@
         <div x-show="phase === 'done'" x-cloak>
             <a
                 :href="redirectUrl"
-                class="inline-flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-600"
+                class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-600"
             >
                 <i class="fa-solid fa-arrow-right text-[11px]"></i>
                 View the extracted questions

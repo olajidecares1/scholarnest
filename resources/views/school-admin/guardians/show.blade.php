@@ -32,13 +32,13 @@
                 <div class="flex items-center gap-2">
                     <form method="POST" action="{{ route('guardians.toggle-active', $guardian) }}">
                         @csrf @method('POST')
-                        <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                             {{ $guardian->is_active ? 'Deactivate' : 'Activate' }}
                         </button>
                     </form>
                     <form method="POST" action="{{ route('guardians.destroy', $guardian) }}" onsubmit="return confirm('Remove {{ $guardian->name }}? This unlinks all their children and cannot be undone.');">
                         @csrf @method('DELETE')
-                        <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete Guardian</button>
+                        <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete Guardian</button>
                     </form>
                 </div>
             </div>
@@ -49,7 +49,7 @@
                 <x-text-field name="email" type="email" label="Email" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" :value="$guardian->email" required />
                 <x-text-field name="phone" label="Phone" icon="M5 4.5h3l1.5 4-2 1.5a11 11 0 005 5l1.5-2 4 1.5v3a1 1 0 01-1 1A15 15 0 015 5.5a1 1 0 011-1z" :value="$guardian->phone" />
                 <div class="sm:col-span-3">
-                    <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save Details</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save Details</button>
                 </div>
             </form>
 
@@ -74,7 +74,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h3 class="text-sm font-bold text-gray-900 dark:text-white">Linked Children</h3>
-            <p class="field-hint mt-1">Every child linked here is an existing student record. Nothing new is created by linking.</p>
+            <small class="field-hint mt-1">Every child linked here is an existing student record. Nothing new is created by linking.</small>
 
             @if ($guardian->students->isNotEmpty())
                 <div class="mt-4 space-y-2">
@@ -95,21 +95,21 @@
                                             <span class="ml-1 text-xs font-normal text-gray-400">({{ $child->pivot->relationship }})</span>
                                         @endif
                                     </span>
-                                    <span class="block text-xs text-gray-500 dark:text-gray-400">
+                                    <small class="block text-xs text-gray-500 dark:text-gray-400">
                                         {{ $child->admission_number }}
                                         @if ($child->class_name) &middot; {{ $child->class_name }} @endif
-                                    </span>
+                                    </small>
                                 </span>
                             </a>
                             <form method="POST" action="{{ route('guardians.children.destroy', [$guardian, $child]) }}" onsubmit="return confirm('Unlink {{ $child->fullName() }} from {{ $guardian->name }}?');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Unlink</button>
+                                <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Unlink</button>
                             </form>
                         </div>
                     @endforeach
                 </div>
             @else
-                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">No children linked yet.</p>
+                <small class="block mt-4 text-sm text-gray-500 dark:text-gray-400">No children linked yet.</small>
             @endif
 
             {{-- Class, then search, then select. A parent may have several

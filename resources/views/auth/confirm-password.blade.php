@@ -10,9 +10,9 @@
         </div>
 
         <h2 class="mt-4 text-center text-xl font-bold text-gray-900">Confirm Your Password</h2>
-        <p class="mt-1 text-center text-sm text-gray-600">
+        <small class="block mt-1 text-center text-sm text-gray-600">
             This is a secure area. Please confirm your password before continuing.
-        </p>
+        </small>
 
         <form method="POST" action="{{ route('password.confirm') }}" class="mt-6 space-y-2">
             @csrf
@@ -27,12 +27,10 @@
 
             <button
                 type="submit"
-                class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
                 Confirm
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
             </button>
         </form>
     </x-auth-card>

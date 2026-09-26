@@ -18,7 +18,7 @@
         default => ['fa-lock', 'Forgot Your Password?', 'Enter the email address for your AkademicNest account and we will email you a 6-digit verification code.'],
     };
 
-    $button = 'flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
+    $button = 'btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
 @endphp
 
 <x-auth-layout :title="'Forgot Password | '.config('app.name')" simple>
@@ -34,7 +34,7 @@
         </div>
 
         <h2 class="mt-4 text-center text-xl font-bold text-gray-900">{{ $header[1] }}</h2>
-        <p class="mt-1 text-center text-sm text-gray-600">{{ $header[2] }}</p>
+        <small class="block mt-1 text-center text-sm text-gray-600">{{ $header[2] }}</small>
 
         {{-- Where they are in the three steps. --}}
         <ol class="mt-5 grid grid-cols-3 gap-2" aria-label="Password reset progress">
@@ -119,7 +119,7 @@
                             <span>{{ $message }}</span>
                         </p>
                     @else
-                        <p class="field-hint mt-1">Copy the code from the email we sent you. Check your spam folder if you cannot see it.</p>
+                        <small class="field-hint mt-1">Copy the code from the email we sent you. Check your spam folder if you cannot see it.</small>
                     @enderror
                 </div>
 
@@ -181,11 +181,11 @@
         @endif
 
         @if ($step === 'email')
-            <p class="mt-6 text-center text-sm text-gray-600">
+            <small class="block mt-6 text-center text-sm text-gray-600">
                 <a href="{{ route('portal.show') }}" class="inline-flex items-center gap-1.5 font-semibold text-primary-500 hover:text-primary-600">
                     <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Sign In
                 </a>
-            </p>
+            </small>
         @endif
     </x-auth-card>
 </x-auth-layout>

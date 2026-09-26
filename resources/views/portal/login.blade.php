@@ -11,7 +11,7 @@
             @else
                 <h1 class="text-lg font-bold text-gray-900">AkademicNest Portal</h1>
             @endif
-            <p class="text-xs font-semibold uppercase tracking-wide text-primary-500">Sign in to continue</p>
+            <small class="block text-xs font-semibold uppercase tracking-wide text-primary-500">Sign in to continue</small>
         </div>
 
         <x-auth-session-status class="mt-4 text-center" :status="session('status')" />
@@ -23,7 +23,7 @@
                 <span class="mb-2 block text-[11px] font-bold uppercase tracking-wide text-gray-500">I am signing in as</span>
                 <div class="grid grid-cols-2 gap-2">
                     @foreach (['web' => 'School Admin', 'staff' => 'Staff', 'student' => 'Student', 'guardian' => 'Parent / Guardian'] as $value => $label)
-                        <label class="flex cursor-pointer items-center justify-center rounded-[8px] border border-gray-300 px-3 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-150 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 has-[:checked]:text-primary-700">
+                        <label class="btn flex cursor-pointer items-center justify-center rounded-[8px] border border-gray-300 px-3 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-150 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 has-[:checked]:text-primary-700">
                             <input type="radio" name="role" value="{{ $value }}" class="sr-only" {{ old('role', 'web') === $value ? 'checked' : '' }} required>
                             {{ $label }}
                         </label>
@@ -41,7 +41,7 @@
                     @error('school')<p class="mb-2 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
                     <div class="space-y-2">
                         @foreach ($schoolChoices as $key => $name)
-                            <label class="flex cursor-pointer items-center gap-2 rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 has-[:checked]:border-primary-500 has-[:checked]:text-primary-700">
+                            <label class="btn flex cursor-pointer items-center gap-2 rounded-[8px] border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 has-[:checked]:border-primary-500 has-[:checked]:text-primary-700">
                                 <input type="radio" name="school" value="{{ $key }}" class="text-primary-600" {{ old('school') === $key ? 'checked' : '' }} required>
                                 {{ $name }}
                             </label>
@@ -77,10 +77,10 @@
 
             <button
                 type="submit"
-                class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
                 Sign In
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
             </button>
         </form>
     </x-auth-card>

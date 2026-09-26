@@ -84,13 +84,13 @@
                         <p class="text-sm font-bold text-gray-900 dark:text-white">
                             {{ $entry->subject }} &middot; {{ $entry->class_name }}
                         </p>
-                        <p class="field-hint mt-0.5">
+                        <small class="field-hint mt-0.5">
                             {{ $entry->teacher->fullName() }}
                             &middot; Week {{ $entry->week_number }}
                             &middot; {{ $entry->term->label() }}
                             &middot; {{ $entry->session }}
                             &middot; submitted {{ $entry->created_at->diffForHumans() }}
-                        </p>
+                        </small>
                         <p class="mt-2 whitespace-pre-line text-[13px] leading-[1.6] text-gray-700 dark:text-gray-300">{{ $entry->topic }}</p>
                     </div>
 
@@ -101,14 +101,14 @@
                         </span>
 
                         @if ($entry->hasBeenSeen())
-                            <p class="field-hint mt-1">
+                            <small class="field-hint mt-1">
                                 by {{ $entry->seenBy?->name ?? 'a school admin' }}
                                 &middot; {{ $entry->seen_at?->diffForHumans() }}
-                            </p>
+                            </small>
                         @else
                             <form method="POST" action="{{ route('diary.seen', $entry) }}" class="mt-2">
                                 @csrf
-                                <button type="submit" class="flex items-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700">
+                                <button type="submit" class="btn flex items-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700">
                                     <i class="fa-solid fa-circle-check text-[11px]"></i>
                                     Mark as Seen
                                 </button>
@@ -117,9 +117,9 @@
                     </div>
                 </div>
             @empty
-                <p class="p-6 text-sm text-gray-500 dark:text-gray-400">
+                <small class="block p-6 text-sm text-gray-500 dark:text-gray-400">
                     No diary entries yet. They appear here as your teachers record what they have taught.
-                </p>
+                </small>
             @endforelse
 
             @if ($entries->hasPages())

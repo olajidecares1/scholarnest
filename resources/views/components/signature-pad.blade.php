@@ -37,14 +37,14 @@
 
         <div class="min-w-0 flex-1">
             @if ($description)
-                <p class="field-hint">{{ $description }}</p>
+                <small class="field-hint">{{ $description }}</small>
             @endif
 
             <div class="mt-2 flex flex-wrap items-center gap-2">
                 <button
                     type="button"
                     x-on:click="open()"
-                    class="inline-flex items-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700"
+                    class="btn inline-flex items-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700"
                 >
                     <i class="fa-solid fa-signature"></i>
                     <span x-text="current ? 'Redraw My Signature' : @js($title)"></span>
@@ -55,7 +55,7 @@
                         type="button"
                         x-show="current"
                         x-on:click="withdraw()"
-                        class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 transition-colors duration-200 hover:border-red-300 hover:text-red-600 dark:border-gray-600 dark:text-gray-300"
+                        class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 transition-colors duration-200 hover:border-red-300 hover:text-red-600 dark:border-gray-600 dark:text-gray-300"
                     >Remove</button>
                 @endif
             </div>
@@ -80,7 +80,7 @@
             <div class="flex items-start justify-between gap-3">
                 <div>
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $title }}</h3>
-                    <p class="field-hint mt-0.5">Draw your signature here. Use your finger, a stylus, or your mouse.</p>
+                    <small class="field-hint mt-0.5">Draw your signature here. Use your finger, a stylus, or your mouse.</small>
                 </div>
                 <button type="button" x-on:click="close()" aria-label="Close" class="rounded-[6px] px-2 py-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <i class="fa-solid fa-xmark"></i>
@@ -98,8 +98,8 @@
             </div>
 
             <div class="mt-1 flex items-center justify-between">
-                <p class="text-[11px] font-medium text-gray-400" x-show="! hasDrawing">Draw your signature here</p>
-                <p class="text-[11px] font-medium text-gray-400" x-show="hasDrawing" x-cloak>Sign above the line</p>
+                <small class="block text-[11px] font-medium text-gray-400" x-show="! hasDrawing">Draw your signature here</small>
+                <small class="block text-[11px] font-medium text-gray-400" x-show="hasDrawing" x-cloak>Sign above the line</small>
             </div>
 
             <p x-show="modalError" x-cloak x-text="modalError" class="mt-3 text-xs font-semibold text-red-600"></p>
@@ -108,7 +108,7 @@
                 x-show="signInUrl"
                 x-cloak
                 :href="signInUrl"
-                class="mt-2 inline-flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-600"
+                class="btn mt-2 inline-flex items-center gap-1.5 rounded-[8px] bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-600"
             >
                 <i class="fa-solid fa-right-to-bracket text-[11px]"></i>
                 Sign in again
@@ -116,12 +116,12 @@
 
             <div class="mt-4 flex flex-wrap items-center justify-end gap-2">
                 <button type="button" x-on:click="close()" class="rounded-[8px] px-4 py-2 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400">Cancel</button>
-                <button type="button" x-on:click="clear()" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300">Clear</button>
+                <button type="button" x-on:click="clear()" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300">Clear</button>
                 <button
                     type="button"
                     x-on:click="save()"
                     :disabled="! hasDrawing || saving"
-                    class="rounded-[8px] bg-primary-600 px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    class="btn rounded-[8px] bg-primary-600 px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                     x-text="saving ? 'Saving…' : 'Save Signature'"
                 ></button>
             </div>

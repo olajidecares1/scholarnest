@@ -1124,6 +1124,111 @@
     color: var(--field-hint);
 }
 
+/* --------------------------------------------------------------------------
+   Version 1.2: one hover, one button, every portal.
+
+   HOVER. Every field and every button takes a 1.5px border under the pointer,
+   up from the 1.2px it rests at. Unlayered, like the touch-screen font rule
+   above, so a "border" utility on an individual field cannot quietly keep it
+   at 1px on that one page. The padding gives back the extra 0.3px on each
+   side, so the control does not grow and nothing beside it moves.
+
+   BUTTONS. The registration page is the reference, at the height of its
+   fields (36px, the same number, so a button sits level beside an input), its
+   8px radius and its 13px text. The .btn class carries it; it is on every text
+   button in the School Admin, Parent, Student and Staff portals. Unlayered
+   for the same reason: the h-8, h-11, py-1.5 and text-xs utilities the older
+   pages were written with must lose to it, or the sizes would drift again.
+
+   min-height and computed vertical padding rather than a fixed height, so a
+   label that wraps on a phone grows the button instead of spilling out of it,
+   and so the text is centred whether the element is a flex box or not.
+
+   THE HALF PIXEL. Chrome draws any border under 2px as exactly 1px, so on
+   its own a 1.5px border looks no different from the 1.2px one at rest, and
+   the hover would be invisible in the browser most schools use. The missing
+   half pixel is drawn just inside the border in the same colour. The shadow
+   utilities' own layers are kept, so a button with shadow-md keeps it.
+   -------------------------------------------------------------------------- */
+:root {
+    --btn-height: var(--field-height);
+    --btn-padding-x: 16px;
+    --btn-font-size: 13px;
+    --btn-line-height: 16px;
+    --control-hover-border-width: 1.5px;
+}
+
+input:not([type="checkbox"], [type="radio"], [type="range"], [type="hidden"], [type="submit"], [type="button"], [type="reset"], [type="image"]):hover:not(:disabled, :focus, .border-0, .sr-only),
+select:hover:not(:disabled, :focus, .border-0),
+textarea:hover:not(:disabled, :focus, .border-0) {
+    --control-hover-edge: var(--field-border-hover);
+    border-width: var(--control-hover-border-width);
+    border-style: solid;
+    padding-inline: calc(var(--field-padding-x) - (var(--control-hover-border-width) - var(--field-border-width)));
+    box-shadow:
+        var(--tw-inset-shadow, 0 0 #0000),
+        inset 0 0 0 0.5px var(--control-hover-edge),
+        var(--tw-ring-offset-shadow, 0 0 #0000),
+        var(--tw-ring-shadow, 0 0 #0000),
+        var(--tw-shadow, 0 0 #0000);
+}
+
+input[type="file"]:hover:not(:disabled, :focus, .border-0, .sr-only),
+input[type="color"]:hover:not(:disabled, :focus, .border-0) {
+    padding-inline: 0;
+}
+
+input[type="color"]:hover:not(:disabled, :focus, .border-0) {
+    padding: calc(3px - (var(--control-hover-border-width) - var(--field-border-width)));
+}
+
+.btn {
+    box-sizing: border-box;
+    height: auto;
+    min-height: var(--btn-height);
+    padding-block: calc((var(--btn-height) - var(--btn-line-height) - (var(--field-border-width) * 2)) / 2);
+    padding-inline: var(--btn-padding-x);
+    border-width: var(--field-border-width);
+    border-style: solid;
+    border-radius: var(--field-radius);
+    font-size: var(--btn-font-size);
+    line-height: var(--btn-line-height);
+    transition-property: color, background-color, border-color, border-width, box-shadow, opacity, transform;
+}
+
+/* A button written without a border has none to show at rest. */
+.btn:not(.border) {
+    border-color: transparent;
+}
+
+.btn:hover:not(:disabled, [aria-disabled="true"], .cursor-not-allowed) {
+    border-width: var(--control-hover-border-width);
+    padding-block: calc((var(--btn-height) - var(--btn-line-height) - (var(--control-hover-border-width) * 2)) / 2);
+    padding-inline: calc(var(--btn-padding-x) - (var(--control-hover-border-width) - var(--field-border-width)));
+    --control-hover-edge: color-mix(in srgb, currentColor 55%, transparent);
+    border-color: var(--control-hover-edge);
+    box-shadow:
+        var(--tw-inset-shadow, 0 0 #0000),
+        inset 0 0 0 0.5px var(--control-hover-edge),
+        var(--tw-ring-offset-shadow, 0 0 #0000),
+        var(--tw-ring-shadow, 0 0 #0000),
+        var(--tw-shadow, 0 0 #0000);
+}
+
+/* A filled button with white text: a darker edge of its own colour, not a
+   white one. */
+.btn[class*="text-white"]:hover:not(:disabled, [aria-disabled="true"], .cursor-not-allowed) {
+    --control-hover-edge: rgb(0 0 0 / 0.22);
+}
+
+.dark .btn[class*="text-white"]:hover:not(:disabled, [aria-disabled="true"], .cursor-not-allowed) {
+    --control-hover-edge: rgb(255 255 255 / 0.35);
+}
+
+.btn svg {
+    flex-shrink: 0;
+}
+
 /* A field in an invalid state. The border is the only thing that changes,
    for the same reason the focus state is: the message underneath already
    says what is wrong. */

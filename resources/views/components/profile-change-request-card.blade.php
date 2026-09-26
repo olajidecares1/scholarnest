@@ -2,7 +2,7 @@
 
 <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Request a Change</h2>
-    <p class="field-hint mt-1">These details can only be changed by the school office. Submit a request and it will be reviewed.</p>
+    <small class="field-hint mt-1">These details can only be changed by the school office. Submit a request and it will be reviewed.</small>
 
     <form method="POST" action="{{ $action }}" class="mt-4 space-y-2">
         @csrf
@@ -20,7 +20,7 @@
         <x-textarea-field name="reason" label="Reason (optional)" rows="2" />
 
         <div class="flex justify-end">
-            <button type="submit" class="rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700">Submit Request</button>
+            <button type="submit" class="btn rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700">Submit Request</button>
         </div>
     </form>
 

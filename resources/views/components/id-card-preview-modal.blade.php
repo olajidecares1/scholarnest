@@ -26,10 +26,10 @@
         <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-700">
             <div class="min-w-0">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">ID Card Preview</h3>
-                <p class="truncate text-xs font-mono text-gray-500 dark:text-gray-400" x-show="$store.idCardPreview.cardNumber" x-text="$store.idCardPreview.cardNumber"></p>
+                <small class="block truncate text-xs font-mono text-gray-500 dark:text-gray-400" x-show="$store.idCardPreview.cardNumber" x-text="$store.idCardPreview.cardNumber"></small>
             </div>
             <button type="button" @click="$store.idCardPreview.close()" class="shrink-0 rounded-[8px] p-2 text-gray-400 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200">
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <i class="fa-solid fa-xmark text-[17px] leading-none" aria-hidden="true"></i>
             </button>
         </div>
 
@@ -89,7 +89,7 @@
                     type="button"
                     @click="$store.idCardPreview.print()"
                     :disabled="$store.idCardPreview.loading || !$store.idCardPreview.hasTemplate"
-                    class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                    class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                     Print
                 </button>
@@ -97,7 +97,7 @@
                     type="button"
                     @click="$store.idCardPreview.download()"
                     :disabled="$store.idCardPreview.loading || $store.idCardPreview.downloading || !$store.idCardPreview.hasTemplate"
-                    class="flex min-w-[9rem] items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
+                    class="btn flex min-w-[9rem] items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
                 >
                     <span x-show="$store.idCardPreview.downloading">Downloading&hellip;</span>
                     <span x-show="!$store.idCardPreview.downloading">Download PDF</span>

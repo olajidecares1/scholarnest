@@ -108,7 +108,7 @@
     {{-- The results, and the three things that are not results: still
          loading, searched and found nothing, and not searched yet. --}}
     <div class="mt-3">
-        <p x-show="loading" class="text-xs text-gray-500">Searching...</p>
+        <small x-show="loading" class="block text-xs text-gray-500">Searching...</small>
 
         <ul x-show="!loading && results.length" class="divide-y divide-gray-100 rounded-[8px] border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
             <template x-for="row in results" :key="row.uuid">
@@ -133,9 +133,9 @@
             </template>
         </ul>
 
-        <p x-show="!loading && searched && !results.length && !selected" class="text-xs text-gray-500 dark:text-gray-400">
+        <small x-show="!loading && searched && !results.length && !selected" class="block text-xs text-gray-500 dark:text-gray-400">
             {{ $emptyText }}
-        </p>
+        </small>
     </div>
 
     {{-- Only ever submits a uuid the person actually picked from the list.
@@ -147,7 +147,7 @@
         <div class="flex flex-wrap items-center gap-3">
             <button
                 type="submit"
-                class="rounded-[8px] bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                class="btn rounded-[8px] bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
             >
                 Link <span x-text="selected?.name"></span>
             </button>

@@ -133,9 +133,9 @@
                             Create Your<br>School Account
                         </h1>
 
-                        <p class="mt-3 max-w-sm text-[12.5px] leading-[1.65] text-[#5B7099]">
+                        <small class="block mt-3 max-w-sm text-[12.5px] leading-[1.65] text-[#5B7099]">
                             Join thousands of schools using AkademicNest to manage operations, engage students, and grow together.
-                        </p>
+                        </small>
                     </div>
 
                     {{-- min-h-0 lets this actually shrink. A flex child defaults
@@ -166,7 +166,7 @@
                             </span>
 
                             <h2 class="mt-2.5 text-[19px] font-bold tracking-tight text-[#0F2A5C]">Register Your School</h2>
-                            <p class="mt-1 text-[11.5px] text-[#64789F]">Fill in the details below to create your school account.</p>
+                            <small class="block mt-1 text-[11.5px] text-[#64789F]">Fill in the details below to create your school account.</small>
                         </div>
 
                         @if ($errors->any() && ! $errors->has('login'))
@@ -195,9 +195,7 @@
 
                                     <div class="relative mt-1">
                                         <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#9AAAC4]">
-                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="{{ $iconPath }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
+                                            <i class="fa-solid {{ \App\Support\FieldIcon::fa($iconPath) }} text-[14px] leading-none" aria-hidden="true"></i>
                                         </span>
 
                                         <input
@@ -228,10 +226,7 @@
 
                                     <div class="relative mt-1">
                                         <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#9AAAC4]">
-                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="currentColor" stroke-width="1.6" />
-                                                <path d="M8.5 10.5V7.75a3.5 3.5 0 017 0v2.75" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                                            </svg>
+                                            <i class="fa-solid fa-lock text-[14px] leading-none" aria-hidden="true"></i>
                                         </span>
 
                                         <input
@@ -251,11 +246,7 @@
                                             :aria-label="show ? 'Hide password' : 'Show password'"
                                             class="absolute inset-y-0 right-0 flex items-center pr-3 text-[#9AAAC4] transition hover:text-[#5B7099]"
                                         >
-                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" />
-                                                <path x-show="show" x-cloak d="M4 20L20 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                                            </svg>
+                                            <i x-show="!(show)" class="fa-solid fa-eye text-[14px] leading-none" aria-hidden="true"></i><i x-show="show" x-cloak class="fa-solid fa-eye-slash text-[14px] leading-none" aria-hidden="true"></i>
                                         </button>
                                     </div>
 
@@ -312,7 +303,7 @@
                             <button
                                 type="submit"
                                 :disabled="submitting"
-                                class="mt-1 h-[40px] w-full rounded-[8px] bg-primary-500 text-[13px] font-bold text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+                                class="btn mt-1 h-[40px] w-full rounded-[8px] bg-primary-500 text-[13px] font-bold text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
                             >
                                 <span x-show="! submitting">Create School Account</span>
                                 <span x-show="submitting" x-cloak>Creating your account&hellip;</span>
@@ -332,21 +323,21 @@
                              names itself, then picks the portal it wants from
                              the ones its plan includes. route('login') would
                              have redirected straight back to this page. --}}
-                        <p class="mt-3 text-center text-[12px] text-[#64789F]">
+                        <small class="block mt-3 text-center text-[12px] text-[#64789F]">
                             Already registered?
                             <a
                                 href="{{ route('portal.find.show') }}"
                                 class="font-bold text-primary-500 underline-offset-2 hover:text-primary-600 hover:underline"
                             >Go to your school's portal</a>
-                        </p>
+                        </small>
 
-                        <p class="mt-2.5 flex items-center justify-center gap-1.5 text-[10.5px] text-[#8194B3]">
+                        <small class="mt-2.5 flex items-center justify-center gap-1.5 text-[10.5px] text-[#8194B3]">
                             <svg class="h-[13px] w-[13px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="currentColor" stroke-width="1.7" />
                                 <path d="M8.5 10.5V7.75a3.5 3.5 0 017 0v2.75" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
                             </svg>
                             Your information is safe with us. We never share your data.
-                        </p>
+                        </small>
 
                     </div>
                 </div>

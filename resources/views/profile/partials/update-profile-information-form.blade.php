@@ -4,9 +4,9 @@
             {{ __('Profile Information') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <small class="block mt-1 text-sm text-gray-600">
             {{ __("Update your account's profile information and email address.") }}
-        </p>
+        </small>
     </header>
 
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
@@ -75,13 +75,13 @@
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
             @if (session('status') === 'profile-updated')
-                <p
+                <small
                     x-data="{ show: true }"
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
+                    class="block text-sm text-gray-600"
+                >{{ __('Saved.') }}</small>
             @endif
         </div>
     </form>

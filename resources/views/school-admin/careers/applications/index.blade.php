@@ -16,7 +16,7 @@
                 <x-text-field name="q" icon="fa-magnifying-glass" :value="$filters['q'] ?? null" placeholder="Search by name, email or phone" aria-label="Search applicants" />
                 <x-select-field name="job" icon="fa-briefcase" :options="$jobOptions" :selected="$filters['job'] ?? ''" aria-label="Vacancy" />
                 <x-select-field name="status" icon="fa-filter" :options="$statusOptions" :selected="$filters['status'] ?? ''" aria-label="Status" />
-                <button type="submit" class="inline-flex h-[var(--field-height)] items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-4 text-[13px] font-bold text-white hover:bg-primary-700">
+                <button type="submit" class="btn inline-flex h-[var(--field-height)] items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-4 text-[13px] font-bold text-white hover:bg-primary-700">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Search
                 </button>
             </form>
@@ -24,7 +24,7 @@
             @if ($applications->isEmpty())
                 <div class="p-10 text-center">
                     <i class="fa-solid fa-users text-[28px] text-gray-300" aria-hidden="true"></i>
-                    <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">No applications match.</p>
+                    <small class="block mt-3 text-sm text-gray-500 dark:text-gray-400">No applications match.</small>
                 </div>
             @else
                 {{-- A list, not a wide table: it fits a phone without scrolling sideways. --}}
@@ -36,7 +36,7 @@
                                     <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-[13px] font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ $application->initials() }}</span>
                                     <span class="min-w-0">
                                         <span class="block truncate text-[14px] font-bold text-gray-900 dark:text-white">{{ $application->full_name }}</span>
-                                        <span class="block truncate text-[12.5px] text-gray-500 dark:text-gray-400"><i class="fa-solid fa-briefcase mr-1" aria-hidden="true"></i>{{ $application->jobPosting?->title }}</span>
+                                        <small class="block truncate text-[12.5px] text-gray-500 dark:text-gray-400"><i class="fa-solid fa-briefcase mr-1" aria-hidden="true"></i>{{ $application->jobPosting?->title }}</small>
                                     </span>
                                 </span>
                                 <span class="flex flex-wrap items-center gap-x-4 gap-y-1 pl-13 text-[12px] text-gray-500 dark:text-gray-400 sm:pl-0">

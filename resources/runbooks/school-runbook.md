@@ -1,13 +1,25 @@
 ---
 title: AkademicNest School Operational Runbook
 audience: School Admin, Principal, Teachers, Class Teachers, Staff, Students, Parents/Guardians
-version: 1.0
-last_updated: 2026-09-01
+version: 1.2
+last_updated: 2026-09-26
 ---
 
 # AkademicNest School Operational Runbook
 
-**Version 1.0 · 1 September 2026**
+**Version 1.2 · 26 September 2026**
+
+> **New in Version 1.2**
+>
+> - **Bulk Upload of students/pupils.** Add a whole class from one Excel, CSV,
+>   Word or PDF list. See [3.7](#37-adding-a-whole-class-at-once-bulk-upload).
+> - **One look across every portal.** Buttons and fields are the same size on
+>   every page, and show a slightly thicker border when you point at them. Page
+>   descriptions and field hints are written as small print.
+> - **The version number** is shown at the foot of the sidebar, at the bottom of
+>   the Parent, Student and Staff portals, and on the sign-in pages. Quote it
+>   when you contact the AkademicNest Team.
+
 
 Find your problem. Do the steps. If it still does not work, the entry tells you
 exactly what to send the AkademicNest Team.
@@ -566,6 +578,33 @@ undo, and the AkademicNest Team cannot restore one pupil.
 
 **Prevention:** deactivate instead of deleting. It frees the pupil place, stops
 sign-in, and keeps everything.
+
+## 3.7, Adding a whole class at once (Bulk Upload)
+
+**Affected:** School Admin · **Plans:** all · **Severity:** 🟢 Low
+
+Optional. Adding pupils one at a time (3.1) still works exactly as before.
+
+1. Students → **Bulk Upload**.
+2. **Select the class.** Every pupil in the file goes into that class; a class
+   column in the file is ignored.
+3. Choose the file: Excel (.xlsx), CSV, Word (.docx) or PDF, up to 5MB and
+   1,000 pupils. If you are unsure of the layout, use **Download Template**.
+4. Press **Read File** and check the preview. Rows marked **Skipped** say why
+   (no surname, gender not recognised, admission number already used, and so
+   on). Nothing has been saved yet.
+5. Press **Import**. Only the rows marked **Ready** are added.
+
+After importing, edit a pupil, add a photograph or set their login details
+from the Students list, the same as for a pupil added by hand. The import does
+not set passwords.
+
+**Refused with "only N spaces left"?** The whole list is refused rather than
+half of it: see 3.5, or remove rows and upload again.
+
+**Old .xls or .doc file?** Open it and use Save As to save it as .xlsx, .docx
+or .csv. A scanned PDF (a photo of a page) cannot be read; use the original
+spreadsheet instead.
 
 ---
 

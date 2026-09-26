@@ -14,9 +14,9 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-base font-bold text-gray-900 dark:text-white">Switch it on</h2>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                     While this is off, the poster's address leads nowhere and nothing changes about how your register is taken.
-                </p>
+                </small>
 
                 <label class="mt-4 flex items-start gap-3">
                     <input type="checkbox" name="check_in_enabled" value="1" class="mt-1" @checked(old('check_in_enabled', $school->check_in_enabled))>
@@ -29,9 +29,9 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-base font-bold text-gray-900 dark:text-white">How the pupils' register is taken</h2>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                     Your choice, and you can change it back at any time. Either way a teacher or the office can still correct any row by hand.
-                </p>
+                </small>
 
                 <div class="mt-4 grid gap-3 sm:grid-cols-2">
                     @foreach ($modes as $mode)
@@ -54,10 +54,10 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-base font-bold text-gray-900 dark:text-white">Where the school is</h2>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                     A printed code can be photographed, so a scan only counts from inside this circle. Find your school on a map,
                     right-click the gate, and copy the two numbers it gives you.
-                </p>
+                </small>
 
                 <div class="mt-4 grid gap-4 sm:grid-cols-3">
                     <div>
@@ -87,34 +87,34 @@
             <h2 class="text-base font-bold text-gray-900 dark:text-white">The poster</h2>
 
             @if ($posterUrl)
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                     A3, with your school's name and logo above the code. Print it, laminate it, and put it where the queue forms.
-                </p>
-                <p class="mt-3 break-all rounded-[6px] bg-gray-50 p-3 font-mono text-xs text-gray-600 dark:bg-gray-900 dark:text-gray-300">{{ $posterUrl }}</p>
+                </small>
+                <small class="block mt-3 break-all rounded-[6px] bg-gray-50 p-3 font-mono text-xs text-gray-600 dark:bg-gray-900 dark:text-gray-300">{{ $posterUrl }}</small>
 
                 <div class="mt-4 flex flex-wrap gap-3">
-                    <a href="{{ route('attendance.check-in.poster') }}" class="rounded-[6px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-blue-700">Download the poster</a>
+                    <a href="{{ route('attendance.check-in.poster') }}" class="btn rounded-[6px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-blue-700">Download the poster</a>
 
                     <form method="POST" action="{{ route('attendance.check-in.rotate') }}" onsubmit="return confirm('The poster on the wall will stop working immediately. Print and put up the new one. Continue?')">
                         @csrf
-                        <button type="submit" class="rounded-[6px] border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition-colors duration-150 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20">Issue a new code</button>
+                        <button type="submit" class="btn rounded-[6px] border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition-colors duration-150 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20">Issue a new code</button>
                     </form>
                 </div>
 
-                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                <small class="block mt-3 text-xs text-gray-500 dark:text-gray-400">
                     Issue a new code if the poster has been photographed and passed around. The only cost is a reprint.
-                </p>
+                </small>
             @else
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Switch check-in on and save, and the poster appears here.</p>
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">Switch check-in on and save, and the poster appears here.</small>
             @endif
         </div>
 
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-base font-bold text-gray-900 dark:text-white">The last 25 scans</h2>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                     Refusals included. A scan from far away, or one held on a phone until it found signal, shows here with the time it was really made.
-                </p>
+                </small>
             </div>
 
             <div class="overflow-x-auto">

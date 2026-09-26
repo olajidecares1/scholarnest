@@ -38,10 +38,10 @@
         <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-700">
             <div class="min-w-0">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Student Result</h3>
-                <p class="truncate text-xs font-mono text-gray-500 dark:text-gray-400" x-show="$store.resultPreview.cardNumber" x-text="$store.resultPreview.cardNumber"></p>
+                <small class="block truncate text-xs font-mono text-gray-500 dark:text-gray-400" x-show="$store.resultPreview.cardNumber" x-text="$store.resultPreview.cardNumber"></small>
             </div>
             <button type="button" @click="$store.resultPreview.close()" class="shrink-0 rounded-[8px] p-2 text-gray-400 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200">
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <i class="fa-solid fa-xmark text-[17px] leading-none" aria-hidden="true"></i>
             </button>
         </div>
 
@@ -74,7 +74,7 @@
                         <button type="button" @click="$store.resultPreview.zoomReset()" class="w-14 rounded-[6px] px-1 py-1 text-center text-xs font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700" x-text="Math.round($store.resultPreview.zoom * 100) + '%'"></button>
                         <button type="button" @click="$store.resultPreview.zoomIn()" class="flex h-7 w-7 items-center justify-center rounded-[6px] border border-gray-300 bg-white text-sm font-bold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">+</button>
                         <span class="mx-0.5 h-4 w-px bg-gray-300 dark:bg-gray-600"></span>
-                        <button type="button" @click="$store.resultPreview.fitToScreen()" class="rounded-[6px] border border-gray-300 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">Fit to Screen</button>
+                        <button type="button" @click="$store.resultPreview.fitToScreen()" class="btn rounded-[6px] border border-gray-300 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">Fit to Screen</button>
                     </div>
                     <div id="result-report-card-container" class="flex justify-center overflow-auto rounded-[8px] py-2" style="max-height: 70vh;">
                         <div id="result-report-card-content" :style="'transform: scale(' + $store.resultPreview.zoom + '); transform-origin: top center; transition: transform 150ms ease-out;'" x-html="$store.resultPreview.reportCardHtml"></div>
@@ -83,7 +83,7 @@
 
                 @if ($canSend)
                 <div x-show="$store.resultPreview.tab === 'send'" style="display: none;" class="mx-auto max-w-sm space-y-4 py-4 text-left">
-                    <p class="text-sm text-gray-600 dark:text-gray-300">Choose who should receive this student's complete result and report card.</p>
+                    <small class="block text-sm text-gray-600 dark:text-gray-300">Choose who should receive this student's complete result and report card.</small>
 
                     <label class="flex items-center gap-2 rounded-[8px] border border-gray-200 p-3 text-sm dark:border-gray-700">
                         <input type="checkbox" x-model="$store.resultPreview.recipients.student" class="text-blue-600">
@@ -93,11 +93,11 @@
                         <input type="checkbox" x-model="$store.resultPreview.recipients.guardians" :disabled="$store.resultPreview.guardianCount === 0" class="text-blue-600">
                         <span>
                             Parent / Guardian
-                            <span class="block text-xs text-gray-400" x-show="$store.resultPreview.guardianCount === 0">No guardian is linked to this student yet.</span>
+                            <small class="block text-xs text-gray-400" x-show="$store.resultPreview.guardianCount === 0">No guardian is linked to this student yet.</small>
                         </span>
                     </label>
 
-                    <p class="text-xs text-gray-400" x-show="$store.resultPreview.lastSentAt" x-text="'Last sent: ' + $store.resultPreview.lastSentAt"></p>
+                    <small class="block text-xs text-gray-400" x-show="$store.resultPreview.lastSentAt" x-text="'Last sent: ' + $store.resultPreview.lastSentAt"></small>
 
                     <template x-if="$store.resultPreview.sendMessage">
                         <p class="rounded-[8px] bg-green-50 p-3 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400" x-text="$store.resultPreview.sendMessage"></p>
@@ -107,7 +107,7 @@
                         type="button"
                         @click="confirm('Send this result now? The recipient(s) will be notified immediately.') && $store.resultPreview.confirmSend()"
                         :disabled="$store.resultPreview.sending || (!$store.resultPreview.recipients.student && !$store.resultPreview.recipients.guardians)"
-                        class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
+                        class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
                     >
                         <span x-show="$store.resultPreview.sending">Sending&hellip;</span>
                         <span x-show="!$store.resultPreview.sending">Send Result</span>
@@ -124,7 +124,7 @@
                         type="button"
                         @click="$store.resultPreview.print()"
                         :disabled="!$store.resultPreview.hasScores"
-                        class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                        class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
                         Print
                     </button>
@@ -135,7 +135,7 @@
                         type="button"
                         @click="$store.resultPreview.download()"
                         :disabled="$store.resultPreview.downloading || !$store.resultPreview.hasScores"
-                        class="flex min-w-[9rem] items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
+                        class="btn flex min-w-[9rem] items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
                     >
                         <span x-show="$store.resultPreview.downloading">Downloading&hellip;</span>
                         <span x-show="!$store.resultPreview.downloading">Download PDF</span>

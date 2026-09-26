@@ -6,11 +6,11 @@
                     <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $notice->title }}</p>
                     <span class="text-xs text-gray-400">{{ $notice->created_at->diffForHumans() }}</span>
                 </div>
-                <p class="mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">{{ $notice->body }}</p>
+                <small class="block mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">{{ $notice->body }}</small>
             </div>
         @empty
             <div class="rounded-[10px] border border-dashed border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm text-gray-500 dark:text-gray-400">No messages yet.</p>
+                <small class="block text-sm text-gray-500 dark:text-gray-400">No messages yet.</small>
             </div>
         @endforelse
 

@@ -55,10 +55,10 @@
                     <p class="text-gray-500 dark:text-gray-400">{{ collect([$contact->phone, $contact->email])->filter()->implode(' · ') ?: 'No contact details set' }}</p>
                 </div>
             </div>
-            <p class="mt-3 text-[12.5px] text-gray-500 dark:text-gray-400">
+            <small class="block mt-3 text-[12.5px] text-gray-500 dark:text-gray-400">
                 These come from your school settings automatically.
                 <a href="{{ route('settings.index') }}" class="font-semibold text-primary-700 hover:underline">Update school settings</a>
-            </p>
+            </small>
         </section>
 
         <section class="{{ $card }}">
@@ -102,7 +102,7 @@
         {{-- The job image: on the portal, in the share image and the link preview. --}}
         <section class="{{ $card }}" x-data="{ preview: @js($job->featuredImageUrl()), remove: false }">
             <h2 class="{{ $sectionTitle }}"><i class="fa-solid fa-image text-primary-500" aria-hidden="true"></i>Job image</h2>
-            <p class="mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">Shown at the top of the vacancy, in the image you download to share, and in link previews on WhatsApp, Facebook and LinkedIn. A wide photo works best.</p>
+            <small class="block mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">Shown at the top of the vacancy, in the image you download to share, and in link previews on WhatsApp, Facebook and LinkedIn. A wide photo works best.</small>
 
             <div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
                 <div class="flex aspect-[16/9] w-full shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-dashed border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-900 sm:w-56">
@@ -147,14 +147,14 @@
         >
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <h2 class="{{ $sectionTitle }}"><i class="fa-solid fa-circle-question text-primary-500" aria-hidden="true"></i>Extra questions for applicants</h2>
-                <button type="button" x-on:click="add()" x-bind:disabled="questions.length >= max" class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-[12.5px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200">
+                <button type="button" x-on:click="add()" x-bind:disabled="questions.length >= max" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-[12.5px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200">
                     <i class="fa-solid fa-plus" aria-hidden="true"></i> Add question
                 </button>
             </div>
-            <p class="mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">Optional. Every applicant is already asked for their name, contact details, qualifications, experience, cover letter and CV.</p>
+            <small class="block mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">Optional. Every applicant is already asked for their name, contact details, qualifications, experience, cover letter and CV.</small>
 
             <template x-if="questions.length === 0">
-                <p class="mt-4 rounded-[8px] bg-gray-50 p-4 text-center text-[13px] text-gray-500 dark:bg-gray-900 dark:text-gray-400">No extra questions.</p>
+                <small class="block mt-4 rounded-[8px] bg-gray-50 p-4 text-center text-[13px] text-gray-500 dark:bg-gray-900 dark:text-gray-400">No extra questions.</small>
             </template>
 
             <div class="mt-4 space-y-3">
@@ -199,12 +199,12 @@
         </section>
 
         <div class="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-gray-200 bg-white/95 px-4 py-3 dark:border-gray-700 dark:bg-gray-900/95 sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:p-0">
-            <button type="submit" name="intent" value="save" x-bind:disabled="submitting" class="inline-flex h-[42px] items-center justify-center gap-2 rounded-[8px] border border-gray-300 bg-white px-5 text-[13px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
+            <button type="submit" name="intent" value="save" x-bind:disabled="submitting" class="btn inline-flex h-[42px] items-center justify-center gap-2 rounded-[8px] border border-gray-300 bg-white px-5 text-[13px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
                 <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
                 {{ $editing ? 'Save changes' : 'Save as draft' }}
             </button>
             @if (! $editing || $job->status !== \App\Enums\JobPostingStatus::Published)
-                <button type="submit" name="intent" value="publish" x-bind:disabled="submitting" class="inline-flex h-[42px] items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-5 text-[13px] font-bold text-white hover:bg-primary-700 disabled:opacity-60">
+                <button type="submit" name="intent" value="publish" x-bind:disabled="submitting" class="btn inline-flex h-[42px] items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-5 text-[13px] font-bold text-white hover:bg-primary-700 disabled:opacity-60">
                     <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
                     {{ $editing ? 'Save & publish' : 'Publish vacancy' }}
                 </button>

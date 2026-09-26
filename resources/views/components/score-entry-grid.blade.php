@@ -71,7 +71,7 @@
          teacher finishes one, picks the next, and carries on. --}}
     @if ($examination->subjects->count() > 1)
         <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-            <p class="field-hint">Subject</p>
+            <small class="field-hint">Subject</small>
             <div class="mt-2 flex flex-wrap gap-2">
                 @foreach ($examination->subjects as $option)
                     @php($entered = $option->scores()->count())
@@ -123,7 +123,7 @@
                         >
                             <td class="px-6 py-3">
                                 <p class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</p>
-                                <p class="field-hint">{{ $student->admission_number }}</p>
+                                <small class="field-hint">{{ $student->admission_number }}</small>
                             </td>
 
                             <td class="px-4 py-3">
@@ -171,12 +171,12 @@
 
         @if ($students->isNotEmpty())
             <div class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 p-6 dark:border-gray-700">
-                <p class="field-hint">
+                <small class="field-hint">
                     Total, percentage, grade and remark are worked out from the two scores and cannot be typed.
                     Leave both blank to skip a student.
-                </p>
+                </small>
 
-                <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
+                <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
                     Save Scores
                 </button>
             </div>

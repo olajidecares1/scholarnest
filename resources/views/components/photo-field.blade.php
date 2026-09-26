@@ -72,7 +72,7 @@
                     type="button"
                     x-on:click="openCamera()"
                     x-bind:disabled="busy"
-                    class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+                    class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
                 >
                     <i class="fa-solid fa-camera text-[13px]" aria-hidden="true"></i>
                     <span x-text="busy ? 'Starting camera…' : 'Take Photo'"></span>
@@ -82,7 +82,7 @@
                     type="button"
                     x-on:click="$refs.file.click()"
                     x-bind:disabled="preparing"
-                    class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+                    class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
                 >
                     <i class="fa-solid fa-upload text-[13px]" aria-hidden="true"></i>
                     <span x-text="preparing ? 'Preparing photo…' : (preview ? 'Replace Photo' : 'Upload Photo')"></span>
@@ -93,7 +93,7 @@
                     x-show="preview"
                     x-cloak
                     x-on:click="clear()"
-                    class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-red-600 transition hover:border-red-300 dark:border-gray-600"
+                    class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-red-600 transition hover:border-red-300 dark:border-gray-600"
                 >
                     <i class="fa-solid fa-xmark text-[13px]" aria-hidden="true"></i>
                     Remove
@@ -110,7 +110,7 @@
                 <button
                     type="button"
                     x-on:click="openNativeCamera()"
-                    class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-gray-600 dark:text-gray-200"
+                    class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-gray-600 dark:text-gray-200"
                 >
                     <i class="fa-solid fa-mobile-screen text-[13px]" aria-hidden="true"></i>
                     Use Phone Camera
@@ -155,7 +155,7 @@
                         <button
                             type="button"
                             x-on:click="capture()"
-                            class="flex flex-1 items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-primary-700"
+                            class="btn flex flex-1 items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-primary-700"
                         >
                             <i class="fa-solid fa-circle-dot text-[14px]" aria-hidden="true"></i>
                             Take Photo
@@ -163,7 +163,7 @@
                         <button
                             type="button"
                             x-on:click="cancelCamera()"
-                            class="rounded-[8px] border border-gray-300 px-4 py-2.5 text-[13px] font-bold text-gray-700 dark:border-gray-600 dark:text-gray-200"
+                            class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-[13px] font-bold text-gray-700 dark:border-gray-600 dark:text-gray-200"
                         >
                             Cancel
                         </button>
@@ -176,7 +176,7 @@
                         <button
                             type="button"
                             x-on:click="confirm()"
-                            class="flex flex-1 items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-primary-700"
+                            class="btn flex flex-1 items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-primary-700"
                         >
                             <i class="fa-solid fa-check text-[13px]" aria-hidden="true"></i>
                             Use This Photo
@@ -184,7 +184,7 @@
                         <button
                             type="button"
                             x-on:click="retake()"
-                            class="rounded-[8px] border border-gray-300 px-4 py-2.5 text-[13px] font-bold text-gray-700 dark:border-gray-600 dark:text-gray-200"
+                            class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-[13px] font-bold text-gray-700 dark:border-gray-600 dark:text-gray-200"
                         >
                             Retake
                         </button>

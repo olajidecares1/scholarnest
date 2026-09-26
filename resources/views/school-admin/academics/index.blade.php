@@ -59,16 +59,16 @@
             <button
                 type="button"
                 @click="addLevelOpen = true"
-                class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                 Add Academic Level
             </button>
         </div>
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Term Dates</h2>
-            <p class="field-hint mt-1">Used to work out "this term's" attendance on report cards and in the Teacher Portal.</p>
+            <small class="field-hint mt-1">Used to work out "this term's" attendance on report cards and in the Teacher Portal.</small>
 
             @if ($terms->isNotEmpty())
                 <div class="mt-4 overflow-x-auto rounded-[8px] border border-gray-200 dark:border-gray-700">
@@ -108,16 +108,16 @@
                 <x-select-field name="term" label="Term" :options="collect($termOptions)->mapWithKeys(fn ($t) => [$t->value => $t->label()])->all()" />
                 <x-text-field name="starts_on" label="Starts On" type="date" required />
                 <x-text-field name="ends_on" label="Ends On" type="date" required />
-                <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save</button>
+                <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save</button>
             </form>
         </div>
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Grading</h2>
-            <p class="field-hint mt-1">
+            <small class="field-hint mt-1">
                 Configure the percentage ranges, letters, and descriptions used to grade every score in this school.
                 Leave it empty to use the default A to E scale; add even one grade and this school is graded on your scale alone.
-            </p>
+            </small>
 
             @if ($gradeCoverageGaps !== [])
                 {{-- Once a school has its own scale, nothing falls back to the
@@ -180,8 +180,8 @@
                                                 <input type="text" name="letter" value="{{ $band->letter }}" maxlength="3" required  placeholder="Letter">
                                                 <input type="text" name="description" value="{{ $band->description }}" maxlength="100"  placeholder="Description">
                                                 <div class="flex gap-2">
-                                                    <button type="submit" class="rounded-[8px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
-                                                    <button type="button" @click="editing = false" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                                                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
+                                                    <button type="button" @click="editing = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
                                                 </div>
                                             </form>
                                         </td>
@@ -199,7 +199,7 @@
                 <x-text-field name="max_percent" label="Max %" type="number" min="0" max="100" required />
                 <x-text-field name="letter" label="Letter" maxlength="3" placeholder="e.g. A" required />
                 <x-text-field name="description" label="Description" placeholder="e.g. Excellent" />
-                <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Add Grade</button>
+                <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Add Grade</button>
             </form>
         </div>
 
@@ -229,18 +229,18 @@
                             @csrf @method('PUT')
                             <input type="text" name="name" x-model="levelName" class="w-full">
                             <input type="text" name="code" x-model="levelCode" maxlength="10" placeholder="Code" title="Admission-number level code, e.g. PRY" class="w-20 shrink-0 uppercase">
-                            <button type="submit" class="shrink-0 rounded-[8px] bg-blue-600 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
+                            <button type="submit" class="btn shrink-0 rounded-[8px] bg-blue-600 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
                         </form>
                     </div>
 
                     <div class="flex shrink-0 items-center gap-1">
                         <button type="button" @click="editingLevel = !editingLevel" class="rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-blue-400">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20l4.3-.7L19 8.6a1.5 1.5 0 000-2.1l-1.5-1.5a1.5 1.5 0 00-2.1 0L4.7 15.7 4 20z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            <i class="fa-solid fa-pen text-[14px] leading-none" aria-hidden="true"></i>
                         </button>
                         <form method="POST" action="{{ route('academics.levels.destroy', $level) }}" onsubmit="return confirm('Delete {{ $level->name }} and every class inside it?');">
                             @csrf @method('DELETE')
                             <button type="submit" class="rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:text-gray-500 dark:hover:bg-red-900/20 dark:hover:text-red-400">
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></svg>
+                                <i class="fa-solid fa-xmark text-[14px] leading-none" aria-hidden="true"></i>
                             </button>
                         </form>
                     </div>
@@ -286,17 +286,17 @@
         <div x-show="addLevelOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
             <div @click.outside="addLevelOpen = false" class="w-full max-w-md rounded-[8px] bg-white p-6 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Add Academic Level</h3>
-                <p class="field-hint mt-1">e.g. Senior Secondary School, Junior Secondary School, Upper Primary, Lower Primary, Nursery, Kindergarten/Creche, or any other level your school uses.</p>
+                <small class="field-hint mt-1">e.g. Senior Secondary School, Junior Secondary School, Upper Primary, Lower Primary, Nursery, Kindergarten/Creche, or any other level your school uses.</small>
                 <form method="POST" action="{{ route('academics.levels.store') }}" class="mt-4 space-y-2">
                     @csrf
                     <input type="text" name="name" required placeholder="Level name" class="w-full">
                     <div>
                         <input type="text" name="code" maxlength="10" placeholder="Code (optional, e.g. PRY)" class="w-full uppercase">
-                        <p class="field-hint mt-1">Used in auto-generated admission numbers for classes in this level, e.g. "PRY" &rarr; MIS-2025/2026-PRY-004.</p>
+                        <small class="field-hint mt-1">Used in auto-generated admission numbers for classes in this level, e.g. "PRY" &rarr; MIS-2025/2026-PRY-004.</small>
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="addLevelOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Level</button>
+                        <button type="button" @click="addLevelOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Level</button>
                     </div>
                 </form>
             </div>

@@ -79,7 +79,7 @@
         <p class="text-[11px] font-bold uppercase tracking-wide text-primary-600">
             Step {{ $position }} of {{ $total }}
         </p>
-        <p class="truncate text-[11px] font-semibold text-gray-500">{{ $steps->values()[$position - 1] ?? '' }}</p>
+        <small class="block truncate text-[11px] font-semibold text-gray-500">{{ $steps->values()[$position - 1] ?? '' }}</small>
     </div>
 
     <div
@@ -128,7 +128,7 @@
                             ])>
                                 {{ $label }}
                             </p>
-                            <p class="mt-0.5 text-[10px] font-semibold leading-tight text-gray-600">
+                            <small class="block mt-0.5 text-[10px] font-semibold leading-tight text-gray-600">
                                 @if ($number < $position)
                                     Completed
                                 @elseif ($number === $position)
@@ -136,7 +136,7 @@
                                 @else
                                     Pending
                                 @endif
-                            </p>
+                            </small>
                         </div>
                     </div>
                 </li>

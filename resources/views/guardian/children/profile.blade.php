@@ -11,11 +11,11 @@
                 @endif
                 <div class="min-w-0 flex-1">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $student->fullName() }}</h2>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                         {{ $student->admission_number }}
                         @if ($student->class_name) &middot; {{ $student->class_name }} @endif
                         @if ($student->age()) &middot; {{ $student->age() }} years old @endif
-                    </p>
+                    </small>
                 </div>
             </div>
         </div>
@@ -30,7 +30,7 @@
                 <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $student->email ?? 'N/A' }}</dd></div>
                 <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Address</dt><dd class="text-right font-medium text-gray-900 dark:text-white">{{ $student->address ?? 'N/A' }}</dd></div>
             </dl>
-            <p class="mt-6 text-xs text-gray-400 dark:text-gray-500">To update these details, please contact the school office.</p>
+            <small class="block mt-6 text-xs text-gray-400 dark:text-gray-500">To update these details, please contact the school office.</small>
         </div>
 
         <x-check-result-card

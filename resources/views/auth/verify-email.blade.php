@@ -10,10 +10,10 @@
         </div>
 
         <h2 class="mt-4 text-center text-xl font-bold text-gray-900">Verify Your Email</h2>
-        <p class="mt-1 text-center text-sm text-gray-600">
+        <small class="block mt-1 text-center text-sm text-gray-600">
             Thanks for signing up! Before getting started, click the verification link we just emailed to you.
             If you didn&rsquo;t receive it, we can send another one.
-        </p>
+        </small>
 
         @if (session('status') == 'verification-link-sent')
             <div class="mt-4 rounded-[5px] bg-primary-50 p-3 text-center text-sm font-medium text-primary-700 lg:rounded-[10px]">
@@ -26,7 +26,7 @@
                 @csrf
                 <button
                     type="submit"
-                    class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                    class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                 >
                     Resend Verification Email
                 </button>

@@ -14,7 +14,7 @@
                             <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $announcement->title }}</h3>
                             <span class="text-xs text-gray-400 dark:text-gray-500">{{ $announcement->created_at->diffForHumans() }}</span>
                         </div>
-                        <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">{{ $announcement->body }}</p>
+                        <small class="block mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">{{ $announcement->body }}</small>
                     </div>
                 </div>
             </div>

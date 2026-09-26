@@ -8,7 +8,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Class Ranking</h2>
-                <p class="field-hint mt-0.5">Ranked by average score across {{ $subjectCount }} subject(s).</p>
+                <small class="field-hint mt-0.5">Ranked by average score across {{ $subjectCount }} subject(s).</small>
             </div>
 
             <div class="overflow-x-auto">
@@ -34,7 +34,7 @@
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['subjectsGraded'] }} / {{ $subjectCount }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['average'] !== null ? $summary['average'].'%' : 'N/A' }}</td>
                                 <td class="px-6 py-3">
-                                    <a href="{{ route('examinations.report-cards.show', [$examination, $summary['student']]) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">View Report Card</a>
+                                    <a href="{{ route('examinations.report-cards.show', [$examination, $summary['student']]) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">View Report Card</a>
                                 </td>
                             </tr>
                         @empty

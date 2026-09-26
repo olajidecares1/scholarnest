@@ -1,6 +1,6 @@
 ---
 title: Cookie & Browser Storage Policy
-version: "1.1"
+version: "1.2"
 effective_date: "[TO BE PROVIDED]"
 last_updated: 2026-09-13
 status: Awaiting legal review
@@ -8,7 +8,7 @@ status: Awaiting legal review
 
 # AkademicNest Cookie & Browser Storage Policy
 
-**Version 1.1 · Effective [TO BE PROVIDED] · Last updated 13 September 2026**
+**Version 1.2 · Effective [TO BE PROVIDED] · Last updated 26 September 2026**
 
 <!-- internal:start -->
 > **Draft.** Not yet reviewed by a lawyer. Note in particular that AkademicNest

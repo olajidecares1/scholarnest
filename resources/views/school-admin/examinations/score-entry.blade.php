@@ -25,7 +25,7 @@
                 <span class="text-gray-400">=</span>
                 <span class="rounded-[6px] bg-primary-50 px-2.5 py-1 font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">Total 100</span>
             </div>
-            <p class="field-hint">Total, grade and remark come from this school's grading scale.</p>
+            <small class="field-hint">Total, grade and remark come from this school's grading scale.</small>
         </div>
 
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
@@ -85,7 +85,7 @@
                 />
             @else
                 @if ($selectedClass === '' || $selectedTerm === null)
-                    <p class="p-6 text-sm text-gray-500 dark:text-gray-400">Choose a class and term to begin entering scores.</p>
+                    <small class="block p-6 text-sm text-gray-500 dark:text-gray-400">Choose a class and term to begin entering scores.</small>
                 @elseif (! $examination)
                     {{-- Not a dead end. Sending an admin to another page to build
                          the paper, then back here to re-pick the same three
@@ -97,11 +97,11 @@
                         </p>
 
                         @if ($offeredSubjectCount > 0)
-                            <p class="field-hint mt-1">
+                            <small class="field-hint mt-1">
                                 Create it here and it will carry the
                                 {{ $offeredSubjectCount }} subject{{ $offeredSubjectCount === 1 ? '' : 's' }}
                                 this class is offered, each marked out of 100.
-                            </p>
+                            </small>
 
                             <form method="POST" action="{{ route('examinations.score-entry.create') }}" class="mt-4">
                                 @csrf
@@ -109,22 +109,22 @@
                                 <input type="hidden" name="session" value="{{ $selectedSession }}">
                                 <input type="hidden" name="term" value="{{ $selectedTerm->value }}">
 
-                                <button type="submit" class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
+                                <button type="submit" class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
                                     <i class="fa-solid fa-plus text-[12px]"></i>
                                     Create it and start entering scores
                                 </button>
                             </form>
                         @else
-                            <p class="field-hint mt-1">
+                            <small class="field-hint mt-1">
                                 {{ $selectedClass }} has no subjects set up yet, so there is nothing to mark.
                                 Add them on the <a href="{{ route('class-subjects.index') }}" class="font-semibold text-primary-600 hover:text-primary-700">Class Subjects</a> page first.
-                            </p>
+                            </small>
                         @endif
                     </div>
                 @else
-                    <p class="p-6 text-sm text-gray-500 dark:text-gray-400">
+                    <small class="block p-6 text-sm text-gray-500 dark:text-gray-400">
                         {{ $examination->name }} has no subjects yet. Add its subjects from the Examinations page first.
-                    </p>
+                    </small>
                 @endif
             @endif
         </div>

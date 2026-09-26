@@ -44,13 +44,13 @@
                         @endif
                     </div>
                     <h2 class="mt-2 text-xl font-extrabold text-gray-900 dark:text-white">{{ $job->title }}</h2>
-                    <p class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-gray-500 dark:text-gray-400">
+                    <small class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-gray-500 dark:text-gray-400">
                         <span><i class="fa-solid fa-clock mr-1" aria-hidden="true"></i>{{ $job->employment_type->label() }}</span>
                         @if ($job->department)<span><i class="fa-solid fa-building-user mr-1" aria-hidden="true"></i>{{ $job->department }}</span>@endif
                         @if ($job->location)<span><i class="fa-solid fa-location-dot mr-1" aria-hidden="true"></i>{{ $job->location }}</span>@endif
                         @if ($job->salary_range)<span><i class="fa-solid fa-money-bill-wave mr-1" aria-hidden="true"></i>{{ $job->salary_range }}</span>@endif
                         @if ($job->closes_at)<span><i class="fa-regular fa-calendar mr-1" aria-hidden="true"></i>Closes {{ $job->closes_at->format('j M Y') }}</span>@endif
-                    </p>
+                    </small>
 
                     <div class="mt-5 flex flex-wrap gap-2">
                         <a href="{{ route('careers.edit', $job) }}" class="{{ $button }}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Edit</a>
@@ -58,7 +58,7 @@
 
                         @if (in_array($job->status, [JobPostingStatus::Draft], true))
                             <form method="POST" action="{{ route('careers.publish', $job) }}">@csrf
-                                <button type="submit" class="inline-flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 py-2 text-[12.5px] font-bold text-white hover:bg-primary-700"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Publish</button>
+                                <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 py-2 text-[12.5px] font-bold text-white hover:bg-primary-700"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Publish</button>
                             </form>
                         @endif
 
@@ -73,7 +73,7 @@
 
                         @if (in_array($job->status, [JobPostingStatus::Closed, JobPostingStatus::Archived], true))
                             <form method="POST" action="{{ route('careers.reopen', $job) }}">@csrf
-                                <button type="submit" class="inline-flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 py-2 text-[12.5px] font-bold text-white hover:bg-primary-700"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Reopen</button>
+                                <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 py-2 text-[12.5px] font-bold text-white hover:bg-primary-700"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Reopen</button>
                             </form>
                         @endif
 
@@ -85,7 +85,7 @@
 
                         @if ($job->applications_count === 0)
                             <form method="POST" action="{{ route('careers.destroy', $job) }}" onsubmit="return confirm('Delete this vacancy permanently?');">@csrf @method('DELETE')
-                                <button type="submit" class="inline-flex items-center gap-1.5 rounded-[8px] border border-red-300 px-3 py-2 text-[12.5px] font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete</button>
+                                <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-red-300 px-3 py-2 text-[12.5px] font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete</button>
                             </form>
                         @endif
                     </div>
@@ -94,7 +94,7 @@
                     <form method="POST" action="{{ route('careers.extend', $job) }}" class="mt-5 grid gap-2 border-t border-gray-100 pt-4 dark:border-gray-700 sm:grid-cols-[1fr_auto] sm:items-end">
                         @csrf
                         <x-text-field name="closes_at" type="date" label="Extend or change the application deadline" icon="fa-calendar-plus" :value="$job->closes_at?->format('Y-m-d')" :min="today()->format('Y-m-d')" required />
-                        <button type="submit" class="inline-flex h-[var(--field-height)] items-center justify-center gap-2 rounded-[8px] border border-gray-300 px-4 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
+                        <button type="submit" class="btn inline-flex h-[var(--field-height)] items-center justify-center gap-2 rounded-[8px] border border-gray-300 px-4 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
                             <i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Update deadline
                         </button>
                     </form>
@@ -109,10 +109,10 @@
 
                     {{-- Recruitment progress at a glance, each a filter. --}}
                     <div class="mt-4 flex flex-wrap gap-2">
-                        <a href="{{ $statusFilterUrl(null) }}" class="rounded-full px-3 py-1 text-[12px] font-semibold {{ blank($filters['status'] ?? null) ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200' }}">All {{ $job->applications_count }}</a>
+                        <a href="{{ $statusFilterUrl(null) }}" class="btn rounded-full px-3 py-1 text-[12px] font-semibold {{ blank($filters['status'] ?? null) ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200' }}">All {{ $job->applications_count }}</a>
                         @foreach ($applicationStatuses as $status)
                             @if (($statusCounts[$status->value] ?? 0) > 0)
-                                <a href="{{ $statusFilterUrl($status->value) }}" class="rounded-full px-3 py-1 text-[12px] font-semibold {{ ($filters['status'] ?? null) === $status->value ? 'bg-primary-600 text-white' : $status->badgeClasses() }}">
+                                <a href="{{ $statusFilterUrl($status->value) }}" class="btn rounded-full px-3 py-1 text-[12px] font-semibold {{ ($filters['status'] ?? null) === $status->value ? 'bg-primary-600 text-white' : $status->badgeClasses() }}">
                                     {{ $status->label() }} {{ $statusCounts[$status->value] }}
                                 </a>
                             @endif
@@ -120,9 +120,9 @@
                     </div>
 
                     @if ($applications->isEmpty())
-                        <p class="mt-4 rounded-[8px] bg-gray-50 p-6 text-center text-[13px] text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+                        <small class="block mt-4 rounded-[8px] bg-gray-50 p-6 text-center text-[13px] text-gray-500 dark:bg-gray-900 dark:text-gray-400">
                             {{ $job->applications_count ? 'No applicants with this status.' : ($shareable ? 'No applications yet. Share the link to reach applicants.' : 'No applications yet.') }}
-                        </p>
+                        </small>
                     @else
                         <ul class="mt-4 divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach ($applications as $application)
@@ -131,7 +131,7 @@
                                         <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-[13px] font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ $application->initials() }}</span>
                                         <span class="min-w-0 flex-1">
                                             <span class="block truncate text-[14px] font-bold text-gray-900 dark:text-white">{{ $application->full_name }}</span>
-                                            <span class="block truncate text-[12px] text-gray-500 dark:text-gray-400">{{ $application->email }} · {{ $application->years_of_experience }} yrs · {{ $application->created_at->diffForHumans() }}</span>
+                                            <small class="block truncate text-[12px] text-gray-500 dark:text-gray-400">{{ $application->email }} · {{ $application->years_of_experience }} yrs · {{ $application->created_at->diffForHumans() }}</small>
                                         </span>
                                         <span class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold {{ $application->status->badgeClasses() }}">
                                             <i class="fa-solid {{ $application->status->icon() }}" aria-hidden="true"></i><span class="hidden sm:inline">{{ $application->status->label() }}</span>
@@ -169,14 +169,14 @@
                     <label for="job-link" class="field-label mt-4">Application link</label>
                     <div class="mt-1 flex gap-2">
                         <input id="job-link" x-ref="link" type="text" readonly value="{{ $jobUrl }}" class="min-w-0 flex-1" x-on:focus="$event.target.select()">
-                        <button type="button" x-on:click="copy()" class="inline-flex h-[var(--field-height)] shrink-0 items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 text-[12.5px] font-bold text-white hover:bg-primary-700">
+                        <button type="button" x-on:click="copy()" class="btn inline-flex h-[var(--field-height)] shrink-0 items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 text-[12.5px] font-bold text-white hover:bg-primary-700">
                             <i class="fa-solid" :class="copied ? 'fa-check' : 'fa-copy'" aria-hidden="true"></i>
                             <span x-text="copied ? 'Copied' : 'Copy'">Copy</span>
                         </button>
                     </div>
                     <small class="field-hint mt-1">Opens this vacancy on your Job Portal, and nowhere else.</small>
 
-                    <button type="button" x-show="canShare" x-cloak x-on:click="share()" class="mt-4 inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] bg-gray-900 text-[13px] font-bold text-white hover:bg-gray-800 dark:bg-gray-700">
+                    <button type="button" x-show="canShare" x-cloak x-on:click="share()" class="btn mt-4 inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] bg-gray-900 text-[13px] font-bold text-white hover:bg-gray-800 dark:bg-gray-700">
                         <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i> Share… (Instagram, WhatsApp and more)
                     </button>
 
@@ -191,10 +191,10 @@
 
                     <div class="mt-5 border-t border-gray-100 pt-4 dark:border-gray-700">
                         <p class="text-[13px] font-bold text-gray-900 dark:text-white"><i class="fa-solid fa-image mr-1 text-primary-500" aria-hidden="true"></i>Job post image</p>
-                        <p class="mt-1 text-[12px] text-gray-500 dark:text-gray-400">
+                        <small class="block mt-1 text-[12px] text-gray-500 dark:text-gray-400">
                             For Instagram, WhatsApp Status and Facebook posts. It shows your logo, school name and address, the job, and this vacancy's link with a QR code, so anyone who only sees the picture can still apply.
-                        </p>
-                        <a href="{{ route('careers.share-image', $job) }}" class="mt-3 inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] border border-gray-300 text-[13px] font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
+                        </small>
+                        <a href="{{ route('careers.share-image', $job) }}" class="btn mt-3 inline-flex h-[40px] w-full items-center justify-center gap-2 rounded-[8px] border border-gray-300 text-[13px] font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
                             <i class="fa-solid fa-download" aria-hidden="true"></i> Download image
                         </a>
                     </div>

@@ -55,23 +55,14 @@
             >
                 {{-- A Font Awesome class ("fa-briefcase") or an SVG path, whichever
                      the caller passes: the recruitment forms use Font Awesome. --}}
-                @if (str_starts_with($icon, 'fa-'))
-                    <i class="fa-solid {{ $icon }} text-[13px]" aria-hidden="true"></i>
-                @else
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="{{ $icon }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                @endif
+                <i class="fa-solid {{ \App\Support\FieldIcon::fa($icon) }} text-[13px]" aria-hidden="true"></i>
             </span>
         @endif
     </div>
 
     @if ($hasError)
         <p class="mt-1 flex items-center gap-1 text-[11px] font-medium leading-[1.45] text-red-600 dark:text-red-400">
-            <svg class="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75" />
-                <path d="M12 8v5M12 15.5h.01" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-            </svg>
+            <i class="fa-solid fa-circle-exclamation shrink-0 text-[10px] leading-none" aria-hidden="true"></i>
             {{ $errorMessages[0] }}
         </p>
     @elseif ($helper)

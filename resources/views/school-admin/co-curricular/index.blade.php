@@ -7,13 +7,13 @@
         @endif
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Students can browse and join these from their portal.</p>
+            <small class="block text-sm text-gray-500 dark:text-gray-400">Students can browse and join these from their portal.</small>
             <button
                 type="button"
                 @click="editing = null; open = true"
-                class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                 Add Activity
             </button>
         </div>
@@ -28,12 +28,12 @@
                         @endif
                     </div>
                     @if ($activity->description)
-                        <p class="field-hint mt-1">{{ Str::limit($activity->description, 80) }}</p>
+                        <small class="field-hint mt-1">{{ Str::limit($activity->description, 80) }}</small>
                     @endif
                     @if ($activity->schedule_text)
-                        <p class="mt-2 text-xs font-medium text-gray-600 dark:text-gray-300">{{ $activity->schedule_text }}</p>
+                        <small class="block mt-2 text-xs font-medium text-gray-600 dark:text-gray-300">{{ $activity->schedule_text }}</small>
                     @endif
-                    <p class="mt-2 text-xs text-gray-400">{{ $activity->students_count }} student(s) joined</p>
+                    <small class="block mt-2 text-xs text-gray-400">{{ $activity->students_count }} student(s) joined</small>
 
                     <div class="mt-3 flex items-center gap-2">
                         <button
@@ -45,19 +45,19 @@
                                 'description' => $activity->description,
                                 'schedule_text' => $activity->schedule_text,
                             ]); open = true"
-                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
                             Edit
                         </button>
                         <form method="POST" action="{{ route('co-curricular.destroy', $activity) }}" onsubmit="return confirm('Remove {{ $activity->name }}?');">
                             @csrf @method('DELETE')
-                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                         </form>
                     </div>
                 </div>
             @empty
                 <div class="col-span-full rounded-[10px] border border-dashed border-gray-300 p-10 text-center dark:border-gray-700">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">No activities yet. Click "Add Activity" to get started.</p>
+                    <small class="block text-sm text-gray-500 dark:text-gray-400">No activities yet. Click "Add Activity" to get started.</small>
                 </div>
             @endforelse
         </div>
@@ -80,8 +80,8 @@
                     <x-textarea-field name="description" label="Description" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="3" x-model="editing ? editing.description : ''" helper="Optional." />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Activity</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Activity</button>
                     </div>
                 </form>
             </div>
