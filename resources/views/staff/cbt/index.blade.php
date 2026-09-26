@@ -7,13 +7,13 @@
         @endif
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="max-w-2xl text-sm text-gray-500 dark:text-gray-400">Tests you create here are delivered to students in the target class as "My Tests". Create a test first, then upload a <span class="font-semibold">Word (.docx)</span> or <span class="font-semibold">PDF</span> paper on the test's page. The questions, options and answer key are read out of it for you to check before you publish.</p>
+            <small class="block max-w-2xl text-sm text-gray-500 dark:text-gray-400">Tests you create here are delivered to students in the target class as "My Tests". Create a test first, then upload a <span class="font-semibold">Word (.docx)</span> or <span class="font-semibold">PDF</span> paper on the test's page. The questions, options and answer key are read out of it for you to check before you publish.</small>
             <button
                 type="button"
                 @click="open = true"
-                class="flex items-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md"
+                class="btn flex items-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                 Create Test
             </button>
         </div>
@@ -31,12 +31,12 @@
                             'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400' => $test->status === \App\Enums\CbtTestStatus::Archived,
                         ])>{{ $test->status->label() }}</span>
                     </div>
-                    <p class="field-hint mt-1">{{ $test->subject }} &middot; {{ $test->class_name }}</p>
-                    <p class="mt-3 text-xs text-gray-400">{{ $test->questions_count }} question(s) &middot; {{ $test->duration_minutes }} min</p>
+                    <small class="field-hint mt-1">{{ $test->subject }} &middot; {{ $test->class_name }}</small>
+                    <small class="block mt-3 text-xs text-gray-400">{{ $test->questions_count }} question(s) &middot; {{ $test->duration_minutes }} min</small>
                 </a>
             @empty
                 <div class="col-span-full rounded-[10px] border border-dashed border-gray-300 p-10 text-center dark:border-gray-700">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">No tests yet. Click "Create Test" to get started, then upload a Word or PDF question paper and AkademicNest will extract the questions for you.</p>
+                    <small class="block text-sm text-gray-500 dark:text-gray-400">No tests yet. Click "Create Test" to get started, then upload a Word or PDF question paper and AkademicNest will extract the questions for you.</small>
                 </div>
             @endforelse
         </div>
@@ -55,8 +55,8 @@
                         <x-text-field name="pass_mark" type="number" label="Pass Mark (%)" value="50" min="1" max="100" required />
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">Create</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">Create</button>
                     </div>
                 </form>
             </div>

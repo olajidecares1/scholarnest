@@ -4,7 +4,7 @@
 
         <x-auth-card class="!max-w-none">
             <h2 class="text-lg font-bold text-gray-900">Subscription Summary</h2>
-            <p class="mt-1 text-sm text-gray-600">Please review the details below before confirming.</p>
+            <small class="block mt-1 text-sm text-gray-600">Please review the details below before confirming.</small>
 
             <dl class="mt-6 divide-y divide-gray-100 text-sm">
                 <div class="flex justify-between py-3">
@@ -93,12 +93,10 @@
 
                     <button
                         type="submit"
-                        class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
+                        class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
                     >
                         Confirm & Submit
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
                     </button>
                 </div>
             </form>

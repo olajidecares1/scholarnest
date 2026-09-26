@@ -21,14 +21,14 @@
                             {{ $member->is_active ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                         {{ $member->staff_number }}
                         &middot; {{ $member->role->label() }}
                         @if ($member->department) &middot; {{ $member->department }} @endif
                         @if ($member->age()) &middot; {{ $member->age() }} years old @endif
-                    </p>
+                    </small>
                 </div>
-                <a href="{{ route('staff.index') }}" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                <a href="{{ route('staff.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                     Edit in Staff List
                 </a>
             </div>
@@ -59,7 +59,7 @@
 
                 @if ($member->notes)
                     <h3 class="mt-6 text-sm font-bold text-gray-900 dark:text-white">Notes</h3>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">{{ $member->notes }}</p>
+                    <small class="block mt-2 text-sm text-gray-600 dark:text-gray-300">{{ $member->notes }}</small>
                 @endif
             </div>
         </div>

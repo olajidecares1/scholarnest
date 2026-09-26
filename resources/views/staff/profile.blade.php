@@ -11,10 +11,10 @@
                 @endif
                 <div class="min-w-0 flex-1">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $staff->fullName() }}</h2>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                         {{ $staff->staff_number }} &middot; {{ $staff->role->label() }}
                         @if ($staff->department) &middot; {{ $staff->department }} @endif
-                    </p>
+                    </small>
                 </div>
             </div>
         </div>
@@ -39,7 +39,7 @@
                     <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Emergency Contact</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->emergency_contact_name ?? 'N/A' }}</dd></div>
                     <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">Emergency Phone</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $staff->emergency_contact_phone ?? 'N/A' }}</dd></div>
                 </dl>
-                <p class="mt-6 text-xs text-gray-400 dark:text-gray-500">To update these details, please contact your school office.</p>
+                <small class="block mt-6 text-xs text-gray-400 dark:text-gray-500">To update these details, please contact your school office.</small>
             </div>
         </div>
     </div>

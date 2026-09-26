@@ -92,7 +92,7 @@
                             :options="['' => 'All Roles'] + collect($roleOptions)->mapWithKeys(fn ($r) => [$r->value => $r->label()])->all()"
                         />
                     </div>
-                    <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
+                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
                     @if (request('search') || request('role'))
                         <a href="{{ route('staff.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
                     @endif
@@ -101,9 +101,9 @@
                 <button
                     type="button"
                     @click="editing = null; loginUsernameOverride = null; open = true"
-                    class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                    class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Add Staff
                 </button>
             </div>
@@ -146,7 +146,7 @@
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">
                                         @if ($member->role === \App\Enums\StaffRole::Teacher)
-                                            <a href="{{ route('teacher-assignments.index', ['teacher' => $member->uuid]) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                                            <a href="{{ route('teacher-assignments.index', ['teacher' => $member->uuid]) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                                                 Assignments
                                             </a>
                                         @endif
@@ -170,19 +170,19 @@
                                                 'email' => $member->email,
                                                 'notes' => $member->notes,
                                             ]); loginUsernameOverride = null; open = true"
-                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             Edit
                                         </button>
                                         <form method="POST" action="{{ route('staff.toggle-active', $member) }}">
                                             @csrf @method('POST')
-                                            <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                                                 {{ $member->is_active ? 'Deactivate' : 'Activate' }}
                                             </button>
                                         </form>
                                         <form method="POST" action="{{ route('staff.destroy', $member) }}" onsubmit="return confirm('Remove {{ $member->fullName() }}? This cannot be undone.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -229,7 +229,7 @@
                                     x-bind:value="editing ? editing.staff_number : nextStaffIdPreview()"
                                     class="block w-full min-w-0">
                                 <input type="hidden" name="staff_number" x-bind:value="editing ? editing.staff_number : nextStaffIdPreview()">
-                                <p class="field-hint mt-1">Staff ID &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</p>
+                                <small class="field-hint mt-1">Staff ID &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</small>
                             </div>
                         @else
                             <x-text-field name="staff_number" label="Staff Number" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" x-model="editing ? editing.staff_number : ''" required />
@@ -296,8 +296,8 @@
                     />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Staff Member</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Staff Member</button>
                     </div>
                 </form>
             </div>

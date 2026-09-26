@@ -26,7 +26,7 @@
                 <span class="text-gray-400">=</span>
                 <span class="rounded-[6px] bg-primary-50 px-2.5 py-1 font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">Total 100</span>
             </div>
-            <p class="field-hint">Total, grade and remark are calculated by the system.</p>
+            <small class="field-hint">Total, grade and remark are calculated by the system.</small>
         </div>
 
         @if ($hasRows)
@@ -89,7 +89,7 @@
                                     {{-- Named for what it does to marks already there, so a
                                          teacher coming back to correct one knows this is the
                                          way in rather than looking for a separate edit. --}}
-                                    <a href="{{ route('staff.exams.scores.edit', [$school, $examination, $subject]) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                                    <a href="{{ route('staff.exams.scores.edit', [$school, $examination, $subject]) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                                         {{ $entered > 0 ? 'Enter / Update Scores' : 'Enter Scores' }}
                                     </a>
                                 </td>

@@ -159,14 +159,14 @@
             </div>
 
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <p class="text-[12px] text-gray-500 dark:text-gray-400" x-show="dirty" x-cloak>
+                <small class="block text-[12px] text-gray-500 dark:text-gray-400" x-show="dirty" x-cloak>
                     Unsaved changes. Schools still see the previous text until you save.
-                </p>
+                </small>
                 <div class="ml-auto flex items-center gap-2">
-                    <a href="{{ route('super-admin.legal.index') }}" class="rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">
+                    <a href="{{ route('super-admin.legal.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">
                         Cancel
                     </a>
-                    <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
                         Save &amp; publish
                     </button>
                 </div>
@@ -181,11 +181,11 @@
              notice says so rather than leaving anyone guessing. --}}
         <div x-show="tab === 'preview'" x-cloak class="space-y-4">
             <div class="rounded-[10px] border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
-                <p class="text-[12px] leading-[1.7] text-gray-600 dark:text-gray-400">
+                <small class="block text-[12px] leading-[1.7] text-gray-600 dark:text-gray-400">
                     This is the saved document exactly as a school reads it &mdash; notes for your lawyer removed.
                     Unsaved edits are not shown here.
                     <a href="{{ route('legal.show', $document->slug) }}" target="_blank" rel="noopener" class="font-semibold text-blue-600 hover:underline">Open the real page</a>
-                </p>
+                </small>
             </div>
 
             <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-8">

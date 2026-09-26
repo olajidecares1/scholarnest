@@ -18,11 +18,11 @@
                                 <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $announcement->title }}</p>
                                 <span class="text-xs text-gray-400">{{ $announcement->created_at->diffForHumans() }}</span>
                             </div>
-                            <p class="mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">{{ $announcement->body }}</p>
-                            <p class="mt-2 text-xs text-gray-400">Sent by {{ $announcement->sentBy->name }} to {{ $announcement->recipients_count }} school admin(s)</p>
+                            <small class="block mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">{{ $announcement->body }}</small>
+                            <small class="block mt-2 text-xs text-gray-400">Sent by {{ $announcement->sentBy->name }} to {{ $announcement->recipients_count }} school admin(s)</small>
                         </div>
                     @empty
-                        <p class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No announcements sent yet.</p>
+                        <small class="block px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No announcements sent yet.</small>
                     @endforelse
                 </div>
 
@@ -37,7 +37,7 @@
         <div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">New Announcement</h2>
-                <p class="field-hint mt-1">This will be sent to all {{ number_format($schoolAdminCount) }} school admin(s) by email and in-app notification.</p>
+                <small class="field-hint mt-1">This will be sent to all {{ number_format($schoolAdminCount) }} school admin(s) by email and in-app notification.</small>
 
                 <form method="POST" action="{{ route('super-admin.communications.store') }}" class="mt-4 space-y-2">
                     @csrf
@@ -68,7 +68,7 @@
 
                     <button
                         type="submit"
-                        class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
+                        class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
                     >
                         Send Announcement
                     </button>

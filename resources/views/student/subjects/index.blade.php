@@ -15,7 +15,7 @@
             </div>
         @empty
             <div class="col-span-full rounded-[10px] border border-dashed border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm text-gray-500 dark:text-gray-400">No subjects found for your class yet.</p>
+                <small class="block text-sm text-gray-500 dark:text-gray-400">No subjects found for your class yet.</small>
             </div>
         @endforelse
     </div>

@@ -93,7 +93,7 @@
                         </span>
 
                         <h3 class="mt-4 text-lg font-bold text-gray-900">{{ $plan->name }}</h3>
-                        <p class="mt-1 text-sm text-gray-600">{{ $plan->tagline }}</p>
+                        <small class="block mt-1 text-sm text-gray-600">{{ $plan->tagline }}</small>
 
                         <div class="mt-4 rounded-[5px] bg-gray-50 p-4 lg:rounded-[10px]">
                             {{-- Basic and Standard are both priced per pupil
@@ -104,13 +104,13 @@
                                  it; there is one way to be billed. --}}
                             @if (! $available)
                                 <p class="text-xl font-extrabold text-gray-900">Coming Soon</p>
-                                <p class="text-xs text-gray-500">Not yet available for subscription</p>
+                                <small class="block text-xs text-gray-500">Not yet available for subscription</small>
                             @elseif ($plan->price_per_student_per_term)
                                 <p class="text-xl font-extrabold text-gray-900">&#8358;{{ number_format($plan->price_per_student_per_term, 0) }}</p>
-                                <p class="text-xs text-gray-500">Per Student / Per Term &mdash; Billed based on number of students</p>
+                                <small class="block text-xs text-gray-500">Per Student / Per Term &mdash; Billed based on number of students</small>
                             @else
                                 <p class="text-xl font-extrabold text-gray-900">Custom Pricing</p>
-                                <p class="text-xs text-gray-500">Contact Sales for Pricing</p>
+                                <small class="block text-xs text-gray-500">Contact Sales for Pricing</small>
                             @endif
                         </div>
 
@@ -140,7 +140,7 @@
                             <button
                                 type="button"
                                 disabled
-                                class="mt-6 w-full cursor-not-allowed rounded-[8px] border-2 border-gray-200 bg-gray-100 px-4 py-2.5 text-center text-sm font-semibold text-gray-500"
+                                class="btn mt-6 w-full cursor-not-allowed rounded-[8px] border-2 border-gray-200 bg-gray-100 px-4 py-2.5 text-center text-sm font-semibold text-gray-500"
                             >
                                 Coming Soon
                             </button>
@@ -157,9 +157,7 @@
                     class="flex items-center gap-2 rounded-[8px] px-6 py-3 text-sm font-bold text-white shadow-md transition"
                 >
                     Continue
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
                 </button>
             </div>
         </form>

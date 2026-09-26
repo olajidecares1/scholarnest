@@ -6,10 +6,10 @@
 
         <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Your Contact Details</h2>
-            <p class="field-hint mt-0.5">
+            <small class="field-hint mt-0.5">
                 Yours to keep current &mdash; you are the one who knows when they change.
                 Your school is notified so its records stay in step with yours.
-            </p>
+            </small>
 
             <form method="POST" action="{{ route('staff.settings.update-profile', $school) }}" class="mt-4 space-y-2">
                 @csrf
@@ -21,7 +21,7 @@
                     @else
                         <span class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-xl font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">{{ Str::of($staff->first_name)->substr(0, 1)->upper() }}</span>
                     @endif
-                    <p class="field-hint">Your photo can only be changed by the school office.</p>
+                    <small class="field-hint">Your photo can only be changed by the school office.</small>
                 </div>
 
                 <x-text-field name="email" type="email" label="Email Address" :value="$staff->email" icon="M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7" />
@@ -36,13 +36,13 @@
                 {{-- Named rather than simply absent. A teacher who cannot find
                      where to change their Staff ID should learn that it is not
                      theirs to change, not that the page is missing something. --}}
-                <p class="field-hint">
+                <small class="field-hint">
                     Your name, Staff ID and role are the school&rsquo;s records to maintain. Use the request form
                     below if any of them need correcting.
-                </p>
+                </small>
 
                 <div class="flex justify-end">
-                    <button type="submit" class="rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700">Update</button>
+                    <button type="submit" class="btn rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700">Update</button>
                 </div>
             </form>
         </div>
@@ -54,10 +54,10 @@
              so the school office cannot put one here on their behalf. --}}
         <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Your Signature</h2>
-            <p class="field-hint mt-0.5">
+            <small class="field-hint mt-0.5">
                 Added automatically to the class teacher&rsquo;s line on every report card for your class &mdash;
                 so you sign a set of results once, not one by one.
-            </p>
+            </small>
 
             <div class="mt-4">
                 <x-signature-pad
@@ -79,14 +79,14 @@
                     @csrf
 
                     <input type="file" name="signature" accept=".png,.jpg,.jpeg,.webp" class="w-full text-sm">
-                    <p class="field-hint">
+                    <small class="field-hint">
                         Sign on white paper and photograph it, or upload a PNG with a transparent background &mdash;
                         that prints best.
-                    </p>
+                    </small>
                     @error('signature')<p class="field-error">{{ $message }}</p>@enderror
 
                     <div class="flex justify-end">
-                        <button type="submit" class="rounded-[8px] border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300">Upload Signature</button>
+                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300">Upload Signature</button>
                     </div>
                 </form>
             </details>
@@ -100,10 +100,10 @@
             <i class="fa-solid fa-lock mt-0.5 text-gray-400"></i>
             <div>
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Password</h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     Passwords are set by your school office. If you need yours changed or have forgotten it,
                     ask them to issue you a new one &mdash; they can do it straight away.
-                </p>
+                </small>
             </div>
         </div>
 

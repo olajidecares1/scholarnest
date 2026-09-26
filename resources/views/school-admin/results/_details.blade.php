@@ -6,17 +6,17 @@
 
 <div class="space-y-5 text-left">
     <div class="grid grid-cols-2 gap-3 rounded-[8px] bg-gray-50 p-3 text-sm dark:bg-gray-900/40 sm:grid-cols-3">
-        <div><p class="field-hint">Student</p><p class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</p></div>
+        <div><small class="field-hint">Student</small><p class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</p></div>
         {{-- Withheld from the Class Teacher portal, which passes false. A
              pupil's admission number is their Student ID and the teacher's
              report card page is not where it belongs. --}}
         @if ($showStudentId ?? true)
-            <div><p class="field-hint">Student ID</p><p class="font-semibold text-gray-900 dark:text-white">{{ $student->admission_number }}</p></div>
+            <div><small class="field-hint">Student ID</small><p class="font-semibold text-gray-900 dark:text-white">{{ $student->admission_number }}</p></div>
         @endif
-        <div><p class="field-hint">Class</p><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->class_name }}</p></div>
-        <div><p class="field-hint">Session</p><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->session }}</p></div>
-        <div><p class="field-hint">Term</p><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->term->label() }}</p></div>
-        <div><p class="field-hint">Position</p><p class="font-semibold text-gray-900 dark:text-white">{{ $summary['position'] ? $summary['position'].($summary['position'] === 1 ? 'st' : ($summary['position'] === 2 ? 'nd' : ($summary['position'] === 3 ? 'rd' : 'th'))) : 'N/A' }}</p></div>
+        <div><small class="field-hint">Class</small><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->class_name }}</p></div>
+        <div><small class="field-hint">Session</small><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->session }}</p></div>
+        <div><small class="field-hint">Term</small><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->term->label() }}</p></div>
+        <div><small class="field-hint">Position</small><p class="font-semibold text-gray-900 dark:text-white">{{ $summary['position'] ? $summary['position'].($summary['position'] === 1 ? 'st' : ($summary['position'] === 2 ? 'nd' : ($summary['position'] === 3 ? 'rd' : 'th'))) : 'N/A' }}</p></div>
     </div>
 
     <div class="overflow-x-auto rounded-[8px] border border-gray-200 dark:border-gray-700">
@@ -61,7 +61,7 @@
     </div>
 
     <div class="rounded-[8px] bg-gray-50 p-3 dark:bg-gray-900/40">
-        <p class="field-hint">Attendance This Term</p>
+        <small class="field-hint">Attendance This Term</small>
         @if ($attendance)
             <p class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">
                 Present {{ $attendance['present'] }} &middot; Absent {{ $attendance['absent'] }} &middot; Late {{ $attendance['late'] }} &middot; Excused {{ $attendance['excused'] }}
@@ -116,7 +116,7 @@
     </div>
     @if ($canEditTeacherRemark || $canEditPrincipalRemark)
         <div class="flex justify-end">
-            <button type="button" onclick="window.resultPreviewSaveRemarks()" class="rounded-[8px] bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save Remarks</button>
+            <button type="button" onclick="window.resultPreviewSaveRemarks()" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save Remarks</button>
         </div>
     @endif
 </div>

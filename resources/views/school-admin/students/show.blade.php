@@ -21,13 +21,13 @@
                             {{ $student->is_active ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                         {{ $student->admission_number }}
                         @if ($student->class_name) &middot; {{ $student->class_name }} @endif
                         @if ($student->age()) &middot; {{ $student->age() }} years old @endif
-                    </p>
+                    </small>
                 </div>
-                <a href="{{ route('students.index') }}" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                <a href="{{ route('students.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                     Edit in Students List
                 </a>
             </div>
@@ -58,7 +58,7 @@
 
                 @if ($student->notes)
                     <h3 class="mt-6 text-sm font-bold text-gray-900 dark:text-white">Notes</h3>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">{{ $student->notes }}</p>
+                    <small class="block mt-2 text-sm text-gray-600 dark:text-gray-300">{{ $student->notes }}</small>
                 @endif
             </div>
         </div>
@@ -87,17 +87,17 @@
                     <i class="fa-solid fa-key text-gray-400"></i>
                     Login Details
                 </h3>
-                <p class="field-hint mt-1">
+                <small class="field-hint mt-1">
                     The Basic plan has no student portal, so students do not have sign-in accounts.
                     Parents reach {{ $student->first_name }}&rsquo;s results with an exam token instead &mdash;
                     generate one from <a href="{{ route('result-pins.index') }}" class="font-semibold text-primary-600 hover:underline">Generate Exam Token</a>.
-                </p>
+                </small>
             </div>
         @endif
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h3 class="text-sm font-bold text-gray-900 dark:text-white">Parent/Guardian Portal Access</h3>
-            <p class="field-hint mt-1">Link a parent or guardian's email to give them read-only access to {{ $student->first_name }}'s portal. Linking an email already used for another child attaches this student to that same guardian account.</p>
+            <small class="field-hint mt-1">Link a parent or guardian's email to give them read-only access to {{ $student->first_name }}'s portal. Linking an email already used for another child attaches this student to that same guardian account.</small>
 
             @if ($student->guardians->isNotEmpty())
                 <div class="mt-4 space-y-3">
@@ -111,17 +111,17 @@
                                             <span class="ml-1 text-xs font-normal text-gray-400">({{ $guardian->pivot->relationship }})</span>
                                         @endif
                                     </p>
-                                    <p class="field-hint">
+                                    <small class="field-hint">
                                         {{ $guardian->email }}
                                         &middot; {{ $guardian->password ? 'Access Enabled' : 'No Password Set' }}
                                         @if ($guardian->last_login_at)
                                             &middot; Last logged in {{ $guardian->last_login_at->diffForHumans() }}
                                         @endif
-                                    </p>
+                                    </small>
                                 </div>
                                 <form method="POST" action="{{ route('students.guardians.destroy', [$student, $guardian]) }}" onsubmit="return confirm('Unlink {{ $guardian->name }} from {{ $student->fullName() }}?');">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Unlink</button>
+                                    <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Unlink</button>
                                 </form>
                             </div>
                             <form method="POST" action="{{ route('students.guardians.update-password', $guardian) }}" class="mt-3 flex flex-wrap items-end gap-3">
@@ -130,7 +130,7 @@
                                 <div class="w-56">
                                     <x-text-field name="password" label="Set Portal Password" type="password" icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM8 11V7a4 4 0 118 0v4" helper="At least 6 characters." required />
                                 </div>
-                                <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">{{ $guardian->password ? 'Reset Password' : 'Enable Portal Access' }}</button>
+                                <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">{{ $guardian->password ? 'Reset Password' : 'Enable Portal Access' }}</button>
                             </form>
                         </div>
                     @endforeach
@@ -163,7 +163,7 @@
                     <x-text-field name="phone" label="Phone" icon="M5 4.5h3l1.5 4-2 1.5a11 11 0 005 5l1.5-2 4 1.5v3a1 1 0 01-1 1A15 15 0 015 5.5a1 1 0 011-1z" helper="Optional." />
                     <x-text-field name="relationship" label="Relationship" icon="M12 4.5l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z" placeholder="e.g. Mother, Father, Guardian" helper="Optional." />
                     <div class="sm:col-span-2">
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Add &amp; Link Guardian</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Add &amp; Link Guardian</button>
                     </div>
                 </form>
             </div>

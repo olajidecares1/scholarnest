@@ -50,15 +50,15 @@
         @if ($totalStored === 0)
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Nothing published yet</p>
-                <p class="mx-auto mt-1 max-w-lg text-sm text-gray-500 dark:text-gray-400">
+                <small class="block mx-auto mt-1 max-w-lg text-sm text-gray-500 dark:text-gray-400">
                     Results appear here once you or a Class Teacher use <span class="font-semibold">Push to Repository</span>
                     on the Results page. Until then, students checking your result link are told their result is not ready.
-                </p>
+                </small>
             </div>
         @elseif ($selectedTerm === null)
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Choose a term</p>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Pick a class, an academic year and a term to see the results stored for it.</p>
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">Pick a class, an academic year and a term to see the results stored for it.</small>
             </div>
         @else
             <div
@@ -161,15 +161,15 @@
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">
                                         <span class="block">{{ $result->pushed_at->format('M j, Y') }}</span>
-                                        <span class="block text-[11px] text-gray-400">
+                                        <small class="block text-[11px] text-gray-400">
                                             {{ $result->pushed_at->format('g:ia') }} &middot; {{ $result->pushed_by_name }}
-                                        </span>
+                                        </small>
                                     </td>
                                     <td class="px-4 py-3 text-right">
                                         <button
                                             type="button"
                                             @click="view('{{ route('result-repository.show', $result) }}')"
-                                            class="inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-gray-300 px-3 text-[11.5px] font-bold text-gray-600 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-primary-900/20"
+                                            class="btn inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-gray-300 px-3 text-[11.5px] font-bold text-gray-600 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-primary-900/20"
                                         >
                                             <i class="fa-regular fa-eye text-[11px]"></i>
                                             View stored result
@@ -201,7 +201,7 @@
                         <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <div>
                                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Stored result</h3>
-                                <p class="mt-0.5 text-[11.5px] text-gray-500 dark:text-gray-400" x-text="meta"></p>
+                                <small class="block mt-0.5 text-[11.5px] text-gray-500 dark:text-gray-400" x-text="meta"></small>
                             </div>
                             <button type="button" @click="open = false" class="text-gray-400 transition hover:text-gray-600">
                                 <i class="fa-solid fa-xmark"></i>
@@ -209,7 +209,7 @@
                         </div>
 
                         <div class="max-h-[75vh] overflow-y-auto p-5">
-                            <p x-show="loading" class="py-10 text-center text-sm text-gray-500">Loading…</p>
+                            <small x-show="loading" class="block py-10 text-center text-sm text-gray-500">Loading…</small>
                             <p x-show="error" x-cloak class="py-10 text-center text-sm text-red-600" x-text="error"></p>
                             <div x-show="!loading && !error" x-html="html"></div>
                         </div>

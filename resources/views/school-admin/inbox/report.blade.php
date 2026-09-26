@@ -25,11 +25,11 @@
                 <div class="min-w-0">
                     <h2 class="text-lg font-extrabold leading-snug text-gray-900 dark:text-white">{{ $report->topic() }}</h2>
 
-                    <p class="field-hint mt-1">
+                    <small class="field-hint mt-1">
                         Reported by <span class="font-semibold text-gray-900 dark:text-gray-100">{{ $report->reporter_name }}</span>
                         &middot; {{ $report->created_at->format('j M Y, g:ia') }}
                         @if ($report->location) &middot; {{ $report->location }} @endif
-                    </p>
+                    </small>
                 </div>
 
                 <span class="rounded-full px-2.5 py-1 text-[11px] font-bold {{ $report->isNew() ? 'bg-amber-100 text-amber-900' : 'bg-gray-100 text-gray-900' }}">
@@ -67,10 +67,10 @@
             @endif
 
             @if ($report->reviewed_at)
-                <p class="field-hint mt-5">
+                <small class="field-hint mt-5">
                     {{ $report->statusLabel() }} by {{ $report->reviewer?->name ?? 'an administrator' }}
                     on {{ $report->reviewed_at->format('j M Y') }}.
-                </p>
+                </small>
             @endif
 
             <form method="POST" action="{{ route('misconduct-reports.update', $report) }}" class="mt-6 border-t border-gray-100 pt-5 dark:border-gray-700">
@@ -92,7 +92,7 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700">Save</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700">Save</button>
                 </div>
             </form>
         </div>

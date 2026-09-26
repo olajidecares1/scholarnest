@@ -31,10 +31,10 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-5 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Your result-checking link</h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     Share this with parents alongside each student's token. It only ever opens results for this school &mdash;
                     a token from another school will not work here.
-                </p>
+                </small>
             </div>
 
             <div class="space-y-4 p-5">
@@ -47,7 +47,7 @@
                     <button
                         type="button"
                         @click="navigator.clipboard.writeText($refs.resultLink.textContent.trim()).then(() => { copied = true; setTimeout(() => copied = false, 2000) })"
-                        class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                        class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
                         <span x-show="! copied">Copy link</span>
                         <span x-show="copied" x-cloak class="text-green-600 dark:text-green-400">Copied</span>
@@ -64,7 +64,7 @@
                 <div class="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4 dark:border-gray-700">
                     <form method="POST" action="{{ route('result-pins.link.toggle') }}">
                         @csrf
-                        <button type="submit" class="rounded-[8px] bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300">
+                        <button type="submit" class="btn rounded-[8px] bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300">
                             {{ $school->resultLinkIsLive() ? 'Switch off' : 'Switch back on' }}
                         </button>
                     </form>
@@ -75,14 +75,14 @@
                         onsubmit="return confirm('Generate a new link? The current one stops working immediately and can never be reused, so every parent will need the new address. Tokens already issued keep working.')"
                     >
                         @csrf
-                        <button type="submit" class="rounded-[8px] bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300">
+                        <button type="submit" class="btn rounded-[8px] bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300">
                             Generate a new link
                         </button>
                     </form>
 
-                    <p class="text-xs text-gray-400 dark:text-gray-500">
+                    <small class="block text-xs text-gray-400 dark:text-gray-500">
                         Switching off is reversible. Generating a new link is not &mdash; the old address is retired permanently.
-                    </p>
+                    </small>
                 </div>
             </div>
         </div>
@@ -100,7 +100,7 @@
                             with Reveal on a student's row or by running the class batch again.
                         </p>
                     </div>
-                    <button type="button" onclick="window.print()" class="rounded-[8px] bg-green-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-800 print:hidden">
+                    <button type="button" onclick="window.print()" class="btn rounded-[8px] bg-green-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-800 print:hidden">
                         Print list
                     </button>
                 </div>
@@ -119,7 +119,7 @@
                                 <tr>
                                     <td class="py-2 pr-4">
                                         <p class="font-semibold text-gray-900 dark:text-white">{{ $issued['student'] }}</p>
-                                        <p class="field-hint">{{ $issued['admission_number'] }}</p>
+                                        <small class="field-hint">{{ $issued['admission_number'] }}</small>
                                     </td>
                                     <td class="py-2 pr-4 text-xs text-gray-600 dark:text-gray-300">
                                         {{ $issued['examination'] }}<br>{{ $issued['term'] }} &middot; {{ $issued['session'] }}
@@ -138,9 +138,9 @@
             <form method="POST" action="{{ route('result-pins.store') }}" class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 @csrf
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Issue one token</h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     For a single student and a single result.
-                </p>
+                </small>
 
                 {{-- Academic year, then term, then the examination inside it,
                      then the student. That is the order a School Admin thinks
@@ -226,7 +226,7 @@
                     </p>
                 </div>
 
-                <button type="submit" class="mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                <button type="submit" class="btn mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
                     Issue token
                 </button>
             </form>
@@ -235,10 +235,10 @@
             <form method="POST" action="{{ route('result-pins.store-bulk') }}" class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 @csrf
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Issue for a whole class</h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     One token per student in the examination's class. Students who already hold a
                     token for this result are skipped, so running it twice is safe.
-                </p>
+                </small>
 
                 {{-- The class is chosen from the school's own class list, never
                      typed. A typed class name is how a school ends up with its
@@ -283,10 +283,10 @@
                                 <option value="{{ $className }}">{{ $className }}</option>
                             @endforeach
                         </select>
-                        <p class="field-hint mt-1" x-show="className !== ''" x-cloak>
+                        <small class="field-hint mt-1" x-show="className !== ''" x-cloak>
                             <span x-text="studentCount"></span> active student<span x-show="studentCount !== 1">s</span>
                             in this class &mdash; one token will be generated for each.
-                        </p>
+                        </small>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -314,7 +314,7 @@
                          name it. See App\Services\ExaminationResolver. --}}
                 </div>
 
-                <button type="submit" class="mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                <button type="submit" class="btn mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
                     Generate tokens for this class
                 </button>
             </form>
@@ -330,9 +330,9 @@
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Track a class</h2>
-                    <p class="field-hint mt-0.5">
+                    <small class="field-hint mt-0.5">
                         Who has used their token, who has not, and when.
-                    </p>
+                    </small>
                 </div>
 
                 <form method="GET" class="flex flex-wrap items-center gap-2">
@@ -357,7 +357,7 @@
                         ['No token yet', $totals['missing'], 'text-red-600 dark:text-red-400'],
                     ] as [$label, $value, $tone])
                         <div class="rounded-[8px] border border-gray-200 p-3 dark:border-gray-700">
-                            <p class="field-hint">{{ $label }}</p>
+                            <small class="field-hint">{{ $label }}</small>
                             <p class="mt-1 text-2xl font-extrabold {{ $tone }}">{{ number_format($value) }}</p>
                         </div>
                     @endforeach
@@ -379,7 +379,7 @@
                                 <tr>
                                     <td class="px-6 py-3">
                                         <span class="font-semibold text-gray-900 dark:text-white">{{ $row['student']->fullName() }}</span>
-                                        <span class="block text-xs text-gray-400">{{ $row['student']->admission_number }}</span>
+                                        <small class="block text-xs text-gray-400">{{ $row['student']->admission_number }}</small>
                                     </td>
                                     <td class="px-6 py-3 text-gray-500 dark:text-gray-400">
                                         {{-- Never the token itself. It is stored
@@ -417,7 +417,7 @@
                     </table>
                 </div>
             @else
-                <p class="field-hint p-6">Choose a class result above to see who has used their token.</p>
+                <small class="field-hint p-6">Choose a class result above to see who has used their token.</small>
             @endif
         </div>
 
@@ -426,9 +426,9 @@
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Issued tokens</h2>
-                    <p class="field-hint mt-0.5">
+                    <small class="field-hint mt-0.5">
                         Each row is one student and one result. A token never opens anything else.
-                    </p>
+                    </small>
                 </div>
 
                 <form method="GET" class="flex flex-wrap items-center gap-2">
@@ -463,7 +463,7 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3">
                                     <p class="font-semibold text-gray-900 dark:text-white">{{ $token->boundStudent?->fullName() ?? 'N/A' }}</p>
-                                    <p class="field-hint">{{ $token->boundStudent?->admission_number }}</p>
+                                    <small class="field-hint">{{ $token->boundStudent?->admission_number }}</small>
                                 </td>
                                 <td class="px-5 py-3 text-xs text-gray-600 dark:text-gray-300">
                                     @if ($token->examination)
@@ -490,18 +490,18 @@
                                     <div class="flex flex-wrap items-center gap-1.5">
                                         <form method="POST" action="{{ route('result-pins.reveal', $token) }}">
                                             @csrf
-                                            <button type="submit" class="rounded-[6px] bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200">Show token</button>
+                                            <button type="submit" class="btn rounded-[6px] bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200">Show token</button>
                                         </form>
 
                                         <form method="POST" action="{{ route('result-pins.reissue', $token) }}">
                                             @csrf
-                                            <button type="submit" class="rounded-[6px] bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300">Reissue</button>
+                                            <button type="submit" class="btn rounded-[6px] bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300">Reissue</button>
                                         </form>
 
                                         @if ($token->status->allowsAccess() || $token->status->isReversible())
                                             <form method="POST" action="{{ route('result-pins.suspend', $token) }}">
                                                 @csrf
-                                                <button type="submit" class="rounded-[6px] bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300">
+                                                <button type="submit" class="btn rounded-[6px] bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300">
                                                     {{ $token->status->isReversible() ? 'Restore' : 'Suspend' }}
                                                 </button>
                                             </form>
@@ -509,7 +509,7 @@
 
                                         <form method="POST" action="{{ route('result-pins.revoke', $token) }}">
                                             @csrf
-                                            <button type="submit" class="rounded-[6px] bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300">Revoke</button>
+                                            <button type="submit" class="btn rounded-[6px] bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300">Revoke</button>
                                         </form>
                                     </div>
                                 </td>
@@ -534,9 +534,9 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Recent result access</h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     Every attempt, successful or not. Repeated failures from one address are worth a look.
-                </p>
+                </small>
             </div>
 
             <div class="overflow-x-auto">

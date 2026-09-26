@@ -100,7 +100,7 @@
                             :options="['' => 'All Classes'] + $academicLevels->flatMap->classes->pluck('name', 'name')->all()"
                         />
                     </div>
-                    <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
+                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
                     @if (request('search') || request('class'))
                         <a href="{{ route('students.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
                     @endif
@@ -111,17 +111,17 @@
                      time below stays exactly as it was. --}}
                 <a
                     href="{{ route('students.import.create') }}"
-                    class="flex items-center gap-2 rounded-[8px] border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-md dark:hover:bg-blue-900/20"
+                    class="btn flex items-center gap-2 rounded-[8px] border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-md dark:hover:bg-blue-900/20"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16V4m0 0L8 8m4-4l4 4M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
                     Bulk Upload
                 </a>
                 <button
                     type="button"
                     @click="editing = null; newClassName = ''; open = true"
-                    class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                    class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Add Student
                 </button>
                 </div>
@@ -184,19 +184,19 @@
                                                 'admission_date' => $student->admission_date?->format('Y-m-d'),
                                                 'notes' => $student->notes,
                                             ]); loginUsernameOverride = null; open = true"
-                                            class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                         >
                                             Edit
                                         </button>
                                         <form method="POST" action="{{ route('students.toggle-active', $student) }}">
                                             @csrf @method('POST')
-                                            <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                                                 {{ $student->is_active ? 'Deactivate' : 'Activate' }}
                                             </button>
                                         </form>
                                         <form method="POST" action="{{ route('students.destroy', $student) }}" onsubmit="return confirm('Remove {{ $student->fullName() }}? This cannot be undone.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>
@@ -243,7 +243,7 @@
                                     x-bind:value="editing ? editing.admission_number : nextAdmissionNumberPreview(newClassName)"
                                     class="block w-full min-w-0">
                                 <input type="hidden" name="admission_number" x-bind:value="editing ? editing.admission_number : nextAdmissionNumberPreview(newClassName)">
-                                <p class="field-hint mt-1">Admission Number &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</p>
+                                <small class="field-hint mt-1">Admission Number &mdash; generated automatically, <span x-show="!editing">shown here for review</span><span x-show="editing">locked after creation</span>.</small>
                             </div>
                         @else
                             <x-text-field name="admission_number" label="Admission Number" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" x-model="editing ? editing.admission_number : ''" required />
@@ -313,8 +313,8 @@
                     @endif
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Student</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Student</button>
                     </div>
                 </form>
             </div>

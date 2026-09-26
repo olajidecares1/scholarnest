@@ -7,7 +7,7 @@
                 <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-[10px] bg-primary-600 text-xl text-white shadow-md"><i class="fa-solid fa-school"></i></span>
             @endif
             <h1 class="mt-3 text-lg font-bold text-gray-900">{{ $school->name }}</h1>
-            <p class="text-xs font-semibold uppercase tracking-wide text-primary-500">School Admin Portal</p>
+            <small class="block text-xs font-semibold uppercase tracking-wide text-primary-500">School Admin Portal</small>
         </div>
 
         <x-auth-session-status class="mt-4 text-center" :status="session('status')" />
@@ -54,14 +54,14 @@
 
             <button
                 type="submit"
-                class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
                 <i class="fa-solid fa-right-to-bracket"></i> Sign In
             </button>
 
-            <p class="text-center text-xs text-gray-500">
+            <small class="block text-center text-xs text-gray-500">
                 <a href="{{ $school->publicUrl('portal.index') }}" class="font-semibold text-primary-500 hover:text-primary-600">&larr; Back to Portal</a>
-            </p>
+            </small>
         </form>
     </x-auth-card>
 </x-auth-layout>

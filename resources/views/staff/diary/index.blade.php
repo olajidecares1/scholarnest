@@ -30,10 +30,10 @@
                     <i class="fa-solid fa-folder-plus text-primary-500"></i>
                     Record this week's topic
                 </h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     Writing again for a week you have already recorded replaces that entry, and sends it back to
                     your school to be reviewed.
-                </p>
+                </small>
 
                 <form method="POST" action="{{ route('staff.diary.store', $school) }}" class="mt-4 space-y-2">
                     @csrf
@@ -91,7 +91,7 @@
                     />
 
                     <div class="flex justify-end pt-1">
-                        <button type="submit" class="flex items-center gap-2 rounded-[8px] bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700">
+                        <button type="submit" class="btn flex items-center gap-2 rounded-[8px] bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700">
                             <i class="fa-solid fa-paper-plane text-xs"></i>
                             Submit Entry
                         </button>
@@ -103,7 +103,7 @@
         <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Your entries</h2>
-                <p class="field-hint mt-0.5">Whether your school has read each one, and when.</p>
+                <small class="field-hint mt-0.5">Whether your school has read each one, and when.</small>
             </div>
 
             @forelse ($entries as $entry)
@@ -112,9 +112,9 @@
                         <p class="text-sm font-bold text-gray-900 dark:text-white">
                             {{ $entry->subject }} &middot; {{ $entry->class_name }}
                         </p>
-                        <p class="field-hint mt-0.5">
+                        <small class="field-hint mt-0.5">
                             Week {{ $entry->week_number }} &middot; {{ $entry->term->label() }} &middot; {{ $entry->session }}
-                        </p>
+                        </small>
                         <p class="mt-2 whitespace-pre-line text-[13px] leading-[1.6] text-gray-700 dark:text-gray-300">{{ $entry->topic }}</p>
                     </div>
 
@@ -125,15 +125,15 @@
                         </span>
 
                         @if ($entry->hasBeenSeen())
-                            <p class="field-hint mt-1">
+                            <small class="field-hint mt-1">
                                 by {{ $entry->seenBy?->name ?? 'your school' }}
                                 &middot; {{ $entry->seen_at?->diffForHumans() }}
-                            </p>
+                            </small>
                         @endif
                     </div>
                 </div>
             @empty
-                <p class="p-6 text-sm text-gray-500 dark:text-gray-400">You have not recorded any topics yet.</p>
+                <small class="block p-6 text-sm text-gray-500 dark:text-gray-400">You have not recorded any topics yet.</small>
             @endforelse
 
             @if ($entries->hasPages())

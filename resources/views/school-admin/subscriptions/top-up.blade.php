@@ -34,10 +34,10 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Request Additional Student/Pupil Spaces</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+            <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">
                 Your request is reviewed by the AkademicNest Team before your capacity increases. This is not automatic,
                 and the spaces cannot be used until it is approved.
-            </p>
+            </small>
 
             <form
                 method="POST"
@@ -110,9 +110,9 @@
                      inventing one. --}}
                 <div>
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $bankTransfer?->label ?? 'Bank Transfer' }} Details</h3>
-                    <p class="field-hint mt-0.5">
+                    <small class="field-hint mt-0.5">
                         {{ $bankTransfer?->instructions ?: 'Make payment to the account below, then upload your receipt. Your limit increases once verified.' }}
-                    </p>
+                    </small>
 
                     @if ($bankTransfer?->bankFields())
                         <dl class="mt-3 space-y-2 rounded-[5px] bg-gray-50 p-4 text-sm dark:bg-gray-900/40 lg:rounded-[10px]">
@@ -148,7 +148,7 @@
                             <span x-show="!fileName">Drag &amp; drop your file here, or <span class="text-blue-500">click to browse</span></span>
                             <span x-show="fileName" x-text="fileName" x-cloak></span>
                         </p>
-                        <p class="mt-1 text-xs text-gray-400">PNG, JPG, PDF up to 5MB</p>
+                        <small class="block mt-1 text-xs text-gray-400">PNG, JPG, PDF up to 5MB</small>
                         <input
                             id="receipt"
                             name="receipt"
@@ -165,12 +165,10 @@
                 <div class="flex items-center justify-end pt-2">
                     <button
                         type="submit"
-                        class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
+                        class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                     >
                         Submit Request
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3M12 4v12m0-12l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
                     </button>
                 </div>
             </form>
@@ -182,9 +180,9 @@
              cumulative figure in the card above. --}}
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Capacity Request History</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+            <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">
                 Every request you have made, and what each one was decided. Only approved requests add to your capacity.
-            </p>
+            </small>
 
             <div class="mt-4 overflow-x-auto">
                 <table class="w-full min-w-[34rem] text-left text-sm">
@@ -210,12 +208,12 @@
                             <tr>
                                 <td class="py-3 pr-4 font-semibold text-gray-900 dark:text-white">
                                     Request #{{ $index + 2 }}
-                                    <span class="block text-xs font-normal text-gray-400">{{ $request->created_at->format('d M Y') }}</span>
+                                    <small class="block text-xs font-normal text-gray-400">{{ $request->created_at->format('d M Y') }}</small>
                                 </td>
                                 <td class="py-3 pr-4 text-gray-700 dark:text-gray-300">
                                     {{ number_format($request->additional_students_count) }}
                                     @if ($request->status === \App\Enums\SubscriptionTopUpStatus::Approved && $request->approved_students_count !== $request->additional_students_count)
-                                        <span class="block text-xs text-gray-400">{{ number_format($request->approved_students_count) }} approved</span>
+                                        <small class="block text-xs text-gray-400">{{ number_format($request->approved_students_count) }} approved</small>
                                     @endif
                                 </td>
                                 <td class="py-3 pr-4 text-gray-700 dark:text-gray-300">&#8358;{{ number_format($request->additional_amount, 2) }}</td>
@@ -228,7 +226,7 @@
                                     ])>{{ $request->status->label() }}</span>
 
                                     @if ($request->status === \App\Enums\SubscriptionTopUpStatus::Approved)
-                                        <span class="block text-xs text-gray-400">{{ number_format($request->previous_students_count) }} &rarr; {{ number_format($request->new_students_count) }}</span>
+                                        <small class="block text-xs text-gray-400">{{ number_format($request->previous_students_count) }} &rarr; {{ number_format($request->new_students_count) }}</small>
                                     @endif
                                 </td>
                             </tr>
@@ -238,7 +236,7 @@
             </div>
 
             @if ($history->isEmpty())
-                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">You have not requested any additional spaces yet.</p>
+                <small class="block mt-3 text-sm text-gray-500 dark:text-gray-400">You have not requested any additional spaces yet.</small>
             @endif
         </div>
         @endif

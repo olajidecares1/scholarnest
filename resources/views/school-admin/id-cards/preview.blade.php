@@ -23,7 +23,7 @@
                     @include('school-admin.id-cards._card_back', ['card' => $card])
                 </div>
 
-                <p class="text-xs font-semibold text-gray-400">{{ $card->card_number }}</p>
+                <small class="block text-xs font-semibold text-gray-400">{{ $card->card_number }}</small>
             </div>
 
             <div class="flex flex-wrap justify-center gap-3">
@@ -32,14 +32,14 @@
                     <input type="hidden" name="type" value="{{ $card->holder_type->value }}">
                     <input type="hidden" name="records[]" value="{{ $card->holder_uuid }}">
                     <input type="hidden" name="template" value="{{ $card->template->uuid }}">
-                    <button type="submit" class="rounded-[8px] border border-gray-300 px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Print</button>
+                    <button type="submit" class="btn rounded-[8px] border border-gray-300 px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Print</button>
                 </form>
                 <form method="POST" action="{{ route('id-cards.pdf') }}">
                     @csrf
                     <input type="hidden" name="type" value="{{ $card->holder_type->value }}">
                     <input type="hidden" name="records[]" value="{{ $card->holder_uuid }}">
                     <input type="hidden" name="template" value="{{ $card->template->uuid }}">
-                    <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700">Download PDF</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700">Download PDF</button>
                 </form>
             </div>
         @endif

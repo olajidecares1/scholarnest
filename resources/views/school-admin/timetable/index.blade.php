@@ -22,16 +22,16 @@
             <button
                 type="button"
                 @click="editing = null; open = true"
-                class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                 Add Entry
             </button>
         </div>
 
         @if (! $selectedClass)
             <div class="rounded-[10px] border border-dashed border-gray-300 p-10 text-center dark:border-gray-700">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Create a class under Academics before setting up a timetable.</p>
+                <small class="block text-sm text-gray-500 dark:text-gray-400">Create a class under Academics before setting up a timetable.</small>
             </div>
         @else
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
@@ -45,12 +45,12 @@
                                 <div class="flex items-center justify-between gap-3 px-5 py-3">
                                     <div class="min-w-0">
                                         <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $entry->subject }}</p>
-                                        <p class="field-hint">
+                                        <small class="field-hint">
                                             {{ \Illuminate\Support\Carbon::parse($entry->start_time)->format('h:i A') }} to {{ \Illuminate\Support\Carbon::parse($entry->end_time)->format('h:i A') }}
                                             @if ($entry->room)
                                                 &middot; {{ $entry->room }}
                                             @endif
-                                        </p>
+                                        </small>
                                     </div>
                                     <div class="flex shrink-0 items-center gap-1">
                                         <button
@@ -66,18 +66,18 @@
                                             ]); open = true"
                                             class="rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                                         >
-                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 5.5l3 3L8 19l-4 1 1-4 10.5-10.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                            <i class="fa-solid fa-pen text-[14px] leading-none" aria-hidden="true"></i>
                                         </button>
                                         <form method="POST" action="{{ route('timetable.destroy', $entry) }}" onsubmit="return confirm('Remove {{ $entry->subject }}?');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400">
-                                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 7h12M9.5 7V5a1 1 0 011-1h3a1 1 0 011 1v2M8 7l.5 12a1 1 0 001 1h5a1 1 0 001-1L16 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                                <i class="fa-solid fa-trash text-[14px] leading-none" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </div>
                             @empty
-                                <p class="px-5 py-6 text-center text-xs text-gray-400 dark:text-gray-500">No classes scheduled.</p>
+                                <small class="block px-5 py-6 text-center text-xs text-gray-400 dark:text-gray-500">No classes scheduled.</small>
                             @endforelse
                         </div>
                     </div>
@@ -123,8 +123,8 @@
                     <x-text-field name="room" label="Room" icon="M4 20V10.5L12 4l8 6.5V20" x-model="editing ? editing.room : ''" placeholder="e.g. Room 4" helper="Optional." />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Entry</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Entry</button>
                     </div>
                 </form>
             </div>

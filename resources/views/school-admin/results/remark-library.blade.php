@@ -18,10 +18,10 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Write a new remark</h2>
-            <p class="field-hint mt-0.5">
+            <small class="field-hint mt-0.5">
                 Saved to your school&rsquo;s library and available on every pupil&rsquo;s result.
                 You are your school&rsquo;s Principal on AkademicNest, so these are your remarks.
-            </p>
+            </small>
 
             <form method="POST" action="{{ route('results.remark-library.store') }}" class="mt-4 space-y-3">
                 @csrf
@@ -41,7 +41,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700">Save to Library</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700">Save to Library</button>
                 </div>
             </form>
         </div>
@@ -49,7 +49,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-6 py-4 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Saved remarks</h2>
-                <p class="field-hint">{{ $remarks->count() }} saved &mdash; there is no limit.</p>
+                <small class="field-hint">{{ $remarks->count() }} saved &mdash; there is no limit.</small>
             </div>
 
             @forelse ($remarks as $remark)
@@ -71,7 +71,7 @@
                         >{{ $remark->body }}</textarea>
 
                         <div class="flex shrink-0 gap-2">
-                            <button type="submit" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">Save</button>
+                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">Save</button>
                         </div>
                     </form>
 

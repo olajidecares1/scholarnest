@@ -11,10 +11,10 @@
 
         <x-auth-card class="!max-w-none">
             <h2 class="text-lg font-bold text-gray-900">Student Capacity</h2>
-            <p class="mt-1 text-sm text-gray-600">
+            <small class="block mt-1 text-sm text-gray-600">
                 Your subscription is billed per student, per term. The number you enter here also becomes
                 the number of student spaces your school is given once your payment is approved.
-            </p>
+            </small>
 
             <form
                 method="POST"
@@ -74,9 +74,9 @@
 
                 <x-input-error :messages="$errors->get('students_count')" class="mt-2" />
 
-                <p class="mt-2 text-xs text-gray-500">
+                <small class="block mt-2 text-xs text-gray-500">
                     You can request additional student spaces later without starting a new subscription.
-                </p>
+                </small>
 
                 <div class="mt-6 rounded-[5px] border border-gray-200 bg-gray-50 p-4 lg:rounded-[10px]">
                     <dl class="space-y-2 text-sm">
@@ -118,9 +118,7 @@
                         class="flex items-center gap-2 rounded-[8px] px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition"
                     >
                         Continue
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
                     </button>
                 </div>
             </form>

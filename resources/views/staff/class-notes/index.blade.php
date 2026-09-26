@@ -46,10 +46,10 @@
                     <i class="fa-solid fa-file-word text-primary-500"></i>
                     Send a class note
                 </h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     Upload the document once and tick every class that should receive it &mdash; there is no need to
                     send it again for each class.
-                </p>
+                </small>
 
                 <form method="POST" action="{{ route('staff.class-notes.store', $school) }}" enctype="multipart/form-data" class="mt-4 space-y-4">
                     @csrf
@@ -137,7 +137,7 @@
 
                         <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
                             <small class="field-hint" x-text="chosen === 0 ? 'No classes chosen yet.' : chosen + (chosen === 1 ? ' class selected.' : ' classes selected.')"></small>
-                            <button type="submit" class="inline-flex items-center gap-2 rounded-[8px] bg-primary-600 px-5 py-2.5 text-[13px] font-bold text-white transition hover:bg-primary-700">
+                            <button type="submit" class="btn inline-flex items-center gap-2 rounded-[8px] bg-primary-600 px-5 py-2.5 text-[13px] font-bold text-white transition hover:bg-primary-700">
                                 <i class="fa-solid fa-paper-plane text-[12px]"></i>
                                 Send Class Note
                             </button>
@@ -157,16 +157,16 @@
                         <div class="flex flex-wrap items-start justify-between gap-3">
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $note->title }}</p>
-                                <p class="mt-0.5 text-[12px] text-gray-500 dark:text-gray-400">
+                                <small class="block mt-0.5 text-[12px] text-gray-500 dark:text-gray-400">
                                     @if ($note->subject){{ $note->subject }} &middot; @endif
                                     {{ $note->created_at->format('j M Y') }} &middot; {{ $note->readableSize() }}
-                                </p>
+                                </small>
                             </div>
                             <span class="shrink-0 text-[11px] text-gray-400">{{ $note->created_at->diffForHumans() }}</span>
                         </div>
 
                         @if ($note->description)
-                            <p class="mt-2 text-[12.5px] leading-[1.6] text-gray-600 dark:text-gray-300">{{ $note->description }}</p>
+                            <small class="block mt-2 text-[12.5px] leading-[1.6] text-gray-600 dark:text-gray-300">{{ $note->description }}</small>
                         @endif
 
                         <div class="mt-3 flex flex-wrap gap-1.5">
@@ -176,7 +176,7 @@
                         </div>
 
                         <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3 dark:border-gray-700">
-                            <a href="{{ route('staff.class-notes.download', [$school, $note]) }}" class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-[12px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-gray-600 dark:text-gray-200">
+                            <a href="{{ route('staff.class-notes.download', [$school, $note]) }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-[12px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-gray-600 dark:text-gray-200">
                                 <i class="fa-solid fa-download text-[11px]"></i>
                                 Download
                             </a>
@@ -184,7 +184,7 @@
                             <form method="POST" action="{{ route('staff.class-notes.destroy', [$school, $note]) }}" onsubmit="return confirm('Withdraw “{{ $note->title }}”? Students will no longer be able to open it.');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-[12px] font-bold text-red-600 transition hover:border-red-300 dark:border-gray-600">
+                                <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-[12px] font-bold text-red-600 transition hover:border-red-300 dark:border-gray-600">
                                     <i class="fa-solid fa-xmark text-[11px]"></i>
                                     Withdraw
                                 </button>
@@ -194,7 +194,7 @@
                 @empty
                     <div class="rounded-[10px] border border-dashed border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-800">
                         <i class="fa-solid fa-file-word text-2xl text-gray-300"></i>
-                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">You have not sent any class notes yet.</p>
+                        <small class="block mt-2 text-sm text-gray-500 dark:text-gray-400">You have not sent any class notes yet.</small>
                     </div>
                 @endforelse
 

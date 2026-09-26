@@ -7,7 +7,7 @@
 <x-super-admin-layout page-title="Analytics" page-subtitle="Monitor visitor traffic across the platform.">
     <div class="space-y-6">
         <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Page Views (Last 30 Days)</p>
+            <small class="block text-sm font-medium text-gray-500 dark:text-gray-400">Total Page Views (Last 30 Days)</small>
             <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">{{ number_format($totalViews30Days) }}</p>
             <p class="mt-1 text-xs font-semibold {{ $deltaPercent >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
                 {{ $deltaPercent >= 0 ? '▲' : '▼' }} {{ number_format(abs($deltaPercent), 1) }}%
@@ -17,7 +17,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Visitor Timeline</h2>
-            <p class="field-hint">Page views over the last 14 days</p>
+            <small class="field-hint">Page views over the last 14 days</small>
             <div
                 class="mt-3"
                 x-data
@@ -37,7 +37,7 @@
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Traffic Sources</h2>
-                <p class="field-hint">Where visitors came from, last 30 days</p>
+                <small class="field-hint">Where visitors came from, last 30 days</small>
                 <div
                     class="mt-3"
                     x-data
@@ -53,7 +53,7 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Devices</h2>
-                <p class="field-hint">Device breakdown, last 30 days</p>
+                <small class="field-hint">Device breakdown, last 30 days</small>
                 <div
                     class="mt-3"
                     x-data
@@ -71,7 +71,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Top Pages</h2>
-                <p class="field-hint">Most visited pages, last 30 days</p>
+                <small class="field-hint">Most visited pages, last 30 days</small>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">

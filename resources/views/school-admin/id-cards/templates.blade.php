@@ -99,9 +99,9 @@
             <button
                 type="button"
                 @click="form = @js($blankForm); open = true"
-                class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                 Add Template
             </button>
         </div>
@@ -117,10 +117,10 @@
                             <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $template->name }}</p>
                             <span class="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">{{ $template->type->label() }}</span>
                         </div>
-                        <p class="field-hint mt-1">
+                        <small class="field-hint mt-1">
                             {{ $template->orientation->label() }}
                             @if ($template->is_default) &middot; Default @endif
-                        </p>
+                        </small>
                         <div class="mt-3 flex items-center gap-2">
                             <button
                                 type="button"
@@ -140,20 +140,20 @@
                                     'show_dob' => $template->show_dob,
                                     'is_default' => $template->is_default,
                                 ]); open = true"
-                                class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                             >
                                 Edit
                             </button>
                             <form method="POST" action="{{ route('id-cards.templates.destroy', $template) }}" onsubmit="return confirm('Remove {{ $template->name }}?');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                             </form>
                         </div>
                     </div>
                 </div>
             @empty
                 <div class="col-span-full rounded-[10px] border border-dashed border-gray-300 p-10 text-center dark:border-gray-700">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">No templates yet. Click "Add Template" to design your first ID card.</p>
+                    <small class="block text-sm text-gray-500 dark:text-gray-400">No templates yet. Click "Add Template" to design your first ID card.</small>
                 </div>
             @endforelse
         </div>
@@ -196,17 +196,17 @@
                             <div>
                                 <label class="field-label">Primary Colour</label>
                                 <input type="color" name="primary_color" x-model="form.primary_color" class="mt-1.5 w-full">
-                                <p class="field-hint">Staff badges.</p>
+                                <small class="field-hint">Staff badges.</small>
                             </div>
                             <div>
                                 <label class="field-label">Secondary Colour</label>
                                 <input type="color" name="secondary_color" x-model="form.secondary_color" class="mt-1.5 w-full">
-                                <p class="field-hint">Masthead, footer, back panel.</p>
+                                <small class="field-hint">Masthead, footer, back panel.</small>
                             </div>
                             <div>
                                 <label class="field-label">Accent Colour</label>
                                 <input type="color" name="accent_color" x-model="form.accent_color" class="mt-1.5 w-full">
-                                <p class="field-hint">Stripe, tagline, student badge.</p>
+                                <small class="field-hint">Stripe, tagline, student badge.</small>
                             </div>
                         </div>
 
@@ -219,7 +219,7 @@
                                 placeholder="This card is the property of {{ auth()->user()->school->name }}.&#10;It must be worn at all times on campus.&#10;It is non-transferable and must not be tampered with.&#10;Report loss or damage to the school office immediately."
                                 class="mt-1.5 w-full"
                             ></textarea>
-                            <p class="field-hint mt-1">One instruction per line. Leave blank to use the default wording shown above.</p>
+                            <small class="field-hint mt-1">One instruction per line. Leave blank to use the default wording shown above.</small>
                         </div>
 
                         <div>
@@ -230,7 +230,7 @@
                                 @change="form.background_preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null"
                                 class="w-full"
                             >
-                            <p class="field-hint mt-1">Background image (optional). Leave blank to keep the existing one when editing.</p>
+                            <small class="field-hint mt-1">Background image (optional). Leave blank to keep the existing one when editing.</small>
                         </div>
 
                         <div class="space-y-2">
@@ -249,15 +249,15 @@
                         </div>
 
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Template</button>
+                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Template</button>
                         </div>
                     </form>
                 </div>
 
                 {{-- Live preview --}}
                 <div class="flex shrink-0 flex-col items-center gap-3 border-t border-gray-100 pt-6 lg:w-56 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0 dark:border-gray-700">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Live Preview</p>
+                    <small class="block text-xs font-semibold uppercase tracking-wide text-gray-400">Live Preview</small>
                     <div class="inline-flex rounded-[8px] border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
                         <button type="button" @click="side = 'front'" :class="side === 'front' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'" class="rounded-[6px] px-3 py-1 text-xs font-semibold transition-colors duration-200">Front</button>
                         <button type="button" @click="side = 'back'" :class="side === 'back' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'" class="rounded-[6px] px-3 py-1 text-xs font-semibold transition-colors duration-200">Back</button>
@@ -281,9 +281,9 @@
                         <div x-show="side === 'back'" style="display: none;" x-html="sampleBack"></div>
                     </div>
 
-                    <p class="text-center text-[11px] leading-snug text-gray-400 dark:text-gray-500">
+                    <small class="block text-center text-[11px] leading-snug text-gray-400 dark:text-gray-500">
                         Sample details. Real cards use each pupil&rsquo;s or staff member&rsquo;s own record.
-                    </p>
+                    </small>
                 </div>
             </div>
         </div>

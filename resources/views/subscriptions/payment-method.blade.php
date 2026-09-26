@@ -4,7 +4,7 @@
 
         <x-auth-card class="!max-w-none">
             <h2 class="text-lg font-bold text-gray-900">Select Payment Method</h2>
-            <p class="mt-1 text-sm text-gray-600">Choose your preferred payment method to complete the subscription.</p>
+            <small class="block mt-1 text-sm text-gray-600">Choose your preferred payment method to complete the subscription.</small>
 
             @if ($paymentMethods->isEmpty())
                 {{-- Not an empty list of radios above a button that cannot
@@ -19,7 +19,7 @@
 
                     <a
                         href="{{ route('subscriptions.billing-details') }}"
-                        class="mt-4 inline-flex h-[38px] items-center justify-center gap-2 rounded-[8px] border border-amber-300 bg-white px-4 text-[13px] font-bold text-amber-800 transition hover:bg-amber-100"
+                        class="btn mt-4 inline-flex h-[38px] items-center justify-center gap-2 rounded-[8px] border border-amber-300 bg-white px-4 text-[13px] font-bold text-amber-800 transition hover:bg-amber-100"
                     >
                         &larr; Back
                     </a>
@@ -46,7 +46,7 @@
                                     {{ $paymentMethod->label }}
                                 </span>
                                 @if ($paymentMethod->description)
-                                    <span class="mt-1 block text-xs text-gray-500">{{ $paymentMethod->description }}</span>
+                                    <small class="mt-1 block text-xs text-gray-500">{{ $paymentMethod->description }}</small>
                                 @endif
                             </span>
                         </label>
@@ -85,14 +85,14 @@
                                     </div>
                                 </dl>
 
-                                <p class="mt-2 text-xs text-gray-500">Use the reference code above when making payment.</p>
+                                <small class="block mt-2 text-xs text-gray-500">Use the reference code above when making payment.</small>
                             </div>
                         @endif
                     </div>
                 @endforeach
                 <div>
                     <h3 class="text-sm font-bold text-gray-900">Upload Payment Receipt</h3>
-                    <p class="mt-0.5 text-xs text-gray-500">Upload your bank transfer receipt or screenshot as proof of payment.</p>
+                    <small class="block mt-0.5 text-xs text-gray-500">Upload your bank transfer receipt or screenshot as proof of payment.</small>
 
                     <label
                         for="receipt"
@@ -107,7 +107,7 @@
                             <span x-show="!fileName">Drag &amp; drop your file here, or <span class="text-primary-500">click to browse</span></span>
                             <span x-show="fileName" x-text="fileName" x-cloak></span>
                         </p>
-                        <p class="mt-1 text-xs text-gray-400">PNG, JPG, PDF up to 5MB</p>
+                        <small class="block mt-1 text-xs text-gray-400">PNG, JPG, PDF up to 5MB</small>
                         <input
                             id="receipt"
                             name="receipt"
@@ -126,12 +126,10 @@
 
                     <button
                         type="submit"
-                        class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
+                        class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
                     >
                         Submit Receipt
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3M12 4v12m0-12l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
                     </button>
                 </div>
             </form>

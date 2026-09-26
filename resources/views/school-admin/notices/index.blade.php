@@ -18,14 +18,14 @@
                                 <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $notice->title }}</p>
                                 <span class="text-xs text-gray-400">{{ $notice->created_at->diffForHumans() }}</span>
                             </div>
-                            <p class="mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">{{ $notice->body }}</p>
-                            <p class="mt-2 text-xs text-gray-400">
+                            <small class="block mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">{{ $notice->body }}</small>
+                            <small class="block mt-2 text-xs text-gray-400">
                                 To {{ $notice->audience?->label() ?? 'Students / Pupils' }}
                                 &middot; {{ $notice->class_name ?? 'all classes' }}
-                            </p>
+                            </small>
                         </div>
                     @empty
-                        <p class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No notices sent yet.</p>
+                        <small class="block px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No notices sent yet.</small>
                     @endforelse
                 </div>
 
@@ -40,7 +40,7 @@
         <div>
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">New Memorandum</h2>
-                <p class="field-hint mt-1">Delivered to the Messages tab and as a notification in each recipient's portal.</p>
+                <small class="field-hint mt-1">Delivered to the Messages tab and as a notification in each recipient's portal.</small>
 
                 <form method="POST" action="{{ route('notices.store') }}" class="mt-4 space-y-2">
                     @csrf
@@ -91,7 +91,7 @@
 
                     <button
                         type="submit"
-                        class="flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
+                        class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                     >
                         Send Memorandum
                     </button>

@@ -8,7 +8,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">School Profile</h2>
-            <p class="field-hint mt-0.5">This information is used across your dashboard and public website.</p>
+            <small class="field-hint mt-0.5">This information is used across your dashboard and public website.</small>
 
             <form method="POST" action="{{ route('settings.update') }}" enctype="multipart/form-data" class="mt-4 space-y-2">
                 @csrf
@@ -22,7 +22,7 @@
                     @endif
                     <div class="flex-1">
                         <input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp" class="w-full">
-                        <p class="field-hint mt-1">School logo (optional). Leave blank to keep the existing one.</p>
+                        <small class="field-hint mt-1">School logo (optional). Leave blank to keep the existing one.</small>
                     </div>
                 </div>
 
@@ -34,7 +34,7 @@
                     @endif
                     <div class="flex-1">
                         <input type="file" name="favicon" accept=".png,.jpg,.jpeg,.webp" class="w-full">
-                        <p class="field-hint mt-1">Browser tab icon for your public website (optional, square PNG recommended). Your school's own icon is never replaced with AkademicNest's.</p>
+                        <small class="field-hint mt-1">Browser tab icon for your public website (optional, square PNG recommended). Your school's own icon is never replaced with AkademicNest's.</small>
                     </div>
                 </div>
 
@@ -109,12 +109,12 @@
                      not fill in. --}}
                 <div class="border-t border-gray-100 pt-6 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Address &amp; Contact</h2>
-                    <p class="field-hint mt-1">
+                    <small class="field-hint mt-1">
                         Printed as the letterhead on result sheets and on the back of ID cards.
                         @if ($school->website)
                             Leave a field blank to use what your website already says.
                         @endif
-                    </p>
+                    </small>
 
                     <div class="mt-4 space-y-2">
                         <div>
@@ -158,10 +158,10 @@
                      record that can disagree. --}}
                 <div class="border-t border-gray-100 pt-6 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Principal</h2>
-                    <p class="field-hint mt-1">
+                    <small class="field-hint mt-1">
                         You are your school&rsquo;s Principal on AkademicNest. Register the signature itself
                         under <strong>Principal&rsquo;s Signature</strong> at the foot of this page.
-                    </p>
+                    </small>
 
                     <div class="mt-4 sm:max-w-md">
                         <x-text-field
@@ -184,13 +184,13 @@
                      printed its name twice and no values at all. --}}
                 <div class="border-t border-gray-100 pt-6 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Motto &amp; Core Values</h2>
-                    <p class="field-hint mt-1">
+                    <small class="field-hint mt-1">
                         The motto prints under your school's name on result letterheads and ID cards.
                         The core values run along the foot of every report card.
                         @if ($school->website)
                             Leave a field blank to use what your website already says.
                         @endif
-                    </p>
+                    </small>
 
                     <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <x-text-field
@@ -219,10 +219,10 @@
                      the application shows where to find it. --}}
                 <div class="border-t border-gray-100 pt-6 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Social Handles</h2>
-                    <p class="field-hint mt-1">
+                    <small class="field-hint mt-1">
                         Leave any blank. You can paste a full link or just the handle &mdash;
                         &ldquo;facebook.com/yourschool&rdquo; works.
-                    </p>
+                    </small>
 
                     <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                         @foreach ([
@@ -253,9 +253,9 @@
                     </div>
 
                     @if ($whatsappLink = \App\Support\SchoolSocialLinks::whatsappUrl($school->whatsapp_number))
-                        <p class="field-hint mt-2">
+                        <small class="field-hint mt-2">
                             Your WhatsApp number links to <span class="font-semibold">{{ $whatsappLink }}</span>.
-                        </p>
+                        </small>
                     @endif
                 </div>
 
@@ -268,17 +268,17 @@
                     <i class="fa-solid fa-circle-check mt-0.5 text-[12px] text-green-600 dark:text-green-400"></i>
                     <span class="text-gray-700 dark:text-gray-200">
                         Automatic Grading
-                        <span class="block text-xs text-gray-500 dark:text-gray-400">
+                        <small class="block text-xs text-gray-500 dark:text-gray-400">
                             Grades and remarks are worked out from each student's Test and Exam scores using
                             <a href="{{ route('academics.index') }}" class="font-semibold text-primary-600 hover:underline">your school's own grading bands</a>.
                             They are never typed in, so a grade can never disagree with the marks behind it.
-                        </span>
+                        </small>
                     </span>
                 </div>
 
                 <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Identification Numbers</h3>
-                    <p class="field-hint mt-0.5">Configure a school code and let AkademicNest generate unique Admission Numbers and Staff IDs automatically instead of typing them by hand.</p>
+                    <small class="field-hint mt-0.5">Configure a school code and let AkademicNest generate unique Admission Numbers and Staff IDs automatically instead of typing them by hand.</small>
 
                     <div class="mt-4 space-y-4">
                         <x-text-field name="school_code" label="School Code" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" :value="old('school_code', $school->school_code)" placeholder="e.g. MIS" helper="Used as the prefix for every generated Admission Number and Staff ID." />
@@ -287,7 +287,7 @@
                             <input type="checkbox" name="auto_generate_admission_numbers" value="1" {{ old('auto_generate_admission_numbers', $school->auto_generate_admission_numbers) ? 'checked' : '' }} class="mt-0.5 w-4 text-blue-600">
                             <span>
                                 Automatically Generate Admission Numbers
-                                <span class="block text-xs text-gray-500 dark:text-gray-400">e.g. {{ $school->school_code ?: 'MIS' }}-{{ $school->current_session ?: '2025/2026' }}-PRY-{{ str_pad((string) $school->next_admission_sequence, 3, '0', STR_PAD_LEFT) }}. Once on, the field is generated for review on the student form and can't be hand-typed.</span>
+                                <small class="block text-xs text-gray-500 dark:text-gray-400">e.g. {{ $school->school_code ?: 'MIS' }}-{{ $school->current_session ?: '2025/2026' }}-PRY-{{ str_pad((string) $school->next_admission_sequence, 3, '0', STR_PAD_LEFT) }}. Once on, the field is generated for review on the student form and can't be hand-typed.</small>
                             </span>
                         </label>
 
@@ -295,14 +295,14 @@
                             <input type="checkbox" name="auto_generate_staff_ids" value="1" {{ old('auto_generate_staff_ids', $school->auto_generate_staff_ids) ? 'checked' : '' }} class="mt-0.5 w-4 text-blue-600">
                             <span>
                                 Automatically Generate Staff IDs
-                                <span class="block text-xs text-gray-500 dark:text-gray-400">e.g. {{ $school->school_code ?: 'MIS' }}-STAFF-{{ str_pad((string) $school->next_staff_sequence, 3, '0', STR_PAD_LEFT) }}. Once on, the field is generated for review on the staff form and can't be hand-typed.</span>
+                                <small class="block text-xs text-gray-500 dark:text-gray-400">e.g. {{ $school->school_code ?: 'MIS' }}-STAFF-{{ str_pad((string) $school->next_staff_sequence, 3, '0', STR_PAD_LEFT) }}. Once on, the field is generated for review on the staff form and can't be hand-typed.</small>
                             </span>
                         </label>
                     </div>
                 </div>
 
                 <div class="flex justify-end">
-                    <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Settings</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Settings</button>
                 </div>
             </form>
         </div>
@@ -320,11 +320,11 @@
              then forget to press Save Settings. --}}
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Principal&rsquo;s Signature</h2>
-            <p class="field-hint mt-0.5">
+            <small class="field-hint mt-0.5">
                 Yours, as {{ $school->name }}&rsquo;s Principal. Printed in gold on the Principal&rsquo;s line of
                 every report card and ID card, and on any other document your school issues that needs it.
                 Class teachers register their own signature from their portal.
-            </p>
+            </small>
 
             <div class="mt-4">
                 <x-signature-pad
@@ -343,10 +343,10 @@
                 </p>
             @endunless
 
-            <p class="field-hint mt-3 border-t border-gray-100 pt-3 dark:border-gray-700">
+            <small class="field-hint mt-3 border-t border-gray-100 pt-3 dark:border-gray-700">
                 The name printed under the line is set as <strong>Principal&rsquo;s Name</strong> in School Profile above.
                 Leave it blank there to print your account name, {{ auth()->user()->name }}.
-            </p>
+            </small>
         </div>
     </div>
 </x-dashboard-layout>

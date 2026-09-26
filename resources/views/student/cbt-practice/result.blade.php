@@ -9,9 +9,9 @@
                     Auto-submitted: time expired
                 </span>
             @endif
-            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Your Score</p>
+            <small class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Your Score</small>
             <p class="mt-1 text-4xl font-extrabold {{ $attempt->passed() ? 'text-green-600' : 'text-red-600' }}">{{ $attempt->percentage() }}%</p>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $attempt->correctCount() }} of {{ $attempt->total_questions }} correct &middot; {{ $attempt->passed() ? 'Passed' : 'Not passed' }} (pass mark {{ $attempt->exam->pass_mark }}%)</p>
+            <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $attempt->correctCount() }} of {{ $attempt->total_questions }} correct &middot; {{ $attempt->passed() ? 'Passed' : 'Not passed' }} (pass mark {{ $attempt->exam->pass_mark }}%)</small>
         </div>
 
         @php $lastPassage = null; @endphp
@@ -50,7 +50,7 @@
                         </div>
                     @endforeach
                     @if (! $answer)
-                        <p class="text-xs italic text-gray-400 dark:text-gray-500">You did not answer this question.</p>
+                        <small class="block text-xs italic text-gray-400 dark:text-gray-500">You did not answer this question.</small>
                     @endif
                 </div>
 

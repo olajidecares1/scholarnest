@@ -6,7 +6,7 @@
      visitor to the website will see, not by the property it sets. --}}
 <div class="rounded-[10px] border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
     <template x-if="! selectedBlock">
-        <p class="field-hint">Click any text, button, or card in the preview to edit it. Double-click text to type directly.</p>
+        <small class="field-hint">Click any text, button, or card in the preview to edit it. Double-click text to type directly.</small>
     </template>
 
     <template x-if="selectedBlock">
@@ -172,7 +172,7 @@
                             <small class="field-hint mt-1">Space above and below the text. Keep the button tall enough to tap comfortably on a phone.</small>
                         </div>
                     </div>
-                    <p class="text-[11px] text-gray-500 dark:text-gray-400">Drag this button's edges/corners on the preview to resize its box.</p>
+                    <small class="block text-[11px] text-gray-500 dark:text-gray-400">Drag this button's edges/corners on the preview to resize its box.</small>
                 </div>
             </template>
 

@@ -9,17 +9,17 @@
                 </svg>
             </span>
             <h2 class="mt-4 text-lg font-bold text-gray-900 dark:text-white">{{ $student->fullName() }}</h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $student->admission_number }}</p>
+            <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $student->admission_number }}</small>
 
             <button
                 type="button"
                 @click="$store.idCardPreview.openPreview('{{ route('student.id-card.preview', $school) }}', '', '')"
-                class="mt-6 inline-flex items-center justify-center rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700"
+                class="btn mt-6 inline-flex items-center justify-center rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700"
             >
                 View ID Card
             </button>
 
-            <p class="mt-4 text-xs text-gray-400 dark:text-gray-500">This is a view-only preview. Printing and downloading are handled by your school office.</p>
+            <small class="block mt-4 text-xs text-gray-400 dark:text-gray-500">This is a view-only preview. Printing and downloading are handled by your school office.</small>
         </div>
     </div>
 

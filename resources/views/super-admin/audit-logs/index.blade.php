@@ -4,10 +4,7 @@
             <form method="GET" action="{{ route('super-admin.audit-logs.index') }}" class="flex flex-wrap items-center gap-3 p-4">
                 <div class="relative flex-1 min-w-[200px]">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
-                            <path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                        </svg>
+                        <i class="fa-solid fa-magnifying-glass text-[14px] leading-none" aria-hidden="true"></i>
                     </span>
                     <input
                         type="text"
@@ -26,7 +23,7 @@
                     />
                 </div>
 
-                <button type="submit" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                     Filter
                 </button>
             </form>

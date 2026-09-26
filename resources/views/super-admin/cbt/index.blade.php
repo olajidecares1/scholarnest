@@ -7,8 +7,8 @@
         @endif
 
         <div class="flex justify-end">
-            <a href="{{ route('super-admin.cbt.uploads.index') }}" class="flex items-center gap-2 rounded-[8px] border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12M7 9l5-5 5 5M5 20h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <a href="{{ route('super-admin.cbt.uploads.index') }}" class="btn flex items-center gap-2 rounded-[8px] border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
                 Import from Document
             </a>
         </div>
@@ -36,8 +36,8 @@
         {{-- Exam Bodies tab --}}
         <div x-show="tab === 'exam-bodies'">
             <div class="flex justify-end">
-                <button type="button" @click="editingExamBody = { name: '', code: '', description: '', academic_stages: [] }; addExamBodyOpen = true" class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <button type="button" @click="editingExamBody = { name: '', code: '', description: '', academic_stages: [] }; addExamBodyOpen = true" class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Add Exam Body
                 </button>
             </div>
@@ -48,12 +48,12 @@
                         <div class="flex items-start justify-between gap-2">
                             <span class="inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">{{ $examBody->code }}</span>
                             <button type="button" @click="editingExamBody = { uuid: @js($examBody->uuid), name: @js($examBody->name), code: @js($examBody->code), description: @js($examBody->description), academic_stages: @js($examBody->academic_stages ?? []) }; addExamBodyOpen = true" class="text-gray-400 transition-colors duration-150 hover:text-primary-600">
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20l4.3-.7L19 8.6a1.5 1.5 0 000-2.1l-1.5-1.5a1.5 1.5 0 00-2.1 0L4.7 15.7 4 20z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                <i class="fa-solid fa-pen text-[14px] leading-none" aria-hidden="true"></i>
                             </button>
                         </div>
                         <h3 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">{{ $examBody->name }}</h3>
                         @if ($examBody->description)
-                            <p class="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $examBody->description }}</p>
+                            <small class="block mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $examBody->description }}</small>
                         @endif
                         @if (! empty($examBody->academic_stages))
                             <div class="mt-2 flex flex-wrap gap-1">
@@ -68,10 +68,10 @@
                             <span>{{ $examBody->questions_count }} questions</span>
                         </div>
                         <div class="mt-4 flex items-center gap-2">
-                            <a href="{{ route('super-admin.cbt.exam-bodies.show', $examBody) }}" class="flex-1 rounded-[8px] bg-primary-50 px-3 py-2 text-center text-xs font-semibold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400">Manage</a>
+                            <a href="{{ route('super-admin.cbt.exam-bodies.show', $examBody) }}" class="btn flex-1 rounded-[8px] bg-primary-50 px-3 py-2 text-center text-xs font-semibold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400">Manage</a>
                             <form method="POST" action="{{ route('super-admin.cbt.exam-bodies.destroy', $examBody) }}" onsubmit="return confirm('Delete {{ $examBody->name }}? This removes all its subjects, exams, and questions.');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                             </form>
                         </div>
                     </div>
@@ -86,8 +86,8 @@
         {{-- Subjects tab --}}
         <div x-show="tab === 'subjects'" style="display: none;">
             <div class="flex justify-end">
-                <button type="button" @click="editingSubject = { name: '', category: 'general' }; addSubjectOpen = true" class="flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <button type="button" @click="editingSubject = { name: '', category: 'general' }; addSubjectOpen = true" class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Add Subject
                 </button>
             </div>
@@ -102,12 +102,12 @@
                                 <span class="group inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white py-1.5 pl-3 pr-1.5 text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
                                     {{ $subject->name }}
                                     <button type="button" @click="editingSubject = { uuid: @js($subject->uuid), name: @js($subject->name), category: @js($subject->category->value) }; addSubjectOpen = true" class="rounded-full p-1 text-gray-400 transition-colors duration-150 hover:bg-gray-100 hover:text-primary-600 dark:hover:bg-gray-700">
-                                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20l4.3-.7L19 8.6a1.5 1.5 0 000-2.1l-1.5-1.5a1.5 1.5 0 00-2.1 0L4.7 15.7 4 20z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                        <i class="fa-solid fa-pen text-[12px] leading-none" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" action="{{ route('super-admin.cbt.subjects.destroy', $subject) }}" onsubmit="return confirm('Delete {{ $subject->name }}? This removes it from every exam body and any exams already created for it.');">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="rounded-full p-1 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20">
-                                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></svg>
+                                            <i class="fa-solid fa-xmark text-[12px] leading-none" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </span>
@@ -131,7 +131,7 @@
 
                     <div>
                         <label class="field-label mb-1">Academic Stages</label>
-                        <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">Which student levels can see this exam body in their portal.</p>
+                        <small class="block mb-2 text-xs text-gray-500 dark:text-gray-400">Which student levels can see this exam body in their portal.</small>
                         <div class="flex flex-wrap gap-3">
                             @foreach (\App\Enums\AcademicStage::cases() as $stage)
                                 <label class="flex items-center gap-2 rounded-[8px] border border-gray-200 px-3 py-1.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
@@ -149,8 +149,8 @@
                     </div>
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="addExamBodyOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                        <button type="button" @click="addExamBodyOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                     </div>
                 </form>
             </div>
@@ -172,8 +172,8 @@
                         :options="collect(\App\Enums\CbtSubjectCategory::cases())->mapWithKeys(fn ($c) => [$c->value => $c->label()])->all()"
                     />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="addSubjectOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                        <button type="button" @click="addSubjectOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
                     </div>
                 </form>
             </div>

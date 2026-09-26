@@ -23,8 +23,8 @@
                 <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-[10px] bg-primary-600 text-2xl text-white shadow-md"><i class="fa-solid fa-school"></i></span>
             @endif
             <h1 class="mt-3 text-xl font-bold text-gray-900">{{ $school->name }}</h1>
-            <p class="text-xs font-semibold uppercase tracking-wide text-primary-500">Portal</p>
-            <p class="mt-2 text-sm text-gray-500">Choose how you'd like to sign in.</p>
+            <small class="block text-xs font-semibold uppercase tracking-wide text-primary-500">Portal</small>
+            <small class="block mt-2 text-sm text-gray-500">Choose how you'd like to sign in.</small>
         </div>
 
         <div class="mt-6 space-y-3">
@@ -34,7 +34,7 @@
                 </span>
                 <span class="min-w-0 flex-1">
                     <span class="block text-sm font-bold text-gray-900">School Admin</span>
-                    <span class="block text-xs text-gray-500">Manage this school</span>
+                    <small class="block text-xs text-gray-500">Manage this school</small>
                 </span>
                 <i class="fa-solid fa-chevron-right text-xs text-gray-300 transition-colors duration-200 group-hover:text-primary-400"></i>
             </a>
@@ -45,7 +45,7 @@
                 </span>
                 <span class="min-w-0 flex-1">
                     <span class="block text-sm font-bold text-gray-900">Staff / Teacher</span>
-                    <span class="block text-xs text-gray-500">Teaching &amp; staff access</span>
+                    <small class="block text-xs text-gray-500">Teaching &amp; staff access</small>
                 </span>
                 <i class="fa-solid fa-chevron-right text-xs text-gray-300 transition-colors duration-200 group-hover:text-primary-400"></i>
             </a>
@@ -57,7 +57,7 @@
                     </span>
                     <span class="min-w-0 flex-1">
                         <span class="block text-sm font-bold text-gray-900">Student</span>
-                        <span class="block text-xs text-gray-500">Results, assignments &amp; more</span>
+                        <small class="block text-xs text-gray-500">Results, assignments &amp; more</small>
                     </span>
                     <i class="fa-solid fa-chevron-right text-xs text-gray-300 transition-colors duration-200 group-hover:text-primary-400"></i>
                 </a>
@@ -68,7 +68,7 @@
                     </span>
                     <span class="min-w-0 flex-1">
                         <span class="block text-sm font-bold text-gray-900">Parent / Guardian</span>
-                        <span class="block text-xs text-gray-500">Your child's information</span>
+                        <small class="block text-xs text-gray-500">Your child's information</small>
                     </span>
                     <i class="fa-solid fa-chevron-right text-xs text-gray-300 transition-colors duration-200 group-hover:text-primary-400"></i>
                 </a>
@@ -79,7 +79,7 @@
                     </span>
                     <span class="min-w-0 flex-1">
                         <span class="block text-sm font-bold text-gray-900">Check Result</span>
-                        <span class="block text-xs text-gray-500">Enter the Result Token from your school &mdash; no account needed</span>
+                        <small class="block text-xs text-gray-500">Enter the Result Token from your school &mdash; no account needed</small>
                     </span>
                     <i class="fa-solid fa-chevron-right text-xs text-gray-300 transition-colors duration-200 group-hover:text-primary-400"></i>
                 </a>

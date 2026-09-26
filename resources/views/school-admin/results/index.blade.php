@@ -15,7 +15,7 @@
                  AkademicNest, so the library is yours. --}}
             <a
                 href="{{ route('results.remark-library.index') }}"
-                class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
+                class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
             >
                 <i class="fa-solid fa-comment-dots text-[13px]"></i>
                 Principal&rsquo;s Remark Library
@@ -23,7 +23,7 @@
 
             <a
                 href="{{ route('results.template-preview') }}"
-                class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
                 <i class="fa-solid fa-file-lines text-[13px]"></i>
                 Preview Report Card Template
@@ -76,7 +76,7 @@
         @if (! $examination)
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">No examination recorded yet</p>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $selectedClass ?? 'This class' }} has no examination for {{ $selectedSession }}, {{ $selectedTerm->label() }}. Create one from the Examinations page first.</p>
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $selectedClass ?? 'This class' }} has no examination for {{ $selectedSession }}, {{ $selectedTerm->label() }}. Create one from the Examinations page first.</small>
             </div>
         @else
             <x-push-to-repository
@@ -153,7 +153,7 @@
                                                 @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '{{ $sendUrl }}', '{{ $printUrl }}', '{{ $pdfUrl }}', 'details')"
                                                 class="{{ $actionButtonClasses }}"
                                             >
-                                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /></svg>
+                                                <i class="fa-solid fa-eye text-[14px] leading-none" aria-hidden="true"></i>
                                             </button>
                                             <button
                                                 type="button"
@@ -161,7 +161,7 @@
                                                 @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '{{ $sendUrl }}', '{{ $printUrl }}', '{{ $pdfUrl }}', 'report-card')"
                                                 class="{{ $actionButtonClasses }}"
                                             >
-                                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                                                <i class="fa-solid fa-file text-[14px] leading-none" aria-hidden="true"></i>
                                             </button>
                                             <button
                                                 type="button"
@@ -169,7 +169,7 @@
                                                 @click="$store.resultPreview.printDirect('{{ $printUrl }}')"
                                                 class="{{ $actionButtonClasses }}"
                                             >
-                                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.5 8.5V4a.5.5 0 01.5-.5h10a.5.5 0 01.5.5v4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><path d="M6 17.5H4.75A1.25 1.25 0 013.5 16.25v-5.5A1.25 1.25 0 014.75 9.5h14.5a1.25 1.25 0 011.25 1.25v5.5a1.25 1.25 0 01-1.25 1.25H18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><path d="M6.5 13.5h11v7a.5.5 0 01-.5.5h-10a.5.5 0 01-.5-.5v-7z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                                <i class="fa-solid fa-print text-[14px] leading-none" aria-hidden="true"></i>
                                             </button>
                                             <button
                                                 type="button"
@@ -178,8 +178,8 @@
                                                 @click="downloading = true; $store.resultPreview.downloadDirect('{{ $pdfUrl }}', '{{ $student->admission_number }}').finally(() => downloading = false)"
                                                 class="{{ $actionButtonClasses }}"
                                             >
-                                                <svg x-show="!downloading" class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v11m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><path d="M5 17.5V19a1.5 1.5 0 001.5 1.5h11A1.5 1.5 0 0019 19v-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                                                <svg x-show="downloading" style="display: none;" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" stroke-opacity="0.25" /><path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
+                                                <i x-show="!downloading" class="fa-solid fa-download text-[14px] leading-none" aria-hidden="true"></i>
+                                                <i x-show="downloading" style="display: none;" class="fa-solid fa-circle-notch animate-spin text-[14px] leading-none" aria-hidden="true"></i>
                                             </button>
                                             <button
                                                 type="button"
@@ -187,7 +187,7 @@
                                                 @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '{{ $sendUrl }}', '{{ $printUrl }}', '{{ $pdfUrl }}', 'send')"
                                                 class="{{ $actionButtonClasses }}"
                                             >
-                                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12L20 4l-6.5 16-3-6.5L4 12z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                                <i class="fa-solid fa-paper-plane text-[14px] leading-none" aria-hidden="true"></i>
                                             </button>
                                         </div>
                                     </td>

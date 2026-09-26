@@ -18,10 +18,10 @@
 
             <p class="mt-4 text-sm font-bold uppercase tracking-wide text-primary-600">Thank You!</p>
             <h2 class="mt-1 text-2xl font-extrabold text-gray-900">Your Payment Has Been Received</h2>
-            <p class="mt-2 text-sm text-gray-600">
+            <small class="block mt-2 text-sm text-gray-600">
                 We have successfully received your payment receipt.
                 Our team will verify your payment and activate your subscription shortly.
-            </p>
+            </small>
 
             <div class="mt-6 flex items-start gap-3 rounded-[5px] bg-green-50 p-4 text-left lg:rounded-[10px]">
                 <svg class="mt-0.5 h-5 w-5 shrink-0 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,7 +33,7 @@
                         Payment Status
                         <span class="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold uppercase text-green-700">Received</span>
                     </p>
-                    <p class="mt-0.5 text-xs text-gray-600">Your payment is under review and will be confirmed within 24 hours.</p>
+                    <small class="block mt-0.5 text-xs text-gray-600">Your payment is under review and will be confirmed within 24 hours.</small>
                 </div>
             </div>
 
@@ -41,19 +41,19 @@
                 <h3 class="text-center text-sm font-bold text-gray-900">Payment & Subscription Summary</h3>
                 <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="rounded-[5px] border border-gray-200 p-4 lg:rounded-[10px]">
-                        <p class="text-xs text-gray-500">Plan Selected</p>
+                        <small class="block text-xs text-gray-500">Plan Selected</small>
                         <p class="mt-1 font-semibold text-gray-900">{{ $subscription->plan->name }}</p>
                     </div>
                     <div class="rounded-[5px] border border-gray-200 p-4 lg:rounded-[10px]">
-                        <p class="text-xs text-gray-500">Billing Cycle</p>
+                        <small class="block text-xs text-gray-500">Billing Cycle</small>
                         <p class="mt-1 font-semibold text-gray-900">{{ $subscription->billing_cycle->label() }}</p>
                     </div>
                     <div class="rounded-[5px] border border-gray-200 p-4 lg:rounded-[10px]">
-                        <p class="text-xs text-gray-500">Amount Paid</p>
+                        <small class="block text-xs text-gray-500">Amount Paid</small>
                         <p class="mt-1 font-semibold text-gray-900">&#8358;{{ number_format($subscription->amount, 2) }}</p>
                     </div>
                     <div class="rounded-[5px] border border-gray-200 p-4 lg:rounded-[10px]">
-                        <p class="text-xs text-gray-500">Reference</p>
+                        <small class="block text-xs text-gray-500">Reference</small>
                         <p class="mt-1 font-semibold text-gray-900">{{ $subscription->reference }}</p>
                     </div>
                 </div>
@@ -73,13 +73,13 @@
                     @php($supportEmail = \App\Models\Setting::supportEmail())
 
                     <p class="text-sm font-bold text-gray-900">Need Help?</p>
-                    <p class="mt-2 text-xs text-gray-600">If you have any questions, our support team is here to help you.</p>
+                    <small class="block mt-2 text-xs text-gray-600">If you have any questions, our support team is here to help you.</small>
 
                     {{-- This button shipped as href="#". Somebody who has just
                          paid and wants to ask about it deserves a real
                          address, not a link that does nothing. --}}
                     @if ($supportEmail)
-                        <a href="mailto:{{ $supportEmail }}" class="mt-3 inline-block rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary-400 hover:text-primary-700">Contact Support</a>
+                        <a href="mailto:{{ $supportEmail }}" class="btn mt-3 inline-block rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary-400 hover:text-primary-700">Contact Support</a>
                         <small class="mt-2 block text-[11px] text-gray-500">{{ $supportEmail }}</small>
                     @endif
                 </div>
@@ -87,7 +87,7 @@
 
             <a
                 href="{{ route('dashboard') }}"
-                class="mt-8 inline-flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
+                class="btn mt-8 inline-flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
             >
                 Back to Dashboard
             </a>

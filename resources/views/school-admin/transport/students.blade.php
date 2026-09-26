@@ -15,14 +15,14 @@
             <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $route->name }}</h2>
-                    <p class="field-hint mt-0.5">{{ $assignments->count() }} student(s) assigned</p>
+                    <small class="field-hint mt-0.5">{{ $assignments->count() }} student(s) assigned</small>
                 </div>
                 <button
                     type="button"
                     @click="open = true"
-                    class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                    class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Assign Student
                 </button>
             </div>
@@ -46,7 +46,7 @@
                                 <td class="px-6 py-3">
                                     <form method="POST" action="{{ route('transport.routes.assignments.destroy', $assignment) }}" onsubmit="return confirm('Remove {{ $assignment->student->fullName() }} from this route?');">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Remove</button>
+                                        <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Remove</button>
                                     </form>
                                 </td>
                             </tr>
@@ -69,8 +69,8 @@
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" helper="Students already on a route aren't listed." />
                     <x-text-field name="pickup_point" label="Pickup Point" icon="M12 21s7-6.1 7-11a7 7 0 10-14 0c0 4.9 7 11 7 11z" helper="Optional." />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Assign</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Assign</button>
                     </div>
                 </form>
             </div>

@@ -19,7 +19,7 @@
                 @endif
                 <div class="min-w-0">
                     <h2 class="truncate text-sm font-bold text-gray-900 dark:text-white">{{ $student->fullName() }}</h2>
-                    <p class="field-hint">{{ $student->class_name }}</p>
+                    <small class="field-hint">{{ $student->class_name }}</small>
                 </div>
             </div>
 
@@ -39,10 +39,10 @@
                 @endforeach
             </dl>
 
-            <p class="field-hint mt-4">
+            <small class="field-hint mt-4">
                 These are your school&rsquo;s records. If anything here is wrong, ask them to correct it
                 using the form below.
-            </p>
+            </small>
         </div>
 
         {{-- No password form, and no route behind one. The school office sets
@@ -53,10 +53,10 @@
             <i class="fa-solid fa-lock mt-0.5 text-gray-400"></i>
             <div>
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Password</h2>
-                <p class="field-hint mt-0.5">
+                <small class="field-hint mt-0.5">
                     Your password is set by your school office. If you have forgotten it, ask them for a new
                     one &mdash; they can issue it straight away.
-                </p>
+                </small>
             </div>
         </div>
 

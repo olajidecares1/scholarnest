@@ -20,7 +20,7 @@
                         <button
                             type="button"
                             @click="$store.resultPreview.openPreview('{{ route('student.results.show', [$school, $examination]) }}', '', '', '{{ route('student.results.print', [$school, $examination]) }}', '{{ route('student.results.pdf', [$school, $examination]) }}', 'report-card')"
-                            class="shrink-0 rounded-[8px] border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/20 dark:text-primary-300"
+                            class="btn shrink-0 rounded-[8px] border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/20 dark:text-primary-300"
                         >
                             View Report Card
                         </button>
@@ -56,7 +56,7 @@
             </div>
         @empty
             <div class="rounded-[10px] border border-dashed border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm text-gray-500 dark:text-gray-400">No results published yet.</p>
+                <small class="block text-sm text-gray-500 dark:text-gray-400">No results published yet.</small>
             </div>
         @endforelse
     </div>

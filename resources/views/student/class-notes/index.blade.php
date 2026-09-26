@@ -18,14 +18,14 @@
                             <span class="text-[11px] text-gray-400">{{ $note->created_at->diffForHumans() }}</span>
                         </div>
 
-                        <p class="mt-0.5 text-[12px] text-gray-500 dark:text-gray-400">
+                        <small class="block mt-0.5 text-[12px] text-gray-500 dark:text-gray-400">
                             @if ($note->subject){{ $note->subject }} &middot; @endif
                             @if ($note->staff){{ $note->staff->fullName() }} &middot; @endif
                             {{ $note->readableSize() }}
-                        </p>
+                        </small>
 
                         @if ($note->description)
-                            <p class="mt-1.5 line-clamp-2 text-[12.5px] leading-[1.6] text-gray-600 dark:text-gray-300">{{ $note->description }}</p>
+                            <small class="block mt-1.5 line-clamp-2 text-[12.5px] leading-[1.6] text-gray-600 dark:text-gray-300">{{ $note->description }}</small>
                         @endif
                     </div>
 
@@ -35,8 +35,8 @@
         @empty
             <div class="rounded-[10px] border border-dashed border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-800">
                 <i class="fa-solid fa-file-word text-2xl text-gray-300"></i>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No class notes yet.</p>
-                <p class="mt-1 text-xs text-gray-400">When a teacher sends one to your class, it will appear here.</p>
+                <small class="block mt-2 text-sm text-gray-500 dark:text-gray-400">No class notes yet.</small>
+                <small class="block mt-1 text-xs text-gray-400">When a teacher sends one to your class, it will appear here.</small>
             </div>
         @endforelse
 

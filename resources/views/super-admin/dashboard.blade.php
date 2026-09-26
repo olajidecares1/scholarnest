@@ -20,7 +20,7 @@
                 <div class="group rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary-200 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-800 lg:rounded-[10px]">
                     <div class="flex items-start justify-between">
                         <div class="min-w-0">
-                            <p class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">{{ $data['label'] }}</p>
+                            <small class="block truncate text-sm font-medium text-gray-500 dark:text-gray-400">{{ $data['label'] }}</small>
                             <p class="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white">
                                 {{ $card['isCurrency'] ? '₦'.number_format($data['total']) : number_format($data['total']) }}
                             </p>
@@ -55,7 +55,7 @@
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:col-span-2 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Revenue Overview</h2>
-                <p class="field-hint">Verified payments by month, {{ now()->year }}</p>
+                <small class="field-hint">Verified payments by month, {{ now()->year }}</small>
                 <div
                     class="mt-3"
                     x-data
@@ -90,12 +90,12 @@
                             @endif
                             <span class="min-w-0">
                                 <span class="block truncate text-sm font-semibold text-gray-900 dark:text-white">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</span>
-                                <span class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
+                                <small class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</small>
+                                <small class="block text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</small>
                             </span>
                         </a>
                     @empty
-                        <p class="px-5 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
+                        <small class="block px-5 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</small>
                     @endforelse
                 </div>
             </div>
@@ -104,9 +104,9 @@
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Subscription Overview</h2>
-                <p class="field-hint">Active subscriptions by plan</p>
+                <small class="field-hint">Active subscriptions by plan</small>
                 @if (empty($subscriptionOverview))
-                    <p class="py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active subscriptions yet.</p>
+                    <small class="block py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active subscriptions yet.</small>
                 @else
                     <div
                         class="mt-3"
@@ -125,7 +125,7 @@
 
             <div class="rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Schools by Status</h2>
-                <p class="field-hint">Where every school currently stands</p>
+                <small class="field-hint">Where every school currently stands</small>
                 <div
                     class="mt-3"
                     x-data
@@ -156,7 +156,7 @@
                     href="{{ route('super-admin.subscriptions.index', ['tab' => $loop->last ? 'expired' : 'active']) }}"
                     class="rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary-300 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
                 >
-                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $alert['label'] }}</p>
+                    <small class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $alert['label'] }}</small>
                     <p class="mt-1 text-2xl font-extrabold {{ $alert['color'] }}">{{ number_format($alert['value']) }}</p>
                 </a>
             @endforeach
@@ -171,7 +171,7 @@
             </div>
 
             @if (empty($recentSchools))
-                <p class="p-6 text-center text-sm text-gray-500 dark:text-gray-400">No schools yet.</p>
+                <small class="block p-6 text-center text-sm text-gray-500 dark:text-gray-400">No schools yet.</small>
             @else
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">

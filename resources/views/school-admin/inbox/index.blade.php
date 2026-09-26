@@ -48,21 +48,21 @@
                             @endif
                         </a>
 
-                        <p class="field-hint mt-0.5 truncate">
+                        <small class="field-hint mt-0.5 truncate">
                             {{ $message->name }} &middot; {{ $message->created_at->format('j M Y, g:ia') }}
-                        </p>
+                        </small>
                     </div>
 
                     <div class="flex shrink-0 items-center gap-2">
                         <form method="POST" action="{{ route('inbox.read-message', $message) }}">
                             @csrf
                             @method('PUT')
-                            <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">
+                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">
                                 {{ $message->isUnread() ? 'Mark read' : 'Mark unread' }}
                             </button>
                         </form>
 
-                        <a href="{{ route('inbox.message', $message) }}" class="rounded-[8px] bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-blue-700">
+                        <a href="{{ route('inbox.message', $message) }}" class="btn rounded-[8px] bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-blue-700">
                             View
                         </a>
                     </div>
@@ -85,13 +85,13 @@
                             {{ $report->topic() }}
                         </a>
 
-                        <p class="field-hint mt-0.5 truncate">
+                        <small class="field-hint mt-0.5 truncate">
                             {{ $report->reporter_name }} &middot; {{ $report->created_at->format('j M Y, g:ia') }}
                             @if ($report->location) &middot; {{ $report->location }} @endif
                             @if ($report->attachments_count ?? $report->attachments->count())
                                 &middot; {{ $report->attachments->count() }} attached
                             @endif
-                        </p>
+                        </small>
                     </div>
 
                     <div class="flex shrink-0 items-center gap-2">
@@ -99,7 +99,7 @@
                             {{ $report->statusLabel() }}
                         </span>
 
-                        <a href="{{ route('inbox.report', $report) }}" class="rounded-[8px] bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-blue-700">
+                        <a href="{{ route('inbox.report', $report) }}" class="btn rounded-[8px] bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-blue-700">
                             View
                         </a>
                     </div>

@@ -10,19 +10,19 @@
                     @endif
                 </div>
                 @if ($activity->description)
-                    <p class="field-hint mt-1">{{ $activity->description }}</p>
+                    <small class="field-hint mt-1">{{ $activity->description }}</small>
                 @endif
                 @if ($activity->schedule_text)
-                    <p class="mt-2 text-xs font-medium text-gray-600 dark:text-gray-300">{{ $activity->schedule_text }}</p>
+                    <small class="block mt-2 text-xs font-medium text-gray-600 dark:text-gray-300">{{ $activity->schedule_text }}</small>
                 @endif
-                <p class="mt-2 text-xs text-gray-400">{{ $activity->students_count }} student(s) joined</p>
+                <small class="block mt-2 text-xs text-gray-400">{{ $activity->students_count }} student(s) joined</small>
 
                 <form method="POST" action="{{ $joined ? route('student.co-curricular.leave', [$school, $activity]) : route('student.co-curricular.join', [$school, $activity]) }}" class="mt-4">
                     @csrf
                     @if ($joined) @method('DELETE') @endif
                     <button
                         type="submit"
-                        class="w-full rounded-[8px] px-4 py-2 text-sm font-semibold transition-all duration-300 ease-out hover:-translate-y-0.5
+                        class="btn w-full rounded-[8px] px-4 py-2 text-sm font-semibold transition-all duration-300 ease-out hover:-translate-y-0.5
                             {{ $joined
                                 ? 'border border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20'
                                 : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-md' }}"
@@ -33,7 +33,7 @@
             </div>
         @empty
             <div class="col-span-full rounded-[10px] border border-dashed border-gray-200 bg-white py-16 text-center dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm text-gray-500 dark:text-gray-400">No activities available yet.</p>
+                <small class="block text-sm text-gray-500 dark:text-gray-400">No activities available yet.</small>
             </div>
         @endforelse
     </div>

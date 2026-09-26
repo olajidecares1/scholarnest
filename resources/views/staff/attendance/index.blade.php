@@ -26,7 +26,7 @@
         @if ($classes->isEmpty())
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">You haven't been assigned as a Class Teacher yet</p>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Ask your School Admin to assign you as the Class Teacher of a class to start taking attendance.</p>
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">Ask your School Admin to assign you as the Class Teacher of a class to start taking attendance.</small>
             </div>
         @else
             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -112,9 +112,9 @@
                                                 @foreach ($statusOptions as $status)
                                                     <label class="cursor-pointer">
                                                         <input type="radio" name="records[{{ $student->id }}]" value="{{ $status->value }}" class="peer sr-only" @checked($current === $status)>
-                                                        <span class="block rounded-[6px] border border-gray-300 bg-white px-2 py-1.5 text-center text-xs font-semibold text-gray-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm active:scale-95 peer-checked:border-transparent peer-checked:text-white peer-checked:shadow-md dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 {{ $statusSelectedClasses[$status->value] }}">
+                                                        <small class="block rounded-[6px] border border-gray-300 bg-white px-2 py-1.5 text-center text-xs font-semibold text-gray-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm active:scale-95 peer-checked:border-transparent peer-checked:text-white peer-checked:shadow-md dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 {{ $statusSelectedClasses[$status->value] }}">
                                                             {{ $status->label() }}
-                                                        </span>
+                                                        </small>
                                                     </label>
                                                 @endforeach
                                             </div>
@@ -131,7 +131,7 @@
 
                     @if ($students->isNotEmpty())
                         <div class="flex justify-end border-t border-gray-100 p-6 dark:border-gray-700">
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
                                 Save Attendance for {{ $date->format('M j, Y') }}
                             </button>
                         </div>

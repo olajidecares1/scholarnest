@@ -44,11 +44,11 @@
 
                 <div class="min-w-0 flex-1">
                     <h1 class="text-base font-bold text-gray-900 dark:text-white">{{ $note->title }}</h1>
-                    <p class="mt-0.5 text-[12px] text-gray-500 dark:text-gray-400">
+                    <small class="block mt-0.5 text-[12px] text-gray-500 dark:text-gray-400">
                         @if ($note->subject){{ $note->subject }} &middot; @endif
                         @if ($note->staff){{ $note->staff->fullName() }} &middot; @endif
                         {{ $note->created_at->format('j M Y') }}
-                    </p>
+                    </small>
                 </div>
             </div>
 
@@ -59,13 +59,13 @@
             @endif
 
             <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4 dark:border-gray-700">
-                <a href="{{ route('student.class-notes.download', [$school, $note]) }}" class="inline-flex items-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-primary-700">
+                <a href="{{ route('student.class-notes.download', [$school, $note]) }}" class="btn inline-flex items-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-primary-700">
                     <i class="fa-solid fa-download text-[12px]"></i>
                     Download ({{ $note->readableSize() }})
                 </a>
 
                 @if ($note->isReadable())
-                    <button type="button" x-on:click="copy()" class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2.5 text-[13px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-gray-600 dark:text-gray-200">
+                    <button type="button" x-on:click="copy()" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2.5 text-[13px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-gray-600 dark:text-gray-200">
                         <i class="fa-solid text-[12px]" x-bind:class="copied ? 'fa-check' : 'fa-copy'"></i>
                         <span x-text="copied ? 'Copied' : 'Copy note'"></span>
                     </button>
@@ -91,10 +91,10 @@
                 <i class="fa-solid fa-circle-info mt-0.5 text-gray-400"></i>
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">This note can only be downloaded</h2>
-                    <p class="mt-1 text-[12.5px] leading-[1.6] text-gray-600 dark:text-gray-300">
+                    <small class="block mt-1 text-[12.5px] leading-[1.6] text-gray-600 dark:text-gray-300">
                         Its text could not be shown here, so download the document above and open it in Microsoft
                         Word, Google Docs or any app that reads Word files.
-                    </p>
+                    </small>
                 </div>
             </div>
         @endif

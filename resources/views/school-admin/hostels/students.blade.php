@@ -15,15 +15,15 @@
             <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Room {{ $room->room_number }}</h2>
-                    <p class="field-hint mt-0.5">{{ $allocations->count() }} / {{ $room->capacity }} beds occupied</p>
+                    <small class="field-hint mt-0.5">{{ $allocations->count() }} / {{ $room->capacity }} beds occupied</small>
                 </div>
                 @if ($allocations->count() < $room->capacity)
                     <button
                         type="button"
                         @click="open = true"
-                        class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                        class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                     >
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                        <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                         Allocate Student
                     </button>
                 @endif
@@ -48,7 +48,7 @@
                                 <td class="px-6 py-3">
                                     <form method="POST" action="{{ route('hostels.allocations.destroy', $allocation) }}" onsubmit="return confirm('Vacate {{ $allocation->student->fullName() }} from this room?');">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Vacate</button>
+                                        <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Vacate</button>
                                     </form>
                                 </td>
                             </tr>
@@ -70,8 +70,8 @@
                     @csrf
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" helper="Students already in a room aren't listed." />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Allocate</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Allocate</button>
                     </div>
                 </form>
             </div>

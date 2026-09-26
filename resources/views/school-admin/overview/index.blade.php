@@ -9,15 +9,13 @@
                     </svg>
                 </span>
                 <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">You don&rsquo;t have an active subscription yet</h2>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Choose a plan to unlock AkademicNest for {{ $school->name }}.</p>
+                <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">Choose a plan to unlock AkademicNest for {{ $school->name }}.</small>
                 <a
                     href="{{ route('subscriptions.choose-plan') }}"
-                    class="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
+                    class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                 >
                     Choose a Plan
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
                 </a>
             </div>
         </div>
@@ -47,7 +45,7 @@
                         <div class="flex items-start justify-between">
                             <div class="min-w-0">
                                 <div class="flex items-center gap-1">
-                                    <p class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">{{ $data['label'] }}</p>
+                                    <small class="block truncate text-sm font-medium text-gray-500 dark:text-gray-400">{{ $data['label'] }}</small>
                                     <x-stat-tooltip :text="$card['tooltip']" />
                                 </div>
                                 <p class="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white">
@@ -95,7 +93,7 @@
                         <div class="flex items-center gap-1.5">
                             <div>
                                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Attendance Overview</h2>
-                                <p class="field-hint">Daily attendance so far this week</p>
+                                <small class="field-hint">Daily attendance so far this week</small>
                             </div>
                             <x-stat-tooltip text="A student counts as present for a day if they're marked Present or Late on at least one attendance record." />
                         </div>
@@ -131,7 +129,7 @@
                         ></div>
                     @else
                         <div class="mt-4 flex h-56 items-center justify-center rounded-[5px] bg-gray-50 dark:bg-gray-900 lg:rounded-[10px]">
-                            <p class="text-sm font-medium text-gray-400 dark:text-gray-500">No attendance has been recorded yet this week.</p>
+                            <small class="block text-sm font-medium text-gray-400 dark:text-gray-500">No attendance has been recorded yet this week.</small>
                         </div>
                     @endif
                 </div>
@@ -149,12 +147,12 @@
                                 <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full {{ is_null($notification->read_at) ? 'bg-blue-500' : 'bg-transparent' }}"></span>
                                 <span class="min-w-0">
                                     <span class="block truncate text-sm font-semibold text-gray-900 dark:text-white">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                    <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</span>
-                                    <span class="block text-xs text-gray-400 dark:text-gray-500">{{ $notification->created_at->diffForHumans() }}</span>
+                                    <small class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $notification->data['body'] ?? '' }}</small>
+                                    <small class="block text-xs text-gray-400 dark:text-gray-500">{{ $notification->created_at->diffForHumans() }}</small>
                                 </span>
                             </a>
                         @empty
-                            <p class="px-5 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
+                            <small class="block px-5 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet.</small>
                         @endforelse
                     </div>
                 </div>
@@ -167,7 +165,7 @@
                         <h2 class="text-sm font-bold text-gray-900 dark:text-white">Students Performance</h2>
                         <x-stat-tooltip text="Each student's average score across all graded subjects this term, grouped into four performance bands." />
                     </div>
-                    <p class="field-hint">Average exam score per student, this term</p>
+                    <small class="field-hint">Average exam score per student, this term</small>
 
                     @if ($performanceBreakdown['total'] > 0)
                         <div
@@ -199,7 +197,7 @@
                         ></div>
                     @else
                         <div class="mt-4 flex h-56 flex-col items-center justify-center rounded-[5px] bg-gray-50 text-center dark:bg-gray-900 lg:rounded-[10px]">
-                            <p class="text-sm font-medium text-gray-400 dark:text-gray-500">No exam scores recorded yet this term.</p>
+                            <small class="block text-sm font-medium text-gray-400 dark:text-gray-500">No exam scores recorded yet this term.</small>
                         </div>
                     @endif
                 </div>
@@ -219,7 +217,7 @@
                                     </span>
                                     <div class="min-w-0 flex-1">
                                         <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $event->title }}</p>
-                                        <p class="field-hint mt-0.5">{{ $event->starts_at->format('M j, Y') }}@if (! $event->is_all_day) &middot; {{ $event->starts_at->format('g:ia') }} @endif</p>
+                                        <small class="field-hint mt-0.5">{{ $event->starts_at->format('M j, Y') }}@if (! $event->is_all_day) &middot; {{ $event->starts_at->format('g:ia') }} @endif</small>
                                     </div>
                                     <span class="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ $event->audience->label() }}</span>
                                 </div>
@@ -231,7 +229,7 @@
                                 <path d="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                                 <path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
                             </svg>
-                            <p class="mt-2 text-sm font-medium text-gray-400 dark:text-gray-500">No upcoming events on the calendar.</p>
+                            <small class="block mt-2 text-sm font-medium text-gray-400 dark:text-gray-500">No upcoming events on the calendar.</small>
                         </div>
                     @endif
                 </div>
@@ -254,12 +252,12 @@
                                 </span>
                                 <div class="min-w-0">
                                     <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $announcement->title }}</p>
-                                    <p class="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $announcement->body }}</p>
-                                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">{{ $announcement->created_at->diffForHumans() }}</p>
+                                    <small class="block mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $announcement->body }}</small>
+                                    <small class="block mt-1 text-xs text-gray-400 dark:text-gray-500">{{ $announcement->created_at->diffForHumans() }}</small>
                                 </div>
                             </div>
                         @empty
-                            <p class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">No announcements yet.</p>
+                            <small class="block py-6 text-center text-sm text-gray-500 dark:text-gray-400">No announcements yet.</small>
                         @endforelse
                     </div>
                 </div>
@@ -282,11 +280,11 @@
                                 </span>
                                 <div class="min-w-0">
                                     <p class="text-sm text-gray-800 dark:text-gray-100">{{ $activity['description'] }}</p>
-                                    <p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">{{ $activity['timestamp']->diffForHumans() }}</p>
+                                    <small class="block mt-0.5 text-xs text-gray-400 dark:text-gray-500">{{ $activity['timestamp']->diffForHumans() }}</small>
                                 </div>
                             </div>
                         @empty
-                            <p class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">No recent activity yet.</p>
+                            <small class="block py-6 text-center text-sm text-gray-500 dark:text-gray-400">No recent activity yet.</small>
                         @endforelse
                     </div>
                 </div>

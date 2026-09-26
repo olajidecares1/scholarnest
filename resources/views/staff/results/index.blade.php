@@ -31,7 +31,7 @@
         @if ($classes->isEmpty())
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">You haven't been assigned as a Class Teacher yet</p>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Ask your School Admin to assign you as the Class Teacher of a class to view report cards.</p>
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">Ask your School Admin to assign you as the Class Teacher of a class to view report cards.</small>
             </div>
         @else
             <div class="rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
@@ -70,7 +70,7 @@
             @if (! $examination)
                 <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                     <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">No examination recorded yet</p>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $className }} has no examination for {{ $selectedSession }}, {{ $selectedTerm->label() }} yet.</p>
+                    <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $className }} has no examination for {{ $selectedSession }}, {{ $selectedTerm->label() }} yet.</small>
                 </div>
             @else
                 <x-push-to-repository
@@ -146,7 +146,7 @@
                                                     @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '', '', '', 'details')"
                                                     class="{{ $actionButtonClasses }}"
                                                 >
-                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /></svg>
+                                                    <i class="fa-solid fa-eye text-[14px] leading-none" aria-hidden="true"></i>
                                                 </button>
                                                 <button
                                                     type="button"
@@ -154,7 +154,7 @@
                                                     @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '', '', '', 'report-card')"
                                                     class="{{ $actionButtonClasses }}"
                                                 >
-                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                                                    <i class="fa-solid fa-file text-[14px] leading-none" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                         </td>

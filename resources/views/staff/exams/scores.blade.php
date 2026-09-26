@@ -29,7 +29,7 @@
         >
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $subject->name }} &middot; Total {{ $subject->max_score }}</h2>
-                <p class="field-hint mt-0.5">Enter Test (/{{ $subject->testMaxScore() }}) and Exam (/{{ $subject->examMaxScore() }}) for each student. Leave both blank to skip a student.</p>
+                <small class="field-hint mt-0.5">Enter Test (/{{ $subject->testMaxScore() }}) and Exam (/{{ $subject->examMaxScore() }}) for each student. Leave both blank to skip a student.</small>
 
                 <div class="relative mt-4 max-w-xs">
                     <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" /><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></svg>

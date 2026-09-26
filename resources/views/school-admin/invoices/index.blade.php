@@ -3,9 +3,9 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Billing History</h2>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <small class="block mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Every invoice AkademicNest has issued to your school. Download any of them as a PDF.
-                </p>
+                </small>
             </div>
 
             <div class="overflow-x-auto">
@@ -36,7 +36,7 @@
                                          amber badge: a school waiting on approval needs to know
                                          that nothing more is required of them. --}}
                                     @unless ($invoice->isPaid())
-                                        <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">Awaiting AkademicNest approval</span>
+                                        <small class="mt-1 block text-xs text-gray-500 dark:text-gray-400">Awaiting AkademicNest approval</small>
                                     @endunless
                                 </td>
                                 <td class="px-5 py-3">

@@ -11,11 +11,11 @@
                 @endif
                 <div class="min-w-0 flex-1">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $student->fullName() }}</h2>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
                         {{ $student->admission_number }}
                         @if ($student->class_name) &middot; {{ $student->class_name }} @endif
                         @if ($student->age()) &middot; {{ $student->age() }} years old @endif
-                    </p>
+                    </small>
                 </div>
             </div>
         </div>

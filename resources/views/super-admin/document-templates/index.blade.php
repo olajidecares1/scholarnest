@@ -2,11 +2,11 @@
     <div class="space-y-6" x-data="{ tab: 'report-card' }">
         <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <p class="text-sm font-bold text-gray-900 dark:text-white">These are the real templates, not mock-ups</p>
-            <p class="field-hint mt-1">
+            <small class="field-hint mt-1">
                 Both previews render the same Blade templates that produce a printed report card and a printed ID card.
                 Every school-specific detail below &mdash; crest, colours, watermark, address, pupil, marks, grades and remarks
                 &mdash; is filled in from the chosen school's own record, so what a school receives is what you see here.
-            </p>
+            </small>
 
             <form method="GET" class="mt-4 flex flex-wrap items-end gap-3">
                 <div class="min-w-[220px]">
@@ -30,7 +30,7 @@
                 </div>
 
                 <noscript>
-                    <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Show</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Show</button>
                 </noscript>
             </form>
         </div>
@@ -50,7 +50,7 @@
         <div x-show="tab === 'report-card'" class="space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <p class="text-sm font-bold text-gray-900 dark:text-white">Report card &mdash; A4 portrait</p>
-                <p class="field-hint">Watermark uses {{ $school->name }}'s own logo.</p>
+                <small class="field-hint">Watermark uses {{ $school->name }}'s own logo.</small>
             </div>
 
             <div class="overflow-x-auto rounded-[10px] bg-gray-100 p-4 dark:bg-gray-900">
@@ -64,14 +64,14 @@
         <div x-show="tab === 'id-card'" style="display: none;" class="space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <p class="text-sm font-bold text-gray-900 dark:text-white">ID card &mdash; {{ $holderType->label() }}, portrait</p>
-                <p class="field-hint">Front and back, shown at twice actual size.</p>
+                <small class="field-hint">Front and back, shown at twice actual size.</small>
             </div>
 
             <div class="overflow-x-auto rounded-[10px] bg-gray-100 p-6 dark:bg-gray-900">
                 <div class="flex flex-wrap justify-center gap-10">
                     @foreach ([['Front', 'school-admin.id-cards._card'], ['Back', 'school-admin.id-cards._card_back']] as [$face, $partial])
                         <div class="text-center">
-                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $face }}</p>
+                            <small class="block mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $face }}</small>
                             <div style="width: 409px; height: 648px;">
                                 <div style="transform: scale(2); transform-origin: top left;">
                                     @include($partial, ['card' => $idCard])

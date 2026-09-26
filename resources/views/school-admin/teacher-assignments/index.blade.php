@@ -75,7 +75,7 @@
                     </template>
                 </div>
                 <div class="lg:col-span-4">
-                    <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save Assignment</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save Assignment</button>
                 </div>
             </form>
         </div>
@@ -86,7 +86,7 @@
                 <x-select-field name="class" label="Class" placeholder="All Classes" :selected="$selectedClass" :options="['' => 'All Classes', ...$classOptions->all()]" />
                 <x-text-field name="subject" label="Subject" :value="$selectedSubject" placeholder="Search subject..." />
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
+                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
                     @if ($selectedTeacher || $selectedClass || $selectedSubject)
                         <a href="{{ route('teacher-assignments.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
                     @endif
@@ -134,7 +134,7 @@
             @empty
                 <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                     <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">No assignments yet</p>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Use the form above to assign a teacher as a Class Teacher or Subject Teacher.</p>
+                    <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">Use the form above to assign a teacher as a Class Teacher or Subject Teacher.</small>
                 </div>
             @endforelse
         </div>

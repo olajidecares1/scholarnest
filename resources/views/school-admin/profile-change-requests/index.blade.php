@@ -37,7 +37,7 @@
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">
                                     <span class="font-semibold text-gray-900 dark:text-white">{{ ucfirst($changeRequest->requester_type) }}</span>
                                     @if ($changeRequest->requester_type === 'guardian')
-                                        <span class="block text-xs text-gray-400">for {{ ucfirst($changeRequest->subject_type) }}</span>
+                                        <small class="block text-xs text-gray-400">for {{ ucfirst($changeRequest->subject_type) }}</small>
                                     @endif
                                 </td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $changeRequest->field_label }}</td>
@@ -69,10 +69,10 @@
                                             </form>
                                         </div>
                                     @else
-                                        <p class="text-right text-xs text-gray-400">
+                                        <small class="block text-right text-xs text-gray-400">
                                             {{ $changeRequest->reviewedBy?->name ?? 'School Admin' }}
                                             &middot; {{ $changeRequest->reviewed_at?->format('M j, Y') }}
-                                        </p>
+                                        </small>
                                     @endif
                                 </td>
                             </tr>

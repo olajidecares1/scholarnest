@@ -15,9 +15,9 @@
             <button
                 type="button"
                 @click="open = true"
-                class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                 Issue Book
             </button>
         </div>
@@ -26,7 +26,7 @@
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6 dark:border-gray-700">
                 <div class="flex gap-1 rounded-[8px] border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-700/50">
                     @foreach (['active' => 'Active', 'overdue' => 'Overdue', 'returned' => 'Returned', 'all' => 'All'] as $value => $label)
-                        <a href="{{ route('library.loans.index', ['status' => $value]) }}" class="rounded-[6px] px-3 py-1.5 text-xs font-semibold transition-colors duration-150 {{ $status === $value ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600' }}">{{ $label }}</a>
+                        <a href="{{ route('library.loans.index', ['status' => $value]) }}" class="btn rounded-[6px] px-3 py-1.5 text-xs font-semibold transition-colors duration-150 {{ $status === $value ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600' }}">{{ $label }}</a>
                     @endforeach
                 </div>
                 <form method="GET" class="flex items-center gap-2">
@@ -67,7 +67,7 @@
                                     @unless ($loan->isReturned())
                                         <form method="POST" action="{{ route('library.loans.return', $loan) }}">
                                             @csrf
-                                            <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Mark Returned</button>
+                                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Mark Returned</button>
                                         </form>
                                     @else
                                         <span class="text-xs text-gray-400 dark:text-gray-500">Returned {{ $loan->returned_at->format('M j, Y') }}</span>
@@ -100,8 +100,8 @@
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" />
                     <x-text-field name="due_at" label="Due Date" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" :value="now()->addWeeks(2)->toDateString()" required />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Issue Book</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Issue Book</button>
                     </div>
                 </form>
             </div>

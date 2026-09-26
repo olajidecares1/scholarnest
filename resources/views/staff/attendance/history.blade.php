@@ -3,9 +3,9 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex gap-2 rounded-[8px] border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
                 <a href="{{ route('staff.attendance.index', [$school, 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Daily</a>
-                <a href="{{ route('staff.attendance.history', [$school, 'period' => 'week', 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold {{ $period === 'week' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }}">Weekly</a>
-                <a href="{{ route('staff.attendance.history', [$school, 'period' => 'month', 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold {{ $period === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }}">Monthly</a>
-                <a href="{{ route('staff.attendance.history', [$school, 'period' => 'term', 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold {{ $period === 'term' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }}">Termly</a>
+                <a href="{{ route('staff.attendance.history', [$school, 'period' => 'week', 'class' => $className]) }}" class="btn rounded-[6px] px-4 py-1.5 text-sm font-semibold {{ $period === 'week' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }}">Weekly</a>
+                <a href="{{ route('staff.attendance.history', [$school, 'period' => 'month', 'class' => $className]) }}" class="btn rounded-[6px] px-4 py-1.5 text-sm font-semibold {{ $period === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }}">Monthly</a>
+                <a href="{{ route('staff.attendance.history', [$school, 'period' => 'term', 'class' => $className]) }}" class="btn rounded-[6px] px-4 py-1.5 text-sm font-semibold {{ $period === 'term' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }}">Termly</a>
             </div>
             <div class="flex items-center gap-3">
                 @if ($classes->count() > 1)
@@ -29,7 +29,7 @@
         @elseif (! $termConfigured)
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Term dates haven't been set by your School Admin yet</p>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Termly attendance will show here once term dates are configured.</p>
+                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">Termly attendance will show here once term dates are configured.</small>
             </div>
         @else
             <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">

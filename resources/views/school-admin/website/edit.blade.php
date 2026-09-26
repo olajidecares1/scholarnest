@@ -38,16 +38,16 @@
                     @if ($website->is_published)
                         <a href="{{ $publicUrl }}" target="_blank" class="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700">{{ $publicUrl }}</a>
                     @else
-                        <p class="field-hint mt-1">Publish to make your website visible at {{ $publicUrl }}</p>
+                        <small class="field-hint mt-1">Publish to make your website visible at {{ $publicUrl }}</small>
                     @endif
                     <button type="button" @click="tab = 'domain'" class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700">
                         {{ $customDomainLive ? 'Serving on your custom domain' : 'Connect a custom domain' }}
-                        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                        <i class="fa-solid fa-arrow-right text-[10px] leading-none" aria-hidden="true"></i>
                     </button>
                 </div>
                 <form method="POST" action="{{ route('website.publish') }}">
                     @csrf
-                    <button type="submit" class="rounded-[8px] {{ $website->is_published ? 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700' : 'bg-blue-600 text-white hover:bg-blue-700' }} px-4 py-2 text-sm font-semibold transition-all duration-200">
+                    <button type="submit" class="btn rounded-[8px] {{ $website->is_published ? 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700' : 'bg-blue-600 text-white hover:bg-blue-700' }} px-4 py-2 text-sm font-semibold transition-all duration-200">
                         {{ $website->is_published ? 'Unpublish' : 'Publish Website' }}
                     </button>
                 </form>
@@ -74,7 +74,7 @@
                     <div class="mt-1.5 flex flex-wrap items-center gap-2">
                         <input id="brand_primary_color" type="text" name="brand_primary_color" x-model="colorInput" @change="normalize()" placeholder="e.g. Indigo, Dark Blue, #1877f2" class="w-52">
                         <input type="color" :value="colorInput || '#166fe5'" @input="colorInput = $event.target.value" class="w-10" aria-label="Pick a color">
-                        <button type="submit" class="rounded-[6px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Apply Theme Color</button>
+                        <button type="submit" class="btn rounded-[6px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Apply Theme Color</button>
                     </div>
                 </div>
             </form>
@@ -82,7 +82,7 @@
             <button
                 type="button"
                 @click="preview = ! preview"
-                class="flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="btn flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                 x-text="preview ? 'Back to Editing' : 'Preview'"
             ></button>
         </div>
@@ -230,10 +230,10 @@
                              school will not get. --}}
                         <p class="text-[15px] font-bold text-gray-900 dark:text-white">{{ $school->name }}</p>
                         <p class="text-[13px] text-gray-900 dark:text-gray-100" :style="`font-weight: ${weight}`">Welcome to Our School</p>
-                        <p class="mt-0.5 text-[11.5px] text-gray-600 dark:text-gray-400" :style="`font-weight: ${weight}`">Learn more about our school.</p>
+                        <small class="block mt-0.5 text-[11.5px] text-gray-600 dark:text-gray-400" :style="`font-weight: ${weight}`">Learn more about our school.</small>
                     </div>
 
-                    <button type="submit" class="mt-3 w-full rounded-[6px] bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700">Save Typography</button>
+                    <button type="submit" class="btn mt-3 w-full rounded-[6px] bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700">Save Typography</button>
                 </div>
             </form>
         </div>
@@ -293,7 +293,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
                         </div>
                     </form>
 
@@ -335,7 +335,7 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Header Settings</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Header Settings</button>
                         </div>
                     </form>
 
@@ -372,7 +372,7 @@
 
                         <div class="mt-4">
                             @if ($heroSlides->isEmpty())
-                                <p class="rounded-[8px] border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">No hero slides yet. Click "Add Slide" to upload the first one. Until then the fallback hero image above is used.</p>
+                                <small class="block rounded-[8px] border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">No hero slides yet. Click "Add Slide" to upload the first one. Until then the fallback hero image above is used.</small>
                             @else
                                 <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                                     @foreach ($heroSlides as $index => $slide)
@@ -386,7 +386,7 @@
                                                         @csrf
                                                         <input type="hidden" name="direction" value="up">
                                                         <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white" title="Move earlier">
-                                                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                                            <i class="fa-solid fa-chevron-up text-[12px] leading-none" aria-hidden="true"></i>
                                                         </button>
                                                     </form>
                                                 @endif
@@ -395,14 +395,14 @@
                                                         @csrf
                                                         <input type="hidden" name="direction" value="down">
                                                         <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white" title="Move later">
-                                                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                                            <i class="fa-solid fa-chevron-down text-[12px] leading-none" aria-hidden="true"></i>
                                                         </button>
                                                     </form>
                                                 @endif
                                                 <form method="POST" action="{{ route('website.hero-slides.destroy', $slide) }}" onsubmit="return confirm('Remove this slide?');">
                                                     @csrf @method('DELETE')
                                                     <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 shadow-sm hover:bg-white" title="Delete">
-                                                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                                                        <i class="fa-solid fa-xmark text-[12px] leading-none" aria-hidden="true"></i>
                                                     </button>
                                                 </form>
                                             </div>
@@ -583,7 +583,7 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save About Section</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save About Section</button>
                         </div>
                     </form>
                 </div>
@@ -616,7 +616,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
                         </div>
                     </form>
                 </div>
@@ -652,7 +652,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
                         </div>
                     </form>
                 </div>
@@ -686,7 +686,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
                         </div>
                     </form>
                     <hr class="border-gray-100 dark:border-gray-700">
@@ -709,7 +709,7 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Contact Details</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Contact Details</button>
                         </div>
                     </form>
                 </div>
@@ -747,7 +747,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
                         </div>
                     </form>
                 </div>
@@ -765,23 +765,23 @@
                     <button
                         type="button"
                         @click="navLinkEditing = null; navLinkOpen = true"
-                        class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                        class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                     >
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                        <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                         Add Link
                     </button>
                 </div>
 
                 <div class="mt-4">
                     @if ($navLinks->isEmpty())
-                        <p class="rounded-[8px] border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">No custom links yet. The default menu (Home, About, Academics, Admissions, News, Events, Gallery, Contact) is being used.</p>
+                        <small class="block rounded-[8px] border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">No custom links yet. The default menu (Home, About, Academics, Admissions, News, Events, Gallery, Contact) is being used.</small>
                     @else
                         <div class="divide-y divide-gray-100 rounded-[8px] border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
                             @foreach ($navLinks as $index => $navLink)
                                 <div class="flex items-center justify-between gap-3 px-4 py-2.5">
                                     <div class="min-w-0">
                                         <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ $navLink->label }}</p>
-                                        <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $navLink->url }}</p>
+                                        <small class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $navLink->url }}</small>
                                     </div>
                                     <div class="flex shrink-0 items-center gap-1">
                                         @if (! $loop->first)
@@ -789,7 +789,7 @@
                                                 @csrf
                                                 <input type="hidden" name="direction" value="up">
                                                 <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-[6px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700" title="Move earlier">
-                                                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                                    <i class="fa-solid fa-arrow-up text-[12px] leading-none" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         @endif
@@ -798,7 +798,7 @@
                                                 @csrf
                                                 <input type="hidden" name="direction" value="down">
                                                 <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-[6px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700" title="Move later">
-                                                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                                    <i class="fa-solid fa-arrow-down text-[12px] leading-none" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         @endif
@@ -837,8 +837,8 @@
                         <x-text-field name="url" label="URL" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" x-model="navLinkEditing ? navLinkEditing.url : ''" placeholder="e.g. /schools/your-school/gallery or #contact" required helper="Where the link goes. Start with # to scroll to a section of your home page (#about, #contact), or paste a full web address to send visitors elsewhere." />
 
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="navLinkOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Link</button>
+                            <button type="button" @click="navLinkOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Link</button>
                         </div>
                     </form>
                 </div>
@@ -860,28 +860,28 @@
                 <button
                     type="button"
                     @click="galleryOpen = true"
-                    class="flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
+                    class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                    <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Add Image
                 </button>
             </div>
 
             <div class="p-6">
                 @if ($galleryImages->isEmpty())
-                    <p class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">No gallery images yet. Click "Add Image" to upload one.</p>
+                    <small class="block py-6 text-center text-sm text-gray-500 dark:text-gray-400">No gallery images yet. Click "Add Image" to upload one.</small>
                 @else
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                         @foreach ($galleryImages as $image)
                             <div class="group relative overflow-hidden rounded-[8px] border border-gray-200 dark:border-gray-700">
                                 <img src="{{ $image->imageUrl() }}" class="h-32 w-full object-cover">
                                 @if ($image->caption)
-                                    <p class="truncate bg-gray-50 px-2 py-1 text-xs text-gray-600 dark:bg-gray-700/50 dark:text-gray-300">{{ $image->caption }}</p>
+                                    <small class="block truncate bg-gray-50 px-2 py-1 text-xs text-gray-600 dark:bg-gray-700/50 dark:text-gray-300">{{ $image->caption }}</small>
                                 @endif
                                 <form method="POST" action="{{ route('website.gallery.destroy', $image) }}" onsubmit="return confirm('Remove this image?');" class="absolute right-1.5 top-1.5">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100">
-                                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                                        <i class="fa-solid fa-xmark text-[12px] leading-none" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </div>
@@ -904,8 +904,8 @@
                     </div>
                     <x-text-field name="caption" label="Caption" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Optional. A short line saying what the photograph shows. It appears under the image in the gallery and in the full-screen viewer." />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="galleryOpen = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Upload</button>
+                        <button type="button" @click="galleryOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Upload</button>
                     </div>
                 </form>
             </div>

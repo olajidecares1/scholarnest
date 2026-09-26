@@ -75,10 +75,10 @@
             </div>
 
             <div class="mt-1.5 flex flex-wrap items-center justify-between gap-2">
-                <p class="field-hint">
+                <small class="field-hint">
                     <span x-text="answeredCount"></span> answered ·
                     <span x-text="unansweredCount"></span> remaining
-                </p>
+                </small>
 
                 {{-- Whether the student's work is actually safe. Silence here
                      was how a lost answer used to go unnoticed. --}}
@@ -163,7 +163,7 @@
                 type="button"
                 x-on:click="prev()"
                 :disabled="current === 0"
-                class="flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="btn flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
                 <i class="fa-solid fa-chevron-left text-[11px]"></i>
                 Previous
@@ -173,7 +173,7 @@
                 <button
                     type="button"
                     x-on:click="confirmSubmit()"
-                    class="rounded-[8px] bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-md"
+                    class="btn rounded-[8px] bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-md"
                 >
                     Submit Test
                 </button>
@@ -182,7 +182,7 @@
                     type="button"
                     x-show="current < questions.length - 1"
                     x-on:click="next()"
-                    class="flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md"
+                    class="btn flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md"
                 >
                     Next
                     <i class="fa-solid fa-chevron-right text-[11px]"></i>

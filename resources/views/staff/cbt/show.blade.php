@@ -68,9 +68,9 @@
                 x-show="mode === 'manage'"
                 @click="startPreview()"
                 :disabled="questions.length === 0"
-                class="flex items-center gap-2 rounded-[8px] border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400"
+                class="btn flex items-center gap-2 rounded-[8px] border border-primary-300 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400"
             >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 4.5l13 7.5-13 7.5v-15z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg>
+                <i class="fa-solid fa-play text-[14px] leading-none" aria-hidden="true"></i>
                 Preview as Student
             </button>
             <button
@@ -78,7 +78,7 @@
                 x-show="mode === 'preview'"
                 style="display: none;"
                 @click="stopPreview()"
-                class="flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="btn flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
                 Exit Preview
             </button>
@@ -100,23 +100,23 @@
                                 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400' => $test->status === \App\Enums\CbtTestStatus::Archived,
                             ])>{{ $test->status->label() }}</span>
                         </div>
-                        <p class="field-hint mt-1">
+                        <small class="field-hint mt-1">
                             {{ $test->subject }} &middot; {{ $test->class_name }} &middot; {{ $test->duration_minutes }} min &middot; Pass mark {{ $test->pass_mark }}%
                             @if ($test->questions->isNotEmpty()) &middot; {{ $test->questions->count() }} question(s) @endif
-                        </p>
+                        </small>
                         @if ($test->status === \App\Enums\CbtTestStatus::Draft || $test->status === \App\Enums\CbtTestStatus::Locked)
-                            <p class="mt-1 text-xs font-semibold text-gray-400 dark:text-gray-500">Not visible to students while {{ strtolower($test->status->label()) }}.</p>
+                            <small class="block mt-1 text-xs font-semibold text-gray-400 dark:text-gray-500">Not visible to students while {{ strtolower($test->status->label()) }}.</small>
                         @endif
                     </div>
 
                     <div class="flex shrink-0 items-center gap-2">
                         <form method="POST" action="{{ route('staff.cbt.tests.duplicate', [$school, $test]) }}">
                             @csrf
-                            <button type="submit" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Duplicate</button>
+                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Duplicate</button>
                         </form>
                         <form method="POST" action="{{ route('staff.cbt.tests.destroy', [$school, $test]) }}" onsubmit="return confirm('Delete this test? This cannot be undone.');">
                             @csrf @method('DELETE')
-                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                         </form>
                     </div>
                 </div>
@@ -156,8 +156,8 @@
                             <i class="fa-solid {{ $isLocked ? 'fa-lock-open' : 'fa-lock' }} text-[12px]" aria-hidden="true"></i>
                             {{ $isLocked ? 'Unlock' : 'Lock' }}
                         </button>
-                        <button type="submit" name="status" value="published" @disabled($publishBlocker) title="{{ $publishBlocker ?? '' }}" class="rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0">Publish</button>
-                        <button type="submit" name="status" value="archived" class="rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
+                        <button type="submit" name="status" value="published" @disabled($publishBlocker) title="{{ $publishBlocker ?? '' }}" class="btn rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0">Publish</button>
+                        <button type="submit" name="status" value="archived" class="btn rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
                     </div>
                 </form>
                 @if ($publishBlocker)
@@ -170,18 +170,18 @@
                     </div>
                 @endif
                 @if ($test->hasStudentAttempts())
-                    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled because students have already started this test. You can still archive it.</p>
+                    <small class="block mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled because students have already started this test. You can still archive it.</small>
                 @endif
             </div>
 
             {{-- Document upload panel --}}
             <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Upload a Document to Auto-Extract Questions</h3>
-                <p class="field-hint mt-1">
+                <small class="field-hint mt-1">
                     Upload a PDF or Word document of your questions, up to
                     {{ \App\Http\Controllers\Staff\Cbt\DocumentUploadController::maxUploadLabel() }}, and the system will read it
                     and add the questions below automatically. Review each extracted question before publishing.
-                </p>
+                </small>
 
                 @if ($extractionWarning)
                     {{-- Said before the upload, not after it. Waiting on a document
@@ -256,8 +256,8 @@
             }">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Questions</h3>
-                    <button type="button" @click="openAdd()" class="flex items-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                    <button type="button" @click="openAdd()" class="btn flex items-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md">
+                        <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                         Add Question
                     </button>
                 </div>
@@ -282,13 +282,13 @@
                                             'options' => $question->options->map(fn ($o) => ['label' => $o->label, 'text' => $o->option_text])->values()->all(),
                                             'correctLabel' => $correctLabel,
                                         ]))"
-                                        class="rounded-[8px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        class="btn rounded-[8px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                                     >
                                         Edit
                                     </button>
                                     <form method="POST" action="{{ route('staff.cbt.tests.questions.destroy', [$school, $test, $question]) }}" onsubmit="return confirm('Delete this question?');">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="rounded-[8px] border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                        <button type="submit" class="btn rounded-[8px] border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                     </form>
                                 </div>
                             </div>
@@ -346,11 +346,11 @@
 
                             <div>
                                 <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" class="w-full">
-                                <p class="field-hint mt-1">Optional image/diagram. Leave blank to keep the existing one when editing.</p>
+                                <small class="field-hint mt-1">Optional image/diagram. Leave blank to keep the existing one when editing.</small>
                             </div>
 
                             <div>
-                                <p class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Options</p>
+                                <small class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Options</small>
                                 <div class="space-y-2">
                                     <template x-for="(option, i) in options" :key="i">
                                         <div class="flex items-center gap-2">
@@ -364,18 +364,18 @@
                                                 class="flex-1"
                                             >
                                             <button type="button" @click="removeOption(i)" x-show="options.length > 2" class="shrink-0 rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20">
-                                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></svg>
+                                                <i class="fa-solid fa-xmark text-[14px] leading-none" aria-hidden="true"></i>
                                             </button>
                                         </div>
                                     </template>
                                 </div>
                                 <button type="button" @click="addOption()" x-show="options.length < 5" class="mt-2 text-xs font-semibold text-primary-600 transition-colors duration-150 hover:text-primary-700 dark:text-primary-400">+ Add another option</button>
-                                <p class="field-hint mt-2">Select the radio button next to the correct answer.</p>
+                                <small class="field-hint mt-2">Select the radio button next to the correct answer.</small>
                             </div>
 
                             <div class="flex justify-end gap-2">
-                                <button type="button" @click="open = false" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                                <button type="submit" class="rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">Save Question</button>
+                                <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                                <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">Save Question</button>
                             </div>
                         </form>
                     </div>
@@ -388,7 +388,7 @@
             <div class="flex items-center justify-between rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div>
                     <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $test->title }} &mdash; Student Preview</p>
-                    <p class="field-hint">This is exactly what students will see. Nothing here is saved.</p>
+                    <small class="field-hint">This is exactly what students will see. Nothing here is saved.</small>
                 </div>
                 <div class="rounded-[8px] bg-gray-900 px-3 py-1.5 font-mono text-sm font-bold text-white dark:bg-black" x-show="!previewSubmitted">
                     <span x-text="previewMinutes"></span>:<span x-text="previewSecondsPart"></span>
@@ -405,7 +405,7 @@
                             <img x-show="question.image" :src="question.image" class="mt-3 max-h-56 rounded-[8px] border border-gray-200 object-contain dark:border-gray-700" style="display: none;">
                             <div class="mt-3 space-y-2">
                                 <template x-for="option in question.options" :key="option.label">
-                                    <label class="flex cursor-pointer items-center gap-2 rounded-[8px] border border-gray-200 px-3 py-2 text-sm transition-colors duration-150 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
+                                    <label class="btn flex cursor-pointer items-center gap-2 rounded-[8px] border border-gray-200 px-3 py-2 text-sm transition-colors duration-150 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/50">
                                         <input type="radio" :name="'preview-' + question.uuid" :value="option.label" x-model="previewAnswers[question.uuid]" class="text-primary-500">
                                         <span class="font-bold" x-text="option.label"></span>
                                         <span x-text="option.text"></span>
@@ -415,7 +415,7 @@
                         </div>
                     </template>
 
-                    <button type="button" @click="submitPreview()" class="rounded-[8px] bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg">
+                    <button type="button" @click="submitPreview()" class="btn rounded-[8px] bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg">
                         Submit
                     </button>
                 </div>
@@ -428,7 +428,7 @@
                     <p class="mt-1 text-sm" :class="previewPercent >= {{ $test->pass_mark }} ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                         <span x-text="previewPercent"></span>% &mdash; <span x-text="previewPercent >= {{ $test->pass_mark }} ? 'Pass' : 'Fail'"></span> (pass mark {{ $test->pass_mark }}%)
                     </p>
-                    <button type="button" @click="startPreview()" class="mt-4 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Retake Preview</button>
+                    <button type="button" @click="startPreview()" class="btn mt-4 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Retake Preview</button>
                 </div>
             </template>
         </div>

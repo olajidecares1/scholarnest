@@ -42,7 +42,7 @@
             <div class="mt-3 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
                 <div class="h-2 rounded-full bg-primary-600 transition-all duration-300 ease-out" :style="`width: ${progressPct}%`"></div>
             </div>
-            <p class="field-hint mt-1.5"><span x-text="answeredCount"></span> of <span x-text="questions.length"></span> answered</p>
+            <small class="field-hint mt-1.5"><span x-text="answeredCount"></span> of <span x-text="questions.length"></span> answered</small>
         </div>
 
         {{-- Current question --}}
@@ -117,7 +117,7 @@
                 type="button"
                 @click="prev()"
                 :disabled="current === 0"
-                class="rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
                 <i class="fa-solid fa-chevron-left mr-1.5 text-xs"></i>Previous
             </button>
@@ -131,7 +131,7 @@
                     type="button"
                     x-show="current < questions.length - 1"
                     @click="next()"
-                    class="rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md"
+                    class="btn rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md"
                 >
                     Next<i class="fa-solid fa-chevron-right ml-1.5 text-xs"></i>
                 </button>
@@ -139,7 +139,7 @@
                 <button
                     type="button"
                     @click="confirmSubmit()"
-                    class="rounded-[8px] bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-md"
+                    class="btn rounded-[8px] bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-md"
                 >
                     <i class="fa-solid fa-paper-plane mr-1.5"></i>Submit Exam
                 </button>

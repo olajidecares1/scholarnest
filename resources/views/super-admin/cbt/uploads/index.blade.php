@@ -24,10 +24,10 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Upload a Document</h2>
-            <p class="field-hint mt-1">
+            <small class="field-hint mt-1">
                 PDF or Word (.doc/.docx), up to {{ \App\Http\Controllers\SuperAdmin\CbtDocumentUploadController::maxUploadLabel() }}. If the document covers multiple examination years, every year is detected and split automatically.
                 Leave exam body/subject blank to detect them from the document.
-            </p>
+            </small>
 
             @if ($extractionWarning)
                 {{-- Said before the upload, not after it. Waiting on a document
@@ -86,7 +86,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Uploads</h2>
-                <p class="field-hint mt-1">Every document ever uploaded, and what came out of it.</p>
+                <small class="field-hint mt-1">Every document ever uploaded, and what came out of it.</small>
             </div>
 
             <div class="overflow-x-auto">
@@ -120,10 +120,10 @@
                                 <td class="px-6 py-3 text-gray-500 dark:text-gray-400">{{ $upload->created_at->diffForHumans() }}</td>
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('super-admin.cbt.uploads.show', $upload) }}" class="rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Review</a>
+                                        <a href="{{ route('super-admin.cbt.uploads.show', $upload) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Review</a>
                                         <form method="POST" action="{{ route('super-admin.cbt.uploads.destroy', $upload) }}" onsubmit="return confirm('Delete this upload? Extracted questions remain in the question bank.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
                                         </form>
                                     </div>
                                 </td>

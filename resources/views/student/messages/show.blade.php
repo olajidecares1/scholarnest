@@ -10,7 +10,7 @@
                 <h2 class="text-base font-bold text-gray-900 dark:text-white">{{ $notice->title }}</h2>
                 <span class="text-xs text-gray-400">{{ $notice->created_at->diffForHumans() }}</span>
             </div>
-            <p class="mt-1 text-xs text-gray-400">{{ $notice->class_name ? "To {$notice->class_name}" : 'To all classes' }}</p>
+            <small class="block mt-1 text-xs text-gray-400">{{ $notice->class_name ? "To {$notice->class_name}" : 'To all classes' }}</small>
             <p class="mt-4 whitespace-pre-line text-sm leading-relaxed text-gray-700 dark:text-gray-200">{{ $notice->body }}</p>
         </div>
     </div>
