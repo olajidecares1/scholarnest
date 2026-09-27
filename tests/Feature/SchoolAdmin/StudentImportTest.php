@@ -184,21 +184,165 @@ test('admission numbers are generated when the school auto-generates them', func
         ->and($numbers[0])->not->toBe($numbers[1]);
 });
 
-test('an import that would exceed the paid capacity imports nobody', function () {
+/**
+ * A school whose subscription allows $limit students, with a Primary 3 class
+ * and an admin signed in as $test->admin.
+ */
+function cappedSchool($test, int $limit): School
+{
     $school = School::factory()->create(['auto_generate_admission_numbers' => false]);
     $plan = Plan::where('key', PlanKey::Basic)->first() ?? Plan::factory()->create(['key' => PlanKey::Basic]);
-    Subscription::factory()->create(['school_id' => $school->id, 'plan_id' => $plan->id, 'status' => SubscriptionStatus::Active, 'students_count' => 2]);
+    Subscription::factory()->create(['school_id' => $school->id, 'plan_id' => $plan->id, 'status' => SubscriptionStatus::Active, 'students_count' => $limit]);
     $level = AcademicLevel::factory()->create(['school_id' => $school->id]);
     SchoolClass::factory()->create(['school_id' => $school->id, 'academic_level_id' => $level->id, 'name' => 'Primary 3']);
-    $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
+    $test->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
-    $token = uploadList($this, importCsv("Admission Number,First Name,Last Name,Gender\nB1,A,B,M\nB2,C,D,F\nB3,E,F,M\n"));
+    return $school;
+}
+
+/**
+ * [Admission Number, First Name, Last Name, Gender] rows numbered from $from.
+ *
+ * @return list<list<string>>
+ */
+function listRows(string $prefix, int $count, int $from = 1): array
+{
+    return array_map(fn ($i) => ["{$prefix}{$i}", "First{$i}", "Last{$i}", $i % 2 ? 'M' : 'F'], range($from, $from + $count - 1));
+}
+
+function csvList(array $rows): UploadedFile
+{
+    $lines = array_map(fn ($cells) => implode(',', $cells), [['Admission Number', 'First Name', 'Last Name', 'Gender'], ...$rows]);
+
+    return importCsv(implode("\n", $lines)."\n");
+}
+
+function xlsxList(array $rows): UploadedFile
+{
+    $all = [['Admission Number', 'First Name', 'Last Name', 'Gender'], ...$rows];
+    $sheet = '';
+
+    foreach ($all as $r => $cells) {
+        $sheet .= '<row r="'.($r + 1).'">';
+
+        foreach ($cells as $c => $value) {
+            $sheet .= '<c r="'.chr(65 + $c).($r + 1).'" t="inlineStr"><is><t>'.htmlspecialchars($value).'</t></is></c>';
+        }
+
+        $sheet .= '</row>';
+    }
+
+    $path = tempnam(sys_get_temp_dir(), 'xlsx');
+    $zip = new ZipArchive;
+    $zip->open($path, ZipArchive::OVERWRITE);
+    $zip->addFromString('[Content_Types].xml', '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>');
+    $zip->addFromString('xl/workbook.xml', '<?xml version="1.0"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets></workbook>');
+    $zip->addFromString('xl/_rels/workbook.xml.rels', '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>');
+    $zip->addFromString('xl/worksheets/sheet1.xml', '<?xml version="1.0"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'.$sheet.'</sheetData></worksheet>');
+    $zip->close();
+
+    return new UploadedFile($path, 'list.xlsx', null, null, true);
+}
+
+function docxList(array $rows): UploadedFile
+{
+    $word = new PhpWord;
+    $table = $word->addSection()->addTable();
+
+    foreach ([['Admission Number', 'First Name', 'Last Name', 'Gender'], ...$rows] as $cells) {
+        $table->addRow();
+
+        foreach ($cells as $cell) {
+            $table->addCell(2000)->addText($cell);
+        }
+    }
+
+    $path = tempnam(sys_get_temp_dir(), 'docx');
+    WordIO::createWriter($word, 'Word2007')->save($path);
+
+    return new UploadedFile($path, 'list.docx', null, null, true);
+}
+
+test('a list larger than the subscription imports only the first students up to the limit', function () {
+    $school = cappedSchool($this, 100);
+
+    $token = uploadList($this, csvList(listRows('S', 101)));
+
+    $this->actingAs($this->admin)
+        ->get(route('students.import.review', ['token' => $token]))
+        ->assertOk()
+        ->assertSee('Only the first 100 students in this list will be added', false)
+        ->assertSee('Import 100 Students');
 
     $this->actingAs($this->admin)
         ->post(route('students.import.store', ['token' => $token]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('capacity_notice', 'Your school subscription allows a maximum of 100 students. Only the first 100 students have been added. Please subscribe for additional student capacity.');
+
+    expect($school->students()->count())->toBe(100)
+        ->and($school->students()->where('admission_number', 'S100')->exists())->toBeTrue()
+        ->and($school->students()->where('admission_number', 'S101')->exists())->toBeFalse();
+
+    $this->actingAs($this->admin)
+        ->get(route('students.index'))
+        ->assertSee('<small class="block text-sm font-medium">Your school subscription allows a maximum of 100 students. Only the first 100 students have been added. Please subscribe for additional student capacity.</small>', false);
+});
+
+test('the subscription limit applies the same way to CSV, Excel and Word uploads', function (string $format) {
+    $school = cappedSchool($this, 3);
+    $rows = listRows(strtoupper($format).'-', 5);
+
+    $file = match ($format) {
+        'csv' => csvList($rows),
+        'xlsx' => xlsxList($rows),
+        'docx' => docxList($rows),
+    };
+
+    $token = uploadList($this, $file);
+
+    $this->actingAs($this->admin)
+        ->post(route('students.import.store', ['token' => $token]))
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('capacity_notice', 'Your school subscription allows a maximum of 3 students. Only the first 3 students have been added. Please subscribe for additional student capacity.');
+
+    expect($school->students()->orderBy('id')->pluck('admission_number')->all())
+        ->toBe([strtoupper($format).'-1', strtoupper($format).'-2', strtoupper($format).'-3']);
+})->with(['csv', 'xlsx', 'docx']);
+
+test('students already registered count towards the limit, so splitting a list into batches does not pass it', function () {
+    $school = cappedSchool($this, 5);
+
+    $first = uploadList($this, csvList(listRows('A', 3)));
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $first]))
+        ->assertSessionHasNoErrors()
+        ->assertSessionMissing('capacity_notice');
+
+    $second = uploadList($this, csvList(listRows('A', 4, 4)));
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $second]))
+        ->assertSessionHas('capacity_notice', 'Your school subscription allows a maximum of 5 students. Only the first 2 students have been added. Please subscribe for additional student capacity.');
+
+    expect($school->students()->count())->toBe(5)
+        ->and($school->students()->pluck('admission_number')->sort()->values()->all())->toBe(['A1', 'A2', 'A3', 'A4', 'A5']);
+
+    // Full now: a third batch adds nobody, and neither does the manual form.
+    $third = uploadList($this, csvList(listRows('A', 2, 8)));
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $third]))
         ->assertSessionHasErrors('file');
 
-    expect($school->students()->count())->toBe(0);
+    expect($school->students()->count())->toBe(5);
+});
+
+test('a list within the limit imports every student with no notice', function () {
+    $school = cappedSchool($this, 10);
+
+    $token = uploadList($this, csvList(listRows('OK', 10)));
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]))
+        ->assertSessionHasNoErrors()
+        ->assertSessionMissing('capacity_notice');
+
+    expect($school->students()->count())->toBe(10);
 });
 
 test('a review token cannot be used by another school', function () {
