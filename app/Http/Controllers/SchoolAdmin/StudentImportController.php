@@ -154,7 +154,12 @@ class StudentImportController extends Controller
         $autoGenerate = (bool) $school->auto_generate_admission_numbers;
         $skipped = [];
 
-        $created = $this->licences->withCapacityFor($school, count($rows), function () use ($school, $rows, $className, $autoGenerate, &$skipped) {
+        $notAdded = 0;
+
+        // Imports rows in file order until the school's allocation is full:
+        // the current students plus this batch can never pass the limit, so
+        // splitting a list across several uploads gets no further than one.
+        $created = $this->licences->withRoomFor($school, function (?int $room) use ($school, $rows, $className, $autoGenerate, &$skipped, &$notAdded) {
             // Re-checked inside the lock: someone may have added a student
             // with one of these admission numbers while the preview was open.
             $taken = array_flip(array_map('mb_strtolower', $school->students()
@@ -164,7 +169,13 @@ class StudentImportController extends Controller
 
             $count = 0;
 
-            foreach ($rows as $row) {
+            foreach ($rows as $index => $row) {
+                if ($room !== null && $count >= $room) {
+                    $notAdded = count($rows) - $index;
+
+                    break;
+                }
+
                 $data = $row['data'];
 
                 if ($autoGenerate) {
@@ -189,11 +200,8 @@ class StudentImportController extends Controller
         });
 
         if ($created === null) {
-            $remaining = $this->licences->remaining($school);
-
             return back()->withErrors([
-                'file' => 'This list has '.number_format(count($rows)).' students/pupils but your school only has '
-                    .number_format((int) $remaining).' student/pupil spaces left. Remove some rows, or request additional spaces, then upload again.',
+                'file' => $this->licences->limitReachedMessage($school),
             ]);
         }
 
@@ -201,13 +209,18 @@ class StudentImportController extends Controller
 
         AuditLog::record(
             'students.imported',
-            "Imported {$created} student(s)/pupil(s) into {$className} from {$preview['file_name']}.",
+            "Imported {$created} student(s)/pupil(s) into {$className} from {$preview['file_name']}."
+                .($notAdded > 0 ? " {$notAdded} not added: subscription limit reached." : ''),
             $school,
         );
 
         $message = number_format($created).' '.Str::plural('student/pupil', $created)." imported into {$className}. You can edit any of them, add photographs and set their login details from the Students list.";
 
         $redirect = redirect()->route('students.index', ['class' => $className])->with('status', $message);
+
+        if ($notAdded > 0) {
+            $redirect->with('capacity_notice', $this->licences->importTruncatedMessage($school, $created));
+        }
 
         return $skipped === [] ? $redirect : $redirect->withErrors(['import' => $skipped]);
     }
