@@ -39,87 +39,148 @@
 
         @if (! $preview)
             {{-- Step 1: choose the class and the file --}}
-            <div class="{{ $cardClass }} p-6">
-                <h3 class="text-sm font-bold text-gray-900 dark:text-white">1. Upload your list</h3>
-                <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Upload an Excel (.xlsx), CSV, Word (.docx) or PDF file with one student/pupil per row. You will see everything we read from it before anything is saved.
-                    Prefer to add students one at a time? <a href="{{ route('students.index') }}" class="font-semibold text-blue-600 hover:underline">Use Add Student instead</a>.
-                </small>
+            <div class="{{ $cardClass }}">
+                <div class="flex items-start gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <span class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[11px] font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">1</span>
+                    <div class="min-w-0">
+                        <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">Upload your list</h3>
+                        <small class="mt-0.5 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                            One student/pupil per row. You will see everything we read before anything is saved.
+                            Adding just one? <a href="{{ route('students.index') }}" class="font-medium text-blue-600 hover:underline dark:text-blue-400">Use Add Student</a>.
+                        </small>
+                    </div>
+                </div>
 
                 @if ($classes === [])
-                    <div class="mt-4 rounded-[8px] bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
-                        Your school has no classes yet. Create your classes in the Academics section first, then come back to import students/pupils into them.
+                    <div class="m-5 flex gap-2 rounded-[8px] bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                        <i class="fa-solid fa-circle-info mt-0.5 text-[12px]" aria-hidden="true"></i>
+                        <span>Your school has no classes yet. Create your classes in the Academics section first, then come back to import students/pupils into them.</span>
                     </div>
                 @else
-                    <form method="POST" action="{{ route('students.import.preview') }}" enctype="multipart/form-data" class="mt-5 space-y-4">
+                    <form method="POST" action="{{ route('students.import.preview') }}" enctype="multipart/form-data"
+                          x-data="{ fileName: '', dragging: false }">
                         @csrf
 
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <x-select-field
-                                name="class_name"
-                                label="Class"
-                                required
-                                placeholder="Select a class"
-                                helper="Every student/pupil in this file will be added to this class."
-                                :options="collect($classes)->mapWithKeys(fn ($name) => [$name => $name])->all()"
-                            />
+                        <div class="grid grid-cols-1 gap-5 px-5 py-5 md:grid-cols-2">
+                            <div class="space-y-5">
+                                <x-select-field
+                                    name="class_name"
+                                    label="Class"
+                                    required
+                                    placeholder="Select a class"
+                                    helper="Every student/pupil in this file goes into this class."
+                                    :options="collect($classes)->mapWithKeys(fn ($name) => [$name => $name])->all()"
+                                />
+
+                                <fieldset>
+                                    <legend class="field-label">If full names are in one "Name" column</legend>
+                                    <div class="mt-1.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                        @foreach (['surname_first' => ['Surname first', 'Okafor Chinedu'], 'first_name_first' => ['First name first', 'Chinedu Okafor']] as $value => [$title, $example])
+                                            <label class="flex cursor-pointer items-center gap-2 rounded-[8px] border border-gray-200 px-3 py-2 transition-colors hover:border-blue-300 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50/60 dark:border-gray-600 dark:has-[:checked]:bg-blue-900/20">
+                                                <input type="radio" name="name_order" value="{{ $value }}" class="h-3.5 w-3.5 text-blue-600" @checked(old('name_order', 'surname_first') === $value)>
+                                                <span class="leading-tight">
+                                                    <span class="block text-xs font-medium text-gray-800 dark:text-gray-100">{{ $title }}</span>
+                                                    <small class="block text-[11px] text-gray-500 dark:text-gray-400">e.g. "{{ $example }}"</small>
+                                                </span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </fieldset>
+                            </div>
 
                             <div>
                                 <label for="import_file" class="field-label">File<span class="text-red-500"> *</span></label>
-                                <input id="import_file" type="file" name="file" required accept=".csv,.txt,.xlsx,.docx,.pdf" class="mt-1 block w-full text-sm text-gray-700 file:mr-3 file:rounded-[8px] file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 dark:text-gray-200 dark:file:bg-blue-900/30 dark:file:text-blue-300">
-                                <small class="field-hint mt-1">CSV, Excel (.xlsx), Word (.docx) or PDF, up to 5MB and {{ number_format(\App\Services\StudentImport\StudentImportParser::MAX_ROWS) }} students/pupils.</small>
+                                <div class="relative mt-1.5 flex min-h-[132px] flex-col items-center justify-center rounded-[10px] border-2 border-dashed px-4 py-5 text-center transition-colors"
+                                     :class="dragging ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-900/20' : (fileName ? 'border-green-400 bg-green-50/50 dark:border-green-700 dark:bg-green-900/10' : 'border-gray-300 hover:border-blue-400 dark:border-gray-600')"
+                                     @dragover="dragging = true" @dragleave="dragging = false" @drop="dragging = false">
+                                    <input id="import_file" type="file" name="file" required accept=".csv,.txt,.xlsx,.docx,.pdf"
+                                           class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                           @change="fileName = $event.target.files[0]?.name || ''">
+                                    <i class="fa-solid text-[22px]" :class="fileName ? 'fa-file-circle-check text-green-600' : 'fa-file-arrow-up text-blue-500'" aria-hidden="true"></i>
+                                    <span class="mt-2 text-xs font-medium text-gray-800 dark:text-gray-100" x-show="! fileName">
+                                        <span class="text-blue-600 dark:text-blue-400">Choose a file</span> or drag it here
+                                    </span>
+                                    <span class="mt-2 max-w-full truncate text-xs font-medium text-gray-800 dark:text-gray-100" x-show="fileName" x-text="fileName" style="display: none;"></span>
+                                    <small class="mt-1 block text-[11px] text-gray-500 dark:text-gray-400">
+                                        Excel, CSV, Word or PDF &middot; up to 5MB &middot; {{ number_format(\App\Services\StudentImport\StudentImportParser::MAX_ROWS) }} students/pupils
+                                    </small>
+                                </div>
                             </div>
                         </div>
 
-                        <fieldset>
-                            <legend class="field-label">If full names are in a single "Name" column</legend>
-                            <div class="mt-1 flex flex-wrap gap-4 text-sm text-gray-700 dark:text-gray-200">
-                                <label class="inline-flex items-center gap-2">
-                                    <input type="radio" name="name_order" value="surname_first" @checked(old('name_order', 'surname_first') === 'surname_first')>
-                                    Surname first (e.g. "Okafor Chinedu")
-                                </label>
-                                <label class="inline-flex items-center gap-2">
-                                    <input type="radio" name="name_order" value="first_name_first" @checked(old('name_order') === 'first_name_first')>
-                                    First name first (e.g. "Chinedu Okafor")
-                                </label>
-                            </div>
-                        </fieldset>
-
-                        <div class="flex flex-wrap items-center justify-end gap-2">
-                            <a href="{{ route('students.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</a>
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Read File</button>
+                        <div class="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 px-5 py-3 dark:border-gray-700">
+                            <a href="{{ route('students.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</a>
+                            <button type="submit" class="btn inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700">
+                                <i class="fa-solid fa-magnifying-glass text-[11px] leading-none" aria-hidden="true"></i>
+                                Read File
+                            </button>
                         </div>
                     </form>
                 @endif
             </div>
 
-            <div class="{{ $cardClass }} p-6">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">How to lay out the file</h3>
-                        <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">The first row should hold the column headings. We recognise common names for each column, so your existing register will usually work as it is.</small>
+            @php
+                $required = ['First Name', 'Last Name / Surname', 'Gender'];
+                if (! $school->auto_generate_admission_numbers) {
+                    $required[] = 'Admission Number';
+                }
+                $optional = ['Date of Birth', 'House', 'Guardian Name', 'Guardian Phone', 'Guardian Email', 'Student Phone', 'Student Email', 'Address', 'Admission Date', 'Notes'];
+                $chip = 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium';
+            @endphp
+
+            <div class="{{ $cardClass }}">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="min-w-0">
+                        <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">How to lay out the file</h3>
+                        <small class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">Put column headings in the first row. Common names are recognised, so your existing register usually works as it is.</small>
                     </div>
-                    <a href="{{ route('students.import.template') }}" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                        <i class="fa-solid fa-download text-[14px] leading-none" aria-hidden="true"></i>
+                    <a href="{{ route('students.import.template') }}" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                        <i class="fa-solid fa-download text-[12px] leading-none" aria-hidden="true"></i>
                         Download Template
                     </a>
                 </div>
 
-                <ul class="mt-4 grid grid-cols-1 gap-2 text-sm text-gray-600 dark:text-gray-300 sm:grid-cols-2">
-                    <li><span class="font-semibold text-gray-900 dark:text-white">Required:</span> First Name and Last Name (or Surname), or one Name column; Gender (Male/Female or M/F){{ $school->auto_generate_admission_numbers ? '' : '; Admission Number' }}.</li>
-                    <li><span class="font-semibold text-gray-900 dark:text-white">Optional:</span> Date of Birth, House, Guardian Name, Guardian Phone, Guardian Email, Student Phone, Student Email, Address, Admission Date, Notes.</li>
-                    <li><span class="font-semibold text-gray-900 dark:text-white">Dates:</span> day first, e.g. 14/03/2014.</li>
-                    <li>
-                        <span class="font-semibold text-gray-900 dark:text-white">Admission numbers:</span>
-                        @if ($school->auto_generate_admission_numbers)
-                            generated automatically for each student/pupil, as when adding one by hand.
-                        @else
-                            taken from the file and must be unique at your school.
-                        @endif
-                    </li>
-                    <li><span class="font-semibold text-gray-900 dark:text-white">Class:</span> chosen above; any class column in the file is ignored.</li>
-                    <li><span class="font-semibold text-gray-900 dark:text-white">Afterwards:</span> edit details, add photographs and set or reset login details for each student/pupil as usual.</li>
-                </ul>
+                <dl class="divide-y divide-gray-100 px-5 text-xs dark:divide-gray-700">
+                    <div class="grid grid-cols-1 gap-1.5 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
+                        <dt class="font-semibold text-gray-800 dark:text-gray-100">Required columns</dt>
+                        <dd class="flex flex-wrap gap-1.5">
+                            @foreach ($required as $column)
+                                <span class="{{ $chip }} bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{{ $column }}</span>
+                            @endforeach
+                            <small class="w-full text-[11px] text-gray-500 dark:text-gray-400">A single Name column works instead of First and Last Name. Gender can be Male/Female or M/F.</small>
+                        </dd>
+                    </div>
+                    <div class="grid grid-cols-1 gap-1.5 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
+                        <dt class="font-semibold text-gray-800 dark:text-gray-100">Optional columns</dt>
+                        <dd class="flex flex-wrap gap-1.5">
+                            @foreach ($optional as $column)
+                                <span class="{{ $chip }} bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ $column }}</span>
+                            @endforeach
+                        </dd>
+                    </div>
+                    <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
+                        <dt class="font-semibold text-gray-800 dark:text-gray-100">Dates</dt>
+                        <dd class="text-gray-600 dark:text-gray-300">Day first, e.g. 14/03/2014.</dd>
+                    </div>
+                    <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
+                        <dt class="font-semibold text-gray-800 dark:text-gray-100">Admission numbers</dt>
+                        <dd class="text-gray-600 dark:text-gray-300">
+                            @if ($school->auto_generate_admission_numbers)
+                                Generated automatically for each student/pupil, as when adding one by hand.
+                            @else
+                                Taken from the file and must be unique at your school.
+                            @endif
+                        </dd>
+                    </div>
+                    <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
+                        <dt class="font-semibold text-gray-800 dark:text-gray-100">Class</dt>
+                        <dd class="text-gray-600 dark:text-gray-300">Chosen above. Any class column in the file is ignored.</dd>
+                    </div>
+                    <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
+                        <dt class="font-semibold text-gray-800 dark:text-gray-100">Afterwards</dt>
+                        <dd class="text-gray-600 dark:text-gray-300">Edit details, add photographs and set login details for each student/pupil as usual.</dd>
+                    </div>
+                </dl>
             </div>
         @else
             {{-- Step 2: review what was read, then confirm --}}
