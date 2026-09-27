@@ -18,16 +18,16 @@
         </a>
 
         @if (session('status'))
-            <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
-                {{ session('status') }}
+            <div class="rounded-[5px] bg-green-50 p-4 font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
+                <small class="block text-xs leading-relaxed">{{ session('status') }}</small>
             </div>
         @endif
 
         @if ($errors->any())
-            <div class="rounded-[5px] bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
+            <div class="rounded-[5px] bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
                 <ul class="list-inside list-disc space-y-1">
                     @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+                        <li><small class="text-xs leading-relaxed">{{ $error }}</small></li>
                     @endforeach
                 </ul>
             </div>
@@ -54,7 +54,7 @@
                 @if ($classes === [])
                     <div class="m-5 flex gap-2 rounded-[8px] bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
                         <i class="fa-solid fa-circle-info mt-0.5 text-[12px]" aria-hidden="true"></i>
-                        <span>Your school has no classes yet. Create your classes in the Academics section first, then come back to import students/pupils into them.</span>
+                        <small class="block text-xs leading-relaxed">Your school has no classes yet. Create your classes in the Academics section first, then come back to import students/pupils into them.</small>
                     </div>
                 @else
                     <form method="POST" action="{{ route('students.import.preview') }}" enctype="multipart/form-data"
@@ -80,7 +80,7 @@
                                                 <input type="radio" name="name_order" value="{{ $value }}" class="h-3.5 w-3.5 text-blue-600" @checked(old('name_order', 'surname_first') === $value)>
                                                 <span class="leading-tight">
                                                     <span class="block text-xs font-medium text-gray-800 dark:text-gray-100">{{ $title }}</span>
-                                                    <small class="block text-[11px] text-gray-500 dark:text-gray-400">e.g. "{{ $example }}"</small>
+                                                    <small class="block text-xs text-gray-500 dark:text-gray-400">e.g. "{{ $example }}"</small>
                                                 </span>
                                             </label>
                                         @endforeach
@@ -101,7 +101,7 @@
                                         <span class="text-blue-600 dark:text-blue-400">Choose a file</span> or drag it here
                                     </span>
                                     <span class="mt-2 max-w-full truncate text-xs font-medium text-gray-800 dark:text-gray-100" x-show="fileName" x-text="fileName" style="display: none;"></span>
-                                    <small class="mt-1 block text-[11px] text-gray-500 dark:text-gray-400">
+                                    <small class="mt-1 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                                         Excel, CSV, Word or PDF &middot; up to 5MB &middot; {{ number_format(\App\Services\StudentImport\StudentImportParser::MAX_ROWS) }} students/pupils
                                     </small>
                                 </div>
@@ -125,14 +125,14 @@
                     $required[] = 'Admission Number';
                 }
                 $optional = ['Date of Birth', 'House', 'Guardian Name', 'Guardian Phone', 'Guardian Email', 'Student Phone', 'Student Email', 'Address', 'Admission Date', 'Notes'];
-                $chip = 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium';
+                $chip = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium';
             @endphp
 
             <div class="{{ $cardClass }}">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                     <div class="min-w-0">
                         <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">How to lay out the file</h3>
-                        <small class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">Put column headings in the first row. Common names are recognised, so your existing register usually works as it is.</small>
+                        <small class="mt-0.5 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">Put column headings in the first row. Common names are recognised, so your existing register usually works as it is.</small>
                     </div>
                     <a href="{{ route('students.import.template') }}" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                         <i class="fa-solid fa-download text-[12px] leading-none" aria-hidden="true"></i>
@@ -147,7 +147,7 @@
                             @foreach ($required as $column)
                                 <span class="{{ $chip }} bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{{ $column }}</span>
                             @endforeach
-                            <small class="w-full text-[11px] text-gray-500 dark:text-gray-400">A single Name column works instead of First and Last Name. Gender can be Male/Female or M/F.</small>
+                            <small class="block w-full text-xs leading-relaxed text-gray-500 dark:text-gray-400">A single Name column works instead of First and Last Name. Gender can be Male/Female or M/F.</small>
                         </dd>
                     </div>
                     <div class="grid grid-cols-1 gap-1.5 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
@@ -160,25 +160,27 @@
                     </div>
                     <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
                         <dt class="font-semibold text-gray-800 dark:text-gray-100">Dates</dt>
-                        <dd class="text-gray-600 dark:text-gray-300">Day first, e.g. 14/03/2014.</dd>
+                        <dd><small class="block text-xs leading-relaxed text-gray-600 dark:text-gray-300">Day first, e.g. 14/03/2014.</small></dd>
                     </div>
                     <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
                         <dt class="font-semibold text-gray-800 dark:text-gray-100">Admission numbers</dt>
-                        <dd class="text-gray-600 dark:text-gray-300">
-                            @if ($school->auto_generate_admission_numbers)
-                                Generated automatically for each student/pupil, as when adding one by hand.
-                            @else
-                                Taken from the file and must be unique at your school.
-                            @endif
+                        <dd>
+                            <small class="block text-xs leading-relaxed text-gray-600 dark:text-gray-300">
+                                @if ($school->auto_generate_admission_numbers)
+                                    Generated automatically for each student/pupil, as when adding one by hand.
+                                @else
+                                    Taken from the file and must be unique at your school.
+                                @endif
+                            </small>
                         </dd>
                     </div>
                     <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
                         <dt class="font-semibold text-gray-800 dark:text-gray-100">Class</dt>
-                        <dd class="text-gray-600 dark:text-gray-300">Chosen above. Any class column in the file is ignored.</dd>
+                        <dd><small class="block text-xs leading-relaxed text-gray-600 dark:text-gray-300">Chosen above. Any class column in the file is ignored.</small></dd>
                     </div>
                     <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
                         <dt class="font-semibold text-gray-800 dark:text-gray-100">Afterwards</dt>
-                        <dd class="text-gray-600 dark:text-gray-300">Edit details, add photographs and set login details for each student/pupil as usual.</dd>
+                        <dd><small class="block text-xs leading-relaxed text-gray-600 dark:text-gray-300">Edit details, add photographs and set login details for each student/pupil as usual.</small></dd>
                     </div>
                 </dl>
             </div>
@@ -188,20 +190,20 @@
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div>
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white">2. Review and confirm</h3>
-                        <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        <small class="mt-1 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                             From <span class="font-semibold text-gray-700 dark:text-gray-200">{{ $preview['file_name'] }}</span>, into
                             <span class="font-semibold text-gray-700 dark:text-gray-200">{{ $preview['class_name'] }}</span>.
                             Nothing has been saved yet.
                         </small>
-                        <small class="block mt-2 text-xs text-gray-500 dark:text-gray-400">Columns found: {{ implode(', ', $preview['columns']) }}.</small>
+                        <small class="mt-2 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">Columns found: {{ implode(', ', $preview['columns']) }}.</small>
                         @if ($preview['ignored'] !== [])
-                            <small class="block mt-1 text-xs text-gray-500 dark:text-gray-400">Ignored: {{ implode(', ', $preview['ignored']) }}.</small>
+                            <small class="mt-1 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">Ignored: {{ implode(', ', $preview['ignored']) }}.</small>
                         @endif
                     </div>
                     <div class="flex gap-3 text-center">
                         <div class="rounded-[8px] bg-green-50 px-4 py-2 dark:bg-green-900/30">
                             <p class="text-2xl font-extrabold text-green-700 dark:text-green-400">{{ number_format($validCount) }}</p>
-                            <p class="text-xs font-medium text-green-700 dark:text-green-400">ready to import</p>
+                            <small class="block text-xs font-medium text-green-700 dark:text-green-400">ready to import</small>
                         </div>
                         <div class="rounded-[8px] px-4 py-2 {{ $invalidCount ? 'bg-red-50 dark:bg-red-900/30' : 'bg-gray-50 dark:bg-gray-700/50' }}">
                             <p class="text-2xl font-extrabold {{ $invalidCount ? 'text-red-700 dark:text-red-400' : 'text-gray-500 dark:text-gray-400' }}">{{ number_format($invalidCount) }}</p>
@@ -211,14 +213,16 @@
                 </div>
 
                 @if ($invalidCount)
-                    <p class="mt-4 rounded-[8px] bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
-                        Rows marked in red cannot be imported as they are. You can import the valid rows now and add the others by hand, or fix the file and upload it again.
+                    <p class="mt-4 rounded-[8px] bg-amber-50 p-3 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                        <small class="block text-xs leading-relaxed">
+                            Rows marked in red cannot be imported as they are. You can import the valid rows now and add the others by hand, or fix the file and upload it again.
+                        </small>
                     </p>
                 @endif
 
                 @if ($overLimit > 0)
                     <p class="mt-4 rounded-[8px] bg-amber-50 p-3 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" role="alert">
-                        <small class="block text-sm">
+                        <small class="block text-xs leading-relaxed">
                             @if ($importCount > 0)
                                 Your school subscription allows a maximum of {{ number_format($capacity['allocated']) }} students and {{ number_format($capacity['remaining']) }} {{ Str::plural('space', $capacity['remaining']) }} {{ $capacity['remaining'] === 1 ? 'is' : 'are' }} left.
                                 Only the first {{ number_format($importCount) }} students in this list will be added; the other {{ number_format($overLimit) }} will not. Please subscribe for additional student capacity.
@@ -265,15 +269,15 @@
                                     <td class="min-w-[14rem] px-4 py-3">
                                         @if ($row['errors'])
                                             <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">Skipped</span>
-                                            <ul class="mt-1 space-y-0.5 text-xs text-red-700 dark:text-red-400">
-                                                @foreach ($row['errors'] as $message)<li>{{ $message }}</li>@endforeach
+                                            <ul class="mt-1 space-y-0.5 text-red-700 dark:text-red-400">
+                                                @foreach ($row['errors'] as $message)<li><small class="block text-xs leading-relaxed">{{ $message }}</small></li>@endforeach
                                             </ul>
                                         @else
                                             <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">Ready</span>
                                         @endif
                                         @if ($row['warnings'])
-                                            <ul class="mt-1 space-y-0.5 text-xs text-amber-700 dark:text-amber-400">
-                                                @foreach ($row['warnings'] as $message)<li>{{ $message }}</li>@endforeach
+                                            <ul class="mt-1 space-y-0.5 text-amber-700 dark:text-amber-400">
+                                                @foreach ($row['warnings'] as $message)<li><small class="block text-xs leading-relaxed">{{ $message }}</small></li>@endforeach
                                             </ul>
                                         @endif
                                     </td>
