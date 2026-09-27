@@ -46,6 +46,12 @@
             </div>
         @endif
 
+        @if (session('capacity_notice'))
+            <div class="rounded-[5px] bg-amber-50 p-4 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 lg:rounded-[10px]" role="alert">
+                <small class="block text-sm font-medium">{{ session('capacity_notice') }}</small>
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="rounded-[5px] bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
                 <ul class="list-inside list-disc space-y-1">
