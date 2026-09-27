@@ -2,6 +2,9 @@
     $rows = $preview['rows'] ?? [];
     $validCount = collect($rows)->filter(fn ($row) => $row['errors'] === [])->count();
     $invalidCount = count($rows) - $validCount;
+    // Capped plans import in file order until the allocation is full.
+    $importCount = ($capacity ?? null) ? min($validCount, (int) $capacity['remaining']) : $validCount;
+    $overLimit = $validCount - $importCount;
     $fields = \App\Services\StudentImport\StudentImportParser::FIELDS;
     $shownFields = collect($fields)->filter(fn ($label, $field) => collect($rows)->contains(fn ($row) => filled($row['data'][$field] ?? null)))->all();
     $cardClass = 'rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]';
@@ -152,16 +155,29 @@
                     </p>
                 @endif
 
+                @if ($overLimit > 0)
+                    <p class="mt-4 rounded-[8px] bg-amber-50 p-3 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" role="alert">
+                        <small class="block text-sm">
+                            @if ($importCount > 0)
+                                Your school subscription allows a maximum of {{ number_format($capacity['allocated']) }} students and {{ number_format($capacity['remaining']) }} {{ Str::plural('space', $capacity['remaining']) }} {{ $capacity['remaining'] === 1 ? 'is' : 'are' }} left.
+                                Only the first {{ number_format($importCount) }} students in this list will be added; the other {{ number_format($overLimit) }} will not. Please subscribe for additional student capacity.
+                            @else
+                                Your school subscription allows a maximum of {{ number_format($capacity['allocated']) }} students and all of them are in use, so none of this list can be added. Please subscribe for additional student capacity.
+                            @endif
+                        </small>
+                    </p>
+                @endif
+
                 <div class="mt-5 flex flex-wrap justify-end gap-2">
                     <form method="POST" action="{{ route('students.import.cancel', ['token' => $token]) }}">
                         @csrf @method('DELETE')
                         <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Upload a Different File</button>
                     </form>
-                    @if ($validCount)
+                    @if ($importCount)
                         <form method="POST" action="{{ route('students.import.store', ['token' => $token]) }}" x-data="{ busy: false }" @submit="busy = true">
                             @csrf
                             <button type="submit" :disabled="busy" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
-                                <span x-show="!busy">Import {{ number_format($validCount) }} {{ Str::plural('Student', $validCount) }}</span>
+                                <span x-show="!busy">Import {{ number_format($importCount) }} {{ Str::plural('Student', $importCount) }}</span>
                                 <span x-show="busy" style="display: none;">Importing&hellip;</span>
                             </button>
                         </form>
