@@ -238,6 +238,52 @@ class StudentLicenceAllocation
     }
 
     /**
+     * For a bulk import that may be larger than the space left: runs $work
+     * with the number of students it may still create, under the same lock
+     * withCapacityFor() takes, so the school's current students plus this
+     * batch can never pass the allocation, however the list is split into
+     * uploads. $work receives null when the plan is uncapped.
+     *
+     * Returns whatever $work returns, or null if there is no room at all.
+     *
+     * @template TReturn
+     *
+     * @param  Closure(int|null): TReturn  $work
+     * @return TReturn|null
+     */
+    public function withRoomFor(School $school, Closure $work): mixed
+    {
+        return DB::transaction(function () use ($school, $work) {
+            $allocated = $this->allocated($school);
+
+            if ($allocated === null) {
+                return $work(null);
+            }
+
+            $used = Student::query()
+                ->where('school_id', $school->id)
+                ->where('is_active', true)
+                ->lockForUpdate()
+                ->count();
+
+            $room = max(0, $allocated - $used);
+
+            return $room === 0 ? null : $work($room);
+        });
+    }
+
+    /**
+     * The notice shown when a bulk import was cut off at the limit.
+     */
+    public function importTruncatedMessage(School $school, int $added): string
+    {
+        $allocated = number_format($this->allocated($school) ?? 0);
+        $added = number_format($added);
+
+        return "Your school subscription allows a maximum of {$allocated} students. Only the first {$added} students have been added. Please subscribe for additional student capacity.";
+    }
+
+    /**
      * The message shown when a school has run out.
      *
      * Kept here so the wording is identical wherever the limit is hit, rather
