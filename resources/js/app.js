@@ -1,7 +1,7 @@
 import './bootstrap';
 
 import Alpine from 'alpinejs';
-import ApexCharts from 'apexcharts';
+import ApexCharts from './lazy-apexcharts';
 import cbtAttempt from './cbt-attempt';
 import { registerDraggableResizable } from './directives/draggable-resizable';
 import pageBuilder from './page-builder';
