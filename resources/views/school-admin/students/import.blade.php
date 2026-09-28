@@ -1,7 +1,10 @@
 @php
     $rows = $preview['rows'] ?? [];
-    $validCount = collect($rows)->filter(fn ($row) => $row['errors'] === [])->count();
-    $invalidCount = count($rows) - $validCount;
+    // Already-registered students are skipped and never changed; they are
+    // counted apart from rows with mistakes so the school can tell them apart.
+    $existingCount = collect($rows)->filter(fn ($row) => ($row['existing'] ?? null) !== null)->count();
+    $validCount = collect($rows)->filter(fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null)->count();
+    $invalidCount = count($rows) - $validCount - $existingCount;
     // Capped plans import in file order until the allocation is full.
     $importCount = ($capacity ?? null) ? min($validCount, (int) $capacity['remaining']) : $validCount;
     $overLimit = $validCount - $importCount;
@@ -227,12 +230,26 @@
                             <p class="text-2xl font-extrabold text-green-700 dark:text-green-400">{{ number_format($validCount) }}</p>
                             <small class="block text-xs font-medium text-green-700 dark:text-green-400">ready to import</small>
                         </div>
+                        @if ($existingCount)
+                            <div class="rounded-[8px] bg-blue-50 px-4 py-2 dark:bg-blue-900/30">
+                                <p class="text-2xl font-extrabold text-blue-700 dark:text-blue-400">{{ number_format($existingCount) }}</p>
+                                <small class="block text-xs font-medium text-blue-700 dark:text-blue-400">already registered</small>
+                            </div>
+                        @endif
                         <div class="rounded-[8px] px-4 py-2 {{ $invalidCount ? 'bg-red-50 dark:bg-red-900/30' : 'bg-gray-50 dark:bg-gray-700/50' }}">
                             <p class="text-2xl font-extrabold {{ $invalidCount ? 'text-red-700 dark:text-red-400' : 'text-gray-500 dark:text-gray-400' }}">{{ number_format($invalidCount) }}</p>
                             <small class="block text-xs font-medium {{ $invalidCount ? 'text-red-700 dark:text-red-400' : 'text-gray-500 dark:text-gray-400' }}">will be skipped</small>
                         </div>
                     </div>
                 </div>
+
+                @if ($existingCount)
+                    <p class="mt-4 rounded-[8px] bg-blue-50 p-3 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                        <small class="block text-xs leading-relaxed">
+                            {{ number_format($existingCount) }} {{ Str::plural('student/pupil', $existingCount) }} in this file {{ $existingCount === 1 ? 'is' : 'are' }} already registered at your school and will be skipped. Existing records and admission numbers are never changed by a bulk upload.
+                        </small>
+                    </p>
+                @endif
 
                 @if ($invalidCount)
                     <p class="mt-4 rounded-[8px] bg-amber-50 p-3 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
@@ -286,10 +303,16 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach ($rows as $row)
-                                <tr class="{{ $row['errors'] ? 'bg-red-50/60 dark:bg-red-900/10' : '' }} align-top">
+                                <tr class="{{ ($row['existing'] ?? null) ? 'bg-blue-50/50 dark:bg-blue-900/10' : ($row['errors'] ? 'bg-red-50/60 dark:bg-red-900/10' : '') }} align-top">
                                     <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ $row['line'] }}</td>
                                     <td class="min-w-[14rem] px-4 py-3">
-                                        @if ($row['errors'])
+                                        @if ($row['existing'] ?? null)
+                                            <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Already registered</span>
+                                            <ul class="mt-1 space-y-0.5 text-blue-700 dark:text-blue-400">
+                                                <li><small class="block text-xs leading-relaxed">{{ Str::after($row['existing'], 'Already registered: ') }}</small></li>
+                                                <li><small class="block text-xs leading-relaxed">Skipped. The existing record is left unchanged.</small></li>
+                                            </ul>
+                                        @elseif ($row['errors'])
                                             <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">Skipped</span>
                                             <ul class="mt-1 space-y-0.5 text-red-700 dark:text-red-400">
                                                 @foreach ($row['errors'] as $message)<li><small class="block text-xs leading-relaxed">{{ $message }}</small></li>@endforeach
