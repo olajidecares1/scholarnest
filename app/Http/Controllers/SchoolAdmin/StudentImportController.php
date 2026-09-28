@@ -10,6 +10,7 @@ use App\Services\IdentifierGenerator;
 use App\Services\StudentImport\StudentImportException;
 use App\Services\StudentImport\StudentImportParser;
 use App\Services\StudentImport\StudentImportReader;
+use App\Services\StudentImport\StudentImportTemplate;
 use App\Services\StudentLicenceAllocation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Adding a whole class of students/pupils from one file.
@@ -44,6 +45,7 @@ class StudentImportController extends Controller
         private readonly StudentImportParser $parser,
         private readonly IdentifierGenerator $identifiers,
         private readonly StudentLicenceAllocation $licences,
+        private readonly StudentImportTemplate $templates,
     ) {}
 
     public function create(Request $request): View
@@ -236,25 +238,25 @@ class StudentImportController extends Controller
      * A ready-made CSV with the headings the importer understands. It opens in
      * Excel, so a school can paste its list straight in.
      */
-    public function template(Request $request): StreamedResponse
+    /**
+     * The blank list to fill in, in whichever format the school works in:
+     * ?format=csv (the default), xlsx, docx or pdf.
+     */
+    public function template(Request $request): Response
     {
         $school = $request->user()->school;
 
-        $headings = ['Admission Number', 'First Name', 'Last Name', 'Gender', 'Date of Birth (DD/MM/YYYY)', 'House', 'Guardian Name', 'Guardian Phone', 'Guardian Email', 'Student Phone', 'Student Email', 'Address', 'Admission Date (DD/MM/YYYY)', 'Notes'];
-        $sample = ['ADM-001', 'Chinedu', 'Okafor', 'Male', '14/03/2014', 'Blue House', 'Ngozi Okafor', '08012345678', 'ngozi.okafor@example.com', '', '', '12 Allen Avenue, Ikeja', '09/09/2024', ''];
+        $format = strtolower((string) $request->query('format', 'csv'));
 
-        if ($school->auto_generate_admission_numbers) {
-            array_shift($headings);
-            array_shift($sample);
+        if (! array_key_exists($format, StudentImportTemplate::FORMATS)) {
+            $format = 'csv';
         }
 
-        return response()->streamDownload(function () use ($headings, $sample) {
-            $out = fopen('php://output', 'w');
-            fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, $headings, ',', '"', '');
-            fputcsv($out, $sample, ',', '"', '');
-            fclose($out);
-        }, 'student-import-template.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+        return response($this->templates->build($format, (bool) $school->auto_generate_admission_numbers), 200, [
+            'Content-Type' => $this->templates->contentType($format),
+            'Content-Disposition' => 'attachment; filename="'.$this->templates->filename($format).'"',
+            'Cache-Control' => 'no-store, private',
+        ]);
     }
 
     /**
