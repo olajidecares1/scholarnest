@@ -71,7 +71,44 @@ test('the upload page lists the school classes and offers a template', function 
 
     $template = $this->actingAs($this->admin)->get(route('students.import.template'));
     $template->assertOk();
-    expect($template->streamedContent())->toContain('"First Name","Last Name",Gender');
+    expect($template->getContent())->toContain('"First Name","Last Name",Gender');
+});
+
+test('the template can be downloaded in every format the upload accepts, and each reads straight back', function (string $format, string $type) {
+    $response = $this->actingAs($this->admin)->get(route('students.import.template', ['format' => $format]));
+
+    $response->assertOk()->assertHeader('Content-Type', $type);
+    expect($response->headers->get('Content-Disposition'))->toContain('student-import-template.'.$format);
+
+    $file = UploadedFile::fake()->createWithContent('student-import-template.'.$format, $response->getContent());
+    $token = uploadList($this, $file);
+
+    $this->actingAs($this->admin)
+        ->get(route('students.import.review', ['token' => $token]))
+        ->assertOk()
+        ->assertSee('Chinedu')
+        ->assertSee('Okafor')
+        ->assertSee('ADM-001');
+})->with([
+    'csv' => ['csv', 'text/csv; charset=UTF-8'],
+    'excel' => ['xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+    'word' => ['docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    'pdf' => ['pdf', 'application/pdf'],
+]);
+
+test('an unknown template format falls back to CSV', function () {
+    $this->actingAs($this->admin)
+        ->get(route('students.import.template', ['format' => 'exe']))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+});
+
+test('the upload page offers every template format', function () {
+    $page = $this->actingAs($this->admin)->get(route('students.import.create'))->assertOk();
+
+    foreach (['xlsx', 'csv', 'docx', 'pdf'] as $format) {
+        $page->assertSee(route('students.import.template', ['format' => $format]), false);
+    }
 });
 
 test('a class must be selected when importing', function () {
