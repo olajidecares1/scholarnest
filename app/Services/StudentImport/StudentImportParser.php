@@ -92,7 +92,7 @@ class StudentImportParser
     /**
      * @param  list<list<string>>  $rows  as returned by {@see StudentImportReader}
      * @param  list<string>  $existingAdmissionNumbers  already used at this school
-     * @return array{columns: list<string>, ignored: list<string>, rows: list<array{line: int, data: array<string, string|null>, errors: list<string>, warnings: list<string>}>}
+     * @return array{columns: list<string>, ignored: list<string>, rows: list<array{line: int, data: array<string, string|null>, errors: list<string>, warnings: list<string>, file_admission_number: string|null, existing: string|null}>}
      *
      * @throws StudentImportException
      */
@@ -172,7 +172,10 @@ class StudentImportParser
                 }
             }
 
-            $parsed[] = ['line' => $index + 1, ...$row];
+            // Kept even when the school generates its own numbers: a register
+            // exported from this system carries them, and it is how a student
+            // who is already registered is recognised (ExistingStudentMatcher).
+            $parsed[] = ['line' => $index + 1, ...$row, 'file_admission_number' => $raw['admission_number'] ?? null, 'existing' => null];
         }
 
         if ($parsed === []) {
