@@ -181,7 +181,8 @@ test('invalid rows are reported and skipped while valid rows import', function (
 
     $this->actingAs($this->admin)
         ->get(route('students.import.review', ['token' => $token]))
-        ->assertSee('already used by another student')
+        ->assertSee('Already registered')
+        ->assertSee('admission number TAKEN-1 is assigned to')
         ->assertSee('Last name (surname) is missing')
         ->assertSee('is not recognised')
         ->assertSee('appears more than once');
@@ -510,4 +511,136 @@ test('imported students can be edited, re-photographed and given a new password 
         ->and($student->class_name)->toBe('JSS 1')
         ->and($student->photo_path)->not->toBeNull()
         ->and(Hash::check('Lagos-Rainfall-93!', $student->password))->toBeTrue();
+});
+
+/*
+ * STRICT RULE: a bulk upload never overrides, replaces or modifies a student
+ * who is already registered, nor their admission number. Such students are
+ * skipped entirely and the upload carries on with the next row.
+ */
+
+function snapshotStudent(Student $student): array
+{
+    return Student::query()->whereKey($student->id)->first()->getAttributes();
+}
+
+test('an already registered student is skipped and their record and admission number are left exactly as they were', function () {
+    $existing = Student::factory()->create([
+        'school_id' => $this->school->id,
+        'admission_number' => 'ADM-100',
+        'first_name' => 'Amaka',
+        'last_name' => 'Eze',
+        'class_name' => 'JSS 1',
+        'guardian_phone' => '08011112222',
+    ]);
+    $before = snapshotStudent($existing);
+
+    $this->travel(1)->hours();
+
+    $csv = "Admission Number,First Name,Last Name,Gender,Guardian Phone,House\n"
+        ."ADM-100,Changed,Name,M,09099999999,Red House\n"   // the same admission number, different details
+        ."ADM-101,Bola,Ade,F,,\n";
+
+    $token = uploadList($this, importCsv($csv), 'Primary 3');
+
+    $this->actingAs($this->admin)
+        ->get(route('students.import.review', ['token' => $token]))
+        ->assertSee('Already registered')
+        ->assertSee('The existing record is left unchanged.');
+
+    $this->actingAs($this->admin)
+        ->post(route('students.import.store', ['token' => $token]))
+        ->assertSessionHas('status', fn ($message) => str_contains($message, '1 student/pupil imported') && str_contains($message, '1 already registered was skipped'));
+
+    expect(snapshotStudent($existing))->toBe($before)
+        ->and(Student::where('school_id', $this->school->id)->count())->toBe(2)
+        ->and(Student::where('admission_number', 'ADM-101')->value('first_name'))->toBe('Bola');
+});
+
+test('with generated admission numbers, a re-uploaded register does not create a second copy under a new number', function () {
+    $this->school->update(['school_code' => 'GHS', 'current_session' => '2026/2027', 'auto_generate_admission_numbers' => true]);
+
+    $byNumber = Student::factory()->create(['school_id' => $this->school->id, 'admission_number' => 'GHS-2026/2027-PRI-001', 'first_name' => 'Ifeanyi', 'last_name' => 'Obi']);
+    $byBirthday = Student::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Zainab', 'last_name' => 'Bello', 'date_of_birth' => '2014-03-14', 'class_name' => 'JSS 1']);
+    $byPhone = Student::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Tunde', 'last_name' => 'Ade', 'guardian_phone' => '08023456789', 'date_of_birth' => null, 'class_name' => 'JSS 1']);
+    $byClass = Student::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Ngozi', 'last_name' => 'Okeke', 'class_name' => 'Primary 3', 'date_of_birth' => null, 'guardian_phone' => null]);
+    $before = collect([$byNumber, $byBirthday, $byPhone, $byClass])->map(fn ($s) => snapshotStudent($s))->all();
+
+    $csv = "Admission Number,First Name,Last Name,Gender,Date of Birth,Guardian Phone\n"
+        ."GHS-2026/2027-PRI-001,Ifeanyi,Obi,M,,\n"        // same generated number
+        .",Zainab Maryam,BELLO,F,14/03/2014,\n"          // same name (with a middle name) and birthday
+        .",Tunde,Ade,M,,+2348023456789\n"                // same name and guardian phone
+        .",Ngozi,Okeke,F,,\n"                            // same name, already in this class
+        .",Ngozi,Okeke,F,,\n"                            // and listed twice
+        .",Kelechi,Nwosu,M,,\n";                         // new
+
+    $token = uploadList($this, importCsv($csv), 'Primary 3');
+
+    $this->actingAs($this->admin)
+        ->get(route('students.import.review', ['token' => $token]))
+        ->assertSee('already registered');
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+
+    expect(Student::where('school_id', $this->school->id)->count())->toBe(5)
+        ->and(Student::where('first_name', 'Kelechi')->exists())->toBeTrue()
+        ->and(collect([$byNumber, $byBirthday, $byPhone, $byClass])->map(fn ($s) => snapshotStudent($s))->all())->toBe($before);
+});
+
+test('the same name in a different class with nothing else in common is a different child and is imported', function () {
+    Student::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Musa', 'last_name' => 'Ibrahim', 'class_name' => 'JSS 1', 'date_of_birth' => null, 'guardian_phone' => null]);
+
+    $token = uploadList($this, importCsv("Admission Number,First Name,Last Name,Gender\nM-9,Musa,Ibrahim,M\n"), 'Primary 3');
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+
+    expect(Student::where('first_name', 'Musa')->count())->toBe(2);
+});
+
+test('a student registered while the preview was open is still skipped and left unchanged', function () {
+    $token = uploadList($this, importCsv("Admission Number,First Name,Last Name,Gender\nR-1,Ada,Obi,F\nR-2,Uche,Obi,M\n"));
+
+    $meanwhile = Student::factory()->create(['school_id' => $this->school->id, 'admission_number' => 'R-1', 'first_name' => 'Adaeze', 'last_name' => 'Obi']);
+    $before = snapshotStudent($meanwhile);
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+
+    expect(snapshotStudent($meanwhile))->toBe($before)
+        ->and(Student::where('admission_number', 'R-2')->exists())->toBeTrue()
+        ->and(Student::where('school_id', $this->school->id)->count())->toBe(2);
+});
+
+test('in a large batch every already registered student is skipped and the rest are imported', function () {
+    $existing = collect(range(1, 150))->map(fn ($i) => Student::factory()->create([
+        'school_id' => $this->school->id,
+        'admission_number' => sprintf('BIG-%03d', $i * 2),
+        'first_name' => "Old{$i}",
+        'last_name' => 'Pupil',
+    ]));
+    $before = $existing->mapWithKeys(fn ($s) => [$s->id => snapshotStudent($s)])->all();
+
+    $csv = "Admission Number,First Name,Last Name,Gender\n";
+    foreach (range(1, 300) as $n) {
+        $csv .= sprintf("BIG-%03d,Name%d,Batch,%s\n", $n, $n, $n % 2 ? 'M' : 'F');
+    }
+
+    $token = uploadList($this, importCsv($csv));
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+
+    expect(Student::where('school_id', $this->school->id)->count())->toBe(300)
+        ->and(Student::where('last_name', 'Batch')->count())->toBe(150)
+        ->and($existing->mapWithKeys(fn ($s) => [$s->id => snapshotStudent($s)])->all())->toBe($before);
+});
+
+test('a file of only already registered students imports nothing and changes nothing', function () {
+    $existing = Student::factory()->create(['school_id' => $this->school->id, 'admission_number' => 'ONLY-1']);
+    $before = snapshotStudent($existing);
+
+    $token = uploadList($this, importCsv("Admission Number,First Name,Last Name,Gender\nONLY-1,New,Person,M\n"));
+
+    $this->actingAs($this->admin)
+        ->post(route('students.import.store', ['token' => $token]))
+        ->assertSessionHasErrors(['file' => 'Every student/pupil in this file is already registered at your school, so there is nothing new to import. Existing records have not been changed.']);
+
+    expect(snapshotStudent($existing))->toBe($before)
+        ->and(Student::where('school_id', $this->school->id)->count())->toBe(1);
 });
