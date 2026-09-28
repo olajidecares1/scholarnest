@@ -18,9 +18,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>{{ $title ?? 'Legal' }} &middot; {{ config('app.name', 'AkademicNest') }}</title>
-        @if ($summary)
-            <meta name="description" content="{{ \Illuminate\Support\Str::limit($summary, 160) }}">
-        @endif
+        <x-seo-meta
+            :title="($title ?? 'Legal').' · '.config('app.name', 'AkademicNest')"
+            :description="$summary"
+            :image="$logoUrl"
+            :canonical="rtrim((string) config('app.url'), '/').'/'.request()->path()"
+            :json-ld="[
+                '@type' => 'WebPage',
+                'name' => $heading ?? $title,
+                'description' => $summary,
+                'url' => rtrim((string) config('app.url'), '/').'/'.request()->path(),
+                'dateModified' => $lastUpdated ? \Illuminate\Support\Carbon::parse($lastUpdated)->toDateString() : null,
+                'isPartOf' => ['@type' => 'WebSite', 'name' => config('app.name', 'AkademicNest'), 'url' => rtrim((string) config('app.url'), '/').'/'],
+            ]"
+        />
 
         <x-favicon />
 

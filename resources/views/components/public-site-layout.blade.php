@@ -1,4 +1,4 @@
-@props(['school', 'website', 'title' => null, 'usedFonts' => []])
+@props(['school', 'website', 'title' => null, 'usedFonts' => [], 'description' => null, 'image' => null, 'type' => 'website', 'jsonLd' => []])
 
 @php
     // The school's OWN address, not the /schools/{slug} path.
@@ -70,6 +70,39 @@
     $fontStack = \App\Support\WebsiteTypography::stackFor($website);
     $baseFontWeight = \App\Support\WebsiteTypography::weightFor($website);
     $metaDescription = $school->websiteBlocksFor('about')->firstWhere('section', 'body')['content'] ?? null;
+
+    // Search and link-preview metadata. Everything comes from what the school
+    // has actually published; nothing is invented to fill a gap.
+    $contact = \App\Support\SchoolContact::for($school);
+    $seoDescription = $description
+        ?: $metaDescription
+        ?: trim('The official website of '.$school->name.'.'.($school->motto ? ' '.$school->motto : '').($contact->address ? ' '.$contact->address.'.' : ''));
+    $seoTitle = $title ? "{$title} · {$school->name}" : $school->name;
+    $seoLogo = $school->logoUrl();
+
+    // The one address for this page: the host the school is reached at (the
+    // domain middleware has already redirected any other spelling here) and
+    // the path, with ?page= kept only past the first page of a listing.
+    $seoPage = (int) request()->query('page', 1);
+    $seoCanonical = url()->current().($seoPage > 1 ? '?page='.$seoPage : '');
+
+    $schoolSchema = [
+        '@type' => 'School',
+        '@id' => $homeUrl.'#school',
+        'name' => $school->name,
+        'url' => $homeUrl,
+        'logo' => $seoLogo ? url($seoLogo) : null,
+        'slogan' => $school->motto ?: null,
+        'telephone' => $contact->phone,
+        'email' => $contact->email,
+        'address' => $contact->address,
+        'sameAs' => collect(\App\Support\SchoolSocialLinks::for($school))->pluck('url')->filter(fn ($url) => str_starts_with($url, 'http'))->values()->all(),
+    ];
+    $seoJsonLd = [
+        ...($title === null ? [['@type' => 'WebSite', 'name' => $school->name, 'url' => $homeUrl]] : []),
+        array_filter($schoolSchema, fn ($v) => $v !== null && $v !== '' && $v !== []),
+        ...(array_is_list((array) $jsonLd) ? (array) $jsonLd : [$jsonLd]),
+    ];
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -81,9 +114,16 @@
         automatic /favicon.ico fallback request, which would otherwise silently
         resolve to AkademicNest's own favicon rather than this school's (or none). --}}
         <x-favicon :school="$school" :platform-fallback="false" />
-        @if ($metaDescription)
-            <meta name="description" content="{{ Str::limit($metaDescription, 160) }}">
-        @endif
+        <x-seo-meta
+            :title="$seoTitle"
+            :description="$seoDescription"
+            :canonical="$seoCanonical"
+            :image="$image ?: $seoLogo"
+            :image-alt="$school->name"
+            :type="$type"
+            :site-name="$school->name"
+            :json-ld="$seoJsonLd"
+        />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @if ($website->brand_primary_color || $website->brand_secondary_color || $website->navbar_bg_color)
             <style>

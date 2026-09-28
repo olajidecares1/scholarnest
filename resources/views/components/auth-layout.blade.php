@@ -48,6 +48,14 @@
     // nowhere else. Needs `school` as well; without one there is no app to
     // install. See resources/views/components/pwa.blade.php.
     'pwaPortal' => null,
+
+    // Kept out of search results. Every page on this layout is a sign-in,
+    // a password step, a result checker, a conduct report form or an ID-card
+    // check, several of them behind a per-school token in the address and one
+    // (ID verification) showing a pupil's name and photograph. None of them is
+    // something a search result should lead a stranger to. "follow" keeps any
+    // links on them usable for discovery.
+    'robots' => 'noindex, follow',
 ])
 
 @php
@@ -71,6 +79,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ $title ?? config('app.name', 'AkademicNest') }}</title>
+        <x-seo-meta :robots="$robots" />
 
         <x-favicon />
 
