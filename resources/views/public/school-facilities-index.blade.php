@@ -1,4 +1,4 @@
-<x-public-site-layout :school="$school" :website="$website" title="Facilities">
+<x-public-site-layout :school="$school" :website="$website" title="Facilities" :description="'The facilities at '.$school->name.'.'">
     <section class="px-4 py-14 sm:px-6">
         <div class="mx-auto max-w-7xl">
             <div class="text-center">

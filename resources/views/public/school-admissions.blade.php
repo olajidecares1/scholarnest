@@ -2,7 +2,7 @@
     $admissionsBlocks = $school->websiteBlocksFor('admissions')->groupBy('section');
 @endphp
 
-<x-public-site-layout :school="$school" :website="$website" title="Admissions" :used-fonts="\App\Support\GoogleFonts::usedInBlocks($admissionsBlocks->flatten(1))">
+<x-public-site-layout :school="$school" :website="$website" title="Admissions" :description="$website->admissions_intro ?: 'Admissions at '.$school->name.'.'" :used-fonts="\App\Support\GoogleFonts::usedInBlocks($admissionsBlocks->flatten(1))">
     <section class="bg-gray-900">
         <div class="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6">
             <p class="text-xs font-bold uppercase tracking-wide text-primary-300">Admissions</p>

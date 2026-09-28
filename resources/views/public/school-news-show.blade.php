@@ -1,4 +1,22 @@
-<x-public-site-layout :school="$school" :website="$website" :title="$post->title">
+<x-public-site-layout
+    :school="$school"
+    :website="$website"
+    :title="$post->title"
+    :description="$post->excerpt ?: $post->body"
+    :image="$post->imageUrl()"
+    type="article"
+    :json-ld="[
+        '@type' => 'NewsArticle',
+        'headline' => \Illuminate\Support\Str::limit($post->title, 110, ''),
+        'description' => \Illuminate\Support\Str::limit(trim(strip_tags((string) ($post->excerpt ?: $post->body))), 200),
+        'image' => $post->imageUrl() ? [url($post->imageUrl())] : null,
+        'datePublished' => $post->published_at?->toIso8601String(),
+        'dateModified' => ($post->updated_at ?? $post->published_at)?->toIso8601String(),
+        'mainEntityOfPage' => url()->current(),
+        'author' => ['@type' => 'Organization', 'name' => $school->name, 'url' => $school->publicUrl('public.school-website')],
+        'publisher' => ['@type' => 'Organization', 'name' => $school->name, 'logo' => $school->logoUrl() ? ['@type' => 'ImageObject', 'url' => url($school->logoUrl())] : null],
+    ]"
+>
     <article class="px-4 py-14 sm:px-6">
         <div class="mx-auto max-w-3xl">
             <a href="{{ $school->publicUrl('public.school-news.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700">

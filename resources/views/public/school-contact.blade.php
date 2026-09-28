@@ -2,7 +2,7 @@
     $contactBlocks = $school->websiteBlocksFor('contact')->groupBy('section');
 @endphp
 
-<x-public-site-layout :school="$school" :website="$website" title="Contact Us" :used-fonts="\App\Support\GoogleFonts::usedInBlocks($contactBlocks->flatten(1))">
+<x-public-site-layout :school="$school" :website="$website" title="Contact Us" :description="'Contact '.$school->name.(($a = \App\Support\SchoolContact::for($school)->address) ? ': '.$a : '.')" :used-fonts="\App\Support\GoogleFonts::usedInBlocks($contactBlocks->flatten(1))">
     <section class="bg-gray-900">
         <div class="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6">
             <p class="text-xs font-bold uppercase tracking-wide text-primary-300">Contact Us</p>
