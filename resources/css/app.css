@@ -2018,3 +2018,107 @@ a.pwa-install-banner__install {
 .dark .pwa-install-banner__body { color: #94A3B8; }
 .dark .pwa-install-banner__dismiss { color: #94A3B8; }
 .dark .pwa-install-banner__dismiss:hover { color: #EEF3FB; }
+
+/* Attendance roll (School Admin and staff "take attendance" pages).
+ *
+ * On a phone the three-column table squeezed the four status buttons down to
+ * "Pre" / "Abse" and made the roll scroll sideways. Below 640px each student
+ * becomes a card instead: name and class on top, the four statuses full width
+ * underneath, so nothing needs a sideways scroll. From 640px up it is a table
+ * again, and if the table is still wider than its box the wrapper scrolls
+ * with momentum, snaps nothing, and never drags the page along with it. */
+.attendance-roll-scroll {
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.attendance-roll-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.attendance-roll-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.attendance-roll-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+
+.dark .attendance-roll-scroll {
+    scrollbar-color: #4b5563 transparent;
+}
+
+.dark .attendance-roll-scroll::-webkit-scrollbar-thumb {
+    background: #4b5563;
+}
+
+/* The staff portal turns every table into a scrolling block; the roll has
+ * its own wrapper for that, so it stays a real table there. */
+.edn-portal-main table.attendance-roll {
+    display: table;
+    overflow-x: visible;
+}
+
+.attendance-roll .attendance-roll-meta {
+    display: none;
+}
+
+@media (max-width: 639.98px) {
+    .attendance-roll-scroll {
+        overflow-x: visible;
+    }
+
+    table.attendance-roll,
+    .edn-portal-main table.attendance-roll,
+    .attendance-roll tbody,
+    .attendance-roll tr,
+    .attendance-roll td {
+        display: block;
+        width: 100%;
+    }
+
+    .attendance-roll thead,
+    .attendance-roll td.attendance-roll-class {
+        display: none;
+    }
+
+    .attendance-roll tbody tr {
+        padding: 14px 16px;
+    }
+
+    .attendance-roll td.attendance-roll-student,
+    .attendance-roll td.attendance-roll-status {
+        padding: 0;
+    }
+
+    .attendance-roll td.attendance-roll-status {
+        margin-top: 12px;
+    }
+
+    .attendance-roll td.attendance-roll-status > .grid {
+        min-width: 0;
+        max-width: none;
+        gap: 6px;
+    }
+
+    .attendance-roll td.attendance-roll-status small {
+        padding: 9px 2px;
+        border-radius: 8px;
+    }
+
+    .attendance-roll .attendance-roll-meta {
+        display: block;
+        margin-top: 1px;
+    }
+
+    /* Empty-state row keeps its own centred padding. */
+    .attendance-roll td[colspan] {
+        padding: 40px 16px;
+    }
+}
