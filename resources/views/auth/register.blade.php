@@ -13,7 +13,45 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>Register your school | {{ config('app.name', 'AkademicNest') }}</title>
+        @php
+            // Rendered at "/" (the homepage) and at its hashed registration
+            // address; both are this one page, and "/" is its canonical URL.
+            $isHome = $isHome ?? false;
+            $appName = config('app.name', 'AkademicNest');
+            $homeUrl = rtrim((string) config('app.url'), '/').'/';
+            $seoTitle = $appName.' – School Management Software & School Websites';
+            $seoDescription = $appName.' is school management software: results and report cards, CBT exams, attendance, student, parent and staff portals, and a website for your school.';
+        @endphp
+        <title>{{ $isHome ? $seoTitle : 'Register your school | '.$appName }}</title>
+        <x-seo-meta
+            :title="$seoTitle"
+            :description="$seoDescription"
+            :canonical="$homeUrl"
+            :image="$logoUrl"
+            :image-alt="$appName"
+            :json-ld="[
+                [
+                    '@type' => 'WebSite',
+                    'name' => $appName,
+                    'alternateName' => 'AkademicaNest',
+                    'url' => $homeUrl,
+                ],
+                [
+                    '@type' => 'Organization',
+                    'name' => $appName,
+                    'url' => $homeUrl,
+                    'logo' => url($logoUrl),
+                ],
+                [
+                    '@type' => 'SoftwareApplication',
+                    'name' => $appName,
+                    'url' => $homeUrl,
+                    'applicationCategory' => 'EducationalApplication',
+                    'operatingSystem' => 'Web',
+                    'description' => $seoDescription,
+                ],
+            ]"
+        />
 
         <x-favicon />
 
