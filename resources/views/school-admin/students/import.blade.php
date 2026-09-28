@@ -134,10 +134,32 @@
                         <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">How to lay out the file</h3>
                         <small class="mt-0.5 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">Put column headings in the first row. Common names are recognised, so your existing register usually works as it is.</small>
                     </div>
-                    <a href="{{ route('students.import.template') }}" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                        <i class="fa-solid fa-download text-[12px] leading-none" aria-hidden="true"></i>
-                        Download Template
-                    </a>
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+                        <button type="button" @click="open = ! open" :aria-expanded="open.toString()" aria-haspopup="menu" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                            <i class="fa-solid fa-download text-[12px] leading-none" aria-hidden="true"></i>
+                            Download Template
+                            <i class="fa-solid fa-chevron-down text-[10px] leading-none transition-transform duration-200" :class="open && 'rotate-180'" aria-hidden="true"></i>
+                        </button>
+                        <div x-cloak x-show="open"
+                             x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                             role="menu"
+                             class="absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-[10px] border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                            @foreach ([
+                                'xlsx' => ['Excel spreadsheet', '.xlsx', 'fa-file-excel', 'text-green-600'],
+                                'csv' => ['CSV spreadsheet', '.csv', 'fa-file-csv', 'text-emerald-600'],
+                                'docx' => ['Word document', '.docx', 'fa-file-word', 'text-blue-600'],
+                                'pdf' => ['PDF (print and fill)', '.pdf', 'fa-file-pdf', 'text-red-600'],
+                            ] as $format => [$label, $extension, $icon, $colour])
+                                <a href="{{ route('students.import.template', ['format' => $format]) }}" role="menuitem" @click="open = false"
+                                   class="flex items-center gap-3 px-3 py-2 text-xs text-gray-700 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">
+                                    <i class="fa-solid {{ $icon }} {{ $colour }} w-4 text-center text-[14px] leading-none" aria-hidden="true"></i>
+                                    <span class="flex-1 font-semibold">{{ $label }}</span>
+                                    <small class="text-[11px] text-gray-400">{{ $extension }}</small>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
 
                 <dl class="divide-y divide-gray-100 px-5 text-xs dark:divide-gray-700">
