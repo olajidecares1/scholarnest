@@ -55,7 +55,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6 dark:border-gray-700">
-                <form method="GET" class="flex flex-wrap items-end gap-2">
+                <form method="GET" class="flex w-full flex-wrap items-end gap-2 sm:w-auto">
                     <input
                         type="date"
                         name="date"
@@ -64,7 +64,7 @@
                         onchange="this.form.submit()"
                     >
                     <div
-                        class="w-48"
+                        class="w-full sm:w-48"
                         x-data="{ classFilter: @js($className) }"
                         x-init="$watch('classFilter', () => $el.closest('form').submit())"
                     >
@@ -82,8 +82,8 @@
                 @csrf
                 <input type="hidden" name="date" value="{{ $date->toDateString() }}">
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
+                <div class="attendance-roll-scroll">
+                    <table class="attendance-roll w-full text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                             <tr>
                                 <th class="px-6 py-3 font-semibold">Student</th>
@@ -95,25 +95,27 @@
                             @forelse ($students as $student)
                                 @php $current = $existing->get($student->id)?->status ?? \App\Enums\AttendanceStatus::Present; @endphp
                                 <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                    <td class="px-6 py-3">
+                                    <td class="attendance-roll-student px-6 py-3">
                                         <div class="flex items-center gap-3">
-                                            @if ($student->photoUrl())
-                                                <img src="{{ $student->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
-                                            @else
-                                                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                                                    {{ Str::of($student->first_name)->substr(0, 1)->upper() }}{{ Str::of($student->last_name)->substr(0, 1)->upper() }}
-                                                </span>
-                                            @endif
-                                            <span class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
+                                            <span class="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                                {{ Str::of($student->first_name)->substr(0, 1)->upper() }}{{ Str::of($student->last_name)->substr(0, 1)->upper() }}
+                                                @if ($student->photoUrl())
+                                                    <img src="{{ $student->photoUrl() }}" alt="" loading="lazy" class="absolute inset-0 h-full w-full object-cover" onerror="this.remove()">
+                                                @endif
+                                            </span>
+                                            <div class="min-w-0">
+                                                <span class="block font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
+                                                <small class="attendance-roll-meta block text-xs text-gray-500 dark:text-gray-400">{{ $student->class_name ?? 'N/A' }}</small>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $student->class_name ?? 'N/A' }}</td>
-                                    <td class="px-6 py-3">
-                                        <div class="grid max-w-md grid-cols-4 gap-1.5">
+                                    <td class="attendance-roll-class whitespace-nowrap px-6 py-3 text-gray-600 dark:text-gray-300">{{ $student->class_name ?? 'N/A' }}</td>
+                                    <td class="attendance-roll-status px-6 py-3">
+                                        <div class="grid min-w-[18rem] max-w-md grid-cols-4 gap-1.5">
                                             @foreach ($statusOptions as $status)
                                                 <label class="cursor-pointer">
                                                     <input type="radio" name="records[{{ $student->id }}]" value="{{ $status->value }}" class="peer sr-only" @checked($current === $status)>
-                                                    <small class="block rounded-[6px] border border-gray-300 bg-white px-2 py-1.5 text-center text-xs font-semibold text-gray-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm active:scale-95 peer-checked:border-transparent peer-checked:text-white peer-checked:shadow-md dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 {{ $statusSelectedClasses[$status->value] }}">
+                                                    <small class="block rounded-[6px] border border-gray-300 bg-white px-2 py-1.5 whitespace-nowrap text-center text-xs font-semibold text-gray-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-sm active:scale-95 peer-checked:border-transparent peer-checked:text-white peer-checked:shadow-md dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 {{ $statusSelectedClasses[$status->value] }}">
                                                         {{ $status->label() }}
                                                     </small>
                                                 </label>
@@ -133,8 +135,8 @@
                 </div>
 
                 @if ($students->isNotEmpty())
-                    <div class="flex justify-end border-t border-gray-100 p-6 dark:border-gray-700">
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
+                    <div class="flex justify-end border-t border-gray-100 p-4 sm:p-6 dark:border-gray-700">
+                        <button type="submit" class="btn w-full rounded-[8px] sm:w-auto bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
                             Save Attendance for {{ $date->format('M j, Y') }}
                         </button>
                     </div>
