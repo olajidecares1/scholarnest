@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CheckResultController;
 use App\Http\Controllers\Guardian\Auth\AuthenticatedSessionController as GuardianAuthenticatedSessionController;
 use App\Http\Controllers\IdCardVerificationController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\PublicSchoolWebsiteController;
 use App\Http\Controllers\RegistrationResumeController;
 use App\Http\Controllers\SchoolPortal\Auth\AuthenticatedSessionController as SchoolPortalAuthenticatedSessionController;
 use App\Http\Controllers\SchoolPortalController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\Staff\Auth\AuthenticatedSessionController as StaffAuthenticatedSessionController;
 use App\Http\Controllers\Student\Auth\AuthenticatedSessionController as StudentAuthenticatedSessionController;
 use App\Http\Controllers\SubscriptionInvoiceController;
@@ -50,6 +52,11 @@ Route::group([
     'as' => 'tenant.',
 ], function () {
     Route::get('/', [PublicSchoolWebsiteController::class, 'show'])->name('school-website');
+
+    // This school's own robots.txt and sitemap, see App\Http\Controllers\SeoController.
+    Route::get('/robots.txt', [SeoController::class, 'schoolRobots'])->name('robots');
+    Route::get('/sitemap.xml', [SeoController::class, 'schoolSitemap'])->name('sitemap');
+
     Route::get('/news', [PublicSchoolWebsiteController::class, 'news'])->name('school-news.index');
     Route::get('/news/{post}', [PublicSchoolWebsiteController::class, 'newsShow'])->name('school-news.show');
     Route::get('/events', [PublicSchoolWebsiteController::class, 'events'])->name('school-events.index');
@@ -144,9 +151,26 @@ Route::group([
     });
 });
 
+// The platform's robots.txt and sitemap. The schools' own are in the tenant
+// group above; public/robots.txt is gone because a static file would answer
+// every host with the same text and win over both.
+Route::get('/robots.txt', [SeoController::class, 'platformRobots'])->name('robots');
+Route::get('/sitemap.xml', [SeoController::class, 'platformSitemap'])->name('sitemap');
+
+// The platform's front door, and the page search engines index as
+// akademicanest.com. It used to answer every guest with a 302 to the
+// sign-in route, which 302'd again to a 128-character hashed registration
+// address, so the homepage Google saw was two temporary redirects to a URL
+// nobody would search for. Guests now get the registration page right here,
+// at "/", with a 200; it is the same page, and its hashed address declares
+// this one canonical. Signed-in users still go straight to their dashboard.
 Route::get('/', function () {
-    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
-});
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return app(RegisteredUserController::class)->create()->with('isHome', true);
+})->name('home');
 
 // Photographs of people, from PRIVATE storage.
 //
