@@ -8,17 +8,17 @@
 
                 @if ($myAttempt && $myAttempt->isSubmitted())
                     <a href="{{ route('student.tests.attempts.show', [$school, $myAttempt]) }}" class="btn mt-4 inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                        View Result ({{ $myAttempt->percentage() }}%)
+                        <i class="fa-solid fa-eye btn-icon" aria-hidden="true"></i> View Result ({{ $myAttempt->percentage() }}%)
                     </a>
                 @elseif ($myAttempt)
                     <a href="{{ route('student.tests.attempts.show', [$school, $myAttempt]) }}" class="btn mt-4 inline-flex items-center gap-1.5 rounded-[8px] bg-amber-600 px-4 py-2 text-xs font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-700">
-                        Continue Test
+                        Continue Test <i class="fa-solid fa-arrow-right btn-icon" aria-hidden="true"></i>
                     </a>
                 @elseif ($test->isOpenForStudents())
                     <form method="POST" action="{{ route('student.tests.start', [$school, $test]) }}" class="mt-4">
                         @csrf
                         <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-4 py-2 text-xs font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-700">
-                            Start Test
+                            <i class="fa-solid fa-play btn-icon" aria-hidden="true"></i> Start Test
                         </button>
                     </form>
                 @else
