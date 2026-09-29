@@ -53,7 +53,7 @@
                     type="submit"
                     class="btn flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
                 >
-                    Send Reply
+                    <i class="fa-solid fa-paper-plane btn-icon" aria-hidden="true"></i> Send Reply
                 </button>
             </form>
         </div>

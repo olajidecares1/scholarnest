@@ -33,10 +33,10 @@
                         type="submit"
                         class="btn flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
                     >
-                        Submit Ticket
+                        <i class="fa-solid fa-paper-plane btn-icon" aria-hidden="true"></i> Submit Ticket
                     </button>
-                    <a href="{{ route('support-tickets.index') }}" class="text-sm font-semibold text-gray-500 hover:text-gray-700">
-                        Cancel
+                    <a href="{{ route('support-tickets.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-700">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
                     </a>
                 </div>
             </form>
