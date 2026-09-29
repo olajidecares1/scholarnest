@@ -126,5 +126,5 @@ test('the header shows an unread badge for open support tickets', function () {
     $this->actingAs($this->admin)
         ->get(route('dashboard'))
         ->assertStatus(200)
-        ->assertSee('title="Support Tickets"', false);
+        ->assertSee('data-tooltip="Support Tickets"', false);
 });
