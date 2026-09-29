@@ -6,7 +6,6 @@
     $encodedUrl = rawurlencode($jobUrl);
     $encodedText = rawurlencode($shareText);
     $shareable = $job->status === JobPostingStatus::Published;
-    $button = 'inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-[12.5px] font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700';
     $card = 'rounded-[5px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6 lg:rounded-[10px]';
 
     $shareTargets = [
@@ -52,40 +51,40 @@
                         @if ($job->closes_at)<span><i class="fa-regular fa-calendar mr-1" aria-hidden="true"></i>Closes {{ $job->closes_at->format('j M Y') }}</span>@endif
                     </small>
 
-                    <div class="mt-5 flex flex-wrap gap-2">
-                        <a href="{{ route('careers.edit', $job) }}" class="{{ $button }}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Edit</a>
-                        <a href="{{ route('careers.preview', $job) }}" target="_blank" rel="noopener" class="{{ $button }}"><i class="fa-solid fa-eye" aria-hidden="true"></i> Preview</a>
+                    <div class="icon-btn-group mt-5 flex-wrap">
+                        <a href="{{ route('careers.edit', $job) }}" class="icon-btn icon-btn--edit" data-tooltip="Edit vacancy" aria-label="Edit vacancy"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
+                        <a href="{{ route('careers.preview', $job) }}" target="_blank" rel="noopener" class="icon-btn icon-btn--view" data-tooltip="Preview" aria-label="Preview"><i class="fa-solid fa-eye" aria-hidden="true"></i></a>
 
                         @if (in_array($job->status, [JobPostingStatus::Draft], true))
                             <form method="POST" action="{{ route('careers.publish', $job) }}">@csrf
-                                <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 py-2 text-[12.5px] font-bold text-white hover:bg-primary-700"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Publish</button>
+                                <button type="submit" class="icon-btn icon-btn--approve icon-btn--solid" data-tooltip="Publish" aria-label="Publish"><i class="fa-solid fa-globe" aria-hidden="true"></i></button>
                             </form>
                         @endif
 
                         @if ($job->status === JobPostingStatus::Published)
                             <form method="POST" action="{{ route('careers.close', $job) }}">@csrf
-                                <button type="submit" class="{{ $button }}"><i class="fa-solid fa-lock" aria-hidden="true"></i> Close applications</button>
+                                <button type="submit" class="icon-btn icon-btn--warn" data-tooltip="Close applications" aria-label="Close applications"><i class="fa-solid fa-lock" aria-hidden="true"></i></button>
                             </form>
                             <form method="POST" action="{{ route('careers.unpublish', $job) }}">@csrf
-                                <button type="submit" class="{{ $button }}"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Unpublish</button>
+                                <button type="submit" class="icon-btn icon-btn--warn" data-tooltip="Unpublish" aria-label="Unpublish"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i></button>
                             </form>
                         @endif
 
                         @if (in_array($job->status, [JobPostingStatus::Closed, JobPostingStatus::Archived], true))
                             <form method="POST" action="{{ route('careers.reopen', $job) }}">@csrf
-                                <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 py-2 text-[12.5px] font-bold text-white hover:bg-primary-700"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Reopen</button>
+                                <button type="submit" class="icon-btn icon-btn--approve icon-btn--solid" data-tooltip="Reopen" aria-label="Reopen"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
                             </form>
                         @endif
 
                         @if ($job->status !== JobPostingStatus::Archived)
                             <form method="POST" action="{{ route('careers.archive', $job) }}" onsubmit="return confirm('Archive this vacancy? It will be removed from your Job Portal. Its applications are kept.');">@csrf
-                                <button type="submit" class="{{ $button }}"><i class="fa-solid fa-box-archive" aria-hidden="true"></i> Archive</button>
+                                <button type="submit" class="icon-btn icon-btn--warn" data-tooltip="Archive" aria-label="Archive"><i class="fa-solid fa-box-archive" aria-hidden="true"></i></button>
                             </form>
                         @endif
 
                         @if ($job->applications_count === 0)
                             <form method="POST" action="{{ route('careers.destroy', $job) }}" onsubmit="return confirm('Delete this vacancy permanently?');">@csrf @method('DELETE')
-                                <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-red-300 px-3 py-2 text-[12.5px] font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete</button>
+                                <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete vacancy" aria-label="Delete vacancy"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                             </form>
                         @endif
                     </div>
@@ -169,9 +168,8 @@
                     <label for="job-link" class="field-label mt-4">Application link</label>
                     <div class="mt-1 flex gap-2">
                         <input id="job-link" x-ref="link" type="text" readonly value="{{ $jobUrl }}" class="min-w-0 flex-1" x-on:focus="$event.target.select()">
-                        <button type="button" x-on:click="copy()" class="btn inline-flex h-[var(--field-height)] shrink-0 items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 text-[12.5px] font-bold text-white hover:bg-primary-700">
+                        <button type="button" x-on:click="copy()" class="icon-btn icon-btn--download shrink-0 self-center" data-tooltip="Copy link" aria-label="Copy link" :data-tooltip="copied ? 'Copied' : 'Copy link'" :aria-label="copied ? 'Copied' : 'Copy link'">
                             <i class="fa-solid" :class="copied ? 'fa-check' : 'fa-copy'" aria-hidden="true"></i>
-                            <span x-text="copied ? 'Copied' : 'Copy'">Copy</span>
                         </button>
                     </div>
                     <small class="field-hint mt-1">Opens this vacancy on your Job Portal, and nowhere else.</small>

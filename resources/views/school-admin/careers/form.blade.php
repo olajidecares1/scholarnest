@@ -185,8 +185,8 @@
                                 <input type="checkbox" :name="`questions[${index}][required]`" value="1" x-model="question.required">
                                 Applicants must answer
                             </label>
-                            <button type="button" x-on:click="remove(index)" class="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-red-600 hover:text-red-700">
-                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remove
+                            <button type="button" x-on:click="remove(index)" class="icon-btn icon-btn--delete icon-btn--sm" data-tooltip="Remove question" aria-label="Remove question">
+                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
