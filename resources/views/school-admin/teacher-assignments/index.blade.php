@@ -75,7 +75,7 @@
                     </template>
                 </div>
                 <div class="lg:col-span-4">
-                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save Assignment</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Assignment</button>
                 </div>
             </form>
         </div>
@@ -86,9 +86,9 @@
                 <x-select-field name="class" label="Class" placeholder="All Classes" :selected="$selectedClass" :options="['' => 'All Classes', ...$classOptions->all()]" />
                 <x-text-field name="subject" label="Subject" :value="$selectedSubject" placeholder="Search subject..." />
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
+                    <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Apply filters" aria-label="Apply filters"><i class="fa-solid fa-filter" aria-hidden="true"></i></button>
                     @if ($selectedTeacher || $selectedClass || $selectedSubject)
-                        <a href="{{ route('teacher-assignments.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
+                        <a href="{{ route('teacher-assignments.index') }}" class="icon-btn icon-btn--neutral" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                     @endif
                 </div>
             </form>
@@ -122,7 +122,7 @@
                                         <td class="px-6 py-2.5 text-right">
                                             <form method="POST" action="{{ route('teacher-assignments.destroy', $assignment) }}" onsubmit="return confirm('Remove this assignment for {{ $staffMember->fullName() }}?');">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-700">Remove</button>
+                                                <button type="submit" class="icon-btn icon-btn--delete icon-btn--sm" data-tooltip="Remove assignment" aria-label="Remove assignment"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                             </form>
                                         </td>
                                     </tr>
