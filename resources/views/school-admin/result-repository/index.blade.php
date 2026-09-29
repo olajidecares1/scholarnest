@@ -169,10 +169,11 @@
                                         <button
                                             type="button"
                                             @click="view('{{ route('result-repository.show', $result) }}')"
-                                            class="btn inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-gray-300 px-3 text-[11.5px] font-bold text-gray-600 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-primary-900/20"
+                                            class="icon-btn icon-btn--view"
+                                            data-tooltip="View stored result"
+                                            aria-label="View stored result"
                                         >
-                                            <i class="fa-regular fa-eye text-[11px]"></i>
-                                            View stored result
+                                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -203,8 +204,8 @@
                                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Stored result</h3>
                                 <small class="block mt-0.5 text-[11.5px] text-gray-500 dark:text-gray-400" x-text="meta"></small>
                             </div>
-                            <button type="button" @click="open = false" class="text-gray-400 transition hover:text-gray-600">
-                                <i class="fa-solid fa-xmark"></i>
+                            <button type="button" @click="open = false" class="icon-btn icon-btn--neutral" data-tooltip="Close" aria-label="Close">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                             </button>
                         </div>
 
