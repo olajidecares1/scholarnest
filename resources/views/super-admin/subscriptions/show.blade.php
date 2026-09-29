@@ -35,8 +35,8 @@
         @endif
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <a href="{{ route('super-admin.subscriptions.index') }}" class="text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                &larr; Back to subscriptions
+            <a href="{{ route('super-admin.subscriptions.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to subscriptions
             </a>
             <span class="rounded-full px-3 py-1 text-xs font-bold {{ $statusBadge[1] }}">{{ $statusBadge[0] }}</span>
         </div>
@@ -133,6 +133,8 @@
                             :disabled="submitting"
                             class="btn rounded-[8px] bg-green-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-green-600/30 transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
                         >
+                            <i x-show="! submitting" class="fa-solid fa-check btn-icon" aria-hidden="true"></i>
+                            <i x-show="submitting" x-cloak class="fa-solid fa-spinner fa-spin btn-icon" aria-hidden="true"></i>
                             <span x-show="! submitting">Activate subscription</span>
                             <span x-show="submitting" x-cloak>Activating&hellip;</span>
                         </button>
@@ -143,7 +145,7 @@
                         @click="rejecting = ! rejecting"
                         class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
-                        Reject
+                        <i class="fa-solid fa-ban btn-icon" aria-hidden="true"></i> Reject
                     </button>
                 </div>
 
@@ -173,6 +175,8 @@
                         :disabled="submitting"
                         class="btn mt-3 rounded-[8px] bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-red-600/30 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                     >
+                        <i x-show="! submitting" class="fa-solid fa-ban btn-icon" aria-hidden="true"></i>
+                        <i x-show="submitting" x-cloak class="fa-solid fa-spinner fa-spin btn-icon" aria-hidden="true"></i>
                         <span x-show="! submitting">Reject subscription</span>
                         <span x-show="submitting" x-cloak>Rejecting&hellip;</span>
                     </button>
@@ -194,10 +198,9 @@
 
                     <form method="POST" action="{{ route('super-admin.subscriptions.resend-emails', $subscription) }}" x-data="{ sending: false }" @submit="sending = true">
                         @csrf
-                        <button type="submit" :disabled="sending" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-                            <span x-show="! sending">Resend emails</span>
-                            <span x-show="sending" x-cloak>Sending&hellip;</span>
+                        <button type="submit" :disabled="sending" class="icon-btn icon-btn--view" data-tooltip="Resend emails" aria-label="Resend emails">
+                            <span x-show="! sending"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></span>
+                            <span x-show="sending" x-cloak><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></span>
                         </button>
                     </form>
                 </div>
@@ -235,7 +238,7 @@
 
         <div class="flex flex-wrap gap-2">
             <a href="{{ route('super-admin.schools.show', $school) }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                View school
+                <i class="fa-solid fa-eye btn-icon" aria-hidden="true"></i> View school
             </a>
         </div>
     </div>

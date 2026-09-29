@@ -118,10 +118,11 @@
 
                 <button
                     type="submit"
-                    class="btn flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                    class="icon-btn icon-btn--neutral"
+                    data-tooltip="Apply filters"
+                    aria-label="Apply filters"
                 >
-                    <i class="fa-solid fa-filter text-[14px] leading-none" aria-hidden="true"></i>
-                    Filter
+                    <i class="fa-solid fa-filter" aria-hidden="true"></i>
                 </button>
             </form>
 
@@ -129,12 +130,12 @@
                 <p class="text-sm font-semibold text-primary-700 dark:text-primary-300">
                     <span x-text="selectedIds.length"></span> selected
                 </p>
-                <div class="flex items-center gap-2">
-                    <button type="button" @click="$refs.bulkApproveForm.submit()" class="btn rounded-[8px] bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700">
-                        Approve Selected
+                <div class="icon-btn-group">
+                    <button type="button" @click="$refs.bulkApproveForm.submit()" class="icon-btn icon-btn--approve" data-tooltip="Approve selected" aria-label="Approve selected">
+                        <i class="fa-solid fa-check" aria-hidden="true"></i>
                     </button>
-                    <button type="button" @click="rejectingBulk = true" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">
-                        Reject Selected
+                    <button type="button" @click="rejectingBulk = true" class="icon-btn icon-btn--delete" data-tooltip="Reject selected" aria-label="Reject selected">
+                        <i class="fa-solid fa-ban" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
@@ -165,8 +166,8 @@
                         />
                     </div>
                     <div class="mt-3 flex justify-end gap-2">
-                        <button type="button" @click="rejectingBulk = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="button" @click="$refs.bulkRejectForm.submit()" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Subscriptions</button>
+                        <button type="button" @click="rejectingBulk = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="button" @click="$refs.bulkRejectForm.submit()" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"><i class="fa-solid fa-ban btn-icon" aria-hidden="true"></i> Reject Subscriptions</button>
                     </div>
                 </div>
             </div>
@@ -212,9 +213,11 @@
                                                 href="{{ route('super-admin.subscriptions.top-ups.receipt', $topUp) }}"
                                                 target="_blank"
                                                 rel="noopener"
-                                                class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                                                class="icon-btn icon-btn--view icon-btn--sm mt-1"
+                                                data-tooltip="View receipt"
+                                                aria-label="View receipt"
                                             >
-                                                <i class="fa-solid fa-receipt"></i> View receipt
+                                                <i class="fa-solid fa-receipt" aria-hidden="true"></i>
                                             </a>
                                         @endif
                                     </td>
@@ -255,8 +258,10 @@
                                                         class="w-28"
                                                     >
                                                 </div>
-                                                <button type="submit" class="btn h-8 rounded-[8px] bg-green-600 px-3 text-xs font-semibold text-white hover:bg-green-700">Approve</button>
-                                                <button type="button" @click="rejecting = true" class="btn h-8 rounded-[8px] bg-red-600 px-3 text-xs font-semibold text-white hover:bg-red-700">Reject</button>
+                                                <div class="icon-btn-group">
+                                                    <button type="submit" class="icon-btn icon-btn--approve" data-tooltip="Approve top-up" aria-label="Approve top-up"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                                                    <button type="button" @click="rejecting = true" class="icon-btn icon-btn--delete" data-tooltip="Reject top-up" aria-label="Reject top-up"><i class="fa-solid fa-ban" aria-hidden="true"></i></button>
+                                                </div>
                                             </form>
 
                                             @error('approved_students_count')
@@ -274,8 +279,8 @@
                                                             placeholder="Reason (optional, sent to the school)"
                                                         />
                                                         <div class="mt-3 flex justify-end gap-2">
-                                                            <button type="button" @click="rejecting = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                                                            <button type="submit" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Top-Up</button>
+                                                            <button type="button" @click="rejecting = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                                                            <button type="submit" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"><i class="fa-solid fa-ban btn-icon" aria-hidden="true"></i> Reject Top-Up</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -285,10 +290,9 @@
                                                  whoever has not received them. --}}
                                             <form method="POST" action="{{ route('super-admin.subscriptions.top-ups.resend-emails', $topUp) }}" x-data="{ sending: false }" @submit="sending = true">
                                                 @csrf
-                                                <button type="submit" :disabled="sending" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                                                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-                                                    <span x-show="! sending">Resend emails</span>
-                                                    <span x-show="sending" x-cloak>Sending&hellip;</span>
+                                                <button type="submit" :disabled="sending" class="icon-btn icon-btn--view" data-tooltip="Resend emails" aria-label="Resend emails">
+                                                    <span x-show="! sending"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></span>
+                                                    <span x-show="sending" x-cloak><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></span>
                                                 </button>
                                             </form>
                                         @endif
@@ -373,28 +377,30 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <div class="flex items-center gap-2" x-data="{ open: false, rejecting: false }">
+                                    <div class="icon-btn-group" x-data="{ open: false, rejecting: false }">
                                         <a
                                             href="{{ route('super-admin.subscriptions.show', $subscription) }}"
-                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="icon-btn icon-btn--view" data-tooltip="View subscription" aria-label="View subscription"
                                         >
-                                            View
+                                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                         </a>
 
                                         @if ($subscription->status->value === 'pending_verification')
                                             <div class="relative">
-                                                <button type="button" @click="open = !open" @click.outside="open = false" class="flex h-8 w-8 items-center justify-center rounded-[8px] border border-gray-300 text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
-                                                    <i class="fa-solid fa-ellipsis-vertical text-[14px] leading-none" aria-hidden="true"></i>
+                                                <button type="button" @click="open = !open" @click.outside="open = false" class="icon-btn icon-btn--neutral" data-tooltip="More actions" aria-label="More actions">
+                                                    <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
                                                 </button>
 
                                                 <div x-show="open" x-transition style="display: none;" class="absolute right-0 z-10 mt-1 w-56 rounded-[5px] border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                                                     <form method="POST" action="{{ route('super-admin.subscriptions.approve', $subscription) }}">
                                                         @csrf
                                                         <button type="submit" class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-gray-700">
+                                                            <i class="fa-solid fa-check" aria-hidden="true"></i>
                                                             Approve &amp; Activate
                                                         </button>
                                                     </form>
                                                     <button type="button" @click="rejecting = true; open = false" class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-gray-700">
+                                                        <i class="fa-solid fa-ban" aria-hidden="true"></i>
                                                         Reject
                                                     </button>
                                                 </div>
@@ -411,8 +417,8 @@
                                                             placeholder="Reason (optional, sent to the school)"
                                                         />
                                                         <div class="mt-3 flex justify-end gap-2">
-                                                            <button type="button" @click="rejecting = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                                                            <button type="submit" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Reject Subscription</button>
+                                                            <button type="button" @click="rejecting = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                                                            <button type="submit" class="btn rounded-[8px] bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"><i class="fa-solid fa-ban btn-icon" aria-hidden="true"></i> Reject Subscription</button>
                                                         </div>
                                                     </form>
                                                 </div>
