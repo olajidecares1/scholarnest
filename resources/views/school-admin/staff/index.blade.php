@@ -27,7 +27,7 @@
             }
         },
         schoolCode: @js($school->school_code),
-        nextStaffSequence: @js($school->next_staff_sequence),
+        nextStaffSequence: @js($nextStaffSequence),
         nextStaffIdPreview() {
             if (! this.schoolCode) {
                 return '';
