@@ -37,7 +37,7 @@
                 >
                     Email Our Sales Team
                 </a>
-                <a href="{{ route('subscriptions.choose-plan') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900">&larr; Back to Plans</a>
+                <a href="{{ route('subscriptions.choose-plan') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Plans</a>
             </div>
         </x-auth-card>
     </div>

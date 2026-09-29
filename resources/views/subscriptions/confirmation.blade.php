@@ -79,7 +79,7 @@
                          paid and wants to ask about it deserves a real
                          address, not a link that does nothing. --}}
                     @if ($supportEmail)
-                        <a href="mailto:{{ $supportEmail }}" class="btn mt-3 inline-block rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary-400 hover:text-primary-700">Contact Support</a>
+                        <a href="mailto:{{ $supportEmail }}" class="btn mt-3 inline-block rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary-400 hover:text-primary-700"><i class="fa-solid fa-envelope btn-icon" aria-hidden="true"></i> Contact Support</a>
                         <small class="mt-2 block text-[11px] text-gray-500">{{ $supportEmail }}</small>
                     @endif
                 </div>
@@ -89,7 +89,7 @@
                 href="{{ route('dashboard') }}"
                 class="btn mt-8 inline-flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
             >
-                Back to Dashboard
+                <i class="fa-solid fa-arrow-left btn-icon" aria-hidden="true"></i> Back to Dashboard
             </a>
         </x-auth-card>
     </div>

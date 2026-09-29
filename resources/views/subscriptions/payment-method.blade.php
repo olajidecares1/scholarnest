@@ -21,7 +21,7 @@
                         href="{{ route('subscriptions.billing-details') }}"
                         class="btn mt-4 inline-flex h-[38px] items-center justify-center gap-2 rounded-[8px] border border-amber-300 bg-white px-4 text-[13px] font-bold text-amber-800 transition hover:bg-amber-100"
                     >
-                        &larr; Back
+                        <i class="fa-solid fa-arrow-left btn-icon" aria-hidden="true"></i> Back
                     </a>
                 </div>
             @else
@@ -122,7 +122,7 @@
                 </div>
 
                 <div class="flex items-center justify-between pt-2">
-                    <a href="{{ route('subscriptions.billing-details') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900">&larr; Back</a>
+                    <a href="{{ route('subscriptions.billing-details') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
 
                     <button
                         type="submit"
