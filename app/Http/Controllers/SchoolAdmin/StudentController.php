@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\Gender;
+use App\Enums\RegistrationSource;
 use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Guardian;
+use App\Models\School;
 use App\Models\Student;
 use App\Rules\UploadedImage;
 use App\Services\IdentifierGenerator;
+use App\Services\StudentImport\ExistingStudentMatcher;
 use App\Services\StudentLicenceAllocation;
 use App\Services\Uploads\UploadStorage;
+use App\Support\DuplicateStudentNotice;
 use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -62,6 +66,7 @@ class StudentController extends Controller
             'totalCount' => $school->students()->count(),
             'activeCount' => $school->students()->where('is_active', true)->count(),
             'capacity' => $this->licences->summary($school),
+            'nextAdmissionSequence' => $this->identifiers->peekAdmissionSequence($school),
             'levelCodesByClassName' => $academicLevels->flatMap(
                 fn ($level) => $level->classes->mapWithKeys(fn ($class) => [$class->name => $level->code ?: 'GEN'])
             ),
@@ -77,6 +82,21 @@ class StudentController extends Controller
         // check followed by a separate create would let two simultaneous
         // submissions, a double-click is enough, both pass and both insert.
         $student = $this->licences->withCapacity($school, function () use ($school, $request, $validated) {
+            // Two admins registering the same child at the same moment queue
+            // here, so the second one sees the first one's record below.
+            School::whereKey($school->id)->lockForUpdate()->first();
+
+            // DUPLICATES ARE REFUSED BEFORE ANYTHING IS SAVED. The same check
+            // the bulk upload makes, so both ways of registering agree on
+            // what "already registered" means. No record is created, no
+            // photograph stored and no admission number used up.
+            $duplicate = ExistingStudentMatcher::forSchool($school, $validated['class_name'] ?? null)
+                ->find($validated);
+
+            if ($duplicate !== null) {
+                return DuplicateStudentNotice::for(Student::findOrFail($duplicate['student_id']), $duplicate['reason']);
+            }
+
             if ($school->auto_generate_admission_numbers) {
                 $validated['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $validated['class_name'] ?? null);
             }
@@ -84,6 +104,7 @@ class StudentController extends Controller
             return $school->students()->create([
                 ...Arr::except($validated, 'photo'),
                 'photo_path' => $this->storePhoto($request),
+                'registration_source' => RegistrationSource::Single,
             ]);
         });
 
@@ -91,6 +112,12 @@ class StudentController extends Controller
             return back()->withErrors([
                 'admission_number' => $this->licences->limitReachedMessage($school),
             ])->withInput();
+        }
+
+        if (is_array($student)) {
+            // The notice is the whole message: who is already registered,
+            // their admission number and every detail on the record.
+            return back()->with('duplicate_students', [$student]);
         }
 
         $this->applyCredentialFields($request, $student, 'admission_number', 'Admission Number');
@@ -157,9 +184,14 @@ class StudentController extends Controller
         }
 
         $name = $student->fullName();
+        $number = $student->admission_number;
         $student->delete();
 
-        return back()->with('status', "{$name} was removed successfully.");
+        // The admission number is free again: the next student registered
+        // is given its sequence, see IdentifierGenerator::nextAdmissionNumber().
+        return back()->with('status', $student->school->auto_generate_admission_numbers
+            ? "{$name} was removed successfully. Admission number {$number} is free and its number will be given to the next student you register."
+            : "{$name} was removed successfully.");
     }
 
     public function toggleActive(Student $student): RedirectResponse

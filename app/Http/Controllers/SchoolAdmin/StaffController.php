@@ -16,6 +16,7 @@ use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -55,6 +56,7 @@ class StaffController extends Controller
             'staff' => $staff,
             'totalCount' => $school->staff()->count(),
             'activeCount' => $school->staff()->where('is_active', true)->count(),
+            'nextStaffSequence' => $this->identifiers->peekStaffSequence($school),
         ]);
     }
 
@@ -67,7 +69,6 @@ class StaffController extends Controller
         // sometimes theirs would make "cannot be edited" untrue on some
         // schools and true on others.
         $validated = $request->validate($this->rules($school->id, null, autoGenerateStaffId: true));
-        $validated['staff_number'] = $this->identifiers->nextStaffId($school);
 
         if (StaffRole::from($validated['role']) === StaffRole::Teacher) {
             $limit = $school->teacherAccountLimit();
@@ -84,10 +85,17 @@ class StaffController extends Controller
             }
         }
 
-        $member = $school->staff()->create([
-            ...Arr::except($validated, 'photo'),
-            'photo_path' => $this->storePhoto($request),
-        ]);
+        // The ID is reserved and the record written in one transaction, with
+        // the school row locked: a freed Staff ID is reused, and two people
+        // added at the same moment must not both be handed it.
+        $member = DB::transaction(function () use ($school, $request, $validated) {
+            $validated['staff_number'] = $this->identifiers->nextStaffId($school);
+
+            return $school->staff()->create([
+                ...Arr::except($validated, 'photo'),
+                'photo_path' => $this->storePhoto($request),
+            ]);
+        });
 
         $this->applyCredentialFields($request, $member, 'staff_number', 'Staff ID');
 
@@ -150,37 +158,13 @@ class StaffController extends Controller
         }
 
         $name = $member->fullName();
-        $school = $member->school;
+        $staffId = $member->staff_number;
         $member->delete();
 
-        // Close the gap the deletion leaves, as the brief asks: removing
-        // STAFF-001 makes STAFF-002 into STAFF-001, and so on down the list.
-        //
-        // This renames other people's login identifiers, so it is reported
-        // rather than done quietly, anyone whose ID moved can no longer sign
-        // in with the one they were given, and has to be told the new one.
-        $moves = $this->identifiers->resequenceStaffIds($school);
-
-        if ($moves !== []) {
-            AuditLog::record(
-                'staff.ids.resequenced',
-                sprintf(
-                    'Renumbered %d Staff ID(s) after deleting %s: %s.',
-                    count($moves),
-                    $name,
-                    collect($moves)->map(fn ($to, $from) => "{$from} → {$to}")->implode(', '),
-                ),
-                $school,
-            );
-
-            return back()->with('status', sprintf(
-                '%s was removed. %d Staff ID(s) moved up to close the gap. The affected staff will need their new ID.',
-                $name,
-                count($moves),
-            ));
-        }
-
-        return back()->with('status', "{$name} was removed successfully.");
+        // Nobody else's Staff ID changes. The deleted one is simply free
+        // again, and IdentifierGenerator issues it to the next staff member
+        // registered, before the numbering moves on.
+        return back()->with('status', "{$name} was removed successfully. Staff ID {$staffId} is free and will be given to the next staff member you add.");
     }
 
     public function toggleActive(Staff $member): RedirectResponse
