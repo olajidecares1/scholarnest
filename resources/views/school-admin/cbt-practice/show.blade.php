@@ -22,7 +22,7 @@
                 <div class="w-56">
                     <x-text-field name="class_name" label="Class Name" icon="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5" placeholder="e.g. Primary 4" required />
                 </div>
-                <button type="submit" class="btn h-11 rounded-[8px] bg-blue-600 px-4 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Grant Access</button>
+                <button type="submit" class="btn h-11 rounded-[8px] bg-blue-600 px-4 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"><i class="fa-solid fa-plus btn-icon" aria-hidden="true"></i> Grant Access</button>
             </form>
 
             @if ($grants->isNotEmpty())
@@ -32,8 +32,8 @@
                             {{ $grant->class_name }}
                             <form method="POST" action="{{ route('cbt-practice.grants.destroy', $grant) }}" onsubmit="return confirm('Remove {{ $examBody->name }} access for {{ $grant->class_name }}?');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="rounded-full p-1 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20">
-                                    <i class="fa-solid fa-xmark text-[12px] leading-none" aria-hidden="true"></i>
+                                <button type="submit" class="icon-btn icon-btn--delete icon-btn--sm" data-tooltip="Remove access" aria-label="Remove access for {{ $grant->class_name }}">
+                                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                 </button>
                             </form>
                         </span>
