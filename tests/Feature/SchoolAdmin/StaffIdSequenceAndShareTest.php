@@ -4,7 +4,6 @@ use App\Enums\Gender;
 use App\Enums\PlanKey;
 use App\Enums\StaffRole;
 use App\Enums\UserRole;
-use App\Models\AuditLog;
 use App\Models\Guardian;
 use App\Models\School;
 use App\Models\Staff;
@@ -14,10 +13,9 @@ use App\Models\User;
 /**
  * IDs the system owns, and the handover that follows.
  *
- * Three rules here, and the middle one is worth naming plainly: closing the
- * gap in the staff numbering RENAMES people's login identifiers. Anyone whose
- * ID moves can no longer sign in with the one they were given, and has to be
- * told the new one. That is what the sharing is for.
+ * Generated in the school's own sequence; a deleted staff member's ID is
+ * issued to the next person added, and nobody else's ID ever changes; and
+ * the details are handed over by sharing.
  */
 function sequenceSchool(PlanKey $planKey = PlanKey::Basic): array
 {
@@ -89,38 +87,36 @@ test('a parent gets a generated id of their own', function () {
 });
 
 // -----------------------------------------------------------------------------
-// Closing the gap after a deletion
+// A deleted Staff ID is issued again
 // -----------------------------------------------------------------------------
 
-test('deleting a staff member closes the gap in the numbering', function () {
+test('deleting a staff member leaves everyone else\'s id alone', function () {
     [$school, $admin] = sequenceSchool();
 
     foreach (['One', 'Two', 'Three', 'Four'] as $name) {
         hireStaff($admin, $name);
     }
 
-    $first = Staff::where('staff_number', 'ZHTVVT-STAFF-001')->firstOrFail();
+    $this->actingAs($admin)->delete(route('staff.destroy', Staff::where('staff_number', 'ZHTVVT-STAFF-001')->firstOrFail()))->assertRedirect();
 
-    $this->actingAs($admin)->delete(route('staff.destroy', $first))->assertRedirect();
-
-    // 002 becomes 001, 003 becomes 002, 004 becomes 003.
+    // Nobody is renamed: their Staff ID is what they sign in with.
     expect(Staff::where('school_id', $school->id)->orderBy('id')->pluck('staff_number')->all())
-        ->toBe(['ZHTVVT-STAFF-001', 'ZHTVVT-STAFF-002', 'ZHTVVT-STAFF-003']);
+        ->toBe(['ZHTVVT-STAFF-002', 'ZHTVVT-STAFF-003', 'ZHTVVT-STAFF-004']);
 });
 
-test('the gap closes whichever number is deleted', function (int $deleteIndex) {
+test('the deleted staff id is given to the next staff member added', function (int $deleteIndex) {
     [$school, $admin] = sequenceSchool();
 
     foreach (['One', 'Two', 'Three', 'Four'] as $name) {
         hireStaff($admin, $name);
     }
 
-    $target = Staff::where('staff_number', sprintf('ZHTVVT-STAFF-%03d', $deleteIndex))->firstOrFail();
+    $this->actingAs($admin)->delete(route('staff.destroy', Staff::where('staff_number', sprintf('ZHTVVT-STAFF-%03d', $deleteIndex))->firstOrFail()));
 
-    $this->actingAs($admin)->delete(route('staff.destroy', $target));
+    hireStaff($admin, 'New');
 
-    expect(Staff::where('school_id', $school->id)->orderBy('id')->pluck('staff_number')->all())
-        ->toBe(['ZHTVVT-STAFF-001', 'ZHTVVT-STAFF-002', 'ZHTVVT-STAFF-003']);
+    expect(Staff::where('last_name', 'New')->firstOrFail()->staff_number)->toBe(sprintf('ZHTVVT-STAFF-%03d', $deleteIndex))
+        ->and($school->fresh()->next_staff_sequence)->toBe(5);
 })->with([
     'first' => 1,
     'second' => 2,
@@ -128,84 +124,60 @@ test('the gap closes whichever number is deleted', function (int $deleteIndex) {
     'last' => 4,
 ]);
 
-test('the next hire takes the number after the last one in use', function () {
+test('several freed ids are reused lowest first, then the numbering carries on', function () {
     [$school, $admin] = sequenceSchool();
 
-    foreach (['One', 'Two', 'Three'] as $name) {
+    foreach (['One', 'Two', 'Three', 'Four'] as $name) {
         hireStaff($admin, $name);
     }
 
-    $this->actingAs($admin)->delete(route('staff.destroy', Staff::where('staff_number', 'ZHTVVT-STAFF-002')->firstOrFail()));
+    foreach (['ZHTVVT-STAFF-003', 'ZHTVVT-STAFF-001'] as $number) {
+        $this->actingAs($admin)->delete(route('staff.destroy', Staff::where('staff_number', $number)->firstOrFail()));
+    }
 
-    hireStaff($admin, 'Four');
+    hireStaff($admin, 'Five');
+    hireStaff($admin, 'Six');
+    hireStaff($admin, 'Seven');
 
-    // The sequence stays closed rather than resuming past the gap.
-    expect(Staff::where('school_id', $school->id)->orderBy('id')->pluck('staff_number')->all())
-        ->toBe(['ZHTVVT-STAFF-001', 'ZHTVVT-STAFF-002', 'ZHTVVT-STAFF-003']);
+    expect(Staff::whereIn('last_name', ['Five', 'Six', 'Seven'])->orderBy('id')->pluck('staff_number')->all())
+        ->toBe(['ZHTVVT-STAFF-001', 'ZHTVVT-STAFF-003', 'ZHTVVT-STAFF-005']);
 });
 
-test('the school is told that ids moved, and it is recorded', function () {
+test('the school is told the freed id will be reused', function () {
     [$school, $admin] = sequenceSchool();
-
-    foreach (['One', 'Two', 'Three'] as $name) {
-        hireStaff($admin, $name);
-    }
+    hireStaff($admin, 'One');
 
     $this->actingAs($admin)
         ->delete(route('staff.destroy', Staff::where('staff_number', 'ZHTVVT-STAFF-001')->firstOrFail()))
-        ->assertSessionHas('status', fn (string $status) => str_contains($status, 'moved up to close the gap'));
-
-    // Renaming somebody's login identifier is not something to do quietly:
-    // they can no longer sign in with the ID they were given.
-    $this->assertDatabaseHas('audit_logs', ['action' => 'staff.ids.resequenced']);
-
-    expect(AuditLog::where('action', 'staff.ids.resequenced')->first()->description)
-        ->toContain('ZHTVVT-STAFF-002 → ZHTVVT-STAFF-001');
-});
-
-test('deleting the last staff member says nothing about renumbering', function () {
-    [$school, $admin] = sequenceSchool();
-
-    foreach (['One', 'Two'] as $name) {
-        hireStaff($admin, $name);
-    }
-
-    // Nothing moved, so there is nothing to report.
-    $this->actingAs($admin)
-        ->delete(route('staff.destroy', Staff::where('staff_number', 'ZHTVVT-STAFF-002')->firstOrFail()))
-        ->assertSessionHas('status', fn (string $status) => ! str_contains($status, 'moved up'));
-
-    expect(Staff::where('school_id', $school->id)->pluck('staff_number')->all())->toBe(['ZHTVVT-STAFF-001']);
+        ->assertSessionHas('status', fn (string $status) => str_contains($status, 'ZHTVVT-STAFF-001 is free'));
 });
 
 test('a school that numbers its own staff is left alone', function () {
     [$school, $admin] = sequenceSchool();
 
-    // Not this system's format, so not this system's to renumber. A school
-    // with its own scheme has a reason for it.
+    // Not this system's format, so not part of its sequence.
     Staff::factory()->create(['school_id' => $school->id, 'staff_number' => 'LEGACY-A']);
     Staff::factory()->create(['school_id' => $school->id, 'staff_number' => 'LEGACY-B']);
     hireStaff($admin, 'Generated');
 
-    $generated = Staff::where('staff_number', 'like', 'ZHTVVT-STAFF-%')->firstOrFail();
-    $this->actingAs($admin)->delete(route('staff.destroy', $generated));
+    $this->actingAs($admin)->delete(route('staff.destroy', Staff::where('staff_number', 'LEGACY-A')->firstOrFail()));
+    hireStaff($admin, 'Next');
 
     expect(Staff::where('school_id', $school->id)->orderBy('id')->pluck('staff_number')->all())
-        ->toBe(['LEGACY-A', 'LEGACY-B']);
+        ->toBe(['LEGACY-B', 'ZHTVVT-STAFF-001', 'ZHTVVT-STAFF-002']);
 });
 
-test('one school\'s deletion does not renumber another\'s', function () {
+test('one school\'s freed id is not given to another school', function () {
     [$schoolA, $adminA] = sequenceSchool();
     $schoolB = School::factory()->create(['school_code' => 'OTHER']);
     activateSchool($schoolB, PlanKey::Basic);
     $adminB = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $schoolB->id]);
 
     hireStaff($adminA, 'A One');
-    hireStaff($adminA, 'A Two');
     hireStaff($adminB, 'B One');
-    hireStaff($adminB, 'B Two');
 
     $this->actingAs($adminA)->delete(route('staff.destroy', Staff::where('staff_number', 'ZHTVVT-STAFF-001')->firstOrFail()));
+    hireStaff($adminB, 'B Two');
 
     expect(Staff::where('school_id', $schoolB->id)->orderBy('id')->pluck('staff_number')->all())
         ->toBe(['OTHER-STAFF-001', 'OTHER-STAFF-002']);

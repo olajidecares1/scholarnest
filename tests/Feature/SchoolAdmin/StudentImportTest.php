@@ -587,13 +587,15 @@ test('with generated admission numbers, a re-uploaded register does not create a
         ->and(collect([$byNumber, $byBirthday, $byPhone, $byClass])->map(fn ($s) => snapshotStudent($s))->all())->toBe($before);
 });
 
-test('the same name in a different class with nothing else in common is a different child and is imported', function () {
-    Student::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Musa', 'last_name' => 'Ibrahim', 'class_name' => 'JSS 1', 'date_of_birth' => null, 'guardian_phone' => null]);
+test('the same name in a different class is already registered and is not imported again', function () {
+    $existing = Student::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Musa', 'last_name' => 'Ibrahim', 'class_name' => 'JSS 1', 'date_of_birth' => null, 'guardian_phone' => null]);
 
     $token = uploadList($this, importCsv("Admission Number,First Name,Last Name,Gender\nM-9,Musa,Ibrahim,M\n"), 'Primary 3');
     $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
 
-    expect(Student::where('first_name', 'Musa')->count())->toBe(2);
+    // The school's rule: a name already registered is refused.
+    expect(Student::where('first_name', 'Musa')->count())->toBe(1)
+        ->and(Student::where('first_name', 'Musa')->value('id'))->toBe($existing->id);
 });
 
 test('a student registered while the preview was open is still skipped and left unchanged', function () {
