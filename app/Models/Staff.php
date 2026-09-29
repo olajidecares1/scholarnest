@@ -7,6 +7,7 @@ use App\Enums\StaffRole;
 use App\Enums\TeacherAssignmentType;
 use App\Models\Concerns\HasProtectedPhoto;
 use App\Models\Concerns\HasSignature;
+use App\Services\IdentifierGenerator;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\StaffFactory;
 use Illuminate\Auth\Authenticatable;
@@ -34,6 +35,15 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
      * @var string
      */
     protected $table = 'staff';
+
+    /**
+     * A deleted record's admission number / Staff ID goes back in the pool
+     * and is given to the next one registered.
+     */
+    protected static function booted(): void
+    {
+        static::deleted(fn (self $record) => app(IdentifierGenerator::class)->release($record));
+    }
 
     /**
      * The attributes that are mass assignable.
