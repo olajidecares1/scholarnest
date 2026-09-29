@@ -13,9 +13,9 @@
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <h4 class="text-xs font-bold uppercase tracking-wide text-gray-700 dark:text-gray-200" x-text="selectedBlock.type + ' block'"></h4>
-                <div class="flex items-center gap-2">
-                    <button type="button" @click="removeBlock(selectedBlock.section, selectedBlock.uuid)" class="text-xs font-semibold text-red-500 hover:text-red-700">Delete</button>
-                    <button type="button" @click="deselect()" class="text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Close</button>
+                <div class="icon-btn-group">
+                    <button type="button" @click="removeBlock(selectedBlock.section, selectedBlock.uuid)" class="icon-btn icon-btn--delete icon-btn--sm" data-tooltip="Delete block" aria-label="Delete block"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+                    <button type="button" @click="deselect()" class="icon-btn icon-btn--neutral icon-btn--sm" data-tooltip="Close" aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </div>
             </div>
 

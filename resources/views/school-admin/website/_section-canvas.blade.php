@@ -13,9 +13,9 @@
             @endif
         </div>
         <div class="flex shrink-0 gap-1" x-show="! preview">
-            <button type="button" @click="addBlock('{{ $sectionKey }}', 'text')" class="rounded-[6px] px-2 py-1 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">+ Text</button>
-            <button type="button" @click="addBlock('{{ $sectionKey }}', 'button')" class="rounded-[6px] px-2 py-1 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">+ Button</button>
-            <button type="button" @click="addBlock('{{ $sectionKey }}', 'card')" class="rounded-[6px] px-2 py-1 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">+ Card</button>
+            <button type="button" @click="addBlock('{{ $sectionKey }}', 'text')" class="inline-flex items-center gap-2 rounded-[6px] px-2 py-1 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"><i class="fa-solid fa-plus" aria-hidden="true"></i> Text</button>
+            <button type="button" @click="addBlock('{{ $sectionKey }}', 'button')" class="inline-flex items-center gap-2 rounded-[6px] px-2 py-1 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"><i class="fa-solid fa-plus" aria-hidden="true"></i> Button</button>
+            <button type="button" @click="addBlock('{{ $sectionKey }}', 'card')" class="inline-flex items-center gap-2 rounded-[6px] px-2 py-1 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"><i class="fa-solid fa-plus" aria-hidden="true"></i> Card</button>
         </div>
     </div>
     <div class="mt-2">
