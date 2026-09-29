@@ -12,7 +12,7 @@
                 Back to Examinations
             </a>
             <a href="{{ route('examinations.report-cards.index', $examination) }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                View Report Cards
+                <i class="fa-solid fa-file-lines btn-icon" aria-hidden="true"></i> View Report Cards
             </a>
         </div>
 
@@ -70,11 +70,11 @@
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $subject->testMaxScore() }} / {{ $subject->examMaxScore() }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $subject->scores_count }} / {{ $studentCount }}</td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('examinations.scores', $subject) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Enter Scores</a>
+                                    <div class="icon-btn-group">
+                                        <a href="{{ route('examinations.scores', $subject) }}" class="icon-btn icon-btn--edit" data-tooltip="Enter scores" aria-label="Enter scores for {{ $subject->name }}"><i class="fa-solid fa-table-cells" aria-hidden="true"></i></a>
                                         <form method="POST" action="{{ route('examinations.subjects.destroy', $subject) }}" onsubmit="return confirm('Remove {{ $subject->name }}? All scores for it will be deleted.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Remove</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Remove subject" aria-label="Remove {{ $subject->name }}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -108,8 +108,8 @@
                     @endif
                     <small class="field-hint">Scored as Test /40 + Exam /60, out of 100 total.</small>
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Add Subject</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-plus btn-icon" aria-hidden="true"></i> Add Subject</button>
                     </div>
                 </form>
             </div>
