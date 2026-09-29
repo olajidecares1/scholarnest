@@ -53,14 +53,14 @@
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">&#8358;{{ number_format((float) $structure->amount, 2) }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $structure->invoices_count }}</td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
+                                    <div class="icon-btn-group">
                                         <form method="POST" action="{{ route('finance.generate', $structure) }}" onsubmit="return confirm('Generate invoices for every matching active student who doesn\'t already have one?');">
                                             @csrf
-                                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Generate Invoices</button>
+                                            <button type="submit" class="icon-btn icon-btn--add" data-tooltip="Generate invoices" aria-label="Generate invoices"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></button>
                                         </form>
                                         <form method="POST" action="{{ route('finance.destroy', $structure) }}" onsubmit="return confirm('Delete {{ $structure->name }}?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete fee structure" aria-label="Delete fee structure"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -94,8 +94,8 @@
                     </div>
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Create Fee Structure</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-plus btn-icon" aria-hidden="true"></i> Create Fee Structure</button>
                     </div>
                 </form>
             </div>
