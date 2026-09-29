@@ -84,6 +84,7 @@ Route::name('students.')->group(function () {
     Route::get(R::uri('students.show').'/{student}', [StudentController::class, 'show'])->name('show');
     Route::put(R::uri('students.update').'/{student}', [StudentController::class, 'update'])->name('update');
     Route::delete(R::uri('students.destroy').'/{student}', [StudentController::class, 'destroy'])->name('destroy');
+    Route::delete(R::uri('students.bulk-destroy'), [StudentController::class, 'bulkDestroy'])->name('bulk-destroy');
     Route::post(R::uri('students.toggle-active').'/{student}', [StudentController::class, 'toggleActive'])->name('toggle-active');
     Route::put(R::uri('students.update-password').'/{student}', [StudentController::class, 'updatePassword'])->name('update-password');
 
