@@ -57,7 +57,7 @@
                     type="submit"
                     class="btn flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
                 >
-                    Save Theme
+                    <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Theme
                 </button>
             </form>
         </div>
@@ -86,7 +86,7 @@
                         required
                         class="flex-1"
                     >
-                    <button type="submit" class="btn rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">Upload</button>
+                    <button type="submit" class="btn rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600"><i class="fa-solid fa-upload btn-icon" aria-hidden="true"></i> Upload</button>
                 </form>
             </div>
 
@@ -118,7 +118,7 @@
                         required
                         class="flex-1"
                     >
-                    <button type="submit" class="btn rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">Upload</button>
+                    <button type="submit" class="btn rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600"><i class="fa-solid fa-upload btn-icon" aria-hidden="true"></i> Upload</button>
                 </form>
             </div>
 
