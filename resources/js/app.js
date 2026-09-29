@@ -12,6 +12,7 @@ import { registerIdCardPreviewStore } from './id-card-preview-modal';
 import galleryViewer from './gallery-viewer';
 import { installImageUploadPrep } from './image-upload-prep';
 import { installActivityKeepAlive } from './session-keep-alive';
+import { installActionTooltips } from './action-tooltips';
 import marqueeList from './marquee-list';
 import reportEvidence from './report-evidence';
 import { registerResultPreviewStore } from './result-preview-modal';
@@ -41,6 +42,9 @@ installImageUploadPrep();
 
 // Using a signed-in page counts as activity for the portal idle timeout.
 installActivityKeepAlive();
+
+// Hover, focus and long-press tooltips for every icon action button.
+installActionTooltips();
 
 Alpine.start();
 
