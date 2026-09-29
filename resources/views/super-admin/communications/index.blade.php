@@ -70,7 +70,7 @@
                         type="submit"
                         class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
                     >
-                        Send Announcement
+                        <i class="fa-solid fa-paper-plane btn-icon" aria-hidden="true"></i> Send Announcement
                     </button>
                 </form>
             </div>
