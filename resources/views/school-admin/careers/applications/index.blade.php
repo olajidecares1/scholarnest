@@ -16,8 +16,8 @@
                 <x-text-field name="q" icon="fa-magnifying-glass" :value="$filters['q'] ?? null" placeholder="Search by name, email or phone" aria-label="Search applicants" />
                 <x-select-field name="job" icon="fa-briefcase" :options="$jobOptions" :selected="$filters['job'] ?? ''" aria-label="Vacancy" />
                 <x-select-field name="status" icon="fa-filter" :options="$statusOptions" :selected="$filters['status'] ?? ''" aria-label="Status" />
-                <button type="submit" class="btn inline-flex h-[var(--field-height)] items-center justify-center gap-2 rounded-[8px] bg-primary-600 px-4 text-[13px] font-bold text-white hover:bg-primary-700">
-                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Search
+                <button type="submit" class="icon-btn icon-btn--neutral self-center" data-tooltip="Search" aria-label="Search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                 </button>
             </form>
 
