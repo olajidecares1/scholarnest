@@ -38,12 +38,12 @@
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ count($role->permissions) }} permission(s)</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $role->users_count }}</td>
                                 <td class="px-5 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('super-admin.roles.edit', $role) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</a>
+                                    <div class="icon-btn-group">
+                                        <a href="{{ route('super-admin.roles.edit', $role) }}" class="icon-btn icon-btn--edit" data-tooltip="Edit role" aria-label="Edit role"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
                                         <form method="POST" action="{{ route('super-admin.roles.destroy', $role) }}" onsubmit="return confirm('Delete {{ $role->name }}? Team members using it will get full access.');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete role" aria-label="Delete role"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
