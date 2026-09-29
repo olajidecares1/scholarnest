@@ -40,8 +40,8 @@
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Student Result</h3>
                 <small class="block truncate text-xs font-mono text-gray-500 dark:text-gray-400" x-show="$store.resultPreview.cardNumber" x-text="$store.resultPreview.cardNumber"></small>
             </div>
-            <button type="button" @click="$store.resultPreview.close()" class="shrink-0 rounded-[8px] p-2 text-gray-400 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200">
-                <i class="fa-solid fa-xmark text-[17px] leading-none" aria-hidden="true"></i>
+            <button type="button" @click="$store.resultPreview.close()" class="icon-btn icon-btn--neutral shrink-0" data-tooltip="Close" aria-label="Close">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
             </button>
         </div>
 
@@ -70,11 +70,11 @@
 
                 <div x-show="$store.resultPreview.tab === 'report-card'" style="display: none;" class="space-y-3">
                     <div class="flex flex-wrap items-center justify-center gap-2 rounded-[8px] bg-gray-100 p-2 dark:bg-gray-900/40">
-                        <button type="button" @click="$store.resultPreview.zoomOut()" class="flex h-7 w-7 items-center justify-center rounded-[6px] border border-gray-300 bg-white text-sm font-bold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">&minus;</button>
-                        <button type="button" @click="$store.resultPreview.zoomReset()" class="w-14 rounded-[6px] px-1 py-1 text-center text-xs font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700" x-text="Math.round($store.resultPreview.zoom * 100) + '%'"></button>
-                        <button type="button" @click="$store.resultPreview.zoomIn()" class="flex h-7 w-7 items-center justify-center rounded-[6px] border border-gray-300 bg-white text-sm font-bold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">+</button>
+                        <button type="button" @click="$store.resultPreview.zoomOut()" class="icon-btn icon-btn--neutral icon-btn--sm" data-tooltip="Zoom out" aria-label="Zoom out"><i class="fa-solid fa-magnifying-glass-minus" aria-hidden="true"></i></button>
+                        <button type="button" @click="$store.resultPreview.zoomReset()" data-tooltip="Reset zoom" aria-label="Reset zoom" class="w-14 rounded-[6px] px-1 py-1 text-center text-xs font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700" x-text="Math.round($store.resultPreview.zoom * 100) + '%'"></button>
+                        <button type="button" @click="$store.resultPreview.zoomIn()" class="icon-btn icon-btn--neutral icon-btn--sm" data-tooltip="Zoom in" aria-label="Zoom in"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i></button>
                         <span class="mx-0.5 h-4 w-px bg-gray-300 dark:bg-gray-600"></span>
-                        <button type="button" @click="$store.resultPreview.fitToScreen()" class="btn rounded-[6px] border border-gray-300 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">Fit to Screen</button>
+                        <button type="button" @click="$store.resultPreview.fitToScreen()" class="icon-btn icon-btn--neutral icon-btn--sm" data-tooltip="Fit to screen" aria-label="Fit to screen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
                     </div>
                     <div id="result-report-card-container" class="flex justify-center overflow-auto rounded-[8px] py-2" style="max-height: 70vh;">
                         <div id="result-report-card-content" :style="'transform: scale(' + $store.resultPreview.zoom + '); transform-origin: top center; transition: transform 150ms ease-out;'" x-html="$store.resultPreview.reportCardHtml"></div>
@@ -109,8 +109,8 @@
                         :disabled="$store.resultPreview.sending || (!$store.resultPreview.recipients.student && !$store.resultPreview.recipients.guardians)"
                         class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
                     >
-                        <span x-show="$store.resultPreview.sending">Sending&hellip;</span>
-                        <span x-show="!$store.resultPreview.sending">Send Result</span>
+                        <span x-show="$store.resultPreview.sending" class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Sending&hellip;</span>
+                        <span x-show="!$store.resultPreview.sending" class="inline-flex items-center gap-2"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Result</span>
                     </button>
                 </div>
                 @endif
@@ -126,6 +126,7 @@
                         :disabled="!$store.resultPreview.hasScores"
                         class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
+                        <i class="fa-solid fa-print btn-icon" aria-hidden="true"></i>
                         Print
                     </button>
                 @endif
@@ -137,8 +138,8 @@
                         :disabled="$store.resultPreview.downloading || !$store.resultPreview.hasScores"
                         class="btn flex min-w-[9rem] items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
                     >
-                        <span x-show="$store.resultPreview.downloading">Downloading&hellip;</span>
-                        <span x-show="!$store.resultPreview.downloading">Download PDF</span>
+                        <span x-show="$store.resultPreview.downloading" class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Downloading&hellip;</span>
+                        <span x-show="!$store.resultPreview.downloading" class="inline-flex items-center gap-2"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Download PDF</span>
                     </button>
                 @endif
             </div>

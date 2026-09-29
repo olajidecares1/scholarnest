@@ -56,7 +56,7 @@
                         x-show="current"
                         x-on:click="withdraw()"
                         class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 transition-colors duration-200 hover:border-red-300 hover:text-red-600 dark:border-gray-600 dark:text-gray-300"
-                    >Remove</button>
+                    ><i class="fa-solid fa-trash-can btn-icon" aria-hidden="true"></i> Remove</button>
                 @endif
             </div>
 
@@ -82,8 +82,8 @@
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $title }}</h3>
                     <small class="field-hint mt-0.5">Draw your signature here. Use your finger, a stylus, or your mouse.</small>
                 </div>
-                <button type="button" x-on:click="close()" aria-label="Close" class="rounded-[6px] px-2 py-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <i class="fa-solid fa-xmark"></i>
+                <button type="button" x-on:click="close()" class="icon-btn icon-btn--neutral shrink-0" data-tooltip="Close" aria-label="Close">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </div>
 
@@ -115,15 +115,14 @@
             </a>
 
             <div class="mt-4 flex flex-wrap items-center justify-end gap-2">
-                <button type="button" x-on:click="close()" class="rounded-[8px] px-4 py-2 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400">Cancel</button>
-                <button type="button" x-on:click="clear()" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300">Clear</button>
+                <button type="button" x-on:click="close()" class="inline-flex items-center gap-2 rounded-[8px] px-4 py-2 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel</button>
+                <button type="button" x-on:click="clear()" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300"><i class="fa-solid fa-eraser btn-icon" aria-hidden="true"></i> Clear</button>
                 <button
                     type="button"
                     x-on:click="save()"
                     :disabled="! hasDrawing || saving"
                     class="btn rounded-[8px] bg-primary-600 px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-                    x-text="saving ? 'Saving…' : 'Save Signature'"
-                ></button>
+                ><i class="fa-solid btn-icon" :class="saving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'" aria-hidden="true"></i> <span x-text="saving ? 'Saving…' : 'Save Signature'">Save Signature</span></button>
             </div>
         </div>
     </div>

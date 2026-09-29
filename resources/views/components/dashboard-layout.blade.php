@@ -211,6 +211,7 @@
                         href="{{ route('subscriptions.choose-plan') }}"
                         class="btn mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-2 text-xs font-semibold text-gray-900 dark:text-gray-100 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:scale-[0.97]"
                     >
+                        <i class="fa-solid fa-rocket btn-icon" aria-hidden="true"></i>
                         {{ $subscription ? 'Upgrade Plan' : 'Choose a Plan' }}
                     </a>
                 </div>
@@ -222,6 +223,7 @@
                         href="{{ route('support-tickets.create') }}"
                         class="btn mt-3 inline-flex w-full items-center justify-center rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-[#111a35] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]"
                     >
+                        <i class="fa-solid fa-headset btn-icon" aria-hidden="true"></i>
                         Contact Support
                     </a>
                 </div>
@@ -371,32 +373,34 @@
                          for help, this is the public writing to the school. --}}
                     <a
                         href="{{ route('inbox.index') }}"
-                        class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800"
-                        title="Inbox"
+                        class="icon-btn icon-btn--neutral"
+                        data-tooltip="Inbox"
+                        aria-label="Inbox"
                     >
-                        <i class="fa-solid fa-envelope text-[17px]" aria-hidden="true"></i>
-                        @if ($inboxCount > 0)
+                        <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                        @if($inboxCount > 0)
                             <span class="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">{{ min($inboxCount, 99) }}</span>
                         @endif
                     </a>
 
                     <a
                         href="{{ route('support-tickets.index') }}"
-                        class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800"
-                        title="Support Tickets"
+                        class="icon-btn icon-btn--neutral"
+                        data-tooltip="Support Tickets"
+                        aria-label="Support Tickets"
                     >
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        @if ($openTicketsCount > 0)
+                        @if($openTicketsCount > 0)
                             <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">{{ min($openTicketsCount, 99) }}</span>
                         @endif
                     </a>
 
                     <div class="relative" x-data="{ open: false }">
-                        <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800">
-                            <i class="fa-solid fa-bell text-[17px] leading-none" aria-hidden="true"></i>
-                            @if ($unreadCount > 0)
+                        <button type="button" @click="open = !open" @click.outside="open = false" class="icon-btn icon-btn--neutral" data-tooltip="Notifications" aria-label="Notifications">
+                            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                            @if($unreadCount > 0)
                                 <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
                             @endif
                         </button>
@@ -417,7 +421,7 @@
                                 @if ($unreadCount > 0)
                                     <form method="POST" action="{{ route('notifications.read-all') }}">
                                         @csrf
-                                        <button type="submit" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Mark all read</button>
+                                        <button type="submit" class="icon-btn icon-btn--approve icon-btn--sm" data-tooltip="Mark all read" aria-label="Mark all read"><i class="fa-solid fa-check-double" aria-hidden="true"></i></button>
                                     </form>
                                 @endif
                             </div>
@@ -455,20 +459,14 @@
                             localStorage.theme = dark ? 'dark' : 'light';
                             window.dispatchEvent(new CustomEvent('theme-changed', { detail: { dark } }));
                         "
-                        :class="dark ? 'bg-blue-600' : 'bg-gray-300'"
-                        class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out active:scale-95 dark:bg-gray-600"
+                        class="icon-btn icon-btn--neutral"
                         role="switch"
                         :aria-checked="dark.toString()"
-                        title="Toggle dark mode"
+                        data-tooltip="Toggle dark mode"
+                        aria-label="Toggle dark mode"
                     >
-                        <span class="sr-only">Toggle dark mode</span>
-                        <span
-                            :class="dark ? 'translate-x-5' : 'translate-x-0.5'"
-                            class="inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md ring-0 transition-transform duration-300 ease-in-out"
-                        >
-                            <i x-show="!dark" class="fa-solid fa-sun text-amber-500 text-[10px] leading-none" aria-hidden="true"></i>
-                            <i x-show="dark" style="display: none;" class="fa-solid fa-moon text-blue-600 text-[10px] leading-none" aria-hidden="true"></i>
-                        </span>
+                        <i x-show="!dark" class="fa-solid fa-moon" aria-hidden="true"></i>
+                        <i x-show="dark" style="display: none;" class="fa-solid fa-sun" aria-hidden="true"></i>
                     </button>
                 </div>
 

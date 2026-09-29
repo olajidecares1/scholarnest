@@ -53,6 +53,7 @@
             @click="reset()"
             class="btn mt-3 rounded-[8px] bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-amber-700"
         >
+            <i class="fa-solid fa-rotate-right btn-icon" aria-hidden="true"></i>
             Stay signed in
         </button>
     </div>

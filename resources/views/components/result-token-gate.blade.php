@@ -111,8 +111,9 @@
                             <button
                                 type="button"
                                 @click="open = false"
-                                class="h-[38px] flex-1 rounded-[8px] border border-gray-300 text-[13px] font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                class="inline-flex h-[38px] flex-1 items-center justify-center gap-2 rounded-[8px] border border-gray-300 text-[13px] font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                             >
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                 Cancel
                             </button>
 
@@ -123,10 +124,10 @@
                             <button
                                 type="submit"
                                 :disabled="submitting"
-                                class="h-[38px] flex-1 rounded-[8px] bg-primary-500 text-[13px] font-bold text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-70"
+                                class="inline-flex h-[38px] flex-1 items-center justify-center gap-2 rounded-[8px] bg-primary-500 text-[13px] font-bold text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-70"
                             >
-                                <span x-show="! submitting">Check Result</span>
-                                <span x-show="submitting" x-cloak>Checking&hellip;</span>
+                                <span x-show="! submitting" class="inline-flex items-center gap-2"><i class="fa-solid fa-unlock-keyhole" aria-hidden="true"></i> Check Result</span>
+                                <span x-show="submitting" x-cloak class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Checking&hellip;</span>
                             </button>
                         </div>
                     </form>

@@ -85,9 +85,9 @@
                     />
 
                     <div class="relative" x-data="{ open: false }">
-                        <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-9 w-9 items-center justify-center rounded-[6px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-white hover:text-blue-600 hover:shadow-sm active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800">
-                            <i class="fa-solid fa-bell fa-fw text-[17px] leading-none"></i>
-                            @if ($unreadCount > 0)
+                        <button type="button" @click="open = !open" @click.outside="open = false" class="icon-btn icon-btn--neutral" data-tooltip="Notifications" aria-label="Notifications">
+                            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                            @if($unreadCount > 0)
                                 <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
                             @endif
                         </button>
@@ -139,14 +139,14 @@
                             document.documentElement.classList.toggle('dark', dark);
                             localStorage.theme = dark ? 'dark' : 'light';
                         "
-                        :class="dark ? 'bg-blue-600' : 'bg-gray-300'"
-                        class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out active:scale-95 dark:bg-gray-600"
+                        class="icon-btn icon-btn--neutral"
                         role="switch"
                         :aria-checked="dark.toString()"
-                        title="Toggle dark mode"
+                        data-tooltip="Toggle dark mode"
+                        aria-label="Toggle dark mode"
                     >
-                        <span class="sr-only">Toggle dark mode</span>
-                        <span :class="dark ? 'translate-x-5' : 'translate-x-0.5'" class="inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md ring-0 transition-transform duration-300 ease-in-out"></span>
+                        <i x-show="!dark" class="fa-solid fa-moon" aria-hidden="true"></i>
+                        <i x-show="dark" style="display: none;" class="fa-solid fa-sun" aria-hidden="true"></i>
                     </button>
                 </div>
 
