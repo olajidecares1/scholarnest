@@ -108,6 +108,9 @@
                             :options="['' => 'All Classes'] + $academicLevels->flatMap->classes->pluck('name', 'name')->all()"
                         />
                     </div>
+                    @if (request('per_page'))
+                        <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                    @endif
                     <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Search" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
                     @if (request('search') || request('class'))
                         <a href="{{ route('students.index') }}" class="icon-btn icon-btn--neutral" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
@@ -135,10 +138,102 @@
                 </div>
             </div>
 
+            {{-- Several students deleted at once: tick them, then "Delete
+                 selected". The single delete on each row still works. --}}
+            <div
+                x-data="{
+                    selected: [],
+                    names: @js($students->mapWithKeys(fn ($s) => [$s->uuid => $s->fullName()])),
+                    confirming: false,
+                    get pageIds() { return Object.keys(this.names) },
+                    get allSelected() { return this.pageIds.length > 0 && this.selected.length === this.pageIds.length },
+                    get someSelected() { return this.selected.length > 0 && ! this.allSelected },
+                    toggleAll(on) { this.selected = on ? [...this.pageIds] : [] },
+                }"
+                @keydown.escape.window="confirming = false"
+            >
+            <div
+                x-show="selected.length"
+                x-cloak
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 -translate-y-1"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-y border-red-200 bg-red-50 px-6 py-3 dark:border-red-900/50 dark:bg-red-900/20"
+                role="region"
+                aria-label="Selected students"
+            >
+                <p class="text-sm font-semibold text-red-800 dark:text-red-300">
+                    <i class="fa-solid fa-square-check mr-1" aria-hidden="true"></i>
+                    <span x-text="selected.length"></span>
+                    <span x-text="selected.length === 1 ? 'student/pupil selected' : 'students/pupils selected'"></span>
+                </p>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" @click="selected = []" class="btn rounded-[8px] border border-gray-300 bg-white font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
+                        <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Clear selection
+                    </button>
+                    <button type="button" @click="confirming = true" class="btn rounded-[8px] bg-red-600 font-semibold text-white hover:bg-red-700">
+                        <i class="fa-solid fa-trash-can btn-icon" aria-hidden="true"></i> <span x-text="'Delete selected (' + selected.length + ')'">Delete selected</span>
+                    </button>
+                </div>
+            </div>
+
+            <form x-ref="bulkDelete" method="POST" action="{{ route('students.bulk-destroy') }}" class="hidden">
+                @csrf
+                @method('DELETE')
+                @foreach (request()->only('search', 'class', 'per_page') as $key => $value)
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endforeach
+                <template x-for="id in selected" :key="id">
+                    <input type="hidden" name="students[]" :value="id">
+                </template>
+            </form>
+
+            {{-- Confirm, naming everyone about to be deleted. --}}
+            <div x-show="confirming" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4" role="dialog" aria-modal="true" aria-labelledby="bulk-delete-title">
+                <div @click.outside="confirming = false" x-show="confirming" x-transition class="w-full max-w-md rounded-[10px] bg-white p-6 shadow-xl dark:bg-gray-800">
+                    <div class="flex items-start gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">
+                            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <h3 id="bulk-delete-title" class="text-base font-bold text-gray-900 dark:text-white">
+                                Delete <span x-text="selected.length"></span> <span x-text="selected.length === 1 ? 'student/pupil' : 'students/pupils'"></span>?
+                            </h3>
+                            <small class="mt-1 block text-sm text-gray-600 dark:text-gray-300">This cannot be undone. Their records, results links and login details will be removed.</small>
+                        </div>
+                    </div>
+                    <ul class="mt-4 max-h-48 space-y-1 overflow-y-auto rounded-[8px] bg-gray-50 p-3 text-sm text-gray-800 dark:bg-gray-900/50 dark:text-gray-200">
+                        <template x-for="id in selected" :key="id">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-user text-xs text-gray-400" aria-hidden="true"></i><span x-text="names[id]"></span></li>
+                        </template>
+                    </ul>
+                    <div class="mt-5 flex justify-end gap-2">
+                        <button type="button" @click="confirming = false" class="btn rounded-[8px] border border-gray-300 font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                            <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel
+                        </button>
+                        <button type="button" @click="$refs.bulkDelete.submit()" class="btn rounded-[8px] bg-red-600 font-semibold text-white hover:bg-red-700">
+                            <i class="fa-solid fa-trash-can btn-icon" aria-hidden="true"></i> <span x-text="'Delete ' + selected.length">Delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
+                            <th class="w-10 py-3 pl-6 pr-0">
+                                <input
+                                    type="checkbox"
+                                    class="h-4 w-4 cursor-pointer rounded border-gray-300 text-red-600 focus:ring-red-500"
+                                    :checked="allSelected"
+                                    :indeterminate="someSelected"
+                                    @change="toggleAll($event.target.checked)"
+                                    :disabled="pageIds.length === 0"
+                                    aria-label="Select every student on this page"
+                                    data-tooltip="Select all on this page"
+                                >
+                            </th>
                             <th class="px-6 py-3 font-semibold">Student</th>
                             <th class="px-6 py-3 font-semibold">Admission No.</th>
                             <th class="px-6 py-3 font-semibold">Class</th>
@@ -149,7 +244,16 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($students as $student)
-                            <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50" :class="selected.includes(@js($student->uuid)) && '!bg-red-50/70 dark:!bg-red-900/15'">
+                                <td class="w-10 py-3 pl-6 pr-0">
+                                    <input
+                                        type="checkbox"
+                                        class="h-4 w-4 cursor-pointer rounded border-gray-300 text-red-600 focus:ring-red-500"
+                                        value="{{ $student->uuid }}"
+                                        x-model="selected"
+                                        aria-label="Select {{ $student->fullName() }}"
+                                    >
+                                </td>
                                 <td class="px-6 py-3">
                                     <a href="{{ route('students.show', $student) }}" class="flex items-center gap-3">
                                         @if ($student->photoUrl())
@@ -214,7 +318,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                                <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                                     @if (request('search') || request('class'))
                                         No students match your filters.
                                     @else
@@ -227,11 +331,26 @@
                 </table>
             </div>
 
-            @if ($students->hasPages())
-                <div class="border-t border-gray-100 p-4 dark:border-gray-700">
-                    {{ $students->links() }}
-                </div>
-            @endif
+            <div class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 p-4 dark:border-gray-700">
+                {{-- More per page, so a larger batch can be ticked at once. --}}
+                <form method="GET" action="{{ route('students.index') }}" class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    @foreach (request()->only('search', 'class') as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+                    <label for="per_page">Show</label>
+                    <select id="per_page" name="per_page" class="w-20" onchange="this.form.submit()">
+                        @foreach ([15, 50, 100] as $size)
+                            <option value="{{ $size }}" @selected($students->perPage() === $size)>{{ $size }}</option>
+                        @endforeach
+                    </select>
+                    <span>per page</span>
+                </form>
+
+                @if ($students->hasPages())
+                    <div class="min-w-0 flex-1">{{ $students->links() }}</div>
+                @endif
+            </div>
+            </div>
         </div>
 
         {{-- Add/Edit Student modal --}}
