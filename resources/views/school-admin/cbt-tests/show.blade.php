@@ -30,7 +30,7 @@
         <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="flex items-center justify-between">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Manage Test</h2>
-                <button type="button" @click="editing = !editing" class="text-xs font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400" x-text="editing ? 'Cancel' : 'Edit Details'"></button>
+                <button type="button" @click="editing = !editing" class="icon-btn icon-btn--edit" data-tooltip="Edit details" aria-label="Edit details" :data-tooltip="editing ? 'Cancel editing' : 'Edit details'" :aria-label="editing ? 'Cancel editing' : 'Edit details'"><i class="fa-solid" :class="editing ? 'fa-xmark' : 'fa-pen-to-square'" aria-hidden="true"></i></button>
             </div>
 
             <form x-show="editing" style="display: none;" method="POST" action="{{ route('cbt-tests.update', $test) }}" class="mt-4 grid grid-cols-1 gap-4 border-b border-gray-100 pb-4 dark:border-gray-700 sm:grid-cols-2">
@@ -43,7 +43,7 @@
                     <x-text-field name="pass_mark" type="number" label="Pass Mark (%)" :value="$test->pass_mark" min="1" max="100" required />
                 </div>
                 <div class="sm:col-span-2">
-                    <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-700">Save Changes</button>
+                    <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Changes</button>
                 </div>
             </form>
 
@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 <div class="mt-3 flex flex-wrap gap-2">
-                    <button type="submit" name="status" value="draft" @disabled($test->hasStudentAttempts()) class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Save as Draft</button>
+                    <button type="submit" name="status" value="draft" @disabled($test->hasStudentAttempts()) class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save as Draft</button>
                     {{-- The same one-button toggle as the teacher's page, and
                          for the same reason: this sent "locked" whatever the
                          test's state, so on a locked test it did nothing. --}}
@@ -70,8 +70,8 @@
                         <i class="fa-solid {{ $isLocked ? 'fa-lock-open' : 'fa-lock' }} text-[12px]" aria-hidden="true"></i>
                         {{ $isLocked ? 'Unlock' : 'Lock' }}
                     </button>
-                    <button type="submit" name="status" value="published" class="btn rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700">Publish</button>
-                    <button type="submit" name="status" value="archived" class="btn rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
+                    <button type="submit" name="status" value="published" class="btn rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700"><i class="fa-solid fa-globe btn-icon" aria-hidden="true"></i> Publish</button>
+                    <button type="submit" name="status" value="archived" class="btn rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"><i class="fa-solid fa-box-archive btn-icon" aria-hidden="true"></i> Archive</button>
                 </div>
                 @if ($test->hasStudentAttempts())
                     <small class="block mt-2 text-xs text-gray-400 dark:text-gray-500">Draft/Lock are disabled because students have already started this test. You can still archive it.</small>
