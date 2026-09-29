@@ -93,6 +93,7 @@
                         type="submit"
                         class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                     >
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
                         Send Memorandum
                     </button>
                 </form>
