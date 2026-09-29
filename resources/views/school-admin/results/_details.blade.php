@@ -116,7 +116,7 @@
     </div>
     @if ($canEditTeacherRemark || $canEditPrincipalRemark)
         <div class="flex justify-end">
-            <button type="button" onclick="window.resultPreviewSaveRemarks()" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save Remarks</button>
+            <button type="button" onclick="window.resultPreviewSaveRemarks()" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Remarks</button>
         </div>
     @endif
 </div>

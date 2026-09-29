@@ -41,7 +41,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700">Save to Library</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save to Library</button>
                 </div>
             </form>
         </div>
@@ -71,7 +71,7 @@
                         >{{ $remark->body }}</textarea>
 
                         <div class="flex shrink-0 gap-2">
-                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">Save</button>
+                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                         </div>
                     </form>
 
@@ -83,7 +83,7 @@
                     >
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-xs font-semibold text-red-700 hover:text-red-800 dark:text-red-400">Delete</button>
+                        <button type="submit" class="icon-btn icon-btn--delete icon-btn--sm" data-tooltip="Delete remark" aria-label="Delete remark"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                     </form>
                 </div>
             @empty
