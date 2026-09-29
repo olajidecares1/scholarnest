@@ -22,12 +22,12 @@
             @if ($school->is_active)
                 <form method="POST" action="{{ route('super-admin.schools.deactivate', $school) }}" onsubmit="return confirm('Deactivate {{ $school->name }}? Their admins will lose access immediately.');">
                     @csrf
-                    <button type="submit" class="btn rounded-[8px] border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Deactivate School</button>
+                    <button type="submit" class="btn rounded-[8px] border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"><i class="fa-solid fa-toggle-off btn-icon" aria-hidden="true"></i> Deactivate School</button>
                 </form>
             @else
                 <form method="POST" action="{{ route('super-admin.schools.activate', $school) }}">
                     @csrf
-                    <button type="submit" class="btn rounded-[8px] border border-green-300 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Activate School</button>
+                    <button type="submit" class="btn rounded-[8px] border border-green-300 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20"><i class="fa-solid fa-toggle-on btn-icon" aria-hidden="true"></i> Activate School</button>
                 </form>
             @endif
         </div>
@@ -254,7 +254,7 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-3">
-                                    <a href="{{ route('invoices.download', $invoice) }}" class="text-primary-500 hover:text-primary-600">Download</a>
+                                    <a href="{{ route('invoices.download', $invoice) }}" class="icon-btn icon-btn--download" data-tooltip="Download invoice" aria-label="Download invoice"><i class="fa-solid fa-download" aria-hidden="true"></i></a>
                                 </td>
                             </tr>
                         @empty
@@ -267,6 +267,6 @@
             </div>
         </div>
 
-        <a href="{{ route('super-admin.schools.index') }}" class="inline-block text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">&larr; Back to Schools</a>
+        <a href="{{ route('super-admin.schools.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Schools</a>
     </div>
 </x-super-admin-layout>
