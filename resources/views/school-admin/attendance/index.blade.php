@@ -137,7 +137,7 @@
                 @if ($students->isNotEmpty())
                     <div class="flex justify-end border-t border-gray-100 p-4 sm:p-6 dark:border-gray-700">
                         <button type="submit" class="btn w-full rounded-[8px] sm:w-auto bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
-                            Save Attendance for {{ $date->format('M j, Y') }}
+                            <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Attendance for {{ $date->format('M j, Y') }}
                         </button>
                     </div>
                 @endif
