@@ -138,23 +138,25 @@
                                              gone as well, so this is not a
                                              pair of buttons taken off a page
                                              that still answers. --}}
-                                        <td class="px-4 py-3">
-                                            <div class="flex items-center justify-end gap-1">
+                                        <td class="px-4 py-3 text-right">
+                                            <div class="icon-btn-group justify-end">
                                                 <button
                                                     type="button"
-                                                    title="View Result"
+                                                    data-tooltip="View result"
+                                                    aria-label="View result"
                                                     @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '', '', '', 'details')"
-                                                    class="{{ $actionButtonClasses }}"
+                                                    class="icon-btn icon-btn--view"
                                                 >
-                                                    <i class="fa-solid fa-eye text-[14px] leading-none" aria-hidden="true"></i>
+                                                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    title="A4 Preview"
+                                                    data-tooltip="A4 preview"
+                                                    aria-label="A4 preview"
                                                     @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '', '', '', 'report-card')"
-                                                    class="{{ $actionButtonClasses }}"
+                                                    class="icon-btn icon-btn--view"
                                                 >
-                                                    <i class="fa-solid fa-file text-[14px] leading-none" aria-hidden="true"></i>
+                                                    <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                         </td>
