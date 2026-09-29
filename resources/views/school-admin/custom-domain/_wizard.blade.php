@@ -67,9 +67,11 @@
                     <button
                         type="button"
                         @click="editing = @js(['uuid' => $primary->uuid, 'domain' => $primary->domain]); open = true"
-                        class="text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        class="icon-btn icon-btn--view"
+                        data-tooltip="Replace domain"
+                        aria-label="Replace domain"
                     >
-                        Replace domain
+                        <i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i>
                     </button>
                 </div>
 
@@ -164,6 +166,7 @@
                             @csrf
                             <button type="submit" :disabled="submitting" class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-blue-700 disabled:cursor-wait disabled:opacity-70">
                                 <i x-show="submitting" class="fa-solid fa-circle-notch animate-spin text-[14px] leading-none" aria-hidden="true"></i>
+                                <i x-show="! submitting" class="fa-solid fa-circle-check text-[14px] leading-none" aria-hidden="true"></i>
                                 <span x-text="submitting ? 'Verifying…' : 'Verify Domain'"></span>
                             </button>
                         </form>
@@ -185,8 +188,9 @@
                         </div>
                         <form method="POST" action="{{ route('custom-domain.toggle-redirect', $primary) }}">
                             @csrf
-                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                                {{ $primary->redirect_default_domain ? 'On' : 'Off' }}
+                            @php($redirectOn = (bool) $primary->redirect_default_domain)
+                            <button type="submit" class="icon-btn {{ $primary->redirect_default_domain ? 'icon-btn--approve' : 'icon-btn--neutral' }}" data-tooltip="{{ $primary->redirect_default_domain ? 'Redirect is on: turn off' : 'Redirect is off: turn on' }}" aria-label="{{ $primary->redirect_default_domain ? 'Redirect is on: turn off' : 'Redirect is off: turn on' }}">
+                                <i class="fa-solid {{ $redirectOn ? 'fa-toggle-on' : 'fa-toggle-off' }}" aria-hidden="true"></i>
                             </button>
                         </form>
                     </div>
@@ -198,7 +202,7 @@
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <h4 class="text-sm font-bold text-gray-900 dark:text-white">Subdomains</h4>
-                    <button type="button" @click="editing = null; open = true" class="text-xs font-semibold text-blue-600 hover:text-blue-700">+ Add Subdomain</button>
+                    <button type="button" @click="editing = null; open = true" class="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 hover:text-blue-700"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add Subdomain</button>
                 </div>
 
                 <div class="mt-3 space-y-3">
@@ -224,27 +228,30 @@
                                         <a href="https://{{ $domain->domain }}" target="_blank" class="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700">https://{{ $domain->domain }} &rarr;</a>
                                     @endif
                                 </div>
-                                <div class="flex shrink-0 flex-wrap items-center gap-2">
+                                <div class="icon-btn-group shrink-0 flex-wrap">
                                     <form method="POST" action="{{ route('custom-domain.verify', $domain) }}">
                                         @csrf
-                                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                                            {{ $domain->status === CustomDomainStatus::Verified ? 'Recheck' : 'Verify Now' }}
+                                        @php($isVerified = $domain->status === CustomDomainStatus::Verified)
+                                        <button type="submit" class="icon-btn {{ $domain->status === CustomDomainStatus::Verified ? 'icon-btn--neutral' : 'icon-btn--approve' }}" data-tooltip="{{ $domain->status === CustomDomainStatus::Verified ? 'Recheck' : 'Verify now' }}" aria-label="{{ $domain->status === CustomDomainStatus::Verified ? 'Recheck' : 'Verify now' }}">
+                                            <i class="fa-solid {{ $isVerified ? 'fa-arrows-rotate' : 'fa-circle-check' }}" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                     <form method="POST" action="{{ route('custom-domain.set-primary', $domain) }}">
                                         @csrf
-                                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Set as Primary</button>
+                                        <button type="submit" class="icon-btn icon-btn--add" data-tooltip="Set as primary" aria-label="Set as primary"><i class="fa-solid fa-star" aria-hidden="true"></i></button>
                                     </form>
                                     <button
                                         type="button"
                                         @click="editing = @js(['uuid' => $domain->uuid, 'domain' => $domain->domain]); open = true"
-                                        class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        class="icon-btn icon-btn--view"
+                                        data-tooltip="Replace subdomain"
+                                        aria-label="Replace subdomain"
                                     >
-                                        Replace
+                                        <i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" action="{{ route('custom-domain.destroy', $domain) }}" onsubmit="return confirm('Remove {{ $domain->domain }}?');">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Remove</button>
+                                        <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Remove subdomain" aria-label="Remove subdomain"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                     </form>
                                 </div>
                             </div>
@@ -271,8 +278,8 @@
                     <x-text-field name="domain" label="Domain" icon="M12 3a9 9 0 100 18 9 9 0 000-18z" placeholder="www.schoolname.com or portal.schoolname.com" x-model="editing ? editing.domain : ''" required helper="A domain you already own, without http:// or a trailing slash. You will be given DNS records to add at whoever you bought it from, and your website starts serving here once they have taken effect." />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                     </div>
                 </form>
             </div>
