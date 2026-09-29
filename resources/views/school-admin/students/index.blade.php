@@ -27,7 +27,7 @@
         newClassName: '',
         schoolCode: @js($school->school_code),
         currentSession: @js($school->current_session),
-        nextAdmissionSequence: @js($school->next_admission_sequence),
+        nextAdmissionSequence: @js($nextAdmissionSequence),
         levelCodesByClassName: @js($levelCodesByClassName),
         nextAdmissionNumberPreview(className) {
             if (! this.schoolCode) {
@@ -40,6 +40,8 @@
             return `${this.schoolCode}-${this.currentSession || 'NOSESSION'}-${levelCode}-${sequence}`;
         },
     }">
+        <x-duplicate-student-notice :notices="session('duplicate_students', [])" />
+
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
                 {{ session('status') }}

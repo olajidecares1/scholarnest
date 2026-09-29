@@ -3,6 +3,7 @@
     // Already-registered students are skipped and never changed; they are
     // counted apart from rows with mistakes so the school can tell them apart.
     $existingCount = collect($rows)->filter(fn ($row) => ($row['existing'] ?? null) !== null)->count();
+    $existingNotices = collect($rows)->pluck('existing_student')->filter()->values()->all();
     $validCount = collect($rows)->filter(fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null)->count();
     $invalidCount = count($rows) - $validCount - $existingCount;
     // Capped plans import in file order until the allocation is full.
@@ -249,6 +250,8 @@
                             {{ number_format($existingCount) }} {{ Str::plural('student/pupil', $existingCount) }} in this file {{ $existingCount === 1 ? 'is' : 'are' }} already registered at your school and will be skipped. Existing records and admission numbers are never changed by a bulk upload.
                         </small>
                     </p>
+
+                    <x-duplicate-student-notice class="mt-4" :notices="$existingNotices" :preview="true" />
                 @endif
 
                 @if ($invalidCount)
@@ -312,6 +315,10 @@
                                             <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Already registered</span>
                                             <ul class="mt-1 space-y-0.5 text-blue-700 dark:text-blue-400">
                                                 <li><small class="block text-xs leading-relaxed">{{ Str::after($row['existing'], 'Already registered: ') }}</small></li>
+                                                @if ($row['existing_student'] ?? null)
+                                                    <li><small class="block text-xs font-semibold leading-relaxed">Admission Number: <span class="font-mono">{{ $row['existing_student']['admission_number'] }}</span></small></li>
+                                                    <li><small class="block text-xs leading-relaxed">{{ $row['existing_student']['registration_source'] }}</small></li>
+                                                @endif
                                                 <li><small class="block text-xs leading-relaxed">Skipped. The existing record is left unchanged.</small></li>
                                             </ul>
                                         @elseif ($row['errors'])
