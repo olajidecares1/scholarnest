@@ -67,7 +67,7 @@
                                     @unless ($loan->isReturned())
                                         <form method="POST" action="{{ route('library.loans.return', $loan) }}">
                                             @csrf
-                                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Mark Returned</button>
+                                            <button type="submit" class="icon-btn icon-btn--approve" data-tooltip="Mark returned" aria-label="Mark returned"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
                                         </form>
                                     @else
                                         <span class="text-xs text-gray-400 dark:text-gray-500">Returned {{ $loan->returned_at->format('M j, Y') }}</span>
@@ -100,8 +100,8 @@
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" />
                     <x-text-field name="due_at" label="Due Date" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" :value="now()->addWeeks(2)->toDateString()" required />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Issue Book</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-hand-holding btn-icon" aria-hidden="true"></i> Issue Book</button>
                     </div>
                 </form>
             </div>
