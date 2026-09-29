@@ -53,17 +53,18 @@
                         </small>
                     </div>
 
-                    <div class="flex shrink-0 items-center gap-2">
+                    <div class="icon-btn-group shrink-0">
                         <form method="POST" action="{{ route('inbox.read-message', $message) }}">
                             @csrf
                             @method('PUT')
-                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">
-                                {{ $message->isUnread() ? 'Mark read' : 'Mark unread' }}
+                            @php($isUnread = $message->isUnread())
+                            <button type="submit" class="icon-btn {{ $message->isUnread() ? 'icon-btn--approve' : 'icon-btn--neutral' }}" data-tooltip="{{ $message->isUnread() ? 'Mark read' : 'Mark unread' }}" aria-label="{{ $message->isUnread() ? 'Mark read' : 'Mark unread' }}">
+                                <i class="fa-solid {{ $isUnread ? 'fa-envelope-open' : 'fa-envelope' }}" aria-hidden="true"></i>
                             </button>
                         </form>
 
-                        <a href="{{ route('inbox.message', $message) }}" class="btn rounded-[8px] bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-blue-700">
-                            View
+                        <a href="{{ route('inbox.message', $message) }}" class="icon-btn icon-btn--view" data-tooltip="View message" aria-label="View message">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -99,8 +100,8 @@
                             {{ $report->statusLabel() }}
                         </span>
 
-                        <a href="{{ route('inbox.report', $report) }}" class="btn rounded-[8px] bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-blue-700">
-                            View
+                        <a href="{{ route('inbox.report', $report) }}" class="icon-btn icon-btn--view" data-tooltip="View report" aria-label="View report">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>

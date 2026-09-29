@@ -60,7 +60,7 @@
                     @csrf
                     @method('PUT')
                     <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">
-                        {{ $message->isUnread() ? 'Mark as read' : 'Mark as unread' }}
+                        <i class="fa-solid {{ $message->isUnread() ? 'fa-envelope-open' : 'fa-envelope' }} btn-icon" aria-hidden="true"></i> {{ $message->isUnread() ? 'Mark as read' : 'Mark as unread' }}
                     </button>
                 </form>
             </div>
