@@ -27,7 +27,7 @@
                                 ? 'border border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20'
                                 : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-md' }}"
                     >
-                        {{ $joined ? 'Leave' : 'Join' }}
+                        <i class="fa-solid {{ $joined ? 'fa-right-from-bracket' : 'fa-user-plus' }} btn-icon" aria-hidden="true"></i> {{ $joined ? 'Leave' : 'Join' }}
                     </button>
                 </form>
             </div>
