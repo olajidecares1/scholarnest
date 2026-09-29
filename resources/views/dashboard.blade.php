@@ -58,7 +58,7 @@
                             href="{{ route('subscriptions.choose-plan') }}"
                             class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] bg-amber-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-amber-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-amber-700 hover:shadow-lg"
                         >
-                            Choose a Plan Again
+                            <i class="fa-solid fa-arrow-rotate-right btn-icon" aria-hidden="true"></i> Choose a Plan Again
                         </a>
                     </div>
                     @break
@@ -74,7 +74,7 @@
                             href="{{ route('subscriptions.choose-plan') }}"
                             class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                         >
-                            Renew Your Plan
+                            <i class="fa-solid fa-arrow-rotate-right btn-icon" aria-hidden="true"></i> Renew Your Plan
                         </a>
                     </div>
                     @break
