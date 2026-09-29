@@ -52,7 +52,7 @@
                         type="submit"
                         class="btn flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
                     >
-                        Send Reply
+                        <i class="fa-solid fa-paper-plane btn-icon" aria-hidden="true"></i> Send Reply
                     </button>
                 </form>
             </div>
@@ -89,7 +89,7 @@
                         type="submit"
                         class="btn w-full rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-md dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
-                        Update Ticket
+                        <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Update Ticket
                     </button>
                 </form>
             </div>
