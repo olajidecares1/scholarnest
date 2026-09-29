@@ -22,9 +22,9 @@
                     @foreach ($cards as $card)
                         <input type="hidden" name="records[]" value="{{ $card->holder_uuid }}">
                     @endforeach
-                    <button type="submit" class="rounded-[8px] border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">Download PDF</button>
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Download PDF</button>
                 </form>
-                <button type="button" onclick="window.print()" class="rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Print Now</button>
+                <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-print" aria-hidden="true"></i> Print Now</button>
             </div>
         </div>
 

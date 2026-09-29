@@ -13,9 +13,9 @@
                 <button type="button" @click="tab = 'non_teaching'; selected = []" :class="tab === 'non_teaching' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold transition-colors duration-200">Non-Teaching Staff</button>
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('id-cards.issued.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Issued Cards</a>
-                <a href="{{ route('id-cards.template-preview') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Preview Template</a>
-                <a href="{{ route('id-cards.templates.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage Templates</a>
+                <a href="{{ route('id-cards.issued.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"><i class="fa-solid fa-id-card btn-icon" aria-hidden="true"></i> Issued Cards</a>
+                <a href="{{ route('id-cards.template-preview') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"><i class="fa-solid fa-eye btn-icon" aria-hidden="true"></i> Preview Template</a>
+                <a href="{{ route('id-cards.templates.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"><i class="fa-solid fa-sliders btn-icon" aria-hidden="true"></i> Manage Templates</a>
             </div>
         </div>
 
@@ -47,10 +47,10 @@
                         </div>
                         <div class="flex gap-2">
                             <button type="submit" formaction="{{ route('id-cards.pdf') }}" formtarget="_self" :disabled="selected.length === 0" :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
-                                Download PDF
+                                <i class="fa-solid fa-file-pdf btn-icon" aria-hidden="true"></i> Download PDF
                             </button>
                             <button type="submit" :disabled="selected.length === 0" :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">
-                                Print Selected (<span x-text="selected.length"></span>)
+                                <i class="fa-solid fa-print btn-icon" aria-hidden="true"></i> Print Selected (<span x-text="selected.length"></span>)
                             </button>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $student->admission_number }}</td>
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $student->class_name }}</td>
                                         <td class="px-4 py-3 text-right">
-                                            <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', ['student', $student]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Preview</button>
+                                            <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', ['student', $student]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="icon-btn icon-btn--view" data-tooltip="Preview card" aria-label="Preview card"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
                                         </td>
                                     </tr>
                                 @empty
@@ -117,10 +117,10 @@
                         </div>
                         <div class="flex gap-2">
                             <button type="submit" formaction="{{ route('id-cards.pdf') }}" formtarget="_self" :disabled="selected.length === 0" :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
-                                Download PDF
+                                <i class="fa-solid fa-file-pdf btn-icon" aria-hidden="true"></i> Download PDF
                             </button>
                             <button type="submit" :disabled="selected.length === 0" :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">
-                                Print Selected (<span x-text="selected.length"></span>)
+                                <i class="fa-solid fa-print btn-icon" aria-hidden="true"></i> Print Selected (<span x-text="selected.length"></span>)
                             </button>
                         </div>
                     </div>
@@ -146,7 +146,7 @@
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->staff_number }}</td>
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->department ?? 'N/A' }}</td>
                                         <td class="px-4 py-3 text-right">
-                                            <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', ['teaching_staff', $member]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Preview</button>
+                                            <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', ['teaching_staff', $member]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="icon-btn icon-btn--view" data-tooltip="Preview card" aria-label="Preview card"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
                                         </td>
                                     </tr>
                                 @empty
@@ -187,10 +187,10 @@
                         </div>
                         <div class="flex gap-2">
                             <button type="submit" formaction="{{ route('id-cards.pdf') }}" formtarget="_self" :disabled="selected.length === 0" :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
-                                Download PDF
+                                <i class="fa-solid fa-file-pdf btn-icon" aria-hidden="true"></i> Download PDF
                             </button>
                             <button type="submit" :disabled="selected.length === 0" :class="selected.length === 0 ? 'opacity-50 cursor-not-allowed' : ''" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">
-                                Print Selected (<span x-text="selected.length"></span>)
+                                <i class="fa-solid fa-print btn-icon" aria-hidden="true"></i> Print Selected (<span x-text="selected.length"></span>)
                             </button>
                         </div>
                     </div>
@@ -216,7 +216,7 @@
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->staff_number }}</td>
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $member->department ?? 'N/A' }}</td>
                                         <td class="px-4 py-3 text-right">
-                                            <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', ['non_teaching_staff', $member]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Preview</button>
+                                            <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', ['non_teaching_staff', $member]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="icon-btn icon-btn--view" data-tooltip="Preview card" aria-label="Preview card"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
                                         </td>
                                     </tr>
                                 @empty

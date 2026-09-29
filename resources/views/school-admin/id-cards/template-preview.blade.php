@@ -35,7 +35,7 @@
                 </div>
 
                 <noscript>
-                    <button type="submit" class="rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white">Show</button>
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white"><i class="fa-solid fa-eye" aria-hidden="true"></i> Show</button>
                 </noscript>
             </form>
 
