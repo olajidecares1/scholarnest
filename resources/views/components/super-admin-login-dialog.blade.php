@@ -32,10 +32,11 @@
         <button
             type="button"
             @click="close()"
-            class="float-right -mr-2 -mt-2 rounded-[8px] p-2 text-[#9AAAC4] transition hover:bg-gray-50 hover:text-[#5B7099]"
+            class="icon-btn icon-btn--neutral float-right -mr-2 -mt-2"
+            data-tooltip="Close"
             aria-label="Close"
         >
-            <i class="fa-solid fa-xmark text-sm"></i>
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
 
         <div class="text-center">

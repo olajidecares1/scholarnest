@@ -48,7 +48,7 @@
                 <form method="POST" action="{{ route('website.publish') }}">
                     @csrf
                     <button type="submit" class="btn rounded-[8px] {{ $website->is_published ? 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700' : 'bg-blue-600 text-white hover:bg-blue-700' }} px-4 py-2 text-sm font-semibold transition-all duration-200">
-                        {{ $website->is_published ? 'Unpublish' : 'Publish Website' }}
+                        <i class="fa-solid {{ $website->is_published ? 'fa-eye-slash' : 'fa-globe' }} btn-icon" aria-hidden="true"></i> {{ $website->is_published ? 'Unpublish' : 'Publish Website' }}
                     </button>
                 </form>
             </div>
@@ -74,7 +74,7 @@
                     <div class="mt-1.5 flex flex-wrap items-center gap-2">
                         <input id="brand_primary_color" type="text" name="brand_primary_color" x-model="colorInput" @change="normalize()" placeholder="e.g. Indigo, Dark Blue, #1877f2" class="w-52">
                         <input type="color" :value="colorInput || '#166fe5'" @input="colorInput = $event.target.value" class="w-10" aria-label="Pick a color">
-                        <button type="submit" class="btn rounded-[6px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Apply Theme Color</button>
+                        <button type="submit" class="btn rounded-[6px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-palette btn-icon" aria-hidden="true"></i> Apply Theme Color</button>
                     </div>
                 </div>
             </form>
@@ -83,8 +83,10 @@
                 type="button"
                 @click="preview = ! preview"
                 class="btn flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-                x-text="preview ? 'Back to Editing' : 'Preview'"
-            ></button>
+            >
+                <i class="fa-solid btn-icon" :class="preview ? 'fa-pen-to-square' : 'fa-eye'" aria-hidden="true"></i>
+                <span x-text="preview ? 'Back to Editing' : 'Preview'"></span>
+            </button>
         </div>
 
         {{-- Typography.
@@ -233,7 +235,7 @@
                         <small class="block mt-0.5 text-[11.5px] text-gray-600 dark:text-gray-400" :style="`font-weight: ${weight}`">Learn more about our school.</small>
                     </div>
 
-                    <button type="submit" class="btn mt-3 w-full rounded-[6px] bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700">Save Typography</button>
+                    <button type="submit" class="btn mt-3 w-full rounded-[6px] bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Typography</button>
                 </div>
             </form>
         </div>
@@ -293,7 +295,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Adjustments</button>
                         </div>
                     </form>
 
@@ -335,7 +337,7 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Header Settings</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Header Settings</button>
                         </div>
                     </form>
 
@@ -380,13 +382,13 @@
                                             <img src="{{ $slide->imageUrl() }}" class="h-32 w-full object-cover">
                                             <span class="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white">{{ $index + 1 }}</span>
 
-                                            <div class="absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                                            <div class="icon-btn-group absolute right-1.5 top-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100">
                                                 @if (! $loop->first)
                                                     <form method="POST" action="{{ route('website.hero-slides.move', $slide) }}">
                                                         @csrf
                                                         <input type="hidden" name="direction" value="up">
-                                                        <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white" title="Move earlier">
-                                                            <i class="fa-solid fa-chevron-up text-[12px] leading-none" aria-hidden="true"></i>
+                                                        <button type="submit" class="icon-btn icon-btn--neutral icon-btn--sm" data-tooltip="Move earlier" aria-label="Move earlier">
+                                                            <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
                                                         </button>
                                                     </form>
                                                 @endif
@@ -394,15 +396,15 @@
                                                     <form method="POST" action="{{ route('website.hero-slides.move', $slide) }}">
                                                         @csrf
                                                         <input type="hidden" name="direction" value="down">
-                                                        <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white" title="Move later">
-                                                            <i class="fa-solid fa-chevron-down text-[12px] leading-none" aria-hidden="true"></i>
+                                                        <button type="submit" class="icon-btn icon-btn--neutral icon-btn--sm" data-tooltip="Move later" aria-label="Move later">
+                                                            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
                                                         </button>
                                                     </form>
                                                 @endif
                                                 <form method="POST" action="{{ route('website.hero-slides.destroy', $slide) }}" onsubmit="return confirm('Remove this slide?');">
                                                     @csrf @method('DELETE')
-                                                    <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 shadow-sm hover:bg-white" title="Delete">
-                                                        <i class="fa-solid fa-xmark text-[12px] leading-none" aria-hidden="true"></i>
+                                                    <button type="submit" class="icon-btn icon-btn--delete icon-btn--sm" data-tooltip="Delete slide" aria-label="Delete slide">
+                                                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                                                     </button>
                                                 </form>
                                             </div>
@@ -583,7 +585,7 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save About Section</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save About Section</button>
                         </div>
                     </form>
                 </div>
@@ -616,7 +618,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Adjustments</button>
                         </div>
                     </form>
                 </div>
@@ -652,7 +654,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Adjustments</button>
                         </div>
                     </form>
                 </div>
@@ -686,7 +688,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Adjustments</button>
                         </div>
                     </form>
                     <hr class="border-gray-100 dark:border-gray-700">
@@ -709,7 +711,7 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Contact Details</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Contact Details</button>
                         </div>
                     </form>
                 </div>
@@ -747,7 +749,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end" x-show="! preview">
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">Save Adjustments</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Adjustments</button>
                         </div>
                     </form>
                 </div>
@@ -783,13 +785,13 @@
                                         <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ $navLink->label }}</p>
                                         <small class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ $navLink->url }}</small>
                                     </div>
-                                    <div class="flex shrink-0 items-center gap-1">
+                                    <div class="icon-btn-group shrink-0">
                                         @if (! $loop->first)
                                             <form method="POST" action="{{ route('website.nav-links.move', $navLink) }}">
                                                 @csrf
                                                 <input type="hidden" name="direction" value="up">
-                                                <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-[6px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700" title="Move earlier">
-                                                    <i class="fa-solid fa-arrow-up text-[12px] leading-none" aria-hidden="true"></i>
+                                                <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Move earlier" aria-label="Move earlier">
+                                                    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         @endif
@@ -797,21 +799,23 @@
                                             <form method="POST" action="{{ route('website.nav-links.move', $navLink) }}">
                                                 @csrf
                                                 <input type="hidden" name="direction" value="down">
-                                                <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-[6px] text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700" title="Move later">
-                                                    <i class="fa-solid fa-arrow-down text-[12px] leading-none" aria-hidden="true"></i>
+                                                <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Move later" aria-label="Move later">
+                                                    <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         @endif
                                         <button
                                             type="button"
                                             @click="navLinkEditing = @js(['uuid' => $navLink->uuid, 'label' => $navLink->label, 'url' => $navLink->url]); navLinkOpen = true"
-                                            class="rounded-[6px] px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="icon-btn icon-btn--edit"
+                                            data-tooltip="Edit link"
+                                            aria-label="Edit link"
                                         >
-                                            Edit
+                                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                         </button>
                                         <form method="POST" action="{{ route('website.nav-links.destroy', $navLink) }}" onsubmit="return confirm('Remove this link?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[6px] px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete link" aria-label="Delete link"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </div>
@@ -837,8 +841,8 @@
                         <x-text-field name="url" label="URL" icon="M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z" x-model="navLinkEditing ? navLinkEditing.url : ''" placeholder="e.g. /schools/your-school/gallery or #contact" required helper="Where the link goes. Start with # to scroll to a section of your home page (#about, #contact), or paste a full web address to send visitors elsewhere." />
 
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="navLinkOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Link</button>
+                            <button type="button" @click="navLinkOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Link</button>
                         </div>
                     </form>
                 </div>
@@ -880,8 +884,8 @@
                                 @endif
                                 <form method="POST" action="{{ route('website.gallery.destroy', $image) }}" onsubmit="return confirm('Remove this image?');" class="absolute right-1.5 top-1.5">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100">
-                                        <i class="fa-solid fa-xmark text-[12px] leading-none" aria-hidden="true"></i>
+                                    <button type="submit" class="icon-btn icon-btn--delete icon-btn--sm opacity-0 group-hover:opacity-100 focus:opacity-100" data-tooltip="Delete image" aria-label="Delete image">
+                                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </div>
@@ -904,8 +908,8 @@
                     </div>
                     <x-text-field name="caption" label="Caption" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Optional. A short line saying what the photograph shows. It appears under the image in the gallery and in the full-screen viewer." />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="galleryOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Upload</button>
+                        <button type="button" @click="galleryOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-upload btn-icon" aria-hidden="true"></i> Upload</button>
                     </div>
                 </form>
             </div>

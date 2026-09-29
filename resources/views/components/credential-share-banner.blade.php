@@ -38,9 +38,12 @@
                             <button
                                 type="button"
                                 @click="shown = ! shown"
-                                class="text-[11px] font-semibold text-primary-600 hover:underline dark:text-primary-400"
-                                x-text="shown ? 'Hide' : 'Show'"
-                            >Show</button>
+                                class="icon-btn icon-btn--view icon-btn--sm"
+                                :data-tooltip="shown ? 'Hide password' : 'Show password'"
+                                :aria-label="shown ? 'Hide password' : 'Show password'"
+                                data-tooltip="Show password"
+                                aria-label="Show password"
+                            ><i class="fa-solid" :class="shown ? 'fa-eye-slash' : 'fa-eye'" aria-hidden="true"></i></button>
                         </dd>
                     </div>
                 </dl>

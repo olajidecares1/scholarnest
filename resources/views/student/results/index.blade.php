@@ -20,9 +20,11 @@
                         <button
                             type="button"
                             @click="$store.resultPreview.openPreview('{{ route('student.results.show', [$school, $examination]) }}', '', '', '{{ route('student.results.print', [$school, $examination]) }}', '{{ route('student.results.pdf', [$school, $examination]) }}', 'report-card')"
-                            class="btn shrink-0 rounded-[8px] border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/20 dark:text-primary-300"
+                            class="icon-btn icon-btn--view shrink-0"
+                            data-tooltip="View Report Card"
+                            aria-label="View Report Card"
                         >
-                            View Report Card
+                            <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                         </button>
                     </x-result-token-gate>
                 </div>

@@ -81,6 +81,7 @@
                 @click="stopPreview()"
                 class="btn flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
+                <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i>
                 Exit Preview
             </button>
         </div>
@@ -120,7 +121,7 @@
                             <p class="text-sm font-semibold text-gray-900 dark:text-white">
                                 {{ $loop->iteration }}. {{ $question->question_text }}
                             </p>
-                            <div class="flex shrink-0 items-center gap-2">
+                            <div class="icon-btn-group shrink-0">
                                 <button
                                     type="button"
                                     @click="openEdit(@js([
@@ -129,13 +130,15 @@
                                         'options' => $question->options->map(fn ($o) => ['label' => $o->label, 'text' => $o->option_text])->values()->all(),
                                         'correctLabel' => $correctLabel,
                                     ]))"
-                                    class="btn rounded-[8px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    class="icon-btn icon-btn--edit"
+                                    data-tooltip="Edit question"
+                                    aria-label="Edit question"
                                 >
-                                    Edit
+                                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                 </button>
                                 <form method="POST" action="{{ route('super-admin.cbt.questions.destroy', $question) }}" onsubmit="return confirm('Delete this question?');">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="btn rounded-[8px] border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                    <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete question" aria-label="Delete question"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                 </form>
                             </div>
                         </div>
@@ -214,19 +217,19 @@
                                             :placeholder="'Option ' + String.fromCharCode(65 + i)"
                                             class="flex-1"
                                         >
-                                        <button type="button" @click="removeOption(i)" x-show="options.length > 2" class="shrink-0 rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20">
-                                            <i class="fa-solid fa-xmark text-[14px] leading-none" aria-hidden="true"></i>
+                                        <button type="button" @click="removeOption(i)" x-show="options.length > 2" class="icon-btn icon-btn--delete icon-btn--sm shrink-0" data-tooltip="Remove option" aria-label="Remove option">
+                                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                         </button>
                                     </div>
                                 </template>
                             </div>
-                            <button type="button" @click="addOption()" x-show="options.length < 5" class="mt-2 text-xs font-semibold text-primary-600 transition-colors duration-150 hover:text-primary-700 dark:text-primary-400">+ Add another option</button>
+                            <button type="button" @click="addOption()" x-show="options.length < 5" class="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-primary-600 transition-colors duration-150 hover:text-primary-700 dark:text-primary-400"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add another option</button>
                             <small class="field-hint mt-2">Select the radio button next to the correct answer.</small>
                         </div>
 
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save Question</button>
+                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Question</button>
                         </div>
                     </form>
                 </div>
@@ -266,6 +269,7 @@
                     </template>
 
                     <button type="button" @click="submitPreview()" class="btn rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg">
+                        <i class="fa-solid fa-paper-plane btn-icon" aria-hidden="true"></i>
                         Submit
                     </button>
                 </div>
@@ -278,7 +282,7 @@
                     <p class="mt-1 text-sm" :class="previewPercent >= {{ $exam->pass_mark }} ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                         <span x-text="previewPercent"></span>% &mdash; <span x-text="previewPercent >= {{ $exam->pass_mark }} ? 'Pass' : 'Fail'"></span> (pass mark {{ $exam->pass_mark }}%)
                     </p>
-                    <button type="button" @click="startPreview()" class="btn mt-4 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Retake Preview</button>
+                    <button type="button" @click="startPreview()" class="btn mt-4 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-arrows-rotate btn-icon" aria-hidden="true"></i> Retake Preview</button>
                 </div>
             </template>
         </div>

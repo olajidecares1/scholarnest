@@ -20,7 +20,7 @@
         <x-textarea-field name="reason" label="Reason (optional)" rows="2" />
 
         <div class="flex justify-end">
-            <button type="submit" class="btn rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700">Submit Request</button>
+            <button type="submit" class="btn rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700"><i class="fa-solid fa-paper-plane btn-icon" aria-hidden="true"></i> Submit Request</button>
         </div>
     </form>
 

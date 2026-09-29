@@ -30,7 +30,7 @@
                 </div>
 
                 <noscript>
-                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Show</button>
+                    <button type="submit" class="icon-btn icon-btn--view" data-tooltip="Show preview" aria-label="Show preview"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
                 </noscript>
             </form>
         </div>

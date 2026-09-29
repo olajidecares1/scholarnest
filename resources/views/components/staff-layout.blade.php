@@ -71,14 +71,14 @@
                         document.documentElement.classList.toggle('dark', dark);
                         localStorage.theme = dark ? 'dark' : 'light';
                     "
-                    :class="dark ? 'bg-blue-600' : 'bg-gray-300'"
-                    class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-300 ease-in-out active:scale-95 dark:bg-gray-600"
+                    class="icon-btn icon-btn--neutral"
                     role="switch"
                     :aria-checked="dark.toString()"
-                    title="Toggle dark mode"
+                    data-tooltip="Toggle dark mode"
+                    aria-label="Toggle dark mode"
                 >
-                    <span class="sr-only">Toggle dark mode</span>
-                    <span :class="dark ? 'translate-x-5' : 'translate-x-0.5'" class="inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md ring-0 transition-transform duration-300 ease-in-out"></span>
+                    <i x-show="!dark" class="fa-solid fa-moon" aria-hidden="true"></i>
+                    <i x-show="dark" style="display: none;" class="fa-solid fa-sun" aria-hidden="true"></i>
                 </button>
 
                 <span class="relative ml-2 hidden h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-blue-50 dark:border-gray-700 sm:flex">

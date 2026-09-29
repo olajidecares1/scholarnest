@@ -36,7 +36,7 @@
                         </span>
                     </div>
                     <small class="block mt-3 text-xs italic leading-relaxed text-gray-600 dark:text-gray-300">&ldquo;{{ Str::limit($testimonial->quote, 140) }}&rdquo;</small>
-                    <div class="mt-4 flex items-center gap-2">
+                    <div class="icon-btn-group mt-4">
                         <button
                             type="button"
                             @click="editing = @js([
@@ -46,13 +46,15 @@
                                 'quote' => $testimonial->quote,
                                 'is_active' => $testimonial->is_active,
                             ]); open = true"
-                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                            class="icon-btn icon-btn--edit"
+                            data-tooltip="Edit testimonial"
+                            aria-label="Edit testimonial"
                         >
-                            Edit
+                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                         </button>
                         <form method="POST" action="{{ route('testimonials.destroy', $testimonial) }}" onsubmit="return confirm('Remove this testimonial?');">
                             @csrf @method('DELETE')
-                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete testimonial" aria-label="Delete testimonial"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                         </form>
                     </div>
                 </div>
@@ -88,8 +90,8 @@
                     </label>
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Testimonial</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Testimonial</button>
                     </div>
                 </form>
             </div>

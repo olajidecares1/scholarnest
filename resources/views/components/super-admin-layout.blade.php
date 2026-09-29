@@ -272,6 +272,7 @@
                     href="{{ route('super-admin.settings.index') }}"
                     class="btn mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-white px-3 py-2 text-xs font-semibold text-primary-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
                 >
+                    <i class="fa-solid fa-gear btn-icon" aria-hidden="true"></i>
                     System Settings
                 </a>
             </div>
@@ -326,9 +327,11 @@
                 <button
                     type="button"
                     @click="sidebarOpen = true"
-                    class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+                    class="icon-btn icon-btn--neutral lg:hidden"
+                    data-tooltip="Open menu"
+                    aria-label="Open menu"
                 >
-                    <i class="fa-solid fa-bars text-[20px] leading-none" aria-hidden="true"></i>
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
                 </button>
 
                 <div class="min-w-0 flex-1">
@@ -432,16 +435,18 @@
                         document.documentElement.classList.toggle('dark');
                         localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
                     "
-                    class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800"
+                    class="icon-btn icon-btn--neutral"
+                    data-tooltip="Toggle dark mode"
+                    aria-label="Toggle dark mode"
                 >
-                    <i class="fa-solid fa-sun dark:hidden text-[17px] leading-none" aria-hidden="true"></i>
-                    <i class="fa-solid fa-moon hidden dark:block text-[17px] leading-none" aria-hidden="true"></i>
+                    <i class="fa-solid fa-moon dark:hidden" aria-hidden="true"></i>
+                    <i class="fa-solid fa-sun hidden dark:block" aria-hidden="true"></i>
                 </button>
 
                 <div class="relative" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" @click.outside="open = false" class="relative flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800">
-                        <i class="fa-solid fa-bell text-[17px] leading-none" aria-hidden="true"></i>
-                        @if ($unreadCount > 0)
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="icon-btn icon-btn--neutral" data-tooltip="Notifications" aria-label="Notifications">
+                        <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                        @if($unreadCount > 0)
                             <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{{ min($unreadCount, 99) }}</span>
                         @endif
                     </button>
@@ -462,7 +467,7 @@
                             @if ($unreadCount > 0)
                                 <form method="POST" action="{{ route('notifications.read-all') }}">
                                     @csrf
-                                    <button type="submit" class="text-xs font-semibold text-primary-500 hover:text-primary-600">Mark all read</button>
+                                    <button type="submit" class="icon-btn icon-btn--approve icon-btn--sm" data-tooltip="Mark all read" aria-label="Mark all read"><i class="fa-solid fa-check-double" aria-hidden="true"></i></button>
                                 </form>
                             @endif
                         </div>
@@ -493,7 +498,9 @@
 
                 <a
                     href="{{ route('super-admin.communications.index') }}"
-                    class="flex h-10 w-10 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-300 ease-out hover:scale-105 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-400 dark:hover:bg-gray-800"
+                    class="icon-btn icon-btn--neutral"
+                    data-tooltip="Communications"
+                    aria-label="Communications"
                 >
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />

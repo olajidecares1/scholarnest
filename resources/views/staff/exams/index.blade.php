@@ -52,7 +52,7 @@
                 </div>
 
                 @if ($selectedClass !== '' || $selectedSubject !== '')
-                    <a href="{{ route('staff.exams.index', $school) }}" class="pb-2 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400">Clear</a>
+                    <a href="{{ route('staff.exams.index', $school) }}" class="icon-btn icon-btn--neutral mb-1" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                 @endif
             </form>
         @endif
@@ -89,8 +89,8 @@
                                     {{-- Named for what it does to marks already there, so a
                                          teacher coming back to correct one knows this is the
                                          way in rather than looking for a separate edit. --}}
-                                    <a href="{{ route('staff.exams.scores.edit', [$school, $examination, $subject]) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                                        {{ $entered > 0 ? 'Enter / Update Scores' : 'Enter Scores' }}
+                                    <a href="{{ route('staff.exams.scores.edit', [$school, $examination, $subject]) }}" class="icon-btn icon-btn--edit" data-tooltip="{{ $entered > 0 ? 'Enter / Update Scores' : 'Enter Scores' }}" aria-label="{{ $entered > 0 ? 'Enter / Update Scores' : 'Enter Scores' }}">
+                                        <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
                                     </a>
                                 </td>
                             </tr>

@@ -23,9 +23,9 @@
                         placeholder="Search subject..."
                         class="w-48"
                     >
-                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
+                    <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Apply filters" aria-label="Apply filters"><i class="fa-solid fa-filter" aria-hidden="true"></i></button>
                     @if (request('class') || request('subject'))
-                        <a href="{{ route('assignments.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
+                        <a href="{{ route('assignments.index') }}" class="icon-btn icon-btn--neutral" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                     @endif
                 </form>
 
@@ -62,11 +62,11 @@
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $assignment->due_date->format('M j, Y') }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $assignment->graded_count }}</td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('assignments.show', $assignment) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage</a>
+                                    <div class="icon-btn-group">
+                                        <a href="{{ route('assignments.show', $assignment) }}" class="icon-btn icon-btn--edit" data-tooltip="Manage assignment" aria-label="Manage assignment"><i class="fa-solid fa-sliders" aria-hidden="true"></i></a>
                                         <form method="POST" action="{{ route('assignments.destroy', $assignment) }}" onsubmit="return confirm('Delete {{ $assignment->title }}? All submissions will be removed.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete assignment" aria-label="Delete assignment"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -108,8 +108,8 @@
                     <x-textarea-field name="description" label="Description" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" rows="3" />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Create Assignment</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-plus btn-icon" aria-hidden="true"></i> Create Assignment</button>
                     </div>
                 </form>
             </div>

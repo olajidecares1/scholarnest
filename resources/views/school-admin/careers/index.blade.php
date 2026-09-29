@@ -44,8 +44,8 @@
             <form method="GET" action="{{ route('careers.index') }}" class="grid gap-3 border-b border-gray-100 p-4 dark:border-gray-700 sm:grid-cols-[1fr_260px_auto]">
                 <x-text-field name="q" icon="fa-magnifying-glass" :value="$filters['q'] ?? null" placeholder="Search vacancies by title" aria-label="Search vacancies" />
                 <x-select-field name="status" icon="fa-filter" :options="$statusOptions" :selected="$filters['status'] ?? ''" aria-label="Status" />
-                <button type="submit" class="btn inline-flex h-[var(--field-height)] items-center justify-center gap-2 rounded-[8px] border border-gray-300 px-4 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
-                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Filter
+                <button type="submit" class="icon-btn icon-btn--neutral self-center" data-tooltip="Apply filters" aria-label="Apply filters">
+                    <i class="fa-solid fa-filter" aria-hidden="true"></i>
                 </button>
             </form>
 
@@ -77,7 +77,7 @@
                                     @if ($job->closes_at)<span><i class="fa-regular fa-calendar mr-1" aria-hidden="true"></i>Closes {{ $job->closes_at->format('j M Y') }}</span>@endif
                                 </small>
                             </div>
-                            <div class="flex shrink-0 flex-wrap items-center gap-2">
+                            <div class="icon-btn-group shrink-0 flex-wrap">
                                 <a href="{{ route('careers.show', $job) }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-primary-50 px-3 py-1.5 text-[12.5px] font-bold text-primary-700 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300">
                                     <i class="fa-solid fa-users" aria-hidden="true"></i>
                                     {{ $job->applications_count }} {{ Str::plural('applicant', $job->applications_count) }}
@@ -85,8 +85,8 @@
                                         <span class="rounded-full bg-primary-600 px-1.5 text-[10.5px] text-white">{{ $job->new_applications_count }} new</span>
                                     @endif
                                 </a>
-                                <a href="{{ route('careers.edit', $job) }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-[12.5px] font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                                    <i class="fa-solid fa-pen" aria-hidden="true"></i> Edit
+                                <a href="{{ route('careers.edit', $job) }}" class="icon-btn icon-btn--edit" data-tooltip="Edit vacancy" aria-label="Edit vacancy">
+                                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                 </a>
                             </div>
                         </li>

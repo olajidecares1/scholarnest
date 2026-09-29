@@ -48,7 +48,7 @@
                                 <td class="px-6 py-3">
                                     <form method="POST" action="{{ route('hostels.allocations.destroy', $allocation) }}" onsubmit="return confirm('Vacate {{ $allocation->student->fullName() }} from this room?');">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Vacate</button>
+                                        <button type="submit" class="icon-btn icon-btn--warn" data-tooltip="Vacate room" aria-label="Vacate room"><i class="fa-solid fa-door-open" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -70,8 +70,8 @@
                     @csrf
                     <x-select-field name="student_id" label="Student" required placeholder="Select a student" :options="$students->mapWithKeys(fn ($s) => [$s->id => $s->fullName()])->all()" helper="Students already in a room aren't listed." />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Allocate</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-user-plus btn-icon" aria-hidden="true"></i> Allocate</button>
                     </div>
                 </form>
             </div>

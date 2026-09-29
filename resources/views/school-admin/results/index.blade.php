@@ -4,7 +4,6 @@
         'In Progress' => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
         default => 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
     };
-    $actionButtonClasses = 'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] text-gray-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:text-blue-600 disabled:pointer-events-none disabled:opacity-40 dark:text-gray-400 dark:hover:bg-blue-900/30 dark:hover:text-blue-400';
 @endphp
 
 <x-dashboard-layout page-title="Results" page-subtitle="View, preview, print, and send each student's result and report card.">
@@ -145,49 +144,54 @@
                                         :push-url="route('results.push', [$examination, $student])"
                                     />
 
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center justify-end gap-1" x-data="{ downloading: false }">
+                                    <td class="px-4 py-3 text-right">
+                                        <div class="icon-btn-group justify-end" x-data="{ downloading: false }">
                                             <button
                                                 type="button"
-                                                title="View Result"
+                                                data-tooltip="View Result"
+                                                aria-label="View Result"
                                                 @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '{{ $sendUrl }}', '{{ $printUrl }}', '{{ $pdfUrl }}', 'details')"
-                                                class="{{ $actionButtonClasses }}"
+                                                class="icon-btn icon-btn--view"
                                             >
-                                                <i class="fa-solid fa-eye text-[14px] leading-none" aria-hidden="true"></i>
+                                                <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                             </button>
                                             <button
                                                 type="button"
-                                                title="A4 Preview"
+                                                data-tooltip="A4 Preview"
+                                                aria-label="A4 Preview"
                                                 @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '{{ $sendUrl }}', '{{ $printUrl }}', '{{ $pdfUrl }}', 'report-card')"
-                                                class="{{ $actionButtonClasses }}"
+                                                class="icon-btn icon-btn--view"
                                             >
-                                                <i class="fa-solid fa-file text-[14px] leading-none" aria-hidden="true"></i>
+                                                <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                                             </button>
                                             <button
                                                 type="button"
-                                                title="Print"
+                                                data-tooltip="Print"
+                                                aria-label="Print"
                                                 @click="$store.resultPreview.printDirect('{{ $printUrl }}')"
-                                                class="{{ $actionButtonClasses }}"
+                                                class="icon-btn icon-btn--download"
                                             >
-                                                <i class="fa-solid fa-print text-[14px] leading-none" aria-hidden="true"></i>
+                                                <i class="fa-solid fa-print" aria-hidden="true"></i>
                                             </button>
                                             <button
                                                 type="button"
-                                                title="Download PDF"
+                                                data-tooltip="Download PDF"
+                                                aria-label="Download PDF"
                                                 :disabled="downloading"
                                                 @click="downloading = true; $store.resultPreview.downloadDirect('{{ $pdfUrl }}', '{{ $student->admission_number }}').finally(() => downloading = false)"
-                                                class="{{ $actionButtonClasses }}"
+                                                class="icon-btn icon-btn--download"
                                             >
-                                                <i x-show="!downloading" class="fa-solid fa-download text-[14px] leading-none" aria-hidden="true"></i>
-                                                <i x-show="downloading" style="display: none;" class="fa-solid fa-circle-notch animate-spin text-[14px] leading-none" aria-hidden="true"></i>
+                                                <i x-show="!downloading" class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+                                                <i x-show="downloading" style="display: none;" class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
                                             </button>
                                             <button
                                                 type="button"
-                                                title="Send Result"
+                                                data-tooltip="Send Result"
+                                                aria-label="Send Result"
                                                 @click="$store.resultPreview.openPreview('{{ $showUrl }}', '{{ $remarksUrl }}', '{{ $sendUrl }}', '{{ $printUrl }}', '{{ $pdfUrl }}', 'send')"
-                                                class="{{ $actionButtonClasses }}"
+                                                class="icon-btn icon-btn--view"
                                             >
-                                                <i class="fa-solid fa-paper-plane text-[14px] leading-none" aria-hidden="true"></i>
+                                                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
                                             </button>
                                         </div>
                                     </td>

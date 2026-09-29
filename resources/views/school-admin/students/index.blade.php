@@ -106,9 +106,9 @@
                             :options="['' => 'All Classes'] + $academicLevels->flatMap->classes->pluck('name', 'name')->all()"
                         />
                     </div>
-                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
+                    <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Search" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
                     @if (request('search') || request('class'))
-                        <a href="{{ route('students.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
+                        <a href="{{ route('students.index') }}" class="icon-btn icon-btn--neutral" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                     @endif
                 </form>
 
@@ -169,7 +169,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
+                                    <div class="icon-btn-group">
                                         <button
                                             type="button"
                                             @click="editing = @js([
@@ -190,19 +190,22 @@
                                                 'admission_date' => $student->admission_date?->format('Y-m-d'),
                                                 'notes' => $student->notes,
                                             ]); loginUsernameOverride = null; open = true"
-                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="icon-btn icon-btn--edit"
+                                            data-tooltip="Edit student"
+                                            aria-label="Edit {{ $student->fullName() }}"
                                         >
-                                            Edit
+                                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                         </button>
                                         <form method="POST" action="{{ route('students.toggle-active', $student) }}">
                                             @csrf @method('POST')
-                                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                                                {{ $student->is_active ? 'Deactivate' : 'Activate' }}
+                                            @php($isActive = $student->is_active)
+                                            <button type="submit" class="icon-btn {{ $isActive ? 'icon-btn--warn' : 'icon-btn--approve' }}" data-tooltip="{{ $isActive ? 'Deactivate' : 'Activate' }}" aria-label="{{ $isActive ? 'Deactivate' : 'Activate' }} {{ $student->fullName() }}">
+                                                <i class="fa-solid {{ $isActive ? 'fa-toggle-off' : 'fa-toggle-on' }}" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                         <form method="POST" action="{{ route('students.destroy', $student) }}" onsubmit="return confirm('Remove {{ $student->fullName() }}? This cannot be undone.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete student" aria-label="Delete {{ $student->fullName() }}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -319,8 +322,8 @@
                     @endif
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Student</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Student</button>
                     </div>
                 </form>
             </div>

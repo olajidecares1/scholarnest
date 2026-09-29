@@ -45,11 +45,11 @@
             @csrf
             <button
                 type="submit"
-                title="{{ $published === null ? 'Push this result to the Repository' : 'Push this result again, replacing the published version' }}"
-                class="btn inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-gray-300 px-2.5 text-[11.5px] font-bold text-gray-600 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-primary-900/20"
+                class="icon-btn icon-btn--view icon-btn--sm"
+                data-tooltip="{{ $published === null ? 'Push to Repository' : 'Re-push, replacing the published version' }}"
+                aria-label="{{ $published === null ? 'Push this result to the Repository' : 'Push this result again, replacing the published version' }}"
             >
-                <i class="fa-solid fa-cloud-arrow-up text-[11px]"></i>
-                {{ $published === null ? 'Push' : 'Re-push' }}
+                <i class="fa-solid {{ $published === null ? 'fa-cloud-arrow-up' : 'fa-arrows-rotate' }}" aria-hidden="true"></i>
             </button>
         </form>
     </div>

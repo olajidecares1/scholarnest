@@ -11,21 +11,25 @@
                 <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $class->name }}</span>
             </a>
             <a href="{{ route('class-subjects.index', ['class' => $class->name]) }}" class="mt-1 block text-center text-[11px] font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400">Subjects</a>
-            <div class="absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <div class="icon-btn-group absolute right-1.5 top-1.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 focus-within:opacity-100">
                 <button
                     type="button"
                     @click="editing = true"
-                    class="rounded-full bg-white/90 p-1 text-gray-400 shadow-sm transition-colors duration-150 hover:bg-blue-50 hover:text-blue-600 dark:bg-gray-800/90 dark:text-gray-500 dark:hover:bg-blue-900/20 dark:hover:text-blue-400"
+                    class="icon-btn icon-btn--edit icon-btn--sm"
+                    data-tooltip="Rename class"
+                    aria-label="Rename class"
                 >
-                    <i class="fa-solid fa-pen text-[12px] leading-none" aria-hidden="true"></i>
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                 </button>
                 <form method="POST" action="{{ route('academics.classes.destroy', $class) }}" onsubmit="return confirm('Delete {{ $class->name }}?');">
                     @csrf @method('DELETE')
                     <button
                         type="submit"
-                        class="rounded-full bg-white/90 p-1 text-gray-400 shadow-sm transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:bg-gray-800/90 dark:text-gray-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                        class="icon-btn icon-btn--delete icon-btn--sm"
+                        data-tooltip="Delete class"
+                        aria-label="Delete class"
                     >
-                        <i class="fa-solid fa-xmark text-[12px] leading-none" aria-hidden="true"></i>
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                     </button>
                 </form>
             </div>
@@ -47,7 +51,7 @@
                 autofocus
                 class="w-full text-center"
             >
-            <button type="submit" class="btn rounded-[6px] bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
+            <button type="submit" class="btn rounded-[6px] bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
         </form>
     </template>
 </div>

@@ -39,8 +39,8 @@
                     />
                 </div>
 
-                <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                    Filter
+                <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Apply filters" aria-label="Apply filters">
+                    <i class="fa-solid fa-filter" aria-hidden="true"></i>
                 </button>
             </form>
 
@@ -81,12 +81,12 @@
                                     @elseif ($user->is_active)
                                         <form method="POST" action="{{ route('super-admin.users.deactivate', $user) }}" onsubmit="return confirm('Deactivate {{ $user->name }}?');">
                                             @csrf
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Deactivate</button>
+                                            <button type="submit" class="icon-btn icon-btn--warn" data-tooltip="Deactivate user" aria-label="Deactivate user"><i class="fa-solid fa-toggle-off" aria-hidden="true"></i></button>
                                         </form>
                                     @else
                                         <form method="POST" action="{{ route('super-admin.users.activate', $user) }}">
                                             @csrf
-                                            <button type="submit" class="btn rounded-[8px] border border-green-300 px-3 py-1.5 text-xs font-semibold text-green-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-50 hover:shadow-sm dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Activate</button>
+                                            <button type="submit" class="icon-btn icon-btn--approve" data-tooltip="Activate user" aria-label="Activate user"><i class="fa-solid fa-toggle-on" aria-hidden="true"></i></button>
                                         </form>
                                     @endif
                                 </td>

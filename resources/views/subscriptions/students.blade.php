@@ -109,7 +109,7 @@
                 </div>
 
                 <div class="mt-6 flex items-center justify-between">
-                    <a href="{{ route('subscriptions.choose-plan') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900">&larr; Back</a>
+                    <a href="{{ route('subscriptions.choose-plan') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
 
                     <button
                         type="submit"

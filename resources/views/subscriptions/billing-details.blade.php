@@ -53,7 +53,7 @@
                 />
 
                 <div class="flex items-center justify-between pt-2">
-                    <a href="{{ $backRoute }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900">&larr; Back</a>
+                    <a href="{{ $backRoute }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
 
                     <button
                         type="submit"

@@ -79,7 +79,7 @@
             </div>
 
             <div class="flex justify-end">
-                <x-primary-button>Save</x-primary-button>
+                <x-primary-button><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</x-primary-button>
             </div>
         </form>
 
@@ -93,11 +93,11 @@
                 <small class="block mt-3 break-all rounded-[6px] bg-gray-50 p-3 font-mono text-xs text-gray-600 dark:bg-gray-900 dark:text-gray-300">{{ $posterUrl }}</small>
 
                 <div class="mt-4 flex flex-wrap gap-3">
-                    <a href="{{ route('attendance.check-in.poster') }}" class="btn rounded-[6px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-blue-700">Download the poster</a>
+                    <a href="{{ route('attendance.check-in.poster') }}" class="btn rounded-[6px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-blue-700"><i class="fa-solid fa-download btn-icon" aria-hidden="true"></i> Download the poster</a>
 
                     <form method="POST" action="{{ route('attendance.check-in.rotate') }}" onsubmit="return confirm('The poster on the wall will stop working immediately. Print and put up the new one. Continue?')">
                         @csrf
-                        <button type="submit" class="btn rounded-[6px] border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition-colors duration-150 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20">Issue a new code</button>
+                        <button type="submit" class="btn rounded-[6px] border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition-colors duration-150 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20"><i class="fa-solid fa-arrows-rotate btn-icon" aria-hidden="true"></i> Issue a new code</button>
                     </form>
                 </div>
 

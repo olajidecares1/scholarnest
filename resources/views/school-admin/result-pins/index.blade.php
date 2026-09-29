@@ -47,10 +47,14 @@
                     <button
                         type="button"
                         @click="navigator.clipboard.writeText($refs.resultLink.textContent.trim()).then(() => { copied = true; setTimeout(() => copied = false, 2000) })"
-                        class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                        class="icon-btn icon-btn--download"
+                        data-tooltip="Copy link"
+                        aria-label="Copy link"
+                        :data-tooltip="copied ? 'Copied' : 'Copy link'"
+                        :aria-label="copied ? 'Copied' : 'Copy link'"
                     >
-                        <span x-show="! copied">Copy link</span>
-                        <span x-show="copied" x-cloak class="text-green-600 dark:text-green-400">Copied</span>
+                        <span x-show="! copied"><i class="fa-solid fa-copy" aria-hidden="true"></i></span>
+                        <span x-show="copied" x-cloak class="text-green-600 dark:text-green-400"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                     </button>
                 </div>
 
@@ -65,7 +69,7 @@
                     <form method="POST" action="{{ route('result-pins.link.toggle') }}">
                         @csrf
                         <button type="submit" class="btn rounded-[8px] bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300">
-                            {{ $school->resultLinkIsLive() ? 'Switch off' : 'Switch back on' }}
+                            <i class="fa-solid {{ $school->resultLinkIsLive() ? 'fa-toggle-off' : 'fa-toggle-on' }} btn-icon" aria-hidden="true"></i> {{ $school->resultLinkIsLive() ? 'Switch off' : 'Switch back on' }}
                         </button>
                     </form>
 
@@ -76,7 +80,7 @@
                     >
                         @csrf
                         <button type="submit" class="btn rounded-[8px] bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300">
-                            Generate a new link
+                            <i class="fa-solid fa-arrows-rotate btn-icon" aria-hidden="true"></i> Generate a new link
                         </button>
                     </form>
 
@@ -100,8 +104,8 @@
                             with Reveal on a student's row or by running the class batch again.
                         </p>
                     </div>
-                    <button type="button" onclick="window.print()" class="btn rounded-[8px] bg-green-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-800 print:hidden">
-                        Print list
+                    <button type="button" onclick="window.print()" class="icon-btn icon-btn--download print:hidden" data-tooltip="Print list" aria-label="Print list">
+                        <i class="fa-solid fa-print" aria-hidden="true"></i>
                     </button>
                 </div>
 
@@ -227,7 +231,7 @@
                 </div>
 
                 <button type="submit" class="btn mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-                    Issue token
+                    <i class="fa-solid fa-hand-holding btn-icon" aria-hidden="true"></i> Issue token
                 </button>
             </form>
 
@@ -315,7 +319,7 @@
                 </div>
 
                 <button type="submit" class="btn mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-                    Generate tokens for this class
+                    <i class="fa-solid fa-wand-magic-sparkles btn-icon" aria-hidden="true"></i> Generate tokens for this class
                 </button>
             </form>
         </div>
@@ -487,29 +491,30 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <div class="flex flex-wrap items-center gap-1.5">
+                                    <div class="icon-btn-group">
                                         <form method="POST" action="{{ route('result-pins.reveal', $token) }}">
                                             @csrf
-                                            <button type="submit" class="btn rounded-[6px] bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200">Show token</button>
+                                            <button type="submit" class="icon-btn icon-btn--view" data-tooltip="Show token" aria-label="Show token"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
                                         </form>
 
                                         <form method="POST" action="{{ route('result-pins.reissue', $token) }}">
                                             @csrf
-                                            <button type="submit" class="btn rounded-[6px] bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300">Reissue</button>
+                                            <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Reissue token" aria-label="Reissue token"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></button>
                                         </form>
 
                                         @if ($token->status->allowsAccess() || $token->status->isReversible())
                                             <form method="POST" action="{{ route('result-pins.suspend', $token) }}">
                                                 @csrf
-                                                <button type="submit" class="btn rounded-[6px] bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300">
-                                                    {{ $token->status->isReversible() ? 'Restore' : 'Suspend' }}
+                                                @php($isReversible = $token->status->isReversible())
+                                                <button type="submit" class="icon-btn {{ $isReversible ? 'icon-btn--approve' : 'icon-btn--warn' }}" data-tooltip="{{ $isReversible ? 'Restore token' : 'Suspend token' }}" aria-label="{{ $isReversible ? 'Restore token' : 'Suspend token' }}">
+                                                    <i class="fa-solid {{ $isReversible ? 'fa-rotate-left' : 'fa-circle-pause' }}" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         <form method="POST" action="{{ route('result-pins.revoke', $token) }}">
                                             @csrf
-                                            <button type="submit" class="btn rounded-[6px] bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300">Revoke</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Revoke token" aria-label="Revoke token"><i class="fa-solid fa-ban" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>

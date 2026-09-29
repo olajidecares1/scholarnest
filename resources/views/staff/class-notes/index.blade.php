@@ -138,7 +138,7 @@
                         <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
                             <small class="field-hint" x-text="chosen === 0 ? 'No classes chosen yet.' : chosen + (chosen === 1 ? ' class selected.' : ' classes selected.')"></small>
                             <button type="submit" class="btn inline-flex items-center gap-2 rounded-[8px] bg-primary-600 px-5 py-2.5 text-[13px] font-bold text-white transition hover:bg-primary-700">
-                                <i class="fa-solid fa-paper-plane text-[12px]"></i>
+                                <i class="fa-solid fa-paper-plane text-[12px]" aria-hidden="true"></i>
                                 Send Class Note
                             </button>
                         </div>
@@ -175,20 +175,20 @@
                             @endforeach
                         </div>
 
-                        <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3 dark:border-gray-700">
-                            <a href="{{ route('staff.class-notes.download', [$school, $note]) }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-[12px] font-bold text-gray-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-gray-600 dark:text-gray-200">
-                                <i class="fa-solid fa-download text-[11px]"></i>
-                                Download
-                            </a>
+                        <div class="mt-4 border-t border-gray-100 pt-3 dark:border-gray-700">
+                            <div class="icon-btn-group">
+                                <a href="{{ route('staff.class-notes.download', [$school, $note]) }}" class="icon-btn icon-btn--download" data-tooltip="Download" aria-label="Download {{ $note->title }}">
+                                    <i class="fa-solid fa-download" aria-hidden="true"></i>
+                                </a>
 
-                            <form method="POST" action="{{ route('staff.class-notes.destroy', [$school, $note]) }}" onsubmit="return confirm('Withdraw “{{ $note->title }}”? Students will no longer be able to open it.');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-[12px] font-bold text-red-600 transition hover:border-red-300 dark:border-gray-600">
-                                    <i class="fa-solid fa-xmark text-[11px]"></i>
-                                    Withdraw
-                                </button>
-                            </form>
+                                <form method="POST" action="{{ route('staff.class-notes.destroy', [$school, $note]) }}" onsubmit="return confirm('Withdraw “{{ $note->title }}”? Students will no longer be able to open it.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Withdraw" aria-label="Withdraw {{ $note->title }}">
+                                        <i class="fa-solid fa-ban" aria-hidden="true"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 @empty

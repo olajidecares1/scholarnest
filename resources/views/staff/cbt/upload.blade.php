@@ -83,7 +83,7 @@
                 <form method="POST" action="{{ route('staff.cbt.tests.uploads.retry', [$school, $test, $upload]) }}" onsubmit="return confirm('Read this document again? The questions it produced are replaced.');" class="shrink-0">
                     @csrf
                     <button type="submit" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                        <i class="fa-solid fa-rotate-right"></i>
+                        <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
                         Read This Document Again
                     </button>
                 </form>
@@ -104,7 +104,7 @@
             <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex items-center justify-between border-b border-gray-100 p-6 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Extracted Questions</h2>
-                    <a href="{{ route('staff.cbt.tests.show', [$school, $test]) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage on Test Page</a>
+                    <a href="{{ route('staff.cbt.tests.show', [$school, $test]) }}" class="icon-btn icon-btn--edit" data-tooltip="Manage on test page" aria-label="Manage on test page"><i class="fa-solid fa-sliders" aria-hidden="true"></i></a>
                 </div>
                 <div class="divide-y divide-gray-100 p-6 dark:divide-gray-700">
                     @php

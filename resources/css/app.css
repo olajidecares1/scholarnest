@@ -2122,3 +2122,327 @@ a.pwa-install-banner__install {
         padding: 40px 16px;
     }
 }
+
+/* ==========================================================================
+   ICON ACTION BUTTONS
+
+   Every compact action in the School Admin, Staff, Student, Guardian and
+   Super Admin portals (a row's Edit, View, Delete, Approve, Reject, Download,
+   Print, Search and the rest) is a square icon button rather than a word. One
+   component, one set of tones, the same on every plan and every page.
+
+       <button type="button" class="icon-btn icon-btn--edit"
+               data-tooltip="Edit" aria-label="Edit">
+           <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+       </button>
+
+   THE NAME IS NEVER LOST. The word the button used to carry moves to
+   aria-label, which is what a screen reader announces, and to data-tooltip,
+   which resources/js/action-tooltips.js shows on hover, on keyboard focus and
+   on a long press on a touch screen. The tooltip is drawn in a layer on the
+   body, not inside the button, so the overflow-x-auto wrappers every table
+   sits in cannot clip it.
+
+   TONES say what kind of action it is, so a row of icons reads at a glance:
+       --view      blue      look at something (View, Preview, Inspect)
+       --edit      amber     change it (Edit, Rename, Manage, Settings)
+       --add       brand     make a new one (Add, Assign, Allocate, Link)
+       --approve   green     say yes (Approve, Activate, Publish, Restore)
+       --delete    red       remove or refuse (Delete, Reject, Revoke, Unlink)
+       --warn      orange    pause it (Suspend, Deactivate, Archive, Close)
+       --download  teal      take a copy away (Download, Export, Print, Copy)
+       --neutral   grey      everything else (Search, Filter, Clear, Back)
+
+   SIZE. 34px on a desktop, level with the 36px fields beside them once the
+   border is counted. 40px on a touch screen, the smallest target a thumb hits
+   reliably, and the group wraps rather than pushing the table wider.
+   ========================================================================== */
+/* In the components layer, so a utility on the same element still wins:
+   "icon-btn hidden sm:inline-flex" must stay hidden on a phone. */
+@layer components {
+    :root {
+        --icon-btn-size: 34px;
+        --icon-btn-icon: 14px;
+        --icon-btn-radius: 9px;
+    }
+
+    @media (pointer: coarse), (hover: none) {
+        :root {
+            --icon-btn-size: 40px;
+            --icon-btn-icon: 16px;
+        }
+    }
+
+    .icon-btn {
+        --ib-fg: #475569;
+        --ib-bg: #f8fafc;
+        --ib-border: #e2e8f0;
+        --ib-hover-bg: #f1f5f9;
+        --ib-ring: color-mix(in srgb, var(--ib-fg) 28%, transparent);
+
+        position: relative;
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        width: var(--icon-btn-size);
+        height: var(--icon-btn-size);
+        min-width: var(--icon-btn-size);
+        padding: 0;
+        border: 1px solid var(--ib-border);
+        border-radius: var(--icon-btn-radius);
+        background: var(--ib-bg);
+        color: var(--ib-fg);
+        font-size: var(--icon-btn-icon);
+        line-height: 1;
+        cursor: pointer;
+        text-decoration: none;
+        vertical-align: middle;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        transition:
+            transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1.2),
+            background-color 0.2s ease-out,
+            border-color 0.2s ease-out,
+            color 0.2s ease-out,
+            box-shadow 0.25s ease-out;
+    }
+
+    .icon-btn > i,
+    .icon-btn > svg {
+        font-size: inherit;
+        width: 1em;
+        height: 1em;
+        line-height: 1;
+        pointer-events: none;
+        transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.3, 1.3);
+    }
+
+    .icon-btn > svg {
+        width: 1.1em;
+        height: 1.1em;
+    }
+
+    .icon-btn:hover:not(:disabled, [aria-disabled="true"]) {
+        transform: translateY(-2px);
+        background: var(--ib-hover-bg);
+        border-color: color-mix(in srgb, var(--ib-fg) 45%, transparent);
+        box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--ib-fg) 45%, transparent);
+    }
+
+    .icon-btn:hover:not(:disabled, [aria-disabled="true"]) > i,
+    .icon-btn:hover:not(:disabled, [aria-disabled="true"]) > svg {
+        transform: scale(1.12);
+    }
+
+    .icon-btn:focus {
+        outline: none;
+    }
+
+    .icon-btn:focus-visible {
+        border-color: var(--ib-fg);
+        box-shadow: 0 0 0 3px var(--ib-ring);
+    }
+
+    .icon-btn:active:not(:disabled, [aria-disabled="true"]) {
+        transform: translateY(0) scale(0.92);
+        box-shadow: none;
+        transition-duration: 0.08s;
+    }
+
+    .icon-btn:disabled,
+    .icon-btn[aria-disabled="true"] {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    /* Filled: the one icon in a toolbar that is the page's main action. */
+    .icon-btn.icon-btn--solid {
+        --ib-bg: var(--ib-fg);
+        --ib-hover-bg: color-mix(in srgb, var(--ib-fg) 88%, #000);
+        --ib-border: transparent;
+        color: #fff;
+    }
+
+    .icon-btn.icon-btn--solid:hover:not(:disabled, [aria-disabled="true"]) {
+        color: #fff;
+    }
+
+    /* Smaller, for dense places: a chip, a card corner, a line in a list. */
+    .icon-btn--sm {
+        --icon-btn-size: 28px;
+        --icon-btn-icon: 12px;
+        --icon-btn-radius: 7px;
+    }
+
+    @media (pointer: coarse), (hover: none) {
+        .icon-btn--sm {
+            --icon-btn-size: 36px;
+            --icon-btn-icon: 14px;
+        }
+    }
+
+    .icon-btn--view     { --ib-fg: #1d6fe0; --ib-bg: #eef5ff; --ib-border: #d3e4fd; --ib-hover-bg: #dfecfe; }
+    .icon-btn--edit     { --ib-fg: #b45309; --ib-bg: #fff8eb; --ib-border: #fde7c2; --ib-hover-bg: #fff0d2; }
+    .icon-btn--add      { --ib-fg: var(--color-primary-500); --ib-bg: color-mix(in srgb, var(--color-primary-500) 8%, #fff); --ib-border: color-mix(in srgb, var(--color-primary-500) 22%, #fff); --ib-hover-bg: color-mix(in srgb, var(--color-primary-500) 14%, #fff); }
+    .icon-btn--approve  { --ib-fg: #15803d; --ib-bg: #effcf3; --ib-border: #c9f0d5; --ib-hover-bg: #dcf7e4; }
+    .icon-btn--delete   { --ib-fg: #dc2626; --ib-bg: #fef2f2; --ib-border: #fdd5d5; --ib-hover-bg: #fee2e2; }
+    .icon-btn--warn     { --ib-fg: #c2410c; --ib-bg: #fff5ed; --ib-border: #fed9bf; --ib-hover-bg: #ffe9d6; }
+    .icon-btn--download { --ib-fg: #0f766e; --ib-bg: #eefcfa; --ib-border: #c5efe9; --ib-hover-bg: #d9f7f2; }
+    .icon-btn--neutral  { --ib-fg: #475569; --ib-bg: #f8fafc; --ib-border: #e2e8f0; --ib-hover-bg: #eef2f7; }
+
+    .dark .icon-btn,
+    .dark .icon-btn--neutral  { --ib-fg: #cbd5e1; --ib-bg: #1f2937; --ib-border: #374151; --ib-hover-bg: #283344; }
+    .dark .icon-btn--view     { --ib-fg: #7cb3ff; --ib-bg: rgb(29 111 224 / 0.14); --ib-border: rgb(124 179 255 / 0.25); --ib-hover-bg: rgb(29 111 224 / 0.24); }
+    .dark .icon-btn--edit     { --ib-fg: #fbbf24; --ib-bg: rgb(245 158 11 / 0.12); --ib-border: rgb(251 191 36 / 0.25); --ib-hover-bg: rgb(245 158 11 / 0.22); }
+    .dark .icon-btn--add      { --ib-fg: #7cb3ff; --ib-bg: color-mix(in srgb, var(--color-primary-500) 16%, transparent); --ib-border: color-mix(in srgb, var(--color-primary-500) 32%, transparent); --ib-hover-bg: color-mix(in srgb, var(--color-primary-500) 26%, transparent); }
+    .dark .icon-btn--approve  { --ib-fg: #4ade80; --ib-bg: rgb(34 197 94 / 0.12); --ib-border: rgb(74 222 128 / 0.25); --ib-hover-bg: rgb(34 197 94 / 0.22); }
+    .dark .icon-btn--delete   { --ib-fg: #f87171; --ib-bg: rgb(239 68 68 / 0.12); --ib-border: rgb(248 113 113 / 0.25); --ib-hover-bg: rgb(239 68 68 / 0.22); }
+    .dark .icon-btn--warn     { --ib-fg: #fb923c; --ib-bg: rgb(249 115 22 / 0.12); --ib-border: rgb(251 146 60 / 0.25); --ib-hover-bg: rgb(249 115 22 / 0.22); }
+    .dark .icon-btn--download { --ib-fg: #2dd4bf; --ib-bg: rgb(20 184 166 / 0.12); --ib-border: rgb(45 212 191 / 0.25); --ib-hover-bg: rgb(20 184 166 / 0.22); }
+
+    .dark .icon-btn.icon-btn--solid { --ib-bg: var(--ib-fg); --ib-hover-bg: color-mix(in srgb, var(--ib-fg) 85%, #fff); --ib-border: transparent; color: #0b1220; }
+    .dark .icon-btn.icon-btn--solid:hover:not(:disabled, [aria-disabled="true"]) { color: #0b1220; }
+
+    /* Small motions that say what the icon does, on hover and keyboard focus. */
+    .icon-btn--delete:is(:hover, :focus-visible) > i.fa-trash-can,
+    .icon-btn--delete:is(:hover, :focus-visible) > i.fa-trash { transform: scale(1.12) rotate(-8deg); }
+    .icon-btn--add:is(:hover, :focus-visible) > i.fa-plus { transform: scale(1.12) rotate(90deg); }
+    .icon-btn--download:is(:hover, :focus-visible) > i.fa-download,
+    .icon-btn--download:is(:hover, :focus-visible) > i.fa-file-arrow-down { transform: translateY(2px) scale(1.08); }
+    .icon-btn:is(:hover, :focus-visible) > i.fa-gear { transform: rotate(60deg) scale(1.08); }
+    .icon-btn:is(:hover, :focus-visible) > i.fa-arrow-left { transform: translateX(-2px); }
+    .icon-btn:is(:hover, :focus-visible) > i.fa-arrows-rotate,
+    .icon-btn:is(:hover, :focus-visible) > i.fa-rotate-left { transform: rotate(-45deg); }
+
+    /* A row of them. Wraps on a narrow screen instead of widening the table. */
+    .icon-btn-group {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* In a table the row scrolls sideways with the table instead of the
+       icons stacking into a column three buttons tall. */
+    td .icon-btn-group {
+        flex-wrap: nowrap;
+    }
+
+    .icon-btn-group > form {
+        display: inline-flex;
+        margin: 0;
+    }
+
+    /* A text button that keeps its label (a page's "Add Student", a form's
+       "Save") carries the same icon in front of the word. */
+    .btn:has(> .btn-icon) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+    }
+
+    .btn > .btn-icon {
+        flex-shrink: 0;
+        font-size: 0.95em;
+        line-height: 1;
+        transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.3, 1.3);
+    }
+
+    .btn:hover > .btn-icon {
+        transform: scale(1.12);
+    }
+
+    .btn:hover > .btn-icon.fa-plus {
+        transform: rotate(90deg);
+    }
+
+    .btn:hover > .btn-icon.fa-arrow-left {
+        transform: translateX(-2px);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   The tooltip. One element on the body, moved to whichever button is under
+   the pointer or has focus (resources/js/action-tooltips.js).
+   -------------------------------------------------------------------------- */
+.action-tooltip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    max-width: min(240px, calc(100vw - 16px));
+    padding: 6px 10px;
+    border-radius: 7px;
+    background: #0f172a;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    text-align: center;
+    white-space: normal;
+    pointer-events: none;
+    box-shadow: 0 8px 20px -6px rgb(15 23 42 / 0.45);
+    opacity: 0;
+    transform: translate3d(var(--tt-x, 0), var(--tt-y, 0), 0) translateY(var(--tt-shift, 4px)) scale(0.96);
+    transition: opacity 0.14s ease-out, transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+}
+
+.action-tooltip[data-placement="bottom"] {
+    --tt-shift: -4px;
+}
+
+.action-tooltip.is-visible {
+    opacity: 1;
+    transform: translate3d(var(--tt-x, 0), var(--tt-y, 0), 0) translateY(0) scale(1);
+}
+
+.action-tooltip::after {
+    content: "";
+    position: absolute;
+    left: var(--tt-arrow, 50%);
+    width: 8px;
+    height: 8px;
+    margin-left: -4px;
+    background: inherit;
+    transform: rotate(45deg);
+}
+
+.action-tooltip[data-placement="top"]::after {
+    bottom: -4px;
+}
+
+.action-tooltip[data-placement="bottom"]::after {
+    top: -4px;
+}
+
+.dark .action-tooltip {
+    background: #f1f5f9;
+    color: #0f172a;
+    box-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .icon-btn,
+    .icon-btn > i,
+    .icon-btn > svg,
+    .btn > .btn-icon,
+    .action-tooltip {
+        transition: opacity 0.1s linear;
+    }
+
+    .icon-btn:hover:not(:disabled, [aria-disabled="true"]),
+    .icon-btn:active:not(:disabled, [aria-disabled="true"]),
+    .icon-btn:is(:hover, :focus-visible) > i,
+    .btn:hover > .btn-icon {
+        transform: none;
+    }
+}
+
+@media print {
+    .action-tooltip {
+        display: none;
+    }
+}

@@ -105,7 +105,7 @@
                         @click="select(question.id, null)"
                         class="mt-3 text-xs font-semibold text-gray-500 transition-colors duration-150 hover:text-red-600 dark:text-gray-400"
                     >
-                        <i class="fa-solid fa-eraser mr-1"></i>Clear my answer
+                        <i class="fa-solid fa-eraser mr-1" aria-hidden="true"></i>Clear my answer
                     </button>
                 </div>
             </template>
@@ -119,7 +119,7 @@
                 :disabled="current === 0"
                 class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
-                <i class="fa-solid fa-chevron-left mr-1.5 text-xs"></i>Previous
+                <i class="fa-solid fa-arrow-left btn-icon" aria-hidden="true"></i> Previous
             </button>
 
             <span class="hidden text-xs text-gray-400 sm:block dark:text-gray-500">
@@ -133,7 +133,7 @@
                     @click="next()"
                     class="btn rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-md"
                 >
-                    Next<i class="fa-solid fa-chevron-right ml-1.5 text-xs"></i>
+                    Next <i class="fa-solid fa-arrow-right btn-icon" aria-hidden="true"></i>
                 </button>
 
                 <button
@@ -141,7 +141,7 @@
                     @click="confirmSubmit()"
                     class="btn rounded-[8px] bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-md"
                 >
-                    <i class="fa-solid fa-paper-plane mr-1.5"></i>Submit Exam
+                    <i class="fa-solid fa-paper-plane btn-icon" aria-hidden="true"></i> Submit Exam
                 </button>
             </div>
         </div>

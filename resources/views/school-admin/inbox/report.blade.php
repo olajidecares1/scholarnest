@@ -52,7 +52,7 @@
                                     <a href="{{ $mediaUrl }}">Open it instead.</a>
                                 </video>
                             @else
-                                <button type="button" x-on:click="viewer = @js($mediaUrl)" class="block w-full" title="View full size">
+                                <button type="button" x-on:click="viewer = @js($mediaUrl)" class="block w-full" data-tooltip="View full size" aria-label="View full size">
                                     <img src="{{ $mediaUrl }}" alt="" class="w-full object-cover" style="height: 140px;">
                                 </button>
                             @endif
@@ -92,7 +92,7 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700">Save</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                 </div>
             </form>
         </div>

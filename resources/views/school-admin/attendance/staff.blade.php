@@ -8,7 +8,7 @@
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search staff name..." class="w-56">
                     <input type="date" name="from" value="{{ request('from') }}" class="w-44">
                     <input type="date" name="to" value="{{ request('to') }}" class="w-44">
-                    <x-primary-button>Filter</x-primary-button>
+                    <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Apply filters" aria-label="Apply filters"><i class="fa-solid fa-filter" aria-hidden="true"></i></button>
                 </form>
             </div>
 

@@ -80,6 +80,7 @@
                 @click="stopPreview()"
                 class="btn flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
+                <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i>
                 Exit Preview
             </button>
         </div>
@@ -109,14 +110,14 @@
                         @endif
                     </div>
 
-                    <div class="flex shrink-0 items-center gap-2">
+                    <div class="icon-btn-group shrink-0">
                         <form method="POST" action="{{ route('staff.cbt.tests.duplicate', [$school, $test]) }}">
                             @csrf
-                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Duplicate</button>
+                            <button type="submit" class="icon-btn icon-btn--download" data-tooltip="Duplicate test" aria-label="Duplicate test"><i class="fa-solid fa-copy" aria-hidden="true"></i></button>
                         </form>
                         <form method="POST" action="{{ route('staff.cbt.tests.destroy', [$school, $test]) }}" onsubmit="return confirm('Delete this test? This cannot be undone.');">
                             @csrf @method('DELETE')
-                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete test" aria-label="Delete test"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                         </form>
                     </div>
                 </div>
@@ -135,7 +136,7 @@
                     </div>
 
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <button type="submit" name="status" value="draft" @disabled($test->hasStudentAttempts()) title="{{ $test->hasStudentAttempts() ? 'Students have already started this test.' : '' }}" class="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Save as Draft</button>
+                        <button type="submit" name="status" value="draft" @disabled($test->hasStudentAttempts()) title="{{ $test->hasStudentAttempts() ? 'Students have already started this test.' : '' }}" class="inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save as Draft</button>
                     {{-- One button, both ways.
 
                          It only ever sent "locked", so a test that was locked
@@ -156,8 +157,8 @@
                             <i class="fa-solid {{ $isLocked ? 'fa-lock-open' : 'fa-lock' }} text-[12px]" aria-hidden="true"></i>
                             {{ $isLocked ? 'Unlock' : 'Lock' }}
                         </button>
-                        <button type="submit" name="status" value="published" @disabled($publishBlocker) title="{{ $publishBlocker ?? '' }}" class="btn rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0">Publish</button>
-                        <button type="submit" name="status" value="archived" class="btn rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">Archive</button>
+                        <button type="submit" name="status" value="published" @disabled($publishBlocker) title="{{ $publishBlocker ?? '' }}" class="btn rounded-[8px] bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"><i class="fa-solid fa-globe btn-icon" aria-hidden="true"></i> Publish</button>
+                        <button type="submit" name="status" value="archived" class="btn rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"><i class="fa-solid fa-box-archive btn-icon" aria-hidden="true"></i> Archive</button>
                     </div>
                 </form>
                 @if ($publishBlocker)
@@ -273,7 +274,7 @@
                                         <span class="ml-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Needs Review</span>
                                     @endif
                                 </p>
-                                <div class="flex shrink-0 items-center gap-2">
+                                <div class="icon-btn-group shrink-0">
                                     <button
                                         type="button"
                                         @click="openEdit(@js([
@@ -282,13 +283,15 @@
                                             'options' => $question->options->map(fn ($o) => ['label' => $o->label, 'text' => $o->option_text])->values()->all(),
                                             'correctLabel' => $correctLabel,
                                         ]))"
-                                        class="btn rounded-[8px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        class="icon-btn icon-btn--edit"
+                                        data-tooltip="Edit question"
+                                        aria-label="Edit question"
                                     >
-                                        Edit
+                                        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" action="{{ route('staff.cbt.tests.questions.destroy', [$school, $test, $question]) }}" onsubmit="return confirm('Delete this question?');">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn rounded-[8px] border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                        <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete question" aria-label="Delete question"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                     </form>
                                 </div>
                             </div>
@@ -363,19 +366,19 @@
                                                 :placeholder="'Option ' + String.fromCharCode(65 + i)"
                                                 class="flex-1"
                                             >
-                                            <button type="button" @click="removeOption(i)" x-show="options.length > 2" class="shrink-0 rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20">
-                                                <i class="fa-solid fa-xmark text-[14px] leading-none" aria-hidden="true"></i>
+                                            <button type="button" @click="removeOption(i)" x-show="options.length > 2" class="icon-btn icon-btn--delete icon-btn--sm shrink-0" data-tooltip="Remove option" aria-label="Remove option">
+                                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                             </button>
                                         </div>
                                     </template>
                                 </div>
-                                <button type="button" @click="addOption()" x-show="options.length < 5" class="mt-2 text-xs font-semibold text-primary-600 transition-colors duration-150 hover:text-primary-700 dark:text-primary-400">+ Add another option</button>
+                                <button type="button" @click="addOption()" x-show="options.length < 5" class="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-primary-600 transition-colors duration-150 hover:text-primary-700 dark:text-primary-400"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add another option</button>
                                 <small class="field-hint mt-2">Select the radio button next to the correct answer.</small>
                             </div>
 
                             <div class="flex justify-end gap-2">
-                                <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                                <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">Save Question</button>
+                                <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                                <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Question</button>
                             </div>
                         </form>
                     </div>
@@ -416,7 +419,7 @@
                     </template>
 
                     <button type="button" @click="submitPreview()" class="btn rounded-[8px] bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg">
-                        Submit
+                        <i class="fa-solid fa-paper-plane btn-icon" aria-hidden="true"></i> Submit
                     </button>
                 </div>
             </template>
@@ -428,7 +431,7 @@
                     <p class="mt-1 text-sm" :class="previewPercent >= {{ $test->pass_mark }} ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                         <span x-text="previewPercent"></span>% &mdash; <span x-text="previewPercent >= {{ $test->pass_mark }} ? 'Pass' : 'Fail'"></span> (pass mark {{ $test->pass_mark }}%)
                     </p>
-                    <button type="button" @click="startPreview()" class="btn mt-4 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Retake Preview</button>
+                    <button type="button" @click="startPreview()" class="btn mt-4 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-arrows-rotate btn-icon" aria-hidden="true"></i> Retake Preview</button>
                 </div>
             </template>
         </div>

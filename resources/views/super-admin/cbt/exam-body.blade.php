@@ -47,7 +47,7 @@
                     @endif
                 @endforeach
 
-                <button type="submit" class="btn mt-5 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md">Save Subjects</button>
+                <button type="submit" class="btn mt-5 rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-md"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Subjects</button>
             </form>
         </div>
 
@@ -107,18 +107,20 @@
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $exam->pass_mark }}%</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $exam->questions_count }}</td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('super-admin.cbt.exams.show', $exam) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage Questions</a>
+                                    <div class="icon-btn-group">
+                                        <a href="{{ route('super-admin.cbt.exams.show', $exam) }}" class="icon-btn icon-btn--edit" data-tooltip="Manage questions" aria-label="Manage questions"><i class="fa-solid fa-sliders" aria-hidden="true"></i></a>
                                         <button
                                             type="button"
                                             @click="editingExam = { uuid: @js($exam->uuid), title: @js($exam->title()), duration_minutes: @js($exam->duration_minutes), pass_mark: @js($exam->pass_mark) }"
-                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="icon-btn icon-btn--edit"
+                                            data-tooltip="Edit exam"
+                                            aria-label="Edit exam"
                                         >
-                                            Edit
+                                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                         </button>
                                         <form method="POST" action="{{ route('super-admin.cbt.exams.destroy', $exam) }}" onsubmit="return confirm('Delete this exam and all its questions?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete exam" aria-label="Delete exam"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -183,8 +185,8 @@
 
                     <x-text-field name="pass_mark" label="Pass Mark (%)" type="number" icon="M8 12.3l2.6 2.6L16.3 9" min="0" max="100" value="50" required />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="addExamOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Create Exam</button>
+                        <button type="button" @click="addExamOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-plus btn-icon" aria-hidden="true"></i> Create Exam</button>
                     </div>
                 </form>
             </div>
@@ -204,8 +206,8 @@
                         <x-text-field name="duration_minutes" label="Duration (minutes)" type="number" icon="M12 21a9 9 0 100-18 9 9 0 000 18z" min="5" max="300" x-model.number="editingExam.duration_minutes" required />
                         <x-text-field name="pass_mark" label="Pass Mark (%)" type="number" icon="M8 12.3l2.6 2.6L16.3 9" min="0" max="100" x-model.number="editingExam.pass_mark" required />
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="editingExam = null" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save Changes</button>
+                            <button type="button" @click="editingExam = null" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Changes</button>
                         </div>
                     </form>
                 </template>

@@ -102,6 +102,7 @@
                 x-bind:disabled="tooBig"
                 class="btn rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
+                <i class="fa-solid {{ $current ? 'fa-arrow-right-arrow-left' : 'fa-floppy-disk' }} btn-icon" aria-hidden="true"></i>
                 {{ $current ? 'Replace image' : 'Save image' }}
             </button>
 
@@ -115,6 +116,7 @@
                     value="1"
                     class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
                 >
+                    <i class="fa-solid fa-trash-can btn-icon" aria-hidden="true"></i>
                     Remove image
                 </button>
             @endif

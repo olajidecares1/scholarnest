@@ -92,9 +92,9 @@
                             :options="['' => 'All Roles'] + collect($roleOptions)->mapWithKeys(fn ($r) => [$r->value => $r->label()])->all()"
                         />
                     </div>
-                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
+                    <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Search" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
                     @if (request('search') || request('role'))
-                        <a href="{{ route('staff.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
+                        <a href="{{ route('staff.index') }}" class="icon-btn icon-btn--neutral" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                     @endif
                 </form>
 
@@ -144,10 +144,10 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
+                                    <div class="icon-btn-group">
                                         @if ($member->role === \App\Enums\StaffRole::Teacher)
-                                            <a href="{{ route('teacher-assignments.index', ['teacher' => $member->uuid]) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                                                Assignments
+                                            <a href="{{ route('teacher-assignments.index', ['teacher' => $member->uuid]) }}" class="icon-btn icon-btn--view" data-tooltip="Teaching assignments" aria-label="Teaching assignments for {{ $member->fullName() }}">
+                                                <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
                                             </a>
                                         @endif
                                         <button
@@ -170,19 +170,22 @@
                                                 'email' => $member->email,
                                                 'notes' => $member->notes,
                                             ]); loginUsernameOverride = null; open = true"
-                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="icon-btn icon-btn--edit"
+                                            data-tooltip="Edit staff member"
+                                            aria-label="Edit {{ $member->fullName() }}"
                                         >
-                                            Edit
+                                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                         </button>
                                         <form method="POST" action="{{ route('staff.toggle-active', $member) }}">
                                             @csrf @method('POST')
-                                            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                                                {{ $member->is_active ? 'Deactivate' : 'Activate' }}
+                                            @php($isActive = $member->is_active)
+                                            <button type="submit" class="icon-btn {{ $isActive ? 'icon-btn--warn' : 'icon-btn--approve' }}" data-tooltip="{{ $isActive ? 'Deactivate' : 'Activate' }}" aria-label="{{ $isActive ? 'Deactivate' : 'Activate' }} {{ $member->fullName() }}">
+                                                <i class="fa-solid {{ $isActive ? 'fa-toggle-off' : 'fa-toggle-on' }}" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                         <form method="POST" action="{{ route('staff.destroy', $member) }}" onsubmit="return confirm('Remove {{ $member->fullName() }}? This cannot be undone.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete staff member" aria-label="Delete {{ $member->fullName() }}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -296,8 +299,8 @@
                     />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Staff Member</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Staff Member</button>
                     </div>
                 </form>
             </div>

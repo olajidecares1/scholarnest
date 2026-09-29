@@ -119,11 +119,11 @@
                                 </td>
                                 <td class="px-6 py-3 text-gray-500 dark:text-gray-400">{{ $upload->created_at->diffForHumans() }}</td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('super-admin.cbt.uploads.show', $upload) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Review</a>
+                                    <div class="icon-btn-group">
+                                        <a href="{{ route('super-admin.cbt.uploads.show', $upload) }}" class="icon-btn icon-btn--view" data-tooltip="Review upload" aria-label="Review upload"><i class="fa-solid fa-eye" aria-hidden="true"></i></a>
                                         <form method="POST" action="{{ route('super-admin.cbt.uploads.destroy', $upload) }}" onsubmit="return confirm('Delete this upload? Extracted questions remain in the question bank.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete upload" aria-label="Delete upload"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>

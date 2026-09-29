@@ -61,14 +61,14 @@
                                     ])>{{ $card->status->label() }}</span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <div class="flex justify-end gap-2">
+                                    <div class="icon-btn-group justify-end">
                                         @if ($holder)
-                                            <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', [$card->holder_type->value, $card->holder_uuid]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Preview</button>
+                                            <button type="button" @click="$store.idCardPreview.openPreview('{{ route('id-cards.preview', [$card->holder_type->value, $card->holder_uuid]) }}', '{{ route('id-cards.print') }}', '{{ route('id-cards.pdf') }}')" class="icon-btn icon-btn--view" data-tooltip="Preview card" aria-label="Preview card"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
                                         @endif
                                         @if ($card->status === IssuedIdCardStatus::Active)
                                             <form method="POST" action="{{ route('id-cards.issued.revoke', $card) }}" onsubmit="return confirm('Revoke card {{ $card->card_number }}? Its QR code will show as invalid immediately.');">
                                                 @csrf
-                                                <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-700">Revoke</button>
+                                                <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Revoke card" aria-label="Revoke card"><i class="fa-solid fa-ban" aria-hidden="true"></i></button>
                                             </form>
                                         @endif
                                     </div>

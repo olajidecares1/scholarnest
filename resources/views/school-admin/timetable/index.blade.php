@@ -52,7 +52,7 @@
                                             @endif
                                         </small>
                                     </div>
-                                    <div class="flex shrink-0 items-center gap-1">
+                                    <div class="icon-btn-group shrink-0">
                                         <button
                                             type="button"
                                             @click="editing = @js([
@@ -64,14 +64,16 @@
                                                 'subject' => $entry->subject,
                                                 'room' => $entry->room,
                                             ]); open = true"
-                                            class="rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                                            class="icon-btn icon-btn--edit icon-btn--sm"
+                                            data-tooltip="Edit entry"
+                                            aria-label="Edit {{ $entry->subject }}"
                                         >
-                                            <i class="fa-solid fa-pen text-[14px] leading-none" aria-hidden="true"></i>
+                                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                         </button>
                                         <form method="POST" action="{{ route('timetable.destroy', $entry) }}" onsubmit="return confirm('Remove {{ $entry->subject }}?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400">
-                                                <i class="fa-solid fa-trash text-[14px] leading-none" aria-hidden="true"></i>
+                                            <button type="submit" class="icon-btn icon-btn--delete icon-btn--sm" data-tooltip="Delete entry" aria-label="Delete {{ $entry->subject }}">
+                                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -123,8 +125,8 @@
                     <x-text-field name="room" label="Room" icon="M4 20V10.5L12 4l8 6.5V20" x-model="editing ? editing.room : ''" placeholder="e.g. Room 4" helper="Optional." />
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Entry</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Entry</button>
                     </div>
                 </form>
             </div>

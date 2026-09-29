@@ -68,23 +68,34 @@
                         @endif
                     </div>
 
-                    <div class="flex shrink-0 items-center gap-2">
+                    <div class="icon-btn-group shrink-0">
                         <button
                             type="button"
                             @click="editing = ! editing"
-                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-bold text-gray-600 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                            class="icon-btn"
+                            :class="editing ? 'icon-btn--neutral' : 'icon-btn--edit'"
+                            data-tooltip="Edit details"
+                            aria-label="Edit details"
+                            :data-tooltip="editing ? 'Cancel editing' : 'Edit details'"
+                            :aria-label="editing ? 'Cancel editing' : 'Edit details'"
                         >
-                            <span x-show="!editing">Edit details</span>
-                            <span x-show="editing" x-cloak>Cancel</span>
+                            <i x-show="!editing" class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                            <i x-show="editing" x-cloak class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
 
                         <form method="POST" action="{{ route('super-admin.payment-settings.toggle', $method) }}">
                             @csrf
                             <button
                                 type="submit"
-                                class="btn rounded-[8px] px-3 py-1.5 text-xs font-bold text-white transition {{ $method->is_enabled ? 'bg-gray-500 hover:bg-gray-600' : 'bg-green-600 hover:bg-green-700' }}"
+                                class="icon-btn {{ $method->is_enabled ? 'icon-btn--warn' : 'icon-btn--approve' }}"
+                                data-tooltip="{{ $method->is_enabled ? 'Disable' : 'Enable' }}"
+                                aria-label="{{ $method->is_enabled ? 'Disable' : 'Enable' }}"
                             >
-                                {{ $method->is_enabled ? 'Disable' : 'Enable' }}
+                                @if($method->is_enabled)
+                                    <i class="fa-solid fa-toggle-off" aria-hidden="true"></i>
+                                @else
+                                    <i class="fa-solid fa-toggle-on" aria-hidden="true"></i>
+                                @endif
                             </button>
                         </form>
                     </div>
@@ -157,7 +168,7 @@
 
                     <div class="flex items-center gap-3">
                         <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary-700">
-                            Save
+                            <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save
                         </button>
                         <small class="block text-xs text-gray-500 dark:text-gray-400">Schools see the change immediately.</small>
                     </div>

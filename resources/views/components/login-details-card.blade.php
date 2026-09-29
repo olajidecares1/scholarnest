@@ -111,7 +111,8 @@
         <div>
             <div class="flex items-center justify-between">
                 <label for="credentials_password" class="field-label">Password</label>
-                <button type="button" @click="generate()" class="text-[11px] font-semibold text-primary-600 hover:underline dark:text-primary-400">
+                <button type="button" @click="generate()" class="inline-flex items-center gap-2 text-[11px] font-semibold text-primary-600 hover:underline dark:text-primary-400">
+                    <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
                     Generate one
                 </button>
             </div>
@@ -172,6 +173,7 @@
             type="submit"
             class="btn mt-1 h-[38px] w-full rounded-[8px] bg-primary-500 text-[13px] font-bold text-white transition hover:bg-primary-600"
         >
+            <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i>
             Save Login Details
         </button>
     </form>

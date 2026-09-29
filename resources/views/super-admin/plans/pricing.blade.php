@@ -92,7 +92,7 @@
                     @enderror
 
                     <button type="submit" class="btn mt-4 w-full rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-                        Save {{ $plan->name }} pricing
+                        <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save {{ $plan->name }} pricing
                     </button>
                 </form>
             @endforeach

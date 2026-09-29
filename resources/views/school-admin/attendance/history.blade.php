@@ -28,9 +28,9 @@
                     </div>
                     <input type="date" name="from" value="{{ request('from') }}" max="{{ today()->toDateString() }}" >
                     <input type="date" name="to" value="{{ request('to') }}" max="{{ today()->toDateString() }}" >
-                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
+                    <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Apply filters" aria-label="Apply filters"><i class="fa-solid fa-filter" aria-hidden="true"></i></button>
                     @if (request('search') || request('class') || request('from') || request('to'))
-                        <a href="{{ route('attendance.history') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
+                        <a href="{{ route('attendance.history') }}" class="icon-btn icon-btn--neutral" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                     @endif
                 </form>
             </div>

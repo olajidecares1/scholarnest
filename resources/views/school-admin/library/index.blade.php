@@ -50,9 +50,9 @@
                     <div class="w-40">
                         <x-select-field name="category" placeholder="All Categories" :selected="request('category')" :options="['' => 'All Categories'] + $categories->mapWithKeys(fn ($c) => [$c => $c])->all()" />
                     </div>
-                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Search</button>
+                    <button type="submit" class="icon-btn icon-btn--neutral mb-1" data-tooltip="Search" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
                     @if (request('search') || request('category'))
-                        <a href="{{ route('library.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
+                        <a href="{{ route('library.index') }}" class="icon-btn icon-btn--neutral mb-1" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                     @endif
                 </form>
 
@@ -89,7 +89,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
+                                    <div class="icon-btn-group">
                                         <button
                                             type="button"
                                             @click="editing = @js([
@@ -100,13 +100,15 @@
                                                 'category' => $book->category,
                                                 'copies_total' => $book->copies_total,
                                             ]); open = true"
-                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="icon-btn icon-btn--edit"
+                                            data-tooltip="Edit book"
+                                            aria-label="Edit book"
                                         >
-                                            Edit
+                                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                         </button>
                                         <form method="POST" action="{{ route('library.destroy', $book) }}" onsubmit="return confirm('Remove {{ $book->title }}?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete book" aria-label="Delete book"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -152,8 +154,8 @@
                     </div>
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Book</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Book</button>
                     </div>
                 </form>
             </div>

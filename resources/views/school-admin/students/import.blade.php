@@ -112,7 +112,7 @@
                         </div>
 
                         <div class="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 px-5 py-3 dark:border-gray-700">
-                            <a href="{{ route('students.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</a>
+                            <a href="{{ route('students.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</a>
                             <button type="submit" class="btn inline-flex items-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700">
                                 <i class="fa-solid fa-magnifying-glass text-[11px] leading-none" aria-hidden="true"></i>
                                 Read File
@@ -275,12 +275,14 @@
                 <div class="mt-5 flex flex-wrap justify-end gap-2">
                     <form method="POST" action="{{ route('students.import.cancel', ['token' => $token]) }}">
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Upload a Different File</button>
+                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-arrow-right-arrow-left btn-icon" aria-hidden="true"></i> Upload a Different File</button>
                     </form>
                     @if ($importCount)
                         <form method="POST" action="{{ route('students.import.store', ['token' => $token]) }}" x-data="{ busy: false }" @submit="busy = true">
                             @csrf
                             <button type="submit" :disabled="busy" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
+                                <i x-show="!busy" class="fa-solid fa-file-import btn-icon" aria-hidden="true"></i>
+                                <i x-show="busy" style="display: none;" class="fa-solid fa-spinner fa-spin btn-icon" aria-hidden="true"></i>
                                 <span x-show="!busy">Import {{ number_format($importCount) }} {{ Str::plural('Student', $importCount) }}</span>
                                 <span x-show="busy" style="display: none;">Importing&hellip;</span>
                             </button>

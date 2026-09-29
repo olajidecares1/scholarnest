@@ -21,9 +21,9 @@
                     <div class="w-40">
                         <x-select-field name="term" placeholder="All Terms" :selected="request('term')" :options="['' => 'All Terms'] + collect($termOptions)->mapWithKeys(fn ($t) => [$t->value => $t->label()])->all()" />
                     </div>
-                    <button type="submit" class="btn h-11 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
+                    <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Apply filters" aria-label="Apply filters"><i class="fa-solid fa-filter" aria-hidden="true"></i></button>
                     @if (request('class') || request('term'))
-                        <a href="{{ route('examinations.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">Clear</a>
+                        <a href="{{ route('examinations.index') }}" class="icon-btn icon-btn--neutral" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                     @endif
                 </form>
 
@@ -62,9 +62,9 @@
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $examination->subjects_count }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $examination->exam_date?->format('M j, Y') ?? 'N/A' }}</td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('examinations.show', $examination) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage</a>
-                                        <a href="{{ route('examinations.report-cards.index', $examination) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Report Cards</a>
+                                    <div class="icon-btn-group">
+                                        <a href="{{ route('examinations.show', $examination) }}" class="icon-btn icon-btn--edit" data-tooltip="Manage examination" aria-label="Manage examination"><i class="fa-solid fa-sliders" aria-hidden="true"></i></a>
+                                        <a href="{{ route('examinations.report-cards.index', $examination) }}" class="icon-btn icon-btn--view" data-tooltip="Report cards" aria-label="Report cards"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></a>
                                         <button
                                             type="button"
                                             @click="form = @js([
@@ -75,13 +75,15 @@
                                                 'session' => $examination->session,
                                                 'exam_date' => $examination->exam_date?->format('Y-m-d'),
                                             ]); open = true"
-                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="icon-btn icon-btn--edit"
+                                            data-tooltip="Edit examination"
+                                            aria-label="Edit examination"
                                         >
-                                            Edit
+                                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                         </button>
                                         <form method="POST" action="{{ route('examinations.destroy', $examination) }}" onsubmit="return confirm('Delete {{ $examination->name }}? All subjects and scores will be removed.');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete examination" aria-label="Delete examination"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -127,8 +129,8 @@
                     </div>
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" x-text="form.uuid ? 'Save Changes' : 'Create Examination'"></button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid btn-icon" :class="form.uuid ? 'fa-floppy-disk' : 'fa-plus'" aria-hidden="true"></i> <span x-text="form.uuid ? 'Save Changes' : 'Create Examination'"></span></button>
                     </div>
                 </form>
             </div>

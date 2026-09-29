@@ -149,10 +149,12 @@
                 type="submit"
                 class="btn rounded-[8px] bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
             >
+                <i class="fa-solid fa-link btn-icon" aria-hidden="true"></i>
                 Link <span x-text="selected?.name"></span>
             </button>
 
-            <button type="button" @click="selected = null; query = ''; search()" class="text-xs font-semibold text-gray-500 hover:text-gray-700">
+            <button type="button" @click="selected = null; query = ''; search()" class="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-gray-700">
+                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
                 Choose someone else
             </button>
         </div>

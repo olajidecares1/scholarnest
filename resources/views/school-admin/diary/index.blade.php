@@ -74,7 +74,7 @@
                 </div>
 
                 @if (request()->hasAny(['status', 'staff_id', 'class_name', 'term', 'session']))
-                    <a href="{{ route('diary.index') }}" class="pb-2 text-sm font-semibold text-blue-600 hover:text-blue-700">Clear</a>
+                    <a href="{{ route('diary.index') }}" class="icon-btn icon-btn--neutral mb-0.5" data-tooltip="Clear filters" aria-label="Clear filters"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                 @endif
             </form>
 
@@ -108,9 +108,8 @@
                         @else
                             <form method="POST" action="{{ route('diary.seen', $entry) }}" class="mt-2">
                                 @csrf
-                                <button type="submit" class="btn flex items-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700">
-                                    <i class="fa-solid fa-circle-check text-[11px]"></i>
-                                    Mark as Seen
+                                <button type="submit" class="icon-btn icon-btn--approve" data-tooltip="Mark as Seen" aria-label="Mark as Seen">
+                                    <i class="fa-solid fa-check-double" aria-hidden="true"></i>
                                 </button>
                             </form>
                         @endif

@@ -29,16 +29,17 @@
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Guardian Details</h3>
-                <div class="flex items-center gap-2">
+                <div class="icon-btn-group">
                     <form method="POST" action="{{ route('guardians.toggle-active', $guardian) }}">
                         @csrf @method('POST')
-                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                            {{ $guardian->is_active ? 'Deactivate' : 'Activate' }}
+                        @php($isActive = $guardian->is_active)
+                        <button type="submit" class="icon-btn {{ $isActive ? 'icon-btn--warn' : 'icon-btn--approve' }}" data-tooltip="{{ $isActive ? 'Deactivate guardian' : 'Activate guardian' }}" aria-label="{{ $isActive ? 'Deactivate guardian' : 'Activate guardian' }}">
+                            <i class="fa-solid {{ $isActive ? 'fa-toggle-off' : 'fa-toggle-on' }}" aria-hidden="true"></i>
                         </button>
                     </form>
                     <form method="POST" action="{{ route('guardians.destroy', $guardian) }}" onsubmit="return confirm('Remove {{ $guardian->name }}? This unlinks all their children and cannot be undone.');">
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete Guardian</button>
+                        <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete guardian" aria-label="Delete guardian"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                     </form>
                 </div>
             </div>
@@ -49,7 +50,7 @@
                 <x-text-field name="email" type="email" label="Email" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" :value="$guardian->email" required />
                 <x-text-field name="phone" label="Phone" icon="M5 4.5h3l1.5 4-2 1.5a11 11 0 005 5l1.5-2 4 1.5v3a1 1 0 01-1 1A15 15 0 015 5.5a1 1 0 011-1z" :value="$guardian->phone" />
                 <div class="sm:col-span-3">
-                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save Details</button>
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Details</button>
                 </div>
             </form>
 
@@ -103,7 +104,7 @@
                             </a>
                             <form method="POST" action="{{ route('guardians.children.destroy', [$guardian, $child]) }}" onsubmit="return confirm('Unlink {{ $child->fullName() }} from {{ $guardian->name }}?');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Unlink</button>
+                                <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Unlink child" aria-label="Unlink {{ $child->fullName() }}"><i class="fa-solid fa-link-slash" aria-hidden="true"></i></button>
                             </form>
                         </div>
                     @endforeach

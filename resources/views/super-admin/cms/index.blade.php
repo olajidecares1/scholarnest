@@ -42,11 +42,11 @@
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $page->is_published ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $page->is_published ? 'Published' : 'Draft' }}</span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($page->uuid), title: @js($page->title), body: @js($page->body), is_published: {{ $page->is_published ? 'true' : 'false' }} }; open = true" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
+                                    <div class="icon-btn-group">
+                                        <button type="button" @click="editing = { id: @js($page->uuid), title: @js($page->title), body: @js($page->body), is_published: {{ $page->is_published ? 'true' : 'false' }} }; open = true" class="icon-btn icon-btn--edit" data-tooltip="Edit page" aria-label="Edit page"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
                                         <form method="POST" action="{{ route('super-admin.cms.pages.destroy', $page) }}" onsubmit="return confirm('Delete this page?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete page" aria-label="Delete page"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -86,8 +86,8 @@
                             Published
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                         </div>
                     </form>
                 </div>
@@ -117,11 +117,11 @@
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $post->is_published ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $post->is_published ? 'Published' : 'Draft' }}</span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($post->uuid), title: @js($post->title), excerpt: @js($post->excerpt), body: @js($post->body), is_published: {{ $post->is_published ? 'true' : 'false' }} }; open = true" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
+                                    <div class="icon-btn-group">
+                                        <button type="button" @click="editing = { id: @js($post->uuid), title: @js($post->title), excerpt: @js($post->excerpt), body: @js($post->body), is_published: {{ $post->is_published ? 'true' : 'false' }} }; open = true" class="icon-btn icon-btn--edit" data-tooltip="Edit blog post" aria-label="Edit blog post"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
                                         <form method="POST" action="{{ route('super-admin.cms.blog-posts.destroy', $post) }}" onsubmit="return confirm('Delete this blog post?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete blog post" aria-label="Delete blog post"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -168,8 +168,8 @@
                             Published
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                         </div>
                     </form>
                 </div>
@@ -199,11 +199,11 @@
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $testimonial->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $testimonial->is_active ? 'Active' : 'Hidden' }}</span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($testimonial->uuid), name: @js($testimonial->name), role: @js($testimonial->role), quote: @js($testimonial->quote), sort_order: {{ $testimonial->sort_order }}, is_active: {{ $testimonial->is_active ? 'true' : 'false' }} }; open = true" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
+                                    <div class="icon-btn-group">
+                                        <button type="button" @click="editing = { id: @js($testimonial->uuid), name: @js($testimonial->name), role: @js($testimonial->role), quote: @js($testimonial->quote), sort_order: {{ $testimonial->sort_order }}, is_active: {{ $testimonial->is_active ? 'true' : 'false' }} }; open = true" class="icon-btn icon-btn--edit" data-tooltip="Edit testimonial" aria-label="Edit testimonial"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
                                         <form method="POST" action="{{ route('super-admin.cms.testimonials.destroy', $testimonial) }}" onsubmit="return confirm('Delete this testimonial?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete testimonial" aria-label="Delete testimonial"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -258,8 +258,8 @@
                             Active
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                         </div>
                     </form>
                 </div>
@@ -288,11 +288,11 @@
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $faqItem->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $faqItem->is_active ? 'Active' : 'Hidden' }}</span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($faqItem->uuid), question: @js($faqItem->question), answer: @js($faqItem->answer), sort_order: {{ $faqItem->sort_order }}, is_active: {{ $faqItem->is_active ? 'true' : 'false' }} }; open = true" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
+                                    <div class="icon-btn-group">
+                                        <button type="button" @click="editing = { id: @js($faqItem->uuid), question: @js($faqItem->question), answer: @js($faqItem->answer), sort_order: {{ $faqItem->sort_order }}, is_active: {{ $faqItem->is_active ? 'true' : 'false' }} }; open = true" class="icon-btn icon-btn--edit" data-tooltip="Edit FAQ item" aria-label="Edit FAQ item"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
                                         <form method="POST" action="{{ route('super-admin.cms.faq-items.destroy', $faqItem) }}" onsubmit="return confirm('Delete this FAQ item?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete FAQ item" aria-label="Delete FAQ item"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -340,8 +340,8 @@
                             Active
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                         </div>
                     </form>
                 </div>
@@ -371,11 +371,11 @@
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $member->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">{{ $member->is_active ? 'Active' : 'Hidden' }}</span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" @click="editing = { id: @js($member->uuid), name: @js($member->name), role: @js($member->role), bio: @js($member->bio), sort_order: {{ $member->sort_order }}, is_active: {{ $member->is_active ? 'true' : 'false' }} }; open = true" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</button>
+                                    <div class="icon-btn-group">
+                                        <button type="button" @click="editing = { id: @js($member->uuid), name: @js($member->name), role: @js($member->role), bio: @js($member->bio), sort_order: {{ $member->sort_order }}, is_active: {{ $member->is_active ? 'true' : 'false' }} }; open = true" class="icon-btn icon-btn--edit" data-tooltip="Edit team member" aria-label="Edit team member"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
                                         <form method="POST" action="{{ route('super-admin.cms.team-members.destroy', $member) }}" onsubmit="return confirm('Delete this team member?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete team member" aria-label="Delete team member"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -429,8 +429,8 @@
                             Active
                         </label>
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                            <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                         </div>
                     </form>
                 </div>

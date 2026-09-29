@@ -65,10 +65,10 @@
                         type="submit"
                         class="btn flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
                     >
-                        Add Team Member
+                        <i class="fa-solid fa-plus btn-icon" aria-hidden="true"></i> Add Team Member
                     </button>
-                    <a href="{{ route('super-admin.roles.index') }}" class="text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                        Cancel
+                    <a href="{{ route('super-admin.roles.index') }}" class="text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 inline-flex items-center gap-2">
+                        <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel
                     </a>
                 </div>
             </form>

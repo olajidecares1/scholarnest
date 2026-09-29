@@ -28,7 +28,7 @@
                         href="{{ route('super-admin.reports.media', $report) }}"
                         class="btn mt-4 inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
-                        <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
+                        <i class="fa-solid fa-download text-[14px] leading-none" aria-hidden="true"></i>
                         Download Attached Media
                     </a>
                 @endif
@@ -94,7 +94,7 @@
                         type="submit"
                         class="btn w-full rounded-[8px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-md dark:bg-gray-700 dark:hover:bg-gray-600"
                     >
-                        Update Report
+                        <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Update Report
                     </button>
                 </form>
             </div>

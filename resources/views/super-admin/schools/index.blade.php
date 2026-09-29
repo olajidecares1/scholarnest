@@ -39,8 +39,8 @@
                     />
                 </div>
 
-                <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                    Filter
+                <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Apply filters" aria-label="Apply filters">
+                    <i class="fa-solid fa-filter" aria-hidden="true"></i>
                 </button>
             </form>
 
@@ -94,17 +94,17 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('super-admin.schools.show', $school) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">View</a>
+                                    <div class="icon-btn-group">
+                                        <a href="{{ route('super-admin.schools.show', $school) }}" class="icon-btn icon-btn--view" data-tooltip="View school" aria-label="View school"><i class="fa-solid fa-eye" aria-hidden="true"></i></a>
                                         @if ($school->is_active)
                                             <form method="POST" action="{{ route('super-admin.schools.deactivate', $school) }}" onsubmit="return confirm('Suspend {{ $school->name }}? Their admins will lose access immediately. This does not change their subscription.');">
                                                 @csrf
-                                                <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:shadow-sm dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Suspend</button>
+                                                <button type="submit" class="icon-btn icon-btn--warn" data-tooltip="Suspend school" aria-label="Suspend school"><i class="fa-solid fa-circle-pause" aria-hidden="true"></i></button>
                                             </form>
                                         @else
                                             <form method="POST" action="{{ route('super-admin.schools.activate', $school) }}">
                                                 @csrf
-                                                <button type="submit" class="btn rounded-[8px] border border-green-300 px-3 py-1.5 text-xs font-semibold text-green-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-50 hover:shadow-sm dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20">Restore</button>
+                                                <button type="submit" class="icon-btn icon-btn--approve" data-tooltip="Restore school" aria-label="Restore school"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
                                             </form>
                                         @endif
 
@@ -115,9 +115,9 @@
                                         <button
                                             type="button"
                                             @click="deleting = { name: @js($school->name), url: @js(route('super-admin.schools.destroy', $school)) }; typed = ''"
-                                            class="rounded-[8px] px-3 py-1.5 text-xs font-semibold text-gray-400 transition-all duration-200 hover:bg-red-50 hover:text-red-700 dark:text-gray-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                                            class="icon-btn icon-btn--delete" data-tooltip="Delete school" aria-label="Delete school"
                                         >
-                                            Delete
+                                            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -198,7 +198,7 @@
                             @click="deleting = null"
                             class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
-                            Cancel
+                            <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel
                         </button>
 
                         {{-- Disabled until the name matches, and again the moment it
@@ -209,6 +209,8 @@
                             :disabled="typed.trim() !== deleting?.name || submitting"
                             class="btn rounded-[8px] bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-red-600/30 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
+                            <i x-show="! submitting" class="fa-solid fa-trash-can btn-icon" aria-hidden="true"></i>
+                            <i x-show="submitting" x-cloak class="fa-solid fa-spinner fa-spin btn-icon" aria-hidden="true"></i>
                             <span x-show="! submitting">Delete permanently</span>
                             <span x-show="submitting" x-cloak>Deleting&hellip;</span>
                         </button>

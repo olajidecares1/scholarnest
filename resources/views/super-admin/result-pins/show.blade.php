@@ -75,7 +75,7 @@
                                     @if ($token->status->allowsAccess() || $token->status->isReversible())
                                         <form method="POST" action="{{ route('super-admin.result-pins.revoke', $token) }}" onsubmit="return confirm('Revoke this token? It will stop working immediately and the school will have to reissue.');">
                                             @csrf
-                                            <button type="submit" class="btn rounded-[6px] bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300">Revoke</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Revoke token" aria-label="Revoke token"><i class="fa-solid fa-ban" aria-hidden="true"></i></button>
                                         </form>
                                     @else
                                         <span class="text-xs text-gray-400">&mdash;</span>

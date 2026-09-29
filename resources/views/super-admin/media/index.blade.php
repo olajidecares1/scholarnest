@@ -148,7 +148,7 @@
                     type="submit"
                     class="btn flex items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg"
                 >
-                    Save Backgrounds
+                    <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Backgrounds
                 </button>
             </form>
         </div>
@@ -187,25 +187,29 @@
                             <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ $item->name }}</p>
                             <small class="field-hint mt-0.5">{{ $item->humanSize() }} @if($item->width) &middot; {{ $item->width }}&times;{{ $item->height }} @endif</small>
 
-                            <div class="mt-3 flex flex-wrap gap-1.5">
+                            <div class="icon-btn-group mt-3">
                                 <button
                                     type="button"
                                     @click="renaming = { id: @js($item->uuid), name: @js($item->name) }"
-                                    class="btn rounded-[8px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    class="icon-btn icon-btn--edit"
+                                    data-tooltip="Rename"
+                                    aria-label="Rename"
                                 >
-                                    Rename
+                                    <i class="fa-solid fa-i-cursor" aria-hidden="true"></i>
                                 </button>
                                 <button
                                     type="button"
                                     @click="replacing = { id: @js($item->uuid), name: @js($item->name) }"
-                                    class="btn rounded-[8px] border border-gray-300 px-2.5 py-1 text-xs font-semibold text-gray-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    class="icon-btn icon-btn--view"
+                                    data-tooltip="Replace file"
+                                    aria-label="Replace file"
                                 >
-                                    Replace
+                                    <i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i>
                                 </button>
                                 <form method="POST" action="{{ route('super-admin.media.destroy', $item) }}" onsubmit="return confirm('Delete {{ $item->name }}? This cannot be undone.');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn rounded-[8px] border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-700 transition-all duration-150 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                    <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete media" aria-label="Delete media"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                 </form>
                             </div>
                         </div>
@@ -241,8 +245,8 @@
                         </div>
                         <x-text-field name="name" label="Display Name (optional)" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Leave blank to use the original filename." />
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="uploadOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Upload</button>
+                            <button type="button" @click="uploadOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-upload btn-icon" aria-hidden="true"></i> Upload</button>
                         </div>
                     </form>
                 </div>
@@ -257,8 +261,8 @@
                         @method('PUT')
                         <x-text-field name="name" label="Display Name" icon="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Shown throughout the Media Library." x-model="renaming ? renaming.name : ''" required />
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="renaming = null" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Save</button>
+                            <button type="button" @click="renaming = null" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                         </div>
                     </form>
                 </div>
@@ -279,8 +283,8 @@
                             class="w-full"
                         >
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="replacing = null" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">Replace</button>
+                            <button type="button" @click="replacing = null" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                            <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"><i class="fa-solid fa-arrow-right-arrow-left btn-icon" aria-hidden="true"></i> Replace</button>
                         </div>
                     </form>
                 </div>

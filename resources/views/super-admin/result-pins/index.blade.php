@@ -76,7 +76,7 @@
                 </div>
 
                 <button type="submit" class="btn rounded-[8px] bg-primary-500 px-4 py-2 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600">
-                    Save settings
+                    <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save settings
                 </button>
             </form>
         </div>
@@ -127,8 +127,8 @@
                         class="w-full"
                     >
                 </div>
-                <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                    Search
+                <button type="submit" class="icon-btn icon-btn--neutral" data-tooltip="Search" aria-label="Search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                 </button>
             </form>
 
@@ -151,8 +151,8 @@
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ number_format($school->active_pins_count) }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ number_format($school->revoked_pins_count) }}</td>
                                 <td class="px-5 py-3">
-                                    <a href="{{ route('super-admin.result-pins.show', $school) }}" class="btn rounded-[6px] bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300">
-                                        Inspect
+                                    <a href="{{ route('super-admin.result-pins.show', $school) }}" class="icon-btn icon-btn--view" data-tooltip="Inspect tokens" aria-label="Inspect tokens">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                     </a>
                                 </td>
                             </tr>

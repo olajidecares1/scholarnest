@@ -72,7 +72,7 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <x-primary-button><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> {{ __('Save') }}</x-primary-button>
 
             @if (session('status') === 'profile-updated')
                 <small

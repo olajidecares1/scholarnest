@@ -58,14 +58,14 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     @if ($changeRequest->status === 'pending')
-                                        <div class="flex justify-end gap-2">
+                                        <div class="icon-btn-group justify-end">
                                             <form method="POST" action="{{ route('profile-change-requests.approve', $changeRequest) }}">
                                                 @csrf
-                                                <button type="submit" class="text-xs font-semibold text-green-600 hover:text-green-700">Approve</button>
+                                                <button type="submit" class="icon-btn icon-btn--approve" data-tooltip="Approve change" aria-label="Approve change"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
                                             </form>
                                             <form method="POST" action="{{ route('profile-change-requests.reject', $changeRequest) }}">
                                                 @csrf
-                                                <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-700">Reject</button>
+                                                <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Reject change" aria-label="Reject change"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                                             </form>
                                         </div>
                                     @else

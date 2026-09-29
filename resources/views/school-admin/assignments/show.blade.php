@@ -24,7 +24,7 @@
                 </div>
                 <form method="POST" action="{{ route('assignments.destroy', $assignment) }}" onsubmit="return confirm('Delete {{ $assignment->title }}? All submissions will be removed.');">
                     @csrf @method('DELETE')
-                    <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete Assignment</button>
+                    <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete assignment" aria-label="Delete assignment"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                 </form>
             </div>
         </div>
@@ -109,7 +109,7 @@
                 @if ($students->isNotEmpty())
                     <div class="flex justify-end border-t border-gray-100 p-6 dark:border-gray-700">
                         <button type="submit" class="btn rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md">
-                            Save Submissions
+                            <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Submissions
                         </button>
                     </div>
                 @endif

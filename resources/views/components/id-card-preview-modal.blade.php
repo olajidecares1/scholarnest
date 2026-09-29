@@ -28,8 +28,8 @@
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">ID Card Preview</h3>
                 <small class="block truncate text-xs font-mono text-gray-500 dark:text-gray-400" x-show="$store.idCardPreview.cardNumber" x-text="$store.idCardPreview.cardNumber"></small>
             </div>
-            <button type="button" @click="$store.idCardPreview.close()" class="shrink-0 rounded-[8px] p-2 text-gray-400 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200">
-                <i class="fa-solid fa-xmark text-[17px] leading-none" aria-hidden="true"></i>
+            <button type="button" @click="$store.idCardPreview.close()" class="icon-btn icon-btn--neutral shrink-0" data-tooltip="Close" aria-label="Close">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
             </button>
         </div>
 
@@ -75,10 +75,10 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <button type="button" @click="$store.idCardPreview.zoomOut()" class="flex h-8 w-8 items-center justify-center rounded-[8px] border border-gray-300 text-lg leading-none text-gray-600 transition-colors duration-150 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">&minus;</button>
-                    <button type="button" @click="$store.idCardPreview.resetZoom()" class="w-14 text-center text-xs font-semibold text-gray-500 dark:text-gray-400" x-text="Math.round($store.idCardPreview.zoom * 100) + '%'"></button>
-                    <button type="button" @click="$store.idCardPreview.zoomIn()" class="flex h-8 w-8 items-center justify-center rounded-[8px] border border-gray-300 text-lg leading-none text-gray-600 transition-colors duration-150 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">+</button>
+                <div class="icon-btn-group">
+                    <button type="button" @click="$store.idCardPreview.zoomOut()" class="icon-btn icon-btn--neutral icon-btn--sm" data-tooltip="Zoom out" aria-label="Zoom out"><i class="fa-solid fa-magnifying-glass-minus" aria-hidden="true"></i></button>
+                    <button type="button" @click="$store.idCardPreview.resetZoom()" data-tooltip="Reset zoom" aria-label="Reset zoom" class="w-14 text-center text-xs font-semibold text-gray-500 dark:text-gray-400" x-text="Math.round($store.idCardPreview.zoom * 100) + '%'"></button>
+                    <button type="button" @click="$store.idCardPreview.zoomIn()" class="icon-btn icon-btn--neutral icon-btn--sm" data-tooltip="Zoom in" aria-label="Zoom in"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i></button>
                 </div>
             </div>
         </div>
@@ -91,6 +91,7 @@
                     :disabled="$store.idCardPreview.loading || !$store.idCardPreview.hasTemplate"
                     class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
+                    <i class="fa-solid fa-print btn-icon" aria-hidden="true"></i>
                     Print
                 </button>
                 <button
@@ -99,8 +100,8 @@
                     :disabled="$store.idCardPreview.loading || $store.idCardPreview.downloading || !$store.idCardPreview.hasTemplate"
                     class="btn flex min-w-[9rem] items-center justify-center gap-2 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
                 >
-                    <span x-show="$store.idCardPreview.downloading">Downloading&hellip;</span>
-                    <span x-show="!$store.idCardPreview.downloading">Download PDF</span>
+                    <span x-show="$store.idCardPreview.downloading" class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Downloading&hellip;</span>
+                    <span x-show="!$store.idCardPreview.downloading" class="inline-flex items-center gap-2"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Download PDF</span>
                 </button>
             </div>
         @endunless

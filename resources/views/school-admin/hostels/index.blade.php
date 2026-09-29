@@ -44,8 +44,8 @@
                                 </td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $hostel->rooms_count }}</td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('hostels.rooms', $hostel) }}" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Manage Rooms</a>
+                                    <div class="icon-btn-group">
+                                        <a href="{{ route('hostels.rooms', $hostel) }}" class="icon-btn icon-btn--edit" data-tooltip="Manage rooms" aria-label="Manage rooms"><i class="fa-solid fa-door-closed" aria-hidden="true"></i></a>
                                         <button
                                             type="button"
                                             @click="editing = @js([
@@ -55,13 +55,15 @@
                                                 'warden_name' => $hostel->warden_name,
                                                 'warden_phone' => $hostel->warden_phone,
                                             ]); open = true"
-                                            class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            class="icon-btn icon-btn--edit"
+                                            data-tooltip="Edit hostel"
+                                            aria-label="Edit hostel"
                                         >
-                                            Edit
+                                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                                         </button>
                                         <form method="POST" action="{{ route('hostels.destroy', $hostel) }}" onsubmit="return confirm('Remove {{ $hostel->name }}?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete hostel" aria-label="Delete hostel"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -99,8 +101,8 @@
                     </div>
 
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Hostel</button>
+                        <button type="button" @click="open = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Hostel</button>
                     </div>
                 </form>
             </div>

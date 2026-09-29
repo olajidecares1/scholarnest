@@ -165,6 +165,7 @@
                             x-on:click="cancelCamera()"
                             class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-[13px] font-bold text-gray-700 dark:border-gray-600 dark:text-gray-200"
                         >
+                            <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i>
                             Cancel
                         </button>
                     </div>
@@ -186,6 +187,7 @@
                             x-on:click="retake()"
                             class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-[13px] font-bold text-gray-700 dark:border-gray-600 dark:text-gray-200"
                         >
+                            <i class="fa-solid fa-rotate-right btn-icon" aria-hidden="true"></i>
                             Retake
                         </button>
                     </div>

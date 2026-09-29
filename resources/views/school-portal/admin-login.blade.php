@@ -56,11 +56,11 @@
                 type="submit"
                 class="btn flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary-500 px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
-                <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                <i class="fa-solid fa-right-to-bracket btn-icon" aria-hidden="true"></i> Sign In
             </button>
 
             <small class="block text-center text-xs text-gray-500">
-                <a href="{{ $school->publicUrl('portal.index') }}" class="font-semibold text-primary-500 hover:text-primary-600">&larr; Back to Portal</a>
+                <a href="{{ $school->publicUrl('portal.index') }}" class="inline-flex items-center gap-2 font-semibold text-primary-500 hover:text-primary-600"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Portal</a>
             </small>
         </form>
     </x-auth-card>

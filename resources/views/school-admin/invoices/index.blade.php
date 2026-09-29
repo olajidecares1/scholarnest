@@ -40,7 +40,7 @@
                                     @endunless
                                 </td>
                                 <td class="px-5 py-3">
-                                    <a href="{{ route('invoices.download', $invoice) }}" class="font-semibold text-primary-500 hover:text-primary-600">Download</a>
+                                    <a href="{{ route('invoices.download', $invoice) }}" class="icon-btn icon-btn--download" data-tooltip="Download invoice" aria-label="Download invoice"><i class="fa-solid fa-download" aria-hidden="true"></i></a>
                                 </td>
                             </tr>
                         @empty

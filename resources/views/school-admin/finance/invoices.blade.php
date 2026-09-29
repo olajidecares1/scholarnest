@@ -54,7 +54,7 @@
                     <div class="w-40">
                         <x-select-field name="class" placeholder="All Classes" :selected="request('class')" :options="['' => 'All Classes'] + $classOptions" />
                     </div>
-                    <button type="submit" class="btn h-10 rounded-[8px] border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Filter</button>
+                    <button type="submit" class="icon-btn icon-btn--neutral mb-0.5" data-tooltip="Apply filters" aria-label="Apply filters"><i class="fa-solid fa-filter" aria-hidden="true"></i></button>
                 </form>
             </div>
 
@@ -83,19 +83,21 @@
                                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $invoice->statusBadgeClasses() }}">{{ $invoice->status() }}</span>
                                 </td>
                                 <td class="px-6 py-3">
-                                    <div class="flex items-center gap-2">
+                                    <div class="icon-btn-group">
                                         @if ($invoice->balance() > 0)
                                             <button
                                                 type="button"
                                                 @click="paying = @js(['uuid' => $invoice->uuid, 'balance' => $invoice->balance(), 'student' => $invoice->student->fullName()]); payOpen = true"
-                                                class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                                class="icon-btn icon-btn--approve"
+                                                data-tooltip="Record payment"
+                                                aria-label="Record payment"
                                             >
-                                                Record Payment
+                                                <i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i>
                                             </button>
                                         @endif
                                         <form method="POST" action="{{ route('finance.invoices.destroy', $invoice) }}" onsubmit="return confirm('Delete this invoice?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn rounded-[8px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete invoice" aria-label="Delete invoice"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
@@ -129,8 +131,8 @@
                         <x-text-field name="due_date" label="Due Date" type="date" icon="M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z" helper="Optional." />
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="addOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Create Invoice</button>
+                        <button type="button" @click="addOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-plus btn-icon" aria-hidden="true"></i> Create Invoice</button>
                     </div>
                 </form>
             </div>
@@ -154,8 +156,8 @@
                     <x-select-field name="method" label="Method" required :options="$methodCollection" />
                     <x-text-field name="reference" label="Reference" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" helper="Optional." />
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="payOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Payment</button>
+                        <button type="button" @click="payOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Payment</button>
                     </div>
                 </form>
             </div>
