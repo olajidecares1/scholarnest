@@ -74,7 +74,7 @@
                     <span class="shrink-0 pr-3 font-mono text-xs text-gray-500 dark:text-gray-400">.{{ $baseDomain }}</span>
                 @endif
             </div>
-            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Save address</button>
+            <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save address</button>
         </div>
         <small class="field-hint mt-1">Lowercase letters and numbers only. The old address stops working as soon as this is saved.</small>
         @error('subdomain')
