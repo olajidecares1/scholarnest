@@ -22,6 +22,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -54,7 +55,7 @@ class StudentController extends Controller
             })
             ->when($request->filled('class'), fn ($query) => $query->where('class_name', $request->string('class')))
             ->orderBy('last_name')
-            ->paginate(15)
+            ->paginate(in_array((int) $request->query('per_page'), [15, 50, 100], true) ? (int) $request->query('per_page') : 15)
             ->withQueryString();
 
         $academicLevels = $school->academicLevels()->with('classes')->get();
@@ -192,6 +193,64 @@ class StudentController extends Controller
         return back()->with('status', $student->school->auto_generate_admission_numbers
             ? "{$name} was removed successfully. Admission number {$number} is free and its number will be given to the next student you register."
             : "{$name} was removed successfully.");
+    }
+
+    /**
+     * Delete several students/pupils at once: the ones ticked on the list.
+     *
+     * Each is deleted as a model, not with one mass query, so everything a
+     * single deletion does happens for every one of them: the photograph is
+     * removed and the admission number is released for reuse. All or nothing,
+     * in one transaction: a failure part way leaves every record as it was.
+     *
+     * Only this school's students are touched. An id from anywhere else is
+     * ignored rather than trusted.
+     */
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $school = $request->user()->school;
+
+        $validated = $request->validate([
+            'students' => ['required', 'array', 'min:1', 'max:500'],
+            'students.*' => ['required', 'string', 'uuid'],
+        ], [
+            'students.required' => 'Select at least one student/pupil to delete.',
+            'students.max' => 'You can delete up to 500 students/pupils at a time.',
+        ]);
+
+        $students = $school->students()->whereIn('uuid', array_unique($validated['students']))->get();
+
+        if ($students->isEmpty()) {
+            return back()->withErrors(['students' => 'None of the selected students/pupils could be found. They may already have been deleted.']);
+        }
+
+        $photos = $students->pluck('photo_path')->filter()->all();
+
+        DB::transaction(function () use ($students) {
+            foreach ($students as $student) {
+                $student->delete();
+            }
+        });
+
+        // Files go once the records are gone for certain.
+        foreach ($photos as $photo) {
+            Storage::disk('local')->delete($photo);
+        }
+
+        $count = $students->count();
+
+        AuditLog::record(
+            'students.bulk_deleted',
+            sprintf('Deleted %d student(s)/pupil(s): %s.', $count, $students->map(fn (Student $s) => $s->fullName().' ('.$s->admission_number.')')->implode(', ')),
+            $school,
+        );
+
+        return redirect()->route('students.index', $request->only('search', 'class', 'per_page'))->with('status', sprintf(
+            '%s %s deleted.%s',
+            number_format($count),
+            $count === 1 ? 'student/pupil was' : 'students/pupils were',
+            $school->auto_generate_admission_numbers ? ' Their admission numbers are free and will be given to the next students you register.' : '',
+        ));
     }
 
     public function toggleActive(Student $student): RedirectResponse
