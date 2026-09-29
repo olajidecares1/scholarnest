@@ -42,7 +42,7 @@
                 </small>
 
                 <div class="flex justify-end">
-                    <button type="submit" class="btn rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700">Update</button>
+                    <button type="submit" class="btn rounded-[8px] bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Update</button>
                 </div>
             </form>
         </div>
@@ -86,7 +86,7 @@
                     @error('signature')<p class="field-error">{{ $message }}</p>@enderror
 
                     <div class="flex justify-end">
-                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300">Upload Signature</button>
+                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300"><i class="fa-solid fa-upload btn-icon" aria-hidden="true"></i> Upload Signature</button>
                     </div>
                 </form>
             </details>
