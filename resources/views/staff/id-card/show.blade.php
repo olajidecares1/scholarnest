@@ -16,7 +16,7 @@
                 @click="$store.idCardPreview.openPreview('{{ route('staff.id-card.preview', $school) }}', '', '')"
                 class="btn mt-6 inline-flex items-center justify-center rounded-[8px] bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700"
             >
-                View ID Card
+                <i class="fa-solid fa-id-card btn-icon" aria-hidden="true"></i> View ID Card
             </button>
 
             <small class="block mt-4 text-xs text-gray-400 dark:text-gray-500">This is a view-only preview. Printing and downloading are handled by your school office.</small>
