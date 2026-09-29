@@ -92,7 +92,7 @@
                                     <td class="px-3 py-2 text-right">
                                         <form method="POST" action="{{ route('academics.terms.destroy', $term) }}" onsubmit="return confirm('Remove these term dates?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-700">Remove</button>
+                                            <button type="submit" class="icon-btn icon-btn--delete icon-btn--sm" data-tooltip="Remove term dates" aria-label="Remove term dates"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </td>
                                 </tr>
@@ -108,7 +108,7 @@
                 <x-select-field name="term" label="Term" :options="collect($termOptions)->mapWithKeys(fn ($t) => [$t->value => $t->label()])->all()" />
                 <x-text-field name="starts_on" label="Starts On" type="date" required />
                 <x-text-field name="ends_on" label="Ends On" type="date" required />
-                <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save</button>
+                <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
             </form>
         </div>
 
@@ -163,11 +163,13 @@
                                     </template>
                                     <template x-if="!editing">
                                         <td class="px-3 py-2 text-right">
-                                            <button type="button" @click="editing = true" class="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400">Edit</button>
-                                            <form method="POST" action="{{ route('academics.grade-bands.destroy', $band) }}" onsubmit="return confirm('Remove grade {{ $band->letter }}?');" class="inline">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="ml-2 text-xs font-semibold text-red-600 hover:text-red-700">Remove</button>
-                                            </form>
+                                            <div class="icon-btn-group justify-end">
+                                                <button type="button" @click="editing = true" class="icon-btn icon-btn--edit icon-btn--sm" data-tooltip="Edit grade" aria-label="Edit grade"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
+                                                <form method="POST" action="{{ route('academics.grade-bands.destroy', $band) }}" onsubmit="return confirm('Remove grade {{ $band->letter }}?');" class="inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="icon-btn icon-btn--delete icon-btn--sm" data-tooltip="Remove grade" aria-label="Remove grade"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </template>
 
@@ -180,8 +182,8 @@
                                                 <input type="text" name="letter" value="{{ $band->letter }}" maxlength="3" required  placeholder="Letter">
                                                 <input type="text" name="description" value="{{ $band->description }}" maxlength="100"  placeholder="Description">
                                                 <div class="flex gap-2">
-                                                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
-                                                    <button type="button" @click="editing = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
+                                                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
+                                                    <button type="button" @click="editing = false" class="btn rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
                                                 </div>
                                             </form>
                                         </td>
@@ -199,7 +201,7 @@
                 <x-text-field name="max_percent" label="Max %" type="number" min="0" max="100" required />
                 <x-text-field name="letter" label="Letter" maxlength="3" placeholder="e.g. A" required />
                 <x-text-field name="description" label="Description" placeholder="e.g. Excellent" />
-                <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Add Grade</button>
+                <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700"><i class="fa-solid fa-plus btn-icon" aria-hidden="true"></i> Add Grade</button>
             </form>
         </div>
 
@@ -229,18 +231,18 @@
                             @csrf @method('PUT')
                             <input type="text" name="name" x-model="levelName" class="w-full">
                             <input type="text" name="code" x-model="levelCode" maxlength="10" placeholder="Code" title="Admission-number level code, e.g. PRY" class="w-20 shrink-0 uppercase">
-                            <button type="submit" class="btn shrink-0 rounded-[8px] bg-blue-600 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-700">Save</button>
+                            <button type="submit" class="btn shrink-0 rounded-[8px] bg-blue-600 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
                         </form>
                     </div>
 
-                    <div class="flex shrink-0 items-center gap-1">
-                        <button type="button" @click="editingLevel = !editingLevel" class="rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-blue-400">
-                            <i class="fa-solid fa-pen text-[14px] leading-none" aria-hidden="true"></i>
+                    <div class="icon-btn-group shrink-0">
+                        <button type="button" @click="editingLevel = !editingLevel" class="icon-btn icon-btn--edit" data-tooltip="Edit level" aria-label="Edit level">
+                            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                         </button>
                         <form method="POST" action="{{ route('academics.levels.destroy', $level) }}" onsubmit="return confirm('Delete {{ $level->name }} and every class inside it?');">
                             @csrf @method('DELETE')
-                            <button type="submit" class="rounded-[8px] p-1.5 text-gray-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 dark:text-gray-500 dark:hover:bg-red-900/20 dark:hover:text-red-400">
-                                <i class="fa-solid fa-xmark text-[14px] leading-none" aria-hidden="true"></i>
+                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete level" aria-label="Delete level">
+                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                             </button>
                         </form>
                     </div>
@@ -295,8 +297,8 @@
                         <small class="field-hint mt-1">Used in auto-generated admission numbers for classes in this level, e.g. "PRY" &rarr; MIS-2025/2026-PRY-004.</small>
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="addLevelOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">Cancel</button>
-                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Save Level</button>
+                        <button type="button" @click="addLevelOpen = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save Level</button>
                     </div>
                 </form>
             </div>
