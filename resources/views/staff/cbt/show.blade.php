@@ -59,7 +59,7 @@
 
         <div class="flex flex-wrap items-center justify-between gap-3">
             <a href="{{ route('staff.cbt.tests.index', $school) }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors duration-150 hover:text-primary-700 dark:text-primary-400">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <i class="fa-solid fa-chevron-left text-[14px] leading-none" aria-hidden="true"></i>
                 Back to My Tests
             </a>
 
@@ -310,7 +310,7 @@
                                         <span class="font-bold">{{ $option->label }}</span>
                                         <span>{{ $option->option_text }}</span>
                                         @if ($option->is_correct)
-                                            <svg class="ml-auto h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                            <i class="fa-solid fa-check ml-auto shrink-0 text-[14px] leading-none" aria-hidden="true"></i>
                                         @endif
                                     </div>
                                 @endforeach
