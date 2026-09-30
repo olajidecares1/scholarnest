@@ -76,6 +76,21 @@ trait HasProtectedPhoto
     }
 
     /**
+     * One or two capital letters for the person, shown in place of the
+     * photograph when there is none or it cannot be loaded.
+     */
+    public function initials(): string
+    {
+        $name = method_exists($this, 'fullName') ? $this->fullName() : (string) ($this->name ?? '');
+
+        return collect(preg_split('/\s+/u', trim($name)) ?: [])
+            ->filter()
+            ->take(2)
+            ->map(fn (string $part) => mb_strtoupper(mb_substr($part, 0, 1)))
+            ->implode('') ?: '?';
+    }
+
+    /**
      * Named in one place so nothing has to remember which disk holds people.
      */
     public function photoDisk(): Filesystem
