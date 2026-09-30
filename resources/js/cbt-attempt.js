@@ -19,6 +19,15 @@
  */
 export default function cbtAttempt(config) {
     return {
+        // The names the save endpoint expects. A school test posts
+        // cbt_test_question_id; a past-question practice posts cbt_question_id.
+        // THIS IS WHY THEY ARE CONFIGURABLE: both pages call cbtAttempt(), and
+        // Alpine.data() makes this one answer for both, so a practice page that
+        // got the school-test names had every answer refused with a 422, and
+        // every practice scored 0% with "You did not answer this question".
+        questionField: 'cbt_test_question_id',
+        optionField: 'cbt_test_question_option_id',
+
         ...config,
 
         current: 0,
@@ -136,8 +145,8 @@ export default function cbtAttempt(config) {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
                 body: JSON.stringify({
-                    cbt_test_question_id: questionId,
-                    cbt_test_question_option_id: optionId,
+                    [this.questionField]: questionId,
+                    [this.optionField]: optionId,
                 }),
             })
                 .then((response) => {
@@ -173,6 +182,43 @@ export default function cbtAttempt(config) {
                     this.saveState = 'retrying';
                     setTimeout(() => this.save(questionId, optionId, attempt + 1), delay);
                 });
+        },
+
+        /**
+         * The CBT-hall keyboard: arrows or N / P to move, a letter to answer
+         * the question on screen. Ignored while typing in a field, and with a
+         * modifier held, so browser shortcuts still work.
+         */
+        onKey(event) {
+            if (event.metaKey || event.ctrlKey || event.altKey) {
+                return;
+            }
+
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName)) {
+                return;
+            }
+
+            const key = String(event.key || '');
+
+            if (key === 'ArrowRight' || key.toUpperCase() === 'N') {
+                event.preventDefault();
+
+                return this.next();
+            }
+
+            if (key === 'ArrowLeft' || key.toUpperCase() === 'P') {
+                event.preventDefault();
+
+                return this.prev();
+            }
+
+            const question = this.questions[this.current];
+            const option = question?.options?.find((o) => String(o.label).toUpperCase() === key.toUpperCase());
+
+            if (option) {
+                event.preventDefault();
+                this.select(question.id, option.id);
+            }
         },
 
         go(index) {

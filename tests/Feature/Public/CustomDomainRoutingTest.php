@@ -42,7 +42,8 @@ test('a verified custom domain serves that school\'s public website', function (
 });
 
 test('the app\'s own default host is unaffected by the tenant domain wildcard', function () {
-    $this->get('/')->assertRedirect();
+    // The platform's own homepage, not a school's website.
+    $this->get('/')->assertOk()->assertViewHas('isHome', true);
 });
 
 test('a domain that has not been verified does not resolve any school', function () {

@@ -58,7 +58,7 @@ test('the main domain is the platform, never a tenant', function () {
         ->and($resolution->school)->toBeNull();
 
     // The platform's own front door, on the host APP_URL named at boot.
-    $this->get('/')->assertRedirect();
+    $this->get('/')->assertOk()->assertViewHas('isHome', true);
 });
 
 test('a standard school and an exclusive school each resolve on their own subdomain', function () {

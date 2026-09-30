@@ -14,6 +14,34 @@
             <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $attempt->correctCount() }} of {{ $attempt->total_questions }} correct &middot; {{ $attempt->passed() ? 'Passed' : 'Not passed' }} (pass mark {{ $attempt->exam->pass_mark }}%)</small>
         </div>
 
+        {{-- Every question on one card: what was chosen, and what was right. --}}
+        <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <h2 class="text-sm font-bold text-gray-900 dark:text-white">Answer Summary</h2>
+            <ol class="mt-3 divide-y divide-gray-100 text-sm dark:divide-gray-700">
+                @foreach ($questions as $index => $question)
+                    @php
+                        $answer = $answersByQuestion->get($question->id);
+                        $chosen = $answer ? $question->options->firstWhere('id', $answer->cbt_question_option_id) : null;
+                        $correct = $question->options->firstWhere('is_correct', true);
+                        $correctLabel = $correct?->label ?? 'not set';
+                    @endphp
+                    <li class="flex items-start gap-3 py-2">
+                        <span class="w-8 shrink-0 font-semibold text-gray-500 dark:text-gray-400">{{ $question->question_number ?? $index + 1 }}.</span>
+                        @if (! $chosen)
+                            <i class="fa-regular fa-circle mt-0.5 text-gray-400" aria-hidden="true"></i>
+                            <span class="text-gray-600 dark:text-gray-300">You did not answer. The correct option is {{ $correctLabel }}.</span>
+                        @elseif ($chosen->is_correct)
+                            <i class="fa-solid fa-circle-check mt-0.5 text-green-600" aria-hidden="true"></i>
+                            <span class="text-green-700 dark:text-green-400">Correct. You chose {{ $chosen->label }}.</span>
+                        @else
+                            <i class="fa-solid fa-circle-xmark mt-0.5 text-red-600" aria-hidden="true"></i>
+                            <span class="text-red-700 dark:text-red-400">Wrong. You chose {{ $chosen->label }}; the correct option is {{ $correctLabel }}.</span>
+                        @endif
+                    </li>
+                @endforeach
+            </ol>
+        </div>
+
         @php $lastPassage = null; @endphp
         @foreach ($questions as $index => $question)
             @php $answer = $answersByQuestion->get($question->id); @endphp
