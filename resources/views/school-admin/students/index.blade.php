@@ -257,7 +257,7 @@
                                 <td class="px-6 py-3">
                                     <a href="{{ route('students.show', $student) }}" class="flex items-center gap-3">
                                         @if ($student->photoUrl())
-                                            <img src="{{ $student->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
+                                            <img data-fallback="{{ $student->initials() }}" src="{{ $student->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
                                         @else
                                             <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                                                 {{ Str::of($student->first_name)->substr(0, 1)->upper() }}{{ Str::of($student->last_name)->substr(0, 1)->upper() }}
