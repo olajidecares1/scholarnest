@@ -80,7 +80,7 @@
     @else
         <div class="mb-6">
             <x-welcome-banner
-                :photo-url="auth()->user()->photoUrl()"
+                :photo-url="auth()->user()->availablePhotoUrl()"
                 :initials="Str::of(auth()->user()->name)->substr(0, 1)->upper()"
                 :name="auth()->user()->name"
                 role-label="School Administrator"

@@ -7,9 +7,26 @@
  * image mark, a "?" in a box on an iPhone. Any <img data-fallback="AB"> is
  * replaced, on error, by a box of the same size holding those letters.
  *
+ * A photograph served from the protected /media/ route is covered even
+ * without the attribute (a page cached or compiled before the attribute was
+ * added, say): it falls back to initials taken from its alt text, or to a
+ * person icon.
+ *
  * Listened for at the document, in the capture phase, because image errors do
  * not bubble; that also covers images Alpine adds after the page loads.
  */
+const isPhoto = (img) =>
+    img.hasAttribute('data-fallback') || /\/media\/(student|staff|guardian|user)\//.test(img.getAttribute('src') || '');
+
+const initialsFrom = (text) =>
+    String(text || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0].toUpperCase())
+        .join('');
+
 export function installPhotoFallback() {
     if (typeof document === 'undefined') {
         return;
@@ -21,7 +38,7 @@ export function installPhotoFallback() {
             box.setAttribute('role', 'img');
             box.setAttribute('aria-label', img.alt || 'No photo');
 
-            const letters = (img.getAttribute('data-fallback') || '').trim();
+            const letters = (img.getAttribute('data-fallback') ?? initialsFrom(img.alt)).trim();
 
             if (letters) {
                 box.textContent = letters;
@@ -37,7 +54,7 @@ export function installPhotoFallback() {
         (event) => {
             const img = event.target;
 
-            if (img instanceof HTMLImageElement && img.hasAttribute('data-fallback')) {
+            if (img instanceof HTMLImageElement && isPhoto(img)) {
                 replace(img);
             }
         },
@@ -47,9 +64,9 @@ export function installPhotoFallback() {
     // This script is a deferred module, so a photograph that failed while the
     // page was still loading has already fired its error. Catch those too.
     const sweep = () => document
-        .querySelectorAll('img[data-fallback]')
+        .querySelectorAll('img')
         .forEach((img) => {
-            if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) {
+            if (isPhoto(img) && img.complete && img.naturalWidth === 0 && img.getAttribute('src')) {
                 replace(img);
             }
         });

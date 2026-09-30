@@ -2,7 +2,7 @@
     <div class="space-y-4 sm:space-y-6">
         <x-welcome-banner
             compact
-            :photo-url="$staff->photoUrl()"
+            :photo-url="$staff->availablePhotoUrl()"
             :initials="Str::of($staff->first_name)->substr(0, 1)->upper()"
             :name="$staff->fullName()"
             :role-label="$staff->role->label()"

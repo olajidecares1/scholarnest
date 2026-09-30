@@ -76,6 +76,32 @@ trait HasProtectedPhoto
     }
 
     /**
+     * photoUrl(), but only when the file is really there.
+     *
+     * For the one or two photographs a page shows prominently (the welcome
+     * banner, the portal header). A record can point at a file that has gone,
+     * an upload lost when a server's disk was reset, and a link to it draws a
+     * broken-image mark. One existence check per page is cheap; the long
+     * lists keep photoUrl() and rely on the browser fallback instead.
+     */
+    public function availablePhotoUrl(): ?string
+    {
+        if (! $this->photo_path) {
+            return null;
+        }
+
+        try {
+            if (! $this->photoDisk()->exists($this->photo_path)) {
+                return null;
+            }
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $this->photoUrl();
+    }
+
+    /**
      * One or two capital letters for the person, shown in place of the
      * photograph when there is none or it cannot be loaded.
      */

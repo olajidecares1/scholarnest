@@ -82,8 +82,8 @@
                 </button>
 
                 <span class="relative ml-2 hidden h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-blue-50 dark:border-gray-700 sm:flex">
-                    @if ($staff->photoUrl())
-                        <img data-fallback="{{ $staff->initials() }}" src="{{ $staff->photoUrl() }}" class="h-full w-full object-cover">
+                    @if ($photoSrc = $staff->availablePhotoUrl())
+                        <img data-fallback="{{ $staff->initials() }}" src="{{ $photoSrc }}" class="h-full w-full object-cover">
                     @else
                         <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-blue-700">{{ Str::of($staff->fullName())->substr(0, 1)->upper() }}</span>
                     @endif
