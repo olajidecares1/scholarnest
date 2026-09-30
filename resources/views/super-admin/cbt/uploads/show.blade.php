@@ -160,8 +160,14 @@
                         @endif
                     </small>
                 </div>
-                <form method="POST" action="{{ route('super-admin.cbt.uploads.retry', $upload) }}" onsubmit="return confirm('Read this document again? The questions it produced are replaced.');" class="shrink-0">
+                <form method="POST" action="{{ route('super-admin.cbt.uploads.retry', $upload) }}" onsubmit="return confirm('Read this document again? The questions it produced are replaced.');" class="flex shrink-0 flex-wrap items-end gap-2">
                     @csrf
+                    {{-- Optional: file undated questions under this year this
+                         time. Left empty, the upload keeps its own. --}}
+                    <div class="w-36">
+                        <label for="retry-year" class="field-label mb-1">Exam year</label>
+                        <input id="retry-year" name="year" type="number" min="1960" max="{{ now()->year + 1 }}" value="{{ $upload->year }}" placeholder="From document" @disabled($publishedCount > 0)>
+                    </div>
                     <button
                         type="submit"
                         @disabled($publishedCount > 0)

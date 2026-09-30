@@ -52,7 +52,7 @@
                     <x-input-error :messages="$errors->get('file')" class="mt-2" />
                 </div>
 
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {{-- Extraction runs locally, so the wording promises no
                          outside service and nobody goes looking for an API key. --}}
                     <x-select-field
@@ -67,6 +67,18 @@
                         label="Subject (optional)"
                         placeholder="Detect it from the document"
                         :options="$subjects->pluck('name', 'id')->all()"
+                    />
+                    {{-- Only for a paper that never prints its year. A
+                         compilation's own year headings still decide. --}}
+                    <x-text-field
+                        name="year"
+                        label="Exam Year (optional)"
+                        type="number"
+                        placeholder="Detect it from the document"
+                        helper="For a paper that does not print its year."
+                        min="1960"
+                        :max="now()->year + 1"
+                        :value="old('year')"
                     />
                 </div>
 
