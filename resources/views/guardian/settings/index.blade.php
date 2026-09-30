@@ -17,7 +17,7 @@
 
                 <div class="flex items-center gap-4">
                     @if ($guardian->photoUrl())
-                        <img src="{{ $guardian->photoUrl() }}" class="h-16 w-16 rounded-full object-cover">
+                        <img data-fallback="{{ $guardian->initials() }}" src="{{ $guardian->photoUrl() }}" class="h-16 w-16 rounded-full object-cover">
                     @else
                         <span class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-xl font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">{{ Str::of($guardian->name)->substr(0, 1)->upper() }}</span>
                     @endif

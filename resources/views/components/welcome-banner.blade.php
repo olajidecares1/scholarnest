@@ -18,7 +18,7 @@
         <div class="relative flex items-center gap-3">
             <span class="flex aspect-square h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border-2 border-white/30 bg-white/10 text-base font-bold sm:h-16 sm:w-16 sm:text-xl">
                 @if ($photoUrl)
-                    <img src="{{ $photoUrl }}" class="h-full w-full object-cover" alt="">
+                    <img data-fallback="{{ $initials }}" src="{{ $photoUrl }}" class="h-full w-full object-cover" alt="">
                 @else
                     {{ $initials }}
                 @endif
@@ -55,7 +55,7 @@
 
             <span class="flex aspect-square h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border-2 border-white/30 bg-white/10 text-2xl font-bold shadow-lg sm:h-28 sm:w-28 sm:text-4xl">
                 @if ($photoUrl)
-                    <img src="{{ $photoUrl }}" class="h-full w-full object-cover">
+                    <img data-fallback="{{ $initials }}" src="{{ $photoUrl }}" class="h-full w-full object-cover">
                 @else
                     {{ $initials }}
                 @endif

@@ -238,7 +238,7 @@
             <div class="flex gap-3 overflow-hidden rounded-[6px] p-3" style="border: 1.5px solid {{ $brandSecondary }}33;">
                 <div class="shrink-0">
                     @if ($student->photoUrl())
-                        <img src="{{ $student->photoUrl() }}" class="h-[128px] w-[104px] rounded-[4px] object-cover" style="border: 1.5px solid {{ $brandSecondary }};">
+                        <img data-fallback="{{ $student->initials() }}" src="{{ $student->photoUrl() }}" class="h-[128px] w-[104px] rounded-[4px] object-cover" style="border: 1.5px solid {{ $brandSecondary }};">
                     @else
                         {{-- A silhouette rather than the words "No Photo": the
                              frame is the same size either way, so the card

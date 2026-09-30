@@ -29,7 +29,7 @@
 
             <div class="mt-6 flex items-center gap-4">
                 @if ($holder->photoUrl())
-                    <img src="{{ $holder->photoUrl() }}" class="h-16 w-16 rounded-full object-cover">
+                    <img data-fallback="{{ $holder->initials() }}" src="{{ $holder->photoUrl() }}" class="h-16 w-16 rounded-full object-cover">
                 @else
                     <span class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-xl font-bold text-primary-700">
                         {{ Str::of($holder->first_name)->substr(0, 1)->upper() }}{{ Str::of($holder->last_name)->substr(0, 1)->upper() }}

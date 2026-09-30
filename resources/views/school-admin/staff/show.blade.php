@@ -8,7 +8,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="flex flex-wrap items-center gap-4">
                 @if ($member->photoUrl())
-                    <img src="{{ $member->photoUrl() }}" class="h-20 w-20 rounded-full object-cover">
+                    <img data-fallback="{{ $member->initials() }}" src="{{ $member->photoUrl() }}" class="h-20 w-20 rounded-full object-cover">
                 @else
                     <span class="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-2xl font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                         {{ Str::of($member->first_name)->substr(0, 1)->upper() }}{{ Str::of($member->last_name)->substr(0, 1)->upper() }}

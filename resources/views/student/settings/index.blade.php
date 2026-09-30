@@ -13,7 +13,7 @@
         <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="flex items-center gap-4">
                 @if ($student->photoUrl())
-                    <img src="{{ $student->photoUrl() }}" class="h-16 w-16 rounded-full object-cover">
+                    <img data-fallback="{{ $student->initials() }}" src="{{ $student->photoUrl() }}" class="h-16 w-16 rounded-full object-cover">
                 @else
                     <span class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-xl font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">{{ Str::of($student->first_name)->substr(0, 1)->upper() }}</span>
                 @endif
