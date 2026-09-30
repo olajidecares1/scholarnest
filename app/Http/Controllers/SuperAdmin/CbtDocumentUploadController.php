@@ -54,6 +54,9 @@ class CbtDocumentUploadController extends Controller
             'file' => $this->documentRules(),
             'cbt_exam_body_id' => ['nullable', 'integer', 'exists:cbt_exam_bodies,id'],
             'cbt_subject_id' => ['nullable', 'integer', 'exists:cbt_subjects,id'],
+            // Only for a paper that never prints its own year. A compilation's
+            // year headings still decide where each of its questions goes.
+            'year' => ['nullable', 'integer', 'min:1960', 'max:'.(now()->year + 1)],
             'upload_again' => ['nullable', 'boolean'],
         ]);
 
@@ -91,6 +94,7 @@ class CbtDocumentUploadController extends Controller
             'uploaded_by' => $request->user()->id,
             'cbt_exam_body_id' => $validated['cbt_exam_body_id'] ?? null,
             'cbt_subject_id' => $validated['cbt_subject_id'] ?? null,
+            'year' => $validated['year'] ?? null,
             'original_filename' => $file->getClientOriginalName(),
             'disk' => 'local',
             'path' => $path,
@@ -241,8 +245,12 @@ class CbtDocumentUploadController extends Controller
      * written for, where nothing was wrong with the upload and the queue
      * simply was not running.
      */
-    public function retry(CbtDocumentUpload $upload, CbtExtractionRunner $runner): RedirectResponse
+    public function retry(Request $request, CbtDocumentUpload $upload, CbtExtractionRunner $runner): RedirectResponse
     {
+        $validated = $request->validate([
+            'year' => ['nullable', 'integer', 'min:1960', 'max:'.(now()->year + 1)],
+        ]);
+
         // Reading again replaces this upload's questions. Once students can see
         // them, that would take away questions they may already have answered.
         if (CbtQuestion::where('cbt_document_upload_id', $upload->id)->where('is_published', true)->exists()) {
@@ -254,6 +262,9 @@ class CbtDocumentUploadController extends Controller
         $upload->update([
             'status' => CbtDocumentUploadStatus::Pending,
             'error_message' => null,
+            // Only when one is given: a retry without a year keeps whatever
+            // year the upload was made with.
+            ...($request->filled('year') ? ['year' => (int) $validated['year']] : []),
         ]);
 
         $runner->start(new ProcessCbtDocumentUpload($upload));
