@@ -14,7 +14,7 @@
         @endif
 
         <a href="{{ route('staff.exams.index', $school) }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors duration-150 hover:text-primary-700">
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <i class="fa-solid fa-chevron-left text-[14px] leading-none" aria-hidden="true"></i>
             Back to Test/Exam Score
         </a>
 
@@ -32,7 +32,7 @@
                 <small class="field-hint mt-0.5">Enter Test (/{{ $subject->testMaxScore() }}) and Exam (/{{ $subject->examMaxScore() }}) for each student. Leave both blank to skip a student.</small>
 
                 <div class="relative mt-4 max-w-xs">
-                    <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" /><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></svg>
+                    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[14px] leading-none" aria-hidden="true"></i>
                     <input
                         type="text"
                         x-model="search"
