@@ -3,7 +3,7 @@
         {{-- Welcome banner --}}
         <x-welcome-banner
             compact
-            :photo-url="$student->photoUrl()"
+            :photo-url="$student->availablePhotoUrl()"
             :initials="Str::of($student->first_name)->substr(0, 1)->upper()"
             :name="$student->fullName()"
             role-label="Student"
