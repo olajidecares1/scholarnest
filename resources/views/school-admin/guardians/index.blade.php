@@ -77,7 +77,7 @@
                                 <td class="px-6 py-3">
                                     <a href="{{ route('guardians.show', $guardian) }}" class="flex items-center gap-3">
                                         @if ($guardian->photoUrl())
-                                            <img src="{{ $guardian->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
+                                            <img data-fallback="{{ $guardian->initials() }}" src="{{ $guardian->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
                                         @else
                                             <span class="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
                                                 {{ Str::of($guardian->name)->substr(0, 1)->upper() }}

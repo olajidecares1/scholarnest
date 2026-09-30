@@ -83,7 +83,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
                             <a href="{{ route('students.show', $child) }}" class="flex items-center gap-3">
                                 @if ($child->photoUrl())
-                                    <img src="{{ $child->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
+                                    <img data-fallback="{{ $child->initials() }}" src="{{ $child->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
                                 @else
                                     <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                                         {{ Str::of($child->first_name)->substr(0, 1)->upper() }}{{ Str::of($child->last_name)->substr(0, 1)->upper() }}
