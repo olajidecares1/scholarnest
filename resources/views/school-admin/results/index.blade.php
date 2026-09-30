@@ -119,7 +119,7 @@
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-2.5">
                                             @if ($student->photoUrl())
-                                                <img src="{{ $student->photoUrl() }}" class="h-9 w-9 shrink-0 rounded-full object-cover">
+                                                <img data-fallback="{{ $student->initials() }}" src="{{ $student->photoUrl() }}" class="h-9 w-9 shrink-0 rounded-full object-cover">
                                             @else
                                                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                                                     {{ Str::of($student->first_name)->substr(0, 1)->upper() }}{{ Str::of($student->last_name)->substr(0, 1)->upper() }}
