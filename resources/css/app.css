@@ -2446,3 +2446,22 @@ a.pwa-install-banner__install {
         display: none;
     }
 }
+
+/* A profile photograph that could not be loaded, replaced by initials
+   (resources/js/photo-fallback.js). It takes the photograph's own size and
+   shape classes; these only centre the letters and colour the box. */
+.photo-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: color-mix(in srgb, var(--color-primary-500) 14%, #fff);
+    color: var(--color-primary-700, #1d4ed8);
+    font-weight: 700;
+    line-height: 1;
+    user-select: none;
+}
+
+.dark .photo-fallback {
+    background-color: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
+    color: #bfdbfe;
+}
