@@ -126,7 +126,7 @@
                                 <td class="px-6 py-3">
                                     <a href="{{ route('staff.show', $member) }}" class="flex items-center gap-3">
                                         @if ($member->photoUrl())
-                                            <img src="{{ $member->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
+                                            <img data-fallback="{{ $member->initials() }}" src="{{ $member->photoUrl() }}" class="h-9 w-9 rounded-full object-cover">
                                         @else
                                             <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                                                 {{ Str::of($member->first_name)->substr(0, 1)->upper() }}{{ Str::of($member->last_name)->substr(0, 1)->upper() }}
