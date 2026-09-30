@@ -59,7 +59,7 @@
 
                 <span class="flex shrink-0 items-center justify-center overflow-hidden rounded-[3px] border" style="width: 30px; height: 34px; border-color: {{ $secondaryColor }}; margin-top: 2px;">
                     @if ($photoUrl)
-                        <img src="{{ $photoUrl }}" class="h-full w-full object-cover">
+                        <img data-fallback="" src="{{ $photoUrl }}" class="h-full w-full object-cover">
                     @else
                         <span class="text-[8px] font-bold text-gray-400">{{ $initials }}</span>
                     @endif
@@ -160,7 +160,7 @@
             <span class="shrink-0" style="width: 68px; height: 82px; border: 1.5px solid {{ $photoUrl ? $secondaryColor : '#e5e7eb' }}; border-radius: 8px; background-color: #ffffff; padding: 2px;">
                 <span class="block h-full w-full overflow-hidden" style="border-radius: 6px; background-color: {{ $photoUrl ? '#ffffff' : '#f3f4f6' }};">
                     @if ($photoUrl)
-                        <img src="{{ $photoUrl }}" class="h-full w-full object-cover">
+                        <img data-fallback="" src="{{ $photoUrl }}" class="h-full w-full object-cover">
                     @else
                         <span class="flex h-full w-full items-center justify-center text-lg font-bold text-gray-400">{{ $initials }}</span>
                     @endif
