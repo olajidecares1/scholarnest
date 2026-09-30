@@ -13,6 +13,7 @@ import galleryViewer from './gallery-viewer';
 import { installImageUploadPrep } from './image-upload-prep';
 import { installActivityKeepAlive } from './session-keep-alive';
 import { installActionTooltips } from './action-tooltips';
+import { installPhotoFallback } from './photo-fallback';
 import marqueeList from './marquee-list';
 import reportEvidence from './report-evidence';
 import { registerResultPreviewStore } from './result-preview-modal';
@@ -45,6 +46,9 @@ installActivityKeepAlive();
 
 // Hover, focus and long-press tooltips for every icon action button.
 installActionTooltips();
+
+// A photograph that fails to load shows initials, not a broken-image mark.
+installPhotoFallback();
 
 Alpine.start();
 
