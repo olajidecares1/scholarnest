@@ -3,7 +3,7 @@
         <div class="rounded-[10px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="flex flex-wrap items-center gap-4">
                 @if ($staff->photoUrl())
-                    <img src="{{ $staff->photoUrl() }}" class="h-20 w-20 rounded-full object-cover">
+                    <img data-fallback="{{ $staff->initials() }}" src="{{ $staff->photoUrl() }}" class="h-20 w-20 rounded-full object-cover">
                 @else
                     <span class="flex h-20 w-20 items-center justify-center rounded-full bg-primary-100 text-2xl font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
                         {{ Str::of($staff->first_name)->substr(0, 1)->upper() }}{{ Str::of($staff->last_name)->substr(0, 1)->upper() }}
