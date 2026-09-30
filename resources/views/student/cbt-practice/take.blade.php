@@ -3,6 +3,10 @@
     at a time, its passage above it, the options as lettered buttons, a timer, and
     a numbered palette that shows at a glance what is answered and what is not.
 
+    The behaviour is the shared cbtAttempt component (resources/js/cbt-attempt.js,
+    registered with Alpine.data), the same one a school test uses. A function of
+    the same name defined on this page would be ignored: Alpine.data wins.
+
     WHAT THIS PAGE IS NOT GIVEN: which option is correct. The questions are sent
     to the browser with their label and text only, so nothing on this page (or in
     its network traffic) can be read to find the answer before submitting.
@@ -22,6 +26,13 @@
             expiresAt: @js($attempt->expires_at?->toIso8601String()),
             saveUrl: @js(route('student.cbt-practice.attempts.answer', [$school, $attempt])),
             submitUrl: @js(route('student.cbt-practice.attempts.submit', [$school, $attempt])),
+            // The shared component (resources/js/cbt-attempt.js) posts a school
+            // test's field names unless told otherwise. A practice's endpoint
+            // takes these, and without them every answer was refused and every
+            // practice scored 0%.
+            questionField: 'cbt_question_id',
+            optionField: 'cbt_question_option_id',
+            serverNow: @js(now()->toIso8601String()),
         })"
         x-init="init()"
         @keydown.window="onKey($event)"
@@ -173,89 +184,4 @@
         </form>
     </div>
 
-    <script>
-        function cbtAttempt(config) {
-            return {
-                ...config,
-                current: 0,
-                secondsLeft: null,
-                timeDisplay: '--:--',
-                timerHandle: null,
-                get answeredCount() {
-                    return Object.values(this.answers).filter((value) => value).length;
-                },
-                get progressPct() {
-                    if (this.questions.length === 0) return 0;
-                    return Math.round((this.answeredCount / this.questions.length) * 100);
-                },
-                init() {
-                    if (!this.expiresAt) return;
-                    this.tick();
-                    this.timerHandle = setInterval(() => this.tick(), 1000);
-                },
-                tick() {
-                    this.secondsLeft = Math.max(0, Math.floor((new Date(this.expiresAt) - new Date()) / 1000));
-                    const m = Math.floor(this.secondsLeft / 60);
-                    const s = this.secondsLeft % 60;
-                    this.timeDisplay = `${m}:${s.toString().padStart(2, '0')}`;
-                    if (this.secondsLeft <= 0) {
-                        clearInterval(this.timerHandle);
-                        this.doSubmit();
-                    }
-                },
-                select(questionId, optionId) {
-                    this.answers[questionId] = optionId;
-                    fetch(this.saveUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        },
-                        body: JSON.stringify({ cbt_question_id: questionId, cbt_question_option_id: optionId }),
-                    }).then((response) => {
-                        if (response.status === 409) {
-                            return response.json().then((data) => { window.location = data.redirect; });
-                        }
-                    });
-                },
-                // The hall keyboard: arrows to move between questions, a letter
-                // to answer the one on screen.
-                onKey(event) {
-                    if (event.metaKey || event.ctrlKey || event.altKey) return;
-                    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return;
-
-                    if (event.key === 'ArrowRight') return this.next();
-                    if (event.key === 'ArrowLeft') return this.prev();
-
-                    const question = this.questions[this.current];
-                    if (!question) return;
-
-                    const option = question.options.find((o) => o.label.toUpperCase() === event.key.toUpperCase());
-                    if (option) {
-                        event.preventDefault();
-                        this.select(question.id, option.id);
-                    }
-                },
-                next() {
-                    if (this.current < this.questions.length - 1) this.current++;
-                },
-                prev() {
-                    if (this.current > 0) this.current--;
-                },
-                confirmSubmit() {
-                    const unanswered = this.questions.length - this.answeredCount;
-                    const message = unanswered > 0
-                        ? `${unanswered} question(s) are still unanswered. Submit anyway? You cannot change your answers after this.`
-                        : 'Submit your answers? You cannot change them after this.';
-                    if (!confirm(message)) return;
-                    this.doSubmit();
-                },
-                doSubmit() {
-                    clearInterval(this.timerHandle);
-                    this.$refs.submitForm.submit();
-                },
-            };
-        }
-    </script>
 </x-student-layout>
