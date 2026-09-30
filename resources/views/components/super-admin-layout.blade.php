@@ -99,29 +99,18 @@
                 @endphp
 
                 <a href="{{ route('super-admin.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('super-admin.dashboard')) }}">
-                    <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 11.5L12 4l9 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M5.5 10v8.5a1.5 1.5 0 001.5 1.5h3v-5.5a2 2 0 012-2h0a2 2 0 012 2V20h3a1.5 1.5 0 001.5-1.5V10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        <circle cx="12" cy="8.2" r="0.9" fill="currentColor" />
-                    </svg>
+                    <i class="{{ \App\Support\SidebarMeta::icon('super-admin.dashboard') }} fa-fw {{ $navIconClasses }} text-[16px] leading-none" aria-hidden="true"></i>
                     Dashboard
                 </a>
 
                 <a href="{{ route('super-admin.schools.index') }}" class="{{ $navLinkClasses(request()->routeIs('super-admin.schools.*')) }}">
-                    <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 3l8 3.6v2L12 12 4 8.6v-2L12 3z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
-                        <path d="M4 8.6V16l8 4 8-4V8.6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M12 12v8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-                    </svg>
+                    <i class="{{ \App\Support\SidebarMeta::icon('super-admin.schools.index') }} fa-fw {{ $navIconClasses }} text-[16px] leading-none" aria-hidden="true"></i>
                     Schools
                 </a>
 
                 @if ($canManageResultPins)
                     <a href="{{ route('super-admin.result-pins.index') }}" class="{{ $navLinkClasses(request()->routeIs('super-admin.result-pins.*')) }}">
-                        <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15.5 8.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M13 11l-6.5 6.5M9 17.5l-1.5-1.5M6.5 20L5 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="{{ \App\Support\SidebarMeta::icon('super-admin.result-pins.index') }} fa-fw {{ $navIconClasses }} text-[16px] leading-none" aria-hidden="true"></i>
                         Result PINs
                     </a>
                 @endif
@@ -148,10 +137,10 @@
                         class="mt-1 space-y-1 pl-8"
                     >
                         @foreach ([
-                            ['tab' => 'pending', 'label' => 'Pending Approvals', 'icon' => 'M12 7v5l3.2 1.9', 'extra' => '<circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.6" />'],
-                            ['tab' => 'active', 'label' => 'Active Subscriptions', 'icon' => 'M8 12.3l2.6 2.6L16.3 9', 'extra' => '<circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.6" />'],
-                            ['tab' => 'expired', 'label' => 'Expired Subscriptions', 'icon' => 'M9 9l6 6M15 9l-6 6', 'extra' => '<circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.6" />'],
-                            ['tab' => 'all', 'label' => 'All Subscriptions', 'icon' => 'M5 7h14M5 12h14M5 17h9', 'extra' => ''],
+                            ['tab' => 'pending', 'label' => 'Pending Approvals', 'icon' => 'fa-solid fa-hourglass-half'],
+                            ['tab' => 'active', 'label' => 'Active Subscriptions', 'icon' => 'fa-solid fa-circle-check'],
+                            ['tab' => 'expired', 'label' => 'Expired Subscriptions', 'icon' => 'fa-solid fa-circle-xmark'],
+                            ['tab' => 'all', 'label' => 'All Subscriptions', 'icon' => 'fa-solid fa-list'],
                         ] as $sub)
                             @php
                                 $isActive = $sub['tab'] === 'pending'
@@ -162,10 +151,7 @@
                                 href="{{ route('super-admin.subscriptions.index', $sub['tab'] === 'pending' ? [] : ['tab' => $sub['tab']]) }}"
                                 class="group flex items-center gap-2 rounded-[8px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ $isActive ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
                             >
-                                <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    {!! $sub['extra'] !!}
-                                    <path d="{{ $sub['icon'] }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
+                                <i class="{{ $sub['icon'] }} fa-fw shrink-0 text-[13px] leading-none transition-transform duration-300 ease-out group-hover:scale-110" aria-hidden="true"></i>
                                 {{ $sub['label'] }}
                             </a>
                         @endforeach
@@ -199,10 +185,7 @@
                                     href="{{ route('super-admin.cbt.exam-bodies.show', $examBody) }}"
                                     class="group flex items-center gap-2 rounded-[8px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->route('examBody')?->is($examBody) ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
                                 >
-                                    <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 8l7-3.5L19 8l-7 3.5L5 8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                                        <path d="M8 10v4.5c0 1 1.8 2 4 2s4-1 4-2V10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                                    </svg>
+                                    <i class="fa-solid fa-graduation-cap fa-fw shrink-0 text-[13px] leading-none transition-transform duration-300 ease-out group-hover:scale-110" aria-hidden="true"></i>
                                     {{ $examBody->name }} CBT
                                 </a>
                             @endforeach
@@ -215,10 +198,7 @@
                                 href="{{ route('super-admin.cbt.uploads.index') }}"
                                 class="group flex items-center gap-2 rounded-[8px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->routeIs('super-admin.cbt.uploads.*') ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
                             >
-                                <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 16V5m0 0l-4 4m4-4l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M5 17.5V19a1.5 1.5 0 001.5 1.5h11A1.5 1.5 0 0019 19v-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                                </svg>
+                                <i class="{{ \App\Support\SidebarMeta::icon('super-admin.cbt.uploads.index') }} fa-fw shrink-0 text-[13px] leading-none transition-transform duration-300 ease-out group-hover:scale-110" aria-hidden="true"></i>
                                 Upload CBT Document
                             </a>
 
@@ -226,9 +206,7 @@
                                 href="{{ route('super-admin.cbt.index') }}"
                                 class="group flex items-center gap-2 rounded-[8px] px-3 py-2 text-sm transition-all duration-300 ease-out hover:translate-x-1 {{ request()->routeIs('super-admin.cbt.index') ? 'font-semibold text-white' : 'text-primary-50 hover:text-white' }}"
                             >
-                                <svg class="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                                </svg>
+                                <i class="fa-solid fa-layer-group fa-fw shrink-0 text-[13px] leading-none transition-transform duration-300 ease-out group-hover:scale-110" aria-hidden="true"></i>
                                 All Exam Bodies
                             </a>
                         </div>
@@ -236,30 +214,24 @@
                 @endif
 
                 @foreach ([
-                    ['route' => 'super-admin.payments.index', 'label' => 'Payments', 'icon' => 'M12 4v2.2M12 17.8V20M8.5 8.5c0-1.4 1.6-2.5 3.5-2.5s3.5 1.1 3.5 2.3c0 3.2-7 1.4-7 4.7 0 1.3 1.6 2.3 3.5 2.3s3.5-1.1 3.5-2.5', 'circle' => true],
-                    ['route' => 'super-admin.users.index', 'label' => 'Users', 'icon' => 'M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7', 'circle' => false, 'extra' => '<circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />'],
-                    ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions', 'icon' => 'M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z', 'extra' => '<path d="M9.2 12l1.9 1.9L15 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                    ['route' => 'super-admin.reports.index', 'label' => 'Reports', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
-                    ['route' => 'super-admin.analytics.index', 'label' => 'Analytics', 'icon' => 'M4 19.5h16', 'extra' => '<path d="M6.5 19.5v-5.5M11 19.5V8M15.5 19.5v-8.7M20 19.5V5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />'],
-                    ['route' => 'super-admin.communications.index', 'label' => 'Communications', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                    ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets', 'icon' => 'M4.5 8.5a2 2 0 012-2h11a2 2 0 012 2v7a2 2 0 01-2 2h-11a2 2 0 01-2-2v-7z', 'extra' => '<path d="M4.5 9.5l7.1 4.6a1 1 0 001.1 0l6.8-4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                    ['route' => 'super-admin.cms.index', 'label' => 'CMS', 'icon' => 'M4.5 6a1.5 1.5 0 011.5-1.5h6l2 2h5.5A1.5 1.5 0 0121 8v9.5A1.5 1.5 0 0119.5 19h-15A1.5 1.5 0 013 17.5v-11z', 'extra' => ''],
-                    ['route' => 'super-admin.legal.index', 'label' => 'Legal Documents', 'icon' => 'M6 3.5h12a.5.5 0 01.5.5v16a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M9 8h6M9 11.5h6M9 15h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
-                    ['route' => 'super-admin.media.index', 'label' => 'Media', 'icon' => 'M4 5.5h16a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1v-11a1 1 0 011-1z', 'extra' => '<circle cx="8.5" cy="10" r="1.5" stroke="currentColor" stroke-width="1.5" /><path d="M3 15.5l5-4.5 4 3.5 3-2.5 6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'],
-                    ['route' => 'super-admin.themes.index', 'label' => 'Themes', 'icon' => 'M12 3a9 9 0 109 9', 'extra' => '<circle cx="7.8" cy="10.5" r="1.1" fill="currentColor" /><circle cx="10.5" cy="6.8" r="1.1" fill="currentColor" /><circle cx="15.2" cy="7.3" r="1.1" fill="currentColor" /><circle cx="17.2" cy="12.5" r="1.1" fill="currentColor" />'],
-                    ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings', 'icon' => 'M3 8.5h18M4 5.5h16a1 1 0 011 1V18a1 1 0 01-1 1H4a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M7 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                    ['route' => 'super-admin.settings.index', 'label' => 'System Settings', 'icon' => 'M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z', 'extra' => '<circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" />'],
-                    ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs', 'icon' => 'M7 3.5h7l4 4v13a.5.5 0 01-.5.5h-11a.5.5 0 01-.5-.5v-16a.5.5 0 01.5-.5z', 'extra' => '<path d="M14 3.5V7.5h4M9 12.5h6M9 15.5h6M9 9.5h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
+                    ['route' => 'super-admin.payments.index', 'label' => 'Payments'],
+                    ['route' => 'super-admin.users.index', 'label' => 'Users'],
+                    ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions'],
+                    ['route' => 'super-admin.reports.index', 'label' => 'Reports'],
+                    ['route' => 'super-admin.analytics.index', 'label' => 'Analytics'],
+                    ['route' => 'super-admin.communications.index', 'label' => 'Communications'],
+                    ['route' => 'super-admin.support-tickets.index', 'label' => 'Support Tickets'],
+                    ['route' => 'super-admin.cms.index', 'label' => 'CMS'],
+                    ['route' => 'super-admin.legal.index', 'label' => 'Legal Documents'],
+                    ['route' => 'super-admin.media.index', 'label' => 'Media'],
+                    ['route' => 'super-admin.themes.index', 'label' => 'Themes'],
+                    ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings'],
+                    ['route' => 'super-admin.settings.index', 'label' => 'System Settings'],
+                    ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs'],
                 ] as $item)
                     @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
                     <a href="{{ route($item['route']) }}" class="{{ $navLinkClasses($isActive) }}">
-                        <svg class="{{ $navIconClasses }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            @if (! empty($item['circle']))
-                                <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.6" />
-                            @endif
-                            {!! $item['extra'] ?? '' !!}
-                            <path d="{{ $item['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="{{ \App\Support\SidebarMeta::icon($item['route']) }} fa-fw {{ $navIconClasses }} text-[16px] leading-none" aria-hidden="true"></i>
                         {{ $item['label'] }}
                     </a>
                 @endforeach
@@ -502,10 +474,7 @@
                     data-tooltip="Communications"
                     aria-label="Communications"
                 >
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                        <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                    </svg>
+                    <i class="fa-solid fa-comments" aria-hidden="true"></i>
                 </a>
 
                 <div class="relative" x-data="{ open: false }">

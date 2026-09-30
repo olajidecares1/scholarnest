@@ -96,7 +96,7 @@
                         <p class="truncate text-sm font-bold leading-tight">{{ $school->name }}</p>
                         <a href="{{ route('settings.index') }}" class="mt-0.5 flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-gray-400 transition-colors duration-200 hover:text-gray-900 dark:text-gray-100">
                             <span class="truncate">Session: {{ $school->current_session ?? 'Not set' }}</span>
-                            <svg class="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            <i class="fa-solid fa-chevron-down shrink-0 text-[10px] leading-none" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -184,7 +184,7 @@
                 <div class="rounded-[8px] bg-gray-100 dark:bg-gray-800 p-4 transition-colors duration-300 hover:bg-white/[0.15]">
                     <div class="flex items-center justify-between">
                         <p class="flex items-center gap-1.5 text-sm font-semibold">
-                            <svg class="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8l3.5 2.5L12 5l5.5 5.5L21 8l-1.5 10h-15L3 8z" /></svg>
+                            <i class="fa-solid fa-crown text-[13px] leading-none text-amber-400" aria-hidden="true"></i>
                             Current Plan
                         </p>
                     </div>
@@ -389,9 +389,7 @@
                         data-tooltip="Support Tickets"
                         aria-label="Support Tickets"
                     >
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fa-solid fa-headset" aria-hidden="true"></i>
                         @if($openTicketsCount > 0)
                             <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">{{ min($openTicketsCount, 99) }}</span>
                         @endif
@@ -539,38 +537,29 @@
                     @php
                         $bottomNavItemClasses = fn (bool $isActive) => 'group flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-all duration-300 ease-out active:scale-90 '
                             .($isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400');
-                        $bottomNavIconClasses = fn (bool $isActive) => 'h-6 w-6 shrink-0 transition-all duration-300 ease-out group-active:scale-90 '.($isActive ? '-translate-y-0.5' : '');
+                        $bottomNavIconClasses = fn (bool $isActive) => 'flex h-6 w-6 shrink-0 items-center justify-center transition-all duration-300 ease-out group-active:scale-90 '.($isActive ? '-translate-y-0.5' : '');
                         $isDashboardActive = request()->routeIs('dashboard');
                         $isStudentsActive = request()->routeIs('students.*');
                         $isAttendanceActive = request()->routeIs('attendance.*');
                     @endphp
 
                     <a href="{{ route('dashboard') }}" class="{{ $bottomNavItemClasses($isDashboardActive) }}">
-                        <svg class="{{ $bottomNavIconClasses($isDashboardActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M6 10v9a1 1 0 001 1h3v-6h4v6h3a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="{{ \App\Support\SidebarMeta::icon('dashboard') }} fa-fw {{ $bottomNavIconClasses($isDashboardActive) }} text-[20px] leading-none" aria-hidden="true"></i>
                         Home
                     </a>
 
                     <a href="{{ route('students.index') }}" class="{{ $bottomNavItemClasses($isStudentsActive) }}">
-                        <svg class="{{ $bottomNavIconClasses($isStudentsActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4.5 19.5c.6-3 3-5 6-5s5.4 2 6 5M9.5 5.8a2.7 2.7 0 115.4 3.4M17 9.3a2.7 2.7 0 012.2 4.7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                            <circle cx="10.5" cy="9" r="3.25" stroke="currentColor" stroke-width="1.75" />
-                        </svg>
+                        <i class="{{ \App\Support\SidebarMeta::icon('students.index') }} fa-fw {{ $bottomNavIconClasses($isStudentsActive) }} text-[20px] leading-none" aria-hidden="true"></i>
                         Students
                     </a>
 
                     <a href="{{ route('attendance.index') }}" class="{{ $bottomNavItemClasses($isAttendanceActive) }}">
-                        <svg class="{{ $bottomNavIconClasses($isAttendanceActive) }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="{{ \App\Support\SidebarMeta::icon('attendance.index') }} fa-fw {{ $bottomNavIconClasses($isAttendanceActive) }} text-[20px] leading-none" aria-hidden="true"></i>
                         Attendance
                     </a>
 
                     <button type="button" @click="moreOpen = true" class="{{ $bottomNavItemClasses(false) }}">
-                        <i class="fa-solid fa-ellipsis {{ $bottomNavIconClasses(false) }} text-[14px] leading-none" aria-hidden="true"></i>
+                        <i class="fa-solid fa-ellipsis fa-fw {{ $bottomNavIconClasses(false) }} text-[20px] leading-none" aria-hidden="true"></i>
                         More
                     </button>
                 </div>
@@ -601,37 +590,37 @@
 
                 <div class="grid grid-cols-4 gap-1 px-3 pb-3 pt-4">
                     @foreach ([
-                        ['route' => 'academics.index', 'label' => 'Academics', 'icon' => 'M12 4.5L3.5 9 12 13.5 20.5 9 12 4.5z', 'extra' => '<path d="M6.5 11v4c0 1.4 2.5 2.75 5.5 2.75s5.5-1.35 5.5-2.75v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M20.5 9v5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                        ['route' => 'timetable.index', 'label' => 'Timetable', 'icon' => 'M12 21a9 9 0 100-18 9 9 0 000 18z', 'extra' => '<path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'examinations.index', 'label' => 'Examinations', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
-                    ['route' => 'examinations.score-entry', 'label' => 'Test/Exam Score', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M15 3.5V7h3.5M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
-                        ['route' => 'results.index', 'label' => 'Results', 'icon' => 'M9 3h6a1 1 0 011 1v1h1a1 1 0 011 1v13a1 1 0 01-1 1H7a1 1 0 01-1-1V6a1 1 0 011-1h1V4a1 1 0 011-1z', 'extra' => '<path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'result-repository.index', 'label' => 'Result Repository', 'icon' => 'M4 7.5c0-1.4 3.6-2.5 8-2.5s8 1.1 8 2.5-3.6 2.5-8 2.5-8-1.1-8-2.5z', 'extra' => '<path d="M4 7.5v9c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><path d="M4 12c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                    ['route' => 'result-pins.index', 'label' => 'Generate Exam Token', 'icon' => 'M15.5 8.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z', 'extra' => '<path d="M13 11l-6.5 6.5M9 17.5l-1.5-1.5M6.5 20L5 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'assignments.index', 'label' => 'Assignments', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 11.5h6M9 14.5h6M9 17.5h3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                        ['route' => 'cbt-practice.index', 'label' => 'CBT Practice', 'icon' => 'M4.5 5.5h15a1 1 0 011 1V16a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 12.5l2.3 2.3L15.5 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'cbt-tests.index', 'label' => 'CBT Tests', 'icon' => 'M6 3.5h9l3 3V20a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z', 'extra' => '<path d="M8.5 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'events.index', 'label' => 'Events', 'icon' => 'M4.5 5.5h15a1 1 0 011 1V19a1 1 0 01-1 1h-15a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                        ['route' => 'communications.index', 'label' => 'Communication', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                        ['route' => 'diary.index', 'label' => 'Teacher Diary', 'icon' => 'M4 6.5A1.5 1.5 0 015.5 5h3.6a1 1 0 01.8.4l1 1.35a1 1 0 00.8.4h6.8A1.5 1.5 0 0120 8.65V17.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17.5v-11z', 'extra' => ''],
-                    ['route' => 'notices.index', 'label' => 'Memorandums', 'icon' => 'M12 3a5 5 0 00-5 5v3.2c0 .5-.2 1-.5 1.4L5 15h14l-1.5-2.4c-.3-.4-.5-.9-.5-1.4V8a5 5 0 00-5-5z', 'extra' => '<path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
-                        ['route' => 'co-curricular.index', 'label' => 'Co-curricular', 'icon' => 'M12 4.5l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z', 'extra' => ''],
-                        ['route' => 'library.index', 'label' => 'Library', 'icon' => 'M3.5 6.2S5.5 5 8.5 5s5 1.2 5 1.2v12S11.5 17 8.5 17s-5 1.2-5 1.2v-12z', 'extra' => '<path d="M13.5 6.2S15.5 5 18.5 5s2 1.2 2 1.2v12s0 1.2-2 1.2-5 1.2-5 1.2v-12z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />'],
-                        ['route' => 'transport.index', 'label' => 'Transport', 'icon' => 'M4 16V8.5a1 1 0 011-1h1.5l1.5-3h8l1.5 3H19a1 1 0 011 1V16a1 1 0 01-1 1h-1', 'extra' => '<circle cx="6" cy="17" r="1.5" stroke="currentColor" stroke-width="1.5" /><circle cx="17" cy="17" r="1.5" stroke="currentColor" stroke-width="1.5" />'],
-                        ['route' => 'hostels.index', 'label' => 'Hostel', 'icon' => 'M4 20V10.5L12 4l8 6.5V20', 'extra' => '<path d="M9 20v-6h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'finance.index', 'label' => 'Finance', 'icon' => 'M4 7.5h16a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1z', 'extra' => '<circle cx="16.5" cy="13" r="1.5" stroke="currentColor" stroke-width="1.5" />'],
-                        ['route' => 'website.index', 'label' => 'Website', 'icon' => 'M12 3a9 9 0 100 18 9 9 0 000-18z', 'extra' => '<path d="M3 12h18M12 3c2.2 2.4 2.2 15.6 0 18M12 3c-2.2 2.4-2.2 15.6 0 18" stroke="currentColor" stroke-width="1.5" />'],
-                        ['route' => 'news.index', 'label' => 'News', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                        ['route' => 'careers.index', 'label' => 'Recruitment', 'icon' => 'M5 6.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0119 6.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 17.5v-11z', 'extra' => '<path d="M9 6.5V5a1.5 1.5 0 011.5-1.5h3A1.5 1.5 0 0115 5v1.5M5 11h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                        ['route' => 'testimonials.index', 'label' => 'Testimonials', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => ''],
-                        ['route' => 'facilities.index', 'label' => 'Facilities', 'icon' => 'M4 20V10.5L12 4l8 6.5V20', 'extra' => '<path d="M9 20v-6h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'id-cards.index', 'label' => 'ID Cards', 'icon' => 'M4 6.5a1.5 1.5 0 011.5-1.5h13A1.5 1.5 0 0120 6.5v11a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 17.5v-11z', 'extra' => '<circle cx="9" cy="11" r="1.75" stroke="currentColor" stroke-width="1.5" /><path d="M6.5 15c.4-1.3 1.3-2 2.5-2s2.1.7 2.5 2M14 10h4M14 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />'],
-                        ['route' => 'profile-change-requests.index', 'label' => 'Change Requests', 'icon' => 'M9 4.5h6l3 3V19a.5.5 0 01-.5.5h-11A.5.5 0 016 19V5a.5.5 0 01.5-.5h2.5z', 'extra' => '<path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'guardians.index', 'label' => 'Parents & Guardians', 'icon' => 'M4.5 19.5c.5-2.7 2.6-4.5 5.3-4.8M18.5 19.5c-.4-2-1.7-3.5-3.5-4.2', 'extra' => '<circle cx="9" cy="8.5" r="2.75" stroke="currentColor" stroke-width="1.6" /><circle cx="16" cy="9.5" r="2.15" stroke="currentColor" stroke-width="1.4" />'],
-                        ['route' => 'staff.index', 'label' => 'Teachers & Staff', 'icon' => 'M5 6.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0119 6.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 17.5v-11z', 'extra' => '<circle cx="12" cy="10.5" r="2.25" stroke="currentColor" stroke-width="1.6" />'],
-                        ['route' => 'teacher-assignments.index', 'label' => 'Assignments', 'icon' => 'M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z', 'extra' => '<path d="M9 12.5l2 2 4-4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />'],
-                        ['route' => 'class-subjects.index', 'label' => 'Class Subjects', 'icon' => 'M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H8l-4 3.5V17a1 1 0 01-1-1V6.5a1 1 0 011-1z', 'extra' => '<path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />'],
-                        ['route' => 'settings.index', 'label' => 'Settings', 'icon' => '', 'extra' => '<circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.6" /><path d="M10.3 3.3a2 2 0 013.4 0l.5.9a2 2 0 001.6 1l1-.1a2 2 0 012.1 2.1l-.1 1a2 2 0 001 1.6l.9.5a2 2 0 010 3.4l-.9.5a2 2 0 00-1 1.6l.1 1a2 2 0 01-2.1 2.1l-1-.1a2 2 0 00-1.6 1l-.5.9a2 2 0 01-3.4 0l-.5-.9a2 2 0 00-1.6-1l-1 .1a2 2 0 01-2.1-2.1l.1-1a2 2 0 00-1-1.6l-.9-.5a2 2 0 010-3.4l.9-.5a2 2 0 001-1.6l-.1-1a2 2 0 012.1-2.1l1 .1a2 2 0 001.6-1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />'],
+                        ['route' => 'academics.index', 'label' => 'Academics'],
+                        ['route' => 'timetable.index', 'label' => 'Timetable'],
+                        ['route' => 'examinations.index', 'label' => 'Examinations'],
+                    ['route' => 'examinations.score-entry', 'label' => 'Test/Exam Score'],
+                        ['route' => 'results.index', 'label' => 'Results'],
+                        ['route' => 'result-repository.index', 'label' => 'Result Repository'],
+                    ['route' => 'result-pins.index', 'label' => 'Generate Exam Token'],
+                        ['route' => 'assignments.index', 'label' => 'Assignments'],
+                        ['route' => 'cbt-practice.index', 'label' => 'CBT Practice'],
+                        ['route' => 'cbt-tests.index', 'label' => 'CBT Tests'],
+                        ['route' => 'events.index', 'label' => 'Events'],
+                        ['route' => 'communications.index', 'label' => 'Communication'],
+                        ['route' => 'diary.index', 'label' => 'Teacher Diary'],
+                    ['route' => 'notices.index', 'label' => 'Memorandums'],
+                        ['route' => 'co-curricular.index', 'label' => 'Co-curricular'],
+                        ['route' => 'library.index', 'label' => 'Library'],
+                        ['route' => 'transport.index', 'label' => 'Transport'],
+                        ['route' => 'hostels.index', 'label' => 'Hostel'],
+                        ['route' => 'finance.index', 'label' => 'Finance'],
+                        ['route' => 'website.index', 'label' => 'Website'],
+                        ['route' => 'news.index', 'label' => 'News'],
+                        ['route' => 'careers.index', 'label' => 'Recruitment'],
+                        ['route' => 'testimonials.index', 'label' => 'Testimonials'],
+                        ['route' => 'facilities.index', 'label' => 'Facilities'],
+                        ['route' => 'id-cards.index', 'label' => 'ID Cards'],
+                        ['route' => 'profile-change-requests.index', 'label' => 'Change Requests'],
+                        ['route' => 'guardians.index', 'label' => 'Parents & Guardians'],
+                        ['route' => 'staff.index', 'label' => 'Teachers & Staff'],
+                        ['route' => 'teacher-assignments.index', 'label' => 'Assignments'],
+                        ['route' => 'class-subjects.index', 'label' => 'Class Subjects'],
+                        ['route' => 'settings.index', 'label' => 'Settings'],
                     ] as $item)
                         @continue(! \Illuminate\Support\Facades\Route::has($item['route']))
                         @continue(! $school->canAccessRoute($item['route']))
@@ -641,12 +630,9 @@
                             @click="moreOpen = false"
                             class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold transition-all duration-300 ease-out active:scale-95 {{ $isActive ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50' }}"
                         >
-                            <svg class="h-6 w-6 shrink-0 transition-transform duration-300 ease-out group-active:scale-90" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                {!! $item['extra'] ?? '' !!}
-                                @if ($item['icon'])
-                                    <path d="{{ $item['icon'] }}" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                                @endif
-                            </svg>
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] transition-transform duration-300 ease-out group-active:scale-90 {{ $isActive ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-primary-50 dark:bg-primary-900/30' }}">
+                                <i class="{{ \App\Support\SidebarMeta::icon($item['route']) }} fa-fw text-[19px] leading-none {{ $isActive ? 'text-blue-600 dark:text-blue-300' : 'text-primary-600 dark:text-primary-300' }}" aria-hidden="true"></i>
+                            </span>
                             <span class="leading-tight">{{ $item['label'] }}</span>
                         </a>
                     @endforeach
