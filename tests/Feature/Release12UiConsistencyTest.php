@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Models\LegalDocument;
 use App\Models\School;
 use App\Models\User;
+use App\Support\FieldIcon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -150,17 +151,17 @@ test('field icons are Font Awesome, and every path a form passes has a real equi
         preg_match_all('/<x-[\w-]*field\b[^>]*?(?<![:\w-])icon="([^"]*)"/s', file_get_contents($path), $matches);
 
         foreach ($matches[1] as $icon) {
-            if (! \App\Support\FieldIcon::knows($icon)) {
+            if (! FieldIcon::knows($icon)) {
                 $unknown[] = str_replace(resource_path('views/'), '', $path).': '.substr($icon, 0, 40);
             }
         }
     }
 
     expect($unknown)->toBe([])
-        ->and(\App\Support\FieldIcon::fa('fa-user'))->toBe('fa-user')
-        ->and(\App\Support\FieldIcon::fa('M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7'))->toBe('fa-envelope')
-        ->and(\App\Support\FieldIcon::fa('M1 1'))->toBe(\App\Support\FieldIcon::FALLBACK)
-        ->and(\App\Support\FieldIcon::fa(null))->toBeNull();
+        ->and(FieldIcon::fa('fa-user'))->toBe('fa-user')
+        ->and(FieldIcon::fa('M3 6.5a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2v-11z M3 7l9 6.5L21 7'))->toBe('fa-envelope')
+        ->and(FieldIcon::fa('M1 1'))->toBe(FieldIcon::FALLBACK)
+        ->and(FieldIcon::fa(null))->toBeNull();
 });
 
 test('icons inside buttons are Font Awesome, not hand-drawn SVG', function () {
@@ -209,11 +210,11 @@ test('the sign-up and find-your-school fields show matching Font Awesome icons',
         'M3 7l9 6 9-6M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z' => 'fa-envelope',
         'M6.5 3h3l1.5 4-2 1.5a12 12 0 005.5 5.5L16 12l4 1.5v3a2 2 0 01-2.2 2A16.5 16.5 0 014.5 5.2 2 2 0 016.5 3z' => 'fa-phone',
     ] as $path => $icon) {
-        expect(\App\Support\FieldIcon::fa($path))->toBe($icon);
+        expect(FieldIcon::fa($path))->toBe($icon);
     }
 
-    expect(\App\Support\FieldIcon::forType('email'))->toBe('fa-envelope')
-        ->and(\App\Support\FieldIcon::forType('text'))->toBeNull()
+    expect(FieldIcon::forType('email'))->toBe('fa-envelope')
+        ->and(FieldIcon::forType('text'))->toBeNull()
         ->and(file_get_contents(resource_path('views/portal/basic/finder.blade.php')))->toContain('fa-school');
 
     $this->get(route('portal.find.show'))->assertOk()->assertSee('fa-school', false);

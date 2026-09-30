@@ -2,10 +2,12 @@
 
 use App\Models\User;
 
-it('redirects guests to the login page', function () {
-    $response = $this->get('/');
-
-    $response->assertRedirect(route('login'));
+it('shows guests the registration page at the homepage', function () {
+    // "/" answers 200 with the registration page, not a redirect: the
+    // homepage search engines index (see routes/public.php).
+    $this->get('/')
+        ->assertOk()
+        ->assertViewHas('isHome', true);
 });
 
 it('redirects authenticated users to the dashboard', function () {
