@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\Gender;
+use App\Enums\RegistrationSource;
 use App\Models\Concerns\HasProtectedPhoto;
+use App\Services\IdentifierGenerator;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\StudentFactory;
 use Illuminate\Auth\Authenticatable;
@@ -25,6 +27,15 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
     use Authenticatable, CanResetPassword, HasApiTokens, HasFactory, HasUuidRouteKey, Notifiable;
 
     use HasProtectedPhoto;
+
+    /**
+     * A deleted record's admission number / Staff ID goes back in the pool
+     * and is given to the next one registered.
+     */
+    protected static function booted(): void
+    {
+        static::deleted(fn (self $record) => app(IdentifierGenerator::class)->release($record));
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -49,6 +60,7 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
         'blood_group',
         'house',
         'admission_date',
+        'registration_source',
         'is_active',
         'notes',
         'password',
@@ -76,6 +88,7 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
             'gender' => Gender::class,
             'date_of_birth' => 'date',
             'admission_date' => 'date',
+            'registration_source' => RegistrationSource::class,
             'is_active' => 'boolean',
             'password' => 'hashed',
             'must_change_password' => 'boolean',

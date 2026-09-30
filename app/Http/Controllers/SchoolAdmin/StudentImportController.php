@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\SchoolAdmin;
 
+use App\Enums\RegistrationSource;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\School;
 use App\Models\SchoolClass;
+use App\Models\Student;
 use App\Services\IdentifierGenerator;
 use App\Services\StudentImport\ExistingStudentMatcher;
 use App\Services\StudentImport\StudentImportException;
@@ -13,6 +15,7 @@ use App\Services\StudentImport\StudentImportParser;
 use App\Services\StudentImport\StudentImportReader;
 use App\Services\StudentImport\StudentImportTemplate;
 use App\Services\StudentLicenceAllocation;
+use App\Support\DuplicateStudentNotice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -108,14 +111,20 @@ class StudentImportController extends Controller
         $earlierInFile = new ExistingStudentMatcher($validated['class_name']);
 
         foreach ($result['rows'] as $i => $row) {
-            $existing = $registered->match($row['data'], $row['file_admission_number']);
+            $found = $registered->find($row['data'], $row['file_admission_number']);
 
-            if ($existing === null && $row['errors'] === []) {
-                $existing = $earlierInFile->match($row['data']);
+            if ($found === null && $row['errors'] === []) {
+                $found = $earlierInFile->find($row['data']);
                 $earlierInFile->remember($row['data']);
             }
 
-            $result['rows'][$i]['existing'] = $existing;
+            $result['rows'][$i]['existing'] = $found['reason'] ?? null;
+
+            // The existing record itself, so the review can show its admission
+            // number, full details and how it was registered.
+            $result['rows'][$i]['existing_student'] = ($found['student_id'] ?? null) !== null
+                ? DuplicateStudentNotice::for(Student::findOrFail($found['student_id']), $found['reason'])
+                : null;
         }
 
         $token = Str::random(40);
@@ -181,13 +190,14 @@ class StudentImportController extends Controller
 
         $autoGenerate = (bool) $school->auto_generate_admission_numbers;
         $skipped = [];
+        $duplicates = [];
 
         $notAdded = 0;
 
         // Imports rows in file order until the school's allocation is full:
         // the current students plus this batch can never pass the limit, so
         // splitting a list across several uploads gets no further than one.
-        $created = $this->licences->withRoomFor($school, function (?int $room) use ($school, $rows, $className, $autoGenerate, &$skipped, &$notAdded) {
+        $created = $this->licences->withRoomFor($school, function (?int $room) use ($school, $rows, $className, $autoGenerate, &$skipped, &$duplicates, &$notAdded) {
             // Re-checked inside the lock against the students as they are
             // now: someone may have registered one of these children, or used
             // one of these admission numbers, while the preview was open.
@@ -205,8 +215,12 @@ class StudentImportController extends Controller
                 $data = $row['data'];
 
                 // Already registered: skip entirely, never touch the record.
-                if (($reason = $matcher->match($data, $row['file_admission_number'] ?? null)) !== null) {
-                    $skipped[] = "Row {$row['line']} skipped. {$reason} The existing record was left unchanged.";
+                if (($found = $matcher->find($data, $row['file_admission_number'] ?? null)) !== null) {
+                    $skipped[] = "Row {$row['line']} skipped. {$found['reason']} The existing record was left unchanged.";
+
+                    if ($found['student_id'] !== null) {
+                        $duplicates[] = DuplicateStudentNotice::for(Student::findOrFail($found['student_id']), $found['reason']);
+                    }
 
                     continue;
                 }
@@ -222,13 +236,14 @@ class StudentImportController extends Controller
                 }
 
                 // create() only: a bulk upload never updates an existing row.
-                $school->students()->create([
+                $student = $school->students()->create([
                     ...array_filter($data, fn ($value) => $value !== null),
                     'class_name' => $className,
                     'is_active' => true,
+                    'registration_source' => RegistrationSource::Bulk,
                 ]);
 
-                $matcher->remember($data);
+                $matcher->remember($data, $student->fullName()." ({$student->admission_number})", $student->id);
                 $count++;
             }
 
@@ -261,6 +276,10 @@ class StudentImportController extends Controller
 
         if ($notAdded > 0) {
             $redirect->with('capacity_notice', $this->licences->importTruncatedMessage($school, $created));
+        }
+
+        if ($duplicates !== []) {
+            $redirect->with('duplicate_students', $duplicates);
         }
 
         return $skipped === [] ? $redirect : $redirect->withErrors(['import' => $skipped]);

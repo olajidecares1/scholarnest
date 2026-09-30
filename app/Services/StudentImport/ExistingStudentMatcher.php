@@ -16,32 +16,39 @@ use Carbon\CarbonInterface;
  * a re-uploaded register from producing a second copy of the same child under
  * a new admission number.
  *
+ * One matcher for EVERY way a student is registered: the bulk upload and the
+ * single Add Student form both ask it, before anything is saved, so the two
+ * can never disagree about what counts as a duplicate.
+ *
  * A row is the same student when any of these hold:
  *
  *   1. its admission number is one already assigned at the school (checked
  *      whether the school types admission numbers or has them generated, since
  *      a register exported from this system carries the generated ones);
- *   2. same first and last name, and the same date of birth;
- *   3. same first and last name, and the same guardian phone number;
- *   4. same first and last name, already in the class being imported into.
+ *   2. the same name: first name and surname, ignoring case and spacing.
+ *      The school's rule is that a name already registered is refused;
+ *   3. same first given name and surname, and the same date of birth;
+ *   4. same first given name and surname, and the same guardian phone number;
+ *   5. same first given name and surname, already in the class.
  *
- * Names compare without case, and on the first given name only, because a
- * register often adds a middle name the original entry did not have.
+ * Rules 3 to 5 compare the first given name only, because a register often
+ * adds a middle name the original entry did not have ("Chinedu Emeka" and
+ * "Chinedu"), and a second signal makes that safe to treat as the same child.
  *
  * Rows matched against each other within one file (the same child listed
  * twice) are caught too: each row is remembered as it is accepted.
  */
 class ExistingStudentMatcher
 {
-    /** @var array<string, string> key => description of who holds it */
+    /** @var array<string, array{label: string, student_id: int|null}> key => who holds it */
     private array $admissionNumbers = [];
 
-    /** @var array<string, string> */
+    /** @var array<string, array{label: string, student_id: int|null}> */
     private array $identities = [];
 
-    public function __construct(private readonly string $className) {}
+    public function __construct(private readonly ?string $className = null) {}
 
-    public static function forSchool(School $school, string $className): self
+    public static function forSchool(School $school, ?string $className = null): self
     {
         $matcher = new self($className);
 
@@ -57,7 +64,7 @@ class ExistingStudentMatcher
                         'date_of_birth' => $student->date_of_birth instanceof CarbonInterface ? $student->date_of_birth->toDateString() : $student->date_of_birth,
                         'guardian_phone' => $student->guardian_phone,
                         'class_name' => $student->class_name,
-                    ], trim($student->first_name.' '.$student->last_name).($student->admission_number ? " ({$student->admission_number})" : ''));
+                    ], trim($student->first_name.' '.$student->last_name).($student->admission_number ? " ({$student->admission_number})" : ''), $student->id);
                 }
             });
 
@@ -72,17 +79,40 @@ class ExistingStudentMatcher
      */
     public function match(array $data, ?string $fileAdmissionNumber = null): ?string
     {
+        return $this->find($data, $fileAdmissionNumber)['reason'] ?? null;
+    }
+
+    /**
+     * match(), with the id of the existing student when the match is a record
+     * already in the database (null when it is an earlier row of the same
+     * file), so the School Admin can be shown that student's details.
+     *
+     * @param  array<string, string|null>  $data
+     * @return array{reason: string, student_id: int|null}|null
+     */
+    public function find(array $data, ?string $fileAdmissionNumber = null): ?array
+    {
         foreach (array_unique(array_filter([$data['admission_number'] ?? null, $fileAdmissionNumber])) as $number) {
             $key = $this->admissionKey($number);
 
             if ($key !== '' && isset($this->admissionNumbers[$key])) {
-                return "Already registered: admission number {$number} is assigned to {$this->admissionNumbers[$key]}.";
+                $holder = $this->admissionNumbers[$key];
+
+                return [
+                    'reason' => "Already registered: admission number {$number} is assigned to {$holder['label']}.",
+                    'student_id' => $holder['student_id'],
+                ];
             }
         }
 
         foreach ($this->identityKeys($data + ['class_name' => $this->className]) as $key => $reason) {
             if (isset($this->identities[$key])) {
-                return "Already registered: {$this->identities[$key]} has the same name and {$reason}.";
+                $holder = $this->identities[$key];
+
+                return [
+                    'reason' => "Already registered: {$holder['label']} has the same name".($reason === '' ? '.' : " and {$reason}."),
+                    'student_id' => $holder['student_id'],
+                ];
             }
         }
 
@@ -100,19 +130,20 @@ class ExistingStudentMatcher
      *
      * @param  array<string, string|null>  $data
      */
-    public function remember(array $data, ?string $label = null): void
+    public function remember(array $data, ?string $label = null, ?int $studentId = null): void
     {
         $data += ['class_name' => $this->className];
         $label ??= trim(($data['first_name'] ?? '').' '.($data['last_name'] ?? '')).' (earlier in this file)';
+        $holder = ['label' => $label, 'student_id' => $studentId];
 
         $number = $this->admissionKey((string) ($data['admission_number'] ?? ''));
 
         if ($number !== '') {
-            $this->admissionNumbers[$number] ??= $label;
+            $this->admissionNumbers[$number] ??= $holder;
         }
 
         foreach (array_keys($this->identityKeys($data)) as $key) {
-            $this->identities[$key] ??= $label;
+            $this->identities[$key] ??= $holder;
         }
     }
 
@@ -122,6 +153,7 @@ class ExistingStudentMatcher
      */
     private function identityKeys(array $data): array
     {
+        $fullFirst = $this->normalise((string) ($data['first_name'] ?? ''));
         $first = $this->firstName((string) ($data['first_name'] ?? ''));
         $last = $this->normalise((string) ($data['last_name'] ?? ''));
 
@@ -129,8 +161,10 @@ class ExistingStudentMatcher
             return [];
         }
 
+        // The same name on its own is enough: the school's rule.
+        $keys = ['name:'.$fullFirst.'|'.$last => ''];
+
         $name = $first.'|'.$last;
-        $keys = [];
 
         if (filled($data['date_of_birth'] ?? null)) {
             $keys['dob:'.$name.'|'.substr((string) $data['date_of_birth'], 0, 10)] = 'date of birth';
