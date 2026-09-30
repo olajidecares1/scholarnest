@@ -26,6 +26,7 @@ class CbtDocumentUpload extends Model
         'uploaded_by',
         'cbt_exam_body_id',
         'cbt_subject_id',
+        'year',
         'original_filename',
         'disk',
         'path',
@@ -58,6 +59,7 @@ class CbtDocumentUpload extends Model
             'extracted_images' => 'array',
             'processed_at' => 'datetime',
             'warnings' => 'array',
+            'year' => 'integer',
             'published_at' => 'datetime',
         ];
     }
