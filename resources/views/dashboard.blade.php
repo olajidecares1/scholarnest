@@ -5,7 +5,7 @@
                 @case('suspended')
                     <div class="rounded-[5px] border border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-900/20 lg:rounded-[10px]">
                         <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-[5px] bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
-                            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 9v4m0 4h.01M10.3 3.9L2.5 17a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            <i class="fa-solid fa-triangle-exclamation text-[20px] leading-none" aria-hidden="true"></i>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Your school&rsquo;s account has been suspended</h2>
                         <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">Please contact AkademicNest support to resolve this before you can continue using your account.</small>
@@ -15,10 +15,7 @@
                 @case('no_subscription')
                     <div class="rounded-[5px] border border-blue-200 bg-blue-50 p-6 text-center dark:border-blue-800 dark:bg-blue-900/20 lg:rounded-[10px]">
                         <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-[5px] bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 lg:rounded-[10px]">
-                            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5" />
-                                <path d="M3 10h18" stroke="currentColor" stroke-width="1.5" />
-                            </svg>
+                            <i class="fa-solid fa-credit-card text-[20px] leading-none" aria-hidden="true"></i>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">You don&rsquo;t have an active subscription yet</h2>
                         <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">Choose a plan to unlock AkademicNest for {{ $school->name }}.</small>
@@ -35,7 +32,7 @@
                 @case('pending')
                     <div class="rounded-[5px] border border-blue-200 bg-blue-50 p-6 text-center dark:border-blue-800 dark:bg-blue-900/20 lg:rounded-[10px]">
                         <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-[5px] bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 lg:rounded-[10px]">
-                            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" /><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            <i class="fa-regular fa-clock text-[20px] leading-none" aria-hidden="true"></i>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Awaiting activation</h2>
                         <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">Your account is awaiting payment confirmation and activation by the AkademicNest Team.</small>
@@ -48,7 +45,7 @@
                 @case('rejected')
                     <div class="rounded-[5px] border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-900/20 lg:rounded-[10px]">
                         <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-[5px] bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 lg:rounded-[10px]">
-                            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+                            <i class="fa-solid fa-xmark text-[20px] leading-none" aria-hidden="true"></i>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Your subscription was not approved</h2>
                         <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">
@@ -66,7 +63,7 @@
                 @case('expired')
                     <div class="rounded-[5px] border border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                         <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-[5px] bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 lg:rounded-[10px]">
-                            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" /><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            <i class="fa-regular fa-clock text-[20px] leading-none" aria-hidden="true"></i>
                         </span>
                         <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white">Your subscription has expired</h2>
                         <small class="block mt-1 text-sm text-gray-600 dark:text-gray-300">Renew your plan to regain access to AkademicNest for {{ $school->name }}.</small>
