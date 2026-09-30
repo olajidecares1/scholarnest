@@ -1,7 +1,7 @@
 <x-super-admin-layout page-title="Dashboard" page-subtitle="Platform overview and recent activity.">
     <div class="space-y-6">
         <x-welcome-banner
-            :photo-url="auth()->user()->photoUrl()"
+            :photo-url="auth()->user()->availablePhotoUrl()"
             :initials="Str::of(auth()->user()->name)->substr(0, 1)->upper()"
             :name="auth()->user()->name"
             role-label="AkademicNest Team"
