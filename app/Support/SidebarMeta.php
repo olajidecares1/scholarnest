@@ -130,6 +130,7 @@ class SidebarMeta
         'super-admin.cms.index' => ['fa-solid fa-pen-ruler', 'Platform pages and content'],
         'super-admin.media.index' => ['fa-solid fa-photo-film', 'Images and video'],
         'super-admin.themes.index' => ['fa-solid fa-palette', 'Platform appearance'],
+        'super-admin.legal.index' => ['fa-solid fa-scale-balanced', 'Terms, privacy and other legal pages'],
 
         // --- Platform --------------------------------------------------
         'super-admin.analytics.index' => ['fa-solid fa-chart-line', 'Usage across the platform'],
