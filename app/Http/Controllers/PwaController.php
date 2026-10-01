@@ -7,6 +7,7 @@ use App\Enums\PortalApp;
 use App\Models\BrandingImage;
 use App\Models\School;
 use App\Models\Setting;
+use App\Support\OfflineScope;
 use App\Support\PortalPwa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Vite;
@@ -149,12 +150,13 @@ class PwaController extends Controller
     /**
      * The service worker.
      *
-     * IT CACHES NO PAGE, EVER. Every portal here is multi-tenant and behind a
-     * session: a cached dashboard is a dashboard that can be served to the
-     * next person to open the browser, and on a shared family phone or a
-     * school office machine that is a data leak with no attacker in it. Only
-     * hashed build assets are cached, which are identical for every school and
-     * carry nothing personal.
+     * It keeps every portal usable with no connection: the build output and
+     * the platform's static files are stored when it installs, and every page
+     * a signed-in person opens (or that is fetched for them in the background
+     * after signing in) is kept on the device, filed under that ACCOUNT, see
+     * App\Support\OfflineScope. Signing out removes that account's pages.
+     * Writes made offline are held on the device and sent, once, when the
+     * connection returns. See the view for the whole design.
      *
      * Served from the root so one registration covers every portal on the
      * origin. The script is the same for all of them; the manifest is what
@@ -162,17 +164,86 @@ class PwaController extends Controller
      */
     public function serviceWorker(): HttpResponse
     {
-        // Bumping this retires every cache the previous worker held. Tied to
-        // the asset build, because that is the only thing this worker caches.
-        $version = Vite::manifestHash() ?: 'dev';
+        // Bumping this retires every asset cache the previous worker held.
+        // Pages kept for offline use are NOT tied to it: they belong to the
+        // account, and a deploy must not empty a teacher's phone.
+        $version = (Vite::manifestHash() ?: 'dev').'-o3';
 
-        return response(view('pwa.service-worker', ['version' => $version])->render(), 200, [
+        $script = view('pwa.service-worker', [
+            'version' => $version,
+            'precache' => $this->precacheList(),
+            'queueCore' => (string) @file_get_contents(resource_path('js/offline/queue-core.js')),
+        ])->render();
+
+        $url = (string) config('app.url');
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $host = parse_url($url, PHP_URL_HOST);
+        $port = parse_url($url, PHP_URL_PORT);
+        $origin = $scheme && $host ? $scheme.'://'.$host.($port ? ':'.$port : '') : '';
+
+        return response($script, 200, [
             'Content-Type' => 'application/javascript; charset=utf-8',
             // A worker is only ever updated by the browser re-fetching this
             // script, so it must not be held in a cache.
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
             'Service-Worker-Allowed' => '/',
+            // The worker fetches what pages already load (the font hosts and
+            // the photographs addressed from APP_URL) in order to keep them.
+            'Content-Security-Policy' => "default-src 'self'; connect-src 'self' https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com {$origin}; script-src 'self'",
         ]);
+    }
+
+    /**
+     * Who is signed in, and a fresh CSRF token, for the offline sync engine.
+     */
+    public function session(Request $request): HttpResponse
+    {
+        return response()->json([
+            'csrf_token' => $request->session()->token(),
+            'scopes' => array_values(OfflineScope::active()),
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+
+    /**
+     * Everything stored when the worker installs, so the very first offline
+     * launch already has every stylesheet, script, font and icon, rather than
+     * only the ones the pages visited so far happened to load.
+     *
+     * @return list<string>
+     */
+    private function precacheList(): array
+    {
+        $files = [
+            route('pwa.offline', absolute: false),
+            '/favicon.ico',
+            '/favicon-16x16.png',
+            '/favicon-32x32.png',
+            '/apple-touch-icon.png',
+        ];
+
+        foreach (self::ICON_SIZES as $size) {
+            $files[] = route('pwa.icon', ['size' => $size], absolute: false);
+        }
+
+        $manifestPath = public_path('build/manifest.json');
+
+        if (is_file($manifestPath)) {
+            $manifest = json_decode((string) file_get_contents($manifestPath), true) ?: [];
+
+            foreach ($manifest as $chunk) {
+                if (! is_array($chunk)) {
+                    continue;
+                }
+
+                foreach (array_merge([$chunk['file'] ?? null], $chunk['css'] ?? [], $chunk['assets'] ?? []) as $file) {
+                    if (is_string($file) && $file !== '') {
+                        $files[] = '/build/'.ltrim($file, '/');
+                    }
+                }
+            }
+        }
+
+        return array_values(array_unique($files));
     }
 
     /**
