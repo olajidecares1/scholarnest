@@ -74,6 +74,22 @@ export default function uploadProgressForm({ maxMb = 21 } = {}) {
                 return;
             }
 
+            // No connection: keep the document on the device and upload it
+            // when the connection returns (resources/js/offline/index.js),
+            // rather than failing. Reading it needs the server, so the
+            // questions appear after it has been sent.
+            if (!navigator.onLine && window.AkademicNestOffline) {
+                const kept = await window.AkademicNestOffline.queueForm(form, null, { label: `Upload ${file.name}` });
+
+                if (kept) {
+                    this.phase = 'done';
+                    this.heading = 'Saved on this device';
+                    this.message = `You are offline. ${file.name} will be uploaded automatically when you are back online, and read then.`;
+                }
+
+                return;
+            }
+
             // Confirm the session is still alive BEFORE sending the bytes.
             // Choosing a document on a phone can take longer than the portal's
             // idle limit, and the upload used to travel all the way to the
