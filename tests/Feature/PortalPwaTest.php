@@ -297,14 +297,16 @@ describe('the service worker', function () {
             ->and($cacheControl)->toContain('no-cache');
     });
 
-    test('CACHES NO PAGE - only hashed build assets', function () {
+    test('keeps a page only as the server labelled it, never a write', function () {
         $script = $this->get('/sw.js')->getContent();
 
-        // The property this whole feature depends on. These portals are
-        // multi-tenant and behind a session; a cached dashboard is one that
-        // can be handed to the next person to open a shared phone.
+        // Signed-in pages ARE kept now, so the portals work offline, but only
+        // the ones the server labelled, filed under the account they were
+        // served to (see tests/Feature/OfflineSupportTest.php). A write is
+        // never answered from a cache.
         expect($script)->toContain("startsWith('/build/')")
-            ->and($script)->toContain("request.method !== 'GET'");
+            ->and($script)->toContain("request.method !== 'GET'")
+            ->and($script)->toContain("label !== 'private' && label !== 'public'");
     });
 
     test('the offline page needs nothing it would have to fetch', function () {
