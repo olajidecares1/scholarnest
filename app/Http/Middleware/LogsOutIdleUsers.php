@@ -75,11 +75,18 @@ class LogsOutIdleUsers
             // diffInSeconds() returns a signed value (negative when $lastActivity
             // is in the past relative to now), absolute: true is required or a
             // stale/expired timestamp would never compare greater than the limit.
-            if ($lastActivity !== null && now()->diffInSeconds($lastActivity, absolute: true) > self::IDLE_SECONDS) {
+            if ($lastActivity !== null
+                && now()->diffInSeconds($lastActivity, absolute: true) > self::IDLE_SECONDS
+                && ! $this->resumingFromOffline($request, $guard)) {
                 return $this->expire($request, $guard, $user, $sessionKey);
             }
 
-            $request->session()->put($sessionKey, now());
+            // A page fetched in the background to keep it for offline use is
+            // not the person doing anything, so it must not keep them signed
+            // in. See resources/views/pwa/service-worker.blade.php.
+            if (! $request->headers->has('X-Offline-Warm')) {
+                $request->session()->put($sessionKey, now());
+            }
         }
 
         $response = $next($request);
@@ -121,6 +128,35 @@ class LogsOutIdleUsers
         }
 
         return false;
+    }
+
+    /**
+     * Somebody who kept working with the connection off.
+     *
+     * The portals work offline, see App\Http\Middleware\OfflineSupport. A
+     * teacher marking a register with no signal makes no request for twenty
+     * minutes, and without this the first request after the signal returns,
+     * the one carrying their register, found the session "idle" and signed
+     * them out, so nothing they did offline could be saved without signing in
+     * again.
+     *
+     * The device says how long ago the person last touched the app in the
+     * X-Offline-Resume header, which is exactly the kind of claim the
+     * keep-alive ping already makes (resources/js/session-keep-alive.js); a
+     * phone nobody has touched for three minutes sends a figure over the
+     * limit and is signed out as before. It is only honoured for a session
+     * that was actually used on an offline-capable page.
+     */
+    private function resumingFromOffline(Request $request, string $guard): bool
+    {
+        $idle = $request->headers->get('X-Offline-Resume');
+
+        if ($idle === null || ! ctype_digit((string) $idle)) {
+            return false;
+        }
+
+        return (int) $idle < self::IDLE_SECONDS
+            && $request->session()->get('offline_capable_'.$guard) === true;
     }
 
     private function expire(Request $request, string $guard, mixed $user, string $sessionKey): Response
