@@ -19,6 +19,7 @@ use App\Http\Middleware\EnsureStudentIsActive;
 use App\Http\Middleware\EnsureUserIsSchoolAdmin;
 use App\Http\Middleware\EnsureUserIsSuperAdmin;
 use App\Http\Middleware\LogsOutIdleUsers;
+use App\Http\Middleware\OfflineSupport;
 use App\Http\Middleware\RedirectToCanonicalHost;
 use App\Http\Middleware\RedirectToCustomDomain;
 use App\Http\Middleware\RedirectToHttps;
@@ -142,6 +143,12 @@ return Application::configure(basePath: dirname(__DIR__))
             CheckMaintenanceMode::class,
             TrackPageView::class,
             LogsOutIdleUsers::class,
+
+            // After the idle check, so a write that finds the session gone is
+            // answered by the sign-in redirect and never recorded as done.
+            // Labels pages the device may keep for offline use, and makes a
+            // write queued offline safe to send more than once. See the class.
+            OfflineSupport::class,
         ]);
 
         // The tenant host check runs before authentication. See the comment on
