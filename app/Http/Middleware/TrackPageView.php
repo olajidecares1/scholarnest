@@ -53,6 +53,12 @@ class TrackPageView
             return false;
         }
 
+        // Fetched by the service worker to keep a portal usable offline, not
+        // opened by anybody. See resources/views/pwa/service-worker.blade.php.
+        if ($request->headers->has('X-Offline-Warm')) {
+            return false;
+        }
+
         if ($response->getStatusCode() >= 400) {
             return false;
         }

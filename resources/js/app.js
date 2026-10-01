@@ -7,6 +7,7 @@ import { registerDraggableResizable } from './directives/draggable-resizable';
 import pageBuilder from './page-builder';
 import photoField from './photo-field';
 import initPortalInstall from './pwa';
+import initOffline from './offline';
 import { generateColorScale, normalizeCssColorToHex } from './color-scale';
 import { registerIdCardPreviewStore } from './id-card-preview-modal';
 import galleryViewer from './gallery-viewer';
@@ -74,3 +75,11 @@ if (document.readyState === 'loading') {
  * every other page it returns immediately.
  */
 initPortalInstall();
+
+/*
+ * Using the portals with no connection: forms and page writes kept on the
+ * device and synced when the connection returns, and the status of that shown
+ * to the person. Only on pages that declared themselves installable, like the
+ * install prompt above. See resources/js/offline/index.js.
+ */
+initOffline();

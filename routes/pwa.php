@@ -33,6 +33,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('pwa.service-worker');
 Route::get('/offline', [PwaController::class, 'offline'])->name('pwa.offline');
 
+// Asked by the offline sync engine before it sends anything it held while the
+// device was offline: a CSRF token for THIS session (the one in a page kept
+// on the device may be older than the session), and which accounts are
+// signed in, so a write is only ever sent for the account that made it. See
+// resources/js/offline/sync.js. Public, and not counted as activity.
+Route::get('/offline/session', [PwaController::class, 'session'])->name('pwa.session');
+
 // NO SCHOOL IN THIS ROUTE, deliberately. The icon that lands on a home screen
 // is AkademicNest's, identical for every school and every portal, so it is one
 // URL and one cache entry platform-wide. A school's own logo belongs in its

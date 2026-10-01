@@ -64,7 +64,12 @@ class SecurityHeaders
             'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()'
         );
 
-        $response->headers->set('Content-Security-Policy', $this->contentSecurityPolicy());
+        // A response that brought its own policy keeps it: the service worker
+        // states one that lets it keep the font files the layouts link, see
+        // PwaController::serviceWorker().
+        if (! $response->headers->has('Content-Security-Policy')) {
+            $response->headers->set('Content-Security-Policy', $this->contentSecurityPolicy());
+        }
 
         // HSTS only over https, and only in production. Sent from a laptop it
         // would pin http://localhost to https for a year in the developer's

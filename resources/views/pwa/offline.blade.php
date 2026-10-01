@@ -5,8 +5,9 @@
     too, which is how an offline page ends up rendering as unstyled text on
     the one occasion it matters.
 
-    It says nothing about which school or which portal, because it is one file
-    shared by all of them and guessing would be worse than not saying.
+    It is shown only for a page that has not been kept on this device; every
+    page that has been is served from the device instead. It asks the service
+    worker which pages are kept, and lists them, so the person can carry on.
 --}}
 <!DOCTYPE html>
 <html lang="en">
@@ -69,16 +70,23 @@
                 cursor: pointer;
             }
             button:active { background: #4338ca; }
+            #pending { margin-top: 10px; font-weight: 600; color: #b45309; }
+            .saved { list-style: none; margin: 16px 0 0; padding: 0; text-align: left; max-height: 45vh; overflow: auto; }
+            .saved li { border-top: 1px solid rgba(100, 116, 139, 0.25); }
+            .saved a { display: block; padding: 10px 4px; color: #4f46e5; font-weight: 600; font-size: 13.5px; text-decoration: none; }
+            .card { max-width: 420px !important; }
         </style>
     </head>
     <body>
         <div class="card">
             <div class="mark" aria-hidden="true">&#128246;</div>
             <h1>You&rsquo;re offline</h1>
-            <p class="hint">
-                This portal needs a connection to show your information. Nothing has been lost &mdash;
-                reconnect and try again.
+            <p class="hint" id="lead">
+                This page has not been saved on this device yet. Nothing has been lost &mdash;
+                open one of your saved pages below, or reconnect and try again.
             </p>
+            <p class="hint" id="pending" hidden></p>
+            <ul class="saved" id="saved" hidden></ul>
             <button type="button" onclick="location.reload()">Try again</button>
         </div>
 
@@ -86,6 +94,62 @@
             // Reload by itself the moment the device is back, so nobody is left
             // looking at this page after the connection returns.
             window.addEventListener('online', () => location.reload());
+
+            // The pages kept on this device for the account in use, from the
+            // service worker, so the person can carry on with any of them.
+            (function () {
+                var controller = navigator.serviceWorker && navigator.serviceWorker.controller;
+
+                if (!controller) {
+                    return;
+                }
+
+                var channel = new MessageChannel();
+                channel.port1.onmessage = function (event) {
+                    var list = (event.data || []).filter(function (page) {
+                        return page.url && page.url.indexOf('/offline') === -1;
+                    });
+
+                    if (!list.length) {
+                        return;
+                    }
+
+                    list.sort(function (a, b) { return a.title.localeCompare(b.title); });
+
+                    var ul = document.getElementById('saved');
+                    list.slice(0, 60).forEach(function (page) {
+                        var li = document.createElement('li');
+                        var a = document.createElement('a');
+                        a.href = page.url;
+                        a.textContent = page.title;
+                        li.appendChild(a);
+                        ul.appendChild(li);
+                    });
+                    ul.hidden = false;
+                    document.getElementById('lead').textContent = 'This page has not been saved on this device yet. These pages are available offline:';
+                };
+                controller.postMessage({ type: 'saved-pages' }, [channel.port2]);
+
+                try {
+                    var open = indexedDB.open('akademicnest-offline');
+                    open.onsuccess = function () {
+                        var db = open.result;
+
+                        if (!db.objectStoreNames.contains('queue')) {
+                            return;
+                        }
+
+                        var count = db.transaction('queue', 'readonly').objectStore('queue').count();
+                        count.onsuccess = function () {
+                            if (count.result > 0) {
+                                var p = document.getElementById('pending');
+                                p.textContent = count.result + ' change' + (count.result === 1 ? ' is' : 's are') + ' saved on this device and will be sent when you reconnect.';
+                                p.hidden = false;
+                            }
+                        };
+                    };
+                } catch (e) {}
+            })();
         </script>
     </body>
 </html>

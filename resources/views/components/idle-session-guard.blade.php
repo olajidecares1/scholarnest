@@ -33,6 +33,15 @@
             }
         },
         expire() {
+            // With no connection there is no session to end, and the portal is
+            // being used offline (resources/js/offline/index.js): the server
+            // half of this timeout decides again when the connection returns.
+            if (! navigator.onLine) {
+                this.reset();
+
+                return;
+            }
+
             clearInterval(this.tickHandle);
             this.$refs.idleLogoutForm.submit();
         },
@@ -58,7 +67,7 @@
         </button>
     </div>
 
-    <form x-ref="idleLogoutForm" method="POST" action="{{ $logoutUrl }}" class="hidden">
+    <form x-ref="idleLogoutForm" data-offline="idle-logout" method="POST" action="{{ $logoutUrl }}" class="hidden">
         @csrf
     </form>
 </div>

@@ -18,6 +18,16 @@
         // One key per school per portal, so dismissing the prompt on a teacher
         // account does not also dismiss it on a parent one on the same phone.
         'dismissKey' => 'pwa-dismissed:'.$school->portal_key.':'.$app->value,
+
+        // Offline use, see resources/js/offline/index.js. The scope names the
+        // signed-in account this page was served to (null on a sign-in page),
+        // so everything kept or queued on the device is filed under it.
+        'offlineScope' => \App\Support\OfflineScope::current(request())['scope'] ?? null,
+        'homeUrl' => $app === \App\Enums\PortalApp::Admin ? route('dashboard', absolute: false) : $app->startUrl($school),
+        'offlinePrefixes' => [$app->scope($school)],
+        // Sign-outs, payments and the like, and pages never to fetch in the
+        // background, by route name, see App\Support\OfflineRoutes.
+        'offlineRoutes' => \App\Support\OfflineRoutes::patterns(),
     ];
 @endphp
 
