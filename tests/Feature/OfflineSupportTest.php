@@ -34,7 +34,7 @@ function offlineWriteRoute(?string $middleware = null): void
         ->post('/__offline-test/write', function (Request $request) {
             $request->validate(['title' => 'required|string']);
 
-            DB::table('offline_test_writes')->insert(['title' => $request->input('title')]);
+            $GLOBALS['offlineTestWrites'][] = $request->input('title');
 
             return redirect('/__offline-test/done')->with('status', 'Saved.');
         });
@@ -43,7 +43,10 @@ function offlineWriteRoute(?string $middleware = null): void
 
     Route::middleware('web')->get('/__offline-test/done', fn () => 'done');
 
-    DB::statement('CREATE TABLE IF NOT EXISTS offline_test_writes (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT)');
+    // Counted in memory rather than in a table: creating a table here would
+    // be DDL, which MySQL commits implicitly, breaking every later test's
+    // RefreshDatabase transaction on the MySQL CI job.
+    $GLOBALS['offlineTestWrites'] = [];
 }
 
 describe('every role\'s pages are labelled for keeping on the device', function () {
@@ -132,7 +135,7 @@ describe('a write sent twice is done once', function () {
         $this->post('/__offline-test/write', ['title' => 'Register 3A', '_offline_key' => 'key-aaaaaaaa-1'])
             ->assertRedirect('/__offline-test/done');
 
-        expect(DB::table('offline_test_writes')->count())->toBe(1);
+        expect(count($GLOBALS['offlineTestWrites']))->toBe(1);
     });
 
     test('a replayed duplicate is answered as done, in JSON', function () {
@@ -148,7 +151,7 @@ describe('a write sent twice is done once', function () {
             ->assertOk()
             ->assertJson(['ok' => true, 'duplicate' => true]);
 
-        expect(DB::table('offline_test_writes')->count())->toBe(1);
+        expect(count($GLOBALS['offlineTestWrites']))->toBe(1);
     });
 
     test('different keys are different records', function () {
@@ -157,7 +160,7 @@ describe('a write sent twice is done once', function () {
         $this->post('/__offline-test/write', ['title' => 'One', '_offline_key' => 'key-cccccccc-1']);
         $this->post('/__offline-test/write', ['title' => 'Two', '_offline_key' => 'key-cccccccc-2']);
 
-        expect(DB::table('offline_test_writes')->count())->toBe(2);
+        expect(count($GLOBALS['offlineTestWrites']))->toBe(2);
     });
 
     test('a write refused by validation leaves the key free to try again', function () {
@@ -173,7 +176,7 @@ describe('a write sent twice is done once', function () {
             ->assertOk()
             ->assertJson(['ok' => true]);
 
-        expect(DB::table('offline_test_writes')->count())->toBe(1);
+        expect(count($GLOBALS['offlineTestWrites']))->toBe(1);
     });
 
     test('a write that found the session gone is not recorded as done', function () {
@@ -193,7 +196,7 @@ describe('a write sent twice is done once', function () {
             ->assertOk()
             ->assertJson(['ok' => true]);
 
-        expect(DB::table('offline_test_writes')->count())->toBe(1);
+        expect(count($GLOBALS['offlineTestWrites']))->toBe(1);
     });
 
     test('the key never reaches the controller', function () {
