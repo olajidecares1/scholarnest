@@ -58,7 +58,7 @@ class AssignmentController extends Controller
         $students = Student::where('school_id', $assignment->school_id)
             ->where('class_name', $assignment->class_name)
             ->where('is_active', true)
-            ->orderBy('last_name')
+            ->alphabetical()
             ->get();
 
         $existing = $assignment->submissions()->whereIn('student_id', $students->pluck('id'))->get()->keyBy('student_id');

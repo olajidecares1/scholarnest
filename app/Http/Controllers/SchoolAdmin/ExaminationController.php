@@ -158,7 +158,7 @@ class ExaminationController extends Controller
             $students = Student::where('school_id', $school->id)
                 ->where('class_name', $examination->class_name)
                 ->where('is_active', true)
-                ->orderBy('last_name')
+                ->alphabetical()
                 ->get();
 
             $existing = $subject->scores()->whereIn('student_id', $students->pluck('id'))->get()->keyBy('student_id');
@@ -257,7 +257,7 @@ class ExaminationController extends Controller
         $students = Student::where('school_id', $examination->school_id)
             ->where('class_name', $examination->class_name)
             ->where('is_active', true)
-            ->orderBy('last_name')
+            ->alphabetical()
             ->get();
 
         $existing = $subject->scores()->whereIn('student_id', $students->pluck('id'))->get()->keyBy('student_id');

@@ -69,6 +69,7 @@ class FinanceController extends Controller
             ->where('is_active', true)
             ->when($structure->class_name, fn ($query) => $query->where('class_name', $structure->class_name))
             ->whereDoesntHave('invoices', fn ($query) => $query->where('fee_structure_id', $structure->id))
+            ->alphabetical()
             ->get();
 
         foreach ($students as $student) {
@@ -118,7 +119,7 @@ class FinanceController extends Controller
         return view('school-admin.finance.invoices', [
             'invoices' => $invoices,
             'academicLevels' => $school->academicLevels()->with('classes')->get(),
-            'students' => $school->students()->where('is_active', true)->orderBy('last_name')->get(),
+            'students' => $school->students()->where('is_active', true)->alphabetical()->get(),
             'methodOptions' => FeePaymentMethod::cases(),
             'totalOutstanding' => $school->invoices()->with('payments')->get()->sum(fn ($invoice) => max($invoice->balance(), 0)),
         ]);

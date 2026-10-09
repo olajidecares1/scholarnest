@@ -191,8 +191,7 @@ class GuardianController extends Controller
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('admission_number', 'like', "%{$search}%");
             }))
-            ->orderBy('first_name')
-            ->orderBy('last_name')
+            ->alphabetical()
             ->limit(25)
             ->get();
 
