@@ -127,6 +127,13 @@ class StudentImportController extends Controller
                 : null;
         }
 
+        // The class is listed, and imported, alphabetically by surname then
+        // first name whatever order the file was in, so automatically issued
+        // admission numbers follow the register too. Done after the duplicate
+        // checks above, which depend on file order. Each row keeps its file
+        // line number so mistakes can still be found in the file.
+        $result['rows'] = self::alphabetical($result['rows']);
+
         $token = Str::random(40);
 
         Cache::put($this->cacheKey($request, $token), [
@@ -179,7 +186,7 @@ class StudentImportController extends Controller
                 ->withErrors(['class_name' => "The class \"{$className}\" no longer exists. Please upload the file again and select a class."]);
         }
 
-        $rows = array_values(array_filter($preview['rows'], fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null));
+        $rows = self::alphabetical(array_filter($preview['rows'], fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null));
         $alreadyRegistered = count(array_filter($preview['rows'], fn ($row) => ($row['existing'] ?? null) !== null));
 
         if ($rows === []) {
@@ -194,7 +201,7 @@ class StudentImportController extends Controller
 
         $notAdded = 0;
 
-        // Imports rows in file order until the school's allocation is full:
+        // Imports rows in alphabetical order until the school's allocation is full:
         // the current students plus this batch can never pass the limit, so
         // splitting a list across several uploads gets no further than one.
         $created = $this->licences->withRoomFor($school, function (?int $room) use ($school, $rows, $className, $autoGenerate, &$skipped, &$duplicates, &$notAdded) {
@@ -283,6 +290,28 @@ class StudentImportController extends Controller
         }
 
         return $skipped === [] ? $redirect : $redirect->withErrors(['import' => $skipped]);
+    }
+
+    /**
+     * Upload rows sorted by surname, then first name, then file line. Rows
+     * with no name at all (mistakes) go to the end.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return list<array<string, mixed>>
+     */
+    private static function alphabetical(array $rows): array
+    {
+        $key = fn (array $row): array => [
+            blank($row['data']['last_name'] ?? null) && blank($row['data']['first_name'] ?? null) ? 1 : 0,
+            mb_strtolower(trim((string) ($row['data']['last_name'] ?? ''))),
+            mb_strtolower(trim((string) ($row['data']['first_name'] ?? ''))),
+            (int) ($row['line'] ?? 0),
+        ];
+
+        $rows = array_values($rows);
+        usort($rows, fn (array $a, array $b) => $key($a) <=> $key($b));
+
+        return $rows;
     }
 
     public function cancel(Request $request, string $token): RedirectResponse

@@ -24,6 +24,7 @@ class SearchController extends Controller
             ->where(fn ($q) => $q->where('first_name', 'like', "%{$query}%")
                 ->orWhere('last_name', 'like', "%{$query}%")
                 ->orWhere('admission_number', 'like', "%{$query}%"))
+            ->alphabetical()
             ->limit(5)
             ->get()
             ->map(fn (Student $student) => [

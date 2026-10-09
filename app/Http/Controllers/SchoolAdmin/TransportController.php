@@ -106,11 +106,11 @@ class TransportController extends Controller
 
         return view('school-admin.transport.students', [
             'route' => $route,
-            'assignments' => $route->assignments()->with('student')->get(),
+            'assignments' => Student::sortAlphabetically($route->assignments()->with('student')->get(), fn ($assignment) => $assignment->student),
             'students' => Student::where('school_id', $route->school_id)
                 ->where('is_active', true)
                 ->whereDoesntHave('transportAssignment')
-                ->orderBy('last_name')
+                ->alphabetical()
                 ->get(),
         ]);
     }

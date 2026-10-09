@@ -90,7 +90,7 @@ class ResultCheckingPinController extends Controller
             // never hard-coded, and never inferred from the data.
             'currentSession' => $school->currentSession(),
             'terms' => ExamTerm::cases(),
-            'students' => $school->students()->where('is_active', true)->orderBy('last_name')->get(),
+            'students' => $school->students()->where('is_active', true)->alphabetical()->get(),
 
             // The school's own classes, so the admin picks one rather than
             // typing it.
@@ -692,7 +692,7 @@ class ResultCheckingPinController extends Controller
         $rows = $school->students()
             ->where('is_active', true)
             ->where('class_name', $examination->class_name)
-            ->orderBy('last_name')
+            ->alphabetical()
             ->get()
             ->map(function (Student $student) use ($tokens) {
                 $token = $tokens->get($student->id);

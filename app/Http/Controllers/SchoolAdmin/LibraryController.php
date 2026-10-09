@@ -112,7 +112,7 @@ class LibraryController extends Controller
             'loans' => $loans,
             'status' => $status,
             'books' => $school->books()->where('copies_available', '>', 0)->orderBy('title')->get(),
-            'students' => $school->students()->where('is_active', true)->orderBy('last_name')->get(),
+            'students' => $school->students()->where('is_active', true)->alphabetical()->get(),
         ]);
     }
 
