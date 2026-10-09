@@ -79,7 +79,7 @@
 
             @if ($guardian->students->isNotEmpty())
                 <div class="mt-4 space-y-2">
-                    @foreach ($guardian->students as $child)
+                    @foreach (\App\Models\Student::sortAlphabetically($guardian->students) as $child)
                         <div class="flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-gray-200 p-4 dark:border-gray-700">
                             <a href="{{ route('students.show', $child) }}" class="flex items-center gap-3">
                                 @if ($child->photoUrl())
