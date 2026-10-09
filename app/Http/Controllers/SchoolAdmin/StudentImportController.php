@@ -127,8 +127,8 @@ class StudentImportController extends Controller
                 : null;
         }
 
-        // The class is listed, and imported, alphabetically by surname then
-        // first name whatever order the file was in, so automatically issued
+        // The class is listed, and imported, alphabetically by first name then
+        // surname (as names are shown) whatever order the file was in, so automatically issued
         // admission numbers follow the register too. Done after the duplicate
         // checks above, which depend on file order. Each row keeps its file
         // line number so mistakes can still be found in the file.
@@ -293,7 +293,7 @@ class StudentImportController extends Controller
     }
 
     /**
-     * Upload rows sorted by surname, then first name, then file line. Rows
+     * Upload rows sorted by first name, then surname, then file line. Rows
      * with no name at all (mistakes) go to the end.
      *
      * @param  array<int, array<string, mixed>>  $rows
@@ -303,8 +303,8 @@ class StudentImportController extends Controller
     {
         $key = fn (array $row): array => [
             blank($row['data']['last_name'] ?? null) && blank($row['data']['first_name'] ?? null) ? 1 : 0,
-            mb_strtolower(trim((string) ($row['data']['last_name'] ?? ''))),
             mb_strtolower(trim((string) ($row['data']['first_name'] ?? ''))),
+            mb_strtolower(trim((string) ($row['data']['last_name'] ?? ''))),
             (int) ($row['line'] ?? 0),
         ];
 

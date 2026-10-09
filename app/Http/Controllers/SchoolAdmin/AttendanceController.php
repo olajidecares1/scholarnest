@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 use App\Enums\AttendanceStatus;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceRecord;
+use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -94,6 +95,9 @@ class AttendanceController extends Controller
                 });
             })
             ->orderByDesc('date')
+            // Within a day, the class in alphabetical order.
+            ->orderBy(Student::select('first_name')->whereColumn('students.id', 'attendance_records.student_id'))
+            ->orderBy(Student::select('last_name')->whereColumn('students.id', 'attendance_records.student_id'))
             ->paginate(20)
             ->withQueryString();
 
