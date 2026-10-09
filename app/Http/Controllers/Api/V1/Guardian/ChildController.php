@@ -19,7 +19,7 @@ class ChildController extends Controller
         $guardian = $request->user();
 
         return StudentResource::collection(
-            $guardian->students()->where('students.school_id', $guardian->school_id)->get()
+            $guardian->students()->where('students.school_id', $guardian->school_id)->alphabetical()->get()
         );
     }
 
