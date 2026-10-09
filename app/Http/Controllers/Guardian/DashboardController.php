@@ -6,6 +6,7 @@ use App\Enums\MemorandumAudience;
 use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\SchoolNotice;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -14,7 +15,7 @@ class DashboardController extends Controller
     public function index(Request $request, School $school): View
     {
         $guardian = $request->user('guardian');
-        $children = $guardian->students;
+        $children = Student::sortAlphabetically($guardian->students);
 
         abort_if($children->isEmpty(), 403, 'No children are linked to this account yet. Please contact your school.');
 
