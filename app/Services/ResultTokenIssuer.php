@@ -125,7 +125,7 @@ class ResultTokenIssuer
             ->where('is_active', true)
             ->where('class_name', $examination->class_name)
             ->whereNotIn('id', $alreadyHolding)
-            ->orderBy('last_name')
+            ->alphabetical()
             ->get()
             ->map(fn (Student $student): array => [
                 ...$this->issue($school, $student, $examination, $issuedBy, $maxUses),
