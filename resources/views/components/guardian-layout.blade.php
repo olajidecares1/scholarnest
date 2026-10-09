@@ -8,7 +8,7 @@
     $platformSettings = \App\Models\Setting::current();
     $guardian = auth('guardian')->user();
     $school = $guardian->school;
-    $activeChild ??= $guardian->students->first();
+    $activeChild ??= \App\Models\Student::sortAlphabetically($guardian->students)->first();
 
     // Bound to the child being viewed: a parent is not looking at "results"
     // but at this child's results, so switching child switches the whole menu
