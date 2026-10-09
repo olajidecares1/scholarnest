@@ -22,7 +22,7 @@ class AttendanceController extends Controller
         $students = $school->students()
             ->where('is_active', true)
             ->when($className, fn ($query) => $query->where('class_name', $className))
-            ->orderBy('last_name')
+            ->alphabetical()
             ->get();
 
         $existing = AttendanceRecord::where('school_id', $school->id)

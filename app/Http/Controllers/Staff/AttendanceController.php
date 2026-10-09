@@ -25,7 +25,7 @@ class AttendanceController extends Controller
         $date = $this->resolveDate($request->input('date'));
 
         $students = $className
-            ? $school->students()->where('is_active', true)->where('class_name', $className)->orderBy('last_name')->get()
+            ? $school->students()->where('is_active', true)->where('class_name', $className)->alphabetical()->get()
             : collect();
 
         $existing = $className
@@ -104,7 +104,7 @@ class AttendanceController extends Controller
         $summaries = collect();
 
         if ($className && $start && $end) {
-            $students = $school->students()->where('is_active', true)->where('class_name', $className)->orderBy('last_name')->get();
+            $students = $school->students()->where('is_active', true)->where('class_name', $className)->alphabetical()->get();
 
             $records = AttendanceRecord::where('school_id', $school->id)
                 ->whereIn('student_id', $students->pluck('id'))

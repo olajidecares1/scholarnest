@@ -113,7 +113,7 @@ class ResultRepository
             ->where('school_id', $examination->school_id)
             ->where('class_name', $examination->class_name)
             ->where('is_active', true)
-            ->orderBy('first_name')
+            ->alphabetical()
             ->get();
 
         $published = 0;

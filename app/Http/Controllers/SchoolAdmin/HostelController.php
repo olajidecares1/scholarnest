@@ -127,11 +127,11 @@ class HostelController extends Controller
 
         return view('school-admin.hostels.students', [
             'room' => $room,
-            'allocations' => $room->allocations()->with('student')->get(),
+            'allocations' => Student::sortAlphabetically($room->allocations()->with('student')->get(), fn ($allocation) => $allocation->student),
             'students' => Student::where('school_id', $room->hostel->school_id)
                 ->where('is_active', true)
                 ->whereDoesntHave('hostelAllocation')
-                ->orderBy('last_name')
+                ->alphabetical()
                 ->get(),
         ]);
     }

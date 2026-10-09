@@ -21,7 +21,7 @@ class ExaminationResultCalculator
         $students = Student::where('school_id', $examination->school_id)
             ->where('class_name', $examination->class_name)
             ->where('is_active', true)
-            ->orderBy('last_name')
+            ->alphabetical()
             ->get();
 
         $subjects = $examination->subjects;

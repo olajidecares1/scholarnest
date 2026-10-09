@@ -66,8 +66,9 @@ class ResultRepositoryController extends Controller
                 ->forTerm($class, $session, $term)
                 ->with('student')
                 ->join('students', 'students.id', '=', 'repository_results.student_id')
-                ->orderBy('students.first_name')
                 ->orderBy('students.last_name')
+                ->orderBy('students.first_name')
+                ->orderBy('students.id')
                 ->select('repository_results.*')
                 ->get();
 

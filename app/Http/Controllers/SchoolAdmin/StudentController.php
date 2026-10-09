@@ -54,7 +54,7 @@ class StudentController extends Controller
                 });
             })
             ->when($request->filled('class'), fn ($query) => $query->where('class_name', $request->string('class')))
-            ->orderBy('last_name')
+            ->alphabetical()
             ->paginate(in_array((int) $request->query('per_page'), [15, 50, 100], true) ? (int) $request->query('per_page') : 15)
             ->withQueryString();
 

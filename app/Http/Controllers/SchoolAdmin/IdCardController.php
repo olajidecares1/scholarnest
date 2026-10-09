@@ -27,7 +27,7 @@ class IdCardController extends Controller
         $school = $request->user()->school;
 
         return view('school-admin.id-cards.index', [
-            'students' => $school->students()->orderBy('first_name')->get(),
+            'students' => $school->students()->alphabetical()->get(),
             'teachingStaff' => $school->staff()->where('role', StaffRole::Teacher)->orderBy('first_name')->get(),
             'nonTeachingStaff' => $school->staff()->where('role', '!=', StaffRole::Teacher)->orderBy('first_name')->get(),
             'studentTemplates' => $school->idCardTemplates()->where('type', IdCardHolderType::Student)->get(),
