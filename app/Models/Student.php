@@ -12,6 +12,7 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
 
 class Student extends Model implements AuthenticatableContract, CanResetPasswordContract
@@ -182,6 +184,53 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
     public function guardians(): BelongsToMany
     {
         return $this->belongsToMany(Guardian::class, 'guardian_student')->withPivot('relationship');
+    }
+
+    /**
+     * The one order every list of students/pupils uses: alphabetical by
+     * surname, then first name, the order of a class register. The id breaks
+     * ties between two children with the same name so the order never shifts.
+     *
+     * @param  Builder<Student>  $query
+     * @return Builder<Student>
+     */
+    public function scopeAlphabetical(Builder $query): Builder
+    {
+        $table = $query->getModel()->getTable();
+
+        return $query
+            ->orderBy("{$table}.last_name")
+            ->orderBy("{$table}.first_name")
+            ->orderBy("{$table}.id");
+    }
+
+    /**
+     * The same alphabetical order for a list already loaded, e.g. hostel
+     * allocations or rows keyed by student. $student picks the Student out
+     * of each item; by default the items are Students themselves.
+     *
+     * @template TItem
+     *
+     * @param  iterable<TItem>  $items
+     * @param  (callable(TItem): ?Student)|null  $student
+     * @return Collection<int, TItem>
+     */
+    public static function sortAlphabetically(iterable $items, ?callable $student = null): Collection
+    {
+        $student ??= fn ($item) => $item;
+        $key = function ($item) use ($student): array {
+            $s = $student($item);
+
+            return [
+                mb_strtolower(trim((string) $s?->last_name)),
+                mb_strtolower(trim((string) $s?->first_name)),
+                (int) $s?->id,
+            ];
+        };
+
+        return collect($items)
+            ->sort(fn ($a, $b) => $key($a) <=> $key($b))
+            ->values();
     }
 
     public function fullName(): string
