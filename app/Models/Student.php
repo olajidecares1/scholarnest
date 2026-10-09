@@ -188,8 +188,9 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
 
     /**
      * The one order every list of students/pupils uses: alphabetical by
-     * surname, then first name, the order of a class register. The id breaks
-     * ties between two children with the same name so the order never shifts.
+     * first name, then surname, the way names are shown (fullName()), so a
+     * list reads A to Z down the page. The id breaks ties between two
+     * children with the same name so the order never shifts.
      *
      * @param  Builder<Student>  $query
      * @return Builder<Student>
@@ -199,8 +200,8 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
         $table = $query->getModel()->getTable();
 
         return $query
-            ->orderBy("{$table}.last_name")
             ->orderBy("{$table}.first_name")
+            ->orderBy("{$table}.last_name")
             ->orderBy("{$table}.id");
     }
 
@@ -222,8 +223,8 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
             $s = $student($item);
 
             return [
-                mb_strtolower(trim((string) $s?->last_name)),
                 mb_strtolower(trim((string) $s?->first_name)),
+                mb_strtolower(trim((string) $s?->last_name)),
                 (int) $s?->id,
             ];
         };

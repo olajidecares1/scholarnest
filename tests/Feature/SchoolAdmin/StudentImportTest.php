@@ -318,8 +318,8 @@ test('a list larger than the subscription imports only the first students up to 
         ->assertSessionHasNoErrors()
         ->assertSessionHas('capacity_notice', 'Your school subscription allows a maximum of 100 students. Only the first 100 students have been added. Please subscribe for additional student capacity.');
 
-    // The list is reviewed and imported alphabetically by surname, so the one
-    // left out is the last surname alphabetically (Last99), not the last row.
+    // The list is reviewed and imported alphabetically by name, so the one
+    // left out is the last name alphabetically (First99), not the last row.
     expect($school->students()->count())->toBe(100)
         ->and($school->students()->where('admission_number', 'S101')->exists())->toBeTrue()
         ->and($school->students()->where('admission_number', 'S99')->exists())->toBeFalse();
