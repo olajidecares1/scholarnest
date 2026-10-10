@@ -35,9 +35,9 @@
                     <tr>
                         <td class="px-3 py-2 font-semibold text-gray-900 dark:text-white">{{ $subject->name }}</td>
                         <td class="px-3 py-2 font-semibold text-gray-900 dark:text-gray-200">
-                            {{ $score ? rtrim(rtrim($score->score, '0'), '.') : 'N/A' }} / {{ $subject->max_score }}
+                            {{ $score ? \App\Support\Mark::format($score->score) : 'N/A' }} / {{ $subject->max_score }}
                             @if ($score?->test_score !== null && $score?->exam_score !== null)
-                                <span class="text-[10px] font-semibold text-gray-700 dark:text-gray-300">(T{{ rtrim(rtrim($score->test_score, '0'), '.') }}+E{{ rtrim(rtrim($score->exam_score, '0'), '.') }})</span>
+                                <span class="text-[10px] font-semibold text-gray-700 dark:text-gray-300">(T{{ \App\Support\Mark::format($score->test_score) }}+E{{ \App\Support\Mark::format($score->exam_score) }})</span>
                             @endif
                         </td>
                         <td class="px-3 py-2 font-semibold text-gray-900 dark:text-gray-200">{{ $score ? $score->percentage().'%' : 'N/A' }}</td>
@@ -51,7 +51,7 @@
                 <tfoot class="border-t border-gray-200 bg-gray-50 text-sm font-bold text-gray-900 dark:border-gray-700 dark:bg-gray-900/40 dark:text-white">
                     <tr>
                         <td class="px-3 py-2">Total</td>
-                        <td class="px-3 py-2">{{ rtrim(rtrim((string) $totalScore, '0'), '.') }} / {{ $totalMax }}</td>
+                        <td class="px-3 py-2">{{ \App\Support\Mark::format($totalScore) }} / {{ $totalMax }}</td>
                         <td class="px-3 py-2">{{ $summary['average'] !== null ? $summary['average'].'%' : 'N/A' }}</td>
                         <td class="px-3 py-2">{{ $overallGrade }}</td>
                     </tr>

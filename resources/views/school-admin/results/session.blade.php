@@ -6,7 +6,7 @@
         $n % 10 === 3 => 'rd',
         default => 'th',
     } : 'N/A';
-    $percent = fn (?float $value) => $value !== null ? rtrim(rtrim(number_format($value, 1), '0'), '.').'%' : 'N/A';
+    $percent = fn (?float $value) => $value !== null ? \App\Support\Mark::format($value, 1, true).'%' : 'N/A';
 @endphp
 
 <x-dashboard-layout page-title="Session Results" page-subtitle="First, Second and Third Term added into one result for the whole session.">
@@ -87,7 +87,7 @@
                                         <td class="px-3 py-3 text-center text-gray-700 dark:text-gray-200">{{ $percent($row['terms'][$term->value]['average'] ?? null) }}</td>
                                     @endforeach
                                     <td class="px-3 py-3 text-center text-gray-700 dark:text-gray-200">
-                                        {{ $row['termsCounted'] > 0 ? rtrim(rtrim(number_format($row['total'], 2), '0'), '.').' / '.$row['max'] : 'N/A' }}
+                                        {{ $row['termsCounted'] > 0 ? \App\Support\Mark::format($row['total'], 2, true).' / '.$row['max'] : 'N/A' }}
                                     </td>
                                     <td class="px-3 py-3 text-center font-bold text-gray-900 dark:text-white">{{ $percent($row['average']) }}</td>
                                     <td class="px-3 py-3 text-center">
