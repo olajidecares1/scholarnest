@@ -43,7 +43,7 @@
                                 <span class="text-xs text-gray-500 dark:text-gray-400">
                                     {{ $score->score }}/{{ $score->subject->max_score }}
                                     @if ($score->test_score !== null && $score->exam_score !== null)
-                                        (T{{ rtrim(rtrim($score->test_score, '0'), '.') }}+E{{ rtrim(rtrim($score->exam_score, '0'), '.') }})
+                                        (T{{ \App\Support\Mark::format($score->test_score) }}+E{{ \App\Support\Mark::format($score->exam_score) }})
                                     @endif
                                 </span>
                                 <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $score->percentage() }}%</span>

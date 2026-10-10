@@ -63,7 +63,7 @@
                 return null
             }
 
-            return this.bands.find((band) => percentage >= band.min && percentage <= band.max) ?? null
+            return this.bands.find((band) => percentage >= band.min && percentage < band.max + 1) ?? null
         },
     }"
 >

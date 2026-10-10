@@ -74,13 +74,27 @@ class GradeBand extends Model
     }
 
     /**
+     * Does a band written as whole numbers, "50 to 59", cover this percentage?
+     *
+     * A band runs up to, but not including, the next whole number above its
+     * maximum, so 59.8% is in 50-59 and 69.3% in 60-69. Read literally, with
+     * "<= 59", an average with a decimal fell in the gap between two bands
+     * and was given the bottom grade: 59.8% printed as E instead of C.
+     * Whole-number marks are graded exactly as before.
+     */
+    public static function covers(int $min, int $max, float $percentage): bool
+    {
+        return $percentage >= $min && $percentage < $max + 1;
+    }
+
+    /**
      * @return array{letter: string, description: string}
      */
     private static function match(School $school, float $percentage): array
     {
         $band = $school->gradeBands
             ->sortBy('position')
-            ->first(fn (self $band) => $percentage >= $band->min_percent && $percentage <= $band->max_percent);
+            ->first(fn (self $band) => self::covers((int) $band->min_percent, (int) $band->max_percent, $percentage));
 
         if ($band) {
             return ['letter' => $band->letter, 'description' => (string) $band->description];
@@ -96,7 +110,7 @@ class GradeBand extends Model
             return ['letter' => 'N/A', 'description' => 'Outside the school\'s grading scale'];
         }
 
-        $default = collect(self::defaultBands())->first(fn (array $band) => $percentage >= $band['min_percent'] && $percentage <= $band['max_percent'])
+        $default = collect(self::defaultBands())->first(fn (array $band) => self::covers($band['min_percent'], $band['max_percent'], $percentage))
             ?? collect(self::defaultBands())->last();
 
         return ['letter' => $default['letter'], 'description' => $default['description']];

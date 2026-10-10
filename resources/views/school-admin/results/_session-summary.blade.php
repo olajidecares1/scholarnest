@@ -6,7 +6,7 @@
      the school's own scale applied to the session average. --}}
 @php
     $termKeys = ['first' => '1st Term', 'second' => '2nd Term', 'third' => '3rd Term'];
-    $pct = fn ($value) => $value !== null ? rtrim(rtrim(number_format((float) $value, 1), '0'), '.') : 'N/A';
+    $pct = fn ($value) => $value !== null ? \App\Support\Mark::format((float) $value, 1, true) : 'N/A';
     $sessionPosition = $sessionSummary['position'] ?? null;
     $sessionPositionLabel = $sessionPosition ? $sessionPosition.match (true) {
         in_array($sessionPosition % 100, [11, 12, 13]) => 'th',
@@ -68,7 +68,7 @@
 
     <div class="grid grid-cols-4 text-center text-[9px]" style="border-top: 1.5px solid {{ $brandSecondary }};">
         @foreach ([
-            ['Session Total Marks', rtrim(rtrim(number_format((float) $sessionSummary['total'], 2), '0'), '.').' / '.$sessionSummary['max']],
+            ['Session Total Marks', \App\Support\Mark::format((float) $sessionSummary['total'], 2, true).' / '.$sessionSummary['max']],
             ['Session Average', $pct($sessionSummary['average']).($sessionSummary['average'] !== null ? '%' : '')],
             ['Session Grade', $sessionSummary['grade'].($sessionSummary['remark'] ? ' ('.strtoupper($sessionSummary['remark']).')' : '')],
             ['Session Position', $sessionPositionLabel.($sessionPosition ? ' of '.$sessionSummary['numberInClass'] : '')],

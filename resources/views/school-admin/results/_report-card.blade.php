@@ -53,7 +53,7 @@
             return '#111827';
         }
 
-        $index = $gradeKey->search(fn ($band) => $percentage >= $band['min_percent'] && $percentage <= $band['max_percent']);
+        $index = $gradeKey->search(fn ($band) => \App\Models\GradeBand::covers((int) $band['min_percent'], (int) $band['max_percent'], $percentage));
         $index = $index === false ? $gradeKey->count() - 1 : $index;
 
         return $gradeColors[$index % count($gradeColors)];
@@ -328,9 +328,9 @@
                             <tr style="background-color: {{ $loop->even ? $rowStriped : $rowPlain }};">
                                 <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $loop->iteration }}</td>
                                 <td class="border border-gray-200 px-2 py-[5px] font-semibold text-gray-900">{{ $subject->name }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->test_score !== null ? rtrim(rtrim($score->test_score, '0'), '.') : 'N/A' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->exam_score !== null ? rtrim(rtrim($score->exam_score, '0'), '.') : 'N/A' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-extrabold text-gray-900">{{ $score ? rtrim(rtrim($score->score, '0'), '.') : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->test_score !== null ? \App\Support\Mark::format($score->test_score) : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->exam_score !== null ? \App\Support\Mark::format($score->exam_score) : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-extrabold text-gray-900">{{ $score ? \App\Support\Mark::format($score->score) : 'N/A' }}</td>
                                 <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $percentage !== null ? $percentage.'%' : 'N/A' }}</td>
                                 <td class="border border-gray-200 px-1.5 py-[5px] text-center text-[11px] font-extrabold" style="color: {{ $rowColor }};">{{ $score ? $score->grade() : 'N/A' }}</td>
                                 <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $percentage !== null ? \App\Models\GradeBand::describe($school, $percentage) : 'N/A' }}</td>
@@ -341,9 +341,9 @@
                     <tfoot>
                         <tr class="font-extrabold" style="background-color: {{ $brandSecondary }}12; color: {{ $brandSecondary }};">
                             <td colspan="2" class="border border-gray-300 px-2 py-1.5 uppercase">Total</td>
-                            <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ rtrim(rtrim((string) $totalTest, '0'), '.') }}</td>
-                            <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ rtrim(rtrim((string) $totalExam, '0'), '.') }}</td>
-                            <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ rtrim(rtrim((string) $totalScore, '0'), '.') }}/{{ $totalMax }}</td>
+                            <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ \App\Support\Mark::format($totalTest) }}</td>
+                            <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ \App\Support\Mark::format($totalExam) }}</td>
+                            <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ \App\Support\Mark::format($totalScore) }}/{{ $totalMax }}</td>
                             <td class="border border-gray-300 px-1.5 py-1.5 text-center">{{ $summary['average'] !== null ? $summary['average'].'%' : 'N/A' }}</td>
                             <td class="border border-gray-300 px-1.5 py-1.5 text-center text-[11px]" style="color: {{ $overallColor }};">{{ $overallGrade }}</td>
                             <td class="border border-gray-300 px-1.5 py-1.5"></td>
@@ -363,7 +363,7 @@
                  that matters most in each picked out in the accent colour. --}}
             @php
                 $summaryRows = [
-                    ['Total Marks Obtained', rtrim(rtrim((string) $totalScore, '0'), '.').' / '.$totalMax, false],
+                    ['Total Marks Obtained', \App\Support\Mark::format($totalScore).' / '.$totalMax, false],
                     ['Average Score', $summary['average'] !== null ? $summary['average'].'%' : 'N/A', false],
                     ['Overall Grade', $overallGrade.($overallDescription ? ' ('.strtoupper($overallDescription).')' : ''), false, $overallColor],
                     ['Position in Class', $positionLabel, false],
