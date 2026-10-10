@@ -59,7 +59,8 @@ export async function prepareImageFile(file, { maxEdge = DEFAULT_MAX_EDGE } = {}
     const heic = isHeic(file);
 
     if (!DECODABLE.includes(type) && !heic) {
-        return file;
+        // A PDF or document: nothing to do, now or on a second submit.
+        return markPrepared(file);
     }
 
     if (typeof createImageBitmap !== 'function') {
