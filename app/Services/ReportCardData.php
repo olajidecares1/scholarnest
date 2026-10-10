@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\AttendanceStatus;
+use App\Enums\ExamTerm;
 use App\Enums\TeacherAssignmentType;
 use App\Models\AcademicTerm;
 use App\Models\AttendanceRecord;
@@ -54,7 +55,27 @@ class ReportCardData
                     ->orderBy('starts_on')
                     ->first()?->starts_on
                 : null,
+
+            // First + Second + Third Term, on the Third Term card, for a
+            // school that has turned cumulative results on. Null otherwise,
+            // and every template treats null as "print the card exactly as
+            // before", so a school that leaves the setting off sees no change.
+            'sessionSummary' => self::sessionSummaryFor($examination, $student),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public static function sessionSummaryFor(Examination $examination, Student $student): ?array
+    {
+        $school = $examination->school;
+
+        if (! $school->usesCumulativeResults() || $examination->term !== ExamTerm::Third) {
+            return null;
+        }
+
+        return app(SessionResultCalculator::class)->forStudent($school, $student, $examination->class_name, $examination->session);
     }
 
     /**

@@ -519,5 +519,33 @@
                 </td>
             </tr>
         </table>
+
+        {{-- Cumulative session result, on a page of its own, as on the
+             screen card. The term card above is untouched. --}}
+        @if (! empty($sessionSummary))
+            <div style="page-break-before: always;">
+                <table style="margin-bottom: 8px; border-bottom: 3px solid {{ $brandSecondary }};">
+                    <tr>
+                        <td style="padding: 0 0 6px 0; vertical-align: bottom;">
+                            <div style="font-size: 18px; font-weight: bold; text-transform: uppercase; color: {{ $brandSecondary }};">{{ $school->name }}</div>
+                            <div style="font-size: 9px; font-weight: bold; text-transform: uppercase; color: #4b5563;">Cumulative Session Result</div>
+                        </td>
+                        <td style="padding: 0 0 6px 0; width: 230px; vertical-align: bottom; font-size: 9px;">
+                            @foreach ([['Student', $student->fullName()], ['Admission No.', $student->admission_number ?: 'N/A'], ['Class', $sessionSummary['className'] ?? $examination->class_name], ['Session', $sessionSummary['session']]] as [$label, $value])
+                                <div><span style="font-weight: bold; text-transform: uppercase; color: {{ $brandSecondary }};">{{ $label }}:</span> <span style="font-weight: bold;">{{ $value }}</span></div>
+                            @endforeach
+                        </td>
+                    </tr>
+                </table>
+
+                @include('school-admin.results.pdf._session-summary')
+
+                <div style="font-size: 8px; color: #4b5563;">
+                    Each term column is the percentage on that term's report card. The session average is
+                    {{ ($sessionSummary['basis'] ?? 'terms_taken') === 'all_terms' ? 'divided by three terms' : 'the average of the terms with results' }},
+                    graded on the school's grading scale shown on the term card.
+                </div>
+            </div>
+        @endif
     </body>
 </html>

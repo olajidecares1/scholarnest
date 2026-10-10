@@ -565,3 +565,32 @@
         </div>
     </div>
 </div>
+
+{{-- Cumulative session result: a second sheet, after the term card, on the
+     Third Term card of a school that has turned it on. A sheet of its own so
+     the term card above stays exactly as it has always been, nothing on it
+     moves or is squeezed to make room. --}}
+@if (! empty($sessionSummary))
+    <div class="relative mx-auto mt-6 w-full max-w-3xl overflow-hidden rounded-[5px] bg-white p-4 text-left text-gray-900" style="break-before: page; page-break-before: always; font-family: 'Inter', sans-serif; border: 2.5px solid {{ $brandSecondary }};" data-session-sheet>
+        <div class="mb-2.5 flex items-end justify-between gap-4 pb-2" style="border-bottom: 3px solid {{ $brandSecondary }};">
+            <div class="min-w-0">
+                <p class="truncate text-[18px] font-extrabold uppercase leading-tight" style="color: {{ $brandSecondary }};">{{ $school->name }}</p>
+                <p class="text-[9px] font-bold uppercase tracking-wide text-gray-600">Cumulative Session Result</p>
+            </div>
+            <dl class="grid shrink-0 gap-x-3 gap-y-0.5 text-[9px]" style="grid-template-columns: auto auto;">
+                <dt class="font-bold uppercase" style="color: {{ $brandSecondary }};">Student:</dt><dd class="font-semibold">{{ $student->fullName() }}</dd>
+                <dt class="font-bold uppercase" style="color: {{ $brandSecondary }};">Admission No.:</dt><dd class="font-semibold">{{ $student->admission_number ?: 'N/A' }}</dd>
+                <dt class="font-bold uppercase" style="color: {{ $brandSecondary }};">Class:</dt><dd class="font-semibold">{{ $sessionSummary['className'] ?? $examination->class_name }}</dd>
+                <dt class="font-bold uppercase" style="color: {{ $brandSecondary }};">Session:</dt><dd class="font-semibold">{{ $sessionSummary['session'] }}</dd>
+            </dl>
+        </div>
+
+        @include('school-admin.results._session-summary')
+
+        <p class="mt-2 text-[8px] text-gray-600">
+            Each term column is the percentage on that term's report card. The session average is
+            {{ ($sessionSummary['basis'] ?? 'terms_taken') === 'all_terms' ? 'divided by three terms' : 'the average of the terms with results' }},
+            graded on the school's grading scale shown on the term card.
+        </p>
+    </div>
+@endif

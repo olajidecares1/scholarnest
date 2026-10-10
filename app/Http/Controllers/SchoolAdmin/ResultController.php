@@ -14,6 +14,7 @@ use App\Notifications\ResultAvailableNotification;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ReportCardData;
 use App\Services\ResultRepository;
+use App\Services\SessionResultCalculator;
 use App\Support\AcademicSession;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -71,6 +72,39 @@ class ResultController extends Controller
             'students' => $students,
             'publishedResults' => $repository['published'],
             'staleStudentIds' => $repository['staleStudentIds'],
+        ]);
+    }
+
+    /**
+     * Session Results: every student in a class with their First, Second and
+     * Third Term averages added into one session result, ranked.
+     *
+     * Read only. Worked out from the term results as they stand; nothing is
+     * stored, so a corrected First Term mark shows here straight away.
+     */
+    public function session(Request $request, SessionResultCalculator $calculator): View
+    {
+        $school = $request->user()->school;
+
+        $classOptions = $school->academicLevels()->with('classes')->get()->flatMap->classes->pluck('name', 'name')->all();
+        $class = $request->filled('class') && array_key_exists($request->string('class')->toString(), $classOptions)
+            ? $request->string('class')->toString()
+            : array_key_first($classOptions);
+        $session = $request->filled('session') && in_array($request->string('session')->toString(), AcademicSession::options(), true)
+            ? $request->string('session')->toString()
+            : $school->currentSession();
+
+        return view('school-admin.results.session', [
+            'enabled' => $school->usesCumulativeResults(),
+            'basis' => $school->cumulative_average_basis,
+            'classOptions' => $classOptions,
+            'sessionOptions' => AcademicSession::options(),
+            'selectedClass' => $class,
+            'selectedSession' => $session,
+            'termOptions' => ExamTerm::cases(),
+            'rows' => $school->usesCumulativeResults() && $class
+                ? $calculator->forClass($school, $class, $session)
+                : collect(),
         ]);
     }
 

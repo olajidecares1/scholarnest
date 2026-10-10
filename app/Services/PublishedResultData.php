@@ -87,6 +87,10 @@ class PublishedResultData
             'numberInClass' => $card['numberInClass'],
             'nextTermBegins' => $card['nextTermBegins']?->toDateString(),
 
+            // Already plain arrays, so written down as they are. A published
+            // Third Term card keeps the session figures it was approved with.
+            'sessionSummary' => $card['sessionSummary'] ?? null,
+
             'remarks' => [
                 'teacher' => $report->teacher_remark,
                 'principal' => $report->principal_remark,
@@ -151,6 +155,8 @@ class PublishedResultData
             'nextTermBegins' => isset($payload['nextTermBegins'])
                 ? Carbon::parse($payload['nextTermBegins'])
                 : null,
+
+            'sessionSummary' => $payload['sessionSummary'] ?? null,
 
             // Only ever read, never written, and the templates that offer an
             // edit box check this.

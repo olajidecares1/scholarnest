@@ -205,6 +205,46 @@
             </form>
         </div>
 
+        {{-- Cumulative session results. Optional, per school, on every plan.
+             Off by default; turning it on or off changes no mark, grade or
+             position, it only adds the session figures to Third Term cards
+             and the Session Results view. --}}
+        <div id="cumulative-results" class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+            <h2 class="text-sm font-bold text-gray-900 dark:text-white">Cumulative Session Results</h2>
+            <small class="field-hint mt-1">
+                Add each student's First, Second and Third Term results together into one result for the whole session.
+                When on, Third Term report cards show every term side by side with the session total, average, grade and position,
+                and Results gets a Session Results view. Grades use the grading scale above. Term results are not changed either way.
+            </small>
+
+            <form method="POST" action="{{ route('academics.cumulative-results.update') }}" class="mt-4 space-y-4" x-data="{ enabled: @js((bool) old('cumulative_results_enabled', $cumulativeSchool->usesCumulativeResults())) }">
+                @csrf @method('PUT')
+
+                <label class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-200">
+                    <input type="checkbox" name="cumulative_results_enabled" value="1" x-model="enabled" class="mt-0.5 w-4 text-blue-600">
+                    <span>
+                        Use cumulative session results
+                        <small class="block text-xs text-gray-500 dark:text-gray-400">Your choice. You can turn this off again at any time.</small>
+                    </span>
+                </label>
+
+                {{-- Hidden, not removed, while off: still sent, so turning the
+                     feature off keeps the school's last answer. --}}
+                <div x-show="enabled" x-cloak>
+                    <x-select-field
+                        name="cumulative_average_basis"
+                        label="When a term has no result"
+                        :options="collect($cumulativeBasisOptions)->mapWithKeys(fn ($basis) => [$basis->value => $basis->label()])->all()"
+                        :selected="old('cumulative_average_basis', $cumulativeSchool->cumulative_average_basis?->value ?? 'terms_taken')"
+                        helper="Only matters for a student missing a term, for example one who joined in Second Term."
+                        required
+                    />
+                </div>
+
+                <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700"><i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save</button>
+            </form>
+        </div>
+
         @forelse ($levels as $level)
             @php
                 $icon = $levelIcon($level->name);

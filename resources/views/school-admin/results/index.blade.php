@@ -20,6 +20,18 @@
                 Principal&rsquo;s Remark Library
             </a>
 
+            {{-- Only for a school that has turned cumulative results on, in
+                 Academics. Every plan. --}}
+            @if (auth()->user()->school->usesCumulativeResults())
+                <a
+                    href="{{ route('results.session', ['class' => $selectedClass, 'session' => $selectedSession]) }}"
+                    class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                    <i class="fa-solid fa-layer-group text-[13px]"></i>
+                    Session Results
+                </a>
+            @endif
+
             <a
                 href="{{ route('results.template-preview') }}"
                 class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"

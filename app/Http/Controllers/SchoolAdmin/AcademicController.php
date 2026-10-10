@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Enums\ClassStream;
+use App\Enums\CumulativeAverageBasis;
 use App\Enums\ExamTerm;
 use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
@@ -40,6 +41,8 @@ class AcademicController extends Controller
             'gradeCoverageGaps' => GradeBand::coverageGaps($school),
             'sessionOptions' => AcademicSession::options(),
             'termOptions' => ExamTerm::cases(),
+            'cumulativeSchool' => $school,
+            'cumulativeBasisOptions' => CumulativeAverageBasis::cases(),
         ]);
     }
 
@@ -69,6 +72,33 @@ class AcademicController extends Controller
         $term->delete();
 
         return back()->with('status', 'Term dates removed.');
+    }
+
+    /**
+     * Turn cumulative session results on or off for this school.
+     *
+     * Only the two settings change. No mark, grade, position or published
+     * card is touched, so switching it either way leaves every term result
+     * exactly as it was; the session figures are worked out when a card is
+     * shown, from the term results that already exist.
+     */
+    public function updateCumulativeResults(Request $request): RedirectResponse
+    {
+        $school = $request->user()->school;
+
+        $validated = $request->validate([
+            'cumulative_results_enabled' => ['nullable', 'boolean'],
+            'cumulative_average_basis' => ['required', Rule::enum(CumulativeAverageBasis::class)],
+        ]);
+
+        $school->update([
+            'cumulative_results_enabled' => $request->boolean('cumulative_results_enabled'),
+            'cumulative_average_basis' => $validated['cumulative_average_basis'],
+        ]);
+
+        return back()->with('status', $school->usesCumulativeResults()
+            ? 'Cumulative session results are on. Third Term report cards now show the full session.'
+            : 'Cumulative session results are off. Report cards show each term on its own.');
     }
 
     public function storeGradeBand(Request $request): RedirectResponse
