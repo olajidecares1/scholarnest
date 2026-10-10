@@ -44,9 +44,37 @@
                 action="{{ route('subscription-top-up.store') }}"
                 enctype="multipart/form-data"
                 class="mt-6 space-y-2"
-                x-data="{ additionalStudentsCount: 1 }"
+                x-data="{ additionalStudentsCount: {{ (int) old('additional_students_count', 1) }}, submitting: false }"
+                {{-- Checked a tick later, so a submission that another handler
+                     held back (offline, or images still being prepared) does
+                     not leave the button stuck on "Submitting". --}}
+                @submit="setTimeout(() => submitting = ! $event.defaultPrevented)"
             >
                 @csrf
+
+                {{-- A refused request comes back to the top of this page, and
+                     the reason used to sit only under the upload box, below
+                     the fold, so it looked as though the button had done
+                     nothing. Said here as well, and scrolled into view. --}}
+                @if ($errors->any())
+                    <div
+                        id="top-up-errors"
+                        role="alert"
+                        x-init="$nextTick(() => $el.scrollIntoView({ block: 'center', behavior: 'smooth' }))"
+                        class="rounded-[5px] border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 lg:rounded-[10px]"
+                    >
+                        <p class="flex items-center gap-2 font-bold">
+                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                            Your request was not submitted
+                        </p>
+                        <ul class="mt-2 list-disc space-y-1 pl-5">
+                            @foreach ($errors->all() as $message)
+                                <li>{{ $message }}</li>
+                            @endforeach
+                        </ul>
+                        <p class="mt-2">Please choose your payment receipt again before resubmitting.</p>
+                    </div>
+                @endif
 
                 <div>
                     <label for="additional_students_count" class="field-label">Additional Spaces Requested</label>
@@ -165,10 +193,18 @@
                 <div class="flex items-center justify-end pt-2">
                     <button
                         type="submit"
-                        class="btn flex items-center gap-2 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
+                        :disabled="submitting"
+                        :aria-busy="submitting"
+                        class="btn flex items-center gap-2 disabled:cursor-wait disabled:opacity-70 rounded-[8px] bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg"
                     >
-                        Submit Request
-                        <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
+                        <span x-show="! submitting" class="inline-flex items-center gap-2">
+                            Submit Request
+                            <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
+                        </span>
+                        <span x-show="submitting" x-cloak class="inline-flex items-center gap-2">
+                            Checking receipt&hellip;
+                            <i class="fa-solid fa-spinner fa-spin text-[14px] leading-none" aria-hidden="true"></i>
+                        </span>
                     </button>
                 </div>
             </form>
