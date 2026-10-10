@@ -56,9 +56,9 @@
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $subject->name }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">
                                     @if ($score)
-                                        {{ rtrim(rtrim($score->score, '0'), '.') }} / {{ $subject->max_score }}
+                                        {{ \App\Support\Mark::format($score->score) }} / {{ $subject->max_score }}
                                         @if ($score->test_score !== null && $score->exam_score !== null)
-                                            <span class="text-xs text-gray-400">(T{{ rtrim(rtrim($score->test_score, '0'), '.') }}+E{{ rtrim(rtrim($score->exam_score, '0'), '.') }})</span>
+                                            <span class="text-xs text-gray-400">(T{{ \App\Support\Mark::format($score->test_score) }}+E{{ \App\Support\Mark::format($score->exam_score) }})</span>
                                         @endif
                                     @else
                                         N/A
