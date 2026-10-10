@@ -169,3 +169,25 @@ test('the capacity card leaves itself out rather than throwing when there is no 
         ->assertOk()
         ->assertDontSee('Student/Pupil Capacity');
 });
+
+test('a refused top-up says so at the top of the form, not only under the upload box', function () {
+    [$admin] = basicSchoolAdminWithSubscription(100);
+
+    $this->actingAs($admin)
+        ->withSession(['errors' => (new \Illuminate\Support\ViewErrorBag)->put('default', new \Illuminate\Support\MessageBag([
+            'receipt' => ['Payment Verification Failed. The PDF you uploaded does not look like a proof of payment.'],
+        ]))])
+        ->get(route('subscription-top-up.create'))
+        ->assertOk()
+        ->assertSee('Your request was not submitted')
+        ->assertSee('does not look like a proof of payment')
+        ->assertSee('Please choose your payment receipt again');
+});
+
+test('the top-up page shows no error summary when nothing went wrong', function () {
+    [$admin] = basicSchoolAdminWithSubscription(100);
+
+    $this->actingAs($admin)->get(route('subscription-top-up.create'))
+        ->assertOk()
+        ->assertDontSee('Your request was not submitted');
+});
