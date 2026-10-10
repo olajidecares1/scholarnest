@@ -99,3 +99,21 @@ test('GradeBand::describe returns the matching band\'s description, configured o
 
     expect(GradeBand::describe($this->school->fresh(), 50))->toBe('Custom Remark');
 });
+
+test('a percentage with a decimal is graded by the band it falls in, not the bottom grade', function () {
+    $school = School::factory()->create();
+
+    // Default scale: 50-59 C, 60-69 B.
+    expect(GradeBand::resolve($school, 59.8))->toBe('C')
+        ->and(GradeBand::resolve($school, 69.3))->toBe('B')
+        ->and(GradeBand::resolve($school, 39.9))->toBe('E')
+        ->and(GradeBand::resolve($school, 100.0))->toBe('A')
+        ->and(GradeBand::resolve($school, 60.0))->toBe('B');
+
+    // The school's own scale too.
+    GradeBand::create(['school_id' => $school->id, 'min_percent' => 75, 'max_percent' => 100, 'letter' => 'A1', 'description' => 'Distinction', 'position' => 0]);
+    GradeBand::create(['school_id' => $school->id, 'min_percent' => 0, 'max_percent' => 74, 'letter' => 'C4', 'description' => 'Credit', 'position' => 1]);
+
+    expect(GradeBand::resolve($school->fresh(), 74.6))->toBe('C4')
+        ->and(GradeBand::resolve($school->fresh(), 75.0))->toBe('A1');
+});
