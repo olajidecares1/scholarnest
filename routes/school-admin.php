@@ -185,6 +185,10 @@ Route::name('academics.')->group(function () {
         Route::delete(R::uri('academics.terms.destroy').'/{term}', [AcademicController::class, 'destroyTerm'])->name('destroy');
     });
 
+    // Cumulative session results, on every plan: deliberately outside any
+    // plan_feature middleware.
+    Route::put(R::uri('academics.cumulative-results.update'), [AcademicController::class, 'updateCumulativeResults'])->name('cumulative-results.update');
+
     Route::name('grade-bands.')->group(function () {
         Route::post(R::uri('academics.grade-bands.store'), [AcademicController::class, 'storeGradeBand'])->name('store');
         Route::put(R::uri('academics.grade-bands.update').'/{gradeBand}', [AcademicController::class, 'updateGradeBand'])->name('update');
@@ -253,6 +257,9 @@ Route::name('results.')->group(function () {
     // The report card template as it will be generated, the real template,
     // rendered from specimen data. See SchoolAdminTemplatePreviewController.
     Route::get(R::uri('results.index').'/template', [TemplatePreviewController::class, 'reportCard'])->name('template-preview');
+    // Cumulative session results for a class. Every plan; the page itself
+    // says when the school has the setting off.
+    Route::get(R::uri('results.session'), [ResultController::class, 'session'])->name('session');
     Route::get(R::uri('results.show').'/{examination}/{student}', [ResultController::class, 'show'])->name('show');
     Route::put(R::uri('results.remarks').'/{examination}/{student}', [ResultController::class, 'updateRemarks'])->name('remarks');
 
