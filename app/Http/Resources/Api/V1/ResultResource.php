@@ -50,6 +50,10 @@ class ResultResource extends JsonResource
                 : null,
 
             'next_term_begins' => $data['nextTermBegins']?->toDateString(),
+
+            // Present only on a Third Term result for a school using
+            // cumulative session results; null everywhere else.
+            'session_summary' => $data['sessionSummary'] ?? null,
         ];
     }
 }
