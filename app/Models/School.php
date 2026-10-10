@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AttendanceMode;
+use App\Enums\CumulativeAverageBasis;
 use App\Enums\PlanFeature;
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
@@ -66,6 +67,11 @@ class School extends Model
         'deactivated_at',
         'automatic_grading',
 
+        // Optional, per school, on every plan: First + Second + Third Term
+        // added into one session result. See App\Services\SessionResultCalculator.
+        'cumulative_results_enabled',
+        'cumulative_average_basis',
+
         // QR check-in: the poster's secret, where the school is, and how far
         // from it a scan still counts. See the add_qr_check_in_attendance
         // migration for why the coordinates are not optional.
@@ -99,6 +105,8 @@ class School extends Model
     protected $attributes = [
         'is_active' => true,
         'automatic_grading' => true,
+        'cumulative_results_enabled' => false,
+        'cumulative_average_basis' => 'terms_taken',
         'check_in_enabled' => false,
         'student_attendance_mode' => 'manual',
         'check_in_radius_metres' => 150,
@@ -264,6 +272,8 @@ class School extends Model
             'is_active' => 'boolean',
             'deactivated_at' => 'datetime',
             'automatic_grading' => 'boolean',
+            'cumulative_results_enabled' => 'boolean',
+            'cumulative_average_basis' => CumulativeAverageBasis::class,
             'auto_generate_admission_numbers' => 'boolean',
             'auto_generate_staff_ids' => 'boolean',
             'result_link_enabled' => 'boolean',
@@ -291,6 +301,17 @@ class School extends Model
     public function hasCompletedRegistration(): bool
     {
         return $this->subscriptions()->exists();
+    }
+
+    /**
+     * Does this school add its three terms together into a session result?
+     *
+     * A school setting, not a plan feature: every plan, Basic included, can
+     * turn it on or off. Off by default.
+     */
+    public function usesCumulativeResults(): bool
+    {
+        return (bool) $this->cumulative_results_enabled;
     }
 
     public function logoUrl(): ?string
