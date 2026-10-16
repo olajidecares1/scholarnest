@@ -90,6 +90,8 @@ final class ReportCardSample
                 'excused' => 0,
                 'total' => 110,
                 'percent' => 92,
+                'school_days' => 110,
+                'source' => 'register',
             ],
             'numberInClass' => 38,
             'nextTermBegins' => Carbon::parse(now()->year.'-09-15'),

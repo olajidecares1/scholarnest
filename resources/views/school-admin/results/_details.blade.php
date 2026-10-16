@@ -61,7 +61,12 @@
     </div>
 
     <div class="rounded-[8px] bg-gray-50 p-3 dark:bg-gray-900/40">
-        <small class="field-hint">Attendance This Term</small>
+        <small class="field-hint">
+            Attendance This Term
+            @if (($attendance['source'] ?? null) === 'manual')
+                &middot; entered as term totals
+            @endif
+        </small>
         @if ($attendance)
             <p class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">
                 Present {{ $attendance['present'] }} &middot; Absent {{ $attendance['absent'] }} &middot; Late {{ $attendance['late'] }} &middot; Excused {{ $attendance['excused'] }}

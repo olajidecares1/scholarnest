@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ExamTerm;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +23,7 @@ class AcademicTerm extends Model
         'term',
         'starts_on',
         'ends_on',
+        'school_days',
     ];
 
     /**
@@ -33,6 +35,7 @@ class AcademicTerm extends Model
             'term' => ExamTerm::class,
             'starts_on' => 'date:Y-m-d',
             'ends_on' => 'date:Y-m-d',
+            'school_days' => 'integer',
         ];
     }
 
@@ -73,5 +76,47 @@ class AcademicTerm extends Model
             ->whereDate('starts_on', '<=', today())
             ->whereDate('ends_on', '>=', today())
             ->first();
+    }
+
+    /**
+     * How many days the school opened this term.
+     *
+     * The number the School Admin entered when there is one. Otherwise the
+     * weekdays (Monday to Friday) from the first day of term to the last,
+     * which is right for a term with no holidays in it and an over-count by
+     * one for every public holiday, hence the field.
+     */
+    public function schoolDays(): int
+    {
+        if ($this->school_days) {
+            return (int) $this->school_days;
+        }
+
+        return self::weekdaysBetween($this->starts_on->copy(), $this->ends_on->copy());
+    }
+
+    /**
+     * Did the School Admin type the number in, or is it worked out?
+     */
+    public function hasConfiguredSchoolDays(): bool
+    {
+        return (bool) $this->school_days;
+    }
+
+    public static function weekdaysBetween(CarbonInterface $from, CarbonInterface $to): int
+    {
+        if ($to->lessThan($from)) {
+            return 0;
+        }
+
+        $days = 0;
+
+        for ($day = $from->copy()->startOfDay(); $day->lessThanOrEqualTo($to); $day = $day->addDay()) {
+            if (! $day->isWeekend()) {
+                $days++;
+            }
+        }
+
+        return $days;
     }
 }

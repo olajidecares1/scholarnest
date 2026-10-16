@@ -16,6 +16,7 @@ use App\Services\DefaultAcademicStructure;
 use App\Support\AcademicSession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -55,11 +56,22 @@ class AcademicController extends Controller
             'term' => ['required', Rule::enum(ExamTerm::class)],
             'starts_on' => ['required', 'date'],
             'ends_on' => ['required', 'date', 'after_or_equal:starts_on'],
+            // The days the school actually opened. Optional: left empty, the
+            // weekdays between the two dates are used. Checked against what
+            // the term can hold, a term of 60 weekdays cannot have 70 school
+            // days, but Saturdays are allowed for, hence calendar days.
+            'school_days' => ['nullable', 'integer', 'min:1', 'max:366'],
         ]);
+
+        $calendarDays = Carbon::parse($validated['starts_on'])->diffInDays(Carbon::parse($validated['ends_on'])) + 1;
+
+        if (($validated['school_days'] ?? null) && $validated['school_days'] > $calendarDays) {
+            return back()->withInput()->withErrors(['school_days' => "A term of {$calendarDays} calendar days cannot have {$validated['school_days']} school days."]);
+        }
 
         AcademicTerm::updateOrCreate(
             ['school_id' => $school->id, 'session' => $validated['session'], 'term' => $validated['term']],
-            ['starts_on' => $validated['starts_on'], 'ends_on' => $validated['ends_on']],
+            ['starts_on' => $validated['starts_on'], 'ends_on' => $validated['ends_on'], 'school_days' => $validated['school_days'] ?? null],
         );
 
         return back()->with('status', 'Term dates saved.');

@@ -6,6 +6,7 @@ use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Models\Assignment;
 use App\Models\AttendanceRecord;
+use App\Models\AttendanceSummary;
 use App\Models\Examination;
 use App\Models\ExaminationScore;
 use App\Models\ExaminationSubject;
@@ -259,4 +260,34 @@ test('a guardian token is refused at a student endpoint', function () {
     $this->withToken($guardianToken)->getJson('/api/v1/student/results')->assertForbidden();
 
     expect($guardian->fresh())->not->toBeNull();
+});
+
+test('term attendance totals come back where the school enters them', function () {
+    AttendanceSummary::create([
+        'school_id' => $this->school->id,
+        'student_id' => $this->student->id,
+        'session' => '2025/2026',
+        'term' => 'first',
+        'days_present' => 50,
+        'days_absent' => 4,
+        'days_late' => 1,
+        'days_excused' => 0,
+    ]);
+
+    // Off at the school: nothing, and the meta says why.
+    $this->withToken($this->token)->getJson('/api/v1/student/attendance/terms')
+        ->assertOk()
+        ->assertJsonCount(0, 'data')
+        ->assertJsonPath('meta.manual_attendance_enabled', false);
+
+    $this->school->update(['manual_attendance_enabled' => true]);
+    app('auth')->forgetGuards();
+
+    $this->withToken($this->token)->getJson('/api/v1/student/attendance/terms')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.days_present', 50)
+        ->assertJsonPath('data.0.total_days', 55)
+        ->assertJsonPath('data.0.percent', 93)
+        ->assertJsonPath('meta.manual_attendance_enabled', true);
 });

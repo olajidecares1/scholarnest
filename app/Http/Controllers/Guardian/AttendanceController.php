@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Guardian;
 use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\Student;
+use App\Services\Attendance\TermAttendance;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -33,6 +34,7 @@ class AttendanceController extends Controller
             'monthPercent' => $percent,
             'monthTotal' => $monthRecords->count(),
             'monthPresent' => $presentCount,
+            'termTotals' => app(TermAttendance::class)->totalsForStudent($student),
         ]);
     }
 

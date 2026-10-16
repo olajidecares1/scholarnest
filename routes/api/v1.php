@@ -57,6 +57,7 @@ Route::middleware(['auth:sanctum', 'api.active'])->group(function () {
         Route::post('results/{examination}', [ResultController::class, 'show'])->name('results.show');
 
         Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::get('attendance/terms', [AttendanceController::class, 'terms'])->name('attendance.terms');
         Route::get('timetable', [TimetableController::class, 'index'])->name('timetable.index');
         Route::get('assignments', [AssignmentController::class, 'index'])->name('assignments.index');
         Route::get('notices', [NoticeController::class, 'index'])->name('notices.index');
@@ -66,5 +67,6 @@ Route::middleware(['auth:sanctum', 'api.active'])->group(function () {
         Route::get('children', [ChildController::class, 'index'])->name('children.index');
         Route::get('children/{student}', [ChildController::class, 'show'])->name('children.show');
         Route::get('children/{student}/attendance', [ChildController::class, 'attendance'])->name('children.attendance');
+        Route::get('children/{student}/attendance/terms', [ChildController::class, 'attendanceTerms'])->name('children.attendance.terms');
     });
 });
