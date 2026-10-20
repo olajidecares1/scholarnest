@@ -29,7 +29,9 @@
             <div class="flex gap-2 rounded-[8px] border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
                 <span class="rounded-[6px] bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white">Take Attendance</span>
                 <a href="{{ route('attendance.history') }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">History</a>
-                <a href="{{ route('attendance.manual') }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Term Totals</a>
+                @if (auth()->user()->school->hasManualAttendance())
+                    <a href="{{ route('attendance.manual') }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Term Totals</a>
+                @endif
             </div>
         </div>
 

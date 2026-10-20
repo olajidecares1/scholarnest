@@ -64,7 +64,6 @@ class School extends Model
         'is_active',
         'deactivated_at',
         'automatic_grading',
-        'manual_attendance_enabled',
         'school_code',
         'result_link_slug',
         'result_link_enabled',
@@ -88,7 +87,7 @@ class School extends Model
     protected $attributes = [
         'is_active' => true,
         'automatic_grading' => true,
-        'manual_attendance_enabled' => false,
+        'manual_attendance_enabled' => true,
         'auto_generate_admission_numbers' => false,
         'next_admission_sequence' => 1,
         'auto_generate_staff_ids' => false,
@@ -906,6 +905,18 @@ class School extends Model
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);
+    }
+
+    /**
+     * Whether manual attendance is available to anyone in this school.
+     *
+     * The one check every view, menu, middleware and API payload asks, so the
+     * Super Admin's switch hides the feature everywhere at once. Not mass
+     * assignable: only the Super Admin's action may change it.
+     */
+    public function hasManualAttendance(): bool
+    {
+        return (bool) $this->manual_attendance_enabled;
     }
 
     /**

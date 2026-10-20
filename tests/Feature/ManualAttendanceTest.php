@@ -197,35 +197,142 @@ test('a teacher cannot change totals once the student\'s card is published, but 
         ->and(AttendanceSummary::sole()->recorded_by)->toBe($admin->id);
 });
 
-test('the feature is off until the school switches it on', function () {
+test('manual attendance is on for a new school by default', function () {
+    expect(School::factory()->create()->fresh()->hasManualAttendance())->toBeTrue();
+});
+
+test('when disabled, every web page and save is refused with 403 and every link is hidden', function () {
     [$school, $teacher, $student] = manualAttendanceSchool(enabled: false);
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
     $this->actingAs($teacher, 'staff')
         ->get(route('staff.attendance.manual', $school))
-        ->assertRedirect(route('staff.attendance.index', $school));
+        ->assertForbidden()
+        ->assertSee('This feature has been disabled for your school.');
 
     $this->actingAs($teacher, 'staff')
         ->post(route('staff.attendance.manual.store', $school), manualEntry($student, 60))
         ->assertForbidden();
 
-    // And the daily register is untouched by the option either way.
-    $this->actingAs($teacher, 'staff')
-        ->get(route('staff.attendance.index', $school))
-        ->assertOk()
-        ->assertDontSee('Term Totals');
+    $this->actingAs($admin)->get(route('attendance.manual'))->assertForbidden();
+    $this->actingAs($admin)->post(route('attendance.manual.store'), manualEntry($student, 60))->assertForbidden();
+
+    expect(AttendanceSummary::count())->toBe(0);
+
+    // The daily register keeps working, with no way into the hidden feature.
+    $this->actingAs($teacher, 'staff')->get(route('staff.attendance.index', $school))->assertOk()->assertDontSee('Term Totals');
+    $this->actingAs($teacher, 'staff')->get(route('staff.attendance.history', $school))->assertOk()->assertDontSee('Term Totals');
+    $this->actingAs($admin)->get(route('attendance.index'))->assertOk()->assertDontSee('Term Totals');
+    $this->actingAs($admin)->get(route('attendance.history'))->assertOk()->assertDontSee('Term Totals');
 });
 
-test('the School Admin switches it on in Settings and sets school days per term', function () {
-    [$school] = manualAttendanceSchool(enabled: false);
+test('the Super Admin switches it off and on per school, keeping every record', function () {
+    [$school, $teacher, $student] = manualAttendanceSchool();
+    [$otherSchool] = manualAttendanceSchool(code: 'OTHER');
+    $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin, 'school_id' => null]);
+
+    AttendanceSummary::factory()->create([
+        'school_id' => $school->id,
+        'student_id' => $student->id,
+        'session' => '2025/2026',
+        'term' => ExamTerm::Second,
+        'days_present' => 57,
+    ]);
+
+    $this->actingAs($superAdmin)
+        ->get(route('super-admin.schools.show', $school))
+        ->assertOk()
+        ->assertSee('Disable Manual Attendance');
+
+    $this->actingAs($superAdmin)
+        ->post(route('super-admin.schools.manual-attendance', $school), ['enabled' => 0])
+        ->assertRedirect()
+        ->assertSessionHas('status', "Manual attendance has been disabled for {$school->name}.");
+
+    expect($school->fresh()->hasManualAttendance())->toBeFalse()
+        ->and($otherSchool->fresh()->hasManualAttendance())->toBeTrue()
+        ->and(AttendanceSummary::count())->toBe(1);
+
+    $this->actingAs($teacher, 'staff')->get(route('staff.attendance.manual', $school))->assertForbidden();
+
+    $this->actingAs($superAdmin)
+        ->post(route('super-admin.schools.manual-attendance', $school), ['enabled' => 1])
+        ->assertSessionHas('status', "Manual attendance has been enabled for {$school->name}.");
+
+    // A fresh instance, as a real request loads: the one above still holds
+    // the school as it was when that request ran.
+    $this->actingAs($teacher->fresh(), 'staff')
+        ->get(route('staff.attendance.manual', [$school, 'session' => '2025/2026', 'term' => 'second']))
+        ->assertOk()
+        ->assertSee('Saved')
+        ->assertDontSee('Not recorded');
+
+    expect(AttendanceSummary::sole()->days_present)->toBe(57);
+});
+
+test('a School Admin cannot change the switch', function () {
+    [$school] = manualAttendanceSchool();
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
     $this->actingAs($admin)->put(route('settings.update'), [
         'name' => $school->name,
         'timezone' => 'Africa/Lagos',
-        'manual_attendance_enabled' => '1',
-    ])->assertSessionHasNoErrors();
+        'manual_attendance_enabled' => '0',
+    ]);
 
-    expect($school->fresh()->manual_attendance_enabled)->toBeTrue();
+    $this->actingAs($admin)->post(route('super-admin.schools.manual-attendance', $school), ['enabled' => 0]);
+
+    expect($school->fresh()->hasManualAttendance())->toBeTrue();
+});
+
+test('the app reads the flag from /me and is refused by the API when disabled', function () {
+    [$school, $teacher, $student] = manualAttendanceSchool();
+    $token = $teacher->createToken('Test device')->plainTextToken;
+
+    $this->withToken($token)->getJson('/api/v1/me')
+        ->assertOk()
+        ->assertJsonPath('data.school.features.manual_attendance', true);
+
+    $this->withToken($token)
+        ->getJson('/api/v1/staff/attendance/term-totals?session=2025/2026&term=second')
+        ->assertOk()
+        ->assertJsonPath('meta.school_days', 60)
+        ->assertJsonPath('data.0.student.id', $student->uuid);
+
+    $this->withToken($token)
+        ->postJson('/api/v1/staff/attendance/term-totals', [
+            ...manualEntry($student, 55, 5),
+            'entries' => [$student->uuid => ['days_present' => 55, 'days_absent' => 5]],
+        ])
+        ->assertOk();
+
+    expect(AttendanceSummary::sole()->days_present)->toBe(55);
+
+    $school->forceFill(['manual_attendance_enabled' => false])->save();
+    app('auth')->forgetGuards();
+
+    $this->withToken($token)->getJson('/api/v1/me')
+        ->assertJsonPath('data.school.features.manual_attendance', false);
+
+    $this->withToken($token)
+        ->getJson('/api/v1/staff/attendance/term-totals')
+        ->assertForbidden()
+        ->assertJsonPath('code', 'feature_disabled')
+        ->assertJsonPath('message', 'This feature has been disabled for your school.');
+
+    $this->withToken($token)
+        ->postJson('/api/v1/staff/attendance/term-totals', [
+            ...manualEntry($student, 10),
+            'entries' => [$student->uuid => ['days_present' => 10]],
+        ])
+        ->assertForbidden();
+
+    expect(AttendanceSummary::sole()->days_present)->toBe(55);
+});
+
+test('the School Admin sets school days per term', function () {
+    [$school] = manualAttendanceSchool();
+    $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
     $this->actingAs($admin)->post(route('academics.terms.store'), [
         'session' => '2025/2026',
@@ -310,7 +417,7 @@ test('entered totals appear on the report card in place of the register', functi
         ->and($attendance['source'])->toBe('manual');
 
     // Switched off, the same card goes back to the register.
-    $school->update(['manual_attendance_enabled' => false]);
+    $school->forceFill(['manual_attendance_enabled' => false])->save();
 
     $attendance = ReportCardData::for($examination, $student->fresh())['attendance'];
 

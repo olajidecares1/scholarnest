@@ -12,15 +12,7 @@
             <span class="shrink-0 rounded-[6px] bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white">Term Totals</span>
         </div>
 
-        @if (! $school->manual_attendance_enabled)
-            <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Manual attendance entry is switched off</p>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Turn on <strong>Manual Attendance Entry</strong> under <a href="{{ route('settings.index') }}" class="font-semibold text-blue-600 hover:underline">Settings</a>
-                    to let class teachers enter each student's term totals. The daily register keeps working either way.
-                </p>
-            </div>
-        @elseif ($classes->isEmpty())
+        @if ($classes->isEmpty())
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
                 Add your classes under Academics first.
             </div>

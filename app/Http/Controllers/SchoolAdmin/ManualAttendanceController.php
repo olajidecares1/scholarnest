@@ -25,7 +25,7 @@ class ManualAttendanceController extends Controller
         $className = $requested && $classes->contains($requested) ? $requested : $classes->first();
         [$session, $term] = ManualAttendanceSheet::periodFrom($request, $school);
 
-        $students = $className && $school->manual_attendance_enabled
+        $students = $className
             ? $school->students()->where('is_active', true)->where('class_name', $className)->orderBy('last_name')->get()
             : collect();
 
@@ -43,8 +43,6 @@ class ManualAttendanceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $school = $request->user()->school;
-
-        abort_unless($school->manual_attendance_enabled, 403);
 
         $validated = $request->validate([
             'class_name' => ['required', 'string', Rule::in($school->configuredClassNames())],

@@ -150,6 +150,28 @@ class SchoolController extends Controller
         return back()->with('status', "{$school->name}'s website address is now {$subdomain}.");
     }
 
+    /**
+     * Turn manual attendance on or off for this school alone.
+     *
+     * Takes effect on the next request: every menu, page and API endpoint
+     * reads the same flag. Turning it off hides the feature and refuses its
+     * routes; it deletes nothing, so turning it back on restores every total
+     * already entered.
+     */
+    public function updateManualAttendance(Request $request, School $school): RedirectResponse
+    {
+        $enabled = (bool) $request->validate(['enabled' => ['required', 'boolean']])['enabled'];
+
+        // Not mass assignable on purpose: only this action may change it.
+        $school->forceFill(['manual_attendance_enabled' => $enabled])->save();
+
+        $state = $enabled ? 'enabled' : 'disabled';
+
+        AuditLog::record('school.manual_attendance_'.$state, ucfirst($state)." manual attendance for {$school->name}.", $school);
+
+        return back()->with('status', "Manual attendance has been {$state} for {$school->name}.");
+    }
+
     public function deactivate(School $school): RedirectResponse
     {
         $school->update(['is_active' => false, 'deactivated_at' => now()]);

@@ -110,9 +110,11 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
                 Route::get('/history', [StaffAttendanceController::class, 'history'])->name('history');
 
                 // Term totals entered by hand. On every plan, like the
-                // register; optional per school, which the controller checks.
-                Route::get('/term-totals', [StaffManualAttendanceController::class, 'index'])->name('manual');
-                Route::post('/term-totals', [StaffManualAttendanceController::class, 'store'])->name('manual.store');
+                // register; switched on or off per school by the Super Admin.
+                Route::middleware('manual_attendance')->group(function () {
+                    Route::get('/term-totals', [StaffManualAttendanceController::class, 'index'])->name('manual');
+                    Route::post('/term-totals', [StaffManualAttendanceController::class, 'store'])->name('manual.store');
+                });
             });
 
             Route::middleware('staff_is_teacher')->name('exams.')->prefix('exams')->group(function () {

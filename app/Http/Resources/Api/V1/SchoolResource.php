@@ -27,6 +27,13 @@ class SchoolResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'logo_url' => $this->logoUrl(),
+
+            // Features the school can switch off, read by the app on sign-in
+            // and on every launch through /me, so a feature turned off while
+            // a device was offline disappears the next time it syncs.
+            'features' => [
+                'manual_attendance' => $this->hasManualAttendance(),
+            ],
         ];
     }
 }

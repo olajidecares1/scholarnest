@@ -35,7 +35,7 @@
                     <a href="{{ route('staff.attendance.history', [$school, 'period' => 'week', 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Weekly</a>
                     <a href="{{ route('staff.attendance.history', [$school, 'period' => 'month', 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Monthly</a>
                     <a href="{{ route('staff.attendance.history', [$school, 'period' => 'term', 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Termly</a>
-                    @if ($school->manual_attendance_enabled)
+                    @if ($school->hasManualAttendance())
                         <a href="{{ route('staff.attendance.manual', [$school, 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Term Totals</a>
                     @endif
                 </div>

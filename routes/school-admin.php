@@ -200,8 +200,10 @@ Route::name('attendance.')->group(function () {
     Route::get(R::uri('attendance.index'), [AttendanceController::class, 'index'])->name('index');
     Route::post(R::uri('attendance.index'), [AttendanceController::class, 'store'])->name('store');
     Route::get(R::uri('attendance.history'), [AttendanceController::class, 'history'])->name('history');
-    Route::get(R::uri('attendance.manual'), [ManualAttendanceController::class, 'index'])->name('manual');
-    Route::post(R::uri('attendance.manual'), [ManualAttendanceController::class, 'store'])->name('manual.store');
+    Route::middleware('manual_attendance')->group(function () {
+        Route::get(R::uri('attendance.manual'), [ManualAttendanceController::class, 'index'])->name('manual');
+        Route::post(R::uri('attendance.manual'), [ManualAttendanceController::class, 'store'])->name('manual.store');
+    });
 });
 Route::name('examinations.')->group(function () {
     Route::get(R::uri('examinations.index'), [ExaminationController::class, 'index'])->name('index');

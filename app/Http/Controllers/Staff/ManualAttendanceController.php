@@ -21,13 +21,8 @@ use Illuminate\View\View;
  */
 class ManualAttendanceController extends Controller
 {
-    public function index(Request $request, School $school): View|RedirectResponse
+    public function index(Request $request, School $school): View
     {
-        if (! $school->manual_attendance_enabled) {
-            return redirect()->route('staff.attendance.index', $school)
-                ->with('status', 'Manual attendance entry is not switched on for your school. Ask your School Admin to enable it under Settings.');
-        }
-
         $classes = $request->user('staff')->classesAsClassTeacher();
         $className = $this->resolveClass($request, $classes);
         [$session, $term] = ManualAttendanceSheet::periodFrom($request, $school);
@@ -49,8 +44,6 @@ class ManualAttendanceController extends Controller
 
     public function store(Request $request, School $school): RedirectResponse
     {
-        abort_unless($school->manual_attendance_enabled, 403);
-
         $staff = $request->user('staff');
         $classes = $staff->classesAsClassTeacher();
 

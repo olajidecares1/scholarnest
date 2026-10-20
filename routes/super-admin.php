@@ -56,6 +56,10 @@ Route::name('schools.')->middleware('permission:manage_schools')->group(function
     // old address stops resolving at once: there are no aliases.
     Route::post(R::uri('super-admin.schools.subdomain').'/{school}', [SchoolController::class, 'updateSubdomain'])->name('subdomain');
 
+    // Manual attendance on or off for this one school. Only the Super Admin
+    // holds this switch; School Admins cannot override it.
+    Route::post(R::uri('super-admin.schools.manual-attendance').'/{school}', [SchoolController::class, 'updateManualAttendance'])->name('manual-attendance');
+
     // Deleting a school erases everything belonging to it, students,
     // staff, results, invoices, 43 tables in all, and cannot be
     // undone. Deactivating is the reversible option and is what the

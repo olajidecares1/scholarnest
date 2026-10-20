@@ -7,6 +7,7 @@ use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnforceTenantHostBoundary;
 use App\Http\Middleware\EnsureGuardianIsActive;
 use App\Http\Middleware\EnsureHasPermission;
+use App\Http\Middleware\EnsureManualAttendanceEnabled;
 use App\Http\Middleware\EnsurePasswordHasBeenChanged;
 use App\Http\Middleware\EnsureSchoolHasFeature;
 use App\Http\Middleware\EnsureSchoolHasPortalAccess;
@@ -97,6 +98,10 @@ return Application::configure(basePath: dirname(__DIR__))
             // refused in their own words, which is how the project ended up
             // with some premium features gated and others not.
             'plan_feature' => EnsureSchoolHasFeature::class,
+
+            // The Super Admin's per-school switch for manual attendance, on
+            // its web routes and its API endpoints alike.
+            'manual_attendance' => EnsureManualAttendanceEnabled::class,
             'resolve_tenant_domain' => ResolveTenantFromCustomDomain::class,
             'redirect_to_custom_domain' => RedirectToCustomDomain::class,
             'portal_token' => ValidateSchoolPortalToken::class,

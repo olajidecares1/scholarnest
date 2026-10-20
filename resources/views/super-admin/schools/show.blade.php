@@ -34,6 +34,36 @@
 
         @include('super-admin.schools.partials.website-address')
 
+        {{-- Manual attendance, on or off for this school alone. Only the
+             Super Admin holds this switch. Off hides it from every role and
+             refuses its pages and API; nothing already entered is deleted. --}}
+        <div class="flex flex-col gap-4 rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row sm:items-center sm:justify-between lg:rounded-[10px]">
+            <div>
+                <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Manual Attendance</h3>
+                    @if ($school->hasManualAttendance())
+                        <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">Enabled</span>
+                    @else
+                        <span class="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-300">Disabled</span>
+                    @endif
+                </div>
+                <p class="field-hint mt-0.5">
+                    Lets teachers and the School Admin enter each student's term attendance totals. Disabling hides it for everyone in
+                    this school and blocks its pages and app endpoints; entered records are kept and return when re-enabled.
+                </p>
+            </div>
+
+            <form method="POST" action="{{ route('super-admin.schools.manual-attendance', $school) }}" class="shrink-0">
+                @csrf
+                <input type="hidden" name="enabled" value="{{ $school->hasManualAttendance() ? 0 : 1 }}">
+                @if ($school->hasManualAttendance())
+                    <button type="submit" class="w-full rounded-[8px] border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 sm:w-auto">Disable Manual Attendance</button>
+                @else
+                    <button type="submit" class="w-full rounded-[8px] border border-green-300 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/20 sm:w-auto">Enable Manual Attendance</button>
+                @endif
+            </form>
+        </div>
+
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">Billing Details</h3>

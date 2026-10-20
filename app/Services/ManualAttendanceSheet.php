@@ -188,7 +188,7 @@ class ManualAttendanceSheet
     {
         $school = $student->school;
 
-        if (! $school?->manual_attendance_enabled) {
+        if (! $school?->hasManualAttendance()) {
             return null;
         }
 
