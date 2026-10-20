@@ -52,11 +52,14 @@ class AcademicController extends Controller
             'term' => ['required', Rule::enum(ExamTerm::class)],
             'starts_on' => ['required', 'date'],
             'ends_on' => ['required', 'date', 'after_or_equal:starts_on'],
+
+            // Optional: what manual attendance totals are checked against.
+            'school_days' => ['nullable', 'integer', 'min:1', 'max:366'],
         ]);
 
         AcademicTerm::updateOrCreate(
             ['school_id' => $school->id, 'session' => $validated['session'], 'term' => $validated['term']],
-            ['starts_on' => $validated['starts_on'], 'ends_on' => $validated['ends_on']],
+            ['starts_on' => $validated['starts_on'], 'ends_on' => $validated['ends_on'], 'school_days' => $validated['school_days'] ?? null],
         );
 
         return back()->with('status', 'Term dates saved.');

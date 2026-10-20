@@ -372,7 +372,7 @@
                 ];
 
                 $attendanceRows = $attendance ? [
-                    ['Total School Days', (string) $attendance['total'], false],
+                    ['Total School Days', (string) ($attendance['school_days'] ?? $attendance['total']), false],
                     ['Days Present', (string) $attendance['present'], false],
                     ['Days Absent', (string) $attendance['absent'], false],
                     ['Days Late', (string) $attendance['late'], false],

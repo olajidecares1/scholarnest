@@ -98,6 +98,7 @@ class SettingsController extends Controller
         $validated['automatic_grading'] = true;
         $validated['auto_generate_admission_numbers'] = $request->boolean('auto_generate_admission_numbers');
         $validated['auto_generate_staff_ids'] = $request->boolean('auto_generate_staff_ids');
+        $validated['manual_attendance_enabled'] = $request->boolean('manual_attendance_enabled');
 
         // Processed before storage, upright, within size, transparency kept,
         // metadata removed, see App\Services\Uploads\ImageProcessor.

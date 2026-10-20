@@ -22,6 +22,7 @@ class AcademicTerm extends Model
         'term',
         'starts_on',
         'ends_on',
+        'school_days',
     ];
 
     /**
@@ -33,6 +34,7 @@ class AcademicTerm extends Model
             'term' => ExamTerm::class,
             'starts_on' => 'date:Y-m-d',
             'ends_on' => 'date:Y-m-d',
+            'school_days' => 'integer',
         ];
     }
 

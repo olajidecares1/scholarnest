@@ -42,7 +42,11 @@ class ReportCardData
                 ->where('class_name', $examination->class_name)
                 ->where('type', TeacherAssignmentType::ClassTeacher)
                 ->first(),
-            'attendance' => self::attendanceSummaryFor($student, $currentTerm),
+            // Totals a teacher entered by hand win when the school uses
+            // manual attendance; otherwise, or for a student with none, the
+            // daily register is counted as before.
+            'attendance' => ManualAttendanceSheet::cardSummaryFor($student, $examination->session, $examination->term, $currentTerm)
+                ?? self::attendanceSummaryFor($student, $currentTerm),
 
             'numberInClass' => Student::where('school_id', $examination->school_id)
                 ->where('class_name', $examination->class_name)
@@ -70,7 +74,7 @@ class ReportCardData
      * a property of this query rather than a consequence of an invariant kept
      * somewhere else.
      *
-     * @return ?array{present: int, absent: int, late: int, excused: int, total: int, percent: ?int}
+     * @return ?array{present: int, absent: int, late: int, excused: int, total: int, percent: ?int, school_days: ?int, source: string}
      */
     private static function attendanceSummaryFor(Student $student, ?AcademicTerm $term): ?array
     {
@@ -92,6 +96,8 @@ class ReportCardData
             'excused' => $records->where('status', AttendanceStatus::Excused)->count(),
             'total' => $records->count(),
             'percent' => $records->isEmpty() ? null : (int) round(($records->filter(fn ($r) => $r->status->isPresentForStats())->count() / $records->count()) * 100),
+            'school_days' => $term->school_days,
+            'source' => 'register',
         ];
     }
 }

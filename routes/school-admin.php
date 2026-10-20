@@ -24,6 +24,7 @@ use App\Http\Controllers\SchoolAdmin\IssuedIdCardController;
 use App\Http\Controllers\SchoolAdmin\JobApplicationController;
 use App\Http\Controllers\SchoolAdmin\JobPostingController;
 use App\Http\Controllers\SchoolAdmin\LibraryController;
+use App\Http\Controllers\SchoolAdmin\ManualAttendanceController;
 use App\Http\Controllers\SchoolAdmin\MisconductReportController;
 use App\Http\Controllers\SchoolAdmin\NewsController;
 use App\Http\Controllers\SchoolAdmin\NoticeController;
@@ -199,6 +200,8 @@ Route::name('attendance.')->group(function () {
     Route::get(R::uri('attendance.index'), [AttendanceController::class, 'index'])->name('index');
     Route::post(R::uri('attendance.index'), [AttendanceController::class, 'store'])->name('store');
     Route::get(R::uri('attendance.history'), [AttendanceController::class, 'history'])->name('history');
+    Route::get(R::uri('attendance.manual'), [ManualAttendanceController::class, 'index'])->name('manual');
+    Route::post(R::uri('attendance.manual'), [ManualAttendanceController::class, 'store'])->name('manual.store');
 });
 Route::name('examinations.')->group(function () {
     Route::get(R::uri('examinations.index'), [ExaminationController::class, 'index'])->name('index');

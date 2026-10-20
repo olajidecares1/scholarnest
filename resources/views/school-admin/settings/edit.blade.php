@@ -277,6 +277,21 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Attendance</h3>
+                    <label class="mt-3 flex items-start gap-2 text-sm text-gray-700 dark:text-gray-200">
+                        <input type="checkbox" name="manual_attendance_enabled" value="1" {{ old('manual_attendance_enabled', $school->manual_attendance_enabled) ? 'checked' : '' }} class="mt-0.5 w-4 text-blue-600">
+                        <span>
+                            Manual Attendance Entry
+                            <span class="block text-xs text-gray-500 dark:text-gray-400">
+                                Lets class teachers enter each student's days Present, Absent, Late and Excused for a term, checked against the
+                                <a href="{{ route('academics.index') }}" class="font-semibold text-primary-600 hover:underline">school days set for each term</a>.
+                                Entered totals appear on report cards in place of the daily register's count. The daily register keeps working either way.
+                            </span>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Identification Numbers</h3>
                     <p class="field-hint mt-0.5">Configure a school code and let AkademicNest generate unique Admission Numbers and Staff IDs automatically instead of typing them by hand.</p>
 

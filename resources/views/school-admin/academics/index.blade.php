@@ -68,7 +68,7 @@
 
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">Term Dates</h2>
-            <p class="field-hint mt-1">Used to work out "this term's" attendance on report cards and in the Teacher Portal.</p>
+            <p class="field-hint mt-1">Used to work out "this term's" attendance on report cards and in the Teacher Portal. School Days is optional: the number of days the school opened that term, which manual attendance totals are checked against.</p>
 
             @if ($terms->isNotEmpty())
                 <div class="mt-4 overflow-x-auto rounded-[8px] border border-gray-200 dark:border-gray-700">
@@ -79,6 +79,7 @@
                                 <th class="px-3 py-2 font-semibold">Term</th>
                                 <th class="px-3 py-2 font-semibold">Starts</th>
                                 <th class="px-3 py-2 font-semibold">Ends</th>
+                                <th class="px-3 py-2 font-semibold">School Days</th>
                                 <th class="px-3 py-2"></th>
                             </tr>
                         </thead>
@@ -89,6 +90,7 @@
                                     <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ $term->term->label() }}</td>
                                     <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ $term->starts_on->format('M j, Y') }}</td>
                                     <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ $term->ends_on->format('M j, Y') }}</td>
+                                    <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ $term->school_days ?? '—' }}</td>
                                     <td class="px-3 py-2 text-right">
                                         <form method="POST" action="{{ route('academics.terms.destroy', $term) }}" onsubmit="return confirm('Remove these term dates?');">
                                             @csrf @method('DELETE')
@@ -102,12 +104,13 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('academics.terms.store') }}" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-5 sm:items-end">
+            <form method="POST" action="{{ route('academics.terms.store') }}" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:items-end lg:grid-cols-6">
                 @csrf
                 <x-select-field name="session" label="Session" :options="collect($sessionOptions)->mapWithKeys(fn ($s) => [$s => $s])->all()" :selected="\App\Support\AcademicSession::current()" />
                 <x-select-field name="term" label="Term" :options="collect($termOptions)->mapWithKeys(fn ($t) => [$t->value => $t->label()])->all()" />
                 <x-text-field name="starts_on" label="Starts On" type="date" required />
                 <x-text-field name="ends_on" label="Ends On" type="date" required />
+                <x-text-field name="school_days" label="School Days" type="number" min="1" max="366" placeholder="e.g. 60" />
                 <button type="submit" class="rounded-[8px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700">Save</button>
             </form>
         </div>

@@ -64,6 +64,7 @@ class School extends Model
         'is_active',
         'deactivated_at',
         'automatic_grading',
+        'manual_attendance_enabled',
         'school_code',
         'result_link_slug',
         'result_link_enabled',
@@ -87,6 +88,7 @@ class School extends Model
     protected $attributes = [
         'is_active' => true,
         'automatic_grading' => true,
+        'manual_attendance_enabled' => false,
         'auto_generate_admission_numbers' => false,
         'next_admission_sequence' => 1,
         'auto_generate_staff_ids' => false,
@@ -249,6 +251,7 @@ class School extends Model
             'is_active' => 'boolean',
             'deactivated_at' => 'datetime',
             'automatic_grading' => 'boolean',
+            'manual_attendance_enabled' => 'boolean',
             'auto_generate_admission_numbers' => 'boolean',
             'auto_generate_staff_ids' => 'boolean',
             'result_link_enabled' => 'boolean',
@@ -903,6 +906,14 @@ class School extends Model
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);
+    }
+
+    /**
+     * @return HasMany<AttendanceSummary, $this>
+     */
+    public function attendanceSummaries(): HasMany
+    {
+        return $this->hasMany(AttendanceSummary::class);
     }
 
     /**

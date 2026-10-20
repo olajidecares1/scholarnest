@@ -8,6 +8,7 @@
             <div class="flex gap-2 rounded-[8px] border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
                 <a href="{{ route('attendance.index') }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Take Attendance</a>
                 <span class="rounded-[6px] bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white">History</span>
+                <a href="{{ route('attendance.manual') }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Term Totals</a>
             </div>
         </div>
 

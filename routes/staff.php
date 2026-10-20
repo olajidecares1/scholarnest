@@ -11,6 +11,7 @@ use App\Http\Controllers\Staff\DiaryController as StaffDiaryController;
 use App\Http\Controllers\Staff\ExaminationController as StaffExaminationController;
 use App\Http\Controllers\Staff\HelpController as StaffHelpController;
 use App\Http\Controllers\Staff\IdCardController as StaffIdCardController;
+use App\Http\Controllers\Staff\ManualAttendanceController as StaffManualAttendanceController;
 use App\Http\Controllers\Staff\PortalLockedController as StaffPortalLockedController;
 use App\Http\Controllers\Staff\ProfileChangeRequestController as StaffProfileChangeRequestController;
 use App\Http\Controllers\Staff\ProfileController as StaffProfileController;
@@ -107,6 +108,11 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
                 Route::get('/', [StaffAttendanceController::class, 'index'])->name('index');
                 Route::post('/', [StaffAttendanceController::class, 'store'])->name('store');
                 Route::get('/history', [StaffAttendanceController::class, 'history'])->name('history');
+
+                // Term totals entered by hand. On every plan, like the
+                // register; optional per school, which the controller checks.
+                Route::get('/term-totals', [StaffManualAttendanceController::class, 'index'])->name('manual');
+                Route::post('/term-totals', [StaffManualAttendanceController::class, 'store'])->name('manual.store');
             });
 
             Route::middleware('staff_is_teacher')->name('exams.')->prefix('exams')->group(function () {
