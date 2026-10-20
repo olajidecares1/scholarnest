@@ -121,6 +121,7 @@ All under `/api/v1/student`, and all scoped to the signed-in student.
 | `GET /results` | Every examination they have a mark in, **and no marks** |
 | `POST /results/{examination}` | One full report card, in exchange for its exam token |
 | `GET /attendance` | Their own attendance. `from`, `to`, `per_page` |
+| `GET /attendance/terms` | Their term totals (days present, absent, late, excused), where the school enters attendance manually. `meta.manual_attendance_enabled` says whether it does |
 | `GET /timetable` | Their class's timetable, unpaginated |
 | `GET /assignments` | Homework for their class, soonest due first |
 | `GET /notices` | Memoranda addressed to students or to everyone |
@@ -170,6 +171,7 @@ trying the wrong one costs nothing.
 | `GET /guardian/children` | The children this guardian is recorded against |
 | `GET /guardian/children/{student}` | One of them |
 | `GET /guardian/children/{student}/attendance` | That child's attendance |
+| `GET /guardian/children/{student}/attendance/terms` | That child's term totals, as above |
 
 A child who is not theirs is **404**, not 403, whether that pupil exists is
 not this guardian's business either. Being at the same school is not enough:

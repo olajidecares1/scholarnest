@@ -43,6 +43,7 @@ use App\Http\Controllers\SchoolAdmin\StudentImportController;
 use App\Http\Controllers\SchoolAdmin\SubscriptionTopUpController;
 use App\Http\Controllers\SchoolAdmin\TeacherAssignmentController;
 use App\Http\Controllers\SchoolAdmin\TemplatePreviewController;
+use App\Http\Controllers\SchoolAdmin\TermAttendanceController as SchoolTermAttendanceController;
 use App\Http\Controllers\SchoolAdmin\TestimonialController;
 use App\Http\Controllers\SchoolAdmin\TimetableController;
 use App\Http\Controllers\SchoolAdmin\TransportController;
@@ -228,6 +229,16 @@ Route::name('attendance.')->group(function () {
     });
 
     Route::get(R::uri('attendance.staff'), [SchoolCheckInController::class, 'staff'])->name('staff');
+
+    // Manual term attendance: day counts per pupil per term, a third way of
+    // recording the same thing beside the daily register and QR check-in.
+    // Optional per school and on every plan, so deliberately outside any
+    // plan_feature middleware.
+    Route::name('term.')->group(function () {
+        Route::get(R::uri('attendance.term'), [SchoolTermAttendanceController::class, 'index'])->name('index');
+        Route::post(R::uri('attendance.term'), [SchoolTermAttendanceController::class, 'store'])->name('store');
+        Route::put(R::uri('attendance.term.settings'), [SchoolTermAttendanceController::class, 'updateSettings'])->name('settings');
+    });
 });
 Route::name('examinations.')->group(function () {
     Route::get(R::uri('examinations.index'), [ExaminationController::class, 'index'])->name('index');

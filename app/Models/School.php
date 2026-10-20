@@ -72,6 +72,11 @@ class School extends Model
         'cumulative_results_enabled',
         'cumulative_average_basis',
 
+        // Optional, per school, on every plan: term attendance entered as day
+        // counts. See App\Services\Attendance\TermAttendance.
+        'manual_attendance_enabled',
+        'manual_attendance_teacher_edits',
+
         // QR check-in: the poster's secret, where the school is, and how far
         // from it a scan still counts. See the add_qr_check_in_attendance
         // migration for why the coordinates are not optional.
@@ -107,6 +112,8 @@ class School extends Model
         'automatic_grading' => true,
         'cumulative_results_enabled' => false,
         'cumulative_average_basis' => 'terms_taken',
+        'manual_attendance_enabled' => false,
+        'manual_attendance_teacher_edits' => true,
         'check_in_enabled' => false,
         'student_attendance_mode' => 'manual',
         'check_in_radius_metres' => 150,
@@ -274,6 +281,8 @@ class School extends Model
             'automatic_grading' => 'boolean',
             'cumulative_results_enabled' => 'boolean',
             'cumulative_average_basis' => CumulativeAverageBasis::class,
+            'manual_attendance_enabled' => 'boolean',
+            'manual_attendance_teacher_edits' => 'boolean',
             'auto_generate_admission_numbers' => 'boolean',
             'auto_generate_staff_ids' => 'boolean',
             'result_link_enabled' => 'boolean',
@@ -312,6 +321,27 @@ class School extends Model
     public function usesCumulativeResults(): bool
     {
         return (bool) $this->cumulative_results_enabled;
+    }
+
+    /**
+     * Does this school let teachers enter term attendance as day counts?
+     *
+     * A school setting, not a plan feature: Basic, Standard and Exclusive can
+     * all turn it on. Off by default. It sits beside the daily register and
+     * QR check-in rather than replacing either, see AttendanceMode.
+     */
+    public function usesManualAttendance(): bool
+    {
+        return (bool) $this->manual_attendance_enabled;
+    }
+
+    /**
+     * May a class teacher correct term totals that are already saved? When
+     * not, the first save stands until the School Admin changes it.
+     */
+    public function allowsTeacherAttendanceCorrections(): bool
+    {
+        return (bool) $this->manual_attendance_teacher_edits;
     }
 
     public function logoUrl(): ?string
@@ -944,6 +974,14 @@ class School extends Model
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);
+    }
+
+    /**
+     * @return HasMany<AttendanceSummary, $this>
+     */
+    public function attendanceSummaries(): HasMany
+    {
+        return $this->hasMany(AttendanceSummary::class);
     }
 
     /**

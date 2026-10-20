@@ -10,6 +10,8 @@
             </div>
         </div>
 
+        <x-term-attendance-totals :totals="$termTotals" />
+
         <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="divide-y divide-gray-100 dark:divide-gray-700">
                 @forelse ($records as $record)

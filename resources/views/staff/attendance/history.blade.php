@@ -1,12 +1,7 @@
 <x-staff-layout page-title="Attendance History" page-subtitle="Aggregated attendance for your class.">
     <div class="space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex gap-2 rounded-[8px] border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
-                <a href="{{ route('staff.attendance.index', [$school, 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Daily</a>
-                <a href="{{ route('staff.attendance.history', [$school, 'period' => 'week', 'class' => $className]) }}" class="btn rounded-[6px] px-4 py-1.5 text-sm font-semibold {{ $period === 'week' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }}">Weekly</a>
-                <a href="{{ route('staff.attendance.history', [$school, 'period' => 'month', 'class' => $className]) }}" class="btn rounded-[6px] px-4 py-1.5 text-sm font-semibold {{ $period === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }}">Monthly</a>
-                <a href="{{ route('staff.attendance.history', [$school, 'period' => 'term', 'class' => $className]) }}" class="btn rounded-[6px] px-4 py-1.5 text-sm font-semibold {{ $period === 'term' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }}">Termly</a>
-            </div>
+            @include('staff.attendance._tabs', ['current' => $period === 'term' ? 'term-history' : $period])
             <div class="flex items-center gap-3">
                 @if ($classes->count() > 1)
                     <form method="GET">

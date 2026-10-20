@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\V1\Guardian;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\AttendanceRecordResource;
+use App\Http\Resources\Api\V1\AttendanceSummaryResource;
 use App\Http\Resources\Api\V1\StudentResource;
 use App\Models\Student;
+use App\Services\Attendance\TermAttendance;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -40,6 +42,18 @@ class ChildController extends Controller
             ->paginate($request->integer('per_page') ?: 50);
 
         return AttendanceRecordResource::collection($records);
+    }
+
+    /**
+     * That child's term totals, where the school enters attendance as day
+     * counts.
+     */
+    public function attendanceTerms(Request $request, Student $student, TermAttendance $attendance): AnonymousResourceCollection
+    {
+        $student = $this->authorizeChild($request, $student);
+
+        return AttendanceSummaryResource::collection($attendance->totalsForStudent($student))
+            ->additional(['meta' => ['manual_attendance_enabled' => (bool) $student->school?->usesManualAttendance()]]);
     }
 
     /**

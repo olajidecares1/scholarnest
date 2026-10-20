@@ -139,6 +139,16 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
     }
 
     /**
+     * Term totals entered by hand. See App\Models\AttendanceSummary.
+     *
+     * @return HasMany<AttendanceSummary, $this>
+     */
+    public function attendanceSummaries(): HasMany
+    {
+        return $this->hasMany(AttendanceSummary::class);
+    }
+
+    /**
      * @return HasMany<AssignmentSubmission, $this>
      */
     public function assignmentSubmissions(): HasMany

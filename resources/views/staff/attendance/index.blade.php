@@ -30,12 +30,7 @@
             </div>
         @else
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="flex gap-2 rounded-[8px] border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
-                    <span class="rounded-[6px] bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white">Daily</span>
-                    <a href="{{ route('staff.attendance.history', [$school, 'period' => 'week', 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Weekly</a>
-                    <a href="{{ route('staff.attendance.history', [$school, 'period' => 'month', 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Monthly</a>
-                    <a href="{{ route('staff.attendance.history', [$school, 'period' => 'term', 'class' => $className]) }}" class="rounded-[6px] px-4 py-1.5 text-sm font-semibold text-gray-600 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">Termly</a>
-                </div>
+                @include('staff.attendance._tabs', ['current' => 'daily'])
                 @if ($classes->count() > 1)
                     <form method="GET">
                         <select name="class" onchange="this.form.submit()" >

@@ -4,6 +4,7 @@ use App\Enums\AttendanceMode;
 use App\Enums\AttendanceStatus;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceScan;
+use App\Models\AttendanceSummary;
 use App\Models\School;
 use App\Models\Staff;
 use App\Models\StaffAttendanceRecord;
@@ -350,4 +351,31 @@ describe('the scan page', function () {
             ->assertJsonPath('signed_in', false)
             ->assertJsonPath('portal_url', route('portal.index', ['school' => $this->school]));
     });
+});
+
+test('manual term attendance turned on changes nothing at the gate', function () {
+    Carbon::setTestNow(Carbon::parse('2026-09-22 07:41:09', 'Africa/Lagos'));
+
+    $this->school->update(['manual_attendance_enabled' => true]);
+
+    $summary = AttendanceSummary::create([
+        'school_id' => $this->school->id,
+        'student_id' => $this->student->id,
+        'session' => '2026/2027',
+        'term' => 'first',
+        'class_name' => 'JSS 1',
+        'days_present' => 40,
+    ]);
+
+    $this->actingAs($this->student, 'student')
+        ->postJson(scanUrl($this->school), ['scans' => [atTheGate()]])
+        ->assertOk()
+        ->assertJsonPath('results.0.recorded', true)
+        ->assertJsonPath('results.0.kind', 'arrival');
+
+    expect(AttendanceRecord::sole()->source)->toBe('qr')
+        ->and($summary->fresh()->counts())->toBe(['days_present' => 40, 'days_absent' => 0, 'days_late' => 0, 'days_excused' => 0])
+        ->and(AttendanceSummary::count())->toBe(1);
+
+    Carbon::setTestNow();
 });

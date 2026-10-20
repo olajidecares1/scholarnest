@@ -17,6 +17,7 @@ use App\Http\Controllers\Staff\ProfileController as StaffProfileController;
 use App\Http\Controllers\Staff\ResultController as StaffResultController;
 use App\Http\Controllers\Staff\SettingsController as StaffSettingsController;
 use App\Http\Controllers\Staff\SignatureController as StaffSignatureController;
+use App\Http\Controllers\Staff\TermAttendanceController as StaffTermAttendanceController;
 use App\Http\Controllers\Staff\TimetableController as StaffTimetableController;
 use Illuminate\Support\Facades\Route;
 
@@ -107,6 +108,11 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
                 Route::get('/', [StaffAttendanceController::class, 'index'])->name('index');
                 Route::post('/', [StaffAttendanceController::class, 'store'])->name('store');
                 Route::get('/history', [StaffAttendanceController::class, 'history'])->name('history');
+
+                // Term totals typed in as day counts. On every plan; the page
+                // itself says when the school has the setting off.
+                Route::get('/term', [StaffTermAttendanceController::class, 'index'])->name('term.index');
+                Route::post('/term', [StaffTermAttendanceController::class, 'store'])->name('term.store');
             });
 
             Route::middleware('staff_is_teacher')->name('exams.')->prefix('exams')->group(function () {
