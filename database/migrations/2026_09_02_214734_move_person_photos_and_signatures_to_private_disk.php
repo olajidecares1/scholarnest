@@ -1,6 +1,8 @@
 <?php
 
+use App\Support\Storage\DatabaseStorageFallback;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -58,6 +60,17 @@ return new class extends Migration
 
     private function move(string $from, string $to): void
     {
+        // On Laravel Cloud with no bucket attached, both disks live in the
+        // stored_files table, which a later migration creates. On a fresh
+        // database that table does not exist yet, and there is nothing on
+        // either disk to move, so asking would only fail the deploy.
+        foreach ([$from, $to] as $disk) {
+            if (config("filesystems.disks.{$disk}.driver") === DatabaseStorageFallback::DRIVER
+                && ! Schema::hasTable('stored_files')) {
+                return;
+            }
+        }
+
         $source = Storage::disk($from);
         $target = Storage::disk($to);
 
