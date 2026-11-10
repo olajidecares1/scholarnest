@@ -16,10 +16,10 @@ use App\Models\School;
  */
 final class TenantResolution
 {
-    /** The platform itself, akademicnest.com.ng. Not a tenant. */
+    /** The platform itself, akademicanest.com. Not a tenant. */
     public const CENTRAL = 'central';
 
-    /** A platform alias such as www.akademicnest.com.ng, sent to the platform. */
+    /** A platform alias such as www.akademicanest.com, sent to the platform. */
     public const PLATFORM_ALIAS = 'platform-alias';
 
     /** A school, resolved and allowed to be served. */

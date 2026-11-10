@@ -151,4 +151,4 @@ and date at the top of this policy will change.
 
 ## 9. Contact
 
-Questions about this policy: support@akademicnest.com.ng.
+Questions about this policy: support@akademicanest.com.

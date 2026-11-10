@@ -9,7 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * A Super Admin renaming a school's address, greenfield.akademicnest.com.ng.
+ * A Super Admin renaming a school's address, greenfield.akademicanest.com.
  *
  * Held to the same rules generation follows (School::availableSubdomain()):
  * one DNS label, letters and digits only, no platform-reserved names, and

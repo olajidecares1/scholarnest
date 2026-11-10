@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  * /p/{portal_key} paths serve school subdomains and custom domains too, with no
  * controller duplication.
  *
- *   greenfield.akademicnest.com.ng      Standard or Exclusive school's subdomain
+ *   greenfield.akademicanest.com      Standard or Exclusive school's subdomain
  *   greenfieldschool.com              Exclusive school's verified own domain
  *
  * The decision itself lives in {@see TenantResolver}; this only acts on it:

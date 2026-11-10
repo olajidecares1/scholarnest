@@ -65,7 +65,7 @@ class RedirectToCanonicalHost
             return redirect()->away($scheme.'://'.$canonical.$request->getRequestUri(), 301);
         }
 
-        // www.akademicnest.com.ng is the platform under another name, never a
+        // www.akademicanest.com is the platform under another name, never a
         // school, so it goes to the platform whatever the path. Handled here,
         // before routing, because most platform paths do not exist in the
         // tenant route group and would 404 there before any tenant middleware

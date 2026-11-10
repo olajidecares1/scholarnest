@@ -13,11 +13,11 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * A school's subdomain serves more than its website: once someone signs in
  * there, the dashboards (which are not host-bound routes) are served on that
- * host too, which is what keeps a teacher on greenfield.akademicnest.com.ng
+ * host too, which is what keeps a teacher on greenfield.akademicanest.com
  * after signing in. That is intended. Two things are not:
  *
  *   1. PLATFORM PAGES ON A SCHOOL'S HOST. The Super Admin console, its hidden
- *      sign-in and school registration belong to akademicnest.com.ng. Served on
+ *      sign-in and school registration belong to akademicanest.com. Served on
  *      a school's host they would share an origin with content that school
  *      writes for its own website, so they are sent to the platform address.
  *
@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
  *      one cookie attribute. A signed-in account whose school is not the school
  *      this host belongs to is refused.
  *
- * Platform hosts (akademicnest.com.ng, localhost, an IP) pass straight through
+ * Platform hosts (akademicanest.com, localhost, an IP) pass straight through
  * without a database query.
  */
 class EnforceTenantHostBoundary

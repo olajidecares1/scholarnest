@@ -145,7 +145,7 @@ academic record.
 
 ### 5.2 Schools
 
-Contact AkademicNest at support@akademicnest.com.ng. We will confirm that the
+Contact AkademicNest at support@akademicanest.com. We will confirm that the
 request comes from an authorised person before acting.
 
 **Before requesting deletion, obtain a copy of anything you need.** Deletion is
@@ -188,8 +188,8 @@ school's records on request. We intend to add a self service export.
 
 | | |
 | --- | --- |
-| Deletion and retention requests | support@akademicnest.com.ng |
-| Data protection enquiries | support@akademicnest.com.ng |
+| Deletion and retention requests | support@akademicanest.com |
+| Data protection enquiries | support@akademicanest.com |
 
 <!-- internal:start -->
 ---

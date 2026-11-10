@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
  * no address behind it is worse than no promise, because the reader stops
  * looking for another route.
  */
-const SUPPORT_EMAIL = 'support@akademicnest.com.ng';
+const SUPPORT_EMAIL = 'support@akademicanest.com';
 
 /**
  * Run the support-contact migration against the test database.

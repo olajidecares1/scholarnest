@@ -71,7 +71,7 @@ return new class extends Migration
      * The Standard plan advertised "Subdomain (scholarnest.schoolname.com)",
      * which is the wrong way round as well as the wrong name, the school is
      * the label and the platform is the domain, not the other way about. What
-     * the application actually issues is schoolname.akademicnest.com.ng.
+     * the application actually issues is schoolname.akademicanest.com.
      */
     private function fixSubdomainExample(): void
     {
@@ -90,7 +90,7 @@ return new class extends Migration
             // the migration happened to run on somebody's laptop.
             $fixed = preg_replace(
                 '/Subdomain \([A-Za-z0-9.-]+\)/i',
-                'Subdomain (schoolname.akademicnest.com.ng)',
+                'Subdomain (schoolname.akademicanest.com)',
                 $plan->features,
             );
 

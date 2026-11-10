@@ -61,7 +61,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | The base domain Standard-plan schools are given a free subdomain under
-    | (e.g. "akademicnest.com.ng" -> "greenhill.akademicnest.com.ng"). Left unset in local/
+    | (e.g. "akademicanest.com" -> "greenhill.akademicanest.com"). Left unset in local/
     | staging environments so ResolveTenantFromCustomDomain and
     | RedirectToCustomDomain never try to resolve or redirect to a domain
     | that doesn't actually point at this app, the feature only activates
@@ -70,7 +70,7 @@ return [
     | this application can set up on its own).
     |
     */
-    // Production falls back to APP_URL's host (akademicnest.com.ng), where the
+    // Production falls back to APP_URL's host (akademicanest.com), where the
     // wildcard DNS record and certificate already exist, so a missing
     // environment variable no longer silently turns every Standard school's
     // subdomain into a /p/{portal_key} path. Local, staging and tests stay off

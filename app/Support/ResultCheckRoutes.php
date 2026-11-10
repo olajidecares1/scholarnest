@@ -8,9 +8,9 @@ use App\Models\School;
  * One result-checking flow, three addresses. Each step has to link and
  * redirect inside the address the parent actually opened:
  *
- *   greenfield.akademicnest.com.ng/results           the school's own website (tenant.results.*)
- *   akademicnest.com.ng/hT4wLpZs3H8Kq2mV/result      the school's shareable link (school-result.*)
- *   akademicnest.com.ng/p/{portal_key}/check-result  the older default path (check-result.*)
+ *   greenfield.akademicanest.com/results           the school's own website (tenant.results.*)
+ *   akademicanest.com/hT4wLpZs3H8Kq2mV/result      the school's shareable link (school-result.*)
+ *   akademicanest.com/p/{portal_key}/check-result  the older default path (check-result.*)
  *
  * On the tenant address the school comes from the HOST, so nothing naming a
  * school is put into the URL at all.
