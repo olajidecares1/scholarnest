@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
 /**
  * robots.txt and sitemap.xml, answered per host.
  *
- * The platform (akademicanest.com) and every school website (its subdomain or
+ * The platform (akademicnest.com.ng) and every school website (its subdomain or
  * its own domain) are separate sites as far as a search engine is concerned,
  * and each needs its own robots.txt pointing at its own sitemap. A static
  * public/robots.txt could only ever say one thing for all of them, and the one

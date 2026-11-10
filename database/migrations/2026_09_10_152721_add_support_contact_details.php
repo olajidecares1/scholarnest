@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Schema;
  */
 return new class extends Migration
 {
-    private const EMAIL = 'support@akademicanest.com';
+    private const EMAIL = 'support@akademicnest.com.ng';
 
     /**
      * The exact phrases, matching resources/legal/*.md after the same edit.

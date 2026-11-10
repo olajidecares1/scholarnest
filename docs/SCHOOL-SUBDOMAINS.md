@@ -3,8 +3,8 @@
 Every Standard and Exclusive school has its own website address:
 
 ```
-https://akademicanest.com                    the platform (never a school)
-https://greenfield.akademicanest.com         a Standard or Exclusive school
+https://akademicnest.com.ng                    the platform (never a school)
+https://greenfield.akademicnest.com.ng         a Standard or Exclusive school
 https://greenfieldschool.com                 an Exclusive school's own domain, once verified
 ```
 
@@ -17,10 +17,10 @@ codebase, database or DNS record.
 
 ```
 browser
-  -> DNS           *.akademicanest.com  (Hostinger zone, wildcard record)
-  -> Laravel Cloud edge  (Cloudflare: TLS with the *.akademicanest.com certificate)
+  -> DNS           *.akademicnest.com.ng  (Hostinger zone, wildcard record)
+  -> Laravel Cloud edge  (Cloudflare: TLS with the *.akademicnest.com.ng certificate)
   -> Laravel Cloud compute, the one application
-  -> RedirectToCanonicalHost    www.akademicanest.com -> akademicanest.com
+  -> RedirectToCanonicalHost    www.akademicnest.com.ng -> akademicnest.com.ng
   -> routes/public.php          the {tenantDomain} group matches any host that is not the platform
   -> EnforceTenantHostBoundary  platform pages go back to the platform; another school's account is refused
   -> ResolveTenantFromCustomDomain -> App\Services\Tenancy\TenantResolver
@@ -63,7 +63,7 @@ immediately (there are no aliases), and the change is written to the audit log.
 
 ## Who is served
 
-| Plan / state | `school.akademicanest.com` | Own domain |
+| Plan / state | `school.akademicnest.com.ng` | Own domain |
 | --- | --- | --- |
 | Basic | 404 (Basic has no website) | no |
 | Standard, active | website, portals, `/results` | no |
@@ -103,7 +103,7 @@ the same page on its subdomain.
   application (`AuthorizesSchoolOwnership`). Result checking looks pupils and
   tokens up only within the resolved school.
 - **Sessions are per host.** `SESSION_DOMAIN` stays `null`. Setting it to
-  `.akademicanest.com` would share one session cookie across every school.
+  `.akademicnest.com.ng` would share one session cookie across every school.
 - **`EnforceTenantHostBoundary`** refuses a signed-in account whose school is not
   the host's school, and sends the Super Admin console and registration back to
   the platform host so they never share an origin with a school's website.
@@ -123,7 +123,7 @@ email** only. Both need changing, in this order.
 
 ### 1. Laravel Cloud: add the wildcard domain
 
-Environment **production** -> **Domains** -> **Add domain** -> `*.akademicanest.com`.
+Environment **production** -> **Domains** -> **Add domain** -> `*.akademicnest.com.ng`.
 
 Cloud then shows the DNS records it needs. Typically there are three:
 
@@ -138,7 +138,7 @@ Custom domains count against the plan's allowance (Starter: 10).
 
 ### 2. Hostinger: create those records
 
-hPanel -> Domains -> akademicanest.com -> **DNS / Nameservers** -> DNS records.
+hPanel -> Domains -> akademicnest.com.ng -> **DNS / Nameservers** -> DNS records.
 Add each record exactly as Cloud shows it.
 
 - **Keep the `_acme-challenge` CNAME permanently.** It is how the wildcard
@@ -156,7 +156,7 @@ Hostinger's "Subdomains" tab is for Hostinger web hosting and is not used here.
 Settings -> Environment -> Custom environment variables:
 
 ```
-TENANT_BASE_DOMAIN=akademicanest.com
+TENANT_BASE_DOMAIN=akademicnest.com.ng
 ```
 
 Leave `SESSION_DOMAIN` unset (null). Environment variable changes need a
@@ -170,12 +170,12 @@ php artisan production:urls        (Cloud -> Commands)
 
 Then, from a browser:
 
-- `https://akademicanest.com` shows the platform
-- `https://<a standard school's subdomain>.akademicanest.com` shows that school, padlock valid
-- `https://doesnotexist.akademicanest.com` shows "No school website at this address"
-- `https://www.akademicanest.com` lands on `https://akademicanest.com`
+- `https://akademicnest.com.ng` shows the platform
+- `https://<a standard school's subdomain>.akademicnest.com.ng` shows that school, padlock valid
+- `https://doesnotexist.akademicnest.com.ng` shows "No school website at this address"
+- `https://www.akademicnest.com.ng` lands on `https://akademicnest.com.ng`
 
-`dig +short anything.akademicanest.com` must return an answer, not NXDOMAIN.
+`dig +short anything.akademicnest.com.ng` must return an answer, not NXDOMAIN.
 
 ---
 

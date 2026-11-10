@@ -19,7 +19,7 @@ running, locking you out of the fix.
 | `APP_ENV` | `production` | Turns on the check below, and forces https URL generation. |
 | `APP_DEBUG` | `false` | Debug pages print stack traces containing database credentials to whoever triggered the error. **Enforced.** |
 | `APP_KEY` | a generated key | `php artisan key:generate`. Sessions and every `encrypted` cast depend on it, see the warning under Backups. |
-| `APP_URL` | `https://akademicanest.com` | Every link `route()` generates, every link in an email, the host stray traffic is redirected to, and the default target for custom domains. **Enforced**: an http, local or missing value is refused. |
+| `APP_URL` | `https://akademicnest.com.ng` | Every link `route()` generates, every link in an email, the host stray traffic is redirected to, and the default target for custom domains. **Enforced**: an http, local or missing value is refused. |
 | `SESSION_SECURE_COOKIE` | `true` | Without it the cookie that *is* the session is sent over plain http. **Enforced.** |
 | `SESSION_ENCRYPT` | `true` | Session payloads are otherwise readable wherever they are stored. **Enforced.** |
 
@@ -45,11 +45,11 @@ rather than the boot check refusing them.
 ### What the DNS has to look like
 
 ```
-akademicanest.com          A      <server IP>     the platform itself
-*.akademicanest.com        A      <server IP>     every Standard school
+akademicnest.com.ng          A      <server IP>     the platform itself
+*.akademicnest.com.ng        A      <server IP>     every Standard school
 ```
 
-**The wildcard needs a wildcard TLS certificate to match** (`*.akademicanest.com`).
+**The wildcard needs a wildcard TLS certificate to match** (`*.akademicnest.com.ng`).
 Without one, every Standard school's website shows a certificate warning, which
 is worse than not offering subdomains at all. Leave `TENANT_BASE_DOMAIN` blank
 until the certificate exists; turning it on later is additive and breaks no
@@ -132,7 +132,7 @@ Two consequences worth knowing before selling a plan:
   Cloud to route it and issue its certificate. Pointing DNS alone is not
   enough. Custom domains are capped per plan (Starter includes 10) and billed
   beyond that.
-- **School subdomains need `*.akademicanest.com` added under Domains, and
+- **School subdomains need `*.akademicnest.com.ng` added under Domains, and
   pre-verified.** Cloud shows three records for it (CNAME `*`, TXT
   `_cf-custom-hostname`, CNAME `_acme-challenge`), which go into the Hostinger
   DNS zone. The `_acme-challenge` CNAME must stay in place permanently, or

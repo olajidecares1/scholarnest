@@ -45,7 +45,7 @@ beforeEach(function () {
         'mail.mailers.smtp.scheme' => 'smtp',
         'mail.mailers.smtp.username' => null,
         'mail.mailers.smtp.password' => null,
-        'mail.from.address' => 'support@akademicanest.com',
+        'mail.from.address' => 'support@akademicnest.com.ng',
         'mail.from.name' => 'AkademicNest',
     ]);
     Mail::purge('smtp');
@@ -152,7 +152,7 @@ test('approving a new school delivers the welcome email and the paid invoice wit
     $toAdmin = deliveredTo('head@riverside.test');
 
     $welcome = messageWithSubject($toAdmin, 'Welcome to AkademicNest');
-    expect($welcome['from'])->toContain('support@akademicanest.com')
+    expect($welcome['from'])->toContain('support@akademicnest.com.ng')
         ->and($welcome['text'])->toContain('Riverside Academy has been approved')
         ->and($welcome['text'])->toContain('head@riverside.test')
         ->and($welcome['text'])->toContain('300 students')

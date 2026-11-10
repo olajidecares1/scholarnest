@@ -17,8 +17,8 @@ use App\Services\Tenancy\TenantResolution;
 use App\Services\Tenancy\TenantResolver;
 
 /**
- * School subdomains end to end: greenfield.akademicanest.com resolves to
- * Greenfield and only Greenfield, the platform stays on akademicanest.com, and
+ * School subdomains end to end: greenfield.akademicnest.com.ng resolves to
+ * Greenfield and only Greenfield, the platform stays on akademicnest.com.ng, and
  * nothing a visitor can change in a URL or a form moves them into another
  * school.
  */
@@ -37,13 +37,13 @@ function tenantSchool(string $name, PlanKey $plan = PlanKey::Standard, bool $pub
 
 function tenantUrl(School $school, string $path = '/'): string
 {
-    return "https://{$school->subdomain}.akademicanest.com{$path}";
+    return "https://{$school->subdomain}.akademicnest.com.ng{$path}";
 }
 
 beforeEach(function () {
     config([
-        'custom_domain.tenant_base_domain' => 'akademicanest.com',
-        'app.url' => 'https://akademicanest.com',
+        'custom_domain.tenant_base_domain' => 'akademicnest.com.ng',
+        'app.url' => 'https://akademicnest.com.ng',
     ]);
 });
 
@@ -52,7 +52,7 @@ beforeEach(function () {
 // -----------------------------------------------------------------------------
 
 test('the main domain is the platform, never a tenant', function () {
-    $resolution = app(TenantResolver::class)->resolve('akademicanest.com');
+    $resolution = app(TenantResolver::class)->resolve('akademicnest.com.ng');
 
     expect($resolution->status)->toBe(TenantResolution::CENTRAL)
         ->and($resolution->school)->toBeNull();
@@ -90,13 +90,13 @@ test('the same page on two subdomains shows two different schools', function () 
 test('lookups are case-insensitive, as hostnames are', function () {
     $school = tenantSchool('Greenfield School');
 
-    expect(app(TenantResolver::class)->schoolFor(strtoupper($school->subdomain).'.AkademicaNest.com.')?->is($school))->toBeTrue();
+    expect(app(TenantResolver::class)->schoolFor(strtoupper($school->subdomain).'.AkademicNest.Com.NG.')?->is($school))->toBeTrue();
 });
 
 test('an unknown subdomain is a 404 status page', function () {
     tenantSchool('Greenfield School');
 
-    $this->get('https://doesnotexist.akademicanest.com/')
+    $this->get('https://doesnotexist.akademicnest.com.ng/')
         ->assertNotFound()
         ->assertSee('No school website at this address')
         ->assertDontSee('Greenfield School');
@@ -105,13 +105,13 @@ test('an unknown subdomain is a 404 status page', function () {
 test('a nested or malformed label is not a school', function () {
     $school = tenantSchool('Greenfield School');
 
-    $this->get("https://evil.{$school->subdomain}.akademicanest.com/")->assertNotFound();
-    $this->get('https://green-field.akademicanest.com/')->assertNotFound();
+    $this->get("https://evil.{$school->subdomain}.akademicnest.com.ng/")->assertNotFound();
+    $this->get('https://green-field.akademicnest.com.ng/')->assertNotFound();
 });
 
 test('www goes to the platform rather than being treated as a school', function () {
-    $this->get('https://www.akademicanest.com/pricing?x=1')
-        ->assertRedirect('https://akademicanest.com/pricing?x=1')
+    $this->get('https://www.akademicnest.com.ng/pricing?x=1')
+        ->assertRedirect('https://akademicnest.com.ng/pricing?x=1')
         ->assertStatus(301);
 });
 
@@ -152,11 +152,11 @@ test('a suspended school shows the unavailable page', function () {
 test('an exclusive school without a verified domain is given its subdomain', function () {
     $school = tenantSchool('Exclusive Academy', PlanKey::Exclusive);
 
-    expect($school->websiteUrl())->toBe("https://{$school->subdomain}.akademicanest.com/")
-        ->and($school->subdomainUrl())->toBe("https://{$school->subdomain}.akademicanest.com/");
+    expect($school->websiteUrl())->toBe("https://{$school->subdomain}.akademicnest.com.ng/")
+        ->and($school->subdomainUrl())->toBe("https://{$school->subdomain}.akademicnest.com.ng/");
 
     $this->get(route('public.school-about.index', $school))
-        ->assertRedirect("https://{$school->subdomain}.akademicanest.com/about");
+        ->assertRedirect("https://{$school->subdomain}.akademicnest.com.ng/about");
 });
 
 test('an exclusive school with a verified domain keeps it, and its subdomain still works', function () {
@@ -180,8 +180,8 @@ test('links on a school subdomain stay on that subdomain', function () {
 
     $this->get(tenantUrl($school))
         ->assertOk()
-        ->assertSee("https://{$school->subdomain}.akademicanest.com/about", false)
-        ->assertSee("https://{$school->subdomain}.akademicanest.com/build/", false)
+        ->assertSee("https://{$school->subdomain}.akademicnest.com.ng/about", false)
+        ->assertSee("https://{$school->subdomain}.akademicnest.com.ng/build/", false)
         ->assertDontSee('/p/'.$school->portal_key, false);
 });
 
@@ -277,8 +277,8 @@ test('platform pages on a school subdomain are sent to the main domain', functio
     $registerPath = parse_url(route('register'), PHP_URL_PATH);
     $consolePath = parse_url(route('super-admin.dashboard'), PHP_URL_PATH);
 
-    $this->get(tenantUrl($school, $registerPath))->assertRedirect('https://akademicanest.com'.$registerPath);
-    $this->get(tenantUrl($school, $consolePath))->assertRedirect('https://akademicanest.com'.$consolePath);
+    $this->get(tenantUrl($school, $registerPath))->assertRedirect('https://akademicnest.com.ng'.$registerPath);
+    $this->get(tenantUrl($school, $consolePath))->assertRedirect('https://akademicnest.com.ng'.$consolePath);
     $this->post(tenantUrl($school, $registerPath), [])->assertNotFound();
 });
 
@@ -309,7 +309,7 @@ test('the super admin school page shows the address, plan and status', function 
     $this->actingAs($superAdmin)->get(route('super-admin.schools.show', $school))
         ->assertOk()
         ->assertSee($school->slug)
-        ->assertSee("https://{$school->subdomain}.akademicanest.com/")
+        ->assertSee("https://{$school->subdomain}.akademicnest.com.ng/")
         ->assertSee('Live');
 });
 
@@ -327,8 +327,8 @@ test('the super admin can change a subdomain, and the old one stops resolving', 
 
     auth()->logout();
 
-    $this->get("https://{$old}.akademicanest.com/")->assertNotFound();
-    $this->get('https://greenfield.akademicanest.com/')->assertOk()->assertSee('Greenfield School');
+    $this->get("https://{$old}.akademicnest.com.ng/")->assertNotFound();
+    $this->get('https://greenfield.akademicnest.com.ng/')->assertOk()->assertSee('Greenfield School');
 });
 
 test('a subdomain cannot be changed to a taken, reserved or invalid label', function () {

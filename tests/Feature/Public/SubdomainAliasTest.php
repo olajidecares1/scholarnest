@@ -32,8 +32,8 @@ function aliasSchool(PlanKey $plan = PlanKey::Standard, string $name = 'Vincent 
 
 beforeEach(function () {
     config([
-        'custom_domain.tenant_base_domain' => 'akademicanest.com',
-        'app.url' => 'https://akademicanest.com',
+        'custom_domain.tenant_base_domain' => 'akademicnest.com.ng',
+        'app.url' => 'https://akademicnest.com.ng',
     ]);
 });
 
@@ -43,22 +43,22 @@ test('the hyphenated slug is a real address and sends you to the canonical one',
     expect($school->slug)->toContain('-')
         ->and($school->subdomain)->not->toContain('-');
 
-    $this->get("http://{$school->slug}.akademicanest.com/")
-        ->assertRedirect("https://{$school->subdomain}.akademicanest.com/");
+    $this->get("http://{$school->slug}.akademicnest.com.ng/")
+        ->assertRedirect("https://{$school->subdomain}.akademicnest.com.ng/");
 });
 
 test('the redirect keeps the page you asked for, not just the front door', function () {
     $school = aliasSchool();
 
-    $this->get("http://{$school->slug}.akademicanest.com/results?year=2026")
-        ->assertRedirect("https://{$school->subdomain}.akademicanest.com/results?year=2026");
+    $this->get("http://{$school->slug}.akademicnest.com.ng/results?year=2026")
+        ->assertRedirect("https://{$school->subdomain}.akademicnest.com.ng/results?year=2026");
 });
 
 test('a form posted to the old address keeps its method, so nothing is silently lost', function () {
     $school = aliasSchool();
 
     // 301 invites the browser to retry as a GET, which throws the body away.
-    $this->post("http://{$school->slug}.akademicanest.com/contact-message")
+    $this->post("http://{$school->slug}.akademicnest.com.ng/contact-message")
         ->assertStatus(308);
 });
 
@@ -70,7 +70,7 @@ test('a school whose subdomain was never filled in is still served at its slug',
     // where it stands rather than 404ing.
     School::withoutEvents(fn () => $school->forceFill(['subdomain' => null])->saveQuietly());
 
-    $this->get("http://{$school->slug}.akademicanest.com/")
+    $this->get("http://{$school->slug}.akademicnest.com.ng/")
         ->assertOk()
         ->assertSee($school->name);
 });
@@ -81,28 +81,28 @@ test('a Basic school is not redirected into an address it may not have', functio
     // Basic has no website at all, so its slug must answer exactly as its
     // subdomain does, and not send anybody on to a second address that then
     // says something different.
-    $this->get("http://{$school->slug}.akademicanest.com/")->assertNotFound();
+    $this->get("http://{$school->slug}.akademicnest.com.ng/")->assertNotFound();
 });
 
 test('a suspended school says so at both of its addresses', function () {
     $school = aliasSchool();
     $school->update(['is_active' => false]);
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")->assertStatus(503);
-    $this->get("http://{$school->slug}.akademicanest.com/")->assertStatus(503);
+    $this->get("http://{$school->subdomain}.akademicnest.com.ng/")->assertStatus(503);
+    $this->get("http://{$school->slug}.akademicnest.com.ng/")->assertStatus(503);
 });
 
 test('a hyphenated address belonging to nobody is still a 404', function () {
     aliasSchool();
 
-    $this->get('http://no-such-school-at-all.akademicanest.com/')->assertNotFound();
+    $this->get('http://no-such-school-at-all.akademicnest.com.ng/')->assertNotFound();
 });
 
 test('a label that is not a hostname label at all costs no query', function () {
     // Leading and trailing hyphens are not legal in a DNS label, and neither
     // is an underscore. Refused at the pattern, as before.
     foreach (['-greenfield', 'greenfield-', 'green_field'] as $label) {
-        $this->get("http://{$label}.akademicanest.com/")->assertNotFound();
+        $this->get("http://{$label}.akademicnest.com.ng/")->assertNotFound();
     }
 });
 
@@ -114,6 +114,6 @@ test('two schools cannot be reached at one address', function () {
     // the second a suffix. Each address must still lead to exactly one school.
     expect($first->subdomain)->not->toBe($second->subdomain);
 
-    $this->get("http://{$first->subdomain}.akademicanest.com/")->assertOk()->assertSee($first->name);
-    $this->get("http://{$second->subdomain}.akademicanest.com/")->assertOk()->assertSee($second->name);
+    $this->get("http://{$first->subdomain}.akademicnest.com.ng/")->assertOk()->assertSee($first->name);
+    $this->get("http://{$second->subdomain}.akademicnest.com.ng/")->assertOk()->assertSee($second->name);
 });

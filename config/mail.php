@@ -111,7 +111,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'support@akademicanest.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'support@akademicnest.com.ng'),
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'AkademicNest')),
     ],
 

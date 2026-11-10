@@ -222,7 +222,7 @@ return Application::configure(basePath: dirname(__DIR__))
          *
          * Registration hands a school its subdomain at once; building the
          * website is something somebody sits down with later. Between the
-         * two, greenfield.akademicanest.com answered a bare "404 NOT FOUND",
+         * two, greenfield.akademicnest.com.ng answered a bare "404 NOT FOUND",
          * so the first thing a new school saw at its own address was the
          * platform apparently broken, with nothing on the page to say the
          * address was right or that their portal was already live at it.

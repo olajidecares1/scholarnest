@@ -15,9 +15,9 @@ use App\Models\School;
  * second copy of the rules to drift out of step (an older copy matched the
  * slug, with its hyphens, against the host and never found anyone).
  *
- *   akademicanest.com                   the platform, never a tenant
- *   www.akademicanest.com               a platform alias, sent to the platform
- *   greenfield.akademicanest.com        the school whose `subdomain` is greenfield
+ *   akademicnest.com.ng                   the platform, never a tenant
+ *   www.akademicnest.com.ng               a platform alias, sent to the platform
+ *   greenfield.akademicnest.com.ng        the school whose `subdomain` is greenfield
  *   greenfieldschool.com                an Exclusive school's verified custom domain
  *
  * Plans, as sold:
@@ -115,7 +115,7 @@ class TenantResolver
             return new TenantResolution(TenantResolution::PLATFORM_ALIAS, via: 'subdomain');
         }
 
-        // One DNS label only. a.b.akademicanest.com is not a school address,
+        // One DNS label only. a.b.akademicnest.com.ng is not a school address,
         // and anything outside the characters a hostname label may contain
         // cannot be one either, so neither costs a database query.
         //
@@ -124,7 +124,7 @@ class TenantResolver
         // slug does, and the hyphenated form is the one that gets typed:
         // it is the school's address on the platform host, so it is what
         // people copy, shorten and print. Refusing it at the pattern meant
-        // "vincent-martins-college.akademicanest.com" never reached a query at
+        // "vincent-martins-college.akademicnest.com.ng" never reached a query at
         // all and 404'd, while a one-word school, whose slug and subdomain are
         // the same string, worked. That is exactly the shape of "it works for
         // some schools and not others".

@@ -472,8 +472,8 @@ relief, or a user from complaining to a data protection authority.
 | Operator | [TO BE PROVIDED] |
 | Registered address | [TO BE PROVIDED] |
 | Registration number | [TO BE PROVIDED] |
-| General enquiries | support@akademicanest.com |
-| Privacy enquiries | support@akademicanest.com |
+| General enquiries | support@akademicnest.com.ng |
+| Privacy enquiries | support@akademicnest.com.ng |
 
 ## 42. General
 

@@ -115,7 +115,7 @@ describe('the stored copies of the name', function () {
 
         // "scholarnest.schoolname.com" had it backwards as well as misnamed,
         // the school is the label, the platform is the domain.
-        expect($plan->refresh()->features)->toContain('Subdomain (schoolname.akademicanest.com)');
+        expect($plan->refresh()->features)->toContain('Subdomain (schoolname.akademicnest.com.ng)');
     });
 
     test('the domain in that copy is not whichever machine ran the migration', function () {

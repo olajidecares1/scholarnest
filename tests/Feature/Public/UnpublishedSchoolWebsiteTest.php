@@ -27,15 +27,15 @@ function newlyRegisteredSchool(PlanKey $plan = PlanKey::Standard): School
 
 beforeEach(function () {
     config([
-        'custom_domain.tenant_base_domain' => 'akademicanest.com',
-        'app.url' => 'https://akademicanest.com',
+        'custom_domain.tenant_base_domain' => 'akademicnest.com.ng',
+        'app.url' => 'https://akademicnest.com.ng',
     ]);
 });
 
 test('a school with no website yet is not a 404 at its own address', function () {
     $school = newlyRegisteredSchool();
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")
+    $this->get("http://{$school->subdomain}.akademicnest.com.ng/")
         ->assertOk()
         ->assertSee($school->name)
         ->assertSee('Website coming soon');
@@ -44,7 +44,7 @@ test('a school with no website yet is not a 404 at its own address', function ()
 test('and it points at the portal, which already works there', function () {
     $school = newlyRegisteredSchool();
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")
+    $this->get("http://{$school->subdomain}.akademicnest.com.ng/")
         ->assertOk()
         ->assertSee('/portal', false)
         ->assertSee('Go to the portal');
@@ -53,7 +53,7 @@ test('and it points at the portal, which already works there', function () {
 test('an unfinished site is never indexed as the school\'s web presence', function () {
     $school = newlyRegisteredSchool();
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")
+    $this->get("http://{$school->subdomain}.akademicnest.com.ng/")
         ->assertSee('name="robots" content="noindex"', false);
 });
 
@@ -61,7 +61,7 @@ test('a website that exists but is still a draft behaves the same way', function
     $school = newlyRegisteredSchool();
     $school->website()->create(['hero_title' => 'Welcome', 'is_published' => false]);
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")
+    $this->get("http://{$school->subdomain}.akademicnest.com.ng/")
         ->assertOk()
         ->assertSee('Website coming soon');
 });
@@ -70,7 +70,7 @@ test('publishing replaces it with the real website, and nothing else changes', f
     $school = newlyRegisteredSchool();
     $website = $school->website()->create(['hero_title' => 'Welcome to Top Excellence', 'is_published' => false]);
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")->assertSee('Website coming soon');
+    $this->get("http://{$school->subdomain}.akademicnest.com.ng/")->assertSee('Website coming soon');
 
     $website->update(['is_published' => true]);
 
@@ -80,7 +80,7 @@ test('publishing replaces it with the real website, and nothing else changes', f
     // without this the second would be answered from the first one's cache.
     $this->app->forgetScopedInstances();
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")
+    $this->get("http://{$school->subdomain}.akademicnest.com.ng/")
         ->assertOk()
         ->assertSee($school->name)
         // The real website, not the holding page.
@@ -91,7 +91,7 @@ test('the marketing pages answer the same way rather than each 404ing', function
     $school = newlyRegisteredSchool();
 
     foreach (['/about', '/news', '/events', '/contact', '/admissions'] as $path) {
-        $this->get("http://{$school->subdomain}.akademicanest.com{$path}")
+        $this->get("http://{$school->subdomain}.akademicnest.com.ng{$path}")
             ->assertOk()
             ->assertSee('Website coming soon');
     }
@@ -110,7 +110,7 @@ test('a Basic school is still a 404, because it has no website to publish', func
 test('an API client is still told there is no website here', function () {
     $school = newlyRegisteredSchool();
 
-    $this->getJson("http://{$school->subdomain}.akademicanest.com/")
+    $this->getJson("http://{$school->subdomain}.akademicnest.com.ng/")
         ->assertNotFound()
         ->assertJsonPath('message', "{$school->name} has not published a website yet.");
 });
@@ -119,7 +119,7 @@ test('the page wears the school\'s own badge and nobody else\'s', function () {
     $school = newlyRegisteredSchool();
     $other = activateSchool(School::factory()->create(['name' => 'Riverside Academy']), PlanKey::Standard)->fresh();
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")
+    $this->get("http://{$school->subdomain}.akademicnest.com.ng/")
         ->assertSee($school->name)
         ->assertDontSee($other->name);
 });

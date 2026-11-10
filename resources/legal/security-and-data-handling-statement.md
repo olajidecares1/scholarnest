@@ -184,7 +184,7 @@ a provider we rely on suffers a breach, we will:
 6. **Record** the incident and take steps to prevent it from happening again.
 
 To report a vulnerability or a suspected incident, contact
-**support@akademicanest.com**. Please report issues rather than investigating them
+**support@akademicnest.com.ng**. Please report issues rather than investigating them
 yourself. We will not take action against anyone who reports a vulnerability in
 good faith.
 
@@ -192,8 +192,8 @@ good faith.
 
 | | |
 | --- | --- |
-| Security reports | support@akademicanest.com |
-| Data protection enquiries | support@akademicanest.com |
+| Security reports | support@akademicnest.com.ng |
+| Data protection enquiries | support@akademicnest.com.ng |
 
 <!-- internal:start -->
 ## Remediation plan (AkademicNest Team only)

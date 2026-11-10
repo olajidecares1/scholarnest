@@ -92,7 +92,7 @@ Route::group([
         ->post('/contact-message', [PublicContactMessageController::class, 'store'])
         ->name('contact-message.store');
 
-    // Result checking on the school's own website, greenfield.akademicanest.com/results.
+    // Result checking on the school's own website, greenfield.akademicnest.com.ng/results.
     // The same controller and the same token rules as the school's shareable
     // result link; the school comes from the host, so nothing in these URLs
     // names or identifies it. Only Standard and Exclusive schools resolve on a
@@ -158,7 +158,7 @@ Route::get('/robots.txt', [SeoController::class, 'platformRobots'])->name('robot
 Route::get('/sitemap.xml', [SeoController::class, 'platformSitemap'])->name('sitemap');
 
 // The platform's front door, and the page search engines index as
-// akademicanest.com. It used to answer every guest with a 302 to the
+// akademicnest.com.ng. It used to answer every guest with a 302 to the
 // sign-in route, which 302'd again to a 128-character hashed registration
 // address, so the homepage Google saw was two temporary redirects to a URL
 // nobody would search for. Guests now get the registration page right here,

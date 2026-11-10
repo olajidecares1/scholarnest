@@ -236,9 +236,9 @@ effect.
 
 | | |
 | --- | --- |
-| Data protection enquiries | support@akademicanest.com |
+| Data protection enquiries | support@akademicnest.com.ng |
 | Data Protection Officer | [TO BE PROVIDED] |
-| Support | support@akademicanest.com |
+| Support | support@akademicnest.com.ng |
 
 <!-- internal:start -->
 ---
