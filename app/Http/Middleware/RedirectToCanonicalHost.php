@@ -55,6 +55,16 @@ class RedirectToCanonicalHost
         $canonical = $this->canonicalHttpHost();
         $canonicalHost = parse_url((string) config('app.url'), PHP_URL_HOST);
 
+        // Another domain the platform is reachable at (PLATFORM_REDIRECT_DOMAINS),
+        // or its www. form, goes to APP_URL whatever the path. Like the www
+        // alias below, this is the platform under another name, never a school,
+        // so it is answered here, before the tenant routing would 404 it.
+        if ($canonical !== null && $this->isRedirectedPlatformDomain($request->getHost(), (string) $canonicalHost)) {
+            $scheme = parse_url((string) config('app.url'), PHP_URL_SCHEME) ?: $request->getScheme();
+
+            return redirect()->away($scheme.'://'.$canonical.$request->getRequestUri(), 301);
+        }
+
         // www.akademicnest.com.ng is the platform under another name, never a
         // school, so it goes to the platform whatever the path. Handled here,
         // before routing, because most platform paths do not exist in the
@@ -98,6 +108,26 @@ class RedirectToCanonicalHost
         // 301, so a browser that has been going to the IP stops doing it on its
         // own rather than being corrected on every request for ever.
         return redirect()->away($scheme.'://'.$canonical.$request->getRequestUri(), 301);
+    }
+
+    private function isRedirectedPlatformDomain(string $host, string $canonicalHost): bool
+    {
+        $host = strtolower($host);
+
+        // Never the canonical host itself, which would redirect to itself.
+        if ($host === strtolower($canonicalHost)) {
+            return false;
+        }
+
+        foreach ((array) config('custom_domain.platform_redirect_domains', []) as $domain) {
+            $domain = strtolower(trim((string) $domain));
+
+            if ($domain !== '' && ($host === $domain || $host === "www.{$domain}")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function isWwwAliasOfPlatform(string $host, string $canonicalHost): bool
