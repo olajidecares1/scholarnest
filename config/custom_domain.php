@@ -79,4 +79,22 @@ return [
         ?: (env('APP_ENV') === 'production'
             ? (parse_url((string) env('APP_URL'), PHP_URL_HOST) ?: null)
             : null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Other Platform Domains
+    |--------------------------------------------------------------------------
+    |
+    | Further domains the platform itself is reachable at, besides APP_URL's
+    | host. Every GET or HEAD request on one of them (or its www. form) is
+    | sent, path and all, to APP_URL with a 301, so the platform keeps one
+    | address for links, sessions and search engines.
+    |
+    | Comma-separated: PLATFORM_REDIRECT_DOMAINS=akademicnest.com.ng
+    |
+    */
+    'platform_redirect_domains' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', strtolower((string) env('PLATFORM_REDIRECT_DOMAINS', ''))),
+    ))),
 ];
