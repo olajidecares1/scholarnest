@@ -35,6 +35,13 @@ final class Favicon
      */
     private const FALLBACK = 'favicon-32x32.png';
 
+    /**
+     * Bumped whenever the bundled icon changes. Browsers keep a favicon for
+     * days under the same address, so without a new one a returning visitor
+     * goes on seeing the old icon (or another domain's) after it is replaced.
+     */
+    private const FALLBACK_VERSION = '2';
+
     private function __construct(
         public readonly string $href,
         public readonly string $type,
@@ -71,7 +78,7 @@ final class Favicon
         }
 
         if (! $path) {
-            return $platformFallback ? new self(asset(self::FALLBACK), 'image/png') : null;
+            return $platformFallback ? new self(asset(self::FALLBACK).'?v='.self::FALLBACK_VERSION, 'image/png') : null;
         }
 
         return new self(
