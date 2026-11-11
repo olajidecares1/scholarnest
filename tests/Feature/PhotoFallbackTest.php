@@ -44,7 +44,8 @@ test('a photograph whose file exists is shown', function () {
     $this->actingAs($staff, 'staff')
         ->get(route('staff.dashboard', $school))
         ->assertOk()
-        ->assertSee('data-fallback="S"', false)
+        // The header photograph falls back to the person's initials.
+        ->assertSee('data-fallback="'.$staff->fresh()->initials().'"', false)
         ->assertSee('/media/staff/', false);
 });
 
@@ -58,7 +59,7 @@ test('the staff dashboard photograph carries its initials fallback in lists', fu
         'photo_path' => 'staff/missing.jpg',
     ]);
 
-    // With the file missing the banner shows the initials straight away.
+    // With the file missing the header shows the initial straight away.
     $this->actingAs($staff, 'staff')
         ->get(route('staff.dashboard', $school))
         ->assertOk()

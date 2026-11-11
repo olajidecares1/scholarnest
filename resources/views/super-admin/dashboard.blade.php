@@ -1,13 +1,5 @@
 <x-super-admin-layout page-title="Dashboard" page-subtitle="Platform overview and recent activity.">
     <div class="space-y-6">
-        <x-welcome-banner
-            :photo-url="auth()->user()->availablePhotoUrl()"
-            :initials="Str::of(auth()->user()->name)->substr(0, 1)->upper()"
-            :name="auth()->user()->name"
-            role-label="AkademicNest Team"
-            subtitle="Here's the platform at a glance."
-        />
-
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             @foreach ([
                 ['key' => 'schools', 'isCurrency' => false, 'badge' => 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400', 'stroke' => '#1877f2', 'icon' => 'M4 21h16M5 21V10M19 21V10M3 10l9-6 9 6M8 10v11M12 10v11M16 10v11'],
