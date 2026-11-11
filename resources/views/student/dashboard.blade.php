@@ -1,15 +1,5 @@
 <x-student-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.$student->first_name.'!'">
     <div class="space-y-4 sm:space-y-6">
-        {{-- Welcome banner --}}
-        <x-welcome-banner
-            compact
-            :photo-url="$student->availablePhotoUrl()"
-            :initials="Str::of($student->first_name)->substr(0, 1)->upper()"
-            :name="$student->fullName()"
-            role-label="Student"
-            subtitle="Stay consistent and never stop learning."
-        />
-
         {{-- The home screen: every feature this pupil may use, grouped,
              as an icon over its name. It replaced a grid of large cards
              that were navigation dressed as content, four of them filled
