@@ -78,16 +78,6 @@
             @endswitch
         </div>
     @else
-        <div class="mb-6">
-            <x-welcome-banner
-                :photo-url="auth()->user()->availablePhotoUrl()"
-                :initials="Str::of(auth()->user()->name)->substr(0, 1)->upper()"
-                :name="auth()->user()->name"
-                role-label="School Administrator"
-                :subtitle="'Here\'s '.$school->name.' at a glance.'"
-            />
-        </div>
-
         @if ($capacity)
             <x-student-capacity-card :capacity="$capacity" class="mb-6" />
         @endif
