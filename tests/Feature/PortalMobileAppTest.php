@@ -371,25 +371,24 @@ test('the phone layout is compact where it used to be tall', function () {
         ->assertOk()
         ->getContent();
 
-    // The welcome banner cost roughly a third of a small screen before the
-    // first thing a pupil came to do. Compact halves it and grows on a tablet.
-    expect($html)->toContain('h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[12px]')
+    // No welcome banner at all now: the home screen opens on the first thing
+    // a pupil came to do.
+    expect($html)->not->toContain('Stay consistent and never stop learning.')
         ->and($html)->not->toContain('sm:h-28 sm:w-28')
 
         // Tighter rhythm on a phone, the old spacing back on a tablet.
         ->and($html)->toContain('space-y-4 sm:space-y-6');
 });
 
-test('the two admin dashboards keep the full-size banner', function () {
-    $banner = file_get_contents(resource_path('views/components/welcome-banner.blade.php'));
+test('no dashboard renders the welcome banner', function () {
+    // Removed from every dashboard: AkademicNest Team, School Admin, Staff,
+    // Student and Parent. The component is gone too, so nothing can bring the
+    // card back by accident.
+    expect(file_exists(resource_path('views/components/welcome-banner.blade.php')))->toBeFalse();
 
-    // Compact is opt-in, so the shared component still renders the original
-    // for the two dashboards that are out of scope for this change.
-    expect($banner)->toContain('sm:h-28 sm:w-28');
-
-    foreach (['dashboard', 'super-admin/dashboard'] as $view) {
+    foreach (['dashboard', 'super-admin/dashboard', 'staff/dashboard', 'student/dashboard', 'guardian/dashboard'] as $view) {
         expect(file_get_contents(resource_path("views/{$view}.blade.php")))
-            ->not->toContain('compact');
+            ->not->toContain('x-welcome-banner');
     }
 });
 
