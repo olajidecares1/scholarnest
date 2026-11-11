@@ -1,13 +1,5 @@
 <x-staff-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.$staff->first_name.'!'">
     <div class="space-y-4 sm:space-y-6">
-        <x-welcome-banner
-            compact
-            :photo-url="$staff->availablePhotoUrl()"
-            :initials="Str::of($staff->first_name)->substr(0, 1)->upper()"
-            :name="$staff->fullName()"
-            :role-label="$staff->role->label()"
-            subtitle="Have a productive day at work."
-        />
         @php
             // CBT, the diary, ID cards and the timetable stay on Standard and
             // Exclusive. This portal is open to every plan, so the panels below
