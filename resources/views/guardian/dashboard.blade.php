@@ -1,14 +1,5 @@
 <x-guardian-layout page-title="Dashboard" :page-subtitle="'Welcome back, '.$guardian->name.'!'" :active-child="$activeChild">
     <div class="space-y-4 sm:space-y-6">
-        <x-welcome-banner
-            compact
-            :photo-url="$guardian->availablePhotoUrl()"
-            :initials="Str::of($guardian->name)->substr(0, 1)->upper()"
-            :name="$guardian->name"
-            role-label="Parent / Guardian"
-            :subtitle="'Here\'s an overview of '.$activeChild->first_name.'\'s school life.'"
-        />
-
         @if ($children->count() > 1)
             <div class="flex flex-wrap gap-2">
                 @foreach ($children as $child)
