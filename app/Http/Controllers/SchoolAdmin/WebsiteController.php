@@ -9,6 +9,7 @@ use App\Models\HeroSlide;
 use App\Models\NavLink;
 use App\Models\School;
 use App\Models\SchoolGalleryImage;
+use App\Models\SchoolWebsite;
 use App\Rules\UploadedImage;
 use App\Services\Uploads\UploadStorage;
 use App\Support\Uploads\ImageProfile;
@@ -406,15 +407,7 @@ class WebsiteController extends Controller
      */
     private function defaultAttributes(School $school): array
     {
-        return [
-            'hero_title' => $school->name,
-            'stats' => [
-                ['label' => 'Students', 'value' => $school->students()->count().'+'],
-                ['label' => 'Qualified Staff', 'value' => (string) $school->staff()->count()],
-                ['label' => 'Classes Offered', 'value' => (string) $school->schoolClasses()->count()],
-                ['label' => 'Academic Levels', 'value' => (string) $school->academicLevels()->count()],
-            ],
-        ];
+        return SchoolWebsite::defaultAttributesFor($school);
     }
 
     /**

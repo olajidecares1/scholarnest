@@ -111,12 +111,22 @@ describe('Standard plan', function () {
             ->not->toContain('greenfieldcollege.akademicanest.com');
     });
 
-    test('with no website published yet it falls back to the portal landing', function () {
+    test('with no website built yet its front door is still its website', function () {
         $school = addressedSchoolOn(PlanKey::Standard);
 
-        // The plan includes a website; this school has not made one. Sending
-        // a visitor to the empty shell of an unpublished site helps nobody,
-        // so they get the page that tells them where to sign in.
+        // The plan includes a website and it is live by default: the public
+        // site builds the default one on the first visit.
+        expect($school->websiteUrl())->not->toBeNull()
+            ->and($school->frontDoorUrl())->toBe($school->websiteUrl());
+    });
+
+    test('with its website unpublished it falls back to the portal landing', function () {
+        $school = addressedSchoolOn(PlanKey::Standard);
+        $school->website()->create(['hero_title' => 'Welcome', 'is_published' => false]);
+        $school = $school->fresh();
+
+        // The admin took the site down. Sending a visitor to it helps
+        // nobody, so they get the page that tells them where to sign in.
         expect($school->websiteUrl())->toBeNull()
             ->and($school->frontDoorUrl())->toBe(route('basic-portal.school', $school));
 

@@ -17,7 +17,6 @@ beforeEach(function () {
         'hero_title' => 'Welcome to Our School',
         'about_text' => 'A great place to learn.',
     ]);
-    $this->actingAs($this->admin)->post(route('website.publish'));
 });
 
 test('the public homepage shows published news, events, and jobs', function () {

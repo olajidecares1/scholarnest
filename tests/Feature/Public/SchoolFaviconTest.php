@@ -9,7 +9,6 @@ beforeEach(function () {
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
     activateSchool($this->school);
     $this->school->website()->create(['hero_title' => 'Welcome']);
-    $this->actingAs($this->admin)->post(route('website.publish'));
 });
 
 test('a school with no favicon renders an empty icon link, never AkademicNest\'s own favicon', function () {

@@ -62,11 +62,11 @@
         @endif
 
         <h1>{{ $school->name }}</h1>
-        <span class="status">Website coming soon</span>
+        <span class="status">Website offline</span>
 
         <p>
-            You are at the right address. This school's website has not been
-            published yet, but its portal is already open.
+            You are at the right address. This school's website is offline
+            at the moment, but its portal is open.
         </p>
 
         <div class="actions">

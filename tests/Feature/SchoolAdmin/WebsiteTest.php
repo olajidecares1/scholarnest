@@ -102,28 +102,37 @@ test('updating one settings form does not clobber data saved under another', fun
     expect($website->contact_email)->toBe('info@brightfuture.test');
 });
 
-test('a school admin can publish and unpublish the website', function () {
-    $this->actingAs($this->admin)->post(route('website.publish'));
-    expect($this->school->fresh()->website->is_published)->toBeTrue();
-
+test('a school admin can unpublish and republish the website', function () {
+    // Live by default, so the first press takes it down.
     $this->actingAs($this->admin)->post(route('website.publish'));
     expect($this->school->fresh()->website->is_published)->toBeFalse();
+
+    $this->actingAs($this->admin)->post(route('website.publish'));
+    expect($this->school->fresh()->website->is_published)->toBeTrue();
+});
+
+test('the public website page is live before the admin has touched anything', function () {
+    // No website row at all. The school gets its default website, built
+    // from its own name, rather than a holding page.
+    $this->get(route('public.school-website', $this->school))
+        ->assertOk()
+        ->assertSee($this->school->name)
+        ->assertDontSee('Website offline');
+
+    expect($this->school->fresh()->website->is_published)->toBeTrue();
 });
 
 test('the public website page holds the address while it is unpublished', function () {
-    // It used to 404. A school's address is live from the moment it
-    // registers, and the website is built later, so a bare "404 NOT FOUND"
-    // was the first thing most new schools saw at their own address. The
-    // draft is still not served; what is served is the school's own holding
-    // page, with a way into the portal that already works there.
+    $this->actingAs($this->admin)->post(route('website.publish'));
+
     $this->get(route('public.school-website', $this->school))
         ->assertOk()
-        ->assertSee('Website coming soon')
+        ->assertSee('Website offline')
         ->assertSee($this->school->name);
 });
 
 test('the public website page shows content once published', function () {
-    $this->actingAs($this->admin)->post(route('website.publish'));
+    $this->actingAs($this->admin)->get(route('website.index'));
 
     $this->get(route('public.school-website', $this->school))
         ->assertStatus(200)
@@ -131,10 +140,12 @@ test('the public website page shows content once published', function () {
 });
 
 test('the marketing pages hold the address too, rather than each 404ing', function () {
+    $this->actingAs($this->admin)->post(route('website.publish'));
+
     foreach (['public.school-about.index', 'public.school-contact.index'] as $route) {
         $this->get(route($route, $this->school))
             ->assertOk()
-            ->assertSee('Website coming soon');
+            ->assertSee('Website offline');
     }
 });
 
@@ -143,7 +154,6 @@ test('the public contact us page shows content once published', function () {
         'contact_email' => 'info@brightfuture.test',
         'contact_phone' => '08012345678',
     ]);
-    $this->actingAs($this->admin)->post(route('website.publish'));
 
     $this->get(route('public.school-contact.index', $this->school))
         ->assertStatus(200)
@@ -249,7 +259,6 @@ test('a school admin cannot modify another school\'s nav link', function () {
 });
 
 test('the public homepage uses custom nav links when present, falling back to the default menu otherwise', function () {
-    $this->actingAs($this->admin)->post(route('website.publish'));
 
     $this->get(route('public.school-website', $this->school))->assertDontSee('Alumni Portal');
 
@@ -264,7 +273,6 @@ test('the public homepage uses hero slides when present, falling back to the sin
     $this->actingAs($this->admin)->put(route('website.update-header-hero-fields'), [
         'hero_image' => UploadedFile::fake()->image('fallback.jpg', 800, 400),
     ]);
-    $this->actingAs($this->admin)->post(route('website.publish'));
 
     $fallbackUrl = $this->school->fresh()->website->heroImageUrl();
     $this->get(route('public.school-website', $this->school))->assertSee($fallbackUrl, false);

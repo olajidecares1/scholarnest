@@ -32,17 +32,44 @@ beforeEach(function () {
     ]);
 });
 
-test('a school with no website yet is not a 404 at its own address', function () {
+test('a school with no website yet gets its default website at its own address', function () {
     $school = newlyRegisteredSchool();
 
     $this->get("http://{$school->subdomain}.akademicanest.com/")
         ->assertOk()
         ->assertSee($school->name)
-        ->assertSee('Website coming soon');
+        ->assertDontSee('Website offline')
+        ->assertDontSee('name="robots" content="noindex"', false);
+
+    // Created on the first visit, live, so the school admin opens the same
+    // site in the website manager.
+    expect($school->fresh()->website)->not->toBeNull()
+        ->and($school->fresh()->website->is_published)->toBeTrue();
+});
+
+test('the marketing pages answer with the default website too', function () {
+    $school = newlyRegisteredSchool();
+
+    foreach (['/about', '/news', '/events', '/contact', '/admissions'] as $path) {
+        $this->get("http://{$school->subdomain}.akademicanest.com{$path}")
+            ->assertOk()
+            ->assertDontSee('Website offline');
+    }
+});
+
+test('a website its admin unpublished holds the address instead of 404ing', function () {
+    $school = newlyRegisteredSchool();
+    $school->website()->create(['hero_title' => 'Welcome', 'is_published' => false]);
+
+    $this->get("http://{$school->subdomain}.akademicanest.com/")
+        ->assertOk()
+        ->assertSee($school->name)
+        ->assertSee('Website offline');
 });
 
 test('and it points at the portal, which already works there', function () {
     $school = newlyRegisteredSchool();
+    $school->website()->create(['hero_title' => 'Welcome', 'is_published' => false]);
 
     $this->get("http://{$school->subdomain}.akademicanest.com/")
         ->assertOk()
@@ -50,27 +77,19 @@ test('and it points at the portal, which already works there', function () {
         ->assertSee('Go to the portal');
 });
 
-test('an unfinished site is never indexed as the school\'s web presence', function () {
+test('an offline site is never indexed as the school\'s web presence', function () {
     $school = newlyRegisteredSchool();
+    $school->website()->create(['hero_title' => 'Welcome', 'is_published' => false]);
 
     $this->get("http://{$school->subdomain}.akademicanest.com/")
         ->assertSee('name="robots" content="noindex"', false);
 });
 
-test('a website that exists but is still a draft behaves the same way', function () {
-    $school = newlyRegisteredSchool();
-    $school->website()->create(['hero_title' => 'Welcome', 'is_published' => false]);
-
-    $this->get("http://{$school->subdomain}.akademicanest.com/")
-        ->assertOk()
-        ->assertSee('Website coming soon');
-});
-
-test('publishing replaces it with the real website, and nothing else changes', function () {
+test('republishing replaces it with the real website', function () {
     $school = newlyRegisteredSchool();
     $website = $school->website()->create(['hero_title' => 'Welcome to Top Excellence', 'is_published' => false]);
 
-    $this->get("http://{$school->subdomain}.akademicanest.com/")->assertSee('Website coming soon');
+    $this->get("http://{$school->subdomain}.akademicanest.com/")->assertSee('Website offline');
 
     $website->update(['is_published' => true]);
 
@@ -83,18 +102,7 @@ test('publishing replaces it with the real website, and nothing else changes', f
     $this->get("http://{$school->subdomain}.akademicanest.com/")
         ->assertOk()
         ->assertSee($school->name)
-        // The real website, not the holding page.
-        ->assertDontSee('Website coming soon');
-});
-
-test('the marketing pages answer the same way rather than each 404ing', function () {
-    $school = newlyRegisteredSchool();
-
-    foreach (['/about', '/news', '/events', '/contact', '/admissions'] as $path) {
-        $this->get("http://{$school->subdomain}.akademicanest.com{$path}")
-            ->assertOk()
-            ->assertSee('Website coming soon');
-    }
+        ->assertDontSee('Website offline');
 });
 
 test('a Basic school is still a 404, because it has no website to publish', function () {

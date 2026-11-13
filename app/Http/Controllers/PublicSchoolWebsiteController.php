@@ -165,16 +165,24 @@ class PublicSchoolWebsiteController extends Controller
      *                              address look like a broken platform, on
      *                              the day a school is most likely to try it.
      *
-     * The second now renders the school's own holding page. See
+     * The second no longer exists: a school with the plan but no website row
+     * gets its default website created here, live, on the first visit, so its
+     * address shows a real site from day one. The holding page is now only for
+     * a school whose admin deliberately unpublished. See
      * App\Exceptions\SchoolWebsiteNotPublished.
      */
     private function publishedWebsite(School $school): SchoolWebsite
     {
         abort_unless($school->hasPlanAccess(PlanKey::Standard, PlanKey::Exclusive), 404);
 
-        $website = $school->website;
+        // createOrFirst rather than firstOrCreate: two first visits arriving
+        // together must not both try to insert, school_id is unique.
+        $website = $school->website
+            ?? $school->website()->createOrFirst([], SchoolWebsite::defaultAttributesFor($school));
 
-        if (! $website || ! $website->is_published) {
+        $school->setRelation('website', $website);
+
+        if (! $website->is_published) {
             throw new SchoolWebsiteNotPublished($school);
         }
 

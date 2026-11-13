@@ -203,8 +203,9 @@ test('a standard school with a website is sent to it instead', function () {
     $this->get('/'.$school->portal_key)->assertRedirect($school->fresh()->websiteUrl());
 });
 
-test('a standard school with no website published yet gets the portal hub, not a redirect into nothing', function () {
+test('a standard school with its website unpublished gets the portal hub, not a redirect into nothing', function () {
     $school = nonBasicSchool('Royal College', PlanKey::Standard);
+    $school->website()->create(['hero_title' => 'Welcome', 'is_published' => false]);
 
     // This used to redirect anyway, to an address the public site answers
     // with 404, so a school that had not yet built its website sent every

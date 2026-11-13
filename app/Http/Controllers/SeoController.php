@@ -85,8 +85,11 @@ class SeoController extends Controller
 
         // Exactly the conditions under which the website pages answer 200,
         // see PublicSchoolWebsiteController::publishedWebsite().
-        if ($website && $website->is_published && $school->hasPlanAccess(PlanKey::Standard, PlanKey::Exclusive)) {
-            $updated = $website->updated_at;
+        // A school with no website row yet gets its default website on the
+        // first visit, so it is listed too; only a deliberately unpublished
+        // website is left out.
+        if (($website?->is_published ?? true) && $school->hasPlanAccess(PlanKey::Standard, PlanKey::Exclusive)) {
+            $updated = $website?->updated_at;
 
             $urls[] = ['loc' => $school->publicUrl('public.school-website'), 'lastmod' => $updated, 'priority' => '1.0', 'changefreq' => 'weekly'];
 

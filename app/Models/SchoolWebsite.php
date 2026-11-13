@@ -15,6 +15,21 @@ class SchoolWebsite extends Model
     use HasFactory, HasUuidRouteKey;
 
     /**
+     * Live by default.
+     *
+     * A Standard or Exclusive school gets a working website at its own address
+     * the moment it has the plan, built from its name, badge and colours, and
+     * the school admin edits it from there. Unpublishing is the deliberate act,
+     * not publishing: a school that has never opened the website manager used
+     * to show "Website coming soon" at its own address indefinitely.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'is_published' => true,
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>

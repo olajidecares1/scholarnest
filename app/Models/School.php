@@ -1401,8 +1401,11 @@ class School extends Model
      */
     public function hasPublicWebsite(): bool
     {
+        // No website row yet still counts: the public site creates its
+        // default website, live, on the first visit. Only a website its admin
+        // deliberately unpublished is missing.
         return $this->canUseFeature(PlanFeature::Website)
-            && (bool) $this->website?->is_published;
+            && ($this->website?->is_published ?? true);
     }
 
     /**

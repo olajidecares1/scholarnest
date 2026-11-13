@@ -12,7 +12,6 @@ beforeEach(function () {
     $this->admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $this->school->id]);
     activateSchool($this->school);
     $this->school->website()->create(['hero_title' => 'Welcome to Our School', 'about_text' => 'A great place to learn.']);
-    $this->actingAs($this->admin)->post(route('website.publish'));
 });
 
 test('the public homepage renders the default blocks when nothing has been saved', function () {
