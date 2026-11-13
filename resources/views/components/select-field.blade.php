@@ -42,9 +42,17 @@
     $needsPlaceholderOption = $optionList->doesntContain(fn (array $option) => $option['value'] === '');
 @endphp
 
+{{-- An assignable model ("form.class_name") is two-way, as before. One that
+     only reads ("editing ? editing.gender : 'male'") cannot be assigned to:
+     as x-model it failed to compile and the select never showed the record's
+     value, so it is followed one way instead. See App\Support\AlpineModel. --}}
 <div
     x-modelable="value"
-    @if ($model) x-model="{{ $model }}" @endif
+    @if ($model && \App\Support\AlpineModel::isAssignable($model))
+        x-model="{{ $model }}"
+    @elseif ($model)
+        x-effect="{{ \App\Support\AlpineModel::followExpression($model, 'value') }}"
+    @endif
     x-data="{ value: @js($resolvedValue) }"
 >
     @if ($label)

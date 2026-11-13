@@ -32,6 +32,9 @@
     // An email, phone, password or date field that was not given an icon gets
     // the obvious one, so no field of those kinds is left bare.
     $icon = $icon ?: \App\Support\FieldIcon::forType($type);
+    // "editing ? editing.name : ''" fills the field; it cannot be typed
+    // back into, so it is bound one way. See App\Support\AlpineModel.
+    $attributes = \App\Support\AlpineModel::oneWayWhereNeeded($attributes);
     $id = $attributes->get('id') ?? $name;
     $bag = $errors->getBag($errorBag);
     $errorMessages = $bag->get($name);

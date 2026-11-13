@@ -15,6 +15,9 @@
 ])
 
 @php
+    // "editing ? editing.name : ''" fills the field; it cannot be typed
+    // back into, so it is bound one way. See App\Support\AlpineModel.
+    $attributes = \App\Support\AlpineModel::oneWayWhereNeeded($attributes);
     $id = $attributes->get('id') ?? $name;
     $bag = $errors->getBag($errorBag);
     $errorMessages = $bag->get($name);
