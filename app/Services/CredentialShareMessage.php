@@ -31,11 +31,14 @@ class CredentialShareMessage
         ?string $password,
         string $loginUrl,
         ?string $phone = null,
+        ?string $intro = null,
     ): array {
         $lines = [
             "*{$school->name}*",
             '',
-            "Hello {$personName}, here are your sign-in details.",
+            // A message that is the first the person hears of their account
+            // (sent after a bulk upload) says so, and how to sign in.
+            $intro ?? "Hello {$personName}, here are your sign-in details.",
             '',
             "*{$idLabel}:* {$identifier}",
         ];
@@ -84,7 +87,7 @@ class CredentialShareMessage
      * country code, because "08012345678" is a Nigerian local number and
      * wa.me needs it in international form to open the right chat.
      */
-    private function normalisePhone(?string $phone): ?string
+    public function normalisePhone(?string $phone): ?string
     {
         if (blank($phone)) {
             return null;

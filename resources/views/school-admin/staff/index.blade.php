@@ -98,6 +98,17 @@
                     @endif
                 </form>
 
+                <div class="flex flex-wrap items-center gap-2">
+                {{-- A whole staff list from one file: accounts, roles, class
+                     teachers and WhatsApp login details. Adding one at a
+                     time stays exactly as it was. --}}
+                <a
+                    href="{{ route('staff.import.create') }}"
+                    class="btn flex items-center gap-2 rounded-[8px] border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-md dark:hover:bg-blue-900/20"
+                >
+                    <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
+                    Bulk Upload
+                </a>
                 <button
                     type="button"
                     @click="editing = null; loginUsernameOverride = null; open = true"
@@ -106,6 +117,7 @@
                     <i class="fa-solid fa-plus text-[14px] leading-none" aria-hidden="true"></i>
                     Add Staff
                 </button>
+                </div>
             </div>
 
             <div class="overflow-x-auto">

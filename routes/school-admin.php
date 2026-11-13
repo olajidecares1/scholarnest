@@ -38,6 +38,7 @@ use App\Http\Controllers\SchoolAdmin\SearchController as SchoolSearchController;
 use App\Http\Controllers\SchoolAdmin\SettingsController as SchoolSettingsController;
 use App\Http\Controllers\SchoolAdmin\SignatureController as SchoolAdminSignatureController;
 use App\Http\Controllers\SchoolAdmin\StaffController;
+use App\Http\Controllers\SchoolAdmin\StaffImportController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
 use App\Http\Controllers\SchoolAdmin\StudentImportController;
 use App\Http\Controllers\SchoolAdmin\SubscriptionTopUpController;
@@ -141,6 +142,19 @@ Route::middleware('plan_feature:co-curricular')->name('co-curricular.')->group(f
 Route::name('staff.')->group(function () {
     Route::get(R::uri('staff.index'), [StaffController::class, 'index'])->name('index');
     Route::post(R::uri('staff.index'), [StaffController::class, 'store'])->name('store');
+
+    // Bulk registration: upload a staff list, review and correct it, then
+    // confirm. Accounts, roles, class teachers, passwords and WhatsApp
+    // messages follow automatically. See StaffImportController.
+    Route::get(R::uri('staff.import'), [StaffImportController::class, 'create'])->name('import.create');
+    Route::post(R::uri('staff.import'), [StaffImportController::class, 'preview'])->name('import.preview');
+    Route::get(R::uri('staff.import.template'), [StaffImportController::class, 'template'])->name('import.template');
+    Route::get(R::uri('staff.import.review').'/{token}', [StaffImportController::class, 'review'])->where('token', '[A-Za-z0-9]{40}')->name('import.review');
+    Route::post(R::uri('staff.import.review').'/{token}', [StaffImportController::class, 'store'])->where('token', '[A-Za-z0-9]{40}')->name('import.store');
+    Route::delete(R::uri('staff.import.review').'/{token}', [StaffImportController::class, 'cancel'])->where('token', '[A-Za-z0-9]{40}')->name('import.cancel');
+    Route::put(R::uri('staff.import.review').'/{token}/rows/{line}', [StaffImportController::class, 'updateRow'])->where(['token' => '[A-Za-z0-9]{40}', 'line' => '[0-9]+'])->name('import.rows.update');
+    Route::delete(R::uri('staff.import.review').'/{token}/rows/{line}', [StaffImportController::class, 'removeRow'])->where(['token' => '[A-Za-z0-9]{40}', 'line' => '[0-9]+'])->name('import.rows.destroy');
+    Route::get(R::uri('staff.import.summary').'/{token}', [StaffImportController::class, 'summary'])->where('token', '[A-Za-z0-9]{40}')->name('import.summary');
     Route::get(R::uri('staff.show').'/{member}', [StaffController::class, 'show'])->name('show');
     Route::put(R::uri('staff.update').'/{member}', [StaffController::class, 'update'])->name('update');
     Route::delete(R::uri('staff.destroy').'/{member}', [StaffController::class, 'destroy'])->name('destroy');

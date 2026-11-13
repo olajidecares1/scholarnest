@@ -7,6 +7,8 @@ use App\Services\DocumentExtraction\QuestionExtractionProvider;
 use App\Services\Mail\MailLogo;
 use App\Services\QueueWorkerHealth;
 use App\Services\Tenancy\TenantResolver;
+use App\Services\WhatsApp\CloudApiWhatsAppGateway;
+use App\Services\WhatsApp\WhatsAppGateway;
 use App\Support\CurrentTenant;
 use App\Support\PortalLoginRedirect;
 use App\Support\ProductionConfiguration;
@@ -40,6 +42,12 @@ class AppServiceProvider extends ServiceProvider
         // swapped in later by changing one line, without the local extractor
         // ever ceasing to be the default that works on its own.
         $this->app->bind(QuestionExtractionProvider::class, LocalQuestionExtractor::class);
+
+        // WhatsApp messages the system sends by itself (login details after a
+        // bulk staff upload). Meta's WhatsApp Cloud API when its credentials
+        // are set, see config/services.php; until then it reports "not set
+        // up" and the School Admin shares by hand with wa.me links.
+        $this->app->bind(WhatsAppGateway::class, CloudApiWhatsAppGateway::class);
 
         // The school a tenant host resolved to. Scoped, so it is flushed
         // between requests and one school's tenant can never outlive the
