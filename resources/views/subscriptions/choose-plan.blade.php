@@ -16,6 +16,12 @@
         >
             @csrf
 
+            @if ($errors->has('subscription'))
+                <div class="mb-4 flex items-start gap-2 rounded-[8px] border border-red-200 bg-red-50 p-3 text-xs leading-[1.6] text-red-700" role="alert">
+                    <i class="fa-solid fa-circle-exclamation mt-0.5 text-[13px]" aria-hidden="true"></i>
+                    <span>{{ $errors->first('subscription') }}</span>
+                </div>
+            @endif
             <x-input-error :messages="$errors->get('plan_id')" class="mb-4" />
             <x-input-error :messages="$errors->get('billing_cycle')" class="mb-4" />
 

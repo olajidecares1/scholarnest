@@ -4,11 +4,15 @@ namespace App\Services;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use App\Services\Mail\TransactionalMailer;
 use Illuminate\Database\QueryException;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification as NotificationSender;
+use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * Telling the AkademicNest Team something, exactly once.
@@ -56,13 +60,56 @@ class TeamNotifier
             return true;
         }
 
-        $recipients->each(fn (User $member) => $member->notify($notification));
+        $recipients->each(fn (User $member) => $this->deliver($member, $notification, $eventKey));
 
         DB::table('notification_events')
             ->where('event_key', $eventKey)
             ->update(['recipients' => $recipients->count()]);
 
         return true;
+    }
+
+    /**
+     * One team member, every channel, and nothing allowed to escape.
+     *
+     * Telling the team is always the LAST thing a request does, after the
+     * school's registration, subscription or ticket has been saved. It used
+     * to be $member->notify(), which sends the email there and then and lets
+     * a mail failure through: when the mail server refused the login, every
+     * school pressing "Confirm & Submit" was shown a server error for a
+     * payment that had in fact been saved, and the in-app notification never
+     * reached the team either, because mail went first and the exception
+     * stopped it.
+     *
+     * Now the in-app copy is stored on its own, so the team sees the event
+     * whatever the mail server does, and the email goes through
+     * TransactionalMailer, which records it in email_deliveries (sent or
+     * failed, with the reason) and never throws.
+     */
+    private function deliver(User $member, Notification $notification, string $eventKey): void
+    {
+        $channels = (array) $notification->via($member);
+        $others = array_values(array_diff($channels, ['mail']));
+
+        if (in_array('mail', $channels, true)) {
+            // Every channel in one go when the email goes; recorded either way.
+            $delivery = app(TransactionalMailer::class)->send(
+                $member,
+                $notification,
+                'team.'.Str::before($eventKey, ':'),
+            );
+
+            if ($delivery->wasSent() || $others === []) {
+                return;
+            }
+        }
+
+        // The email did not go (or there is none): the in-app copy still must.
+        try {
+            NotificationSender::sendNow($member, $notification, $others);
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 
     /**

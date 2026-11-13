@@ -25,7 +25,9 @@
                     </a>
                 </div>
             @else
-            <form method="POST" action="{{ route('subscriptions.payment-method.store') }}" enctype="multipart/form-data" class="mt-6 space-y-2" x-data="{ method: '{{ $paymentMethods->first()->key }}' }">
+            <form method="POST" action="{{ route('subscriptions.payment-method.store') }}" enctype="multipart/form-data" class="mt-6 space-y-2"
+                  x-data="{ method: '{{ $paymentMethods->first()->key }}', busy: false, fileProblem: null }"
+                  @pageshow.window="busy = false" @submit="if (busy || fileProblem) { $event.preventDefault(); return; } busy = true">
                 @csrf
 
                 {{-- Every option comes from the payment_methods table. A method
@@ -108,16 +110,31 @@
                             <span x-show="fileName" x-text="fileName" x-cloak></span>
                         </p>
                         <small class="block mt-1 text-xs text-gray-400">PNG, JPG, PDF up to 5MB</small>
+                        {{-- Checked here first so a school learns at once that a file
+                             is too large or the wrong kind, rather than after waiting
+                             for it to upload. The server checks again regardless. --}}
                         <input
                             id="receipt"
                             name="receipt"
                             type="file"
                             required
-                            accept=".png,.jpg,.jpeg,.pdf"
+                            accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"
                             class="sr-only"
-                            @change="fileName = $event.target.files[0]?.name"
+                            @change="
+                                const file = $event.target.files[0];
+                                fileName = file?.name;
+                                fileProblem = null;
+                                if (file && ! /\.(png|jpe?g|pdf)$/i.test(file.name)) {
+                                    fileProblem = 'Please choose a PNG, JPG or PDF file.';
+                                } else if (file && /\.pdf$/i.test(file.name) && file.size > {{ \App\Http\Requests\Subscriptions\PaymentMethodRequest::MAX_KILOBYTES }} * 1024) {
+                                    {{-- PDFs only: a large photo is made smaller by the
+                                         browser before it is sent (image-upload-prep.js). --}}
+                                    fileProblem = 'This PDF is ' + (file.size / 1048576).toFixed(1) + 'MB. The receipt must be 5MB or smaller: a screenshot of the receipt is usually much smaller.';
+                                }
+                            "
                         >
                     </label>
+                    <p x-show="fileProblem" x-text="fileProblem" x-cloak class="mt-2 text-sm text-red-600" role="alert"></p>
                     <x-input-error :messages="$errors->get('receipt')" class="mt-2" />
                 </div>
 
@@ -126,10 +143,14 @@
 
                     <button
                         type="submit"
-                        class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
+                        :disabled="busy"
+                        :aria-busy="busy.toString()"
+                        class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 disabled:cursor-wait disabled:opacity-70"
                     >
-                        Submit Receipt
-                        <i class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
+                        <span x-show="!busy">Submit Receipt</span>
+                        <span x-show="busy" x-cloak>Uploading&hellip;</span>
+                        <i x-show="!busy" class="fa-solid fa-upload text-[14px] leading-none" aria-hidden="true"></i>
+                        <i x-show="busy" x-cloak class="fa-solid fa-spinner fa-spin text-[14px] leading-none" aria-hidden="true"></i>
                     </button>
                 </div>
             </form>

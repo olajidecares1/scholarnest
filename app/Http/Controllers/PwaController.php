@@ -7,6 +7,7 @@ use App\Enums\PortalApp;
 use App\Models\BrandingImage;
 use App\Models\School;
 use App\Models\Setting;
+use App\Support\OfflineRoutes;
 use App\Support\OfflineScope;
 use App\Support\PortalPwa;
 use Illuminate\Http\Request;
@@ -173,6 +174,7 @@ class PwaController extends Controller
             'version' => $version,
             'precache' => $this->precacheList(),
             'queueCore' => (string) @file_get_contents(resource_path('js/offline/queue-core.js')),
+            'onlineOnly' => OfflineRoutes::patterns()['onlineOnly'],
         ])->render();
 
         $url = (string) config('app.url');

@@ -56,6 +56,19 @@ const NEVER_WARM = /logout|sign-?out|download|export|\.pdf|\.csv|\.xlsx?|\.zip|\
 
 const WARM_LIMIT = 150;
 
+// Writes that need the server there and then (signing in, registering, a
+// subscription and its payment receipt, passwords), by route NAME, so the
+// obfuscated paths are covered: see App\Support\OfflineRoutes. Never kept
+// for later. A payment receipt replayed hours afterwards, into whatever
+// session the device has by then, is not "saved": the school was shown a
+// tick and a Continue button for an application that never arrived.
+const ONLINE_ONLY = [/\/(login|sign-?in|register|password|subscriptions?|payments?|checkout|billing)(\/|$|\?)/i]
+    .concat(@json($onlineOnly).map((source) => { try { return new RegExp(source); } catch (e) { return null; } }).filter(Boolean));
+
+function isOnlineOnly(pathname) {
+    return ONLINE_ONLY.some((pattern) => pattern.test(pathname));
+}
+
 /* ---------------------------------------------------------------------- */
 /* The shared offline queue (resources/js/offline/queue-core.js)           */
 /* ---------------------------------------------------------------------- */
@@ -361,6 +374,10 @@ async function handleFormPost(event) {
             return offlinePage();
         }
 
+        if (isOnlineOnly(url.pathname)) {
+            return savedPage(false, request.referrer);
+        }
+
         let fields;
 
         try {
@@ -401,14 +418,14 @@ function savedPage(saved, back) {
     const title = saved ? 'Saved on this device' : 'Not sent';
     const text = saved
         ? 'There is no connection, so this was saved on your device. It will be sent automatically when you are back online. You can carry on working.'
-        : 'There is no connection and this could not be kept. Go back and try again.';
+        : 'The connection dropped before this reached the server, so nothing was sent or saved. Please check your connection, go back and try again.';
 
     return new Response(
         `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>
 <style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#f8fafc;color:#0f172a}
 .c{max-width:380px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:28px 22px;text-align:center}h1{font-size:19px;margin:0 0 8px}p{font-size:14px;line-height:1.55;color:#475569;margin:0}
 a{display:block;margin-top:20px;padding:12px;border-radius:9px;background:#4f46e5;color:#fff;font-weight:700;text-decoration:none}</style></head>
-<body><div class="c"><h1>${saved ? '&#10003; ' : ''}${title}</h1><p>${text}</p><a href="${target.replace(/"/g, '&quot;')}">Continue</a></div>
+<body><div class="c"><h1>${saved ? '&#10003; ' : ''}${title}</h1><p>${text}</p><a href="${target.replace(/"/g, '&quot;')}">${saved ? 'Continue' : 'Go back and try again'}</a></div>
 <script>setTimeout(function(){ if (history.length > 1) { history.back(); } else { location.href = ${JSON.stringify(target)}; } }, ${saved ? 2500 : 6000});</` + `script></body></html>`,
         { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } },
     );

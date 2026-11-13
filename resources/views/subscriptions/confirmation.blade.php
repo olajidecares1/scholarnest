@@ -7,6 +7,13 @@
     <div class="mx-auto max-w-3xl space-y-6">
         <x-subscription-steps step="confirmation" :per-student="$subscription->billing_cycle === \App\Enums\BillingCycle::PerStudentPerTerm" />
 
+        @if (session('status'))
+            <div class="flex items-start gap-2 rounded-[8px] border border-primary-200 bg-primary-50 p-3 text-left text-xs leading-[1.6] text-primary-700" role="status">
+                <i class="fa-solid fa-circle-info mt-0.5 text-[13px]" aria-hidden="true"></i>
+                <span>{{ session('status') }}</span>
+            </div>
+        @endif
+
         <x-auth-card class="!max-w-none text-center">
             <div class="flex justify-center">
                 <span class="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600">

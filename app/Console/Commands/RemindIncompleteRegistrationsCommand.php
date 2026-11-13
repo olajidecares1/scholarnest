@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Enums\UserRole;
 use App\Models\School;
 use App\Notifications\CompleteYourRegistrationNotification;
+use App\Services\Mail\TransactionalMailer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -82,8 +83,14 @@ class RemindIncompleteRegistrationsCommand extends Command
             // receiving four.
             $school->forceFill(['registration_reminder_sent_at' => now()])->save();
 
-            $school->users->each(
-                fn ($user) => $user->notify(new CompleteYourRegistrationNotification($school))
+            // Recorded per recipient and never thrown, so one refused email
+            // does not stop the schools after it from being reminded.
+            app(TransactionalMailer::class)->sendToEach(
+                $school->users->filter(fn ($user) => filled($user->email)),
+                fn () => new CompleteYourRegistrationNotification($school),
+                'registration-reminder',
+                $school,
+                $school->id,
             );
 
             Log::info('Incomplete registration reminder sent.', [

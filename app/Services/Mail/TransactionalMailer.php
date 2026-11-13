@@ -35,6 +35,9 @@ class TransactionalMailer
      * Email one person.
      *
      * @param  User|AnonymousNotifiable|string  $to  a user, or an email address
+     * @param  list<string>|null  $channels  the channels to send on; null for
+     *                                       every channel the notification
+     *                                       declares (only mail for an address)
      */
     public function send(
         User|AnonymousNotifiable|string $to,
@@ -42,6 +45,7 @@ class TransactionalMailer
         string $kind,
         ?Model $about = null,
         ?int $schoolId = null,
+        ?array $channels = null,
     ): EmailDelivery {
         $notifiable = is_string($to) ? NotificationSender::route('mail', $to) : $to;
         $recipient = $this->recipientOf($notifiable);
@@ -74,7 +78,7 @@ class TransactionalMailer
             NotificationSender::sendNow(
                 $notifiable,
                 $notification,
-                $notifiable instanceof User ? null : ['mail'],
+                $notifiable instanceof User ? $channels : ['mail'],
             );
         } catch (Throwable $e) {
             Log::error('Email could not be sent.', [

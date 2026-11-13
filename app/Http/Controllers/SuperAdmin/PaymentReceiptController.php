@@ -5,7 +5,10 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Subscription;
 use App\Models\SubscriptionTopUp;
+use App\Services\ReceiptUploadService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -47,7 +50,7 @@ class PaymentReceiptController extends Controller
             [
                 'X-Content-Type-Options' => 'nosniff',
                 'Content-Security-Policy' => "default-src 'none'; img-src 'self'; object-src 'self'",
-                'Content-Disposition' => 'inline; filename="'.addslashes($payment->receipt_original_name ?: 'receipt').'"',
+                'Content-Disposition' => self::inline($payment->receipt_original_name),
             ],
         );
     }
@@ -72,8 +75,21 @@ class PaymentReceiptController extends Controller
                 // and the sandbox neuters anything a crafted PDF might try.
                 'X-Content-Type-Options' => 'nosniff',
                 'Content-Security-Policy' => "default-src 'none'; img-src 'self'; object-src 'self'",
-                'Content-Disposition' => 'inline; filename="'.addslashes($topUp->receipt_original_name ?: 'receipt').'"',
+                'Content-Disposition' => self::inline($topUp->receipt_original_name),
             ],
         );
+    }
+
+    /**
+     * "inline", with the uploader's file name made safe for a header: an
+     * ASCII fallback for every browser and the real name (accents and all)
+     * alongside it, never anything that could end the header early.
+     */
+    private static function inline(?string $name): string
+    {
+        $name = ReceiptUploadService::displayName($name);
+        $fallback = (string) preg_replace('/[^A-Za-z0-9._ -]/', '_', Str::ascii($name)) ?: 'receipt';
+
+        return HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_INLINE, $name, $fallback);
     }
 }

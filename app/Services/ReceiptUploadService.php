@@ -32,7 +32,34 @@ class ReceiptUploadService
 
         return [
             'path' => $path,
-            'original_name' => $receipt->getClientOriginalName(),
+            'original_name' => self::displayName($receipt->getClientOriginalName()),
         ];
+    }
+
+    /**
+     * The uploader's filename, made safe to keep and to show.
+     *
+     * Only ever displayed (and offered as the download name); the stored file
+     * has a generated name. Folder parts, control characters and quotes are
+     * dropped, and it is cut short: the column holds 255 characters, and a
+     * longer name used to fail the final step with a database error.
+     */
+    public static function displayName(?string $name): string
+    {
+        $name = basename(str_replace('\\', '/', (string) $name));
+        $name = (string) preg_replace('/[\x00-\x1F\x7F"<>\\\\]/u', '', $name);
+        $name = trim($name);
+
+        if ($name === '') {
+            return 'receipt';
+        }
+
+        if (mb_strlen($name) <= 150) {
+            return $name;
+        }
+
+        $extension = mb_substr((string) pathinfo($name, PATHINFO_EXTENSION), 0, 10);
+
+        return mb_substr(pathinfo($name, PATHINFO_FILENAME), 0, 140).($extension !== '' ? '.'.$extension : '');
     }
 }

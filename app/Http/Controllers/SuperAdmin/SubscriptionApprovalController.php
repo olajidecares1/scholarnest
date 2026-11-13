@@ -331,8 +331,15 @@ class SubscriptionApprovalController extends Controller
             ]);
         });
 
-        $subscription->school->users()->each(
-            fn ($user) => $user->notify(new SubscriptionRejectedNotification($subscription, $reason))
+        // Sent and recorded, never thrown: the rejection is already saved, and
+        // a mail server refusing the login must not turn it into an error
+        // page (or, in a bulk rejection, stop the rest of the batch).
+        app(TransactionalMailer::class)->sendToEach(
+            $subscription->school->users()->whereNotNull('email')->get(),
+            fn () => new SubscriptionRejectedNotification($subscription, $reason),
+            'subscription-rejected',
+            $subscription,
+            $subscription->school_id,
         );
 
         AuditLog::record('subscription.rejected', "Rejected subscription for {$subscription->school->name}.", $subscription);
@@ -403,8 +410,12 @@ class SubscriptionApprovalController extends Controller
             'notes' => $reason,
         ]);
 
-        $topUp->subscription->school->users()->each(
-            fn ($user) => $user->notify(new SubscriptionTopUpRejectedNotification($topUp, $reason))
+        app(TransactionalMailer::class)->sendToEach(
+            $topUp->subscription->school->users()->whereNotNull('email')->get(),
+            fn () => new SubscriptionTopUpRejectedNotification($topUp, $reason),
+            'topup-rejected',
+            $topUp,
+            $topUp->subscription->school_id,
         );
 
         AuditLog::record('subscription.topup.rejected', "Rejected a {$topUp->additional_students_count}-student top-up for {$topUp->subscription->school->name}.", $topUp);

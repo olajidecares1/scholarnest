@@ -3,6 +3,13 @@
         <x-subscription-steps step="review" />
 
         <x-auth-card class="!max-w-none">
+            @if ($errors->has('subscription'))
+                <div class="mb-4 flex items-start gap-2 rounded-[8px] border border-red-200 bg-red-50 p-3 text-xs leading-[1.6] text-red-700" role="alert">
+                    <i class="fa-solid fa-circle-exclamation mt-0.5 text-[13px]" aria-hidden="true"></i>
+                    <span>{{ $errors->first('subscription') }}</span>
+                </div>
+            @endif
+
             <h2 class="text-lg font-bold text-gray-900">Subscription Summary</h2>
             <small class="block mt-1 text-sm text-gray-600">Please review the details below before confirming.</small>
 
@@ -85,18 +92,24 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('subscriptions.review.store') }}" class="mt-6">
+            <form method="POST" action="{{ route('subscriptions.review.store') }}" class="mt-6" x-data="{ busy: false }" @pageshow.window="busy = false" @submit="if (busy) { $event.preventDefault(); return; } busy = true">
                 @csrf
 
                 <div class="flex items-center justify-between">
                     <a href="{{ route('subscriptions.payment-method') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
 
+                    {{-- Pressed once: a second press while the first is on its way
+                         would only be turned away by the server. --}}
                     <button
                         type="submit"
-                        class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
+                        :disabled="busy"
+                        :aria-busy="busy.toString()"
+                        class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 disabled:cursor-wait disabled:opacity-70"
                     >
-                        Confirm & Submit
-                        <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
+                        <span x-show="!busy">Confirm & Submit</span>
+                        <span x-show="busy" x-cloak>Submitting&hellip;</span>
+                        <i x-show="!busy" class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
+                        <i x-show="busy" x-cloak class="fa-solid fa-spinner fa-spin text-[14px] leading-none" aria-hidden="true"></i>
                     </button>
                 </div>
             </form>

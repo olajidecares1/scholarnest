@@ -66,10 +66,16 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
             Route::post(R::uri('subscriptions.billing-details'), [BillingDetailsController::class, 'store'])->name('billing-details.store');
 
             Route::get(R::uri('subscriptions.payment-method'), [PaymentMethodController::class, 'create'])->name('payment-method');
-            Route::post(R::uri('subscriptions.payment-method'), [PaymentMethodController::class, 'store'])->name('payment-method.store');
+            // Each upload is screened and stored, so it is rate limited: ten a
+            // minute is far more than a school correcting a receipt needs.
+            Route::post(R::uri('subscriptions.payment-method'), [PaymentMethodController::class, 'store'])
+                ->middleware('throttle:10,1,subscription-receipt')
+                ->name('payment-method.store');
 
             Route::get(R::uri('subscriptions.review'), [ReviewController::class, 'create'])->name('review');
-            Route::post(R::uri('subscriptions.review'), [ReviewController::class, 'store'])->name('review.store');
+            Route::post(R::uri('subscriptions.review'), [ReviewController::class, 'store'])
+                ->middleware('throttle:10,1,subscription-submit')
+                ->name('review.store');
 
             Route::get(R::uri('subscriptions.contact-sales'), [ContactSalesController::class, 'show'])->name('contact-sales');
         });
