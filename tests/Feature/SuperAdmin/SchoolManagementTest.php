@@ -64,6 +64,7 @@ test('super admin can view the add school form', function () {
 test('super admin can create a school with an admin account', function () {
     $response = $this->actingAs($this->superAdmin)->post(route('super-admin.schools.store'), [
         'school_name' => 'Greenfield Academy',
+        'school_address' => '12 Allen Avenue, Ikeja, Lagos',
         'admin_name' => 'Jane Doe',
         'admin_email' => 'jane@greenfield.test',
         'password' => 'Password123!',
@@ -85,6 +86,7 @@ test('creating a school requires a unique admin email', function () {
 
     $this->actingAs($this->superAdmin)->post(route('super-admin.schools.store'), [
         'school_name' => 'Greenfield Academy',
+        'school_address' => '12 Allen Avenue, Ikeja, Lagos',
         'admin_name' => 'Jane Doe',
         'admin_email' => 'taken@greenfield.test',
         'password' => 'Password123!',

@@ -164,7 +164,7 @@
                             src="{{ $logoUrl }}"
                             alt="{{ config('app.name', 'AkademicNest') }}"
                             @click="registerClick()"
-                            class="h-14 w-14 shrink-0 select-none rounded-xl object-contain sm:h-16 sm:w-16"
+                            class="h-20 w-20 shrink-0 select-none rounded-xl object-contain"
                         >
 
                         <h1 class="mt-4 text-[23px] font-bold leading-[1.15] tracking-[-0.02em] text-[#0F2A5C] sm:text-[27px]">
@@ -207,7 +207,23 @@
                             <small class="mt-1 block text-[12px] leading-[1.5] text-[#64789F]">Fill in the details below to create your school account.</small>
                         </div>
 
-                        @if ($errors->any() && ! $errors->has('login'))
+                        @if ($errors->first('address') === \App\Rules\SchoolAddressAvailable::MESSAGE)
+                            {{-- Its own notice, not one bullet among others: the
+                                 school cannot fix this by editing a field, and
+                                 needs to know where to go instead. Nothing about
+                                 the school already registered is shown. --}}
+                            <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-left" role="alert">
+                                <p class="flex items-center gap-2 text-[12.5px] font-semibold text-amber-900">
+                                    <i class="fa-solid fa-building-circle-exclamation text-[13px]" aria-hidden="true"></i>
+                                    This school is already registered
+                                </p>
+                                <p class="mt-1 text-[12px] leading-[1.55] text-amber-800">
+                                    A school account already exists for this address, and duplicate registrations are not permitted.
+                                    If this is your school, <a href="{{ route('portal.find.show') }}" class="font-semibold underline underline-offset-2">sign in to your school's portal</a>.
+                                    If you believe this is a mistake, please contact AkademicNest support.
+                                </p>
+                            </div>
+                        @elseif ($errors->any() && ! $errors->has('login'))
                             <div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-[12px] leading-[1.5] text-red-700">
                                 <ul class="list-inside list-disc space-y-0.5">
                                     @foreach ($errors->all() as $error)
@@ -225,6 +241,10 @@
                                 ['school_name', 'School Name', 'text', 'Enter your school name', 'organization', 'M4 21h16M6 21V8l6-4 6 4v13M10 21v-4h4v4', true],
                                 ['email', 'School Email Address', 'email', 'Enter school email address', 'email', 'M3 7l9 6 9-6M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z', false],
                                 ['phone', 'Phone Number', 'tel', 'Enter phone number', 'tel', 'M6.5 3h3l1.5 4-2 1.5a12 12 0 005.5 5.5L16 12l4 1.5v3a2 2 0 01-2.2 2A16.5 16.5 0 014.5 5.2 2 2 0 016.5 3z', false],
+                                // Where the school is. One account per school
+                                // location, so this, not the name or email, is
+                                // what a second registration is checked against.
+                                ['address', 'School Address', 'text', 'Street, town and state of the school', 'street-address', 'fa-location-dot', false],
                             ] as [$name, $label, $type, $placeholder, $autocomplete, $iconPath, $autofocus])
                                 <div>
                                     <label for="{{ $name }}" class="field-label">
@@ -249,7 +269,8 @@
                                         >
                                     </div>
 
-                                    <x-input-error :messages="$errors->get($name)" class="mt-1" />
+                                    {{-- The duplicate-address refusal is shown once, above the form. --}}
+                                    <x-input-error :messages="$name === 'address' && $errors->first('address') === \App\Rules\SchoolAddressAvailable::MESSAGE ? [] : $errors->get($name)" class="mt-1" />
                                 </div>
                             @endforeach
 
@@ -393,7 +414,7 @@
                         ] as [$title, $body, $path])
                             <div class="flex flex-col items-center">
                                 <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/40">
-                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="{{ $path }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </span>

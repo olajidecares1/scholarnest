@@ -169,6 +169,7 @@ describe('the agreement is a gate, not a decoration', function () {
             'school_name' => 'Consent Academy',
             'email' => 'admin@consent-academy.test',
             'phone' => '08012345678',
+            'address' => '7 Consent Close, Wuse 2, Abuja',
             'password' => 'Str0ng!Passw0rd',
             'password_confirmation' => 'Str0ng!Passw0rd',
         ];

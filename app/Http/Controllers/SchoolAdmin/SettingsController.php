@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\School;
+use App\Rules\SchoolAddressAvailable;
 use App\Rules\UploadedImage;
 use App\Services\StampImage;
 use App\Services\Uploads\ImageProcessor;
@@ -45,7 +46,11 @@ class SettingsController extends Controller
             // of ID cards, and until now they lived only on the website, a
             // Standard and Exclusive feature, so a Basic school had no way to
             // give an address at all.
-            'contact_address' => ['nullable', 'string', 'max:500'],
+            // Also the address that makes this school one school (see
+            // App\Support\SchoolAddress): it may not be moved onto another
+            // school's address, and once given it cannot be blanked, which
+            // would free it for a second registration of the same school.
+            'contact_address' => [Rule::requiredIf(filled($school->contact_address)), 'nullable', 'string', 'max:500', new SchoolAddressAvailable($school->id)],
             'contact_phone' => ['nullable', 'string', 'max:60'],
             'contact_email' => ['nullable', 'email', 'max:255'],
 

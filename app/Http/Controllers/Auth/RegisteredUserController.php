@@ -10,13 +10,16 @@ use App\Models\School;
 use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\SchoolRegisteredNotification;
+use App\Rules\SchoolAddressAvailable;
 use App\Services\DefaultAcademicStructure;
 use App\Services\TeamNotifier;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -40,28 +43,19 @@ class RegisteredUserController extends Controller
     {
         $validated = $request->validated();
 
-        $user = DB::transaction(function () use ($validated) {
-            $school = School::create([
-                'name' => $validated['school_name'],
+        try {
+            $user = $this->createSchool($validated);
+        } catch (UniqueConstraintViolationException $e) {
+            // The address check in RegisterSchoolRequest passed, and another
+            // registration for the same address was saved in the moments
+            // since: the unique index on the address fingerprint caught it,
+            // and the whole transaction, school and account, was rolled back.
+            if (str_contains($e->getMessage(), 'address_fingerprint')) {
+                throw ValidationException::withMessages(['address' => SchoolAddressAvailable::MESSAGE]);
+            }
 
-                // The registration form is the only place these are collected,
-                // so they are kept as the school's billing contact rather than
-                // asked for a second time later.
-                'billing_email' => $validated['email'],
-                'billing_phone' => $validated['phone'],
-            ]);
-
-            DefaultAcademicStructure::seedFor($school);
-
-            return User::create([
-                'name' => $validated['school_name'],
-                'email' => $validated['email'],
-                'username' => User::generateUniqueUsernameFromEmail($validated['email']),
-                'password' => Hash::make($validated['password']),
-                'role' => UserRole::SchoolAdmin,
-                'school_id' => $school->id,
-            ]);
-        });
+            throw $e;
+        }
 
         event(new Registered($user));
 
@@ -78,5 +72,39 @@ class RegisteredUserController extends Controller
         );
 
         return redirect(route('dashboard', absolute: false));
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function createSchool(array $validated): User
+    {
+        return DB::transaction(function () use ($validated) {
+            $school = School::create([
+                'name' => $validated['school_name'],
+
+                // The school's physical address, the one thing that makes it
+                // this school; School keeps its fingerprint in step on save.
+                'contact_address' => trim($validated['address']),
+
+                // The registration form is the only place these are collected,
+                // so they are kept as the school's billing contact rather than
+                // asked for a second time later.
+                'billing_email' => $validated['email'],
+                'billing_phone' => $validated['phone'],
+                'billing_address' => trim($validated['address']),
+            ]);
+
+            DefaultAcademicStructure::seedFor($school);
+
+            return User::create([
+                'name' => $validated['school_name'],
+                'email' => $validated['email'],
+                'username' => User::generateUniqueUsernameFromEmail($validated['email']),
+                'password' => Hash::make($validated['password']),
+                'role' => UserRole::SchoolAdmin,
+                'school_id' => $school->id,
+            ]);
+        });
     }
 }

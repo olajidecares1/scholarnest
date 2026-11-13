@@ -29,6 +29,7 @@ function registerSchoolForDeletion(string $email, string $name = 'Greenfield Col
         'school_name' => $name,
         'email' => $email,
         'phone' => '08012345678',
+        'address' => '12 '.str_replace(['@', '.'], ' ', $email).' Avenue, Ikeja, Lagos',
         'password' => 'Str0ng-Passw0rd!',
         'password_confirmation' => 'Str0ng-Passw0rd!',
         'terms' => '1',

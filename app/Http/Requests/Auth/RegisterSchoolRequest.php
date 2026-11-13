@@ -4,6 +4,8 @@ namespace App\Http\Requests\Auth;
 
 use App\Models\User;
 use App\Rules\NotDerivedFromIdentity;
+use App\Rules\SchoolAddressAvailable;
+use App\Support\SchoolAddress;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
@@ -34,6 +36,18 @@ class RegisterSchoolRequest extends FormRequest
             // number, which is the only phone number a school has at the point
             // of registration.
             'phone' => ['required', 'string', 'max:30'],
+
+            // Where the school physically is, and what makes it one school.
+            // Neither the name (two schools may share one in different towns)
+            // nor the email (a school can always find another) can do that.
+            // Checked here for a clear message, and enforced by the unique
+            // index on schools.address_fingerprint for two registrations that
+            // arrive at the same moment. See App\Support\SchoolAddress.
+            'address' => ['required', 'string', 'max:500', function (string $attribute, mixed $value, \Closure $fail) {
+                if (! SchoolAddress::isSpecific(is_string($value) ? $value : null)) {
+                    $fail('Please enter the school\'s full street address, for example "12 Allen Avenue, Ikeja, Lagos".');
+                }
+            }, new SchoolAddressAvailable],
 
             // The school name and email are the two things printed at the top
             // of the school's own website, and "Greenfield2026!" satisfies

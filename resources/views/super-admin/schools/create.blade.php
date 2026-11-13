@@ -18,6 +18,18 @@
                 />
 
                 <x-text-field
+                    id="school_address"
+                    name="school_address"
+                    label="School Address"
+                    icon="fa-location-dot"
+                    helper="The school's physical street address. Each school location can have only one account."
+                    :value="old('school_address')"
+                    required
+                    autocomplete="street-address"
+                    placeholder="e.g. 12 Allen Avenue, Ikeja, Lagos"
+                />
+
+                <x-text-field
                     id="admin_name"
                     name="admin_name"
                     label="Admin Full Name"

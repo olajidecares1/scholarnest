@@ -116,6 +116,7 @@ describe('where it applies', function () {
             'school_name' => 'Sunrise Academy',
             'email' => 'head@sunrise.example',
             'phone' => '08030000000',
+            'address' => '12 head sunrise example Avenue, Ikeja, Lagos',
             'password' => 'Sunrise2026!',
             'password_confirmation' => 'Sunrise2026!',
             'terms' => 'on',

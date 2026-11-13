@@ -9,6 +9,7 @@ use App\Http\Requests\SuperAdmin\UpdateSchoolSubdomainRequest;
 use App\Models\AuditLog;
 use App\Models\School;
 use App\Models\User;
+use App\Rules\SchoolAddressAvailable;
 use App\Services\DefaultAcademicStructure;
 use App\Services\StudentLicenceAllocation;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -16,6 +17,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class SchoolController extends Controller
@@ -48,9 +50,33 @@ class SchoolController extends Controller
     {
         $validated = $request->validated();
 
-        $school = DB::transaction(function () use ($validated) {
+        try {
+            $school = $this->createSchool($validated);
+        } catch (UniqueConstraintViolationException $e) {
+            // Another school was registered at this address in the moment
+            // since validation: the unique index caught it and nothing was saved.
+            if (str_contains($e->getMessage(), 'address_fingerprint')) {
+                throw ValidationException::withMessages(['school_address' => SchoolAddressAvailable::MESSAGE]);
+            }
+
+            throw $e;
+        }
+
+        AuditLog::record('school.created', "Added school {$school->name}.", $school);
+
+        return redirect()->route('super-admin.schools.show', $school)
+            ->with('status', "{$school->name} has been added with an admin account.");
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function createSchool(array $validated): School
+    {
+        return DB::transaction(function () use ($validated) {
             $school = School::create([
                 'name' => $validated['school_name'],
+                'contact_address' => trim($validated['school_address']),
             ]);
 
             DefaultAcademicStructure::seedFor($school);
@@ -66,11 +92,6 @@ class SchoolController extends Controller
 
             return $school;
         });
-
-        AuditLog::record('school.created', "Added school {$school->name}.", $school);
-
-        return redirect()->route('super-admin.schools.show', $school)
-            ->with('status', "{$school->name} has been added with an admin account.");
     }
 
     public function show(School $school, StudentLicenceAllocation $licences): View

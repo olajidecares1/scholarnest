@@ -214,6 +214,7 @@ test('registering a new school automatically seeds its default academic structur
         'school_name' => 'Brightstar Academy',
         'email' => 'admin@brightstar.example',
         'phone' => '+234 801 234 5678',
+        'address' => '12 admin brightstar example Avenue, Ikeja, Lagos',
         'password' => 'Password123!',
         'password_confirmation' => 'Password123!',
         'terms' => '1',

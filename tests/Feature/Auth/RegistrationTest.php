@@ -15,6 +15,7 @@ test('new schools can register', function () {
         'school_name' => 'Greenfield Academy',
         'email' => 'admin@greenfield.example',
         'phone' => '+234 801 234 5678',
+        'address' => '12 admin greenfield example Avenue, Ikeja, Lagos',
         'password' => 'Password123!',
         'password_confirmation' => 'Password123!',
         'terms' => '1',

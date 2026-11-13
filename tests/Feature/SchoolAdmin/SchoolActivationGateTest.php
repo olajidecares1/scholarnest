@@ -99,6 +99,7 @@ test('end-to-end: a freshly registered school cannot access content routes immed
         'school_name' => 'Brand New Academy',
         'email' => 'admin@brandnew.example',
         'phone' => '+234 801 234 5678',
+        'address' => '12 admin brandnew example Avenue, Ikeja, Lagos',
         'password' => 'Password123!',
         'password_confirmation' => 'Password123!',
         'terms' => '1',

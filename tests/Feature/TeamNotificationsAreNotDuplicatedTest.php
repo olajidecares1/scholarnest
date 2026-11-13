@@ -29,6 +29,7 @@ function registrationPayload(string $schoolName = 'School ABC', string $email = 
         'school_name' => $schoolName,
         'email' => $email,
         'phone' => '08011112222',
+        'address' => '12 '.str_replace(['@', '.'], ' ', $email).' Avenue, Ikeja, Lagos',
         'password' => 'Correct-Horse1!',
         'password_confirmation' => 'Correct-Horse1!',
         'terms' => 'on',

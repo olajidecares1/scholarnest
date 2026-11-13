@@ -11,6 +11,7 @@ use App\Services\Uploads\UploadStorage;
 use App\Support\AcademicSession;
 use App\Support\HasUuidRouteKey;
 use App\Support\PrincipalSignature;
+use App\Support\SchoolAddress;
 use App\Support\TenantUrl;
 use App\Support\WebsiteBlockDefaults;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -145,6 +146,16 @@ class School extends Model
 
     protected static function booted(): void
     {
+        // One school per physical location: the fingerprint of the address is
+        // what the unique index is on (see App\Support\SchoolAddress). Kept in
+        // step here, on every save, so no code path that changes an address
+        // can leave it describing the old one.
+        static::saving(function (self $school) {
+            if ($school->isDirty('contact_address') || ($school->address_fingerprint === null && filled($school->contact_address))) {
+                $school->address_fingerprint = SchoolAddress::fingerprint($school->contact_address);
+            }
+        });
+
         static::creating(function (self $school) {
             if (! $school->slug) {
                 // The slug is also the school's address at the root of the

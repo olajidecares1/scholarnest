@@ -115,6 +115,7 @@ test('a school can register even when the mail server refuses', function () {
         'school_name' => 'Zed Academy',
         'email' => 'admin@zed.example',
         'phone' => '08030000000',
+        'address' => '12 admin zed example Avenue, Ikeja, Lagos',
         'password' => 'Very-Strong-Pass-93!',
         'password_confirmation' => 'Very-Strong-Pass-93!',
         'terms' => '1',
