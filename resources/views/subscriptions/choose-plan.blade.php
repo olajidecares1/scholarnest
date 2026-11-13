@@ -42,7 +42,7 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            <div class="wz-stagger grid grid-cols-1 gap-4 pt-2 md:grid-cols-2 lg:grid-cols-3 lg:gap-5" style="--wz-base: 120ms; --wz-step: 90ms">
                 @foreach ($plans as $plan)
                     @php $available = $plan->key->isAvailableToSubscribe(); @endphp
 

@@ -2590,3 +2590,89 @@ a.pwa-install-banner__install {
         @apply inline-flex items-center justify-center gap-2 border border-slate-200 bg-white font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200;
     }
 }
+
+/* --------------------------------------------------------------------------
+   Registration journey: content slides in.
+
+   Every step of registration arrives the same way: the progress bar, then
+   the card, then what is in the card, each a beat after the last, rising a
+   few pixels as it fades in. Short and soft (0.55s, an ease-out with no
+   bounce), so it reads as polish rather than as something to wait for.
+
+   Driven by classes, not by script, so nothing can be left invisible if a
+   script fails: the end state is simply the element as it always was. A
+   visitor who has asked their system for reduced motion gets no animation.
+
+     .wz-rise              one element; --wz-delay sets when it starts
+     .wz-stagger           each child in turn, from --wz-base, --wz-step apart
+     .wz-shell / .wz-card  the wizard's own column and cards, staggered
+     .wz-rows              summary rows, staggered after their card
+   -------------------------------------------------------------------------- */
+@keyframes wz-slide-in {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 14px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.wz-rise,
+.wz-stagger > *,
+.wz-shell > *,
+.wz-shell-wide > *,
+.wz-card > *,
+.wz-rows > * {
+    animation: wz-slide-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: calc(var(--wz-base, 0ms) + var(--wz-i, 0) * var(--wz-step, 60ms));
+}
+
+.wz-rise {
+    animation-delay: var(--wz-delay, 0ms);
+}
+
+/* Inside the column the card follows the progress bar; inside the card the
+   content follows the card; the rows follow the content.
+
+   The column's own children are timed here, not through --wz-base: a card
+   sets --wz-base for ITS children, and a custom property applies to the
+   element that declares it, so the card would otherwise wait for itself. */
+.wz-shell > *,
+.wz-shell-wide > * {
+    animation-delay: calc(var(--wz-i, 0) * 90ms);
+}
+
+.wz-card {
+    --wz-base: 160ms;
+    --wz-step: 55ms;
+}
+
+.wz-rows {
+    --wz-base: 260ms;
+    --wz-step: 35ms;
+}
+
+.wz-stagger > *, .wz-shell > *, .wz-shell-wide > *, .wz-card > *, .wz-rows > * { --wz-i: 10; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(1) { --wz-i: 0; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(2) { --wz-i: 1; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(3) { --wz-i: 2; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(4) { --wz-i: 3; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(5) { --wz-i: 4; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(6) { --wz-i: 5; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(7) { --wz-i: 6; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(8) { --wz-i: 7; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(9) { --wz-i: 8; }
+:is(.wz-stagger, .wz-shell, .wz-shell-wide, .wz-card, .wz-rows) > :nth-child(10) { --wz-i: 9; }
+
+@media (prefers-reduced-motion: reduce) {
+    .wz-rise,
+    .wz-stagger > *,
+    .wz-shell > *,
+    .wz-shell-wide > *,
+    .wz-card > *,
+    .wz-rows > * {
+        animation: none;
+    }
+}

@@ -150,7 +150,7 @@
 
                 {{-- ── Left: brand panel ─────────────────────────────────── --}}
                 <div class="relative flex flex-col overflow-hidden bg-white lg:col-start-1 lg:row-start-1">
-                    <div class="shrink-0 px-8 pt-5 sm:px-10 sm:pt-6">
+                    <div class="wz-stagger shrink-0 px-8 pt-5 sm:px-10 sm:pt-6">
                         {{-- The logo alone, top-left. No wordmark beside it:
                              the mark already carries "AkademicNest", and setting
                              the name twice within 200px reads as a mistake.
@@ -181,7 +181,7 @@
                          content and would push the feature band off the bottom
                          on a short window instead of the illustration giving
                          way. --}}
-                    <div class="mt-3 flex min-h-0 flex-1 items-center justify-center overflow-hidden px-6 sm:px-8">
+                    <div class="wz-rise mt-3 flex min-h-0 flex-1 items-center justify-center overflow-hidden px-6 sm:px-8" style="--wz-delay: 260ms">
                         <x-auth-panel-illustration />
                     </div>
                 </div>
@@ -193,17 +193,9 @@
                      would be clipping the submit button. no-scrollbar hides
                      the bar itself, so the safety net never shows. --}}
                 <div class="no-scrollbar flex items-center justify-center overflow-y-auto px-4 py-5 sm:px-10 sm:py-6 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:bg-[#F6F8FC]">
-                    <div class="my-auto w-full max-w-[384px] rounded-2xl border border-[#E4EAF3] bg-white p-5 shadow-[0_1px_2px_rgba(15,42,92,0.04),0_18px_40px_-24px_rgba(15,42,92,0.28)] sm:p-7">
-                        <div class="text-center">
-                            <span class="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#EAF2FF] ring-1 ring-[#D7E6FD]">
-                                <svg class="h-5 w-5 text-primary-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 21h18M5 21V9l7-5 7 5v12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M10 21v-5h4v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M9.5 11h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-                                </svg>
-                            </span>
-
-                            <h2 class="mt-3 text-[17px] font-semibold tracking-[-0.01em] text-[#0F2A5C]">Register Your School</h2>
+                    <div class="wz-rise my-auto w-full max-w-[384px] rounded-2xl border border-[#E4EAF3] bg-white p-5 shadow-[0_1px_2px_rgba(15,42,92,0.04),0_18px_40px_-24px_rgba(15,42,92,0.28)] sm:p-7">
+                        <div class="wz-stagger text-center" style="--wz-base: 120ms">
+                            <h2 class="text-[18px] font-semibold tracking-[-0.01em] text-[#0F2A5C]">Register Your School</h2>
                             <small class="mt-1 block text-[12px] leading-[1.5] text-[#64789F]">Fill in the details below to create your school account.</small>
                         </div>
 
@@ -233,7 +225,7 @@
                             </div>
                         @endif
 
-                        <form method="POST" action="{{ route('register') }}" class="mt-5 space-y-3" x-data="{ submitting: false }" @submit="submitting = true">
+                        <form method="POST" action="{{ route('register') }}" class="wz-stagger mt-5 space-y-3" style="--wz-base: 200ms" x-data="{ submitting: false }" @submit="submitting = true">
                             @csrf
                             <x-honeypot />
 
@@ -406,7 +398,7 @@
                      to the bottom of the left column, reading as a footer to
                      the illustration above it. --}}
                 <div class="bg-primary-500 px-6 py-4 text-white sm:px-8 lg:col-start-1 lg:row-start-2">
-                    <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="wz-stagger grid grid-cols-3 gap-4 text-center" style="--wz-base: 320ms">
                         @foreach ([
                             ['Secure &amp; Safe', 'Your data is protected with enterprise-grade security.', 'M12 3l7 3v6c0 4.4-3 8.2-7 9-4-.8-7-4.6-7-9V6l7-3z'],
                             ['Built for Schools', 'Everything you need to manage your school in one place.', 'M9 11a3 3 0 100-6 3 3 0 000 6zM3 20c0-3 2.7-5 6-5s6 2 6 5M17 20c0-2.3-.9-4-2.5-5M16 11a3 3 0 000-6'],
