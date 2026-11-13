@@ -2676,3 +2676,41 @@ a.pwa-install-banner__install {
         animation: none;
     }
 }
+
+/* --------------------------------------------------------------------------
+   Platform-wide slide-in (resources/js/page-motion.js).
+
+   The script adds .an-motion-pre to what it will animate (hidden until its
+   turn) and swaps it for .an-motion-in, then removes both when the animation
+   ends, so afterwards each element is exactly as it was. Never hidden in
+   print or for visitors who prefer reduced motion.
+   -------------------------------------------------------------------------- */
+@keyframes an-motion {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 12px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.an-motion-pre {
+    opacity: 0;
+}
+
+.an-motion-in {
+    animation: an-motion 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: var(--an-motion-delay, 0ms);
+}
+
+@media print, (prefers-reduced-motion: reduce) {
+    .an-motion-pre {
+        opacity: 1 !important;
+    }
+
+    .an-motion-in {
+        animation: none !important;
+    }
+}

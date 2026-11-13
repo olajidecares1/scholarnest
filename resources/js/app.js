@@ -19,6 +19,7 @@ import marqueeList from './marquee-list';
 import reportEvidence from './report-evidence';
 import { registerResultPreviewStore } from './result-preview-modal';
 import initScrollAnimations from './scroll-reveal';
+import installPageMotion from './page-motion';
 import signaturePad from './signature-pad';
 import uploadProgressForm from './upload-progress-form';
 
@@ -65,6 +66,18 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initScrollAnimations);
 } else {
     initScrollAnimations();
+}
+
+/*
+ * Cards, headings, text and fields slide in on every page of the platform,
+ * the first screenful in a short cascade and the rest as it is scrolled to.
+ * After Alpine, so what Alpine hides is known to be hidden. See
+ * resources/js/page-motion.js.
+ */
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', installPageMotion);
+} else {
+    installPageMotion();
 }
 
 /*
