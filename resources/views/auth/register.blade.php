@@ -164,14 +164,14 @@
                             src="{{ $logoUrl }}"
                             alt="{{ config('app.name', 'AkademicNest') }}"
                             @click="registerClick()"
-                            class="h-20 w-20 shrink-0 select-none rounded-[10px] object-contain"
+                            class="h-14 w-14 shrink-0 select-none rounded-xl object-contain sm:h-16 sm:w-16"
                         >
 
-                        <h1 class="mt-4 text-[26px] font-extrabold leading-[1.15] tracking-tight text-[#0F2A5C] sm:text-[30px]">
+                        <h1 class="mt-4 text-[23px] font-bold leading-[1.15] tracking-[-0.02em] text-[#0F2A5C] sm:text-[27px]">
                             Create Your<br>School Account
                         </h1>
 
-                        <small class="block mt-3 max-w-sm text-[12.5px] leading-[1.65] text-[#5B7099]">
+                        <small class="mt-2.5 block max-w-sm text-[12.5px] leading-[1.65] text-[#5B7099]">
                             Join thousands of schools using AkademicNest to manage operations, engage students, and grow together.
                         </small>
                     </div>
@@ -192,23 +192,23 @@
                      1366x600, a phone in landscape, where the alternative
                      would be clipping the submit button. no-scrollbar hides
                      the bar itself, so the safety net never shows. --}}
-                <div class="no-scrollbar flex items-center justify-center overflow-y-auto px-6 py-4 sm:px-10 sm:py-5 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-                    <div class="my-auto w-full max-w-[370px]">
+                <div class="no-scrollbar flex items-center justify-center overflow-y-auto px-4 py-5 sm:px-10 sm:py-6 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:bg-[#F6F8FC]">
+                    <div class="my-auto w-full max-w-[384px] rounded-2xl border border-[#E4EAF3] bg-white p-5 shadow-[0_1px_2px_rgba(15,42,92,0.04),0_18px_40px_-24px_rgba(15,42,92,0.28)] sm:p-7">
                         <div class="text-center">
-                            <span class="mx-auto flex h-[44px] w-[44px] items-center justify-center rounded-full bg-[#EAF2FF]">
-                                <svg class="h-[22px] w-[22px] text-primary-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <span class="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#EAF2FF] ring-1 ring-[#D7E6FD]">
+                                <svg class="h-5 w-5 text-primary-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M3 21h18M5 21V9l7-5 7 5v12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
                                     <path d="M10 21v-5h4v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
                                     <path d="M9.5 11h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
                                 </svg>
                             </span>
 
-                            <h2 class="mt-2.5 text-[19px] font-bold tracking-tight text-[#0F2A5C]">Register Your School</h2>
-                            <small class="block mt-1 text-[11.5px] text-[#64789F]">Fill in the details below to create your school account.</small>
+                            <h2 class="mt-3 text-[17px] font-semibold tracking-[-0.01em] text-[#0F2A5C]">Register Your School</h2>
+                            <small class="mt-1 block text-[12px] leading-[1.5] text-[#64789F]">Fill in the details below to create your school account.</small>
                         </div>
 
                         @if ($errors->any() && ! $errors->has('login'))
-                            <div class="mt-4 rounded-[9px] bg-red-50 p-3 text-[12px] text-red-700">
+                            <div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-[12px] leading-[1.5] text-red-700">
                                 <ul class="list-inside list-disc space-y-0.5">
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -217,7 +217,7 @@
                             </div>
                         @endif
 
-                        <form method="POST" action="{{ route('register') }}" class="mt-3 space-y-[8px]" x-data="{ submitting: false }" @submit="submitting = true">
+                        <form method="POST" action="{{ route('register') }}" class="mt-5 space-y-3" x-data="{ submitting: false }" @submit="submitting = true">
                             @csrf
                             <x-honeypot />
 
@@ -231,7 +231,7 @@
                                         {{ $label }} <span class="text-red-500">*</span>
                                     </label>
 
-                                    <div class="relative mt-1">
+                                    <div class="relative mt-1.5">
                                         <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#9AAAC4]">
                                             <i class="fa-solid {{ \App\Support\FieldIcon::fa($iconPath) }} text-[14px] leading-none" aria-hidden="true"></i>
                                         </span>
@@ -262,7 +262,7 @@
                                         {{ $label }} <span class="text-red-500">*</span>
                                     </label>
 
-                                    <div class="relative mt-1">
+                                    <div class="relative mt-1.5">
                                         <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#9AAAC4]">
                                             <i class="fa-solid fa-lock text-[14px] leading-none" aria-hidden="true"></i>
                                         </span>
@@ -312,8 +312,8 @@
                                  absent, or set to anything other than a true
                                  value, including one made with the attribute
                                  stripped out or the form posted directly. --}}
-                            <div class="pt-0.5">
-                                <label class="flex items-start gap-2 text-[11.5px] leading-[1.55] text-[#3D5378]">
+                            <div class="pt-1">
+                                <label class="flex items-start gap-2 text-[11.5px] leading-[1.6] text-[#3D5378]">
                                     <input
                                         type="checkbox"
                                         name="terms"
@@ -341,7 +341,7 @@
                             <button
                                 type="submit"
                                 :disabled="submitting"
-                                class="btn mt-1 h-[40px] w-full rounded-[8px] bg-primary-500 text-[13px] font-bold text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+                                class="btn mt-1 w-full bg-primary-500 font-semibold text-white shadow-sm shadow-primary-500/25 transition hover:bg-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
                             >
                                 <span x-show="! submitting">Create School Account</span>
                                 <span x-show="submitting" x-cloak>Creating your account&hellip;</span>
@@ -361,15 +361,15 @@
                              names itself, then picks the portal it wants from
                              the ones its plan includes. route('login') would
                              have redirected straight back to this page. --}}
-                        <small class="block mt-3 text-center text-[12px] text-[#64789F]">
+                        <small class="mt-4 block border-t border-[#EEF2F8] pt-4 text-center text-[12px] text-[#64789F]">
                             Already registered?
                             <a
                                 href="{{ route('portal.find.show') }}"
-                                class="font-bold text-primary-500 underline-offset-2 hover:text-primary-600 hover:underline"
+                                class="font-semibold text-primary-500 underline-offset-2 hover:text-primary-600 hover:underline"
                             >Go to your school's portal</a>
                         </small>
 
-                        <small class="mt-2.5 flex items-center justify-center gap-1.5 text-[10.5px] text-[#8194B3]">
+                        <small class="mt-2 flex items-center justify-center gap-1.5 text-[10.5px] text-[#8194B3]">
                             <svg class="h-[13px] w-[13px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="currentColor" stroke-width="1.7" />
                                 <path d="M8.5 10.5V7.75a3.5 3.5 0 017 0v2.75" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
@@ -392,12 +392,12 @@
                             ['Smart &amp; Reliable', 'Powerful tools to help you make better decisions.', 'M7 16V9M12 16V5M17 16v-4'],
                         ] as [$title, $body, $path])
                             <div class="flex flex-col items-center">
-                                <span class="flex h-9 w-9 items-center justify-center rounded-full border-[1.5px] border-white/60">
-                                    <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/40">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="{{ $path }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </span>
-                                <p class="mt-2 text-[11.5px] font-bold leading-tight">{!! $title !!}</p>
+                                <p class="mt-2 text-[11.5px] font-semibold leading-tight">{!! $title !!}</p>
                                 <p class="mt-1 text-[10px] leading-[1.45] text-white/85">{{ $body }}</p>
                             </div>
                         @endforeach

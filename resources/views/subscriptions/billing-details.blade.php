@@ -1,12 +1,12 @@
 <x-dashboard-layout page-title="Billing Details" page-subtitle="Confirm the billing information for your school.">
-    <div class="mx-auto max-w-2xl space-y-6">
+    <div class="wz-shell">
         <x-subscription-steps step="billing-details" />
 
-        <x-auth-card class="!max-w-none">
-            <h2 class="text-lg font-bold text-gray-900">Billing Contact Information</h2>
-            <small class="block mt-1 text-sm text-gray-600">This information will appear on your subscription records and receipts.</small>
+        <div class="wz-card">
+            <h2 class="wz-title">Billing Contact Information</h2>
+            <small class="wz-lead">This information will appear on your subscription records and receipts.</small>
 
-            <form method="POST" action="{{ route('subscriptions.billing-details.store') }}" class="mt-6 space-y-2">
+            <form method="POST" action="{{ route('subscriptions.billing-details.store') }}" class="mt-6 space-y-4">
                 @csrf
 
                 <x-text-field
@@ -52,18 +52,15 @@
                     placeholder="School or office address"
                 />
 
-                <div class="flex items-center justify-between pt-2">
-                    <a href="{{ $backRoute }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
+                <div class="wz-actions !mt-2">
+                    <a href="{{ $backRoute }}" class="wz-back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
 
-                    <button
-                        type="submit"
-                        class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600"
-                    >
+                    <button type="submit" class="btn wz-btn">
                         Continue
-                        <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </button>
                 </div>
             </form>
-        </x-auth-card>
+        </div>
     </div>
 </x-dashboard-layout>

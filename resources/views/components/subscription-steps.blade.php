@@ -51,7 +51,7 @@
      step 4 of 6 sees step 4 rather than having to drag to find out where it
      is. --}}
 <div
-    class="rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm sm:p-6 lg:rounded-[10px]"
+    class="rounded-2xl border border-slate-200/80 bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-6 sm:py-4 dark:border-gray-700 dark:bg-gray-800"
     x-data="{
         centreCurrentStep() {
             const rail = this.$refs.rail;
@@ -76,10 +76,10 @@
          where they are, and how much is left, is stated in words that never
          scroll away. --}}
     <div class="mb-3 flex items-baseline justify-between gap-3 sm:hidden">
-        <p class="text-[11px] font-bold uppercase tracking-wide text-primary-600">
+        <p class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-primary-600">
             Step {{ $position }} of {{ $total }}
         </p>
-        <small class="block truncate text-[11px] font-semibold text-gray-500">{{ $steps->values()[$position - 1] ?? '' }}</small>
+        <small class="block truncate text-[11px] font-medium text-slate-500">{{ $steps->values()[$position - 1] ?? '' }}</small>
     </div>
 
     <div
@@ -96,39 +96,39 @@
                         // Below "sm" every step keeps its own width and the row
                         // overflows; from "sm" they share the space instead.
                         'flex w-[108px] shrink-0 items-center sm:w-auto sm:min-w-0 sm:flex-1',
-                        "after:mx-2 after:mt-4 after:h-0.5 after:w-6 after:shrink-0 after:content-[''] sm:after:mx-3 sm:after:w-auto sm:after:min-w-4 sm:after:flex-1" => $number !== $total,
-                        'after:bg-green-500' => $number < $position,
-                        'after:bg-gray-200' => $number >= $position,
+                        "after:mx-2 after:mt-[13px] after:h-[2px] after:w-6 after:shrink-0 after:rounded-full after:content-[''] sm:after:mx-2.5 sm:after:mt-[15px] sm:after:w-auto sm:after:min-w-4 sm:after:flex-1" => $number !== $total,
+                        'after:bg-emerald-500' => $number < $position,
+                        'after:bg-slate-200 dark:after:bg-gray-700' => $number >= $position,
                     ])
                 >
                     <div class="flex w-full min-w-0 flex-col items-center px-1 text-center sm:px-0">
                         <span
                             @class([
-                                'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors sm:h-10 sm:w-10',
-                                'bg-green-500 text-white' => $number < $position,
-                                'bg-primary-600 text-white ring-4 ring-primary-100' => $number === $position,
-                                'bg-gray-100 text-gray-400' => $number > $position,
+                                'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold transition-colors sm:h-8 sm:w-8',
+                                'bg-emerald-500 text-white' => $number < $position,
+                                'bg-primary-600 text-white shadow-sm shadow-primary-600/30 ring-[3px] ring-primary-100 dark:ring-primary-900/60' => $number === $position,
+                                'border border-slate-200 bg-white text-slate-400 dark:border-gray-600 dark:bg-gray-800' => $number > $position,
                             ])
                         >
                             @if ($number < $position)
-                                <i class="fa-solid fa-check text-xs"></i>
+                                <i class="fa-solid fa-check text-[11px]" aria-hidden="true"></i>
                             @else
                                 {{ $number }}
                             @endif
                         </span>
 
-                        <div class="mt-2 w-full min-w-0">
+                        <div class="mt-1.5 w-full min-w-0">
                             {{-- Wraps below "sm", where there is room for two
                                  lines and none to spare sideways; truncates
                                  from "sm" up, where the columns are even. --}}
                             <p @class([
-                                'text-[11px] font-bold leading-[1.3] sm:truncate sm:text-xs',
-                                'text-gray-900' => $number <= $position,
-                                'text-gray-400' => $number > $position,
+                                'text-[11px] font-semibold leading-[1.3] sm:line-clamp-2 sm:text-[11.5px]',
+                                'text-slate-900 dark:text-white' => $number <= $position,
+                                'text-slate-400' => $number > $position,
                             ])>
                                 {{ $label }}
                             </p>
-                            <small class="block mt-0.5 text-[10px] font-semibold leading-tight text-gray-600">
+                            <small class="mt-0.5 block text-[10px] font-medium leading-tight text-slate-400">
                                 @if ($number < $position)
                                     Completed
                                 @elseif ($number === $position)

@@ -1,26 +1,26 @@
 <x-dashboard-layout page-title="Review & Confirm" page-subtitle="Review your subscription details before submitting.">
-    <div class="mx-auto max-w-3xl space-y-6">
+    <div class="wz-shell">
         <x-subscription-steps step="review" />
 
-        <x-auth-card class="!max-w-none">
+        <div class="wz-card">
             @if ($errors->has('subscription'))
-                <div class="mb-4 flex items-start gap-2 rounded-[8px] border border-red-200 bg-red-50 p-3 text-xs leading-[1.6] text-red-700" role="alert">
-                    <i class="fa-solid fa-circle-exclamation mt-0.5 text-[13px]" aria-hidden="true"></i>
+                <div class="wz-note wz-note-error mb-5" role="alert">
+                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
                     <span>{{ $errors->first('subscription') }}</span>
                 </div>
             @endif
 
-            <h2 class="text-lg font-bold text-gray-900">Subscription Summary</h2>
-            <small class="block mt-1 text-sm text-gray-600">Please review the details below before confirming.</small>
+            <h2 class="wz-title">Subscription Summary</h2>
+            <small class="wz-lead">Please review the details below before confirming.</small>
 
-            <dl class="mt-6 divide-y divide-gray-100 text-sm">
-                <div class="flex justify-between py-3">
-                    <dt class="text-gray-500">Plan</dt>
-                    <dd class="font-semibold text-gray-900">{{ $plan->name }}</dd>
+            <dl class="wz-panel wz-rows mt-5">
+                <div class="wz-row">
+                    <dt>Plan</dt>
+                    <dd>{{ $plan->name }}</dd>
                 </div>
-                <div class="flex justify-between py-3">
-                    <dt class="text-gray-500">Billing Cycle</dt>
-                    <dd class="font-semibold text-gray-900">{{ $billingCycle->label() }}</dd>
+                <div class="wz-row">
+                    <dt>Billing Cycle</dt>
+                    <dd>{{ $billingCycle->label() }}</dd>
                 </div>
                 @if ($studentsCount)
                     {{-- The unit price is shown as well as the total so the
@@ -28,59 +28,59 @@
                          being asked to trust a single figure. It comes from
                          the plan record the Super Admin configures, never a
                          number written into this page. --}}
-                    <div class="flex justify-between py-3">
-                        <dt class="text-gray-500">Price per Student</dt>
-                        <dd class="font-semibold text-gray-900">&#8358;{{ number_format($plan->price_per_student_per_term, 2) }}</dd>
+                    <div class="wz-row">
+                        <dt>Price per Student</dt>
+                        <dd>&#8358;{{ number_format($plan->price_per_student_per_term, 2) }}</dd>
                     </div>
-                    <div class="flex justify-between py-3">
-                        <dt class="text-gray-500">Students Requested</dt>
-                        <dd class="font-semibold text-gray-900">{{ number_format($studentsCount) }}</dd>
+                    <div class="wz-row">
+                        <dt>Students Requested</dt>
+                        <dd>{{ number_format($studentsCount) }}</dd>
                     </div>
                 @endif
-                <div class="flex justify-between py-3">
-                    <dt class="text-gray-500">Billing Contact</dt>
-                    <dd class="font-semibold text-gray-900">{{ $billingContactName }}</dd>
+                <div class="wz-row">
+                    <dt>Billing Contact</dt>
+                    <dd>{{ $billingContactName }}</dd>
                 </div>
-                <div class="flex justify-between py-3">
-                    <dt class="text-gray-500">Billing Email</dt>
-                    <dd class="font-semibold text-gray-900">{{ $billingEmail }}</dd>
+                <div class="wz-row">
+                    <dt>Billing Email</dt>
+                    <dd>{{ $billingEmail }}</dd>
                 </div>
-                <div class="flex justify-between py-3">
-                    <dt class="text-gray-500">Phone</dt>
-                    <dd class="font-semibold text-gray-900">{{ $billingPhone }}</dd>
+                <div class="wz-row">
+                    <dt>Phone</dt>
+                    <dd>{{ $billingPhone }}</dd>
                 </div>
-                <div class="flex justify-between py-3">
-                    <dt class="text-gray-500">Address</dt>
-                    <dd class="font-semibold text-gray-900">{{ $billingAddress }}</dd>
+                <div class="wz-row">
+                    <dt>Address</dt>
+                    <dd>{{ $billingAddress }}</dd>
                 </div>
-                <div class="flex justify-between py-3">
-                    <dt class="text-gray-500">Payment Method</dt>
-                    <dd class="font-semibold text-gray-900">{{ $paymentMethod->label() }}</dd>
+                <div class="wz-row">
+                    <dt>Payment Method</dt>
+                    <dd>{{ $paymentMethod->label() }}</dd>
                 </div>
-                <div class="flex justify-between py-3">
-                    <dt class="text-gray-500">Receipt</dt>
-                    <dd class="font-semibold text-gray-900">{{ $receiptOriginalName }}</dd>
+                <div class="wz-row">
+                    <dt>Receipt</dt>
+                    <dd>{{ $receiptOriginalName }}</dd>
                 </div>
-                <div class="flex justify-between py-3">
-                    <dt class="text-gray-500">Reference</dt>
-                    <dd class="font-bold text-primary-600">{{ $reference }}</dd>
+                <div class="wz-row">
+                    <dt>Reference</dt>
+                    <dd class="font-semibold !text-primary-600">{{ $reference }}</dd>
                 </div>
             </dl>
 
-            <div class="mt-4 flex items-center justify-between rounded-[5px] bg-primary-50 p-4 lg:rounded-[10px]">
-                <span class="text-sm font-semibold text-gray-700">Total Amount</span>
-                <span class="text-xl font-extrabold text-primary-700">&#8358;{{ number_format($amount, 2) }}</span>
+            <div class="wz-total mt-3">
+                <span class="wz-total-label">Total Amount</span>
+                <span class="wz-total-value tabular-nums">&#8358;{{ number_format($amount, 2) }}</span>
             </div>
 
             {{-- Said before the school pays, not after. Submitting a receipt is
                  a request, not an activation: nothing opens until a Super Admin
                  has reviewed the payment. A school that learns this only from
                  the confirmation screen has already been surprised. --}}
-            <div class="mt-3 flex items-start gap-2.5 rounded-[5px] bg-amber-50 p-4 lg:rounded-[10px]">
-                <i class="fa-solid fa-clock mt-0.5 text-amber-600"></i>
-                <div class="text-sm">
-                    <p class="font-semibold text-amber-900">Activation Status: Awaiting AkademicNest Team Approval</p>
-                    <p class="mt-0.5 leading-relaxed text-amber-800">
+            <div class="wz-note wz-note-warn mt-3">
+                <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                <div>
+                    <p class="font-semibold text-amber-900 dark:text-amber-100">Activation Status: Awaiting AkademicNest Team Approval</p>
+                    <p class="mt-0.5">
                         @if ($studentsCount)
                             Once your payment is verified, your school is activated with
                             <span class="font-semibold">{{ number_format($studentsCount) }}</span> student
@@ -92,11 +92,11 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('subscriptions.review.store') }}" class="mt-6" x-data="{ busy: false }" @pageshow.window="busy = false" @submit="if (busy) { $event.preventDefault(); return; } busy = true">
+            <form method="POST" action="{{ route('subscriptions.review.store') }}" x-data="{ busy: false }" @pageshow.window="busy = false" @submit="if (busy) { $event.preventDefault(); return; } busy = true">
                 @csrf
 
-                <div class="flex items-center justify-between">
-                    <a href="{{ route('subscriptions.payment-method') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
+                <div class="wz-actions">
+                    <a href="{{ route('subscriptions.payment-method') }}" class="wz-back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
 
                     {{-- Pressed once: a second press while the first is on its way
                          would only be turned away by the server. --}}
@@ -104,15 +104,15 @@
                         type="submit"
                         :disabled="busy"
                         :aria-busy="busy.toString()"
-                        class="btn flex items-center gap-2 rounded-[8px] bg-primary-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition hover:bg-primary-600 disabled:cursor-wait disabled:opacity-70"
+                        class="btn wz-btn disabled:cursor-wait"
                     >
                         <span x-show="!busy">Confirm & Submit</span>
                         <span x-show="busy" x-cloak>Submitting&hellip;</span>
-                        <i x-show="!busy" class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
-                        <i x-show="busy" x-cloak class="fa-solid fa-spinner fa-spin text-[14px] leading-none" aria-hidden="true"></i>
+                        <i x-show="!busy" class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                        <i x-show="busy" x-cloak class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
                     </button>
                 </div>
             </form>
-        </x-auth-card>
+        </div>
     </div>
 </x-dashboard-layout>

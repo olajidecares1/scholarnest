@@ -2465,3 +2465,128 @@ a.pwa-install-banner__install {
     background-color: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
     color: #bfdbfe;
 }
+
+/* --------------------------------------------------------------------------
+   Registration and subscription wizard: one design language for every step.
+
+   Choose Plan, Students & Amount, Billing Details, Payment Method, Review &
+   Confirm, Awaiting Approval and the Exclusive enquiry page all build from
+   these, so a card, a heading, a summary row or a note looks the same on
+   every step instead of each page re-deciding its own sizes. Scoped by the
+   wz- prefix: nothing else in the platform uses them.
+
+   Sizes are deliberately restrained. A 600px column, 15-16px headings,
+   12.5px body text and a soft, low shadow read as a calm, premium flow; the
+   previous 768px cards with 18px headings and 14px body text read as a form.
+   In the components layer so a utility on the same element still wins.
+   -------------------------------------------------------------------------- */
+@layer components {
+    .wz-shell {
+        @apply mx-auto w-full max-w-[600px] space-y-4 sm:space-y-5;
+    }
+
+    .wz-shell-wide {
+        @apply mx-auto w-full max-w-[1040px] space-y-4 sm:space-y-5;
+    }
+
+    .wz-card {
+        @apply rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_32px_-20px_rgba(15,23,42,0.25)] sm:p-7 dark:border-gray-700 dark:bg-gray-800;
+    }
+
+    .wz-eyebrow {
+        @apply text-[10.5px] font-semibold uppercase tracking-[0.08em] text-primary-600 dark:text-primary-300;
+    }
+
+    .wz-title {
+        @apply text-[15px] font-semibold leading-snug tracking-tight text-slate-900 sm:text-base dark:text-white;
+    }
+
+    .wz-lead {
+        @apply mt-1 block text-[12.5px] leading-[1.6] text-slate-500 dark:text-gray-400;
+    }
+
+    .wz-section-title {
+        @apply text-[12.5px] font-semibold text-slate-900 dark:text-white;
+    }
+
+    .wz-panel {
+        @apply rounded-xl border border-slate-200/70 bg-slate-50/70 dark:border-gray-700 dark:bg-gray-900/40;
+    }
+
+    .wz-rows {
+        @apply divide-y divide-slate-200/70 px-4 text-[12.5px] dark:divide-gray-700;
+    }
+
+    .wz-row {
+        @apply flex items-baseline justify-between gap-4 py-2.5;
+    }
+
+    .wz-row > dt {
+        @apply shrink-0 text-slate-500 dark:text-gray-400;
+    }
+
+    .wz-row > dd {
+        @apply min-w-0 text-right font-medium break-words text-slate-900 dark:text-gray-100;
+    }
+
+    .wz-total {
+        @apply flex items-center justify-between gap-4 rounded-xl bg-primary-50 px-4 py-3.5 dark:bg-primary-900/30;
+    }
+
+    .wz-total-label {
+        @apply text-[12.5px] font-medium text-slate-600 dark:text-gray-300;
+    }
+
+    .wz-total-value {
+        @apply text-lg font-bold tracking-tight text-primary-700 dark:text-primary-200;
+    }
+
+    .wz-note {
+        @apply flex items-start gap-2.5 rounded-xl px-4 py-3 text-[12px] leading-[1.6];
+    }
+
+    .wz-note > i {
+        @apply mt-[3px] shrink-0 text-[12px];
+    }
+
+    .wz-note-info {
+        @apply bg-primary-50 text-primary-800 dark:bg-primary-900/30 dark:text-primary-100;
+    }
+
+    .wz-note-warn {
+        @apply bg-amber-50 text-amber-800 dark:bg-amber-900/25 dark:text-amber-200;
+    }
+
+    .wz-note-error {
+        @apply border border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-900/25 dark:text-red-200;
+    }
+
+    .wz-note-success {
+        @apply bg-emerald-50 text-emerald-800 dark:bg-emerald-900/25 dark:text-emerald-200;
+    }
+
+    .wz-actions {
+        @apply mt-6 flex items-center justify-between gap-3 border-t border-slate-100 pt-5 dark:border-gray-700;
+    }
+
+    .wz-back {
+        @apply inline-flex items-center gap-1.5 text-[12.5px] font-medium text-slate-500 transition hover:text-slate-900 dark:text-gray-400 dark:hover:text-white;
+    }
+
+    .wz-back > i {
+        @apply text-[11px];
+    }
+
+    /* With .btn, which carries the platform's height, radius and 13px text. */
+    .wz-btn {
+        @apply inline-flex items-center justify-center gap-2 bg-primary-500 font-semibold text-white shadow-sm shadow-primary-500/25 transition hover:bg-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .wz-btn > i {
+        @apply text-[12px] leading-none;
+    }
+
+    .wz-btn-quiet {
+        @apply inline-flex items-center justify-center gap-2 border border-slate-200 bg-white font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200;
+    }
+}

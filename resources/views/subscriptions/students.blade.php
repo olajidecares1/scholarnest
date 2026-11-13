@@ -6,12 +6,12 @@
      total shown is a quote, the charge is recalculated server-side from the
      same plan record when the form is submitted. --}}
 <x-dashboard-layout page-title="Students & Amount" page-subtitle="Tell us how many students you are onboarding this term.">
-    <div class="mx-auto max-w-2xl space-y-6">
+    <div class="wz-shell">
         <x-subscription-steps step="students" />
 
-        <x-auth-card class="!max-w-none">
-            <h2 class="text-lg font-bold text-gray-900">Student Capacity</h2>
-            <small class="block mt-1 text-sm text-gray-600">
+        <div class="wz-card">
+            <h2 class="wz-title">Student Capacity</h2>
+            <small class="wz-lead">
                 Your subscription is billed per student, per term. The number you enter here also becomes
                 the number of student spaces your school is given once your payment is approved.
             </small>
@@ -39,14 +39,14 @@
                     Number of Students / Pupils
                 </label>
 
-                <div class="mt-2 flex items-stretch gap-2">
+                <div class="mt-1.5 flex items-stretch gap-2">
                     <button
                         type="button"
                         @click="studentsCount = Math.max(1, Number(studentsCount) - 1)"
-                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] border border-gray-300 text-gray-600 transition hover:bg-gray-50"
+                        class="flex h-9 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                         aria-label="Decrease number of students"
                     >
-                        <i class="fa-solid fa-minus text-xs"></i>
+                        <i class="fa-solid fa-minus text-[11px]" aria-hidden="true"></i>
                     </button>
 
                     <input
@@ -59,69 +59,68 @@
                         step="1"
                         required
                         inputmode="numeric"
-                        class="w-full text-center"
+                        class="w-full text-center font-semibold tabular-nums"
                     >
 
                     <button
                         type="button"
                         @click="studentsCount = Math.min(100000, Number(studentsCount) + 1)"
-                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] border border-gray-300 text-gray-600 transition hover:bg-gray-50"
+                        class="flex h-9 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                         aria-label="Increase number of students"
                     >
-                        <i class="fa-solid fa-plus text-xs"></i>
+                        <i class="fa-solid fa-plus text-[11px]" aria-hidden="true"></i>
                     </button>
                 </div>
 
                 <x-input-error :messages="$errors->get('students_count')" class="mt-2" />
 
-                <small class="block mt-2 text-xs text-gray-500">
+                <small class="field-hint mt-1.5">
                     You can request additional student spaces later without starting a new subscription.
                 </small>
 
-                <div class="mt-6 rounded-[5px] border border-gray-200 bg-gray-50 p-4 lg:rounded-[10px]">
-                    <dl class="space-y-2 text-sm">
-                        <div class="flex items-center justify-between">
-                            <dt class="text-gray-500">Plan</dt>
-                            <dd class="font-semibold text-gray-900">{{ $plan->name }}</dd>
+                <div class="wz-panel mt-5 overflow-hidden">
+                    <dl class="wz-rows">
+                        <div class="wz-row">
+                            <dt>Plan</dt>
+                            <dd>{{ $plan->name }}</dd>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <dt class="text-gray-500">Price per Student / Term</dt>
-                            <dd class="font-semibold text-gray-900">&#8358;{{ number_format($plan->price_per_student_per_term, 2) }}</dd>
+                        <div class="wz-row">
+                            <dt>Price per Student / Term</dt>
+                            <dd>&#8358;{{ number_format($plan->price_per_student_per_term, 2) }}</dd>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <dt class="text-gray-500">Students</dt>
-                            <dd class="font-semibold text-gray-900" x-text="Number(studentsCount) > 0 ? Number(studentsCount).toLocaleString() : 'N/A'"></dd>
+                        <div class="wz-row">
+                            <dt>Students</dt>
+                            <dd class="tabular-nums" x-text="Number(studentsCount) > 0 ? Number(studentsCount).toLocaleString() : 'N/A'"></dd>
                         </div>
                     </dl>
 
-                    <div class="mt-3 flex items-center justify-between border-t border-gray-200 pt-3">
-                        <span class="text-sm font-semibold text-gray-700">Total Amount</span>
-                        <span class="text-xl font-extrabold text-primary-700" x-text="formattedTotal"></span>
+                    <div class="wz-total rounded-t-none border-t border-slate-200/70 dark:border-gray-700">
+                        <span class="wz-total-label">Total Amount</span>
+                        <span class="wz-total-value tabular-nums" x-text="formattedTotal"></span>
                     </div>
                 </div>
 
-                <div class="mt-6 flex items-start gap-2.5 rounded-[5px] bg-amber-50 p-4 lg:rounded-[10px]">
-                    <i class="fa-solid fa-circle-info mt-0.5 text-amber-600"></i>
-                    <p class="text-sm leading-relaxed text-amber-800">
+                <div class="wz-note wz-note-warn mt-4">
+                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                    <p>
                         This is your school's total student capacity for the term. Your school is activated with these
                         spaces only after a AkademicNest Team has verified your payment.
                     </p>
                 </div>
 
-                <div class="mt-6 flex items-center justify-between">
-                    <a href="{{ route('subscriptions.choose-plan') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
+                <div class="wz-actions">
+                    <a href="{{ route('subscriptions.choose-plan') }}" class="wz-back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back</a>
 
                     <button
                         type="submit"
                         :disabled="!(Number(studentsCount) >= 1)"
-                        :class="Number(studentsCount) >= 1 ? 'bg-primary-500 hover:bg-primary-600' : 'cursor-not-allowed bg-gray-300'"
-                        class="flex items-center gap-2 rounded-[8px] px-6 py-3 text-sm font-bold text-white shadow-md shadow-primary-500/30 transition"
+                        class="btn wz-btn"
                     >
                         Continue
-                        <i class="fa-solid fa-arrow-right text-[14px] leading-none" aria-hidden="true"></i>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </button>
                 </div>
             </form>
-        </x-auth-card>
+        </div>
     </div>
 </x-dashboard-layout>
