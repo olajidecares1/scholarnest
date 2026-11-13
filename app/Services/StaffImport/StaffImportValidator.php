@@ -2,6 +2,7 @@
 
 namespace App\Services\StaffImport;
 
+use App\Enums\StaffRole;
 use App\Enums\TeacherAssignmentType;
 use App\Models\School;
 use App\Models\TeacherAssignment;
@@ -27,6 +28,22 @@ use Illuminate\Validation\Rules\Password;
  *   needs correcting    errors !== []: missing or invalid details, an unknown
  *                       role or class, a duplicate within the file, a class
  *                       that already has a class teacher, a weak password.
+ *
+ * Class teachers are worked out from the list, so nobody picks them by hand:
+ *
+ *   said outright   a "Class Teacher" / "Form Master" role (the class may be
+ *                   in the role itself: "Class Teacher, Primary 2"), a
+ *                   "Class Teacher Of" column, or Yes in an "Is Class
+ *                   Teacher" column. A clash with another class teacher is
+ *                   an error to correct.
+ *   worked out      a teacher (or a row with no role) with exactly one class.
+ *                   If that class has a class teacher already, in the school
+ *                   or earlier in the file, they are registered as a teacher
+ *                   of it instead, with a note, and nothing is held up.
+ *
+ * Class names are matched loosely ("Pry 1", "P1", "Primary One" for Primary 1;
+ * "JS1A" for JSS 1A; "SS 2" for SSS 2). Someone already on the staff list is
+ * never changed, except that a free class the file gives them is assigned.
  */
 class StaffImportValidator
 {
@@ -48,8 +65,17 @@ class StaffImportValidator
     /** @var array<string, string> normalised class => the school's spelling */
     private array $classes = [];
 
+    /** @var array<string, string> loosely written class ("Pry 1", "JS1A") => the school's spelling, when only one class reads that way */
+    private array $looseClasses = [];
+
     /** @var array<string, string> class => "Name (Staff ID)" of its current class teacher */
     private array $classTeachers = [];
+
+    /** @var array<string, int> class => staff id of its current class teacher */
+    private array $classTeacherStaff = [];
+
+    /** @var array<int, StaffRole|null> staff id => role, for people already on the staff list */
+    private array $staffRoles = [];
 
     /** @var array<string, array{label: string, staff_id: int}> */
     private array $existingEmails = [];
@@ -79,7 +105,6 @@ class StaffImportValidator
         $seenEmails = [];
         $seenPhones = [];
         $seenNames = [];
-        $claimedClasses = [];
         $checked = [];
 
         foreach ($rows as $row) {
@@ -114,17 +139,44 @@ class StaffImportValidator
                         $seenNames[$nameKey] = $row['line'];
                     }
                 }
-
-                if ($result['kind'] === StaffRoleResolver::CLASS_TEACHER && ($class = $result['classes'][0] ?? null) !== null) {
-                    if (isset($claimedClasses[$class])) {
-                        $result['errors'][] = "{$class} can only have one class teacher, and row {$claimedClasses[$class]} is already its class teacher.";
-                    } else {
-                        $claimedClasses[$class] = $row['line'];
-                    }
-                }
             }
 
             $checked[] = $result;
+        }
+
+        // One class teacher per class. A class named outright for a teacher
+        // is settled first, then the ones worked out from the file, each in
+        // the order of the list.
+        $claimed = [];
+
+        foreach (['explicit', 'inferred'] as $source) {
+            foreach ($checked as $i => $result) {
+                $class = $result['class_teacher_of'];
+
+                if ($class === null || $result['class_teacher_source'] !== $source) {
+                    continue;
+                }
+
+                if ($result['existing'] !== null && ! $this->canAssignExisting($checked[$i], $class)) {
+                    continue;
+                }
+
+                if (isset($claimed[$class])) {
+                    if ($source === 'explicit' && $result['existing'] === null) {
+                        $checked[$i]['errors'][] = "{$class} can only have one class teacher, and row {$claimed[$class]} is already its class teacher.";
+                    } else {
+                        $checked[$i] = $this->notClassTeacher($result, "{$class} is already given to row {$claimed[$class]} as its class teacher.");
+                    }
+
+                    continue;
+                }
+
+                $claimed[$class] = $result['line'];
+
+                if ($result['existing'] !== null) {
+                    $checked[$i]['assign_class'] = $class;
+                }
+            }
         }
 
         return $checked;
@@ -181,73 +233,116 @@ class StaffImportValidator
         }
 
         // Role, then the class and subjects that go with it.
-        $resolved = $this->roles->resolve($raw['role'] ?? null);
+        $roleText = $raw['role'] ?? null;
+        $resolved = $this->roles->resolve($roleText);
         $kind = $resolved['kind'] ?? null;
-        $classes = [];
         $subjects = $this->split($raw['subjects'] ?? '');
+        $listed = $this->split($raw['class'] ?? '');
+        [$flag, $classTeacherListed] = $this->classTeacherCell($raw['class_teacher'] ?? null);
 
-        if (! isset($raw['role'])) {
-            $errors[] = 'Role is missing. Use Class Teacher, Subject Teacher, Teacher, Administrative Staff, Management, Support Staff or Other.';
+        if ($roleText === null) {
+            // A teachers' list often has no Role column at all: a class or
+            // subjects beside a name are enough to say this is a teacher (the
+            // review shows the role it was understood as).
+            if ($listed !== [] || $subjects !== [] || $classTeacherListed !== [] || $flag === true) {
+                $kind = StaffRoleResolver::TEACHER;
+            } else {
+                $errors[] = 'Role is missing. Use Class Teacher, Subject Teacher, Teacher, Administrative Staff, Management, Support Staff or Other.';
+            }
         } elseif ($resolved === null) {
-            $errors[] = "Role \"{$raw['role']}\" is not recognised. Use Class Teacher, Subject Teacher, Teacher, Administrative Staff, Management, Support Staff or Other.";
-        } else {
-            $data['role'] = $resolved['role']->value;
+            $errors[] = "Role \"{$roleText}\" is not recognised. Use Class Teacher, Subject Teacher, Teacher, Administrative Staff, Management, Support Staff or Other.";
+        }
+
+        if ($kind !== null) {
+            $data['role'] = StaffRoleResolver::roleFor($kind)->value;
 
             // "Mathematics Teacher" says the subject as well as the role.
-            if ($kind === StaffRoleResolver::SUBJECT_TEACHER && $subjects === [] && ($subject = $this->subjectFromRole($raw['role'])) !== null) {
+            if ($kind === StaffRoleResolver::SUBJECT_TEACHER && $subjects === [] && $roleText !== null && ($subject = $this->subjectFromRole($roleText)) !== null) {
                 $subjects = [$subject];
             }
-
-            // "Teacher" with subjects is a subject teacher.
-            if ($kind === StaffRoleResolver::TEACHER && $subjects !== []) {
-                $kind = StaffRoleResolver::SUBJECT_TEACHER;
-            }
         }
 
-        $listed = $this->split($raw['class'] ?? '');
         $unknown = [];
-
-        foreach ($listed as $name) {
-            $match = $this->classes[self::classKey($name)] ?? null;
-
-            if ($match === null) {
-                $unknown[] = $name;
-            } elseif (! in_array($match, $classes, true)) {
-                $classes[] = $match;
-            }
-        }
+        $classes = $this->matchClasses($listed, $unknown);
+        $classTeacherClasses = $this->matchClasses($classTeacherListed, $unknown);
+        $classTeacherOf = null;
+        $source = null;
 
         if ($kind !== null && ! StaffRoleResolver::isTeacher($kind)) {
-            if ($listed !== [] || $subjects !== []) {
-                $warnings[] = 'Class and subjects are only used for teachers, so they are ignored for '.StaffRoleResolver::KINDS[$kind].'.';
+            if ($listed !== [] || $subjects !== [] || $classTeacherListed !== [] || $flag === true) {
+                $warnings[] = 'Class, class teacher and subjects are only used for teachers, so they are ignored for '.StaffRoleResolver::KINDS[$kind].'.';
             }
 
             $classes = [];
             $subjects = [];
-        } else {
+        } elseif ($kind !== null) {
             foreach ($unknown as $name) {
                 $errors[] = $this->unknownClassMessage($name);
             }
-        }
 
-        if ($kind === StaffRoleResolver::CLASS_TEACHER) {
-            if ($listed === []) {
-                $errors[] = 'Class is missing. A class teacher needs the class they take, for example Primary 1 or JSS 1.';
-            } elseif (count($listed) > 1) {
-                $errors[] = 'A class teacher takes one class, but '.count($listed).' are listed ('.implode(', ', $listed).'). Keep one, or use Subject Teacher.';
-                $classes = [];
-            } elseif (($class = $classes[0] ?? null) !== null && isset($this->classTeachers[$class])) {
-                $errors[] = "{$class} already has a class teacher: {$this->classTeachers[$class]}. Choose another class, or change the class teacher afterwards in Teacher Assignments.";
+            // The class teacher, said in so many words: the role ("Class
+            // Teacher", "Form Master, JSS 1"), a "Class Teacher Of" column
+            // naming the class, or a Yes in an "Is Class Teacher" column.
+            $explicit = $flag !== false && ($kind === StaffRoleResolver::CLASS_TEACHER || $classTeacherListed !== [] || $flag === true);
+            $fromRole = $explicit && $classTeacherListed === [] && $listed === [] ? $this->classInText((string) $roleText) : null;
+
+            if ($flag === false && $kind === StaffRoleResolver::CLASS_TEACHER) {
+                $kind = StaffRoleResolver::TEACHER;
+                $warnings[] = 'The Class Teacher column says No, so they are not made a class teacher.';
             }
-        }
 
-        if ($kind === StaffRoleResolver::SUBJECT_TEACHER && $subjects !== [] && $classes === [] && $unknown === []) {
-            $warnings[] = 'No class is given for '.implode(', ', $subjects).', so subjects can be assigned later in Teacher Assignments.';
-        }
+            if ($explicit) {
+                $kind = StaffRoleResolver::CLASS_TEACHER;
+                [$named, $matched] = match (true) {
+                    $classTeacherListed !== [] => [$classTeacherListed, $classTeacherClasses],
+                    $fromRole !== null => [[$fromRole], [$fromRole]],
+                    default => [$listed, $classes],
+                };
 
-        if ($kind === StaffRoleResolver::TEACHER && $listed !== []) {
-            $warnings[] = 'The class is ignored because the role is Teacher. Use Class Teacher to make them the class teacher, or add Subjects.';
-            $classes = [];
+                if ($named === []) {
+                    $errors[] = 'Class is missing. A class teacher needs the class they take, for example Primary 1 or JSS 1.';
+                } elseif (count($named) > 1) {
+                    $errors[] = 'A class teacher takes one class, but '.count($named).' are listed ('.implode(', ', $named).'). Keep one, or use Subject Teacher.';
+
+                    if ($classTeacherListed === []) {
+                        $classes = [];
+                    }
+                } elseif ($matched !== []) {
+                    $classTeacherOf = $matched[0];
+                    $source = 'explicit';
+
+                    if (isset($this->classTeachers[$classTeacherOf]) && $this->classTeacherStaff[$classTeacherOf] !== ($existing['staff_id'] ?? null)) {
+                        $errors[] = "{$classTeacherOf} already has a class teacher: {$this->classTeachers[$classTeacherOf]}. Choose another class, or change the class teacher afterwards in Teacher Assignments.";
+                    }
+                }
+            } elseif ($kind === StaffRoleResolver::TEACHER && $flag !== false && count($listed) === 1 && $classes !== [] && $this->roles->canTakeClass($roleText)) {
+                // Worked out, not said: a teacher with one class is that
+                // class's teacher, unless the class has one already.
+                $kind = StaffRoleResolver::CLASS_TEACHER;
+                $classTeacherOf = $classes[0];
+                $source = 'inferred';
+            }
+
+            // Subjects are taught in the classes listed, or else in the
+            // class they are class teacher of.
+            if ($classTeacherOf !== null && $classes === []) {
+                $classes = [$classTeacherOf];
+            }
+
+            if ($kind === StaffRoleResolver::TEACHER && $subjects !== []) {
+                $kind = StaffRoleResolver::SUBJECT_TEACHER;
+            }
+
+            if ($kind === StaffRoleResolver::SUBJECT_TEACHER && $subjects !== [] && $classes === [] && $unknown === []) {
+                $warnings[] = 'No class is given for '.implode(', ', $subjects).', so subjects can be assigned later in Teacher Assignments.';
+            }
+
+            if ($kind === StaffRoleResolver::TEACHER && $classes !== []) {
+                $warnings[] = count($listed) > 1
+                    ? 'Several classes are listed but no subjects, so the classes are ignored. Add Subjects, or keep one class to make them its class teacher.'
+                    : 'The class is ignored. Use Class Teacher to make them its class teacher, or add Subjects.';
+                $classes = [];
+            }
         }
 
         // Phone: the WhatsApp message goes to it.
@@ -311,7 +406,7 @@ class StaffImportValidator
             $warnings[] = 'The Staff ID in the file is ignored; a new one is issued automatically.';
         }
 
-        return [
+        $result = [
             'line' => $row['line'],
             'raw' => $raw,
             'data' => $data,
@@ -319,12 +414,92 @@ class StaffImportValidator
             'role_label' => $kind !== null ? StaffRoleResolver::KINDS[$kind] : null,
             'classes' => array_values($classes),
             'subjects' => array_values($subjects),
+            'class_teacher_of' => $classTeacherOf,
+            'class_teacher_source' => $source,
             'password_source' => isset($raw['password']) ? 'file' : 'generated',
             'errors' => $existing === null ? $errors : [],
             'warnings' => $existing === null ? $warnings : [],
             'existing' => $existing['reason'] ?? null,
             'existing_staff_id' => $existing['staff_id'] ?? null,
+            'assign_class' => null,
+            'existing_notes' => [],
         ];
+
+        // Worked out from the file, and the class has a class teacher
+        // already: they are still registered, just not as its class teacher.
+        if ($source === 'inferred' && isset($this->classTeachers[$classTeacherOf]) && $this->classTeacherStaff[$classTeacherOf] !== ($existing['staff_id'] ?? null)) {
+            $result = $this->notClassTeacher($result, "{$classTeacherOf} already has a class teacher ({$this->classTeachers[$classTeacherOf]}).");
+        }
+
+        return $result;
+    }
+
+    /**
+     * Someone already on the staff list who the file makes a class teacher:
+     * their record is left as it is, but a free class is still assigned to
+     * them, so a school that added its teachers one at a time can hand out
+     * every class from one list. Notes on the row say why when it is not.
+     *
+     * @param  array<string, mixed>  $result
+     */
+    private function canAssignExisting(array &$result, string $class): bool
+    {
+        $staffId = $result['existing_staff_id'];
+        $current = $this->classTeacherStaff[$class] ?? null;
+        $theirs = array_keys($this->classTeacherStaff, $staffId, true);
+
+        $note = match (true) {
+            $current === $staffId => "Already the class teacher of {$class}.",
+            ($this->staffRoles[$staffId] ?? null) !== StaffRole::Teacher => "Not made class teacher of {$class}, because their role on the staff list is not Teacher.",
+            $current !== null => "Not made class teacher of {$class}, because it already has one: {$this->classTeachers[$class]}.",
+            $theirs !== [] => 'Not made class teacher of '.$class.', because they are already class teacher of '.implode(', ', $theirs).'. Change it in Teacher Assignments if they have moved.',
+            default => null,
+        };
+
+        if ($note !== null) {
+            $result['existing_notes'][] = $note;
+            $result['class_teacher_of'] = null;
+            $result['class_teacher_source'] = null;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * A teacher who looked like a class teacher, but whose class is already
+     * taken: registered as a subject teacher of that class (with the subjects
+     * in the file) or as a teacher, with a note saying why.
+     *
+     * @param  array<string, mixed>  $result
+     * @return array<string, mixed>
+     */
+    private function notClassTeacher(array $result, string $reason): array
+    {
+        $class = $result['class_teacher_of'];
+        $subjects = $result['subjects'];
+
+        $result['kind'] = $subjects !== [] ? StaffRoleResolver::SUBJECT_TEACHER : StaffRoleResolver::TEACHER;
+        $result['role_label'] = StaffRoleResolver::KINDS[$result['kind']];
+        $result['class_teacher_of'] = null;
+        $result['class_teacher_source'] = null;
+
+        if ($subjects === []) {
+            $result['classes'] = [];
+        }
+
+        $outcome = $subjects !== []
+            ? 'They are registered as a Subject Teacher of '.implode(', ', $subjects)." in {$class}."
+            : 'They are registered as a Teacher; give them a class later in Teacher Assignments if needed.';
+
+        if ($result['existing'] === null) {
+            $result['warnings'][] = "{$reason} {$outcome}";
+        } else {
+            $result['existing_notes'][] = "{$reason} Not made its class teacher.";
+        }
+
+        return $result;
     }
 
     /**
@@ -356,29 +531,48 @@ class StaffImportValidator
     private function load(School $school, array $classNames): void
     {
         $this->classes = [];
+        $this->looseClasses = [];
+        $loose = [];
 
         foreach ($classNames as $name) {
             $this->classes[self::classKey($name)] ??= $name;
+            $loose[self::looseClassKey($name)][$name] = true;
         }
 
-        $this->classTeachers = TeacherAssignment::query()
+        foreach ($loose as $key => $names) {
+            if (count($names) === 1) {
+                $this->looseClasses[$key] = array_key_first($names);
+            }
+        }
+
+        $assignments = TeacherAssignment::query()
             ->where('school_id', $school->id)
             ->where('type', TeacherAssignmentType::ClassTeacher)
             ->with('staff:id,first_name,last_name,staff_number')
             ->get()
-            ->filter(fn (TeacherAssignment $assignment) => $assignment->staff !== null)
+            ->filter(fn (TeacherAssignment $assignment) => $assignment->staff !== null);
+
+        $this->classTeachers = $assignments
             ->mapWithKeys(fn (TeacherAssignment $assignment) => [
                 $assignment->class_name => "{$assignment->staff->fullName()} ({$assignment->staff->staff_number})",
             ])
             ->all();
 
+        $this->classTeacherStaff = $assignments
+            ->mapWithKeys(fn (TeacherAssignment $assignment) => [$assignment->class_name => $assignment->staff_id])
+            ->all();
+
+        $this->staffRoles = [];
+
         $this->existingEmails = $this->existingPhones = $this->existingNames = $this->existingStaffIds = [];
 
         $school->staff()
-            ->select(['id', 'staff_number', 'first_name', 'last_name', 'email', 'phone'])
+            ->select(['id', 'staff_number', 'first_name', 'last_name', 'email', 'phone', 'role'])
             ->orderBy('id')
             ->chunk(1000, function ($staff) {
                 foreach ($staff as $member) {
+                    $this->staffRoles[$member->id] = $member->role;
+
                     $who = ['label' => "{$member->fullName()} ({$member->staff_number})", 'staff_id' => $member->id];
 
                     $this->existingStaffIds[mb_strtolower((string) $member->staff_number)] ??= $who;
@@ -437,6 +631,126 @@ class StaffImportValidator
         $parts = preg_split('/\s*(?:[,;&|\n]|\band\b)\s*/iu', trim($value)) ?: [];
 
         return array_values(array_unique(array_filter(array_map('trim', $parts), fn ($part) => $part !== '')));
+    }
+
+    /**
+     * Each class name written in the file, as the school's own spelling.
+     * Names that are not the school's classes are added to $unknown.
+     *
+     * @param  list<string>  $names
+     * @param  list<string>  $unknown
+     * @return list<string>
+     */
+    private function matchClasses(array $names, array &$unknown): array
+    {
+        $matched = [];
+
+        foreach ($names as $name) {
+            $match = $this->classes[self::classKey($name)] ?? $this->looseClasses[self::looseClassKey($name)] ?? null;
+
+            if ($match === null) {
+                $unknown[] = $name;
+            } elseif (! in_array($match, $matched, true)) {
+                $matched[] = $match;
+            }
+        }
+
+        return $matched;
+    }
+
+    /**
+     * The one class named inside a role such as "Class Teacher (Primary 2)"
+     * or "Form Master, JSS 1A". The longest name wins, so "JSS 1A" is found
+     * rather than "JSS 1".
+     */
+    private function classInText(string $text): ?string
+    {
+        $haystack = self::looseClassKey($text);
+        $found = null;
+
+        foreach (array_unique([...array_values($this->classes), ...array_values($this->looseClasses)]) as $class) {
+            $needle = self::looseClassKey($class);
+            $at = strlen($needle) < 3 ? false : strpos($haystack, $needle);
+
+            // Not "Primary 1" inside "Primary 12".
+            if ($at === false || ctype_digit(substr($haystack, $at + strlen($needle), 1))) {
+                continue;
+            }
+
+            if ($found === null || strlen($needle) > strlen(self::looseClassKey($found))) {
+                $found = $class;
+            }
+        }
+
+        return $found;
+    }
+
+    /**
+     * A "Class Teacher" column holds either the class ("Primary 2") or a
+     * plain Yes / No.
+     *
+     * @return array{0: bool|null, 1: list<string>} [yes/no, classes named]
+     */
+    private function classTeacherCell(?string $value): array
+    {
+        $value = trim((string) $value);
+        $key = (string) preg_replace('/[^a-z0-9✓✔]/u', '', mb_strtolower($value));
+
+        return match (true) {
+            $key === '' => [null, []],
+            in_array($key, ['yes', 'y', 'true', '1', 'x', '✓', '✔', 'classteacher', 'ct'], true) => [true, []],
+            in_array($key, ['no', 'n', 'false', '0', 'none', 'nil', 'na'], true) => [false, []],
+            default => [null, $this->split($value)],
+        };
+    }
+
+    /**
+     * How a class is often written, reduced to one form: "Pry 1", "P1",
+     * "Primary One" and "Primary I" are all "primary1"; "JS1", "J.S.S 1" and
+     * "Junior Secondary 1" are "jss1"; "SS 2" and "Senior Secondary 2" are
+     * "sss2".
+     */
+    private static function looseClassKey(string $name): string
+    {
+        $text = mb_strtolower($name);
+        $text = (string) preg_replace('/(?<=[a-z])\.(?=[a-z])/', '', $text);
+        $text = (string) preg_replace('/junior\s+secondary(\s+school)?/', 'jss', $text);
+        $text = (string) preg_replace('/senior\s+secondary(\s+school)?/', 'sss', $text);
+        $text = (string) preg_replace('/([a-z])(\d)/', '$1 $2', $text);
+        $text = (string) preg_replace('/(\d)([a-z])/', '$1 $2', $text);
+
+        $tokens = preg_split('/[^a-z0-9]+/', $text, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        $words = [
+            'pry' => 'primary', 'pri' => 'primary', 'prim' => 'primary', 'p' => 'primary',
+            'js' => 'jss', 'jhs' => 'jss', 'jsss' => 'jss',
+            'ss' => 'sss', 'shs' => 'sss', 's' => 'sss',
+            'kindergarten' => 'kg', 'kindergarden' => 'kg', 'k' => 'kg',
+            'nur' => 'nursery', 'n' => 'nursery',
+            'yr' => 'year', 'gr' => 'grade', 'bas' => 'basic',
+        ];
+        $numbers = ['one' => 1, 'two' => 2, 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'seven' => 7, 'eight' => 8, 'nine' => 9, 'ten' => 10, 'eleven' => 11, 'twelve' => 12];
+        $roman = ['i' => 1, 'ii' => 2, 'iii' => 3, 'iv' => 4, 'v' => 5, 'vi' => 6];
+        $levels = ['primary', 'jss', 'sss', 'kg', 'nursery', 'year', 'grade', 'basic', 'class', 'form', 'reception'];
+
+        $out = [];
+
+        foreach ($tokens as $i => $token) {
+            $previous = $out[$i - 1] ?? null;
+
+            // A lone letter ("P", "S") only stands for a level before a number.
+            if (isset($words[$token]) && (strlen($token) > 1 || ctype_digit($tokens[$i + 1] ?? ''))) {
+                $token = $words[$token];
+            } elseif (isset($numbers[$token])) {
+                $token = (string) $numbers[$token];
+            } elseif (isset($roman[$token]) && in_array($previous, $levels, true)) {
+                $token = (string) $roman[$token];
+            }
+
+            $out[$i] = $token;
+        }
+
+        return implode('', $out);
     }
 
     private function subjectFromRole(string $role): ?string

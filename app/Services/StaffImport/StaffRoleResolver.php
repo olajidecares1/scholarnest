@@ -199,6 +199,21 @@ class StaffRoleResolver
         };
     }
 
+    /**
+     * Whether a teacher described this way can be made class teacher of the
+     * one class listed for them without the file saying so in as many words.
+     * A plain "Teacher" (or no role at all) with one class is that class's
+     * teacher; an assistant or caregiver with one class is not.
+     */
+    public function canTakeClass(?string $value): bool
+    {
+        $key = (string) preg_replace('/[^a-z]/', '', mb_strtolower((string) $value));
+
+        return ! str_contains($key, 'assistant')
+            && ! str_contains($key, 'caregiver')
+            && ! str_contains($key, 'aide');
+    }
+
     public static function isTeacher(string $kind): bool
     {
         return in_array($kind, [self::CLASS_TEACHER, self::SUBJECT_TEACHER, self::TEACHER], true);
@@ -228,7 +243,8 @@ class StaffRoleResolver
     private function byPattern(string $key): ?string
     {
         return match (true) {
-            str_starts_with($key, 'classteacher'), str_starts_with($key, 'formteacher'), str_starts_with($key, 'formmaster') => self::CLASS_TEACHER,
+            // "Class Teacher (Primary 2)", "Primary 2 Class Teacher", "Form Master, JSS 1".
+            (bool) preg_match('/(class|form)(teacher|master|mistress|adviser|advisor)/', $key) => self::CLASS_TEACHER,
             str_starts_with($key, 'subjectteacher') => self::SUBJECT_TEACHER,
             str_contains($key, 'principal'), str_contains($key, 'headteacher'), str_contains($key, 'proprieto') => 'management',
             str_contains($key, 'nonteaching') => 'support_staff',

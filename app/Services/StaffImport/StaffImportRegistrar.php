@@ -47,6 +47,7 @@ class StaffImportRegistrar
     public function register(School $school, array $rows, string $fileName): array
     {
         $created = [];
+        $assigned = [];
         $failed = [];
 
         $teacherLimit = $school->teacherAccountLimit();
@@ -58,7 +59,17 @@ class StaffImportRegistrar
             $name = trim(($row['data']['first_name'] ?? '').' '.($row['data']['last_name'] ?? '')) ?: 'Unnamed';
 
             if ($row['existing'] !== null) {
-                $failed[] = ['line' => $row['line'], 'name' => $name, 'reasons' => ['Already registered. '.$row['existing'].' The existing record was left unchanged.']];
+                $assignment = ($row['assign_class'] ?? null) !== null ? $this->assignExisting($school, $row) : null;
+
+                if ($assignment !== null && $assignment['assigned']) {
+                    $assigned[] = $assignment;
+                } else {
+                    $failed[] = ['line' => $row['line'], 'name' => $name, 'reasons' => [
+                        'Already registered. '.$row['existing'].' The existing record was left unchanged.',
+                        ...($row['existing_notes'] ?? []),
+                        ...($assignment['notes'] ?? []),
+                    ]];
+                }
 
                 continue;
             }
@@ -140,11 +151,11 @@ class StaffImportRegistrar
         }
 
         $created = array_values($created);
-        $classTeachers = count(array_filter($created, fn ($p) => $p['kind'] === StaffRoleResolver::CLASS_TEACHER));
+        $classTeachers = count(array_filter($created, fn ($p) => $p['class_teacher_of'] !== null)) + count($assigned);
         $byRole = [];
 
         foreach ($created as $person) {
-            if ($person['kind'] !== StaffRoleResolver::CLASS_TEACHER) {
+            if ($person['class_teacher_of'] === null) {
                 $byRole[$person['role_label']] = ($byRole[$person['role_label']] ?? 0) + 1;
             }
         }
@@ -159,7 +170,8 @@ class StaffImportRegistrar
         AuditLog::record(
             'staff.imported',
             'Registered '.count($created)." staff member(s) from {$fileName}"
-                .($classTeachers > 0 ? ", {$classTeachers} as class teacher(s)" : '')
+                .($classTeachers > 0 ? ", {$classTeachers} class teacher(s) assigned" : '')
+                .($assigned !== [] ? ' (including '.count($assigned).' already on the staff list)' : '')
                 .'.'.($failed !== [] ? ' '.count($failed).' not registered.' : '')
                 .($whatsAppReady ? " WhatsApp: {$whatsApp['sent']} sent, {$whatsApp['failed']} failed." : ''),
             $school,
@@ -173,6 +185,7 @@ class StaffImportRegistrar
                 'class_teachers' => $classTeachers,
                 'other_roles' => $byRole,
                 'created' => $created,
+                'assigned' => $assigned,
                 'failed' => $failed,
                 'whatsapp' => $whatsApp,
                 'finished_at' => now()->toIso8601String(),
@@ -205,30 +218,23 @@ class StaffImportRegistrar
                 'is_active' => true,
             ]);
 
-            foreach ($row['classes'] as $class) {
-                if ($row['kind'] === StaffRoleResolver::CLASS_TEACHER) {
-                    // Never takes a class from a teacher who already has it;
-                    // checked on the review page, and again here in case it
-                    // changed while the page was open.
-                    $taken = TeacherAssignment::query()
-                        ->where('school_id', $school->id)
-                        ->where('type', TeacherAssignmentType::ClassTeacher)
-                        ->where('class_name', $class)
-                        ->lockForUpdate()
-                        ->exists();
-
-                    if ($taken) {
-                        $notes[] = "{$class} was given a class teacher while this list was open, so this staff member was not made its class teacher.";
-                    } else {
-                        TeacherAssignment::create([
-                            'school_id' => $school->id,
-                            'staff_id' => $member->id,
-                            'type' => TeacherAssignmentType::ClassTeacher,
-                            'class_name' => $class,
-                        ]);
-                    }
+            if (($class = $row['class_teacher_of'] ?? null) !== null) {
+                // Never takes a class from a teacher who already has it;
+                // checked on the review page, and again here in case it
+                // changed while the page was open.
+                if ($this->classTaken($school, $class)) {
+                    $notes[] = "{$class} was given a class teacher while this list was open, so this staff member was not made its class teacher.";
+                } else {
+                    TeacherAssignment::create([
+                        'school_id' => $school->id,
+                        'staff_id' => $member->id,
+                        'type' => TeacherAssignmentType::ClassTeacher,
+                        'class_name' => $class,
+                    ]);
                 }
+            }
 
+            foreach ($row['classes'] as $class) {
                 foreach ($row['subjects'] as $subject) {
                     TeacherAssignment::firstOrCreate([
                         'school_id' => $school->id,
@@ -252,6 +258,7 @@ class StaffImportRegistrar
             'staff_number' => $member->staff_number,
             'kind' => $row['kind'],
             'role_label' => $row['role_label'],
+            'class_teacher_of' => $notes === [] ? ($row['class_teacher_of'] ?? null) : null,
             'classes' => $row['classes'],
             'subjects' => $row['subjects'],
             'phone' => $member->phone,
@@ -266,14 +273,69 @@ class StaffImportRegistrar
     }
 
     /**
+     * Someone already on the staff list, made class teacher of a free class.
+     * Nothing else about their record changes.
+     *
+     * @param  array<string, mixed>  $row
+     * @return array{assigned: bool, line: int, name: string, staff_number: string, class: string, notes: list<string>}
+     */
+    private function assignExisting(School $school, array $row): array
+    {
+        $class = $row['assign_class'];
+        $member = $school->staff()->find($row['existing_staff_id']);
+
+        if ($member === null) {
+            return ['assigned' => false, 'line' => $row['line'], 'name' => '', 'staff_number' => '', 'class' => $class, 'notes' => []];
+        }
+
+        $assigned = DB::transaction(function () use ($school, $member, $class) {
+            if ($this->classTaken($school, $class)) {
+                return false;
+            }
+
+            TeacherAssignment::create([
+                'school_id' => $school->id,
+                'staff_id' => $member->id,
+                'type' => TeacherAssignmentType::ClassTeacher,
+                'class_name' => $class,
+            ]);
+
+            return true;
+        });
+
+        if ($assigned) {
+            AuditLog::record('teacher.assigned', "{$member->fullName()} made class teacher of {$class} by bulk upload.", $member);
+        }
+
+        return [
+            'assigned' => $assigned,
+            'line' => $row['line'],
+            'name' => $member->fullName(),
+            'staff_number' => (string) $member->staff_number,
+            'class' => $class,
+            'notes' => $assigned ? [] : ["{$class} was given a class teacher while this list was open, so they were not made its class teacher."],
+        ];
+    }
+
+    private function classTaken(School $school, string $class): bool
+    {
+        return TeacherAssignment::query()
+            ->where('school_id', $school->id)
+            ->where('type', TeacherAssignmentType::ClassTeacher)
+            ->where('class_name', $class)
+            ->lockForUpdate()
+            ->exists();
+    }
+
+    /**
      * @param  array<string, mixed>  $person
      */
     private function intro(School $school, array $person): string
     {
         $role = $person['role_label'];
 
-        if ($person['kind'] === StaffRoleResolver::CLASS_TEACHER && $person['classes'] !== []) {
-            $role .= ' of '.$person['classes'][0];
+        if ($person['kind'] === StaffRoleResolver::CLASS_TEACHER && $person['class_teacher_of'] !== null) {
+            $role .= ' of '.$person['class_teacher_of'];
         }
 
         return "Hello {$person['name']}, your staff account at {$school->name} has been created. Your role: {$role}.\n\n"

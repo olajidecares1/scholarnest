@@ -39,7 +39,8 @@ class StaffImportParser
         'last_name' => ['lastname', 'surname', 'familyname', 'lname', 'last'],
         'full_name' => ['name', 'names', 'fullname', 'staffname', 'staffsname', 'nameofstaff', 'namesofstaff', 'teachername', 'teachersname', 'employeename', 'staffpersonnelname'],
         'role' => ['role', 'roles', 'assignedrole', 'staffrole', 'position', 'designation', 'jobtitle', 'job', 'jobrole', 'post', 'responsibility', 'category', 'stafftype', 'staffcategory', 'rank', 'office', 'duty'],
-        'class' => ['class', 'classes', 'assignedclass', 'assignedclasses', 'classassigned', 'classesassigned', 'classname', 'classtaught', 'classestaught', 'classarm', 'arm', 'form', 'grade', 'classteacherof'],
+        'class' => ['class', 'classes', 'assignedclass', 'assignedclasses', 'classassigned', 'classesassigned', 'classname', 'classtaught', 'classestaught', 'classarm', 'arm', 'form', 'grade'],
+        'class_teacher' => ['classteacher', 'classteacherof', 'classteacherfor', 'classteacherclass', 'isclassteacher', 'classteacheryesno', 'classteacheryn', 'formclass', 'formteacher', 'formteacherof', 'formmaster', 'formmasterof', 'formmistressof', 'classincharge', 'inchargeofclass', 'classinchargeof', 'classadviserof'],
         'subjects' => ['subject', 'subjects', 'subjectstaught', 'subjecttaught', 'assignedsubject', 'assignedsubjects', 'subjectassigned', 'subjectsassigned', 'teachingsubject', 'teachingsubjects', 'courses'],
         'gender' => ['gender', 'sex'],
         'phone' => ['phone', 'phonenumber', 'phoneno', 'mobile', 'mobilenumber', 'mobileno', 'tel', 'telephone', 'telephonenumber', 'gsm', 'gsmnumber', 'gsmno', 'whatsapp', 'whatsappnumber', 'whatsappno', 'whatsappphone', 'contact', 'contactnumber', 'contactno', 'phonewhatsapp'],
@@ -64,6 +65,7 @@ class StaffImportParser
         'last_name' => 'Last Name',
         'role' => 'Role',
         'class' => 'Class',
+        'class_teacher' => 'Class Teacher Of',
         'subjects' => 'Subjects',
         'gender' => 'Gender',
         'phone' => 'Phone (WhatsApp)',
@@ -98,8 +100,10 @@ class StaffImportParser
             throw new StudentImportException('We could not find the name columns. Add a "Full Name" column, or "First Name" and "Last Name" (or "Surname") columns.');
         }
 
-        if (! in_array('role', $mapped, true)) {
-            throw new StudentImportException('We could not find a "Role" column. Each staff member needs a role, for example Class Teacher, Subject Teacher, Administrative Staff, Management or Support Staff.');
+        // A list of teachers and their classes needs no Role column: anyone
+        // with a class is understood to be a teacher.
+        if (array_intersect(['role', 'class', 'class_teacher'], $mapped) === []) {
+            throw new StudentImportException('We could not find a "Role" or "Class" column. Each staff member needs a role, for example Class Teacher, Teacher, Subject Teacher, Administrative Staff, Management or Support Staff; for teachers, a Class column is enough.');
         }
 
         if (! in_array('gender', $mapped, true)) {
@@ -248,6 +252,7 @@ class StaffImportParser
             str_starts_with($key, 'emergency') && str_contains($key, 'phone') => 'emergency_contact_phone',
             str_starts_with($key, 'emergency') => 'emergency_contact_name',
             str_starts_with($key, 'role'), str_starts_with($key, 'assignedrole') => 'role',
+            str_starts_with($key, 'classteacher'), str_starts_with($key, 'isclassteacher'), str_starts_with($key, 'formteacher'), str_starts_with($key, 'formmaster') => 'class_teacher',
             str_starts_with($key, 'assignedclass'), str_starts_with($key, 'classassigned') => 'class',
             str_starts_with($key, 'subject') => 'subjects',
             str_contains($key, 'whatsapp'), str_starts_with($key, 'phone') => 'phone',

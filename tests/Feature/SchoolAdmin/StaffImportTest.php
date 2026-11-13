@@ -396,10 +396,10 @@ test('an upload belongs to the admin who made it', function () {
     expect(Staff::count())->toBe(0);
 });
 
-test('a list without a role column is refused with a clear message', function () {
+test('a list with neither a role nor a class column is refused with a clear message', function () {
     $this->actingAs($this->admin)
         ->post(route('staff.import.preview'), ['file' => staffCsv("Full Name,Gender,Phone\nNgozi Okafor,F,08031234567\n")])
-        ->assertSessionHasErrors(['file' => 'We could not find a "Role" column. Each staff member needs a role, for example Class Teacher, Subject Teacher, Administrative Staff, Management or Support Staff.']);
+        ->assertSessionHasErrors(['file' => 'We could not find a "Role" or "Class" column. Each staff member needs a role, for example Class Teacher, Teacher, Subject Teacher, Administrative Staff, Management or Support Staff; for teachers, a Class column is enough.']);
 });
 
 test('everyday job titles are understood as roles', function (string $wording, string $kind) {
@@ -407,6 +407,9 @@ test('everyday job titles are understood as roles', function (string $wording, s
 })->with([
     ['Class Teacher', StaffRoleResolver::CLASS_TEACHER],
     ['FORM MASTER', StaffRoleResolver::CLASS_TEACHER],
+    ['Class Teacher (Primary 2)', StaffRoleResolver::CLASS_TEACHER],
+    ['Primary 2 Class Teacher', StaffRoleResolver::CLASS_TEACHER],
+    ['Form Mistress, JSS 1', StaffRoleResolver::CLASS_TEACHER],
     ['Subject Teacher', StaffRoleResolver::SUBJECT_TEACHER],
     ['Mathematics Teacher', StaffRoleResolver::SUBJECT_TEACHER],
     ['Teacher', StaffRoleResolver::TEACHER],
@@ -420,3 +423,177 @@ test('everyday job titles are understood as roles', function (string $wording, s
     ['Security Guard', 'support_staff'],
     ['Other', 'other'],
 ]);
+
+function importedClassTeacherClass(string $firstName): ?string
+{
+    return TeacherAssignment::query()
+        ->where('staff_id', Staff::where('first_name', $firstName)->value('id'))
+        ->where('type', TeacherAssignmentType::ClassTeacher)
+        ->value('class_name');
+}
+
+test('class teachers are worked out from a list of teachers and their classes, with no role column', function () {
+    $csv = "S/N,Full Name,Class,Subjects,Gender,Phone\n"
+        ."1,Ngozi Okafor,Primary 1,,F,08031234567\n"
+        ."2,Bayo Adeyemi,Pry 2,,M,08051112222\n"
+        ."3,Kemi Lawal,JS1,,F,08061112222\n"
+        ."4,Chidi Eze,JSS Two,Mathematics,M,08071112222\n"
+        ."5,Musa Bello,\"JSS 1, JSS 2\",Physics,M,08081112222\n";
+
+    $token = uploadStaffList($this, staffCsv($csv));
+
+    $this->actingAs($this->admin)
+        ->get(route('staff.import.review', ['token' => $token]))
+        ->assertOk()
+        ->assertSee('Class teachers found in this list')
+        ->assertSee('Class teacher of Primary 2')
+        ->assertSee('Register 5 Staff Members')
+        ->assertDontSee('Needs correcting');
+
+    $this->actingAs($this->admin)->post(route('staff.import.store', ['token' => $token]));
+
+    expect(Staff::count())->toBe(5)
+        ->and(Staff::where('role', StaffRole::Teacher)->count())->toBe(5)
+        ->and(importedClassTeacherClass('Ngozi'))->toBe('Primary 1')
+        ->and(importedClassTeacherClass('Bayo'))->toBe('Primary 2')
+        ->and(importedClassTeacherClass('Kemi'))->toBe('JSS 1')
+        ->and(importedClassTeacherClass('Chidi'))->toBe('JSS 2')
+        ->and(importedClassTeacherClass('Musa'))->toBeNull()
+        ->and(TeacherAssignment::where('type', TeacherAssignmentType::ClassTeacher)->count())->toBe(4);
+
+    // A class teacher with subjects teaches them in their class.
+    expect(TeacherAssignment::where('staff_id', Staff::where('first_name', 'Chidi')->value('id'))
+        ->where('type', TeacherAssignmentType::SubjectTeacher)->get(['class_name', 'subject'])->toArray())
+        ->toBe([['class_name' => 'JSS 2', 'subject' => 'Mathematics']]);
+
+    // Several classes and a subject: a subject teacher in each.
+    expect(TeacherAssignment::where('staff_id', Staff::where('first_name', 'Musa')->value('id'))->count())->toBe(2);
+
+    $this->actingAs($this->admin)->get(route('staff.import.summary', ['token' => $token]))
+        ->assertOk()
+        ->assertSee('Class teacher of JSS 1');
+});
+
+test('the class teacher can be given in the role, a Class Teacher Of column, or a Yes/No column', function () {
+    $csv = "Full Name,Role,Class,Class Teacher,Subjects,Gender,Phone\n"
+        ."Ngozi Okafor,Class Teacher (Primary 2),,,,F,08031234567\n"
+        ."Bayo Adeyemi,Subject Teacher,\"JSS 1, JSS 2\",JSS 2,Mathematics,M,08051112222\n"
+        ."Kemi Lawal,Form Mistress JSS1,,,,F,08061112222\n"
+        ."Chidi Eze,Teacher,Primary 1,Yes,,M,08071112222\n"
+        ."Tolu Ade,Teacher,Primary 1,No,English,F,08081112222\n";
+
+    $token = uploadStaffList($this, staffCsv($csv));
+    $this->actingAs($this->admin)->get(route('staff.import.review', ['token' => $token]))->assertDontSee('Needs correcting');
+    $this->actingAs($this->admin)->post(route('staff.import.store', ['token' => $token]));
+
+    expect(Staff::count())->toBe(5)
+        ->and(importedClassTeacherClass('Ngozi'))->toBe('Primary 2')
+        ->and(importedClassTeacherClass('Bayo'))->toBe('JSS 2')
+        ->and(importedClassTeacherClass('Kemi'))->toBe('JSS 1')
+        ->and(importedClassTeacherClass('Chidi'))->toBe('Primary 1')
+        ->and(importedClassTeacherClass('Tolu'))->toBeNull();
+
+    // The Class Teacher Of column does not stop subjects in other classes.
+    expect(TeacherAssignment::where('staff_id', Staff::where('first_name', 'Bayo')->value('id'))
+        ->where('type', TeacherAssignmentType::SubjectTeacher)->pluck('class_name')->sort()->values()->all())
+        ->toBe(['JSS 1', 'JSS 2']);
+});
+
+test('a class that already has a class teacher never holds up a teacher worked out from the list', function () {
+    TeacherAssignment::create([
+        'school_id' => $this->school->id,
+        'staff_id' => Staff::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Ada', 'last_name' => 'Nwosu', 'role' => StaffRole::Teacher])->id,
+        'type' => TeacherAssignmentType::ClassTeacher,
+        'class_name' => 'Primary 2',
+    ]);
+
+    $csv = STAFF_HEADER
+        ."Bayo Adeyemi,Teacher,Primary 2,,M,08051112222,,,\n"
+        ."Kemi Lawal,Teacher,JSS 1,,F,08061112222,,,\n"
+        ."Chidi Eze,Teacher,JSS 1,English,M,08071112222,,,\n"
+        ."Tolu Ade,Teacher,JSS 2,,F,08081112222,,,\n"
+        ."Grace Obi,Class Teacher,JSS 2,,F,08091112222,,,\n";
+
+    $token = uploadStaffList($this, staffCsv($csv));
+
+    $this->actingAs($this->admin)
+        ->get(route('staff.import.review', ['token' => $token]))
+        ->assertSee('Primary 2 already has a class teacher (Ada Nwosu')
+        ->assertSee('JSS 1 is already given to row 3 as its class teacher.')
+        ->assertSee('They are registered as a Subject Teacher of English in JSS 1.')
+        ->assertSee('JSS 2 is already given to row 6 as its class teacher.')
+        ->assertSee('Register 5 Staff Members')
+        ->assertDontSee('Needs correcting');
+
+    $this->actingAs($this->admin)->post(route('staff.import.store', ['token' => $token]));
+
+    expect(Staff::count())->toBe(6)
+        ->and(importedClassTeacherClass('Bayo'))->toBeNull()
+        ->and(importedClassTeacherClass('Kemi'))->toBe('JSS 1')
+        ->and(importedClassTeacherClass('Chidi'))->toBeNull()
+        ->and(importedClassTeacherClass('Tolu'))->toBeNull()
+        ->and(importedClassTeacherClass('Grace'))->toBe('JSS 2')
+        ->and(TeacherAssignment::where('class_name', 'Primary 2')->where('type', TeacherAssignmentType::ClassTeacher)->value('staff_id'))
+        ->toBe(Staff::where('first_name', 'Ada')->value('id'));
+});
+
+test('teachers already on the staff list are given their class without being changed', function () {
+    $bola = Staff::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Bola', 'last_name' => 'Ige', 'phone' => '08020000001', 'role' => StaffRole::Teacher]);
+    $chi = Staff::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Chi', 'last_name' => 'Uche', 'phone' => '08020000002', 'role' => StaffRole::Teacher]);
+    Staff::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Dayo', 'last_name' => 'Ola', 'phone' => '08020000003', 'role' => StaffRole::Administrator]);
+    TeacherAssignment::create(['school_id' => $this->school->id, 'staff_id' => $chi->id, 'type' => TeacherAssignmentType::ClassTeacher, 'class_name' => 'Primary 1']);
+    $bolaBefore = $bola->fresh()->only(['first_name', 'last_name', 'phone', 'email', 'password', 'staff_number']);
+
+    $csv = STAFF_HEADER
+        ."Bola Ige,Teacher,JSS 1,,M,08099999999,,,\n"
+        ."Chi Uche,Teacher,JSS 2,,F,08020000002,,,\n"
+        ."Dayo Ola,Teacher,Primary 2,,M,08020000003,,,\n"
+        ."New Person,Teacher,Primary 2,,F,08011112222,,,\n";
+
+    $token = uploadStaffList($this, staffCsv($csv));
+
+    $this->actingAs($this->admin)
+        ->get(route('staff.import.review', ['token' => $token]))
+        ->assertSee('Will be made class teacher of JSS 1')
+        ->assertSee('because they are already class teacher of Primary 1')
+        ->assertSee('because their role on the staff list is not Teacher')
+        ->assertSee('Register 1 Staff Member &amp; Assign 1 Class Teacher', false);
+
+    $this->actingAs($this->admin)->post(route('staff.import.store', ['token' => $token]));
+
+    expect(Staff::count())->toBe(4)
+        ->and(importedClassTeacherClass('Bola'))->toBe('JSS 1')
+        ->and($bola->fresh()->only(['first_name', 'last_name', 'phone', 'email', 'password', 'staff_number']))->toBe($bolaBefore)
+        ->and($chi->classesAsClassTeacher()->all())->toBe(['Primary 1'])
+        ->and(importedClassTeacherClass('Dayo'))->toBeNull()
+        ->and(importedClassTeacherClass('New'))->toBe('Primary 2');
+
+    $this->actingAs($this->admin)->get(route('staff.import.summary', ['token' => $token]))
+        ->assertOk()
+        ->assertSee('Existing staff made class teachers (1)')
+        ->assertSee('Bola Ige')
+        ->assertSee('Not registered (2)');
+});
+
+test('a list of existing teachers alone can be used to hand out classes', function () {
+    Staff::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Bola', 'last_name' => 'Ige', 'role' => StaffRole::Teacher]);
+
+    $token = uploadStaffList($this, staffCsv("Full Name,Class,Gender\nBola Ige,Primary 2,M\n"));
+
+    $this->actingAs($this->admin)
+        ->get(route('staff.import.review', ['token' => $token]))
+        ->assertSee('Assign 1 Class Teacher');
+
+    $this->actingAs($this->admin)->post(route('staff.import.store', ['token' => $token]))
+        ->assertRedirect(route('staff.import.summary', ['token' => $token]));
+
+    expect(importedClassTeacherClass('Bola'))->toBe('Primary 2');
+});
+
+test('an assistant teacher with a class is not made its class teacher', function () {
+    $token = uploadStaffList($this, staffCsv(STAFF_HEADER."Bayo Adeyemi,Assistant Teacher,Primary 1,,M,08051112222,,,\n"));
+    $this->actingAs($this->admin)->post(route('staff.import.store', ['token' => $token]));
+
+    expect(Staff::count())->toBe(1)
+        ->and(importedClassTeacherClass('Bayo'))->toBeNull();
+});

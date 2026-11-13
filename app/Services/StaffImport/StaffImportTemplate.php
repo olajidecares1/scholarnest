@@ -45,11 +45,11 @@ class StaffImportTemplate extends ImportTemplate
 
     protected function instructions(): string
     {
-        return 'One staff member per row. Role: Class Teacher, Subject Teacher, Teacher, Administrative Staff, Management, Support Staff or Other. Class is needed for a Class Teacher. Leave Password blank to have one generated. Remove the example row, keep the heading row, then upload this file.';
+        return 'One staff member per row. Role: Class Teacher, Subject Teacher, Teacher, Administrative Staff, Management, Support Staff or Other. A teacher with one Class is made its class teacher automatically. Leave Password blank to have one generated. Remove the example row, keep the heading row, then upload this file.';
     }
 
     protected function pdfHint(): string
     {
-        return 'Dates as DD/MM/YYYY. Role: Class Teacher, Subject Teacher, Teacher, Administrative Staff, Management, Support Staff or Other. Leave Password blank to have one generated. Remove the example row before uploading.';
+        return 'Dates as DD/MM/YYYY. Role: Class Teacher, Subject Teacher, Teacher, Administrative Staff, Management, Support Staff or Other. A teacher with one Class becomes its class teacher. Leave Password blank to have one generated. Remove the example row before uploading.';
     }
 }

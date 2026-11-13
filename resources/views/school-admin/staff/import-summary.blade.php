@@ -4,6 +4,7 @@
     $otherRoles = array_sum($summary['other_roles']);
     $failedCount = count($summary['failed']);
     $hasShares = $shares !== [];
+    $assigned = $summary['assigned'] ?? [];
     $statusChip = [
         'sent' => ['Sent', 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', 'fa-check'],
         'failed' => ['Failed', 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', 'fa-xmark'],
@@ -111,7 +112,12 @@
                                     <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-gray-700 dark:text-gray-200">{{ $person['staff_number'] }}</td>
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-200">{{ $person['role_label'] }}</td>
                                     <td class="px-4 py-3 text-gray-700 dark:text-gray-200">
-                                        {{ implode(', ', $person['classes']) }}
+                                        @if ($person['class_teacher_of'] ?? null)
+                                            <span class="mb-1 inline-flex items-center whitespace-nowrap rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"><i class="fa-solid fa-chalkboard-user mr-1 text-[10px]" aria-hidden="true"></i> Class teacher of {{ $person['class_teacher_of'] }}</span>
+                                        @endif
+                                        @if ($person['subjects'] || ! ($person['class_teacher_of'] ?? null))
+                                            <span class="block">{{ implode(', ', $person['classes']) }}</span>
+                                        @endif
                                         @if ($person['subjects'])<small class="block text-xs text-gray-500 dark:text-gray-400">{{ implode(', ', $person['subjects']) }}</small>@endif
                                         @foreach ($person['notes'] ?? [] as $note)<small class="block text-xs text-amber-700 dark:text-amber-400">{{ $note }}</small>@endforeach
                                     </td>
@@ -139,6 +145,25 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        @endif
+
+        @if ($assigned !== [])
+            <div class="{{ $cardClass }}">
+                <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">Existing staff made class teachers ({{ number_format(count($assigned)) }})</h3>
+                    <small class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">Already on your staff list, so no new account or password: they sign in as before and now see their class.</small>
+                </div>
+                <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+                    @foreach ($assigned as $person)
+                        <li class="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3">
+                            <span class="w-14 shrink-0 font-mono text-xs text-gray-500">Row {{ $person['line'] }}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $person['name'] }}</span>
+                            <span class="font-mono text-xs text-gray-500 dark:text-gray-400">{{ $person['staff_number'] }}</span>
+                            <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"><i class="fa-solid fa-chalkboard-user mr-1 text-[10px]" aria-hidden="true"></i> Class teacher of {{ $person['class'] }}</span>
+                        </li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 

@@ -7,7 +7,9 @@
     $errorCount = count($rows) - $readyCount - $existingCount;
     $readyTeachers = $readyRows->filter(fn ($row) => StaffRoleResolver::isTeacher((string) $row['kind']))->count();
     $overTeacherLimit = $teacherRoom !== null ? max(0, $readyTeachers - $teacherRoom) : 0;
-    $readyClassTeachers = $readyRows->where('kind', StaffRoleResolver::CLASS_TEACHER)->count();
+    $readyClassTeachers = $readyRows->filter(fn ($row) => $row['class_teacher_of'] !== null)->count();
+    $assignRows = collect($rows)->filter(fn ($row) => $row['assign_class'] !== null);
+    $assignCount = $assignRows->count();
     $readyNoPhone = $readyRows->filter(fn ($row) => blank($row['data']['phone']))->count();
     $cardClass = 'rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]';
     $chip = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium';
@@ -21,6 +23,7 @@
         'last_name' => $row['raw']['last_name'] ?? '',
         'role' => $row['role_label'] ?? ($row['raw']['role'] ?? ''),
         'class' => $row['raw']['class'] ?? '',
+        'class_teacher' => $row['raw']['class_teacher'] ?? '',
         'subjects' => $row['raw']['subjects'] ?? '',
         'gender' => $genderLabel($row['data']['gender']) ?? ($row['raw']['gender'] ?? ''),
         'phone' => $row['raw']['phone'] ?? '',
@@ -172,13 +175,13 @@
                             @foreach (['Full Name', 'Role', 'Gender'] as $column)
                                 <span class="{{ $chip }} bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{{ $column }}</span>
                             @endforeach
-                            <small class="block w-full text-xs leading-relaxed text-gray-500 dark:text-gray-400">First Name and Last Name (or Surname) columns work instead of Full Name. Gender can be Male/Female or M/F.</small>
+                            <small class="block w-full text-xs leading-relaxed text-gray-500 dark:text-gray-400">First Name and Last Name (or Surname) columns work instead of Full Name. Gender can be Male/Female or M/F. A list of teachers can leave out Role: anyone with a class is taken to be a teacher.</small>
                         </dd>
                     </div>
                     <div class="grid grid-cols-1 gap-1.5 py-3 sm:grid-cols-[150px_1fr] sm:gap-4">
                         <dt class="font-semibold text-gray-800 dark:text-gray-100">Optional columns</dt>
                         <dd class="flex flex-wrap gap-1.5">
-                            @foreach (['Class', 'Subjects', 'Phone (WhatsApp)', 'Email', 'Date of Birth', 'Password', 'Department', 'Qualification', 'Employment Date', 'Address', 'Notes'] as $column)
+                            @foreach (['Class', 'Class Teacher Of', 'Subjects', 'Phone (WhatsApp)', 'Email', 'Date of Birth', 'Password', 'Department', 'Qualification', 'Employment Date', 'Address', 'Notes'] as $column)
                                 <span class="{{ $chip }} bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ $column }}</span>
                             @endforeach
                         </dd>
@@ -187,7 +190,7 @@
                         <dt class="font-semibold text-gray-800 dark:text-gray-100">Roles</dt>
                         <dd>
                             <ul class="space-y-1 text-gray-600 dark:text-gray-300">
-                                <li><small class="text-xs leading-relaxed"><span class="font-semibold">Class Teacher</span>: made class teacher of the class in the Class column (one class each).</small></li>
+                                <li><small class="text-xs leading-relaxed"><span class="font-semibold">Class teachers are found for you</span>: a teacher with one class in the Class column is made its class teacher, and so is anyone whose role says Class Teacher or Form Master (the class can be in the role too, e.g. "Class Teacher, Primary 2"). A "Class Teacher Of" column, or an "Is Class Teacher" Yes/No column, works as well. Teachers already on your staff list are given their class too.</small></li>
                                 <li><small class="text-xs leading-relaxed"><span class="font-semibold">Subject Teacher</span>: given the Subjects in the classes listed, e.g. "Mathematics, Physics" in "JSS 1, JSS 2". "Mathematics Teacher" works too.</small></li>
                                 <li><small class="text-xs leading-relaxed"><span class="font-semibold">Teacher, Administrative Staff, Management, Support Staff, Other</span>. Everyday titles are understood: Bursar, Secretary, Principal, Vice Principal, Driver, Cleaner and more.</small></li>
                             </ul>
@@ -241,14 +244,35 @@
 
                 @if ($readyCount)
                     <small class="mt-4 block text-xs leading-relaxed text-gray-600 dark:text-gray-300">
-                        On confirming: {{ number_format($readyCount) }} {{ Str::plural('account', $readyCount) }} created{{ $readyClassTeachers ? ', '.number_format($readyClassTeachers).' made class '.Str::plural('teacher', $readyClassTeachers) : '' }},
+                        On confirming: {{ number_format($readyCount) }} {{ Str::plural('account', $readyCount) }} created{{ $readyClassTeachers ? ', '.number_format($readyClassTeachers).' made class '.Str::plural('teacher', $readyClassTeachers).' of their class' : '' }},
                         passwords issued, and login details {{ $whatsAppReady ? 'sent on WhatsApp' : 'ready to share on WhatsApp' }}{{ $readyNoPhone ? ' ('.number_format($readyNoPhone).' without a phone number will not get one)' : '' }}.
                     </small>
                 @endif
 
+                @if ($readyClassTeachers || $assignCount)
+                    <div class="mt-4 rounded-[8px] border border-blue-100 bg-blue-50/60 p-3 dark:border-blue-900/40 dark:bg-blue-900/20">
+                        <small class="block text-xs font-semibold text-blue-800 dark:text-blue-300"><i class="fa-solid fa-chalkboard-user mr-1 text-[11px]" aria-hidden="true"></i> Class teachers found in this list</small>
+                        <small class="mt-0.5 block text-xs leading-relaxed text-blue-700/90 dark:text-blue-300/90">Worked out from the file: nobody needs to be assigned by hand.</small>
+                        <ul class="mt-2 flex flex-wrap gap-1.5">
+                            @foreach ($readyRows->filter(fn ($row) => $row['class_teacher_of'] !== null)->merge($assignRows)->sortBy(fn ($row) => $row['class_teacher_of'] ?? $row['assign_class']) as $row)
+                                <li class="{{ $chip }} bg-white text-gray-700 ring-1 ring-blue-200 dark:bg-gray-800 dark:text-gray-200 dark:ring-blue-800">
+                                    <span class="font-semibold text-blue-700 dark:text-blue-300">{{ $row['class_teacher_of'] ?? $row['assign_class'] }}</span>
+                                    <span class="mx-1 text-gray-300">&rarr;</span>
+                                    {{ trim(($row['data']['first_name'] ?? '').' '.($row['data']['last_name'] ?? '')) }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @if ($existingCount)
                     <p class="mt-4 rounded-[8px] bg-blue-50 p-3 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                        <small class="block text-xs leading-relaxed">{{ number_format($existingCount) }} {{ Str::plural('person', $existingCount) }} in this file {{ $existingCount === 1 ? 'is' : 'are' }} already on your staff list and will be skipped. Existing staff records are never changed by a bulk upload.</small>
+                        <small class="block text-xs leading-relaxed">
+                            {{ number_format($existingCount) }} {{ Str::plural('person', $existingCount) }} in this file {{ $existingCount === 1 ? 'is' : 'are' }} already on your staff list, so no new {{ Str::plural('account', $existingCount) }} will be created and their details are left unchanged.
+                            @if ($assignCount)
+                                {{ number_format($assignCount) }} of them will be made class {{ Str::plural('teacher', $assignCount) }} of the class in the file.
+                            @endif
+                        </small>
                     </p>
                 @endif
 
@@ -269,13 +293,19 @@
                         @csrf @method('DELETE')
                         <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-arrow-right-arrow-left btn-icon" aria-hidden="true"></i> Upload a Different File</button>
                     </form>
-                    @if ($readyCount)
+                    @if ($readyCount || $assignCount)
                         <form method="POST" action="{{ route('staff.import.store', ['token' => $token]) }}" x-data="{ busy: false }" @submit="busy = true">
                             @csrf
                             <button type="submit" :disabled="busy" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
                                 <i x-show="!busy" class="fa-solid fa-user-plus btn-icon" aria-hidden="true"></i>
                                 <i x-show="busy" style="display: none;" class="fa-solid fa-spinner fa-spin btn-icon" aria-hidden="true"></i>
-                                <span x-show="!busy">Register {{ number_format($readyCount) }} {{ Str::plural('Staff Member', $readyCount) }}</span>
+                                <span x-show="!busy">
+                                    @if ($readyCount)
+                                        Register {{ number_format($readyCount) }} {{ Str::plural('Staff Member', $readyCount) }}{{ $assignCount ? ' & Assign '.number_format($assignCount).' '.Str::plural('Class Teacher', $assignCount) : '' }}
+                                    @else
+                                        Assign {{ number_format($assignCount) }} {{ Str::plural('Class Teacher', $assignCount) }}
+                                    @endif
+                                </span>
                                 <span x-show="busy" style="display: none;">Registering and sending&hellip;</span>
                             </button>
                         </form>
@@ -311,7 +341,12 @@
                                             <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Already registered</span>
                                             <ul class="mt-1 space-y-0.5 text-blue-700 dark:text-blue-400">
                                                 <li><small class="block text-xs leading-relaxed">{{ $row['existing'] }}</small></li>
-                                                <li><small class="block text-xs leading-relaxed">Skipped. The existing record is left unchanged.</small></li>
+                                                @if ($row['assign_class'])
+                                                    <li><small class="block text-xs font-semibold leading-relaxed">Will be made class teacher of {{ $row['assign_class'] }}. Nothing else on their record changes.</small></li>
+                                                @else
+                                                    <li><small class="block text-xs leading-relaxed">Skipped. The existing record is left unchanged.</small></li>
+                                                @endif
+                                                @foreach ($row['existing_notes'] as $note)<li><small class="block text-xs leading-relaxed">{{ $note }}</small></li>@endforeach
                                             </ul>
                                         @elseif ($row['errors'])
                                             <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">Needs correcting</span>
@@ -335,7 +370,13 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 text-gray-700 dark:text-gray-200">
-                                        @if ($row['classes'])
+                                        @if (($row['existing'] === null ? $row['class_teacher_of'] : $row['assign_class']) !== null)
+                                            <span class="{{ $chip }} mb-1 whitespace-nowrap bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" @if ($row['class_teacher_source'] === 'inferred') data-tooltip="Worked out from the file: a teacher with one class" @endif>
+                                                <i class="fa-solid fa-chalkboard-user mr-1 text-[10px]" aria-hidden="true"></i>
+                                                Class teacher of {{ $row['existing'] === null ? $row['class_teacher_of'] : $row['assign_class'] }}
+                                            </span>
+                                        @endif
+                                        @if ($row['classes'] && ($row['subjects'] || $row['classes'] !== [$row['existing'] === null ? $row['class_teacher_of'] : $row['assign_class']]))
                                             <span class="whitespace-nowrap">{{ implode(', ', $row['classes']) }}</span>
                                         @elseif (isset($row['raw']['class']))
                                             <span class="text-gray-400">{{ $row['raw']['class'] }}</span>
@@ -408,7 +449,12 @@
                                     <datalist id="staff-import-classes">
                                         @foreach ($classes as $class)<option value="{{ $class }}"></option>@endforeach
                                     </datalist>
-                                    <small class="field-hint mt-1">One class for a Class Teacher; several, separated by commas, for a Subject Teacher.</small>
+                                    <small class="field-hint mt-1">A teacher with one class becomes its class teacher. Several, separated by commas, for a Subject Teacher.</small>
+                                </div>
+                                <div>
+                                    <label class="field-label" for="edit_class_teacher">Class Teacher Of</label>
+                                    <input id="edit_class_teacher" type="text" name="class_teacher" x-model="edit.class_teacher" list="staff-import-classes" class="mt-1 block w-full" placeholder="Leave blank to work it out">
+                                    <small class="field-hint mt-1">A class, or No to stop them being made a class teacher.</small>
                                 </div>
                                 <div>
                                     <label class="field-label" for="edit_subjects">Subjects</label>

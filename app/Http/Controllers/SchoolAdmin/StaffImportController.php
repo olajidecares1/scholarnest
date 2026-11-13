@@ -37,6 +37,11 @@ use Symfony\Component\HttpFoundation\Response;
  *      set, passwords issued and login details sent on WhatsApp, then a
  *      summary shows exactly what happened.
  *
+ * Class teachers are worked out from the list itself (see
+ * {@see StaffImportValidator}): a "Class Teacher" role, a "Class Teacher Of"
+ * column, or simply a teacher with one class. Nobody picks classes by hand,
+ * and teachers already on the staff list are given their class too.
+ *
  * Nothing is saved until step 3. Registered staff are ordinary Staff records:
  * everything the school can do to a staff member added by hand works on them.
  */
@@ -49,7 +54,7 @@ class StaffImportController extends Controller
     private const SUMMARY_TTL_MINUTES = 120;
 
     /** Fields the review page lets the School Admin correct. */
-    private const EDITABLE = ['first_name', 'last_name', 'role', 'class', 'subjects', 'gender', 'phone', 'email', 'date_of_birth'];
+    private const EDITABLE = ['first_name', 'last_name', 'role', 'class', 'class_teacher', 'subjects', 'gender', 'phone', 'email', 'date_of_birth'];
 
     public function __construct(
         private readonly StudentImportReader $reader,
@@ -229,7 +234,7 @@ class StaffImportController extends Controller
             $rows[$i]['password_plain'] = $pending['rows'][$i]['raw']['password'] ?? null;
         }
 
-        $ready = array_filter($rows, fn ($row) => $row['errors'] === [] && $row['existing'] === null);
+        $ready = array_filter($rows, fn ($row) => ($row['errors'] === [] && $row['existing'] === null) || $row['assign_class'] !== null);
 
         if ($ready === []) {
             return back()->withErrors(['file' => 'There is nobody ready to register. Correct the rows marked in red, or upload a corrected file.']);
