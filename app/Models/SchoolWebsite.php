@@ -115,6 +115,28 @@ class SchoolWebsite extends Model
     }
 
     /**
+     * What a school's website starts with before anybody has edited it.
+     *
+     * Shared by the website manager and the public site, so the site a visitor
+     * sees on day one is exactly the one the school admin opens to edit.
+     *
+     * @return array<string, mixed>
+     */
+    public static function defaultAttributesFor(School $school): array
+    {
+        return [
+            'hero_title' => $school->name,
+            'is_published' => true,
+            'stats' => [
+                ['label' => 'Students', 'value' => $school->students()->count().'+'],
+                ['label' => 'Qualified Staff', 'value' => (string) $school->staff()->count()],
+                ['label' => 'Classes Offered', 'value' => (string) $school->schoolClasses()->count()],
+                ['label' => 'Academic Levels', 'value' => (string) $school->academicLevels()->count()],
+            ],
+        ];
+    }
+
+    /**
      * @return BelongsTo<School, $this>
      */
     public function school(): BelongsTo

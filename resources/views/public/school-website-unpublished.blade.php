@@ -79,8 +79,8 @@
 
         <p class="admin">
             <strong>Are you this school's administrator?</strong>
-            Sign in through the portal and publish your site from
-            Website &rsaquo; Publish. It appears here as soon as you do.
+            Sign in through the portal and turn your site back on from
+            Website &rsaquo; Publish Website. It appears here as soon as you do.
         </p>
     </main>
 </body>

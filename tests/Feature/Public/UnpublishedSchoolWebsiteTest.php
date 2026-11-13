@@ -117,6 +117,7 @@ test('a Basic school is still a 404, because it has no website to publish', func
 
 test('an API client is still told there is no website here', function () {
     $school = newlyRegisteredSchool();
+    $school->website()->create(['hero_title' => 'Welcome', 'is_published' => false]);
 
     $this->getJson("http://{$school->subdomain}.akademicanest.com/")
         ->assertNotFound()
@@ -125,6 +126,7 @@ test('an API client is still told there is no website here', function () {
 
 test('the page wears the school\'s own badge and nobody else\'s', function () {
     $school = newlyRegisteredSchool();
+    $school->website()->create(['hero_title' => 'Welcome', 'is_published' => false]);
     $other = activateSchool(School::factory()->create(['name' => 'Riverside Academy']), PlanKey::Standard)->fresh();
 
     $this->get("http://{$school->subdomain}.akademicanest.com/")
