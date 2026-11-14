@@ -95,7 +95,7 @@ class StudentImportParser
     /**
      * @param  list<list<string>>  $rows  as returned by {@see StudentImportReader}
      * @param  list<string>  $existingAdmissionNumbers  already used at this school
-     * @return array{columns: list<string>, ignored: list<string>, rows: list<array{line: int, data: array<string, string|null>, errors: list<string>, warnings: list<string>, file_admission_number: string|null, existing: string|null}>}
+     * @return array{columns: list<string>, ignored: list<string>, has_class_column: bool, class_heading: string|null, rows: list<array{line: int, data: array<string, string|null>, errors: list<string>, warnings: list<string>, file_admission_number: string|null, file_class: string|null, existing: string|null}>}
      *
      * @throws StudentImportException
      */
@@ -194,18 +194,20 @@ class StudentImportParser
                 $labels[] = 'Name';
             } elseif ($field === 'middle_name') {
                 $labels[] = 'Middle Name';
+            } elseif ($field === 'class') {
+                $labels[] = 'Class';
             }
         }
 
-        $ignored = [];
+        $classColumn = array_search('class', $map, true);
 
-        foreach ($map as $column => $field) {
-            if ($field === 'class') {
-                $ignored[] = ($rows[$headerIndex][$column] ?? 'Class').' (the class you select is used instead)';
-            }
-        }
-
-        return ['columns' => $labels, 'ignored' => $ignored, 'rows' => $parsed];
+        return [
+            'columns' => $labels,
+            'ignored' => [],
+            'has_class_column' => $classColumn !== false,
+            'class_heading' => $classColumn !== false ? (trim((string) ($rows[$headerIndex][$classColumn] ?? '')) ?: 'Class') : null,
+            'rows' => $parsed,
+        ];
     }
 
     /**

@@ -33,8 +33,16 @@ use Symfony\Component\HttpFoundation\Response;
  *
  *   1. Upload. The file is read and every row checked, and the school sees
  *      exactly what was understood, row by row, before anything is saved.
- *   2. Confirm. Only then are the students created, all in the class chosen
- *      on the upload form.
+ *   2. Confirm. Only then are the students created.
+ *
+ * WHICH CLASS. A list that names each student's class ("Class" column) is
+ * imported into those classes, several in one upload, with no class chosen
+ * on the form. Choosing a class on the form puts everyone in the file into
+ * that class instead, whatever the file says, which is how a single class
+ * register without a Class column is imported. A class name in the file must
+ * be one of the school's own classes (read loosely: "Pry 3" is "Primary 3");
+ * a row whose class is missing or unknown is shown for correcting and not
+ * imported, so a typo can never invent a class.
  *
  * Imported students are ordinary Student records. Everything the school can
  * do to a student added by hand (edit details, change the photograph, set or
@@ -138,18 +146,19 @@ class StudentImportController extends Controller
                 : null;
         }
 
-        // The class is listed, and imported, alphabetically by first name then
-        // surname (as names are shown) whatever order the file was in, so automatically issued
-        // admission numbers follow the register too. Done after the duplicate
-        // checks above, which depend on file order. Each row keeps its file
-        // line number so mistakes can still be found in the file.
-        $result['rows'] = self::alphabetical($result['rows']);
+        // Listed, and imported, class by class in the school's class order,
+        // and alphabetically by first name then surname (as names are shown)
+        // within each class, whatever order the file was in, so automatically
+        // issued admission numbers follow the register too. Done after the
+        // duplicate checks above, which depend on file order. Each row keeps
+        // its file line number so mistakes can still be found in the file.
+        $result['rows'] = self::alphabetical($result['rows'], $this->classNames($school));
 
         $token = Str::random(40);
 
         Cache::put($this->cacheKey($request, $token), [
             'school_id' => $school->id,
-            'class_name' => $validated['class_name'],
+            'class_name' => $chosenClass,
             'file_name' => $validated['file']->getClientOriginalName(),
             ...$result,
         ], now()->addMinutes(self::PREVIEW_TTL_MINUTES));
@@ -329,15 +338,60 @@ class StudentImportController extends Controller
     }
 
     /**
-     * Upload rows sorted by first name, then surname, then file line. Rows
-     * with no name at all (mistakes) go to the end.
+     * Which class each row goes into: the class chosen on the upload form for
+     * every row, or else the class the row gives, as the school spells it.
+     * A row with no class, or a class the school does not have, gets an error
+     * and is not imported.
+     *
+     * @param  array<string, mixed>  $result  from StudentImportParser::parse()
+     * @param  list<string>  $classNames
+     * @return array<string, mixed>
+     */
+    private function assignClasses(array $result, ?string $chosenClass, array $classNames): array
+    {
+        if ($chosenClass !== null && $result['has_class_column']) {
+            $result['ignored'][] = $result['class_heading'].' (you selected '.$chosenClass.' for everyone in this file)';
+        }
+
+        $matcher = new ClassNameMatcher($classNames);
+
+        foreach ($result['rows'] as $i => $row) {
+            if ($chosenClass !== null) {
+                $result['rows'][$i]['class_name'] = $chosenClass;
+
+                continue;
+            }
+
+            $written = trim((string) ($row['file_class'] ?? ''));
+            $class = $matcher->match($written);
+
+            if ($class === null) {
+                $result['rows'][$i]['errors'][] = $written === ''
+                    ? 'Class is missing. Add it to the file, or select one class for everyone on the upload page.'
+                    : $matcher->unknownMessage($written);
+            }
+
+            $result['rows'][$i]['class_name'] = $class;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Upload rows sorted by class (in the school's class order), then first
+     * name, then surname, then file line. Rows with no name or no class
+     * (mistakes) go to the end of their group.
      *
      * @param  array<int, array<string, mixed>>  $rows
+     * @param  list<string>  $classOrder
      * @return list<array<string, mixed>>
      */
-    private static function alphabetical(array $rows): array
+    private static function alphabetical(array $rows, array $classOrder = []): array
     {
+        $position = array_flip($classOrder);
+
         $key = fn (array $row): array => [
+            $position[$row['class_name'] ?? ''] ?? PHP_INT_MAX,
             blank($row['data']['last_name'] ?? null) && blank($row['data']['first_name'] ?? null) ? 1 : 0,
             mb_strtolower(trim((string) ($row['data']['first_name'] ?? ''))),
             mb_strtolower(trim((string) ($row['data']['last_name'] ?? ''))),
