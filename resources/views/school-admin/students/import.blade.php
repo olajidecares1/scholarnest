@@ -11,10 +11,15 @@
     $overLimit = $validCount - $importCount;
     $fields = \App\Services\StudentImport\StudentImportParser::FIELDS;
     $shownFields = collect($fields)->filter(fn ($label, $field) => collect($rows)->contains(fn ($row) => filled($row['data'][$field] ?? null)))->all();
+    // How many students/pupils each class is getting, in the school's order.
+    $classCounts = collect($rows)
+        ->filter(fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null)
+        ->countBy(fn ($row) => $row['class_name'] ?? ($preview['class_name'] ?? ''))
+        ->all();
     $cardClass = 'rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]';
 @endphp
 
-<x-dashboard-layout page-title="Bulk Upload Students" page-subtitle="Add a whole class of students/pupils from one file.">
+<x-dashboard-layout page-title="Bulk Upload Students" page-subtitle="Add a whole class, or the whole school, of students/pupils from one file.">
     <div class="space-y-6">
         <a href="{{ route('students.index') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 transition-colors duration-150 hover:text-blue-700">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
@@ -70,10 +75,9 @@
                                 <x-select-field
                                     name="class_name"
                                     label="Class"
-                                    required
-                                    placeholder="Select a class"
-                                    helper="Every student/pupil in this file goes into this class."
-                                    :options="collect($classes)->mapWithKeys(fn ($name) => [$name => $name])->all()"
+                                    placeholder="Use the class in the file"
+                                    helper="Leave this as it is when your file has a Class column: each student/pupil goes into the class written beside their name, and one file can hold several classes. Choose a class only to put everyone in this file into it."
+                                    :options="['' => 'Use the class in the file'] + collect($classes)->mapWithKeys(fn ($name) => [$name => $name])->all()"
                                 />
 
                                 <fieldset>
@@ -128,7 +132,7 @@
                 if (! $school->auto_generate_admission_numbers) {
                     $required[] = 'Admission Number';
                 }
-                $optional = ['Date of Birth', 'House', 'Guardian Name', 'Guardian Phone', 'Guardian Email', 'Student Phone', 'Student Email', 'Address', 'Admission Date', 'Notes'];
+                $optional = ['Class', 'Date of Birth', 'House', 'Guardian Name', 'Guardian Phone', 'Guardian Email', 'Student Phone', 'Student Email', 'Address', 'Admission Date', 'Notes'];
                 $chip = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium';
             @endphp
 
@@ -202,7 +206,12 @@
                     </div>
                     <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
                         <dt class="font-semibold text-gray-800 dark:text-gray-100">Class</dt>
-                        <dd><small class="block text-xs leading-relaxed text-gray-600 dark:text-gray-300">Chosen above. Any class column in the file is ignored.</small></dd>
+                        <dd>
+                            <small class="block text-xs leading-relaxed text-gray-600 dark:text-gray-300">
+                                Put each student/pupil's class in a "Class" column and they go straight into it, several classes in one file. It must be one of your classes ({{ implode(', ', $classes) }}); common spellings such as "Pry 3", "P3", "JS1" or "SS 2" are understood.
+                                No Class column? Choose the class above and everyone in the file goes into it.
+                            </small>
+                        </dd>
                     </div>
                     <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
                         <dt class="font-semibold text-gray-800 dark:text-gray-100">Afterwards</dt>
@@ -217,11 +226,22 @@
                     <div>
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white">2. Review and confirm</h3>
                         <small class="mt-1 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                            From <span class="font-semibold text-gray-700 dark:text-gray-200">{{ $preview['file_name'] }}</span>, into
-                            <span class="font-semibold text-gray-700 dark:text-gray-200">{{ $preview['class_name'] }}</span>.
+                            From <span class="font-semibold text-gray-700 dark:text-gray-200">{{ $preview['file_name'] }}</span>,
+                            @if ($preview['class_name'] ?? null)
+                                everyone into <span class="font-semibold text-gray-700 dark:text-gray-200">{{ $preview['class_name'] }}</span>.
+                            @else
+                                each student/pupil into the class given in the file.
+                            @endif
                             Nothing has been saved yet.
                         </small>
                         <small class="mt-2 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">Columns found: {{ implode(', ', $preview['columns']) }}.</small>
+                        @if (! ($preview['class_name'] ?? null) && $classCounts !== [])
+                            <div class="mt-2 flex flex-wrap gap-1.5">
+                                @foreach ($classCounts as $class => $count)
+                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{{ $class }} &middot; {{ number_format($count) }}</span>
+                                @endforeach
+                            </div>
+                        @endif
                         @if ($preview['ignored'] !== [])
                             <small class="mt-1 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">Ignored: {{ implode(', ', $preview['ignored']) }}.</small>
                         @endif
@@ -301,6 +321,7 @@
                             <tr>
                                 <th class="px-4 py-3 font-semibold">Row</th>
                                 <th class="px-4 py-3 font-semibold">Status</th>
+                                <th class="whitespace-nowrap px-4 py-3 font-semibold">Class</th>
                                 @foreach ($shownFields as $label)
                                     <th class="whitespace-nowrap px-4 py-3 font-semibold">{{ $label }}</th>
                                 @endforeach
@@ -333,6 +354,13 @@
                                             <ul class="mt-1 space-y-0.5 text-amber-700 dark:text-amber-400">
                                                 @foreach ($row['warnings'] as $message)<li><small class="block text-xs leading-relaxed">{{ $message }}</small></li>@endforeach
                                             </ul>
+                                        @endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-200">
+                                        @if ($row['class_name'] ?? ($preview['class_name'] ?? null))
+                                            {{ $row['class_name'] ?? $preview['class_name'] }}
+                                        @elseif (filled($row['file_class'] ?? null))
+                                            <span class="text-red-700 line-through dark:text-red-400">{{ $row['file_class'] }}</span>
                                         @endif
                                     </td>
                                     @foreach ($shownFields as $field => $label)

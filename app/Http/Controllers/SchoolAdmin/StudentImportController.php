@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Services\IdentifierGenerator;
+use App\Services\Import\ClassNameMatcher;
 use App\Services\StudentImport\ExistingStudentMatcher;
 use App\Services\StudentImport\StudentImportException;
 use App\Services\StudentImport\StudentImportParser;
@@ -73,11 +74,11 @@ class StudentImportController extends Controller
         $school = $request->user()->school;
 
         $validated = $request->validate([
-            'class_name' => ['required', 'string', Rule::in($this->classNames($school))],
+            // Optional: without it, each row goes into the class the file gives.
+            'class_name' => ['nullable', 'string', Rule::in($this->classNames($school))],
             'file' => ['required', 'file', 'max:5120', 'extensions:'.implode(',', StudentImportReader::EXTENSIONS)],
             'name_order' => ['nullable', Rule::in([StudentImportParser::SURNAME_FIRST, StudentImportParser::FIRST_NAME_FIRST])],
         ], [
-            'class_name.required' => 'Please select the class these students/pupils belong to.',
             'class_name.in' => 'Please select one of your school\'s classes.',
             'file.required' => 'Please choose the file containing your list of students/pupils.',
             'file.max' => 'The file must not be larger than 5MB.',
@@ -101,21 +102,31 @@ class StudentImportController extends Controller
             return back()->withErrors(['file' => $e->getMessage()])->withInput();
         }
 
+        $chosenClass = $validated['class_name'] ?? null;
+
+        if ($chosenClass === null && ! $result['has_class_column']) {
+            return back()->withErrors(['class_name' => 'Your file has no Class column, so we cannot tell which class each student/pupil is in. Select a class for everyone in this file, or add a "Class" column to the file.'])->withInput();
+        }
+
+        $result = $this->assignClasses($result, $chosenClass, $this->classNames($school));
+
         // STRICT RULE: a student/pupil who is already registered is never
         // overridden, replaced or modified, and neither is their admission
         // number. Such rows are marked and skipped; the rest carry on.
         // Two checks: against the school's records, then against earlier rows
         // of this file (the same child listed twice). A repeated admission
         // number within the file is already reported by the parser.
-        $registered = ExistingStudentMatcher::forSchool($school, $validated['class_name']);
-        $earlierInFile = new ExistingStudentMatcher($validated['class_name']);
+        // Each row is checked against the class it is going into.
+        $registered = ExistingStudentMatcher::forSchool($school);
+        $earlierInFile = new ExistingStudentMatcher;
 
         foreach ($result['rows'] as $i => $row) {
-            $found = $registered->find($row['data'], $row['file_admission_number']);
+            $identity = $row['data'] + ['class_name' => $row['class_name']];
+            $found = $registered->find($identity, $row['file_admission_number']);
 
             if ($found === null && $row['errors'] === []) {
-                $found = $earlierInFile->find($row['data']);
-                $earlierInFile->remember($row['data']);
+                $found = $earlierInFile->find($identity);
+                $earlierInFile->remember($identity);
             }
 
             $result['rows'][$i]['existing'] = $found['reason'] ?? null;
@@ -178,15 +189,28 @@ class StudentImportController extends Controller
                 ->withErrors(['file' => 'That upload has expired. Please upload the file again.']);
         }
 
-        $className = $preview['class_name'];
+        $classNames = $this->classNames($school);
 
-        // The class could have been renamed or removed since the upload.
-        if (! in_array($className, $this->classNames($school), true)) {
-            return redirect()->route('students.import.create')
-                ->withErrors(['class_name' => "The class \"{$className}\" no longer exists. Please upload the file again and select a class."]);
+        // An upload checked before rows carried their own class had one
+        // class for the whole file.
+        foreach ($preview['rows'] as $i => $row) {
+            $preview['rows'][$i]['class_name'] ??= $preview['class_name'] ?? null;
         }
 
-        $rows = self::alphabetical(array_filter($preview['rows'], fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null));
+        // A class could have been renamed or removed since the upload.
+        $missing = collect($preview['rows'])
+            ->filter(fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null)
+            ->pluck('class_name')
+            ->unique()
+            ->reject(fn ($class) => in_array($class, $classNames, true))
+            ->values();
+
+        if ($missing->isNotEmpty()) {
+            return redirect()->route('students.import.create')
+                ->withErrors(['class_name' => 'The '.Str::plural('class', $missing->count()).' "'.$missing->implode('", "').'" no longer '.($missing->count() === 1 ? 'exists' : 'exist').'. Please upload the file again.']);
+        }
+
+        $rows = self::alphabetical(array_filter($preview['rows'], fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null), $classNames);
         $alreadyRegistered = count(array_filter($preview['rows'], fn ($row) => ($row['existing'] ?? null) !== null));
 
         if ($rows === []) {
@@ -204,11 +228,13 @@ class StudentImportController extends Controller
         // Imports rows in alphabetical order until the school's allocation is full:
         // the current students plus this batch can never pass the limit, so
         // splitting a list across several uploads gets no further than one.
-        $created = $this->licences->withRoomFor($school, function (?int $room) use ($school, $rows, $className, $autoGenerate, &$skipped, &$duplicates, &$notAdded) {
+        $importedInto = [];
+
+        $created = $this->licences->withRoomFor($school, function (?int $room) use ($school, $rows, $autoGenerate, &$skipped, &$duplicates, &$notAdded, &$importedInto) {
             // Re-checked inside the lock against the students as they are
             // now: someone may have registered one of these children, or used
             // one of these admission numbers, while the preview was open.
-            $matcher = ExistingStudentMatcher::forSchool($school, $className);
+            $matcher = ExistingStudentMatcher::forSchool($school);
 
             $count = 0;
 
@@ -220,9 +246,11 @@ class StudentImportController extends Controller
                 }
 
                 $data = $row['data'];
+                $className = $row['class_name'];
+                $identity = $data + ['class_name' => $className];
 
                 // Already registered: skip entirely, never touch the record.
-                if (($found = $matcher->find($data, $row['file_admission_number'] ?? null)) !== null) {
+                if (($found = $matcher->find($identity, $row['file_admission_number'] ?? null)) !== null) {
                     $skipped[] = "Row {$row['line']} skipped. {$found['reason']} The existing record was left unchanged.";
 
                     if ($found['student_id'] !== null) {
@@ -250,7 +278,8 @@ class StudentImportController extends Controller
                     'registration_source' => RegistrationSource::Bulk,
                 ]);
 
-                $matcher->remember($data, $student->fullName()." ({$student->admission_number})", $student->id);
+                $matcher->remember($data + ['class_name' => $className], $student->fullName()." ({$student->admission_number})", $student->id);
+                $importedInto[$className] = ($importedInto[$className] ?? 0) + 1;
                 $count++;
             }
 
@@ -267,19 +296,26 @@ class StudentImportController extends Controller
 
         $alreadyRegistered += count($skipped);
 
+        $classes = array_keys($importedInto);
+        $into = match (count($classes)) {
+            0 => 'your school',
+            1 => $classes[0],
+            default => count($classes).' classes ('.implode(', ', $classes).')',
+        };
+
         AuditLog::record(
             'students.imported',
-            "Imported {$created} student(s)/pupil(s) into {$className} from {$preview['file_name']}."
+            "Imported {$created} student(s)/pupil(s) into {$into} from {$preview['file_name']}."
                 .($alreadyRegistered > 0 ? " {$alreadyRegistered} skipped: already registered, left unchanged." : '')
                 .($notAdded > 0 ? " {$notAdded} not added: subscription limit reached." : ''),
             $school,
         );
 
-        $message = number_format($created).' '.Str::plural('student/pupil', $created)." imported into {$className}."
+        $message = number_format($created).' '.Str::plural('student/pupil', $created)." imported into {$into}."
             .($alreadyRegistered > 0 ? ' '.number_format($alreadyRegistered).' already registered '.($alreadyRegistered === 1 ? 'was' : 'were').' skipped and left unchanged.' : '')
             .' You can edit any of them, add photographs and set their login details from the Students list.';
 
-        $redirect = redirect()->route('students.index', ['class' => $className])->with('status', $message);
+        $redirect = redirect()->route('students.index', count($classes) === 1 ? ['class' => $classes[0]] : [])->with('status', $message);
 
         if ($notAdded > 0) {
             $redirect->with('capacity_notice', $this->licences->importTruncatedMessage($school, $created));

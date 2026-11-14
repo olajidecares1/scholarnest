@@ -7,6 +7,7 @@ use App\Enums\TeacherAssignmentType;
 use App\Models\School;
 use App\Models\TeacherAssignment;
 use App\Rules\NotDerivedFromIdentity;
+use App\Services\Import\ClassNameMatcher;
 use App\Services\Import\ReadsImportValues;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
@@ -618,7 +619,7 @@ class StaffImportValidator
 
     private static function classKey(string $name): string
     {
-        return (string) preg_replace('/[^a-z0-9]/', '', mb_strtolower($name));
+        return ClassNameMatcher::key($name);
     }
 
     /**
@@ -712,45 +713,7 @@ class StaffImportValidator
      */
     private static function looseClassKey(string $name): string
     {
-        $text = mb_strtolower($name);
-        $text = (string) preg_replace('/(?<=[a-z])\.(?=[a-z])/', '', $text);
-        $text = (string) preg_replace('/junior\s+secondary(\s+school)?/', 'jss', $text);
-        $text = (string) preg_replace('/senior\s+secondary(\s+school)?/', 'sss', $text);
-        $text = (string) preg_replace('/([a-z])(\d)/', '$1 $2', $text);
-        $text = (string) preg_replace('/(\d)([a-z])/', '$1 $2', $text);
-
-        $tokens = preg_split('/[^a-z0-9]+/', $text, -1, PREG_SPLIT_NO_EMPTY) ?: [];
-
-        $words = [
-            'pry' => 'primary', 'pri' => 'primary', 'prim' => 'primary', 'p' => 'primary',
-            'js' => 'jss', 'jhs' => 'jss', 'jsss' => 'jss',
-            'ss' => 'sss', 'shs' => 'sss', 's' => 'sss',
-            'kindergarten' => 'kg', 'kindergarden' => 'kg', 'k' => 'kg',
-            'nur' => 'nursery', 'n' => 'nursery',
-            'yr' => 'year', 'gr' => 'grade', 'bas' => 'basic',
-        ];
-        $numbers = ['one' => 1, 'two' => 2, 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'seven' => 7, 'eight' => 8, 'nine' => 9, 'ten' => 10, 'eleven' => 11, 'twelve' => 12];
-        $roman = ['i' => 1, 'ii' => 2, 'iii' => 3, 'iv' => 4, 'v' => 5, 'vi' => 6];
-        $levels = ['primary', 'jss', 'sss', 'kg', 'nursery', 'year', 'grade', 'basic', 'class', 'form', 'reception'];
-
-        $out = [];
-
-        foreach ($tokens as $i => $token) {
-            $previous = $out[$i - 1] ?? null;
-
-            // A lone letter ("P", "S") only stands for a level before a number.
-            if (isset($words[$token]) && (strlen($token) > 1 || ctype_digit($tokens[$i + 1] ?? ''))) {
-                $token = $words[$token];
-            } elseif (isset($numbers[$token])) {
-                $token = (string) $numbers[$token];
-            } elseif (isset($roman[$token]) && in_array($previous, $levels, true)) {
-                $token = (string) $roman[$token];
-            }
-
-            $out[$i] = $token;
-        }
-
-        return implode('', $out);
+        return ClassNameMatcher::looseKey($name);
     }
 
     private function subjectFromRole(string $role): ?string

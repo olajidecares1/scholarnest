@@ -648,3 +648,152 @@ test('a file of only already registered students imports nothing and changes not
     expect(snapshotStudent($existing))->toBe($before)
         ->and(Student::where('school_id', $this->school->id)->count())->toBe(1);
 });
+
+/*
+ * The class written in the file.
+ *
+ * A list that names each student's class is imported into those classes, with
+ * no class chosen on the upload form, several classes in one file.
+ */
+function uploadListUsingFileClasses($test, UploadedFile $file, array $extra = []): string
+{
+    $response = $test->actingAs($test->admin)->post(route('students.import.preview'), ['file' => $file, ...$extra]);
+
+    $response->assertSessionHasNoErrors()->assertRedirect();
+    preg_match('#/([A-Za-z0-9]{40})$#', $response->headers->get('Location'), $m);
+
+    return $m[1];
+}
+
+test('each student goes into the class given in the file, with no class chosen', function () {
+    $token = uploadListUsingFileClasses($this, importCsv(
+        "S/N,Name,Gender,Class,Admission Number\n"
+        ."1,Okafor Chinedu,M,Primary 3,A1\n"
+        ."2,Bello Aisha,F,JSS 1,A2\n"
+        ."3,Adeyemi Tunde,M,Primary 3,A3\n"
+    ));
+
+    $this->actingAs($this->admin)
+        ->get(route('students.import.review', ['token' => $token]))
+        ->assertOk()
+        ->assertSee('each student/pupil into the class given in the file')
+        ->assertSee('Primary 3 &middot; 2', false)
+        ->assertSee('JSS 1 &middot; 1', false)
+        ->assertSee('Import 3 Students');
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]))
+        ->assertRedirect(route('students.index'))
+        ->assertSessionHas('status', fn ($status) => str_contains($status, 'imported into 2 classes (') && str_contains($status, 'Primary 3') && str_contains($status, 'JSS 1'));
+
+    expect(Student::where('first_name', 'Chinedu')->value('class_name'))->toBe('Primary 3')
+        ->and(Student::where('first_name', 'Aisha')->value('class_name'))->toBe('JSS 1')
+        ->and(Student::where('first_name', 'Tunde')->value('class_name'))->toBe('Primary 3');
+});
+
+test('a single class in the file goes back to that class\'s list', function () {
+    $token = uploadListUsingFileClasses($this, importCsv("Name,Gender,Class,Admission Number\nOkafor Chinedu,M,JSS 1,A1\n"));
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]))
+        ->assertRedirect(route('students.index', ['class' => 'JSS 1']));
+});
+
+test('class names are read the way schools write them', function (string $written, string $class) {
+    $token = uploadListUsingFileClasses($this, importCsv("Name,Gender,Class,Admission Number\nOkafor Chinedu,M,{$written},A1\n"));
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+
+    expect(Student::firstOrFail()->class_name)->toBe($class);
+})->with([
+    ['primary 3', 'Primary 3'],
+    ['Pry 3', 'Primary 3'],
+    ['P3', 'Primary 3'],
+    ['Primary Three', 'Primary 3'],
+    ['JS1', 'JSS 1'],
+    ['J.S.S 1', 'JSS 1'],
+    ['Junior Secondary 1', 'JSS 1'],
+]);
+
+test('a row with a missing or unknown class is shown for correcting and never invents a class', function () {
+    $token = uploadListUsingFileClasses($this, importCsv(
+        "Name,Gender,Class,Admission Number\n"
+        ."Okafor Chinedu,M,Primary 3,A1\n"
+        ."Bello Aisha,F,Primary 9,A2\n"
+        ."Adeyemi Tunde,M,,A3\n"
+    ));
+
+    $this->actingAs($this->admin)
+        ->get(route('students.import.review', ['token' => $token]))
+        ->assertOk()
+        ->assertSee('Class &quot;Primary 9&quot; is not one of your school&#039;s classes.', false)
+        ->assertSee('Class is missing.')
+        ->assertSee('Import 1 Student');
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+
+    expect(Student::pluck('first_name')->all())->toBe(['Chinedu'])
+        ->and(SchoolClass::where('school_id', $this->school->id)->count())->toBe(2);
+});
+
+test('a class chosen on the form puts everyone in the file into it, whatever the file says', function () {
+    $token = uploadList($this, importCsv(
+        "Name,Gender,Class,Admission Number\n"
+        ."Okafor Chinedu,M,Primary 3,A1\n"
+        ."Bello Aisha,F,Some Old Class,A2\n"
+    ), 'JSS 1');
+
+    $this->actingAs($this->admin)
+        ->get(route('students.import.review', ['token' => $token]))
+        ->assertOk()
+        ->assertSee('everyone into')
+        ->assertSee('you selected JSS 1 for everyone in this file');
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+
+    expect(Student::pluck('class_name')->unique()->values()->all())->toBe(['JSS 1']);
+});
+
+test('without a Class column a class must still be chosen', function () {
+    $this->actingAs($this->admin)
+        ->post(route('students.import.preview'), ['file' => importCsv("Name,Gender,Admission Number\nOkafor Chinedu,M,A1\n")])
+        ->assertSessionHasErrors(['class_name' => 'Your file has no Class column, so we cannot tell which class each student/pupil is in. Select a class for everyone in this file, or add a "Class" column to the file.']);
+
+    expect(Student::count())->toBe(0);
+});
+
+test('the same child is recognised as already registered in the class the file gives', function () {
+    Student::factory()->create(['school_id' => $this->school->id, 'first_name' => 'Chinedu', 'last_name' => 'Okafor', 'class_name' => 'JSS 1', 'date_of_birth' => null, 'guardian_phone' => null]);
+
+    $token = uploadListUsingFileClasses($this, importCsv("Name,Gender,Class,Admission Number\nOkafor Chinedu Emeka,M,JSS 1,A9\n"));
+
+    $this->actingAs($this->admin)
+        ->get(route('students.import.review', ['token' => $token]))
+        ->assertSee('Already registered');
+});
+
+test('generated admission numbers follow each student\'s own class', function () {
+    $this->school->update(['auto_generate_admission_numbers' => true, 'school_code' => 'GRN']);
+
+    $token = uploadListUsingFileClasses($this, importCsv(
+        "Name,Gender,Class\n"
+        ."Okafor Chinedu,M,Primary 3\n"
+        ."Bello Aisha,F,JSS 1\n"
+    ));
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+
+    expect(Student::count())->toBe(2)
+        ->and(Student::pluck('admission_number')->filter()->unique()->count())->toBe(2);
+});
+
+test('a Word or PDF register with a Class column works the same way', function () {
+    $pdf = Pdf::loadHTML('<table><tr><th>S/N</th><th>Student\'s Name</th><th>Sex</th><th>Class</th><th>Adm No</th></tr>'
+        .'<tr><td>1</td><td>Okafor Chinedu</td><td>M</td><td>Primary 3</td><td>A1</td></tr>'
+        .'<tr><td>2</td><td>Bello Aisha</td><td>F</td><td>JSS 1</td><td>A2</td></tr></table>')->output();
+
+    $token = uploadListUsingFileClasses($this, UploadedFile::fake()->createWithContent('register.pdf', $pdf));
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+
+    expect(Student::where('first_name', 'Chinedu')->value('class_name'))->toBe('Primary 3')
+        ->and(Student::where('first_name', 'Aisha')->value('class_name'))->toBe('JSS 1');
+});

@@ -12,9 +12,10 @@ use App\Services\Import\ReadsImportValues;
  * row after it into the same fields the Add Student form collects, with a
  * plain-language reason for anything that cannot be imported.
  *
- * The class is NOT read from the file. The School Admin chooses it on the
- * upload form, so one upload is one class and a typo in a spreadsheet cannot
- * invent a class the school does not have.
+ * The class written on each row is read too, as it was written. Which of the
+ * school's classes it means, and whether the class chosen on the upload form
+ * replaces it, is decided by StudentImportController: a class name in a
+ * spreadsheet can never invent a class the school does not have.
  */
 class StudentImportParser
 {
@@ -50,10 +51,12 @@ class StudentImportParser
         'admission_date' => ['admissiondate', 'dateofadmission', 'dateadmitted', 'entrydate', 'yearofadmission'],
         'notes' => ['notes', 'note', 'remark', 'remarks', 'comment', 'comments'],
 
-        // Recognised so they count towards finding the header row, then
-        // deliberately left out: the class comes from the upload form, and a
-        // serial number is not a student detail.
-        'class' => ['class', 'classname', 'classarm', 'arm', 'grade', 'form'],
+        // The class each student/pupil is in, matched to the school's own
+        // classes by the controller.
+        'class' => ['class', 'classes', 'classname', 'classarm', 'arm', 'grade', 'form', 'level', 'classlevel', 'currentclass', 'presentclass', 'studentclass', 'pupilclass', 'classofstudent', 'classofpupil', 'classadmitted', 'classadmittedto', 'admittedclass'],
+
+        // Recognised so it counts towards finding the header row, then left
+        // out: a serial number is not a student detail.
         'serial' => ['sn', 'sno', 'serialnumber', 'serialno', 'serial', 'no', 'number', 's'],
     ];
 
@@ -175,7 +178,7 @@ class StudentImportParser
             // Kept even when the school generates its own numbers: a register
             // exported from this system carries them, and it is how a student
             // who is already registered is recognised (ExistingStudentMatcher).
-            $parsed[] = ['line' => $index + 1, ...$row, 'file_admission_number' => $raw['admission_number'] ?? null, 'existing' => null];
+            $parsed[] = ['line' => $index + 1, ...$row, 'file_admission_number' => $raw['admission_number'] ?? null, 'file_class' => $raw['class'] ?? null, 'existing' => null];
         }
 
         if ($parsed === []) {
