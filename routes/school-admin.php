@@ -6,6 +6,7 @@ use App\Http\Controllers\SchoolAdmin\AttendanceController;
 use App\Http\Controllers\SchoolAdmin\CbtPracticeController;
 use App\Http\Controllers\SchoolAdmin\CbtTestController as CbtTestOversightController;
 use App\Http\Controllers\SchoolAdmin\CheckInController as SchoolCheckInController;
+use App\Http\Controllers\SchoolAdmin\ClassRosterController;
 use App\Http\Controllers\SchoolAdmin\ClassSubjectController;
 use App\Http\Controllers\SchoolAdmin\CoCurricularController;
 use App\Http\Controllers\SchoolAdmin\CommunicationController as SchoolCommunicationController;
@@ -103,6 +104,23 @@ Route::name('students.')->group(function () {
     Route::post(R::uri('students.guardians.link').'/{student}/guardians/link', [StudentController::class, 'linkGuardian'])->name('guardians.link');
     Route::put(R::uri('students.guardians.update-password').'/guardians/{guardian}', [StudentController::class, 'updateGuardianPassword'])->name('guardians.update-password');
     Route::delete(R::uri('students.guardians.destroy').'/{student}/guardians/{guardian}', [StudentController::class, 'destroyGuardian'])->name('guardians.destroy');
+});
+
+// Updating a whole class at once: upload a revised list and review every
+// detected change before it is applied, or edit the class in a
+// spreadsheet-style grid. Every update keeps a backup and can be rolled
+// back. See ClassRosterController.
+Route::name('classes.update.')->group(function () {
+    Route::get(R::uri('classes.update.show').'/{class}', [ClassRosterController::class, 'show'])->name('show');
+    Route::get(R::uri('classes.update.export').'/{class}', [ClassRosterController::class, 'export'])->name('export');
+    Route::post(R::uri('classes.update.upload').'/{class}', [ClassRosterController::class, 'upload'])->name('upload');
+    Route::get(R::uri('classes.update.review').'/{class}/{token}', [ClassRosterController::class, 'review'])->where('token', '[A-Za-z0-9]{40}')->name('review');
+    Route::post(R::uri('classes.update.review').'/{class}/{token}', [ClassRosterController::class, 'apply'])->where('token', '[A-Za-z0-9]{40}')->name('apply');
+    Route::delete(R::uri('classes.update.review').'/{class}/{token}', [ClassRosterController::class, 'cancel'])->where('token', '[A-Za-z0-9]{40}')->name('cancel');
+    Route::get(R::uri('classes.update.edit').'/{class}', [ClassRosterController::class, 'edit'])->name('edit');
+    Route::post(R::uri('classes.update.edit').'/{class}', [ClassRosterController::class, 'save'])->name('save');
+    Route::post(R::uri('classes.update.rollback').'/{class}/{batch}', [ClassRosterController::class, 'rollback'])->name('rollback');
+    Route::get(R::uri('classes.update.backup').'/{class}/{batch}', [ClassRosterController::class, 'backup'])->name('backup');
 });
 
 Route::middleware('plan_feature:guardians')->name('guardians.')->group(function () {
