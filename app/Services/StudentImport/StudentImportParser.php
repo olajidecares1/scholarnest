@@ -33,7 +33,7 @@ class StudentImportParser
      *
      * @var array<string, list<string>>
      */
-    private const ALIASES = [
+    public const ALIASES = [
         'admission_number' => ['admissionnumber', 'admissionno', 'admno', 'admnumber', 'admissionnum', 'admission', 'regno', 'regnumber', 'registrationnumber', 'registrationno', 'studentid', 'studentno', 'studentnumber', 'pupilid', 'pupilno', 'pupilnumber', 'idnumber', 'idno', 'matricno', 'matricnumber'],
         'first_name' => ['firstname', 'givenname', 'forename', 'fname', 'first', 'christianname'],
         'middle_name' => ['middlename', 'othername', 'othernames', 'middle', 'mname'],
