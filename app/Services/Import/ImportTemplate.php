@@ -70,26 +70,43 @@ abstract class ImportTemplate
      */
     protected function render(string $format, array $headings, array $sample, array $dropdowns = []): string
     {
+        return $this->renderRows($format, $headings, [$sample], $dropdowns);
+    }
+
+    /**
+     * render() with any number of filled-in rows rather than one example:
+     * a class list exported to be edited and uploaded back.
+     *
+     * @param  list<string>  $headings
+     * @param  list<list<string>>  $rows
+     * @param  array<string, list<string>>  $dropdowns
+     */
+    protected function renderRows(string $format, array $headings, array $rows, array $dropdowns = [], ?int $blankRows = null): string
+    {
+        $blankRows ??= static::BLANK_ROWS;
+
         return match ($format) {
-            'csv' => $this->csv($headings, $sample),
-            'xlsx' => $this->xlsx($headings, $sample, $dropdowns),
-            'docx' => $this->docx($headings, $sample),
-            'pdf' => $this->pdf($headings, $sample),
+            'csv' => $this->csv($headings, $rows),
+            'xlsx' => $this->xlsx($headings, $rows, $dropdowns),
+            'docx' => $this->docx($headings, $rows, $blankRows),
+            'pdf' => $this->pdf($headings, $rows, $blankRows),
             default => throw new RuntimeException("Unknown template format [{$format}]."),
         };
     }
 
     /**
      * @param  list<string>  $headings
-     * @param  list<string>  $sample
+     * @param  list<list<string>>  $rows
      */
-    private function csv(array $headings, array $sample): string
+    private function csv(array $headings, array $rows): string
     {
         $out = fopen('php://temp', 'r+');
         // A byte-order mark, so Excel opens names with accents correctly.
         fwrite($out, "\xEF\xBB\xBF");
         fputcsv($out, $headings, ',', '"', '');
-        fputcsv($out, $sample, ',', '"', '');
+        foreach ($rows as $row) {
+            fputcsv($out, $row, ',', '"', '');
+        }
         rewind($out);
         $contents = (string) stream_get_contents($out);
         fclose($out);
@@ -103,10 +120,10 @@ abstract class ImportTemplate
      * leading 0 and dates are not turned into Excel serial numbers.
      *
      * @param  list<string>  $headings
-     * @param  list<string>  $sample
+     * @param  list<list<string>>  $rows
      * @param  array<string, list<string>>  $dropdowns
      */
-    private function xlsx(array $headings, array $sample, array $dropdowns): string
+    private function xlsx(array $headings, array $rows, array $dropdowns): string
     {
         $count = count($headings);
         $lastColumn = $this->columnLetter($count - 1);
@@ -150,13 +167,19 @@ abstract class ImportTemplate
 
         $validationCount = substr_count($validations, '<dataValidation ');
 
+        $sheetRows = $rowXml(1, $headings, 1);
+        foreach (array_values($rows) as $index => $values) {
+            $sheetRows .= $rowXml($index + 2, $values, 2);
+        }
+        $lastRow = max(2, count($rows) + 1);
+
         $sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             .'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-            ."<dimension ref=\"A1:{$lastColumn}2\"/>"
+            ."<dimension ref=\"A1:{$lastColumn}{$lastRow}\"/>"
             .'<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
             .'<sheetFormatPr defaultRowHeight="15"/>'
             ."<cols>{$cols}</cols>"
-            .'<sheetData>'.$rowXml(1, $headings, 1).$rowXml(2, $sample, 2).'</sheetData>'
+            .'<sheetData>'.$sheetRows.'</sheetData>'
             .($validationCount > 0 ? "<dataValidations count=\"{$validationCount}\">{$validations}</dataValidations>" : '')
             .'</worksheet>';
 
@@ -211,9 +234,9 @@ abstract class ImportTemplate
      * type into. The reader takes every table row, so nothing else is needed.
      *
      * @param  list<string>  $headings
-     * @param  list<string>  $sample
+     * @param  list<list<string>>  $rows
      */
-    private function docx(array $headings, array $sample): string
+    private function docx(array $headings, array $rows, int $blankRows): string
     {
         $word = new PhpWord;
         $word->setDefaultFontName('Calibri');
@@ -244,12 +267,14 @@ abstract class ImportTemplate
             $table->addCell(null, ['bgColor' => '2563EB'])->addText($heading, ['bold' => true, 'color' => 'FFFFFF', 'size' => 7.5]);
         }
 
-        $table->addRow();
-        foreach ($sample as $value) {
-            $table->addCell()->addText($value, ['size' => 7.5]);
+        foreach ($rows as $values) {
+            $table->addRow();
+            foreach ($values as $value) {
+                $table->addCell()->addText((string) $value, ['size' => 7.5]);
+            }
         }
 
-        for ($i = 0; $i < static::BLANK_ROWS; $i++) {
+        for ($i = 0; $i < $blankRows; $i++) {
             $table->addRow(320);
             foreach ($headings as $heading) {
                 $table->addCell()->addText('');
@@ -273,9 +298,9 @@ abstract class ImportTemplate
      * columns from where the headings sit, so it reads straight back.
      *
      * @param  list<string>  $headings
-     * @param  list<string>  $sample
+     * @param  list<list<string>>  $rows
      */
-    private function pdf(array $headings, array $sample): string
+    private function pdf(array $headings, array $rows, int $blankRows): string
     {
         $e = fn (string $value) => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 
@@ -284,8 +309,8 @@ abstract class ImportTemplate
         // heading stays on one line.
         $headings = array_map(fn ($h) => trim(str_replace('(DD/MM/YYYY)', '', $h)), $headings);
         $head = implode('', array_map(fn ($h) => '<th>'.$e($h).'</th>', $headings));
-        $example = implode('', array_map(fn ($v) => '<td>'.$e($v).'</td>', $sample));
-        $blank = str_repeat('<tr class="blank">'.str_repeat('<td>&nbsp;</td>', count($headings)).'</tr>', static::BLANK_ROWS);
+        $example = implode('', array_map(fn (array $row) => '<tr>'.implode('', array_map(fn ($v) => '<td>'.$e((string) $v).'</td>', $row)).'</tr>', $rows));
+        $blank = str_repeat('<tr class="blank">'.str_repeat('<td>&nbsp;</td>', count($headings)).'</tr>', $blankRows);
         $hint = $e($this->pdfHint());
 
         $html = <<<HTML
@@ -299,7 +324,7 @@ abstract class ImportTemplate
     td { padding: 4px 3px; border: 1px solid #d1d5db; white-space: nowrap; font-size: 6.5px; }
     tr.blank td { height: 16px; }
 </style></head><body>
-<table><thead><tr>{$head}</tr></thead><tbody><tr>{$example}</tr>{$blank}</tbody></table>
+<table><thead><tr>{$head}</tr></thead><tbody>{$example}{$blank}</tbody></table>
 <p class="hint">{$hint}</p>
 </body></html>
 HTML;

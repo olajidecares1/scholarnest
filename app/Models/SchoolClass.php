@@ -8,6 +8,7 @@ use Database\Factories\SchoolClassFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SchoolClass extends Model
 {
@@ -25,6 +26,10 @@ class SchoolClass extends Model
         'name',
         'stream',
         'sort_order',
+
+        // Columns the school added to this class beyond the standard
+        // student details. See App\Services\ClassRoster.
+        'extra_columns',
     ];
 
     /**
@@ -36,6 +41,7 @@ class SchoolClass extends Model
     {
         return [
             'stream' => ClassStream::class,
+            'extra_columns' => 'array',
         ];
     }
 
@@ -53,5 +59,13 @@ class SchoolClass extends Model
     public function academicLevel(): BelongsTo
     {
         return $this->belongsTo(AcademicLevel::class);
+    }
+
+    /**
+     * @return HasMany<ClassUpdateBatch, $this>
+     */
+    public function updateBatches(): HasMany
+    {
+        return $this->hasMany(ClassUpdateBatch::class);
     }
 }

@@ -67,6 +67,10 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
         'notes',
         'password',
         'must_change_password',
+
+        // Values for the columns a school added to a class in the class
+        // editor or an uploaded list, keyed by the column's heading.
+        'extra_fields',
     ];
 
     /**
@@ -95,6 +99,7 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
             'password' => 'hashed',
             'must_change_password' => 'boolean',
             'last_login_at' => 'datetime',
+            'extra_fields' => 'array',
         ];
     }
 
