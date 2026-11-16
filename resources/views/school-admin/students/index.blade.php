@@ -118,6 +118,45 @@
                 </form>
 
                 <div class="flex flex-wrap items-center gap-2">
+                {{-- Edit Class: update a whole class at once, from a file or
+                     in the class editor. Goes straight to the class being
+                     viewed, otherwise asks which class. --}}
+                @php
+                    $allClasses = $academicLevels->flatMap->classes;
+                    $filteredClass = request('class') ? $allClasses->firstWhere('name', request('class')) : null;
+                @endphp
+                @if ($filteredClass)
+                    <a
+                        href="{{ route('classes.update.show', $filteredClass) }}"
+                        class="btn flex items-center gap-2 rounded-[8px] border border-purple-600 px-4 py-2 text-sm font-semibold text-purple-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-purple-50 hover:shadow-md dark:text-purple-300 dark:hover:bg-purple-900/20"
+                    >
+                        <i class="fa-solid fa-pen-to-square text-[14px] leading-none" aria-hidden="true"></i>
+                        Edit Class
+                    </a>
+                @elseif ($allClasses->isNotEmpty())
+                    <div class="relative" x-data="{ classMenu: false }" @click.outside="classMenu = false" @keydown.escape.window="classMenu = false">
+                        <button
+                            type="button"
+                            @click="classMenu = ! classMenu"
+                            :aria-expanded="classMenu.toString()"
+                            aria-haspopup="menu"
+                            class="btn flex items-center gap-2 rounded-[8px] border border-purple-600 px-4 py-2 text-sm font-semibold text-purple-700 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-purple-50 hover:shadow-md dark:text-purple-300 dark:hover:bg-purple-900/20"
+                        >
+                            <i class="fa-solid fa-pen-to-square text-[14px] leading-none" aria-hidden="true"></i>
+                            Edit Class
+                            <i class="fa-solid fa-chevron-down text-[10px] leading-none" aria-hidden="true"></i>
+                        </button>
+                        <div x-cloak x-show="classMenu" x-transition role="menu"
+                             class="absolute right-0 z-30 mt-2 max-h-72 w-56 overflow-y-auto rounded-[10px] border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                            <small class="block px-3 py-1.5 text-[11px] font-semibold uppercase text-gray-400">Which class?</small>
+                            @foreach ($allClasses as $menuClass)
+                                <a href="{{ route('classes.update.show', $menuClass) }}" role="menuitem"
+                                   class="block px-3 py-2 text-xs text-gray-700 transition-colors duration-150 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">{{ $menuClass->name }}</a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Optional: a whole class from one file. Adding one at a
                      time below stays exactly as it was. --}}
                 <a
