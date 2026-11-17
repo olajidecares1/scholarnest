@@ -281,6 +281,23 @@
                     <small class="field-hint mt-0.5">Configure a school code and let AkademicNest generate unique Admission Numbers and Staff IDs automatically instead of typing them by hand.</small>
 
                     <div class="mt-4 space-y-4">
+                        @if (($outdatedAdmissionNumbers ?? 0) > 0 || ($outdatedStaffIds ?? 0) > 0)
+                            {{-- Numbers issued under a code the school no longer uses. See
+                                 IdentifierRegenerationController: nothing changes until the
+                                 admin confirms there. --}}
+                            <div class="rounded-[8px] bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" data-outdated-identifiers>
+                                @if ($outdatedAdmissionNumbers > 0)
+                                    {{ $outdatedAdmissionNumbers }} {{ $outdatedAdmissionNumbers === 1 ? 'student has an admission number' : 'students have admission numbers' }} that {{ $outdatedAdmissionNumbers === 1 ? 'does' : 'do' }} not use school code {{ $school->school_code }}.
+                                @endif
+                                @if ($outdatedStaffIds > 0)
+                                    {{ $outdatedStaffIds }} {{ $outdatedStaffIds === 1 ? 'staff member has a Staff ID' : 'staff members have Staff IDs' }} that {{ $outdatedStaffIds === 1 ? 'does' : 'do' }} not use school code {{ $school->school_code }}.
+                                @endif
+                                <a href="{{ route('settings.identifiers') }}" class="ml-1 font-bold underline">Regenerate them</a>
+                            </div>
+                        @endif
+
+                        <a href="{{ route('settings.identifiers') }}" class="text-xs font-semibold text-primary-600 hover:underline">Regenerate existing Admission Numbers or Staff IDs</a>
+
                         <x-text-field name="school_code" label="School Code" icon="M9 12.5l2 2 4-4.2 M7 4.5h10a1 1 0 011 1V19a1 1 0 01-1 1H7a1 1 0 01-1-1V5.5a1 1 0 011-1z" :value="old('school_code', $school->school_code)" placeholder="e.g. MIS" helper="Used as the prefix for every generated Admission Number and Staff ID." />
 
                         <label class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-200">

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\IdentifierChange;
 use App\Models\SchoolClass;
 use App\Models\Staff;
 use App\Models\Student;
+use App\Services\IdentifierGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,7 +25,8 @@ class SearchController extends Controller
         $students = Student::where('school_id', $schoolId)
             ->where(fn ($q) => $q->where('first_name', 'like', "%{$query}%")
                 ->orWhere('last_name', 'like', "%{$query}%")
-                ->orWhere('admission_number', 'like', "%{$query}%"))
+                ->orWhere('admission_number', 'like', "%{$query}%")
+                ->orWhereIn('id', IdentifierChange::holdersMatching($schoolId, IdentifierGenerator::ADMISSION, $query)))
             ->alphabetical()
             ->limit(5)
             ->get()
@@ -36,7 +39,8 @@ class SearchController extends Controller
         $staff = Staff::where('school_id', $schoolId)
             ->where(fn ($q) => $q->where('first_name', 'like', "%{$query}%")
                 ->orWhere('last_name', 'like', "%{$query}%")
-                ->orWhere('staff_number', 'like', "%{$query}%"))
+                ->orWhere('staff_number', 'like', "%{$query}%")
+                ->orWhereIn('id', IdentifierChange::holdersMatching($schoolId, IdentifierGenerator::STAFF, $query)))
             ->limit(5)
             ->get()
             ->map(fn (Staff $member) => [

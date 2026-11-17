@@ -8,12 +8,14 @@ use App\Http\Requests\VerifyResultPinRequest;
 use App\Models\ResultCheckingPinUsage;
 use App\Models\School;
 use App\Models\Student;
+use App\Services\IdentifierGenerator;
 use App\Services\PublishedResultData;
 use App\Services\ReportCardData;
 use App\Services\ResultAccessPolicy;
 use App\Services\ResultCheckIdentity;
 use App\Services\ResultRepository;
 use App\Services\ResultTokenVerifier;
+use App\Support\PreviousIdentifier;
 use App\Support\ResultCheckRoutes;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -71,6 +73,12 @@ class CheckResultController extends Controller
             ->where('is_active', true)
             ->whereRaw('LOWER(admission_number) = ?', [mb_strtolower(trim($request->string('admission_number')->toString()))])
             ->first();
+
+        // A number the school has since regenerated still finds the pupil.
+        if ($student === null) {
+            $previous = PreviousIdentifier::holder($school, IdentifierGenerator::ADMISSION, $request->string('admission_number')->toString());
+            $student = $previous instanceof Student && $previous->is_active ? $previous : null;
+        }
 
         if ($student === null) {
             $request->recordFailure($school);

@@ -26,6 +26,14 @@
                         @if ($student->class_name) &middot; {{ $student->class_name }} @endif
                         @if ($student->age()) &middot; {{ $student->age() }} years old @endif
                     </small>
+                    {{-- Numbers kept from before the school regenerated them, so old
+                         receipts and report cards can still be traced. --}}
+                    @php($previousNumbers = \App\Models\IdentifierChange::previousFor($student))
+                    @if ($previousNumbers)
+                        <small class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400" data-previous-numbers>
+                            Previous admission number{{ count($previousNumbers) > 1 ? 's' : '' }}: {{ implode(', ', $previousNumbers) }}
+                        </small>
+                    @endif
                 </div>
                 <a href="{{ route('students.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                     <i class="fa-solid fa-pen-to-square btn-icon" aria-hidden="true"></i> Edit in Students List

@@ -9,6 +9,7 @@ use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Guardian;
+use App\Models\IdentifierChange;
 use App\Models\School;
 use App\Models\Student;
 use App\Rules\UploadedImage;
@@ -45,12 +46,14 @@ class StudentController extends Controller
         $school = $request->user()->school;
 
         $students = $school->students()
-            ->when($request->filled('search'), function ($query) use ($request) {
+            ->when($request->filled('search'), function ($query) use ($request, $school) {
                 $search = $request->string('search');
-                $query->where(function ($query) use ($search) {
+                $query->where(function ($query) use ($search, $school) {
                     $query->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('admission_number', 'like', "%{$search}%");
+                        ->orWhere('admission_number', 'like', "%{$search}%")
+                        // A number the student had before the school regenerated it.
+                        ->orWhereIn('id', IdentifierChange::holdersMatching($school->id, IdentifierGenerator::ADMISSION, (string) $search));
                 });
             })
             ->when($request->filled('class'), fn ($query) => $query->where('class_name', $request->string('class')))

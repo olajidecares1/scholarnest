@@ -96,6 +96,7 @@ class School extends Model
         'auto_generate_staff_ids',
         'next_staff_sequence',
         'next_guardian_sequence',
+        'previous_school_codes',
     ];
 
     /**
@@ -303,6 +304,7 @@ class School extends Model
             'latitude' => 'float',
             'longitude' => 'float',
             'check_in_radius_metres' => 'integer',
+            'previous_school_codes' => 'array',
         ];
     }
 

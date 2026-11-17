@@ -20,6 +20,7 @@ use App\Http\Controllers\SchoolAdmin\GuardianController;
 use App\Http\Controllers\SchoolAdmin\HostelController;
 use App\Http\Controllers\SchoolAdmin\IdCardController;
 use App\Http\Controllers\SchoolAdmin\IdCardTemplateController;
+use App\Http\Controllers\SchoolAdmin\IdentifierRegenerationController;
 use App\Http\Controllers\SchoolAdmin\InboxController;
 use App\Http\Controllers\SchoolAdmin\IssuedIdCardController;
 use App\Http\Controllers\SchoolAdmin\JobApplicationController;
@@ -566,6 +567,12 @@ Route::name('misconduct-reports.')->group(function () {
 
 Route::get(R::uri('settings.index'), [SchoolSettingsController::class, 'edit'])->name('settings.index');
 Route::put(R::uri('settings.update'), [SchoolSettingsController::class, 'update'])->name('settings.update');
+
+// Regenerating admission numbers and Staff IDs after the School Code is set
+// or changed. Asks first, says how many will change; see
+// IdentifierRegenerationController.
+Route::get(R::uri('settings.identifiers'), [IdentifierRegenerationController::class, 'show'])->name('settings.identifiers');
+Route::post(R::uri('settings.identifiers'), [IdentifierRegenerationController::class, 'update'])->name('settings.identifiers.regenerate');
 
 // The School Admin's own signature, drawn on a canvas and posted with fetch().
 // On every plan: a Basic school's results are signed too.
