@@ -121,7 +121,7 @@ All under `/api/v1/student`, and all scoped to the signed-in student.
 | `GET /results` | Every examination they have a mark in, **and no marks** |
 | `POST /results/{examination}` | One full report card, in exchange for its exam token |
 | `GET /attendance` | Their own attendance. `from`, `to`, `per_page` |
-| `GET /attendance/terms` | Their term totals (days present, absent, late, excused), where the school enters attendance manually. `meta.manual_attendance_enabled` says whether it does |
+| `GET /attendance/terms` | Their term totals (school days, days present, absent, late, excused, days attended and percentage), where the school enters attendance manually. `meta.manual_attendance_enabled` says whether it does |
 | `GET /timetable` | Their class's timetable, unpaginated |
 | `GET /assignments` | Homework for their class, soonest due first |
 | `GET /notices` | Memoranda addressed to students or to everyone |

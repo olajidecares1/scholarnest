@@ -14,6 +14,8 @@ use App\Models\User;
 use App\Support\AcademicSession;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Manual term attendance: day counts per pupil per term, typed in by a
@@ -158,7 +160,7 @@ class TermAttendance
      *
      * @param  Collection<int, Student>  $students  keyed by id; only these pupils can be written
      * @param  array<int|string, array<string, mixed>>  $rows
-     * @return array{saved: int, locked: int, flagged: int}
+     * @return array{saved: int, locked: int, flagged: int, cleared: int}
      */
     public function save(
         School $school,
@@ -173,7 +175,7 @@ class TermAttendance
     ): array {
         $expected = $this->termFor($school, $session, $term)?->schoolDays();
         $existing = $this->summariesFor($school, $students->keys(), $session, $term);
-        $result = ['saved' => 0, 'locked' => 0, 'flagged' => 0];
+        $result = ['saved' => 0, 'locked' => 0, 'flagged' => 0, 'cleared' => 0];
 
         DB::transaction(function () use ($school, $students, $rows, $session, $term, $admin, $staff, $mayOverwrite, $className, $expected, $existing, &$result) {
             foreach ($rows as $studentId => $row) {
@@ -183,25 +185,43 @@ class TermAttendance
                     continue;
                 }
 
-                $filled = collect(AttendanceSummary::COUNTS)->contains(fn (string $key) => ($row[$key] ?? null) !== null && $row[$key] !== '');
-
-                if (! $filled) {
-                    continue;
-                }
-
-                $counts = collect(AttendanceSummary::COUNTS)->mapWithKeys(fn (string $key) => [$key => (int) ($row[$key] ?? 0)])->all();
-                $notes = isset($row['notes']) && trim((string) $row['notes']) !== '' ? trim((string) $row['notes']) : null;
                 $current = $existing->get($student->id);
 
-                if ($current && ! $mayOverwrite) {
-                    if ($current->counts() !== $counts || $current->notes !== $notes) {
+                // Ticked "remove saved totals": the pupil goes back to "not
+                // entered yet". Only where the person saving may correct
+                // saved totals, exactly like changing them.
+                if (filter_var($row['clear'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                    if ($current && $mayOverwrite) {
+                        $current->delete();
+                        $result['cleared']++;
+                    } elseif ($current) {
                         $result['locked']++;
                     }
 
                     continue;
                 }
 
-                if ($current && $current->counts() === $counts && $current->notes === $notes) {
+                $entry = $this->normaliseRow($row, $expected);
+
+                if ($entry === null) {
+                    continue;
+                }
+
+                ['counts' => $counts, 'school_days' => $schoolDays, 'notes' => $notes] = $entry;
+                $unchanged = $current
+                    && $current->counts() === $counts
+                    && $current->notes === $notes
+                    && ($current->school_days ?: null) === $schoolDays;
+
+                if ($current && ! $mayOverwrite) {
+                    if (! $unchanged) {
+                        $result['locked']++;
+                    }
+
+                    continue;
+                }
+
+                if ($unchanged) {
                     // Nothing changed: leave the row, and who saved it, alone.
                     $result['saved']++;
                 } else {
@@ -210,6 +230,7 @@ class TermAttendance
                         $counts + [
                             'school_id' => $school->id,
                             'class_name' => $className ?? $student->class_name,
+                            'school_days' => $schoolDays,
                             'notes' => $notes,
                             'marked_by' => $admin?->id,
                             'marked_by_staff_id' => $staff?->id,
@@ -218,7 +239,7 @@ class TermAttendance
                     $result['saved']++;
                 }
 
-                if ($this->discrepancy(array_sum($counts), $expected)) {
+                if ($this->discrepancy(array_sum($counts), $schoolDays ?? $expected)) {
                     $result['flagged']++;
                 }
             }
@@ -228,9 +249,62 @@ class TermAttendance
     }
 
     /**
+     * One submitted row, cleaned up and with the missing figure worked out.
+     *
+     * Null when none of the four counts was filled in: the row is "not
+     * entered yet". Otherwise, when the pupil's school days are known (typed
+     * for them, or the term's), a blank Absent is worked out from Present,
+     * and a blank Present from Absent, so a teacher can type just the school
+     * days and the days present. Late and excused days are taken off first,
+     * because a day carries one status. Any other blank count is a zero.
+     *
+     * The same arithmetic the entry screen does live, so a form posted
+     * without JavaScript, or replayed from the offline queue, saves the same
+     * figures the teacher saw.
+     *
+     * @param  array<string, mixed>  $row
+     * @return ?array{counts: array<string, int>, school_days: ?int, notes: ?string}
+     */
+    public function normaliseRow(array $row, ?int $termSchoolDays): ?array
+    {
+        $blank = fn (mixed $value): bool => $value === null || (is_string($value) && trim($value) === '');
+
+        $counts = collect(AttendanceSummary::COUNTS)
+            ->mapWithKeys(fn (string $key) => [$key => $blank($row[$key] ?? null) ? null : max(0, (int) $row[$key])])
+            ->all();
+
+        if (collect($counts)->every(fn (?int $value) => $value === null)) {
+            return null;
+        }
+
+        $schoolDays = $blank($row['school_days'] ?? null) ? null : ((int) $row['school_days'] ?: null);
+        $days = $schoolDays ?? $termSchoolDays;
+
+        if ($days) {
+            $others = ($counts['days_late'] ?? 0) + ($counts['days_excused'] ?? 0);
+
+            if ($counts['days_present'] !== null && $counts['days_absent'] === null) {
+                $counts['days_absent'] = max(0, $days - $counts['days_present'] - $others);
+            } elseif ($counts['days_absent'] !== null && $counts['days_present'] === null) {
+                $counts['days_present'] = max(0, $days - $counts['days_absent'] - $others);
+            }
+        }
+
+        $notes = isset($row['notes']) && is_scalar($row['notes']) && trim((string) $row['notes']) !== ''
+            ? trim((string) $row['notes'])
+            : null;
+
+        return [
+            'counts' => array_map(fn (?int $value) => $value ?? 0, $counts),
+            'school_days' => $schoolDays,
+            'notes' => $notes,
+        ];
+    }
+
+    /**
      * The flash message after a save, in the words a teacher reads.
      *
-     * @param  array{saved: int, locked: int, flagged: int}  $result
+     * @param  array{saved: int, locked: int, flagged: int, cleared?: int}  $result
      */
     public function savedMessage(array $result, ExamTerm $term, string $session): string
     {
@@ -238,6 +312,10 @@ class TermAttendance
 
         if ($result['flagged'] > 0) {
             $message .= " {$result['flagged']} do not match the term's school days and are flagged below.";
+        }
+
+        if (($result['cleared'] ?? 0) > 0) {
+            $message .= " Saved totals removed for {$result['cleared']} student(s).";
         }
 
         if ($result['locked'] > 0) {
@@ -270,14 +348,16 @@ class TermAttendance
                 ->first();
 
             if ($summary) {
+                $termDays = $academicTerm?->schoolDays();
+
                 return [
                     'present' => (int) $summary->days_present,
                     'absent' => (int) $summary->days_absent,
                     'late' => (int) $summary->days_late,
                     'excused' => (int) $summary->days_excused,
                     'total' => $summary->totalDays(),
-                    'percent' => $summary->percent(),
-                    'school_days' => $academicTerm?->schoolDays(),
+                    'percent' => $summary->percent($termDays),
+                    'school_days' => $summary->expectedSchoolDays($termDays),
                     'source' => 'manual',
                 ];
             }
@@ -322,13 +402,13 @@ class TermAttendance
         $expected = $academicTerm?->schoolDays();
 
         return $students->map(function (Student $student) use ($summaries, $tallies, $expected) {
-            $summary = $summaries->get($student->id);
+            $summary = $summaries->get($student->id)?->withTermSchoolDays($expected);
 
             return [
                 'student' => $student,
                 'summary' => $summary,
                 'register' => $tallies[$student->id] ?? null,
-                'discrepancy' => $summary ? $this->discrepancy($summary->totalDays(), $expected) : null,
+                'discrepancy' => $summary ? $this->discrepancy($summary->totalDays(), $summary->expectedSchoolDays($expected)) : null,
             ];
         })->values();
     }
@@ -348,10 +428,115 @@ class TermAttendance
 
         // 'first' < 'second' < 'third' alphabetically, so the term column
         // sorts in calendar order on its own.
-        return $student->attendanceSummaries()
+        $summaries = $student->attendanceSummaries()
             ->where('school_id', $student->school_id)
             ->orderByDesc('session')
             ->orderByDesc('term')
             ->get();
+
+        return $this->withTermSchoolDays($student->school, $summaries);
+    }
+
+    /**
+     * Give each row its term's school days, so its percentage is worked out
+     * against the term (or the pupil's own figure) rather than against
+     * whatever days happened to be entered. One query for all the terms.
+     *
+     * @param  Collection<int, AttendanceSummary>  $summaries
+     * @return Collection<int, AttendanceSummary>
+     */
+    public function withTermSchoolDays(School $school, Collection $summaries): Collection
+    {
+        if ($summaries->isEmpty()) {
+            return $summaries;
+        }
+
+        $terms = AcademicTerm::where('school_id', $school->id)
+            ->whereIn('session', $summaries->pluck('session')->unique()->values())
+            ->get()
+            ->keyBy(fn (AcademicTerm $term) => $term->session.'|'.$term->term->value);
+
+        return $summaries->each(function (AttendanceSummary $summary) use ($terms) {
+            $summary->withTermSchoolDays($terms->get($summary->session.'|'.$summary->term->value)?->schoolDays());
+        });
+    }
+
+    /**
+     * One class's term attendance as report rows: every active pupil, with
+     * their saved totals or blanks, for the class summary and its CSV.
+     *
+     * @return array{rows: Collection<int, array<string, mixed>>, entered: int, average: ?float, below: int}
+     */
+    public function classReport(School $school, string $className, string $session, ExamTerm $term, int $threshold = 75): array
+    {
+        $students = $school->students()->where('is_active', true)->where('class_name', $className)->alphabetical()->get();
+        $academicTerm = $this->termFor($school, $session, $term);
+        $rows = $this->rows($school, $students, $session, $term, $academicTerm);
+
+        $percents = $rows->map(fn (array $row) => $row['summary']?->percent())->filter(fn (?int $p) => $p !== null);
+
+        return [
+            'rows' => $rows,
+            'entered' => $rows->filter(fn (array $row) => $row['summary'] !== null)->count(),
+            'average' => $percents->isEmpty() ? null : round($percents->avg(), 1),
+            'below' => $percents->filter(fn (int $p) => $p < $threshold)->count(),
+        ];
+    }
+
+    /**
+     * One class's term attendance as a CSV the school can open in Excel or
+     * print: every active pupil, their school days, the four counts and the
+     * percentage, with blanks for pupils not entered yet.
+     *
+     * Every text cell is guarded against spreadsheet formula injection, since
+     * names and notes are typed by people and the file is opened by others.
+     */
+    public function exportCsv(School $school, string $className, string $session, ExamTerm $term): StreamedResponse
+    {
+        $report = $this->classReport($school, $className, $session, $term);
+        $filename = Str::slug("{$className} {$term->label()} {$session} attendance").'.csv';
+
+        return response()->streamDownload(function () use ($report, $className) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM, so Excel reads accented names correctly
+
+            fputcsv($out, ['Admission No.', 'Student', 'Class', 'School Days', 'Present', 'Absent', 'Late', 'Excused', 'Days Attended', 'Attendance %', 'Check', 'Note']);
+
+            foreach ($report['rows'] as $row) {
+                $student = $row['student'];
+                $summary = $row['summary'];
+
+                fputcsv($out, array_map([self::class, 'csvCell'], [
+                    $student->admission_number ?? '',
+                    $student->fullName(),
+                    $summary?->class_name ?? $className,
+                    $summary?->expectedSchoolDays() ?? '',
+                    $summary?->days_present ?? '',
+                    $summary?->days_absent ?? '',
+                    $summary?->days_late ?? '',
+                    $summary?->days_excused ?? '',
+                    $summary?->daysAttended() ?? '',
+                    $summary && $summary->percent() !== null ? $summary->percent().'%' : '',
+                    $summary ? ($row['discrepancy'] ? ucfirst($row['discrepancy']['message']) : 'OK') : 'Not entered',
+                    $summary?->notes ?? '',
+                ]));
+            }
+
+            fputcsv($out, []);
+            fputcsv($out, ['Entered', $report['entered'].' of '.$report['rows']->count()]);
+            fputcsv($out, ['Class average', $report['average'] !== null ? $report['average'].'%' : 'N/A']);
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * A cell a spreadsheet will not run as a formula.
+     */
+    public static function csvCell(mixed $value): string
+    {
+        $value = (string) $value;
+
+        return $value !== '' && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true) ? "'".$value : $value;
     }
 }

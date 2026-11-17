@@ -28,12 +28,17 @@
                 </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div class="mt-6 grid grid-cols-2 gap-4 {{ empty($termAttendance) ? 'sm:grid-cols-4' : 'sm:grid-cols-3 lg:grid-cols-5' }}">
                 @foreach ([
                     ['label' => 'Total Students', 'value' => number_format($totalStudents), 'sub' => number_format($activeStudents).' active'],
                     ['label' => 'Teachers & Staff', 'value' => number_format($totalStaff)],
                     ['label' => 'Classes', 'value' => number_format($totalClasses)],
                     ['label' => 'Attendance (30 Days)', 'value' => $attendanceAverage !== null ? $attendanceAverage.'%' : 'N/A'],
+                    ...(! empty($termAttendance) ? [[
+                        'label' => 'Term Attendance ('.$termAttendance['label'].')',
+                        'value' => $termAttendance['average'] !== null ? $termAttendance['average'].'%' : 'N/A',
+                        'sub' => number_format($termAttendance['entered']).' students entered',
+                    ]] : []),
                 ] as $stat)
                     <div class="rounded-[8px] border border-gray-100 p-4 text-center dark:border-gray-700">
                         <p class="text-2xl font-extrabold text-gray-900 dark:text-white">{{ $stat['value'] }}</p>

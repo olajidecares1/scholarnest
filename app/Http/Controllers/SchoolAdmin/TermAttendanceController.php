@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Manual term attendance, from the office's side: the setting that turns it
@@ -68,6 +69,7 @@ class TermAttendanceController extends Controller
         $term = ExamTerm::from($validated['term']);
 
         $students = $school->students()
+            ->where('is_active', true)
             ->where('class_name', $validated['class_name'])
             ->whereIn('id', array_keys($validated['rows']))
             ->get()
@@ -86,6 +88,25 @@ class TermAttendanceController extends Controller
         return redirect()
             ->route('attendance.term.index', ['class' => $validated['class_name'], 'session' => $validated['session'], 'term' => $term->value])
             ->with('status', $this->attendance->savedMessage($result, $term, $validated['session']));
+    }
+
+    /**
+     * One class's term attendance as a CSV, for printing, filing or opening
+     * in a spreadsheet. Any class at the School Admin's own school.
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $school = $request->user()->school;
+
+        abort_unless($school->usesManualAttendance(), 403, 'Turn manual term attendance on before exporting totals.');
+
+        $validated = $request->validate([
+            'class' => ['required', 'string', Rule::in($school->configuredClassNames())],
+            'session' => ['required', 'string', Rule::in($this->attendance->sessionOptions($school))],
+            'term' => ['required', Rule::enum(ExamTerm::class)],
+        ]);
+
+        return $this->attendance->exportCsv($school, $validated['class'], $validated['session'], ExamTerm::from($validated['term']));
     }
 
     /**

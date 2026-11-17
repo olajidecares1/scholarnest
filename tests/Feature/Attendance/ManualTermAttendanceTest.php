@@ -415,3 +415,210 @@ test('a pupil sees their term totals on their attendance page', function () {
         ->assertSee('Term Attendance')
         ->assertSee('54 Present');
 });
+
+// -----------------------------------------------------------------------------
+// School days per student, and the figures worked out from them
+// -----------------------------------------------------------------------------
+
+test('absent days are worked out from the school days and the days present', function () {
+    [$school, , $teacher, $student] = manualAttendanceSchool();
+    firstTermDates($school, 60);
+
+    $this->actingAs($teacher, 'staff')
+        ->post(route('staff.attendance.term.store', $school), termPayload([
+            $student->id => ['days_present' => 52, 'days_absent' => '', 'days_late' => '', 'days_excused' => ''],
+        ]))
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('status', fn (string $status) => ! str_contains($status, 'do not match'));
+
+    $summary = AttendanceSummary::sole();
+
+    expect($summary->counts())->toBe(counts(52, 8))
+        ->and($summary->school_days)->toBeNull()
+        ->and($summary->withTermSchoolDays(60)->percent())->toBe(87);
+});
+
+test('present days are worked out when only the days absent are typed', function () {
+    [$school, , $teacher, $student] = manualAttendanceSchool();
+    firstTermDates($school, 60);
+
+    $this->actingAs($teacher, 'staff')->post(route('staff.attendance.term.store', $school), termPayload([
+        $student->id => ['days_present' => '', 'days_absent' => 4, 'days_late' => 2, 'days_excused' => ''],
+    ]))->assertSessionHasNoErrors();
+
+    expect(AttendanceSummary::sole()->counts())->toBe(counts(54, 4, 2));
+});
+
+test('a student\'s own school days are saved and used for their percentage, flags and report card', function () {
+    [$school, $admin, , $student] = manualAttendanceSchool();
+    firstTermDates($school, 60);
+
+    // Joined late: 40 school days of the term's 60.
+    $this->actingAs($admin)
+        ->post(route('attendance.term.store'), termPayload([
+            $student->id => ['school_days' => 40, 'days_present' => 38, 'days_absent' => '', 'days_late' => '', 'days_excused' => '', 'notes' => 'Joined in October'],
+        ]))
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('status', fn (string $status) => ! str_contains($status, 'do not match'));
+
+    $summary = AttendanceSummary::sole();
+
+    expect($summary->school_days)->toBe(40)
+        ->and($summary->counts())->toBe(counts(38, 2))
+        ->and($summary->percent())->toBe(95);
+
+    $exam = Examination::factory()->create(['school_id' => $school->id, 'class_name' => 'Primary 6', 'session' => MANUAL_SESSION, 'term' => ExamTerm::First]);
+
+    expect(ReportCardData::for($exam, $student)['attendance'])->toMatchArray([
+        'present' => 38, 'absent' => 2, 'total' => 40, 'school_days' => 40, 'percent' => 95, 'source' => 'manual',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('attendance.term.index', ['class' => 'Primary 6', 'session' => MANUAL_SESSION, 'term' => 'first']))
+        ->assertOk()
+        ->assertSee('School days')
+        ->assertDontSee('school days this term');
+});
+
+test('school days must be a whole number from 1 to 366', function (mixed $bad) {
+    [$school, , $teacher, $student] = manualAttendanceSchool();
+
+    $this->actingAs($teacher, 'staff')
+        ->post(route('staff.attendance.term.store', $school), termPayload([$student->id => ['school_days' => $bad, 'days_present' => 10]]))
+        ->assertSessionHasErrors("rows.{$student->id}.school_days");
+
+    expect(AttendanceSummary::count())->toBe(0);
+})->with(['zero' => 0, 'too many' => 400, 'text' => 'many']);
+
+test('changing only a student\'s school days counts as a correction', function () {
+    [$school, , $teacher, $student] = manualAttendanceSchool();
+    $school->update(['manual_attendance_teacher_edits' => false]);
+
+    $this->actingAs($teacher, 'staff')->post(route('staff.attendance.term.store', $school), termPayload([$student->id => counts(50) + ['school_days' => 50]]));
+
+    $this->actingAs($teacher, 'staff')
+        ->post(route('staff.attendance.term.store', $school), termPayload([$student->id => counts(50) + ['school_days' => 55]]))
+        ->assertSessionHas('status', fn (string $status) => str_contains($status, '1 already had totals'));
+
+    expect(AttendanceSummary::sole()->school_days)->toBe(50);
+});
+
+test('the percentage never goes above 100', function () {
+    [$school, , , $student] = manualAttendanceSchool();
+
+    $summary = AttendanceSummary::create(['school_id' => $school->id, 'student_id' => $student->id, 'session' => MANUAL_SESSION, 'term' => ExamTerm::First, 'school_days' => 50] + counts(55));
+
+    expect($summary->percent())->toBe(100);
+});
+
+// -----------------------------------------------------------------------------
+// Switching method, reports and summaries
+// -----------------------------------------------------------------------------
+
+test('the School Admin switches between the daily register and manual entry', function () {
+    [$school, $admin] = manualAttendanceSchool(enabled: false);
+
+    $this->actingAs($admin)->get(route('attendance.term.index'))->assertOk()->assertSee('Attendance Method')->assertSee('Manual term entry');
+
+    $this->actingAs($admin)->put(route('attendance.term.settings'), ['manual_attendance_enabled' => '1', 'manual_attendance_teacher_edits' => '1']);
+    expect($school->fresh()->usesManualAttendance())->toBeTrue();
+
+    $this->actingAs($admin)->put(route('attendance.term.settings'), ['manual_attendance_enabled' => '0', 'manual_attendance_teacher_edits' => '1']);
+    expect($school->fresh()->usesManualAttendance())->toBeFalse()
+        ->and($school->fresh()->allowsTeacherAttendanceCorrections())->toBeTrue();
+});
+
+test('a class\'s term attendance downloads as a CSV report', function () {
+    [$school, $admin, $teacher, $student] = manualAttendanceSchool();
+    firstTermDates($school, 60);
+    $student->update(['first_name' => '=HYPERLINK("x")']);
+    $notEntered = Student::factory()->create(['school_id' => $school->id, 'class_name' => 'Primary 6', 'is_active' => true]);
+
+    AttendanceSummary::create(['school_id' => $school->id, 'student_id' => $student->id, 'session' => MANUAL_SESSION, 'term' => ExamTerm::First, 'class_name' => 'Primary 6'] + counts(54, 6));
+
+    $query = ['class' => 'Primary 6', 'session' => MANUAL_SESSION, 'term' => 'first'];
+
+    $csv = $this->actingAs($admin)->get(route('attendance.term.export', $query))
+        ->assertOk()
+        ->assertHeader('content-type', 'text/csv; charset=UTF-8')
+        ->streamedContent();
+
+    expect($csv)->toContain('"School Days",Present,Absent')
+        ->toContain(',60,54,6,0,0,54,90%,OK,')
+        ->toContain('Not entered')
+        ->toContain($notEntered->last_name)
+        // A typed name that looks like a formula is not run by the spreadsheet.
+        ->toContain("'=HYPERLINK");
+
+    $this->actingAs($teacher, 'staff')
+        ->get(route('staff.attendance.term.export', [$school] + $query))
+        ->assertOk();
+
+    // Not the teacher's class.
+    $this->actingAs($teacher, 'staff')
+        ->get(route('staff.attendance.term.export', [$school, 'class' => 'Primary 5', 'session' => MANUAL_SESSION, 'term' => 'first']))
+        ->assertSessionHasErrors('class');
+});
+
+test('the CSV report is refused while the school keeps the daily register', function () {
+    [, $admin] = manualAttendanceSchool(enabled: false);
+
+    $this->actingAs($admin)
+        ->get(route('attendance.term.export', ['class' => 'Primary 6', 'session' => MANUAL_SESSION, 'term' => 'first']))
+        ->assertForbidden();
+});
+
+test('manual totals appear on the School Admin\'s student profile and in the school summary', function () {
+    [$school, $admin, , $student] = manualAttendanceSchool();
+    $term = AcademicTerm::create([
+        'school_id' => $school->id, 'session' => MANUAL_SESSION, 'term' => ExamTerm::First,
+        'starts_on' => today()->subMonth()->toDateString(), 'ends_on' => today()->addMonth()->toDateString(), 'school_days' => 60,
+    ]);
+    $school->update(['current_session' => MANUAL_SESSION]);
+
+    AttendanceSummary::create(['school_id' => $school->id, 'student_id' => $student->id, 'session' => MANUAL_SESSION, 'term' => ExamTerm::First] + counts(45, 15));
+
+    $this->actingAs($admin)
+        ->get(route('students.show', $student))
+        ->assertOk()
+        ->assertSee('Term Attendance')
+        ->assertSee('45 of 60 school days attended');
+
+    $this->actingAs($admin)
+        ->get(route('reports.summary'))
+        ->assertOk()
+        ->assertSee('Term Attendance (First Term '.MANUAL_SESSION.')', false)
+        ->assertSee('75%');
+});
+
+test('saved totals can be removed, by whoever may correct them', function () {
+    [$school, $admin, $teacher, $student] = manualAttendanceSchool();
+    $classmate = Student::factory()->create(['school_id' => $school->id, 'class_name' => 'Primary 6', 'is_active' => true]);
+
+    $this->actingAs($teacher, 'staff')->post(route('staff.attendance.term.store', $school), termPayload([
+        $student->id => counts(50),
+        $classmate->id => counts(40),
+    ]));
+
+    $this->actingAs($teacher, 'staff')->get(route('staff.attendance.term.index', $school))->assertSee('Remove saved totals');
+
+    // Teachers may correct at this school: the tick removes the row.
+    $this->actingAs($teacher, 'staff')
+        ->post(route('staff.attendance.term.store', $school), termPayload([$student->id => counts(50) + ['clear' => '1']]))
+        ->assertSessionHas('status', fn (string $status) => str_contains($status, 'Saved totals removed for 1 student(s)'));
+
+    expect(AttendanceSummary::pluck('student_id')->all())->toBe([$classmate->id]);
+
+    // Corrections kept for the School Admin: a teacher's tick changes nothing.
+    $school->update(['manual_attendance_teacher_edits' => false]);
+
+    $this->actingAs($teacher, 'staff')
+        ->post(route('staff.attendance.term.store', $school), termPayload([$classmate->id => ['clear' => '1']]))
+        ->assertSessionHas('status', fn (string $status) => str_contains($status, '1 already had totals'));
+
+    expect(AttendanceSummary::count())->toBe(1);
+
+    $this->actingAs($admin)->post(route('attendance.term.store'), termPayload([$classmate->id => ['clear' => '1']]));
+
+    expect(AttendanceSummary::count())->toBe(0);
+});

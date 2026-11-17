@@ -15,6 +15,8 @@ use App\Notifications\SubscriptionTopUpRejectedNotification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\ViewErrorBag;
 
 function basicSchoolAdminWithSubscription(int $studentsCount = 100): array
 {
@@ -174,7 +176,7 @@ test('a refused top-up says so at the top of the form, not only under the upload
     [$admin] = basicSchoolAdminWithSubscription(100);
 
     $this->actingAs($admin)
-        ->withSession(['errors' => (new \Illuminate\Support\ViewErrorBag)->put('default', new \Illuminate\Support\MessageBag([
+        ->withSession(['errors' => (new ViewErrorBag)->put('default', new MessageBag([
             'receipt' => ['Payment Verification Failed. The PDF you uploaded does not look like a proof of payment.'],
         ]))])
         ->get(route('subscription-top-up.create'))

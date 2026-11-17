@@ -2,7 +2,14 @@
      four day counts, the running total and how it compares with the term.
 
      Shared by the Teacher Portal and the School Admin so both enter, total
-     and flag the figures identically. The page around it owns the session,
+     and flag the figures identically.
+
+     Each pupil has their own School Days field. Blank means the term's
+     school days; a figure is for a pupil whose term was shorter (joined
+     late, left early). With school days known, typing Present fills Absent
+     in (and the other way round), the same arithmetic
+     TermAttendance::normaliseRow() does on the server, so a form posted
+     without JavaScript saves the same figures. The page around it owns the session,
      term and class pickers; this owns the form.
 
      Works without JavaScript (and therefore from the offline cache): every
@@ -67,7 +74,9 @@
             @else
                 {{ $expectedDays }} school days are worked out from those dates (Monday to Friday). The School Admin can set the exact number under Academics &rarr; Terms.
             @endif
-            Each student's present, absent, late and excused days should add up to that number; any that don't are flagged.
+            Type each student's days present and the days absent are worked out for you (or type the days absent). Change a student's
+            <strong>School days</strong> only if their term was shorter, for example they joined late. Present, absent, late and excused
+            days should add up to the school days; any that don't are flagged.
         </small>
     @else
         <div class="flex items-start gap-2.5 rounded-[8px] border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
@@ -103,7 +112,7 @@
                  still blank, so nothing already typed is overwritten. --}}
             <div class="flex flex-col gap-2 border-b border-gray-100 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:px-6 dark:border-gray-700">
                 <small class="block text-xs text-gray-500 dark:text-gray-400">
-                    Type the number of days, or pick a status per student to fill every school day with it.
+                    Type the days present (absent is worked out), or pick a status per student to fill every school day with it.
                 </small>
                 <div class="flex flex-col gap-2 sm:flex-row">
                     @if ($expectedDays)
@@ -131,6 +140,8 @@
                     $values = collect($countFields)->keys()->mapWithKeys(fn ($key) => [
                         $key => old("rows.{$student->id}.{$key}", $summary?->{$key}),
                     ]);
+                    $schoolDaysValue = old("rows.{$student->id}.school_days", $summary?->school_days);
+                    $rowDays = $summary?->expectedSchoolDays($expectedDays) ?? $expectedDays;
                     $savedBy = $summary?->markedByStaff?->fullName() ?? $summary?->markedBy?->name;
                 @endphp
 
@@ -138,20 +149,47 @@
                     class="grid grid-cols-1 gap-3 p-4 @md:px-6 @5xl:grid-cols-[minmax(0,13rem)_minmax(0,1fr)_minmax(0,12rem)] @5xl:items-center @5xl:gap-5"
                     x-data="{
                         c: @js($values->map(fn ($v) => $v === null ? '' : (string) $v)->all()),
-                        expected: @js($expectedDays),
+                        sd: @js($schoolDaysValue === null ? '' : (string) $schoolDaysValue),
+                        termDays: @js($expectedDays),
                         register: @js($row['register']),
                         locked: @js($locked),
-                        filled() { return Object.values(this.c).some(v => v !== '' && v !== null) },
-                        total() { return Object.values(this.c).reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0) },
-                        attended() { return (parseInt(this.c.days_present, 10) || 0) + (parseInt(this.c.days_late, 10) || 0) },
-                        percent() { return this.total() ? Math.round(this.attended() / this.total() * 100) : null },
-                        diff() { return this.expected === null || ! this.filled() ? 0 : this.total() - this.expected },
+                        auto: null,
+                        n(v) { return parseInt(v, 10) || 0 },
+                        blank(v) { return v === '' || v === null || v === undefined },
+                        filled() { return Object.values(this.c).some(v => ! this.blank(v)) },
+                        days() { return this.n(this.sd) || this.termDays || null },
+                        total() { return Object.values(this.c).reduce((sum, v) => sum + this.n(v), 0) },
+                        attended() { return this.n(this.c.days_present) + this.n(this.c.days_late) },
+                        percent() { if (! this.filled()) return null; const base = this.days() || this.total(); return base ? Math.min(100, Math.round(this.attended() / base * 100)) : null },
+                        diff() { return this.days() === null || ! this.filled() ? 0 : this.total() - this.days() },
+                        edited(key, value) {
+                            if (key === 'school_days') { this.sd = value } else { this.c[key] = value }
+                            if (key === this.auto) this.auto = null;
+                            this.recalc();
+                        },
+                        recalc() {
+                            if (this.locked) return;
+                            const days = this.days();
+                            const others = this.n(this.c.days_late) + this.n(this.c.days_excused);
+                            if (this.auto === 'days_absent' && this.blank(this.c.days_present)) { this.c.days_absent = ''; this.auto = null; return }
+                            if (this.auto === 'days_present' && this.blank(this.c.days_absent)) { this.c.days_present = ''; this.auto = null; return }
+                            if (! days) return;
+                            if (this.auto !== 'days_present' && ! this.blank(this.c.days_present) && (this.blank(this.c.days_absent) || this.auto === 'days_absent')) {
+                                this.c.days_absent = String(Math.max(0, days - this.n(this.c.days_present) - others));
+                                this.auto = 'days_absent';
+                            } else if (this.auto !== 'days_absent' && ! this.blank(this.c.days_absent) && (this.blank(this.c.days_present) || this.auto === 'days_present')) {
+                                this.c.days_present = String(Math.max(0, days - this.n(this.c.days_absent) - others));
+                                this.auto = 'days_present';
+                            }
+                        },
                         fill(mode) {
                             if (this.locked) return;
-                            if (mode === 'clear') { for (const k in this.c) this.c[k] = ''; return; }
+                            this.auto = null;
+                            if (mode === 'clear') { for (const k in this.c) this.c[k] = ''; this.sd = ''; return; }
                             if (mode === 'register') { if (! this.register) return; for (const k in this.c) this.c[k] = String(this.register[k] ?? 0); return; }
-                            if (this.expected === null) return;
-                            for (const k in this.c) this.c[k] = k === mode ? String(this.expected) : '0';
+                            const days = this.days();
+                            if (! days) return;
+                            for (const k in this.c) this.c[k] = k === mode ? String(days) : '0';
                         },
                     }"
                     x-on:term-attendance-fill.window="if (! filled()) fill($event.detail.mode)"
@@ -177,15 +215,38 @@
                     </div>
 
                     <div class="space-y-2">
-                        <div class="grid grid-cols-2 gap-2 @md:grid-cols-4">
+                        <div class="grid grid-cols-2 gap-2 @md:grid-cols-5">
+                            <label class="col-span-2 block @md:col-span-1">
+                                <span class="mb-1 block truncate text-[11px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">School days</span>
+                                <input
+                                    type="number"
+                                    name="rows[{{ $student->id }}][school_days]"
+                                    value="{{ $schoolDaysValue }}"
+                                    x-bind:value="sd"
+                                    x-on:input="edited('school_days', $event.target.value)"
+                                    min="1"
+                                    max="366"
+                                    step="1"
+                                    inputmode="numeric"
+                                    placeholder="{{ $expectedDays ?? 'Days' }}"
+                                    aria-label="Total school days in the term for {{ $student->fullName() }}"
+                                    title="Leave blank to use the term's school days{{ $expectedDays ? ' ('.$expectedDays.')' : '' }}"
+                                    class="w-full text-center"
+                                    @disabled($locked)
+                                >
+                            </label>
                             @foreach ($countFields as $key => [$label, $labelClass])
                                 <label class="block">
-                                    <span class="mb-1 block truncate text-[11px] font-semibold uppercase tracking-wide {{ $labelClass }}">{{ $label }}</span>
+                                    <span class="mb-1 flex items-center gap-1 truncate text-[11px] font-semibold uppercase tracking-wide {{ $labelClass }}">
+                                        {{ $label }}
+                                        <span x-show="auto === '{{ $key }}'" x-cloak class="rounded bg-gray-100 px-1 text-[10px] font-medium normal-case tracking-normal text-gray-500 dark:bg-gray-700 dark:text-gray-300">auto</span>
+                                    </span>
                                     <input
                                         type="number"
                                         name="rows[{{ $student->id }}][{{ $key }}]"
                                         value="{{ $values[$key] }}"
-                                        x-model="c.{{ $key }}"
+                                        x-bind:value="c.{{ $key }}"
+                                        x-on:input="edited('{{ $key }}', $event.target.value)"
                                         min="0"
                                         max="366"
                                         step="1"
@@ -218,14 +279,17 @@
                             {{-- Server-rendered first, so the summary is right
                                  before Alpine boots and without it. --}}
                             <p class="text-sm font-bold text-gray-900 dark:text-white">
-                                <span x-text="total()">{{ $summary?->totalDays() ?? 0 }}</span>@if ($expectedDays) <span class="font-normal text-gray-500 dark:text-gray-400">/ {{ $expectedDays }} days</span>@else <span class="font-normal text-gray-500 dark:text-gray-400">days</span>@endif
+                                <span x-text="total()">{{ $summary?->totalDays() ?? 0 }}</span>
+                                <span class="font-normal text-gray-500 dark:text-gray-400">
+                                    <span x-text="days() ? '/ ' + days() + ' days' : 'days'">@if ($rowDays)/ {{ $rowDays }} days @else days @endif</span>
+                                </span>
                                 <span class="font-normal text-gray-500 dark:text-gray-400">&middot;</span>
                                 <span x-text="percent() === null ? 'N/A' : percent() + '%'">{{ $summary?->percent() !== null ? $summary->percent().'%' : 'N/A' }}</span>
                             </p>
 
                             <div class="mt-1 text-xs font-semibold">
                                 <template x-if="! filled()"><span class="text-gray-500 dark:text-gray-400">Not entered</span></template>
-                                <template x-if="filled() && expected !== null && diff() === 0"><span class="text-green-700 dark:text-green-400"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Matches the term</span></template>
+                                <template x-if="filled() && days() !== null && diff() === 0"><span class="text-green-700 dark:text-green-400"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Matches the term</span></template>
                                 <template x-if="filled() && diff() > 0"><span class="text-red-700 dark:text-red-400"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> <span x-text="diff() + (diff() === 1 ? ' day' : ' days') + ' over'"></span></span></template>
                                 <template x-if="filled() && diff() < 0"><span class="text-amber-700 dark:text-amber-400"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> <span x-text="(-diff()) + (diff() === -1 ? ' day' : ' days') + ' short'"></span></span></template>
 
@@ -263,6 +327,15 @@
                             </select>
                         @endif
                     </div>
+
+                    @if ($summary && ! $locked)
+                        {{-- Saved by mistake (wrong pupil, wrong term): tick and
+                             save to put the pupil back to "not entered". --}}
+                        <label class="flex w-fit cursor-pointer items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <input type="checkbox" name="rows[{{ $student->id }}][clear]" value="1" class="w-4 text-red-600">
+                            Remove saved totals
+                        </label>
+                    @endif
                 </div>
             @empty
                 <small class="block px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in this class yet.</small>
@@ -271,7 +344,7 @@
 
         @if ($rows->isNotEmpty())
             <div class="flex flex-col gap-2 border-t border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 dark:border-gray-700">
-                <small class="text-xs text-gray-500 dark:text-gray-400">Rows left blank are skipped. A blank count beside filled ones is saved as 0.</small>
+                <small class="text-xs text-gray-500 dark:text-gray-400">Rows left blank are skipped. With school days known, a blank Absent (or Present) is worked out; any other blank count is saved as 0.</small>
                 <button type="submit" class="btn w-full rounded-[8px] bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md sm:w-auto">
                     <i class="fa-solid fa-floppy-disk btn-icon" aria-hidden="true"></i> Save {{ $termLabel }} Attendance
                 </button>

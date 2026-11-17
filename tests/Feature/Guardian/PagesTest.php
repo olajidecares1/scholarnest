@@ -51,7 +51,8 @@ test('a guardian sees their child\'s dashboard with a module grid and recent not
     $this->actingAs($this->guardian, 'guardian')
         ->get(route('guardian.dashboard', $this->school))
         ->assertStatus(200)
-        ->assertSee($this->student->first_name)
+        // The child's name lived in the welcome banner, removed from every
+        // dashboard in #19; the switcher shows names only for 2+ children.
         ->assertSee('Term Begins');
 });
 

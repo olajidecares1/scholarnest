@@ -177,5 +177,11 @@
                 </form>
             </div>
         </div>
+
+        {{-- Term attendance totals entered by hand, newest term first.
+             Renders nothing at a school on the daily register. --}}
+        @isset($termTotals)
+            <x-term-attendance-totals :totals="$termTotals" />
+        @endisset
     </div>
 </x-dashboard-layout>

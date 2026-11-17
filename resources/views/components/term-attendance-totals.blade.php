@@ -15,7 +15,12 @@
                     <div>
                         <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $total->term->label() }} &middot; {{ $total->session }}</p>
                         <small class="text-xs text-gray-500 dark:text-gray-400">
-                            {{ $total->totalDays() }} days &middot; {{ $total->percent() !== null ? $total->percent().'% attended' : 'N/A' }}
+                            @if ($total->expectedSchoolDays())
+                                {{ $total->daysAttended() }} of {{ $total->expectedSchoolDays() }} school days attended
+                            @else
+                                {{ $total->totalDays() }} days
+                            @endif
+                            &middot; {{ $total->percent() !== null ? $total->percent().'% attendance' : 'N/A' }}
                         </small>
                     </div>
                     <div class="grid grid-cols-4 gap-1.5 text-center text-xs font-semibold sm:w-80">

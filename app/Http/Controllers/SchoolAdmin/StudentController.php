@@ -13,6 +13,7 @@ use App\Models\IdentifierChange;
 use App\Models\School;
 use App\Models\Student;
 use App\Rules\UploadedImage;
+use App\Services\Attendance\TermAttendance;
 use App\Services\IdentifierGenerator;
 use App\Services\StudentImport\ExistingStudentMatcher;
 use App\Services\StudentLicenceAllocation;
@@ -138,6 +139,7 @@ class StudentController extends Controller
         return view('school-admin.students.show', [
             'credentialShare' => $this->credentialShareLink($student, 'Admission Number', (string) $student->admission_number),
             'student' => $student,
+            'termTotals' => app(TermAttendance::class)->totalsForStudent($student),
 
             // The page asks whether this plan has student portal accounts at
             // all before it offers to create login details for one.

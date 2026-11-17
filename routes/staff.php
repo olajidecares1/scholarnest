@@ -113,6 +113,7 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
                 // itself says when the school has the setting off.
                 Route::get('/term', [StaffTermAttendanceController::class, 'index'])->name('term.index');
                 Route::post('/term', [StaffTermAttendanceController::class, 'store'])->name('term.store');
+                Route::get('/term/export', [StaffTermAttendanceController::class, 'export'])->name('term.export');
             });
 
             Route::middleware('staff_is_teacher')->name('exams.')->prefix('exams')->group(function () {

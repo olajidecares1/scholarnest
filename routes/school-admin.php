@@ -252,6 +252,7 @@ Route::name('attendance.')->group(function () {
     Route::name('term.')->group(function () {
         Route::get(R::uri('attendance.term'), [SchoolTermAttendanceController::class, 'index'])->name('index');
         Route::post(R::uri('attendance.term'), [SchoolTermAttendanceController::class, 'store'])->name('store');
+        Route::get(R::uri('attendance.term.export'), [SchoolTermAttendanceController::class, 'export'])->name('export');
         Route::put(R::uri('attendance.term.settings'), [SchoolTermAttendanceController::class, 'updateSettings'])->name('settings');
     });
 });

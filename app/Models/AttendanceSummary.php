@@ -25,6 +25,13 @@ class AttendanceSummary extends Model
     public const COUNTS = ['days_present', 'days_absent', 'days_late', 'days_excused'];
 
     /**
+     * The term's school days, when whoever loaded this row looked them up
+     * (see withTermSchoolDays()). Not a column: the term's figure belongs to
+     * the term, and a pupil's own figure is `school_days`.
+     */
+    protected ?int $termSchoolDays = null;
+
+    /**
      * @var list<string>
      */
     protected $fillable = [
@@ -33,6 +40,7 @@ class AttendanceSummary extends Model
         'session',
         'term',
         'class_name',
+        'school_days',
         'days_present',
         'days_absent',
         'days_late',
@@ -49,6 +57,7 @@ class AttendanceSummary extends Model
     {
         return [
             'term' => ExamTerm::class,
+            'school_days' => 'integer',
             'days_present' => 'integer',
             'days_absent' => 'integer',
             'days_late' => 'integer',
@@ -74,11 +83,51 @@ class AttendanceSummary extends Model
         return (int) $this->days_present + (int) $this->days_late;
     }
 
-    public function percent(): ?int
+    /**
+     * The school days this pupil's percentage is worked out against: the
+     * figure typed for them, else the term's school days when the caller
+     * knows them, else the days accounted for.
+     */
+    public function schoolDaysFor(?int $termSchoolDays = null): int
     {
-        $total = $this->totalDays();
+        if ($this->school_days) {
+            return (int) $this->school_days;
+        }
 
-        return $total === 0 ? null : (int) round(($this->daysAttended() / $total) * 100);
+        return ($termSchoolDays ?? $this->termSchoolDays) ?: $this->totalDays();
+    }
+
+    /**
+     * The school days to print for this pupil: their own figure, else the
+     * term's, else null when neither is known.
+     */
+    public function expectedSchoolDays(?int $termSchoolDays = null): ?int
+    {
+        return $this->school_days ? (int) $this->school_days : (($termSchoolDays ?? $this->termSchoolDays) ?: null);
+    }
+
+    /**
+     * Remember the term's school days on this instance, so percent() and the
+     * pages that print it agree without each looking the term up again.
+     */
+    public function withTermSchoolDays(?int $days): static
+    {
+        $this->termSchoolDays = $days ?: null;
+
+        return $this;
+    }
+
+    /**
+     * Attendance percentage. Against the pupil's own school days when the
+     * school typed them (or the caller passes the term's), otherwise against
+     * the days accounted for. Never above 100, even when the counts
+     * themselves were entered over the term's length and flagged.
+     */
+    public function percent(?int $termSchoolDays = null): ?int
+    {
+        $base = $this->schoolDaysFor($termSchoolDays);
+
+        return $base === 0 ? null : (int) min(100, round(($this->daysAttended() / $base) * 100));
     }
 
     /**

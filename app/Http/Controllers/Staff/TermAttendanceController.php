@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Term attendance entered as day counts, from the class teacher's side.
@@ -73,6 +74,7 @@ class TermAttendanceController extends Controller
         // Only pupils in the teacher's own class can be written, however the
         // request was put together.
         $students = $school->students()
+            ->where('is_active', true)
             ->where('class_name', $validated['class_name'])
             ->whereIn('id', array_keys($validated['rows']))
             ->get()
@@ -95,13 +97,41 @@ class TermAttendanceController extends Controller
     }
 
     /**
+     * The teacher's own class's term attendance as a CSV. Only a class they
+     * are Class Teacher of, the same boundary as entering it.
+     */
+    public function export(Request $request, School $school): StreamedResponse
+    {
+        abort_unless($school->usesManualAttendance(), 403, 'Manual term attendance is not turned on at this school.');
+
+        $classes = $request->user('staff')->classesAsClassTeacher();
+
+        $validated = $request->validate([
+            'class' => ['required', 'string', Rule::in($classes)],
+            'session' => ['required', 'string', Rule::in($this->attendance->sessionOptions($school))],
+            'term' => ['required', Rule::enum(ExamTerm::class)],
+        ]);
+
+        return $this->attendance->exportCsv($school, $validated['class'], $validated['session'], ExamTerm::from($validated['term']));
+    }
+
+    /**
      * The per-row rules both portals validate with.
      *
      * @return array<string, list<string>>
      */
     public static function rowRules(): array
     {
-        $rules = ['rows.*' => ['array'], 'rows.*.notes' => ['nullable', 'string', 'max:255']];
+        $rules = [
+            'rows.*' => ['array'],
+            'rows.*.notes' => ['nullable', 'string', 'max:255'],
+            // The pupil's own school days, when their term was shorter than
+            // the school's. Blank means the term's.
+            'rows.*.school_days' => ['nullable', 'integer', 'min:1', 'max:366'],
+            // Remove this pupil's saved totals for the term, e.g. entered
+            // against the wrong pupil. A correction like any other.
+            'rows.*.clear' => ['nullable', 'boolean'],
+        ];
 
         foreach (AttendanceSummary::COUNTS as $key) {
             $rules["rows.*.{$key}"] = ['nullable', 'integer', 'min:0', 'max:366'];

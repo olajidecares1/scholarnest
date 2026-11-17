@@ -1,4 +1,4 @@
-<x-staff-layout page-title="Term Attendance" page-subtitle="Enter each student's days present, absent, late and excused for the term.">
+<x-staff-layout page-title="Term Attendance" page-subtitle="Enter each student's school days, days present and days absent for the term.">
     <div class="space-y-6">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
@@ -8,7 +8,7 @@
 
         @if ($errors->any())
             <div class="rounded-[5px] bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
-                Some figures could not be saved. Each count must be a whole number from 0 to 366.
+                Some figures could not be saved. School days must be a whole number from 1 to 366, and each count a whole number from 0 to 366.
             </div>
         @endif
 
@@ -17,7 +17,7 @@
         @if (! $school->usesManualAttendance())
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Term attendance entry isn't turned on at your school</p>
-                <small class="mt-1 block text-sm text-gray-500 dark:text-gray-400">Keep using the daily register. Your School Admin can turn this on under Attendance &rarr; Term Totals.</small>
+                <small class="mt-1 block text-sm text-gray-500 dark:text-gray-400">Keep using the daily register. Your School Admin can switch the attendance method to manual term entry under Attendance &rarr; Term Totals.</small>
             </div>
         @elseif ($classes->isEmpty())
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
@@ -52,6 +52,15 @@
                 </label>
                 <noscript><button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Show</button></noscript>
             </form>
+
+            @if ($className)
+                <div class="flex justify-end">
+                    <a href="{{ route('staff.attendance.term.export', [$school, 'class' => $className, 'session' => $session, 'term' => $term->value]) }}"
+                        class="btn rounded-[8px] border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors duration-150 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                        <i class="fa-solid fa-file-csv btn-icon" aria-hidden="true"></i> Download class report (CSV)
+                    </a>
+                </div>
+            @endif
 
             <x-term-attendance-entry
                 :action="route('staff.attendance.term.store', $school)"
