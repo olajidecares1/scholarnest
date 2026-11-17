@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Rules\SchoolAddressAvailable;
 use App\Rules\UploadedImage;
+use App\Services\IdentifierGenerator;
+use App\Services\IdentifierRegenerator;
 use App\Services\StampImage;
 use App\Services\Uploads\ImageProcessor;
 use App\Services\Uploads\ImageRejected;
@@ -21,13 +23,22 @@ use Illuminate\View\View;
 
 class SettingsController extends Controller
 {
-    public function __construct(private readonly UploadStorage $uploads) {}
+    public function __construct(
+        private readonly UploadStorage $uploads,
+        private readonly IdentifierRegenerator $regenerator,
+    ) {}
 
     public function edit(Request $request): View
     {
+        $school = $request->user()->school;
+
         return view('school-admin.settings.edit', [
-            'school' => $request->user()->school,
+            'school' => $school,
             'timezones' => DateTimeZone::listIdentifiers(),
+            // Numbers still made with a code the school no longer uses, for
+            // the "regenerate them" notice under Identification Numbers.
+            'outdatedAdmissionNumbers' => $this->regenerator->summary($school, IdentifierGenerator::ADMISSION)['outdated'],
+            'outdatedStaffIds' => $this->regenerator->summary($school, IdentifierGenerator::STAFF)['outdated'],
         ]);
     }
 
@@ -135,6 +146,7 @@ class SettingsController extends Controller
 
         $previousLogo = $school->logo_path;
         $previousFavicon = $school->favicon_path;
+        $previousCode = $school->school_code;
 
         $school->update([
             ...collect($validated)->except(['logo', 'favicon', 'stamp', 'remove_stamp'])->all(),
@@ -152,6 +164,24 @@ class SettingsController extends Controller
 
         if ($faviconPath && $previousFavicon && $previousFavicon !== $faviconPath) {
             $this->uploads->delete('public', $previousFavicon);
+        }
+
+        // A new School Code. The old one is remembered, so the numbers made
+        // with it are still known to be generated ones, and the school is
+        // asked whether to regenerate the numbers it has already issued.
+        if (filled($previousCode) && filled($school->school_code) && $previousCode !== $school->school_code) {
+            $school->update([
+                'previous_school_codes' => collect($school->previous_school_codes ?? [])
+                    ->push($previousCode)
+                    ->unique()
+                    ->values()
+                    ->all(),
+            ]);
+
+            if ($school->students()->exists() || $school->staff()->exists()) {
+                return redirect()->route('settings.identifiers')
+                    ->with('status', 'Your school settings were updated. Your School Code is now '.$school->school_code.'.');
+            }
         }
 
         return back()->with('status', 'Your school settings were updated.');

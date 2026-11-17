@@ -302,7 +302,7 @@ class IdentifierGenerator
         }
     }
 
-    private function levelCodeFor(School $school, ?string $className): string
+    public function levelCodeFor(School $school, ?string $className): string
     {
         if ($className) {
             $class = SchoolClass::where('school_id', $school->id)

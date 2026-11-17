@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Student;
 
 use App\Models\School;
+use App\Services\IdentifierGenerator;
+use App\Support\PreviousIdentifier;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -59,7 +61,7 @@ class LoginRequest extends FormRequest
             'school_id' => $school->id,
         ];
 
-        if (! Auth::guard('student')->attempt($credentials, $this->boolean('remember'))) {
+        if (! Auth::guard('student')->attempt($credentials, $this->boolean('remember')) && ! $this->attemptWithPreviousNumber($school, $field, $credentials)) {
             RateLimiter::hit($this->throttleKey($school), self::LOCKOUT_DECAY_SECONDS);
 
             throw ValidationException::withMessages([
@@ -80,6 +82,24 @@ class LoginRequest extends FormRequest
         $student->forceFill(['last_login_at' => now()])->save();
 
         RateLimiter::clear($this->throttleKey($school));
+    }
+
+    /**
+     * A number the school regenerated still signs its owner in. Only tried
+     * when nobody holds that number today, see PreviousIdentifier.
+     *
+     * @param  array<string, mixed>  $credentials
+     */
+    private function attemptWithPreviousNumber(School $school, string $field, array $credentials): bool
+    {
+        if ($field !== 'admission_number') {
+            return false;
+        }
+
+        $current = PreviousIdentifier::current($school, IdentifierGenerator::ADMISSION, $this->string('login')->toString());
+
+        return $current !== null
+            && Auth::guard('student')->attempt([...$credentials, 'admission_number' => $current], $this->boolean('remember'));
     }
 
     /**

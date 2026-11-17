@@ -4,11 +4,13 @@ namespace App\Services;
 
 use App\Enums\UserRole;
 use App\Models\Guardian;
+use App\Models\IdentifierChange;
 use App\Models\School;
 use App\Models\Staff;
 use App\Models\Student;
 use App\Models\User;
 use App\Support\GuardianLoginIdentifier;
+use App\Support\PreviousIdentifier;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
@@ -71,11 +73,40 @@ class PortalSchoolResolver
                 ->whereNotNull('school_id')
                 ->where($isEmail ? 'email' : 'username', $login)
                 ->get(),
-            'staff' => Staff::query()->where($isEmail ? 'email' : 'staff_number', $login)->get(),
-            'student' => Student::query()->where($isEmail ? 'email' : 'admission_number', $login)->get(),
+            'staff' => $this->withPreviousHolders(Staff::query()->where($isEmail ? 'email' : 'staff_number', $login)->get(), IdentifierGenerator::STAFF, $login, $isEmail),
+            'student' => $this->withPreviousHolders(Student::query()->where($isEmail ? 'email' : 'admission_number', $login)->get(), IdentifierGenerator::ADMISSION, $login, $isEmail),
             'guardian' => $isEmail ? collect() : $this->guardians($login),
             default => collect(),
         };
+    }
+
+    /**
+     * An admission number or Staff ID a school has since regenerated still
+     * finds its owner, at every school where nobody holds that number now.
+     *
+     * @param  \Illuminate\Support\Collection<int, Staff|Student>  $found
+     * @return \Illuminate\Support\Collection<int, Staff|Student>
+     */
+    private function withPreviousHolders(\Illuminate\Support\Collection $found, string $type, string $login, bool $isEmail): \Illuminate\Support\Collection
+    {
+        if ($isEmail) {
+            return $found;
+        }
+
+        $schoolIds = IdentifierChange::query()
+            ->where('type', $type)
+            ->whereRaw('LOWER(old_value) = ?', [mb_strtolower($login)])
+            ->whereNotIn('school_id', $found->pluck('school_id')->filter()->all())
+            ->distinct()
+            ->pluck('school_id');
+
+        foreach ($schoolIds as $schoolId) {
+            if (($holder = PreviousIdentifier::holder((int) $schoolId, $type, $login)) !== null) {
+                $found->push($holder);
+            }
+        }
+
+        return $found;
     }
 
     /**

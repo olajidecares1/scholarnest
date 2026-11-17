@@ -8,6 +8,7 @@ use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Concerns\SetsPortalCredentials;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\IdentifierChange;
 use App\Models\Staff;
 use App\Rules\UploadedImage;
 use App\Services\IdentifierGenerator;
@@ -38,12 +39,14 @@ class StaffController extends Controller
         $school = $request->user()->school;
 
         $staff = $school->staff()
-            ->when($request->filled('search'), function ($query) use ($request) {
+            ->when($request->filled('search'), function ($query) use ($request, $school) {
                 $search = $request->string('search');
-                $query->where(function ($query) use ($search) {
+                $query->where(function ($query) use ($search, $school) {
                     $query->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('staff_number', 'like', "%{$search}%");
+                        ->orWhere('staff_number', 'like', "%{$search}%")
+                        // A Staff ID the member had before the school regenerated it.
+                        ->orWhereIn('id', IdentifierChange::holdersMatching($school->id, IdentifierGenerator::STAFF, (string) $search));
                 });
             })
             ->when($request->filled('role'), fn ($query) => $query->where('role', $request->string('role')))
