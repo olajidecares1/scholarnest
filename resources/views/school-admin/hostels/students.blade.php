@@ -33,6 +33,7 @@
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
+                            <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                             <th class="px-6 py-3 font-semibold">Student</th>
                             <th class="px-6 py-3 font-semibold">Class</th>
                             <th class="px-6 py-3 font-semibold">Allocated</th>
@@ -42,6 +43,7 @@
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($allocations as $allocation)
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                                 <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ $allocation->student->fullName() }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $allocation->student->class_name ?? 'N/A' }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $allocation->allocated_date->format('M j, Y') }}</td>
@@ -54,7 +56,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No students allocated to this room yet.</td>
+                                <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No students allocated to this room yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

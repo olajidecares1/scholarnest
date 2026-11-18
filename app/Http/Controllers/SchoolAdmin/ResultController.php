@@ -47,11 +47,16 @@ class ResultController extends Controller
             ? $school->examinations()->where('class_name', $class)->where('session', $session)->where('term', $term)->first()
             : null;
 
+        // A to Z by name, like every other list of students; each row still
+        // carries its class position.
         $students = $examination
-            ? ExaminationResultCalculator::summariesFor($examination)->map(fn ($summary) => [
-                ...$summary,
-                'status' => ExaminationResultCalculator::statusFor($examination, $summary['subjectsGraded']),
-            ])
+            ? Student::sortAlphabetically(
+                ExaminationResultCalculator::summariesFor($examination)->map(fn ($summary) => [
+                    ...$summary,
+                    'status' => ExaminationResultCalculator::statusFor($examination, $summary['subjectsGraded']),
+                ]),
+                fn ($row) => $row['student'],
+            )
             : collect();
 
         // Which of these have been pushed, and which have been corrected

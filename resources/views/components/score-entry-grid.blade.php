@@ -105,6 +105,7 @@
             <table class="w-full min-w-[46rem] text-left text-sm">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                     <tr>
+                        <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                         <th class="px-6 py-3 font-semibold">Student / Pupil</th>
                         <th class="px-4 py-3 font-semibold">Test / {{ $subject->testMaxScore() }}</th>
                         <th class="px-4 py-3 font-semibold">Exam / {{ $subject->examMaxScore() }}</th>
@@ -121,6 +122,7 @@
                             class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                             x-data="{ test: {{ $score?->test_score ?? 'null' }}, exam: {{ $score?->exam_score ?? 'null' }} }"
                         >
+                            <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                             <td class="px-6 py-3">
                                 <p class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</p>
                                 <small class="field-hint">{{ $student->admission_number }}</small>
@@ -160,7 +162,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <td colspan="8" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                                 No active students in {{ $examination->class_name }}.
                             </td>
                         </tr>

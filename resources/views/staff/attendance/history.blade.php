@@ -32,6 +32,7 @@
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
+                                <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                                 <th class="px-4 py-3 font-semibold">Student</th>
                                 <th class="px-4 py-3 font-semibold">Present</th>
                                 <th class="px-4 py-3 font-semibold">Absent</th>
@@ -44,6 +45,7 @@
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @forelse ($summaries as $row)
                                 <tr>
+                                    <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                                     <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">{{ $row['student']->fullName() }}</td>
                                     <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['present'] }}</td>
                                     <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['absent'] }}</td>
@@ -54,7 +56,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students yet.</td>
+                                    <td colspan="8" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>

@@ -7,6 +7,7 @@ use App\Enums\CumulativeAverageBasis;
 use App\Enums\PlanFeature;
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
+use App\Services\JuniorSecondarySubjects;
 use App\Services\Uploads\UploadStorage;
 use App\Support\AcademicSession;
 use App\Support\HasUuidRouteKey;
@@ -1047,13 +1048,15 @@ class School extends Model
      */
     public function offeredSubjectsFor(string $className): Collection
     {
-        return $this->subjectOfferings()
+        $names = $this->subjectOfferings()
             ->where('class_name', $className)
             ->with('subject')
             ->get()
-            ->pluck('subject.name')
-            ->sort()
-            ->values();
+            ->pluck('subject.name');
+
+        $levelName = $this->schoolClasses()->where('name', $className)->with('academicLevel')->first()?->academicLevel?->name;
+
+        return JuniorSecondarySubjects::order($names, $className, $levelName);
     }
 
     /**

@@ -202,7 +202,7 @@
                             @endif
                         </span>
                         <div class="min-w-0">
-                            <p class="truncate font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</p>
+                            <p class="truncate font-semibold text-gray-900 dark:text-white"><span class="tabular-nums text-gray-400">{{ $loop->iteration }}.</span> {{ $student->fullName() }}</p>
                             <small class="block truncate text-xs text-gray-500 dark:text-gray-400">
                                 @if ($showClass){{ $student->class_name }} &middot; @endif
                                 @if ($summary)

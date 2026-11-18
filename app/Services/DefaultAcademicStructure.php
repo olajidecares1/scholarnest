@@ -82,5 +82,9 @@ class DefaultAcademicStructure
                 ]);
             }
         }
+
+        // Every new school starts with the 17 JSS subjects ticked for its
+        // JSS classes.
+        JuniorSecondarySubjects::ensureFor($school);
     }
 }

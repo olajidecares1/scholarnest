@@ -88,6 +88,7 @@
                         <table class="w-full min-w-[900px] text-left text-sm">
                             <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
+                                    <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                                     <th class="px-4 py-3 font-semibold">Student</th>
                                     <th class="px-4 py-3 font-semibold">Avg. Score</th>
                                     <th class="px-4 py-3 font-semibold">Percentage</th>
@@ -104,6 +105,7 @@
                                         $remarksUrl = route('staff.results.remarks', [$school, $examination, $student]);
                                     @endphp
                                     <tr class="transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                                        <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                                         <td class="px-4 py-3">
                                             <div class="flex items-center gap-2.5">
                                                 @if ($student->photoUrl())
@@ -163,7 +165,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $className }} yet.</td>
+                                        <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $className }} yet.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

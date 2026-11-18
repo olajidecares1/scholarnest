@@ -42,6 +42,7 @@
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                             <tr>
+                                <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                                 <th class="px-6 py-3 font-semibold">Student</th>
                                 <th class="px-6 py-3 font-semibold">Status</th>
                                 <th class="px-6 py-3 font-semibold">Score / {{ $assignment->max_score }}</th>
@@ -52,6 +53,7 @@
                             @forelse ($students as $student)
                                 @php $current = $existing->get($student->id); @endphp
                                 <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                                     <td class="px-6 py-3">
                                         <div class="flex items-center gap-3">
                                             @if ($student->photoUrl())
@@ -99,7 +101,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $assignment->class_name }}.</td>
+                                    <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $assignment->class_name }}.</td>
                                 </tr>
                             @endforelse
                         </tbody>

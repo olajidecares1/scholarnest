@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Subject;
 use App\Models\SubjectOffering;
 use App\Services\DefaultAcademicStructure;
+use App\Services\JuniorSecondarySubjects;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -24,13 +25,24 @@ class ClassSubjectController extends Controller
 
         $offered = $className ? $school->offeredSubjectsFor($className) : collect();
 
-        $catalogue = Subject::orderBy('name')->get()->groupBy(fn (Subject $subject) => $subject->category->value);
+        // A JSS class shows the 17 JSS subjects first, numbered in
+        // result-sheet order, and the rest of the catalogue below them.
+        $selectedLevel = $className ? $school->schoolClasses()->where('name', $className)->with('academicLevel')->first()?->academicLevel?->name : null;
+        $jssSubjects = $className && JuniorSecondarySubjects::isJuniorClass($className, $selectedLevel)
+            ? JuniorSecondarySubjects::catalogueSubjects()
+            : collect();
+
+        $catalogue = Subject::orderBy('name')
+            ->whereNotIn('id', $jssSubjects->pluck('id'))
+            ->get()
+            ->groupBy(fn (Subject $subject) => $subject->category->value);
 
         return view('school-admin.class-subjects.index', [
             'classOptions' => $classOptions,
             'selectedClass' => $className,
             'offered' => $offered,
             'catalogue' => $catalogue,
+            'jssSubjects' => $jssSubjects,
             'categoryOptions' => SubjectCategory::cases(),
         ]);
     }

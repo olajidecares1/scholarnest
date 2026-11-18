@@ -31,7 +31,31 @@
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Subjects offered by {{ $selectedClass }}</h2>
                     <small class="field-hint mt-1">Check every subject this class runs. Unchecked subjects won't appear when assigning teachers or creating exams for this class.</small>
 
+                    @if ($jssSubjects->isNotEmpty())
+                        <div x-data="{ checked: 0, count() { return $refs.jss.querySelectorAll('input:checked').length } }" x-init="checked = count()" @change="checked = count()" class="mt-4 rounded-[8px] border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900/50 dark:bg-blue-900/10">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <p class="text-[11px] font-bold uppercase tracking-wide text-blue-700 dark:text-blue-400">Junior Secondary (JSS) subjects</p>
+                                    <small class="block text-xs text-gray-600 dark:text-gray-300"><span x-text="checked">{{ $jssSubjects->filter(fn ($subject) => $offered->contains($subject->name))->count() }}</span> of {{ $jssSubjects->count() }} ticked. These are the default JSS subjects, in result-sheet order.</small>
+                                </div>
+                                <button type="button" @click="$refs.jss.querySelectorAll('input').forEach(input => input.checked = true); checked = count()" class="btn rounded-[8px] border border-blue-300 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:bg-gray-800 dark:text-blue-400"><i class="fa-solid fa-check-double btn-icon" aria-hidden="true"></i> Tick all {{ $jssSubjects->count() }}</button>
+                            </div>
+                            <div x-ref="jss" class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                @foreach ($jssSubjects as $subject)
+                                    <label class="flex items-center gap-2 rounded-[8px] border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800">
+                                        <input type="checkbox" name="subject_ids[]" value="{{ $subject->id }}" @checked($offered->contains($subject->name)) class="text-blue-600">
+                                        <span class="w-6 shrink-0 text-right font-mono text-xs text-gray-400">{{ $loop->iteration }}.</span>
+                                        <span class="text-gray-700 dark:text-gray-200">{{ $subject->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="mt-4 space-y-5">
+                        @if ($jssSubjects->isNotEmpty() && $catalogue->isNotEmpty())
+                            <p class="text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Other subjects</p>
+                        @endif
                         @foreach ($categoryOptions as $category)
                             @php $subjects = $catalogue->get($category->value, collect()); @endphp
                             @if ($subjects->isNotEmpty())

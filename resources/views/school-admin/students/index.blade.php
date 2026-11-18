@@ -234,6 +234,7 @@
                                     data-tooltip="Select all on this page"
                                 >
                             </th>
+                            <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                             <th class="px-6 py-3 font-semibold">Student</th>
                             <th class="px-6 py-3 font-semibold">Admission No.</th>
                             <th class="px-6 py-3 font-semibold">Class</th>
@@ -254,6 +255,7 @@
                                         aria-label="Select {{ $student->fullName() }}"
                                     >
                                 </td>
+                                <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $students->firstItem() + $loop->index }}</td>
                                 <td class="px-6 py-3">
                                     <a href="{{ route('students.show', $student) }}" class="flex items-center gap-3">
                                         @if ($student->photoUrl())

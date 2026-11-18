@@ -371,6 +371,7 @@
                     <table class="w-full min-w-[46rem] text-left text-sm">
                         <thead class="border-y border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
+                                <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                                 <th class="px-6 py-3 font-semibold">Student / Pupil</th>
                                 <th class="px-6 py-3 font-semibold">Token</th>
                                 <th class="px-6 py-3 font-semibold">Status</th>
@@ -381,6 +382,7 @@
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach ($classTracking['rows'] as $row)
                                 <tr>
+                                    <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                                     <td class="px-6 py-3">
                                         <span class="font-semibold text-gray-900 dark:text-white">{{ $row['student']->fullName() }}</span>
                                         <small class="block text-xs text-gray-400">{{ $row['student']->admission_number }}</small>

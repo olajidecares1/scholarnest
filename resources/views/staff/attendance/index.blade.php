@@ -82,6 +82,7 @@
                         <table class="attendance-roll w-full text-left text-sm">
                             <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                                 <tr>
+                                    <th class="attendance-roll-sn w-12 px-4 py-3 font-semibold">S/N</th>
                                     <th class="px-6 py-3 font-semibold">Student</th>
                                     <th class="px-6 py-3 font-semibold">Status</th>
                                 </tr>
@@ -90,6 +91,7 @@
                                 @forelse ($students as $student)
                                     @php $current = $existing->get($student->id)?->status ?? \App\Enums\AttendanceStatus::Present; @endphp
                                     <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <td class="attendance-roll-sn w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                                         <td class="attendance-roll-student px-6 py-3">
                                             <div class="flex items-center gap-3">
                                                 <span class="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
@@ -98,7 +100,7 @@
                                                         <img src="{{ $student->photoUrl() }}" alt="" loading="lazy" class="absolute inset-0 h-full w-full object-cover" onerror="this.remove()">
                                                     @endif
                                                 </span>
-                                                <span class="min-w-0 font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
+                                                <span class="min-w-0 font-semibold text-gray-900 dark:text-white"><span class="attendance-roll-sn-inline tabular-nums text-gray-400">{{ $loop->iteration }}.</span> {{ $student->fullName() }}</span>
                                             </div>
                                         </td>
                                         <td class="attendance-roll-status px-6 py-3">
@@ -116,7 +118,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="2" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $className }} yet.</td>
+                                        <td colspan="3" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $className }} yet.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

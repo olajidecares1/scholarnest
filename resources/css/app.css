@@ -2069,6 +2069,12 @@ a.pwa-install-banner__install {
     display: none;
 }
 
+/* The serial number has its own column on wider screens; on a phone the
+ * column is hidden and the number sits in front of the name instead. */
+.attendance-roll .attendance-roll-sn-inline {
+    display: none;
+}
+
 @media (max-width: 639.98px) {
     .attendance-roll-scroll {
         overflow-x: visible;
@@ -2084,8 +2090,13 @@ a.pwa-install-banner__install {
     }
 
     .attendance-roll thead,
-    .attendance-roll td.attendance-roll-class {
+    .attendance-roll td.attendance-roll-class,
+    .attendance-roll td.attendance-roll-sn {
         display: none;
+    }
+
+    .attendance-roll .attendance-roll-sn-inline {
+        display: inline;
     }
 
     .attendance-roll tbody tr {

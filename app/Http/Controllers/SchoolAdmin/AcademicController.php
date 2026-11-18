@@ -13,6 +13,7 @@ use App\Models\GradeBand;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Services\DefaultAcademicStructure;
+use App\Services\JuniorSecondarySubjects;
 use App\Support\AcademicSession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -249,11 +250,14 @@ class AcademicController extends Controller
 
         $validated = $request->validate($this->classRules());
 
-        $level->classes()->create([
+        $class = $level->classes()->create([
             ...$validated,
             'school_id' => $level->school_id,
             'sort_order' => $level->classes()->count(),
         ]);
+
+        // A new JSS class starts with the 17 JSS subjects ticked.
+        JuniorSecondarySubjects::ensureForClass($class);
 
         return back()->with('status', "\"{$validated['name']}\" added successfully.");
     }
