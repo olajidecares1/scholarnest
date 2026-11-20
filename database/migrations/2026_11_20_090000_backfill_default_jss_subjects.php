@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\School;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultSubjects;
 use Illuminate\Database\Migrations\Migration;
 
 /**
@@ -31,7 +31,7 @@ return new class extends Migration
             return;
         }
 
-        JuniorSecondarySubjects::backfillAll();
+        DefaultSubjects::backfillAll();
     }
 
     public function down(): void

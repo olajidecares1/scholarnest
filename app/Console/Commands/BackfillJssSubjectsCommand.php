@@ -2,29 +2,34 @@
 
 namespace App\Console\Commands;
 
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultSubjects;
 use Illuminate\Console\Command;
 
 /**
- * Gives every school's JSS 1–3 classes the default subjects listed in
- * config/subjects.php. Safe to run as often as you like: a subject a class
- * already has, under any capitalisation, spacing or listed alias, is never
- * added a second time.
+ * Gives every school's Reception/KG, JSS and SS classes the default subjects
+ * listed in config/subjects.php. Safe to run as often as you like: a subject
+ * a class already has, under any capitalisation, spacing or listed alias, is
+ * never added a second time, and a subject taken off a list is removed from
+ * a class only where no score has been recorded for it.
  *
  * The deploy migration runs the same work once; run this again after
- * editing the list in config/subjects.php.
+ * editing config/subjects.php. Also answers to its first name,
+ * subjects:backfill-jss.
  */
 class BackfillJssSubjectsCommand extends Command
 {
-    protected $signature = 'subjects:backfill-jss';
+    protected $signature = 'subjects:backfill';
 
-    protected $description = 'Add the default JSS subjects (config/subjects.php) to every school\'s JSS 1–3 classes, without duplicates';
+    /** @var list<string> */
+    protected $aliases = ['subjects:backfill-jss'];
+
+    protected $description = 'Give every school\'s KG, JSS and SS classes the default subjects in config/subjects.php, without duplicates';
 
     public function handle(): int
     {
-        $result = JuniorSecondarySubjects::backfillAll();
+        $result = DefaultSubjects::backfillAll();
 
-        $this->info("Checked {$result['schools']} school(s); added {$result['added']} subject(s) to JSS classes.");
+        $this->info("Checked {$result['schools']} school(s); added {$result['added']} subject(s).");
 
         return self::SUCCESS;
     }

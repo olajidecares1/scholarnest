@@ -28,7 +28,7 @@ class SubjectController extends Controller
             ->get()
             ->groupBy('name');
 
-        // The class's own subjects first, in result-sheet order (a JSS class
+        // The class's own subjects first, in result-sheet order (a KG, JSS or SS class
         // always has its default subjects), then anything else the student
         // has assignments or results in, A to Z.
         // The student's own school, whatever school the URL names.

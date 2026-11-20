@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\School;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultSubjects;
 use Illuminate\Database\Migrations\Migration;
 
 /**
@@ -23,13 +23,9 @@ return new class extends Migration
             return;
         }
 
-        JuniorSecondarySubjects::catalogueSubjects();
-
-        School::query()->chunkById(100, function ($schools) {
-            foreach ($schools as $school) {
-                JuniorSecondarySubjects::ensureFor($school);
-            }
-        });
+        // Already run on every database that had schools; kept working
+        // against the current defaults (config/subjects.php).
+        DefaultSubjects::backfillAll();
     }
 
     public function down(): void

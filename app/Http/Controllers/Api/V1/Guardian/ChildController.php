@@ -58,8 +58,8 @@ class ChildController extends Controller
     }
 
     /**
-     * The subjects that child's class offers, in result-sheet order. A JSS
-     * class always lists its default subjects (is_default: true).
+     * The subjects that child's class offers, in result-sheet order. A KG,
+     * JSS or SS class always lists its default subjects (is_default: true).
      */
     public function subjects(Request $request, Student $student): JsonResponse
     {

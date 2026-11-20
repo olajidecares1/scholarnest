@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Subject;
 use App\Models\SubjectOffering;
 use App\Services\DefaultAcademicStructure;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultSubjects;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,18 +33,18 @@ class ClassSubjectController extends Controller
 
         $selectedClassModel = $className ? $school->schoolClasses()->where('name', $className)->with('academicLevel')->first() : null;
 
-        // A JSS class always has its default subjects; fill in any it is
-        // missing before showing it (e.g. the defaults list was edited).
+        // A KG, JSS or SS class always has its default subjects; fill in
+        // any it is missing before showing it (e.g. the list was edited).
         if ($selectedClassModel) {
-            JuniorSecondarySubjects::ensureForClass($selectedClassModel);
+            DefaultSubjects::ensureForClass($selectedClassModel);
         }
 
         $offered = $className ? $school->offeredSubjectsFor($className) : collect();
 
-        // A JSS class shows its default subjects first, numbered in
-        // result-sheet order and locked, and the rest of the catalogue below.
-        $jssSubjects = $className
-            ? JuniorSecondarySubjects::sortByName(
+        // A class with defaults shows them first, numbered in result-sheet
+        // order and locked, and the rest of the catalogue below.
+        $defaultSubjects = $className
+            ? DefaultSubjects::sortByName(
                 SubjectOffering::with('subject')
                     ->where('school_id', $school->id)
                     ->where('class_name', $className)
@@ -52,14 +52,13 @@ class ClassSubjectController extends Controller
                     ->get()
                     ->pluck('subject')
                     ->filter(),
-                $className,
-                $selectedClassModel?->academicLevel?->name,
+                DefaultSubjects::forClass($selectedClassModel),
                 fn (Subject $subject) => $subject->name,
             )
             : collect();
 
         $catalogue = Subject::orderBy('name')
-            ->whereNotIn('id', $jssSubjects->pluck('id'))
+            ->whereNotIn('id', $defaultSubjects->pluck('id'))
             ->get()
             ->groupBy(fn (Subject $subject) => $subject->category->value);
 
@@ -68,7 +67,7 @@ class ClassSubjectController extends Controller
             'selectedClass' => $className,
             'offered' => $offered,
             'catalogue' => $catalogue,
-            'jssSubjects' => $jssSubjects,
+            'defaultSubjects' => $defaultSubjects,
             'categoryOptions' => SubjectCategory::cases(),
         ]);
     }
@@ -145,21 +144,18 @@ class ClassSubjectController extends Controller
     private static function catalogueSubjectNamed(string $name): Subject
     {
         $name = trim(preg_replace('/\s+/u', ' ', $name));
-        $wanted = JuniorSecondarySubjects::normalize($name);
+        $wanted = DefaultSubjects::normalize($name);
 
         // "physical and health education" finds the PHE the catalogue
         // already has, rather than starting a second copy of it.
-        $default = JuniorSecondarySubjects::defaultNameFor($name);
-        $wantedNames = $default !== null
-            ? collect([$default, ...JuniorSecondarySubjects::definitions()[$default]['aliases']])->map(fn ($n) => JuniorSecondarySubjects::normalize($n))
-            : collect([$wanted]);
+        $wantedNames = collect(DefaultSubjects::spellingsOf($name));
 
         $catalogue = Subject::query()->orderBy('id')->get();
 
         // The exact name first ("Computer Studies" is its own catalogue
         // entry), then any other spelling of the same default subject.
-        $existing = $catalogue->first(fn (Subject $subject) => JuniorSecondarySubjects::normalize($subject->name) === $wanted)
-            ?? $catalogue->first(fn (Subject $subject) => $wantedNames->contains(JuniorSecondarySubjects::normalize($subject->name)));
+        $existing = $catalogue->first(fn (Subject $subject) => DefaultSubjects::normalize($subject->name) === $wanted)
+            ?? $catalogue->first(fn (Subject $subject) => $wantedNames->contains(DefaultSubjects::normalize($subject->name)));
 
         return $existing ?? Subject::create([
             'name' => $name,

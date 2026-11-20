@@ -13,7 +13,7 @@ use App\Models\GradeBand;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Services\DefaultAcademicStructure;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultSubjects;
 use App\Support\AcademicSession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -256,8 +256,8 @@ class AcademicController extends Controller
             'sort_order' => $level->classes()->count(),
         ]);
 
-        // A new JSS class starts with the default JSS subjects.
-        JuniorSecondarySubjects::ensureForClass($class);
+        // A new KG, JSS or SS class starts with its default subjects.
+        DefaultSubjects::ensureForClass($class);
 
         return back()->with('status', "\"{$validated['name']}\" added successfully.");
     }

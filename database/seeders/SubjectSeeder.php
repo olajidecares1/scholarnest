@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\SubjectCategory;
 use App\Models\Subject;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultSubjects;
 use Illuminate\Database\Seeder;
 
 class SubjectSeeder extends Seeder
@@ -82,9 +82,9 @@ class SubjectSeeder extends Seeder
             Subject::updateOrCreate(['name' => $name], ['category' => $category]);
         }
 
-        // The default Junior Secondary (JSS) subjects (config/subjects.php),
-        // set up for every school's JSS classes. Any not already listed
-        // above, under any spelling, are added to the catalogue here.
-        JuniorSecondarySubjects::catalogueSubjects();
+        // The default subjects for KG, JSS and SS classes
+        // (config/subjects.php). Any not already listed above, under any
+        // spelling, are added to the catalogue here.
+        DefaultSubjects::catalogueAll();
     }
 }
