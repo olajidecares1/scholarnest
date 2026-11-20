@@ -2725,3 +2725,17 @@ a.pwa-install-banner__install {
         animation: none !important;
     }
 }
+
+/* S/N column for a list whose rows are filtered in the browser (x-show):
+ * hidden rows don't count, so the visible rows always read 1, 2, 3... */
+.sn-counter tbody {
+    counter-reset: sn;
+}
+
+.sn-counter tbody tr {
+    counter-increment: sn;
+}
+
+.sn-counter td.sn-cell::before {
+    content: counter(sn);
+}

@@ -58,7 +58,7 @@ class ExaminationController extends Controller
 
         return view('school-admin.examinations.show', [
             'examination' => $examination,
-            'subjects' => $examination->subjects()->withCount('scores')->get(),
+            'subjects' => $examination->subjectsInResultSheetOrder($examination->subjects()->withCount('scores')->get()),
             'studentCount' => Student::where('school_id', $examination->school_id)->where('class_name', $examination->class_name)->where('is_active', true)->count(),
             'offeredSubjects' => $examination->school->offeredSubjectsFor($examination->class_name),
         ]);
@@ -149,6 +149,10 @@ class ExaminationController extends Controller
         $existing = collect();
 
         if ($examination) {
+            // Subject tabs in result-sheet order, so a JSS class opens on
+            // English Language and runs down the 17 as printed.
+            $examination->setRelation('subjects', $examination->subjectsInResultSheetOrder());
+
             $subject = $request->filled('subject')
                 ? $examination->subjects->firstWhere('name', $request->string('subject')->toString())
                 : $examination->subjects->first();
@@ -200,18 +204,16 @@ class ExaminationController extends Controller
         $school = $request->user()->school;
 
         $validated = $request->validate([
-            'class_name' => ['required', 'string', 'max:50'],
+            // One of this school's own classes, never a made-up name.
+            'class_name' => ['required', 'string', 'max:50', Rule::in($school->configuredClassNames())],
             'session' => ['required', 'string', 'max:20'],
             'term' => ['required', Rule::enum(ExamTerm::class)],
         ]);
 
         $term = ExamTerm::from($validated['term']);
 
-        $subjects = SubjectOffering::with('subject')
-            ->where('school_id', $school->id)
-            ->where('class_name', $validated['class_name'])
-            ->get()
-            ->pluck('subject.name')
+        // In result-sheet order, so a JSS paper lists the 17 as printed.
+        $subjects = $school->offeredSubjectsFor($validated['class_name'])
             ->filter()
             ->values();
 
@@ -324,7 +326,9 @@ class ExaminationController extends Controller
 
         return view('school-admin.examinations.report-cards', [
             'examination' => $examination,
-            'summaries' => ExaminationResultCalculator::summariesFor($examination),
+            // A to Z by name, like every other list of students; each row
+            // still carries its class position.
+            'summaries' => Student::sortAlphabetically(ExaminationResultCalculator::summariesFor($examination), fn ($summary) => $summary['student']),
             'subjectCount' => $examination->subjects->count(),
         ]);
     }
@@ -334,7 +338,9 @@ class ExaminationController extends Controller
         $this->authorizeExamination($examination);
         abort_unless($student->school_id === $examination->school_id, 403);
 
-        $subjects = $examination->subjects()->with(['scores' => fn ($query) => $query->where('student_id', $student->id)])->get();
+        $subjects = $examination->subjectsInResultSheetOrder(
+            $examination->subjects()->with(['scores' => fn ($query) => $query->where('student_id', $student->id)])->get()
+        );
 
         return view('school-admin.examinations.report-card', [
             'examination' => $examination,

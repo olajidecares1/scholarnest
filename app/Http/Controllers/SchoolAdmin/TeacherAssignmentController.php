@@ -10,6 +10,7 @@ use App\Models\ExaminationSubject;
 use App\Models\Staff;
 use App\Models\TeacherAssignment;
 use App\Models\TimetableEntry;
+use App\Services\JuniorSecondarySubjects;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -45,11 +46,19 @@ class TeacherAssignmentController extends Controller
         // dropdown in the Add Assignment form instead of free text, classes
         // that haven't been configured yet (the common case today) keep the
         // free-text + datalist behavior unaffected.
+        $levelByClass = $school->schoolClasses()->with('academicLevel')->get()
+            ->mapWithKeys(fn ($class) => [$class->name => $class->academicLevel?->name]);
+
         $offeringsByClass = $school->subjectOfferings()
             ->with('subject')
             ->get()
             ->groupBy('class_name')
-            ->map(fn ($offerings) => $offerings->pluck('subject.name')->sort()->values());
+            // JSS classes list the 17 default subjects in result-sheet order.
+            ->map(fn ($offerings, $className) => JuniorSecondarySubjects::order(
+                $offerings->pluck('subject.name')->filter()->values(),
+                (string) $className,
+                $levelByClass->get($className),
+            ));
 
         return view('school-admin.teacher-assignments.index', [
             'assignments' => $assignments,

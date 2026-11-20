@@ -145,17 +145,49 @@ class JuniorSecondarySubjects
      */
     public static function order(Collection $names, string $className, ?string $levelName = null): Collection
     {
-        $names = $names->sort(fn ($a, $b) => strcasecmp((string) $a, (string) $b))->values();
+        return self::sortByName($names, $className, $levelName, fn ($name) => (string) $name);
+    }
 
-        if (! self::isJuniorClass($className, $levelName)) {
-            return $names;
-        }
-
+    /**
+     * The same order for a list of anything that has a subject name, e.g. an
+     * examination's subjects on a report card. $name picks the subject name
+     * out of each item.
+     *
+     * @template TItem
+     *
+     * @param  iterable<TItem>  $items
+     * @param  callable(TItem): ?string  $name
+     * @return Collection<int, TItem>
+     */
+    public static function sortByName(iterable $items, string $className, ?string $levelName, callable $name): Collection
+    {
+        $isJunior = self::isJuniorClass($className, $levelName);
         $position = array_flip(array_map('mb_strtolower', self::names()));
         $last = count($position);
 
-        return $names
-            ->sortBy(fn ($name) => [$position[mb_strtolower((string) $name)] ?? $last, mb_strtolower((string) $name)])
+        $key = function ($item) use ($name, $isJunior, $position, $last): array {
+            $label = mb_strtolower(trim((string) $name($item)));
+
+            return [$isJunior ? ($position[$label] ?? $last) : 0, $label];
+        };
+
+        return collect($items)
+            ->sort(fn ($a, $b) => $key($a) <=> $key($b))
             ->values();
+    }
+
+    /**
+     * The name of the level a school's class is filed under, so a class the
+     * school renamed (e.g. "Year 7" under the JSS level) still counts as JSS.
+     */
+    public static function levelNameFor(int $schoolId, string $className): ?string
+    {
+        return SchoolClass::query()
+            ->where('school_id', $schoolId)
+            ->where('name', $className)
+            ->with('academicLevel')
+            ->first()
+            ?->academicLevel
+            ?->name;
     }
 }

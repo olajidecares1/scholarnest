@@ -24,7 +24,9 @@ class ReportCardData
     public static function for(Examination $examination, Student $student): array
     {
         $school = $examination->school;
-        $subjects = $examination->subjects()->with(['scores' => fn ($query) => $query->where('student_id', $student->id)])->get();
+        $subjects = $examination->subjectsInResultSheetOrder(
+            $examination->subjects()->with(['scores' => fn ($query) => $query->where('student_id', $student->id)])->get()
+        );
         $summary = ExaminationResultCalculator::summariesFor($examination)->firstWhere('student.id', $student->id)
             ?? ExaminationResultCalculator::summaryForStudent($student, $subjects);
         $report = ExaminationReport::firstOrCreateFor($examination, $student);

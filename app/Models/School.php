@@ -1054,9 +1054,7 @@ class School extends Model
             ->get()
             ->pluck('subject.name');
 
-        $levelName = $this->schoolClasses()->where('name', $className)->with('academicLevel')->first()?->academicLevel?->name;
-
-        return JuniorSecondarySubjects::order($names, $className, $levelName);
+        return JuniorSecondarySubjects::order($names->filter()->values(), $className, JuniorSecondarySubjects::levelNameFor($this->id, $className));
     }
 
     /**

@@ -107,8 +107,10 @@ class ResultController extends Controller
             'selectedClass' => $class,
             'selectedSession' => $session,
             'termOptions' => ExamTerm::cases(),
+            // A to Z by name, like every other list of students; each row
+            // still carries its session position.
             'rows' => $school->usesCumulativeResults() && $class
-                ? $calculator->forClass($school, $class, $session)
+                ? Student::sortAlphabetically($calculator->forClass($school, $class, $session), fn ($row) => $row['student'])
                 : collect(),
         ]);
     }
