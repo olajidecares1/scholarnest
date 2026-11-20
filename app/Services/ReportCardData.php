@@ -7,9 +7,11 @@ use App\Enums\TeacherAssignmentType;
 use App\Models\AcademicTerm;
 use App\Models\Examination;
 use App\Models\ExaminationReport;
+use App\Models\ExaminationSubject;
 use App\Models\Student;
 use App\Models\TeacherAssignment;
 use App\Services\Attendance\TermAttendance;
+use Illuminate\Support\Collection;
 
 class ReportCardData
 {
@@ -24,7 +26,9 @@ class ReportCardData
     public static function for(Examination $examination, Student $student): array
     {
         $school = $examination->school;
-        $subjects = $examination->subjects()->with(['scores' => fn ($query) => $query->where('student_id', $student->id)])->get();
+        $subjects = self::recordedSubjects($examination->subjectsInResultSheetOrder(
+            $examination->subjects()->with(['scores' => fn ($query) => $query->where('student_id', $student->id)])->get()
+        ));
         $summary = ExaminationResultCalculator::summariesFor($examination)->firstWhere('student.id', $student->id)
             ?? ExaminationResultCalculator::summaryForStudent($student, $subjects);
         $report = ExaminationReport::firstOrCreateFor($examination, $student);
@@ -61,6 +65,29 @@ class ReportCardData
             // before", so a school that leaves the setting off sees no change.
             'sessionSummary' => self::sessionSummaryFor($examination, $student),
         ];
+    }
+
+    /**
+     * Only the subjects this student has a recorded score in.
+     *
+     * A subject with no score entered at all is left off the card entirely,
+     * not printed blank, "-" or 0, and so it adds nothing to the total, the
+     * maximum, the number of subjects or the average. A score of 0 that a
+     * teacher actually entered is a recorded score and stays on the card.
+     * Checked per student and per term, since each card is one student's one
+     * examination: a student with CRS recorded and IRS not sees only CRS.
+     *
+     * The subjects passed in must have their scores loaded for this one
+     * student, as for() and the admin report card load them.
+     *
+     * @param  Collection<int, ExaminationSubject>  $subjects
+     * @return Collection<int, ExaminationSubject>
+     */
+    public static function recordedSubjects(Collection $subjects): Collection
+    {
+        return $subjects
+            ->filter(fn (ExaminationSubject $subject) => $subject->scores->contains(fn ($score) => $score->score !== null))
+            ->values();
     }
 
     /**

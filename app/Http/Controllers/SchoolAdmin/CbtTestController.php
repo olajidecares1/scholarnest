@@ -6,6 +6,7 @@ use App\Enums\CbtTestStatus;
 use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\CbtTest;
+use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -36,6 +37,8 @@ class CbtTestController extends Controller
 
         return view('school-admin.cbt-tests.show', [
             'test' => $test,
+            // A to Z by name, like every other list of students.
+            'attempts' => Student::sortAlphabetically($test->attempts, fn ($attempt) => $attempt->student),
         ]);
     }
 

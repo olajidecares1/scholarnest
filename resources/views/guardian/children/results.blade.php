@@ -1,5 +1,16 @@
 <x-guardian-layout page-title="Exams & Results" :page-subtitle="$student->fullName().'\'s examination scores'" :active-child="$activeChild">
     <div class="space-y-6" x-data="{}">
+        @if (($classSubjects ?? collect())->isNotEmpty())
+            <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ $student->first_name }}'s subjects ({{ $student->class_name }})</h2>
+                <ol class="mt-3 grid grid-cols-1 gap-x-6 gap-y-1.5 text-sm text-gray-700 dark:text-gray-200 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($classSubjects as $subject)
+                        <li class="flex items-baseline gap-2"><span class="w-6 shrink-0 text-right font-mono text-xs text-gray-400">{{ $loop->iteration }}.</span><span>{{ $subject['name'] }}</span></li>
+                    @endforeach
+                </ol>
+            </div>
+        @endif
+
         @forelse ($results as $examLabel => $scores)
             @php $examination = $scores->first()->subject->examination; @endphp
             <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">

@@ -1054,9 +1054,34 @@ class School extends Model
             ->get()
             ->pluck('subject.name');
 
-        $levelName = $this->schoolClasses()->where('name', $className)->with('academicLevel')->first()?->academicLevel?->name;
+        return JuniorSecondarySubjects::order($names->filter()->values(), $className, JuniorSecondarySubjects::levelNameFor($this->id, $className));
+    }
 
-        return JuniorSecondarySubjects::order($names, $className, $levelName);
+    /**
+     * The subjects a class offers, with which are platform defaults, in
+     * result-sheet order. What students, parents and the mobile app see as
+     * "my subjects": a JSS class always lists its default subjects.
+     *
+     * @return Collection<int, array{name: string, is_default: bool}>
+     */
+    public function classSubjectsFor(string $className): Collection
+    {
+        $offerings = $this->subjectOfferings()
+            ->where('class_name', $className)
+            ->with('subject')
+            ->get()
+            ->filter(fn (SubjectOffering $offering) => $offering->subject !== null)
+            ->map(fn (SubjectOffering $offering) => [
+                'name' => $offering->subject->name,
+                'is_default' => (bool) $offering->is_default,
+            ]);
+
+        return JuniorSecondarySubjects::sortByName(
+            $offerings,
+            $className,
+            JuniorSecondarySubjects::levelNameFor($this->id, $className),
+            fn (array $row) => $row['name'],
+        );
     }
 
     /**

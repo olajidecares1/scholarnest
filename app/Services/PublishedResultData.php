@@ -197,6 +197,11 @@ class PublishedResultData
      */
     private function rehydrateSubjects(array $subjects, Examination $examination): Collection
     {
+        // A subject with no recorded score never belongs on a card. Cards
+        // published before that rule may still carry such rows; they are
+        // dropped here so every published card follows it too.
+        $subjects = array_values(array_filter($subjects, fn (array $row) => ($row['score'] ?? null) !== null));
+
         return collect($subjects)->map(function (array $row, int $index) use ($examination) {
             $subject = new ExaminationSubject([
                 'name' => $row['name'],

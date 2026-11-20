@@ -8,6 +8,7 @@ use App\Http\Resources\Api\V1\AttendanceSummaryResource;
 use App\Http\Resources\Api\V1\StudentResource;
 use App\Models\Student;
 use App\Services\Attendance\TermAttendance;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -54,6 +55,19 @@ class ChildController extends Controller
 
         return AttendanceSummaryResource::collection($attendance->totalsForStudent($student))
             ->additional(['meta' => ['manual_attendance_enabled' => (bool) $student->school?->usesManualAttendance()]]);
+    }
+
+    /**
+     * The subjects that child's class offers, in result-sheet order. A JSS
+     * class always lists its default subjects (is_default: true).
+     */
+    public function subjects(Request $request, Student $student): JsonResponse
+    {
+        $student = $this->authorizeChild($request, $student);
+
+        return response()->json([
+            'data' => $student->school->classSubjectsFor((string) $student->class_name)->values(),
+        ]);
     }
 
     /**

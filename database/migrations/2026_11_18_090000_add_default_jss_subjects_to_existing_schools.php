@@ -27,7 +27,7 @@ return new class extends Migration
 
         School::query()->chunkById(100, function ($schools) {
             foreach ($schools as $school) {
-                JuniorSecondarySubjects::ensureFor($school, addMissing: true);
+                JuniorSecondarySubjects::ensureFor($school);
             }
         });
     }

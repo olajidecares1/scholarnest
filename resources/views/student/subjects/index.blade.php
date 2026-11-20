@@ -1,4 +1,4 @@
-<x-student-layout page-title="My Subjects" page-subtitle="Subjects for {{ $student->class_name }}, from your assignments and exam results">
+<x-student-layout page-title="My Subjects" page-subtitle="Subjects for {{ $student->class_name }}">
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         @forelse ($subjects as $subject)
             <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">

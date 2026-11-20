@@ -30,7 +30,7 @@ class ExaminationController extends Controller
             ->with('subjects')
             ->orderByDesc('exam_date')
             ->get()
-            ->flatMap(fn (Examination $examination) => $examination->subjects
+            ->flatMap(fn (Examination $examination) => $examination->subjectsInResultSheetOrder()
                 ->filter(fn (ExaminationSubject $subject) => $staff->canEnterScoresFor($examination->class_name, $subject->name))
                 ->map(fn (ExaminationSubject $subject) => ['examination' => $examination, 'subject' => $subject]));
 

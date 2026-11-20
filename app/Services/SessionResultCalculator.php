@@ -134,14 +134,18 @@ class SessionResultCalculator
 
             $summary = ExaminationResultCalculator::summaryForStudent($student, $examination->subjects);
 
+            // Only subjects this student has a recorded score in count
+            // towards the term's total and maximum, as on the term card.
+            $recorded = $examination->subjects->filter(fn ($subject) => $subject->scores->firstWhere('student_id', $student->id) !== null);
+
             $terms[$term->value] = [
                 'label' => $term->label(),
-                'total' => round($examination->subjects->sum(fn ($subject) => (float) ($subject->scores->firstWhere('student_id', $student->id)?->score ?? 0)), 2),
-                'max' => (int) $examination->subjects->sum('max_score'),
+                'total' => round($recorded->sum(fn ($subject) => (float) $subject->scores->firstWhere('student_id', $student->id)->score), 2),
+                'max' => (int) $recorded->sum('max_score'),
                 'average' => $summary['average'],
             ];
 
-            foreach ($examination->subjects as $subject) {
+            foreach ($recorded as $subject) {
                 $score = $subject->scores->firstWhere('student_id', $student->id);
                 $key = mb_strtolower(trim($subject->name));
 

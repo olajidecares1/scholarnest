@@ -256,7 +256,7 @@ class AcademicController extends Controller
             'sort_order' => $level->classes()->count(),
         ]);
 
-        // A new JSS class starts with the 17 JSS subjects ticked.
+        // A new JSS class starts with the default JSS subjects.
         JuniorSecondarySubjects::ensureForClass($class);
 
         return back()->with('status', "\"{$validated['name']}\" added successfully.");

@@ -21,7 +21,20 @@ class SubjectOffering extends Model
         'school_id',
         'class_name',
         'subject_id',
+        'is_default',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            // One of the default JSS subjects (config/subjects.php), which a
+            // School Admin cannot remove from the class.
+            'is_default' => 'boolean',
+        ];
+    }
 
     /**
      * @return BelongsTo<School, $this>

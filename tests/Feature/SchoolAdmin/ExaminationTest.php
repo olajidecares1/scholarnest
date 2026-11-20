@@ -169,7 +169,7 @@ test('a school admin cannot save scores for a student outside their school', fun
     expect($subject->scores()->where('student_id', $otherStudent->id)->exists())->toBeFalse();
 });
 
-test('report cards rank students by average percentage across subjects', function () {
+test('report cards list students A to Z, each with their rank by average percentage', function () {
     $examination = Examination::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1']);
     $subject = ExaminationSubject::factory()->create(['examination_id' => $examination->id, 'max_score' => 100]);
 
@@ -179,9 +179,11 @@ test('report cards rank students by average percentage across subjects', functio
     $subject->scores()->create(['student_id' => $topStudent->id, 'score' => 95]);
     $subject->scores()->create(['student_id' => $lowStudent->id, 'score' => 40]);
 
+    // Listed A to Z like every other list of students; the position column
+    // still ranks them by average.
     $this->actingAs($this->admin)
         ->get(route('examinations.report-cards.index', $examination))
-        ->assertSeeInOrder(['Top Student', 'Low Student']);
+        ->assertSeeInOrder(['>2</td>', 'Low Student', '>1</td>', 'Top Student'], false);
 });
 
 test('a school admin can view an individual report card with grades', function () {

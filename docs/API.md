@@ -122,6 +122,7 @@ All under `/api/v1/student`, and all scoped to the signed-in student.
 | `POST /results/{examination}` | One full report card, in exchange for its exam token |
 | `GET /attendance` | Their own attendance. `from`, `to`, `per_page` |
 | `GET /attendance/terms` | Their term totals (school days, days present, absent, late, excused, days attended and percentage), where the school enters attendance manually. `meta.manual_attendance_enabled` says whether it does |
+| `GET /subjects` | Their class's subjects in result-sheet order, unpaginated: `[{name, is_default}]`. A JSS class always lists the default JSS subjects (`is_default: true`, see `config/subjects.php`); cache this list for offline use |
 | `GET /timetable` | Their class's timetable, unpaginated |
 | `GET /assignments` | Homework for their class, soonest due first |
 | `GET /notices` | Memoranda addressed to students or to everyone |
@@ -162,6 +163,13 @@ other way round would spend a token on a result that stays shut anyway.
 A token bound to another child is refused *before* it is counted as used, so
 trying the wrong one costs nothing.
 
+The result's `subjects` are only the ones this student has a **recorded score**
+in. A subject with no score entered is left out entirely (not sent as null, "-"
+or 0), and the summary's total, average, subject count and position are worked
+out over the recorded subjects only. A score of 0 that a teacher entered is a
+recorded score and is included. Draw the card from what is sent; do not add the
+class's other subjects back in.
+
 ---
 
 ## Guardian
@@ -172,6 +180,7 @@ trying the wrong one costs nothing.
 | `GET /guardian/children/{student}` | One of them |
 | `GET /guardian/children/{student}/attendance` | That child's attendance |
 | `GET /guardian/children/{student}/attendance/terms` | That child's term totals, as above |
+| `GET /guardian/children/{student}/subjects` | That child's class subjects, as `GET /subjects` above |
 
 A child who is not theirs is **404**, not 403, whether that pupil exists is
 not this guardian's business either. Being at the same school is not enough:

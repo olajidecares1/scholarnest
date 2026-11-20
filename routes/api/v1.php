@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\V1\Student\AssignmentController;
 use App\Http\Controllers\Api\V1\Student\AttendanceController;
 use App\Http\Controllers\Api\V1\Student\NoticeController;
 use App\Http\Controllers\Api\V1\Student\ResultController;
+use App\Http\Controllers\Api\V1\Student\SubjectController;
 use App\Http\Controllers\Api\V1\Student\TimetableController;
 use App\Http\Controllers\Api\V1\TokenController;
 use Illuminate\Support\Facades\Route;
@@ -58,6 +59,7 @@ Route::middleware(['auth:sanctum', 'api.active'])->group(function () {
 
         Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::get('attendance/terms', [AttendanceController::class, 'terms'])->name('attendance.terms');
+        Route::get('subjects', [SubjectController::class, 'index'])->name('subjects.index');
         Route::get('timetable', [TimetableController::class, 'index'])->name('timetable.index');
         Route::get('assignments', [AssignmentController::class, 'index'])->name('assignments.index');
         Route::get('notices', [NoticeController::class, 'index'])->name('notices.index');
@@ -66,6 +68,7 @@ Route::middleware(['auth:sanctum', 'api.active'])->group(function () {
     Route::prefix('guardian')->name('guardian.')->middleware('api.actor:guardian')->group(function () {
         Route::get('children', [ChildController::class, 'index'])->name('children.index');
         Route::get('children/{student}', [ChildController::class, 'show'])->name('children.show');
+        Route::get('children/{student}/subjects', [ChildController::class, 'subjects'])->name('children.subjects');
         Route::get('children/{student}/attendance', [ChildController::class, 'attendance'])->name('children.attendance');
         Route::get('children/{student}/attendance/terms', [ChildController::class, 'attendanceTerms'])->name('children.attendance.terms');
     });

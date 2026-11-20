@@ -83,8 +83,8 @@ class DefaultAcademicStructure
             }
         }
 
-        // Every new school starts with the 17 JSS subjects ticked for its
-        // JSS classes.
+        // Every new school starts with the default JSS subjects
+        // (config/subjects.php) for its JSS classes.
         JuniorSecondarySubjects::ensureFor($school);
     }
 }

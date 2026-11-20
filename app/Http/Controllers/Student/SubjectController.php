@@ -28,9 +28,23 @@ class SubjectController extends Controller
             ->get()
             ->groupBy('name');
 
-        $subjectNames = $assignmentCounts->keys()->merge($examSubjectsByName->keys())->unique()->sort()->values();
+        // The class's own subjects first, in result-sheet order (a JSS class
+        // always has its default subjects), then anything else the student
+        // has assignments or results in, A to Z.
+        // The student's own school, whatever school the URL names.
+        $classSubjects = $student->school->classSubjectsFor($student->class_name);
+        $offered = $classSubjects->pluck('name');
+        $defaults = $classSubjects->where('is_default', true)->pluck('name');
 
-        $subjects = $subjectNames->map(function (string $name) use ($assignmentCounts, $examSubjectsByName, $student) {
+        $others = $assignmentCounts->keys()->merge($examSubjectsByName->keys())
+            ->reject(fn ($name) => $offered->contains(fn ($offeredName) => mb_strtolower(trim($offeredName)) === mb_strtolower(trim((string) $name))))
+            ->unique()
+            ->sort()
+            ->values();
+
+        $subjectNames = $offered->merge($others)->values();
+
+        $subjects = $subjectNames->map(function (string $name) use ($assignmentCounts, $examSubjectsByName, $student, $defaults) {
             $examSubjectIds = ($examSubjectsByName->get($name) ?? collect())->pluck('id');
             $scores = ExaminationScore::with('subject')
                 ->where('student_id', $student->id)
@@ -39,6 +53,7 @@ class SubjectController extends Controller
 
             return [
                 'name' => $name,
+                'is_default' => $defaults->contains($name),
                 'assignment_count' => (int) $assignmentCounts->get($name, 0),
                 'exam_count' => $scores->count(),
                 'average_percentage' => $scores->isNotEmpty() ? round($scores->avg(fn (ExaminationScore $score) => $score->percentage()), 1) : null,

@@ -47,6 +47,9 @@ class ResultController extends Controller
             'activeChild' => $student,
             'student' => $student,
             'results' => $results,
+            // The subjects the child's class offers (a JSS class always has
+            // its default subjects), from the child's own school.
+            'classSubjects' => $student->school->classSubjectsFor((string) $student->class_name),
             'unlocked' => $results->mapWithKeys(function ($scores) use ($student) {
                 $examination = $scores->first()->subject->examination;
 

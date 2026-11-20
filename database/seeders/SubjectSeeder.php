@@ -82,9 +82,9 @@ class SubjectSeeder extends Seeder
             Subject::updateOrCreate(['name' => $name], ['category' => $category]);
         }
 
-        // The 17 Junior Secondary (JSS) subjects, ticked by default for
-        // every school's JSS classes. Any not already listed above are
-        // added to the catalogue here.
+        // The default Junior Secondary (JSS) subjects (config/subjects.php),
+        // set up for every school's JSS classes. Any not already listed
+        // above, under any spelling, are added to the catalogue here.
         JuniorSecondarySubjects::catalogueSubjects();
     }
 }
