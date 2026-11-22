@@ -364,3 +364,43 @@ test('another school\'s examination cannot be saved through this school\'s porta
         ->get(route('staff.exams.scores.edit', [$this->school, $foreign, $subject]))
         ->assertNotFound();
 });
+
+test('the sheet opens on the class the admin assigned, with no class to pick', function () {
+    assignClassTeacher($this->teacher, 'Primary 4');
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', $this->school))
+        ->assertOk()
+        ->assertSee('Your class')
+        ->assertSee('Primary 4')
+        ->assertSee('Assigned to you by the school administrator.')
+        ->assertDontSee('<select id="filter_class"', false)
+        // Only the assigned class, not the school's other classes.
+        ->assertDontSee('Primary 5');
+
+    // Asking for another class in the address bar still shows their own.
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', [$this->school, 'class_name' => 'JSS 3']))
+        ->assertOk()
+        ->assertSee('Primary 4')
+        ->assertDontSee('JSS 3');
+
+    expect(Examination::where('school_id', $this->school->id)->where('class_name', 'JSS 3')->exists())->toBeFalse();
+});
+
+test('a teacher assigned two classes sees only those two, their own class first', function () {
+    assignClassTeacher($this->teacher, 'Primary 6');
+    TeacherAssignment::factory()->create([
+        'school_id' => $this->school->id,
+        'staff_id' => $this->teacher->id,
+        'class_name' => 'JSS 1',
+        'subject' => 'French',
+        'type' => TeacherAssignmentType::SubjectTeacher,
+    ]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', $this->school))
+        ->assertOk()
+        ->assertSeeInOrder(['Your class', 'Primary 6', 'JSS 1'])
+        ->assertDontSee('JSS 2');
+});

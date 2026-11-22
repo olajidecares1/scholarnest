@@ -348,7 +348,6 @@ test('the section offers the class and subject to work on', function () {
     $this->actingAs($teacher, 'staff')
         ->get(route('staff.exams.index', $school))
         ->assertOk()
-        ->assertSee('name="class_name"', false)
         ->assertSee('name="subject"', false)
         ->assertSee('SS 3 Science')
         ->assertSee('Mathematics')

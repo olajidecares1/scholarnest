@@ -67,36 +67,56 @@
                 @endif
             </div>
         @else
-            {{-- Class, term and subject. Changing one reloads the sheet. --}}
-            <form method="GET" class="grid grid-cols-1 gap-3 rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:grid-cols-3">
-                <div>
-                    <label for="filter_class" class="field-label">Class</label>
-                    <select id="filter_class" name="class_name" onchange="this.form.examination.value = ''; this.form.subject.value = ''; this.form.submit()" class="mt-1 w-full">
+            {{-- The class is the one the School Admin assigned to this
+                 teacher; it is shown, not chosen. Only a teacher assigned to
+                 more than one class gets a tab for each of their own. --}}
+            <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <p class="text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    {{ $classTeacherOf->contains($selectedClass) ? 'Your class' : 'Class you teach' }}
+                </p>
+                <p class="mt-1 text-lg font-bold text-gray-900 dark:text-white">{{ $selectedClass }}</p>
+                <small class="field-hint">Assigned to you by the school administrator.</small>
+
+                @if ($classOptions->count() > 1)
+                    <nav class="mt-3 flex flex-wrap gap-2" aria-label="Your assigned classes">
                         @foreach ($classOptions as $className)
-                            <option value="{{ $className }}" @selected($selectedClass === $className)>{{ $className }}</option>
+                            <a
+                                href="{{ route('staff.exams.index', [$school, 'class_name' => $className]) }}"
+                                @class([
+                                    'rounded-full border px-3 py-1.5 text-xs font-semibold',
+                                    'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300' => $className === $selectedClass,
+                                    'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700/50' => $className !== $selectedClass,
+                                ])
+                                @if ($className === $selectedClass) aria-current="page" @endif
+                            >{{ $className }}</a>
                         @endforeach
-                    </select>
-                </div>
+                    </nav>
+                @endif
 
-                <div>
-                    <label for="filter_examination" class="field-label">Term</label>
-                    <select id="filter_examination" name="examination" onchange="this.form.submit()" class="mt-1 w-full">
-                        @foreach ($examinationOptions as $option)
-                            <option value="{{ $option->uuid }}" @selected($examination?->is($option))>{{ $examLabel($option) }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                {{-- Term and subject. Changing one reloads the sheet. --}}
+                <form method="GET" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <input type="hidden" name="class_name" value="{{ $selectedClass }}">
 
-                <div>
-                    <label for="filter_subject" class="field-label">Subject</label>
-                    <select id="filter_subject" name="subject" onchange="this.form.submit()" class="mt-1 w-full">
-                        <option value="">All subjects ({{ $subjectOptions->count() }})</option>
-                        @foreach ($subjectOptions as $subjectName)
-                            <option value="{{ $subjectName }}" @selected($selectedSubject === $subjectName)>{{ $subjectName }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </form>
+                    <div>
+                        <label for="filter_examination" class="field-label">Term</label>
+                        <select id="filter_examination" name="examination" onchange="this.form.submit()" class="mt-1 w-full">
+                            @foreach ($examinationOptions as $option)
+                                <option value="{{ $option->uuid }}" @selected($examination?->is($option))>{{ $examLabel($option) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="filter_subject" class="field-label">Subject</label>
+                        <select id="filter_subject" name="subject" onchange="this.form.submit()" class="mt-1 w-full">
+                            <option value="">All subjects ({{ $subjectOptions->count() }})</option>
+                            @foreach ($subjectOptions as $subjectName)
+                                <option value="{{ $subjectName }}" @selected($selectedSubject === $subjectName)>{{ $subjectName }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
+            </div>
 
             @if ($examination && $students->isEmpty())
                 <div class="rounded-[10px] border border-gray-200 bg-white px-5 py-10 text-center text-sm text-gray-500 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">

@@ -30,7 +30,14 @@ class ExaminationController extends Controller
     public function index(Request $request, School $school): View
     {
         $staff = $request->user('staff');
-        $classNames = $staff->scorableClassNames()->sort(SORT_NATURAL | SORT_FLAG_CASE)->values();
+
+        // The classes the School Admin assigned to this teacher, never a
+        // free choice: the class they are class teacher of first, then any
+        // class they teach a subject in.
+        $classTeacherOf = $staff->classTeacherClassNames()->sort(SORT_NATURAL | SORT_FLAG_CASE)->values();
+        $classNames = $classTeacherOf
+            ->merge($staff->scorableClassNames()->diff($classTeacherOf)->sort(SORT_NATURAL | SORT_FLAG_CASE))
+            ->values();
 
         // Every class this teacher scores has this term's examination, with
         // all of the class's subjects on it, before anything is shown. A
@@ -113,6 +120,7 @@ class ExaminationController extends Controller
             'students' => $students,
             'existing' => $existing,
             'classOptions' => $classOptions,
+            'classTeacherOf' => $classTeacherOf,
             'subjectOptions' => $subjectOptions,
             'selectedClass' => $selectedClass,
             'selectedSubject' => $selectedSubject,
