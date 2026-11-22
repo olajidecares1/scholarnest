@@ -68,30 +68,28 @@
             </div>
         @else
             {{-- The class is the one the School Admin assigned to this
-                 teacher; it is shown, not chosen. Only a teacher assigned to
-                 more than one class gets a tab for each of their own. --}}
+                 teacher. With one assigned class it is simply shown; only a
+                 teacher assigned more than one gets a dropdown, listing just
+                 their own assigned classes. --}}
             <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    {{ $classTeacherOf->contains($selectedClass) ? 'Your class' : 'Class you teach' }}
-                </p>
-                <p class="mt-1 text-lg font-bold text-gray-900 dark:text-white">{{ $selectedClass }}</p>
-                <small class="field-hint">Assigned to you by the school administrator.</small>
-
                 @if ($classOptions->count() > 1)
-                    <nav class="mt-3 flex flex-wrap gap-2" aria-label="Your assigned classes">
-                        @foreach ($classOptions as $className)
-                            <a
-                                href="{{ route('staff.exams.index', [$school, 'class_name' => $className]) }}"
-                                @class([
-                                    'rounded-full border px-3 py-1.5 text-xs font-semibold',
-                                    'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300' => $className === $selectedClass,
-                                    'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700/50' => $className !== $selectedClass,
-                                ])
-                                @if ($className === $selectedClass) aria-current="page" @endif
-                            >{{ $className }}</a>
-                        @endforeach
-                    </nav>
+                    <form method="GET">
+                        <label for="filter_class" class="field-label">Your assigned classes</label>
+                        <select id="filter_class" name="class_name" onchange="this.form.submit()" class="mt-1 w-full sm:max-w-xs">
+                            @foreach ($classOptions as $className)
+                                <option value="{{ $className }}" @selected($className === $selectedClass)>
+                                    {{ $className }}{{ $classTeacherOf->contains($className) ? ' (class teacher)' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                @else
+                    <p class="text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        {{ $classTeacherOf->contains($selectedClass) ? 'Your class' : 'Class you teach' }}
+                    </p>
+                    <p class="mt-1 text-lg font-bold text-gray-900 dark:text-white">{{ $selectedClass }}</p>
                 @endif
+                <small class="field-hint">Assigned to you by the school administrator.</small>
 
                 {{-- Term and subject. Changing one reloads the sheet. --}}
                 <form method="GET" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">

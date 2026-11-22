@@ -388,7 +388,7 @@ test('the sheet opens on the class the admin assigned, with no class to pick', f
     expect(Examination::where('school_id', $this->school->id)->where('class_name', 'JSS 3')->exists())->toBeFalse();
 });
 
-test('a teacher assigned two classes sees only those two, their own class first', function () {
+test('a teacher assigned two classes picks between only those two from a dropdown, their own class first', function () {
     assignClassTeacher($this->teacher, 'Primary 6');
     TeacherAssignment::factory()->create([
         'school_id' => $this->school->id,
@@ -401,6 +401,14 @@ test('a teacher assigned two classes sees only those two, their own class first'
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.exams.index', $this->school))
         ->assertOk()
-        ->assertSeeInOrder(['Your class', 'Primary 6', 'JSS 1'])
+        ->assertSee('<select id="filter_class" name="class_name"', false)
+        ->assertSeeInOrder(['Your assigned classes', 'Primary 6 (class teacher)', 'JSS 1'], false)
         ->assertDontSee('JSS 2');
+
+    // Picking the other one opens its sheet.
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', [$this->school, 'class_name' => 'JSS 1']))
+        ->assertOk()
+        ->assertSee('<option value="JSS 1" selected', false)
+        ->assertSee('French');
 });
