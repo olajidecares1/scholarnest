@@ -6,7 +6,8 @@
 |--------------------------------------------------------------------------
 |
 | The ONE place the platform's default subjects are listed. Every school on
-| the platform gets these for its Reception/KG, JSS and SS classes without
+| the platform gets these for its Reception/KG, Nursery 1, Nursery 2,
+| Primary, JSS and SS classes without
 | the School Admin setting anything up, and the admin cannot remove them;
 | they can still add subjects of their own.
 |
@@ -27,7 +28,8 @@
 |              used when the class name itself says nothing (a school that
 |              named its classes "Year 7", "Year 8"...) ...
 |   positions  ... together with which class of that level this group is
-|              for, counted from 1 in the level's own order.
+|              for, counted from 1 in the level's own order. No positions
+|              means every such class under the level.
 |   subjects   name => [category, aliases]
 |              category  science, arts, commercial or general, used when
 |                        the subject is not in the shared catalogue yet
@@ -43,6 +45,9 @@
 |
 | A combined subject, e.g. "BST 1 (PHE & ICT)", is ONE subject with ONE
 | score on the report card.
+|
+| A class no group is for (Creche, Nursery 3...) gets no defaults; the
+| school sets its subjects up itself.
 |
 */
 
@@ -67,6 +72,68 @@ return [
                 'Bible Story / CRS' => ['arts', ['Bible Story', 'Bible Stories']],
                 'Moral Instruction' => ['general', ['Moral Instructions']],
                 'Handwriting' => ['general', ['Hand Writing']],
+            ],
+        ],
+
+        'nursery1' => [
+            'label' => 'Nursery 1',
+            'classes' => '/^\s*(?:nursery|nur\.?)\s*0?(?:1(?!\d)|one\b)/i',
+            'level' => '/^\s*nursery/i',
+            'positions' => [1],
+            'subjects' => [
+                'Number Work' => ['general', ['Number Works']],
+                'Letter Work' => ['general', ['Letter Works']],
+                'Moral Instruction' => ['general', ['Moral Instructions']],
+                'Science' => ['science', []],
+                'Food and Nutrition' => ['general', ['Foods and Nutrition']],
+                'Social Habits' => ['general', []],
+                'Health Habits' => ['general', []],
+                'CRS' => ['arts', ['Christian Religious Studies', 'Christian Religious Knowledge', 'CRK']],
+                'Writing' => ['general', []],
+                'Creative Arts' => ['arts', ['Creative Art']],
+            ],
+        ],
+
+        'nursery2' => [
+            'label' => 'Nursery 2',
+            'classes' => '/^\s*(?:nursery|nur\.?)\s*0?(?:2(?!\d)|two\b)/i',
+            'level' => '/^\s*nursery/i',
+            'positions' => [2],
+            'subjects' => [
+                'Number Work' => ['general', ['Number Works']],
+                'Letter Work' => ['general', ['Letter Works']],
+                'BST' => ['science', ['Basic Science and Technology']],
+                'Social Habits' => ['general', []],
+                'Health Habits' => ['general', []],
+                'CRS' => ['arts', ['Christian Religious Studies', 'Christian Religious Knowledge', 'CRK']],
+                'Food and Nutrition' => ['general', ['Foods and Nutrition']],
+                'Quantitative Reasoning' => ['general', []],
+                'Verbal Reasoning' => ['general', []],
+                'Civic Education' => ['general', []],
+                'Agricultural Science' => ['general', ['Agriculture', 'Agric', 'Agric Science']],
+                'Writing' => ['general', []],
+            ],
+        ],
+
+        'primary' => [
+            'label' => 'Primary',
+            'classes' => '/^\s*(?:primary|pry\.?|basic)\s*0?(?:[1-6](?!\d)|one\b|two\b|three\b|four\b|five\b|six\b)/i',
+            'level' => '/^\s*(?:(?:lower|upper)\s+)?primary/i',
+            'subjects' => [
+                'Mathematics' => ['general', ['Maths', 'General Mathematics']],
+                'English' => ['general', ['English Studies']],
+                'History' => ['arts', []],
+                'CCA' => ['arts', ['Cultural and Creative Arts', 'Cultural and Creative Art']],
+                'French' => ['arts', ['French Language']],
+                'Quantitative Reasoning' => ['general', []],
+                'Verbal Reasoning' => ['general', []],
+                'RNV' => ['general', ['Religion and National Values']],
+                'BST' => ['science', ['Basic Science and Technology']],
+                'Phonics' => ['general', []],
+                'Yoruba / Igbo' => ['arts', []],
+                'Handwriting' => ['general', ['Hand Writing']],
+                'Computer' => ['science', []],
+                'Music' => ['arts', []],
             ],
         ],
 

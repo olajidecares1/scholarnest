@@ -27,34 +27,34 @@ test('a school admin can configure the subjects a class offers', function () {
     $physics = Subject::factory()->create(['name' => 'Physics', 'category' => SubjectCategory::Science]);
 
     $this->actingAs($this->admin)->post(route('class-subjects.store'), [
-        'class_name' => 'SS 1 Science',
+        'class_name' => 'Nursery 3',
         'subject_ids' => [$biology->id, $physics->id],
     ])->assertRedirect();
 
-    expect($this->school->offeredSubjectsFor('SS 1 Science')->all())->toEqualCanonicalizing(['Biology', 'Physics']);
+    expect($this->school->offeredSubjectsFor('Nursery 3')->all())->toEqualCanonicalizing(['Biology', 'Physics']);
 });
 
 test('saving subjects for a class replaces the previous set rather than appending', function () {
     $biology = Subject::factory()->create(['name' => 'Biology']);
     $physics = Subject::factory()->create(['name' => 'Physics']);
-    SubjectOffering::factory()->create(['school_id' => $this->school->id, 'class_name' => 'SS 1 Science', 'subject_id' => $biology->id]);
+    SubjectOffering::factory()->create(['school_id' => $this->school->id, 'class_name' => 'Nursery 3', 'subject_id' => $biology->id]);
 
     $this->actingAs($this->admin)->post(route('class-subjects.store'), [
-        'class_name' => 'SS 1 Science',
+        'class_name' => 'Nursery 3',
         'subject_ids' => [$physics->id],
     ]);
 
-    expect($this->school->offeredSubjectsFor('SS 1 Science')->all())->toBe(['Physics']);
+    expect($this->school->offeredSubjectsFor('Nursery 3')->all())->toBe(['Physics']);
 });
 
 test('a school admin can add a custom subject not in the catalogue', function () {
     $this->actingAs($this->admin)->post(route('class-subjects.store'), [
-        'class_name' => 'SS 1 Science',
+        'class_name' => 'Nursery 3',
         'custom_subject' => 'Robotics',
     ])->assertRedirect();
 
     expect(Subject::where('name', 'Robotics')->exists())->toBeTrue();
-    expect($this->school->offeredSubjectsFor('SS 1 Science')->all())->toBe(['Robotics']);
+    expect($this->school->offeredSubjectsFor('Nursery 3')->all())->toBe(['Robotics']);
 });
 
 test('a class with no configured offerings returns an empty collection', function () {
