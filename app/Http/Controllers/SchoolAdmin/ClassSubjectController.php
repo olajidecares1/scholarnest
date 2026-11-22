@@ -7,7 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Subject;
 use App\Models\SubjectOffering;
 use App\Services\DefaultAcademicStructure;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultClassSubjects;
+use App\Services\ExaminationSubjectSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,18 +34,19 @@ class ClassSubjectController extends Controller
 
         $selectedClassModel = $className ? $school->schoolClasses()->where('name', $className)->with('academicLevel')->first() : null;
 
-        // A JSS class always has its default subjects; fill in any it is
+        // Every class always has its default subjects; fill in any it is
         // missing before showing it (e.g. the defaults list was edited).
         if ($selectedClassModel) {
-            JuniorSecondarySubjects::ensureForClass($selectedClassModel);
+            DefaultClassSubjects::ensureForClass($selectedClassModel);
         }
 
         $offered = $className ? $school->offeredSubjectsFor($className) : collect();
+        $group = $selectedClassModel ? DefaultClassSubjects::groupForClass($selectedClassModel) : null;
 
-        // A JSS class shows its default subjects first, numbered in
-        // result-sheet order and locked, and the rest of the catalogue below.
-        $jssSubjects = $className
-            ? JuniorSecondarySubjects::sortByName(
+        // The class's default subjects first, numbered in result-sheet order
+        // and locked, and the rest of the catalogue below.
+        $defaultSubjects = $className
+            ? DefaultClassSubjects::sortByGroup(
                 SubjectOffering::with('subject')
                     ->where('school_id', $school->id)
                     ->where('class_name', $className)
@@ -52,14 +54,13 @@ class ClassSubjectController extends Controller
                     ->get()
                     ->pluck('subject')
                     ->filter(),
-                $className,
-                $selectedClassModel?->academicLevel?->name,
+                $group,
                 fn (Subject $subject) => $subject->name,
             )
             : collect();
 
         $catalogue = Subject::orderBy('name')
-            ->whereNotIn('id', $jssSubjects->pluck('id'))
+            ->whereNotIn('id', $defaultSubjects->pluck('id'))
             ->get()
             ->groupBy(fn (Subject $subject) => $subject->category->value);
 
@@ -68,7 +69,8 @@ class ClassSubjectController extends Controller
             'selectedClass' => $className,
             'offered' => $offered,
             'catalogue' => $catalogue,
-            'jssSubjects' => $jssSubjects,
+            'defaultSubjects' => $defaultSubjects,
+            'defaultGroupLabel' => DefaultClassSubjects::labelForGroup($group),
             'categoryOptions' => SubjectCategory::cases(),
         ]);
     }
@@ -105,9 +107,11 @@ class ClassSubjectController extends Controller
             ->where('is_default', true)
             ->pluck('subject_id');
 
-        DB::transaction(function () use ($school, $className, &$subjectIds, $validated, $defaultIds) {
+        $group = DefaultClassSubjects::groupForSchoolClassName((int) $school->id, $className);
+
+        DB::transaction(function () use ($school, $className, &$subjectIds, $validated, $defaultIds, $group) {
             if (! empty($validated['custom_subject'])) {
-                $subjectIds->push(self::catalogueSubjectNamed($validated['custom_subject'])->id);
+                $subjectIds->push(self::catalogueSubjectNamed($validated['custom_subject'], $group)->id);
             }
 
             $subjectIds = $subjectIds->unique()->values();
@@ -130,6 +134,10 @@ class ClassSubjectController extends Controller
             }
         });
 
+        // This session's examinations for the class pick up the change, so
+        // a subject just ticked is on the teachers' score sheets.
+        ExaminationSubjectSync::syncClass($school, $className);
+
         if ($defaultIds->diff($subjectIds)->isNotEmpty()) {
             return back()->with('status', "Subjects for {$className} were saved. Default subjects can't be removed, so they were kept.");
         }
@@ -142,24 +150,24 @@ class ClassSubjectController extends Controller
      * existing entry whatever its capitalisation or spacing ("basic science",
      * "Basic  Science") instead of adding a near-duplicate.
      */
-    private static function catalogueSubjectNamed(string $name): Subject
+    private static function catalogueSubjectNamed(string $name, ?string $group): Subject
     {
         $name = trim(preg_replace('/\s+/u', ' ', $name));
-        $wanted = JuniorSecondarySubjects::normalize($name);
+        $wanted = DefaultClassSubjects::normalize($name);
 
         // "physical and health education" finds the PHE the catalogue
         // already has, rather than starting a second copy of it.
-        $default = JuniorSecondarySubjects::defaultNameFor($name);
+        $default = DefaultClassSubjects::matchInGroup($name, $group) ?? DefaultClassSubjects::defaultNameFor($name);
         $wantedNames = $default !== null
-            ? collect([$default, ...JuniorSecondarySubjects::definitions()[$default]['aliases']])->map(fn ($n) => JuniorSecondarySubjects::normalize($n))
+            ? collect([$default, ...DefaultClassSubjects::definitions()[$default]['aliases']])->map(fn ($n) => DefaultClassSubjects::normalize($n))
             : collect([$wanted]);
 
         $catalogue = Subject::query()->orderBy('id')->get();
 
         // The exact name first ("Computer Studies" is its own catalogue
         // entry), then any other spelling of the same default subject.
-        $existing = $catalogue->first(fn (Subject $subject) => JuniorSecondarySubjects::normalize($subject->name) === $wanted)
-            ?? $catalogue->first(fn (Subject $subject) => $wantedNames->contains(JuniorSecondarySubjects::normalize($subject->name)));
+        $existing = $catalogue->first(fn (Subject $subject) => DefaultClassSubjects::normalize($subject->name) === $wanted)
+            ?? $catalogue->first(fn (Subject $subject) => $wantedNames->contains(DefaultClassSubjects::normalize($subject->name)));
 
         return $existing ?? Subject::create([
             'name' => $name,

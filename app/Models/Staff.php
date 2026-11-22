@@ -7,6 +7,7 @@ use App\Enums\StaffRole;
 use App\Enums\TeacherAssignmentType;
 use App\Models\Concerns\HasProtectedPhoto;
 use App\Models\Concerns\HasSignature;
+use App\Services\DefaultClassSubjects;
 use App\Services\IdentifierGenerator;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\StaffFactory;
@@ -28,6 +29,14 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
     use Authenticatable, CanResetPassword, HasApiTokens, HasFactory, HasSignature, HasUuidRouteKey, Notifiable;
 
     use HasProtectedPhoto;
+
+    /**
+     * Class name => default-subject group, looked up once per request by
+     * canEnterScoresFor().
+     *
+     * @var array<string, ?string>
+     */
+    private array $subjectGroups = [];
 
     /**
      * The table associated with the model.
@@ -215,9 +224,20 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
             return true;
         }
 
+        // The subject the teacher was assigned and the one on the score
+        // sheet are compared as subjects, not as strings: "Maths" assigned
+        // is "Mathematics" on the sheet, "christian religious studies" is
+        // "Christian Religious Studies". An exact-text comparison hid a
+        // subject from the very teacher assigned to it.
+        if (! array_key_exists($className, $this->subjectGroups)) {
+            $this->subjectGroups[$className] = DefaultClassSubjects::groupForSchoolClassName((int) $this->school_id, $className);
+        }
+
+        $group = $this->subjectGroups[$className];
+
         return $this->subjectAssignments()->contains(
             fn (array $assignment) => $assignment['class_name'] === $className
-                && $assignment['subject'] === $subject
+                && DefaultClassSubjects::sameSubject($assignment['subject'], $subject, $group)
         );
     }
 

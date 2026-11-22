@@ -7,7 +7,7 @@ use App\Enums\CumulativeAverageBasis;
 use App\Enums\PlanFeature;
 use App\Enums\PlanKey;
 use App\Enums\SubscriptionStatus;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultClassSubjects;
 use App\Services\Uploads\UploadStorage;
 use App\Support\AcademicSession;
 use App\Support\HasUuidRouteKey;
@@ -1054,13 +1054,13 @@ class School extends Model
             ->get()
             ->pluck('subject.name');
 
-        return JuniorSecondarySubjects::order($names->filter()->values(), $className, JuniorSecondarySubjects::levelNameFor($this->id, $className));
+        return DefaultClassSubjects::orderForClass($names->filter()->values(), (int) $this->id, $className);
     }
 
     /**
      * The subjects a class offers, with which are platform defaults, in
      * result-sheet order. What students, parents and the mobile app see as
-     * "my subjects": a JSS class always lists its default subjects.
+     * "my subjects": every class lists its default subjects.
      *
      * @return Collection<int, array{name: string, is_default: bool}>
      */
@@ -1076,10 +1076,10 @@ class School extends Model
                 'is_default' => (bool) $offering->is_default,
             ]);
 
-        return JuniorSecondarySubjects::sortByName(
+        return DefaultClassSubjects::sortForClass(
             $offerings,
+            (int) $this->id,
             $className,
-            JuniorSecondarySubjects::levelNameFor($this->id, $className),
             fn (array $row) => $row['name'],
         );
     }

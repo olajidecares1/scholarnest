@@ -31,14 +31,14 @@
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Subjects offered by {{ $selectedClass }}</h2>
                     <small class="field-hint mt-1">Check every other subject this class runs. Unchecked subjects won't appear when assigning teachers or creating exams for this class.</small>
 
-                    @if ($jssSubjects->isNotEmpty())
+                    @if ($defaultSubjects->isNotEmpty())
                         <div class="mt-4 rounded-[8px] border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900/50 dark:bg-blue-900/10">
                             <div>
-                                <p class="text-[11px] font-bold uppercase tracking-wide text-blue-700 dark:text-blue-400">Default Junior Secondary (JSS) subjects</p>
-                                <small class="block text-xs text-gray-600 dark:text-gray-300">These {{ $jssSubjects->count() }} subjects are set up for every JSS class automatically, in result-sheet order, and can't be removed. A subject a student has no score in is left off their report card.</small>
+                                <p class="text-[11px] font-bold uppercase tracking-wide text-blue-700 dark:text-blue-400">Default subjects{{ $defaultGroupLabel ? ' for '.$defaultGroupLabel : '' }}</p>
+                                <small class="block text-xs text-gray-600 dark:text-gray-300">These {{ $defaultSubjects->count() }} subjects are set up for this class automatically, in result-sheet order, and can't be removed. They appear on teachers' score sheets without any setup. A subject a student has no score in is left off their report card.</small>
                             </div>
                             <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                @foreach ($jssSubjects as $subject)
+                                @foreach ($defaultSubjects as $subject)
                                     <label class="flex items-center gap-2 rounded-[8px] border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800" title="Default subject, can't be removed">
                                         <input type="checkbox" checked disabled class="text-blue-600" aria-label="{{ $subject->name }} (default, can't be removed)">
                                         <span class="w-6 shrink-0 text-right font-mono text-xs text-gray-400">{{ $loop->iteration }}.</span>
@@ -51,7 +51,7 @@
                     @endif
 
                     <div class="mt-4 space-y-5">
-                        @if ($jssSubjects->isNotEmpty() && $catalogue->isNotEmpty())
+                        @if ($defaultSubjects->isNotEmpty() && $catalogue->isNotEmpty())
                             <p class="text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Other subjects</p>
                         @endif
                         @foreach ($categoryOptions as $category)

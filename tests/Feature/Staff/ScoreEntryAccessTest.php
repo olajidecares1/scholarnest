@@ -143,7 +143,7 @@ test('a teacher with no assignment at all is told that, not that no exams match'
         ->assertSee('have not been assigned to a class or subject');
 });
 
-test('an assigned teacher with no examination yet is told that instead', function () {
+test('an assigned teacher whose class has no subjects yet is told that instead', function () {
     [$school, $teacher] = scoreEntrySchool();
 
     TeacherAssignment::create([
@@ -157,7 +157,7 @@ test('an assigned teacher with no examination yet is told that instead', functio
     $this->actingAs($teacher, 'staff')
         ->get(route('staff.exams.index', $school))
         ->assertOk()
-        ->assertSee('No examination has been created for your class yet');
+        ->assertSee('No subjects are set up for your class yet');
 });
 
 test('a teacher cannot enter scores for a class they have nothing to do with', function () {

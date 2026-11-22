@@ -83,8 +83,8 @@ class DefaultAcademicStructure
             }
         }
 
-        // Every new school starts with the default JSS subjects
-        // (config/subjects.php) for its JSS classes.
-        JuniorSecondarySubjects::ensureFor($school);
+        // Every new school starts with the default subjects
+        // (config/subjects.php) for every class, Reception to SS 3.
+        DefaultClassSubjects::ensureFor($school);
     }
 }

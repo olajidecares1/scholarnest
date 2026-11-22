@@ -107,8 +107,8 @@
                                         Nothing matches that class and subject. Clear the filters to see everything
                                         you can enter scores for.
                                     @else
-                                        No examination has been created for your class yet.
-                                        Scores can be entered here once the school sets one up for this term.
+                                        No subjects are set up for your class yet, so there is nothing to score.
+                                        Ask your school administrator to check the class's subjects.
                                     @endif
                                 </td>
                             </tr>

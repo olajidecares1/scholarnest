@@ -10,6 +10,7 @@ use App\Models\ExaminationSubject;
 use App\Models\Student;
 use App\Models\SubjectOffering;
 use App\Services\ExaminationResultCalculator;
+use App\Services\ExaminationSubjectSync;
 use App\Services\ReportCardData;
 use App\Support\AcademicSession;
 use Illuminate\Http\RedirectResponse;
@@ -50,12 +51,23 @@ class ExaminationController extends Controller
 
         $examination = $school->examinations()->create($validated);
 
-        return redirect()->route('examinations.show', $examination)->with('status', "{$examination->name} was created. Add subjects to start recording scores.");
+        // The paper starts with every subject the class offers, so teachers
+        // can enter scores straight away.
+        $added = ExaminationSubjectSync::sync($examination)['added'];
+
+        return redirect()->route('examinations.show', $examination)->with('status', $added > 0
+            ? "{$examination->name} was created with {$added} subject(s). Teachers can enter scores now."
+            : "{$examination->name} was created. Add subjects to start recording scores.");
     }
 
     public function show(Examination $examination): View
     {
         $this->authorizeExamination($examination);
+
+        // This session's papers follow the class's subjects.
+        if ($examination->session === $examination->school->currentSession()) {
+            ExaminationSubjectSync::sync($examination);
+        }
 
         return view('school-admin.examinations.show', [
             'examination' => $examination,
@@ -150,6 +162,11 @@ class ExaminationController extends Controller
         $existing = collect();
 
         if ($examination) {
+            if ($examination->session === $school->currentSession()) {
+                ExaminationSubjectSync::sync($examination);
+                $examination->load('subjects');
+            }
+
             // Subject tabs in result-sheet order, so a JSS class opens on
             // English Language and runs down the default subjects as printed.
             $examination->setRelation('subjects', $examination->subjectsInResultSheetOrder());

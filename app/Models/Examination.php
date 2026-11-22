@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ExamTerm;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultClassSubjects;
 use App\Support\HasUuidRouteKey;
 use Database\Factories\ExaminationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -62,18 +62,18 @@ class Examination extends Model
 
     /**
      * This examination's subjects in the order they belong on the result
-     * sheet: for a JSS class, the default JSS subjects first in their
-     * printed order, then any others A to Z; for other classes, A to Z.
+     * sheet: the class's default subjects first in their printed order
+     * (config/subjects.php), then any others A to Z.
      *
      * @param  Collection<int, ExaminationSubject>|null  $subjects  defaults to the loaded subjects
      * @return Collection<int, ExaminationSubject>
      */
     public function subjectsInResultSheetOrder(?Collection $subjects = null): Collection
     {
-        return JuniorSecondarySubjects::sortByName(
+        return DefaultClassSubjects::sortForClass(
             $subjects ?? $this->subjects,
+            (int) $this->school_id,
             (string) $this->class_name,
-            JuniorSecondarySubjects::levelNameFor((int) $this->school_id, (string) $this->class_name),
             fn ($subject) => $subject->name,
         );
     }

@@ -10,7 +10,7 @@ use App\Models\ExaminationSubject;
 use App\Models\Staff;
 use App\Models\TeacherAssignment;
 use App\Models\TimetableEntry;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultClassSubjects;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -35,8 +35,11 @@ class TeacherAssignmentController extends Controller
 
         $teachers = Staff::where('school_id', $school->id)->where('role', StaffRole::Teacher)->where('is_active', true)->orderBy('last_name')->get();
         $classOptions = $school->academicLevels()->with('classes')->get()->flatMap->classes->pluck('name', 'name');
-        $subjectOptions = ExaminationSubject::whereHas('examination', fn ($q) => $q->where('school_id', $school->id))
-            ->pluck('name')
+        // Every subject any class offers (the defaults included), plus any
+        // used on an examination or the timetable, so a subject teacher can
+        // be assigned before the first examination exists.
+        $subjectOptions = $school->subjectOfferings()->with('subject')->get()->pluck('subject.name')->filter()
+            ->merge(ExaminationSubject::whereHas('examination', fn ($q) => $q->where('school_id', $school->id))->pluck('name'))
             ->merge(TimetableEntry::where('school_id', $school->id)->pluck('subject'))
             ->unique()
             ->sort()
@@ -46,18 +49,18 @@ class TeacherAssignmentController extends Controller
         // dropdown in the Add Assignment form instead of free text, classes
         // that haven't been configured yet (the common case today) keep the
         // free-text + datalist behavior unaffected.
-        $levelByClass = $school->schoolClasses()->with('academicLevel')->get()
-            ->mapWithKeys(fn ($class) => [$class->name => $class->academicLevel?->name]);
+        $groupByClass = $school->schoolClasses()->with('academicLevel')->get()
+            ->mapWithKeys(fn ($class) => [$class->name => DefaultClassSubjects::groupForClass($class)]);
 
         $offeringsByClass = $school->subjectOfferings()
             ->with('subject')
             ->get()
             ->groupBy('class_name')
-            // JSS classes list the default subjects in result-sheet order.
-            ->map(fn ($offerings, $className) => JuniorSecondarySubjects::order(
+            // Each class lists its default subjects in result-sheet order.
+            ->map(fn ($offerings, $className) => DefaultClassSubjects::sortByGroup(
                 $offerings->pluck('subject.name')->filter()->values(),
-                (string) $className,
-                $levelByClass->get($className),
+                $groupByClass->get($className) ?? DefaultClassSubjects::groupFor((string) $className),
+                fn ($name) => (string) $name,
             ));
 
         return view('school-admin.teacher-assignments.index', [

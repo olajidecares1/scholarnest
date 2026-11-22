@@ -56,7 +56,7 @@ class ExaminationResolver
         // replaces. Nothing is invented: the year, term and class are the
         // ones the School Admin just chose, and the name is derived from the
         // term rather than made up.
-        return Examination::create([
+        $examination = Examination::create([
             'school_id' => $school->id,
             'session' => $session,
             'term' => $term,
@@ -68,5 +68,10 @@ class ExaminationResolver
             // date nobody chose is not a fact worth recording.
             'exam_date' => null,
         ]);
+
+        // With the class's subjects on it, so teachers can score it.
+        ExaminationSubjectSync::sync($examination);
+
+        return $examination;
     }
 }

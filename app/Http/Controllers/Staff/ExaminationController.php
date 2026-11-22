@@ -7,6 +7,7 @@ use App\Models\Examination;
 use App\Models\ExaminationSubject;
 use App\Models\School;
 use App\Models\Student;
+use App\Services\ExaminationSubjectSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -24,6 +25,14 @@ class ExaminationController extends Controller
     public function index(Request $request, School $school): View
     {
         $staff = $request->user('staff');
+
+        // Every class this teacher scores has this term's examination, with
+        // all of the class's subjects on it, before the list is drawn. A
+        // class teacher used to find nothing here until an administrator
+        // had created the examination and added each subject to it by hand.
+        foreach ($staff->scorableClassNames() as $className) {
+            ExaminationSubjectSync::prepareForScoring($school, (string) $className);
+        }
 
         $rows = $school->examinations()
             ->whereIn('class_name', $staff->scorableClassNames())
