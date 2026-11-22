@@ -30,7 +30,7 @@ class SubjectOffering extends Model
     protected function casts(): array
     {
         return [
-            // One of the default JSS subjects (config/subjects.php), which a
+            // One of the class's default subjects (config/subjects.php), which a
             // School Admin cannot remove from the class.
             'is_default' => 'boolean',
         ];

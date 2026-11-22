@@ -1,7 +1,7 @@
 <?php
 
 /*
-| Default JSS subjects (config/subjects.php) and report cards that show only
+| Default subjects for each class (config/subjects.php) and report cards that show only
 | the subjects a student has a recorded score in. One test per case in the
 | brief's Part 5, plus the edge cases that make each one honest.
 */
@@ -16,12 +16,13 @@ use App\Models\Guardian;
 use App\Models\School;
 use App\Models\Staff;
 use App\Models\Student;
+use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\SubjectOffering;
 use App\Models\TeacherAssignment;
 use App\Models\User;
 use App\Services\DefaultAcademicStructure;
-use App\Services\JuniorSecondarySubjects;
+use App\Services\DefaultSubjects;
 use App\Services\ReportCardData;
 use Illuminate\Support\Facades\Hash;
 
@@ -45,9 +46,9 @@ function jssDefaultsOfferedIn(School $school, string $className): array
         ->all();
 }
 
-function jssDefaultNamesSorted(): array
+function jssDefaultNamesSorted(string $className = 'JSS 1'): array
 {
-    return collect(JuniorSecondarySubjects::names())->sort()->values()->all();
+    return collect(array_keys(DefaultSubjects::forClassName(0, $className)))->sort()->values()->all();
 }
 
 /**
@@ -78,56 +79,68 @@ function jssRecordScore(ExaminationSubject $subject, Student $student, float $sc
 // Part 1: default subjects
 // ---------------------------------------------------------------------------
 
-test('a new school automatically gets the default JSS subjects, marked as defaults', function () {
-    foreach (['JSS 1', 'JSS 2', 'JSS 3'] as $class) {
-        expect(jssDefaultsOfferedIn($this->school, $class))->toBe(jssDefaultNamesSorted());
+test('a new school automatically gets the default subjects, marked as defaults', function () {
+    foreach (['JSS 1', 'JSS 2', 'JSS 3', 'KG 1', 'SS 1 Science', 'SS 2 Art'] as $class) {
+        expect(jssDefaultsOfferedIn($this->school, $class))->toBe(jssDefaultNamesSorted($class));
     }
 
-    // Including the subjects the brief added to the old result-sheet list.
     expect($this->school->offeredSubjectsFor('JSS 1')->all())
-        ->toContain('Security Education', 'Christian Religious Studies', 'Islamic Religious Studies')
-        ->not->toContain('CRS/IRS');
+        ->toContain('Intermediate Science', 'Nigerian History', 'Digital Technology')
+        ->and($this->school->offeredSubjectsFor('JSS 2')->all())
+        ->toContain('BST 1 (PHE & ICT)', 'RNV (Social Studies, CRS & Civic Education)');
 
-    // Not other classes.
-    expect(SubjectOffering::where('school_id', $this->school->id)->where('class_name', 'SS 1 Science')->exists())->toBeFalse();
+    // Not classes without a list.
+    expect(SubjectOffering::where('school_id', $this->school->id)->where('class_name', 'Creche')->exists())->toBeFalse();
 });
 
 test('the backfill command does not create duplicates, even when run twice', function () {
-    // An existing school set up before the defaults existed: one class has a
-    // couple of the defaults under other spellings, plus the old combined
-    // CRS/IRS and a subject of its own.
+    // An existing school set up before these lists: its JSS 1 has a couple
+    // of the defaults under other spellings, a subject of its own, an old
+    // default with no scores, and an old default with a recorded score.
     $old = School::factory()->create();
     $level = $old->academicLevels()->create(['name' => 'JSS', 'sort_order' => 0]);
     $level->classes()->create(['school_id' => $old->id, 'name' => 'JSS 1', 'sort_order' => 0]);
 
     $phe = Subject::create(['name' => 'Physical and Health Education', 'category' => 'science']);
-    $science = Subject::create(['name' => 'basic   SCIENCE', 'category' => 'science']);
-    $combined = Subject::create(['name' => 'CRS/IRS', 'category' => 'arts']);
+    $maths = Subject::create(['name' => 'MATHS', 'category' => 'general']);
     $robotics = Subject::create(['name' => 'Robotics', 'category' => 'general']);
-    foreach ([$phe, $science, $combined, $robotics] as $subject) {
+    $basicScience = Subject::create(['name' => 'Basic Science', 'category' => 'science']);
+    $homeEconomics = Subject::create(['name' => 'Home Economics', 'category' => 'general']);
+    foreach ([$phe, $maths, $robotics] as $subject) {
         SubjectOffering::create(['school_id' => $old->id, 'class_name' => 'JSS 1', 'subject_id' => $subject->id]);
     }
+    foreach ([$basicScience, $homeEconomics] as $subject) {
+        SubjectOffering::create(['school_id' => $old->id, 'class_name' => 'JSS 1', 'subject_id' => $subject->id, 'is_default' => true]);
+    }
 
-    $this->artisan('subjects:backfill-jss')->assertSuccessful();
+    $student = Student::factory()->create(['school_id' => $old->id, 'class_name' => 'JSS 1']);
+    $examination = Examination::factory()->create(['school_id' => $old->id, 'class_name' => 'JSS 1']);
+    jssRecordScore(jssExamWithSubjects($examination, ['home economics'])['home economics'], $student, 55);
+
+    $this->artisan('subjects:backfill')->assertSuccessful();
     $afterFirst = SubjectOffering::where('school_id', $old->id)->where('class_name', 'JSS 1')->count();
 
     $this->artisan('subjects:backfill-jss')->assertSuccessful();
     $afterSecond = SubjectOffering::where('school_id', $old->id)->where('class_name', 'JSS 1')->count();
 
-    // Every default once, plus Robotics. The other spellings count as the
-    // default they mean, and CRS/IRS is replaced by the two separate ones.
-    expect($afterFirst)->toBe(count(JuniorSecondarySubjects::names()) + 1)
+    // Every default once, plus Robotics and Home Economics (which has a
+    // score). The other spellings count as the default they mean, and
+    // Basic Science, no longer a default and never scored, is gone.
+    expect($afterFirst)->toBe(count(DefaultSubjects::forClassName(0, 'JSS 1')) + 2)
         ->and($afterSecond)->toBe($afterFirst);
 
     $names = $old->offeredSubjectsFor('JSS 1');
     expect($names->all())
-        ->toContain('Physical and Health Education', 'basic   SCIENCE', 'Robotics')
-        ->not->toContain('PHE', 'Basic Science', 'CRS/IRS');
+        ->toContain('Physical and Health Education', 'MATHS', 'Robotics', 'Home Economics')
+        ->not->toContain('PHE', 'Mathematics', 'Basic Science');
 
     // The other spellings are now marked as the defaults they stand for;
-    // the school's own subject is not.
-    expect(SubjectOffering::where('school_id', $old->id)->where('subject_id', $phe->id)->value('is_default'))->toBeTrue()
-        ->and(SubjectOffering::where('school_id', $old->id)->where('subject_id', $robotics->id)->value('is_default'))->toBeFalse();
+    // the school's own subjects are not.
+    $isDefault = fn (Subject $subject) => SubjectOffering::where('school_id', $old->id)->where('subject_id', $subject->id)->value('is_default');
+    expect($isDefault($phe))->toBeTrue()
+        ->and($isDefault($maths))->toBeTrue()
+        ->and($isDefault($robotics))->toBeFalse()
+        ->and($isDefault($homeEconomics))->toBeFalse();
 });
 
 test('the School Admin can add a subject but cannot remove a default subject', function () {
@@ -159,8 +172,9 @@ test('a subject typed under another spelling of a default is not added twice', f
         'custom_subject' => 'physical  and health education',
     ])->assertRedirect();
 
-    expect(Subject::all()->filter(fn ($subject) => JuniorSecondarySubjects::defaultNameFor($subject->name) === 'PHE')->count())->toBe(1)
-        ->and($this->school->offeredSubjectsFor('SS 1 Science')->all())->toBe(['PHE']);
+    expect(Subject::all()->filter(fn ($subject) => DefaultSubjects::defaultNameFor($subject->name) === 'PHE')->count())->toBe(1)
+        ->and($this->school->offeredSubjectsFor('SS 1 Science')->all())->toContain('PHE')
+        ->and($this->school->offeredSubjectsFor('SS 1 Science')->filter(fn ($name) => $name === 'PHE')->count())->toBe(1);
 });
 
 // ---------------------------------------------------------------------------
@@ -191,7 +205,7 @@ test('a teacher, a student and a parent can see the default subjects', function 
         'type' => TeacherAssignmentType::ClassTeacher,
     ]);
 
-    $defaults = JuniorSecondarySubjects::names();
+    $defaults = array_keys(DefaultSubjects::forClassName(0, 'JSS 1'));
 
     // Teacher: the admin opens score entry for JSS 1, and the class teacher
     // finds every default subject ready to mark, in result-sheet order.
@@ -302,7 +316,8 @@ test('one school\'s subjects never appear in another school', function () {
 
     // Each school's defaults are its own rows.
     expect(SubjectOffering::where('school_id', $this->school->id)->where('is_default', true)->count())
-        ->toBe(3 * count(JuniorSecondarySubjects::names()));
+        ->toBe(SchoolClass::where('school_id', $this->school->id)->with('academicLevel')->get()
+            ->sum(fn (SchoolClass $class) => count(DefaultSubjects::forClass($class))));
 });
 
 // ---------------------------------------------------------------------------

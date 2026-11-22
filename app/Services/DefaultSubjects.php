@@ -362,7 +362,8 @@ class DefaultSubjects
             $scored = self::scoredSubjectNames((int) $class->school_id, (string) $class->name);
 
             foreach ($stale as $offering) {
-                if ($offering->subject && $scored->contains(self::normalize($offering->subject->name))) {
+                // Any spelling of the subject counts as a score for it.
+                if ($offering->subject && collect(self::spellingsOf($offering->subject->name))->intersect($scored)->isNotEmpty()) {
                     $offering->forceFill(['is_default' => false])->save();
                 } else {
                     $offering->delete();
