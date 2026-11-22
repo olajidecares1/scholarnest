@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Portal\LoginRequest;
 use App\Services\PortalSessionBroker;
+use App\Support\PortalIntendedUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,6 +58,13 @@ class AuthenticatedSessionController extends Controller
         $dashboardRoute = self::DASHBOARD_ROUTES[$guard];
         $routeParams = $guard === 'web' ? [] : [$school];
 
-        return redirect()->intended(route($dashboardRoute, $routeParams, absolute: false));
+        $portal = match ($guard) {
+            'web' => PortalIntendedUrl::SCHOOL_ADMIN,
+            'student' => PortalIntendedUrl::STUDENT,
+            'staff' => PortalIntendedUrl::STAFF,
+            'guardian' => PortalIntendedUrl::GUARDIAN,
+        };
+
+        return PortalIntendedUrl::redirect($request, $portal, route($dashboardRoute, $routeParams, absolute: false));
     }
 }

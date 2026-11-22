@@ -63,33 +63,12 @@
                 <x-signature-pad
                     :action="route('staff.settings.signature.store', $school)"
                     :destroy-action="route('staff.settings.signature.destroy', $school)"
+                    :extract-action="route('staff.settings.signature.extract', $school)"
                     :current="$staff->signatureDataUri()"
                     title="Register Your Signature"
-                    description="Draw it once with your finger, a stylus or your mouse. It is saved to your account and to nobody else's."
+                    description="Draw it once with your finger, a stylus or your mouse, or upload a photo of it signed on paper. It is saved to your account and to nobody else's."
                 />
             </div>
-
-            {{-- The upload stays alongside the pad. A teacher who already has
-                 a scan of their signature should not have to redraw it, and a
-                 desktop mouse is a poor pen. Both end in the same place. --}}
-            <details class="mt-4 border-t border-gray-100 pt-4 dark:border-gray-700">
-                <summary class="cursor-pointer text-xs font-semibold text-gray-500 dark:text-gray-400">Or upload a photograph or scan instead</summary>
-
-                <form method="POST" action="{{ route('staff.settings.update-signature', $school) }}" enctype="multipart/form-data" class="mt-3 space-y-3">
-                    @csrf
-
-                    <input type="file" name="signature" accept=".png,.jpg,.jpeg,.webp" class="w-full text-sm">
-                    <small class="field-hint">
-                        Sign on white paper and photograph it, or upload a PNG with a transparent background &mdash;
-                        that prints best.
-                    </small>
-                    @error('signature')<p class="field-error">{{ $message }}</p>@enderror
-
-                    <div class="flex justify-end">
-                        <button type="submit" class="btn rounded-[8px] border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300"><i class="fa-solid fa-upload btn-icon" aria-hidden="true"></i> Upload Signature</button>
-                    </div>
-                </form>
-            </details>
         </div>
 
         {{-- There is no password form here, and no route behind one either.

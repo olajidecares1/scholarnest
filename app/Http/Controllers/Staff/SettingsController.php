@@ -8,12 +8,14 @@ use App\Models\AuditLog;
 use App\Models\ProfileChangeRequest;
 use App\Models\School;
 use App\Rules\UploadedImage;
+use App\Services\SignatureImage;
 use App\Services\Uploads\UploadStorage;
 use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+use RuntimeException;
 
 class SettingsController extends Controller
 {
@@ -114,7 +116,15 @@ class SettingsController extends Controller
         // that still wrote to the public disk after the rest moved, so a
         // teacher who uploaded a photograph of their signature, rather than
         // drawing it on the pad, published it at a public address.
-        $path = $this->uploads->storeImage($request->file('signature'), 'local', 'staff-signatures', ImageProfile::Signature, 'signature')->path;
+        //
+        // The paper is removed as well, exactly as for the upload inside the
+        // signature pad, so a photographed signature prints as ink on the
+        // report card rather than as a grey rectangle.
+        try {
+            $path = app(SignatureImage::class)->storeFromPhoto((string) $request->file('signature')->getRealPath(), 'staff-signatures');
+        } catch (RuntimeException $e) {
+            return back()->withErrors(['signature' => $e->getMessage()]);
+        }
 
         $staff->registerSignature($path);
 

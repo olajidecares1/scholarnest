@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SchoolPortal\LoginRequest;
 use App\Models\School;
 use App\Models\Setting;
+use App\Support\PortalIntendedUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +40,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Only an address in the School Admin portal is honoured: the session's
+        // "intended" page is shared by every portal in this browser, and a
+        // Staff Portal one left there sent admins to the Staff login.
+        return PortalIntendedUrl::redirect($request, PortalIntendedUrl::SCHOOL_ADMIN, route('dashboard', absolute: false));
     }
 
     /**

@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Services\Uploads\ImageProcessor;
 use App\Services\Uploads\UploadStorage;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -61,6 +63,44 @@ class SignatureImage
         app(UploadStorage::class)->putContents('local', $path, $png);
 
         return $path;
+    }
+
+    /**
+     * A signature lifted off a photograph or scan of paper, as PNG bytes with
+     * a transparent background, nothing stored.
+     *
+     * The upload goes through ImageProcessor first, the same path as every
+     * other image: its format is read from its bytes, HEIC is converted, it
+     * is turned upright and scaled down. SignatureExtractor then removes the
+     * paper. Its output is a PNG we drew ourselves, so nothing of the
+     * original file survives into what is kept.
+     *
+     * @param  string  $path  The uploaded file on local disk.
+     *
+     * @throws RuntimeException with a message fit to show the person.
+     */
+    public function extractFromPhoto(string $path): string
+    {
+        $processed = app(ImageProcessor::class)->process($path, ImageProfile::Signature);
+
+        return app(SignatureExtractor::class)->extract($processed->bytes);
+    }
+
+    /**
+     * Extract a signature from a photograph and store it, returning its path
+     * on the private disk.
+     *
+     * @throws RuntimeException
+     */
+    public function storeFromPhoto(string $path, string $directory): string
+    {
+        $png = $this->extractFromPhoto($path);
+
+        $stored = trim($directory, '/').'/'.Str::uuid().'.png';
+
+        app(UploadStorage::class)->putContents('local', $stored, $png);
+
+        return $stored;
     }
 
     /**

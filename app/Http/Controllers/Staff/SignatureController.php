@@ -25,6 +25,14 @@ class SignatureController extends Controller
         return $this->storeSignatureFor($staff, $request, 'staff-signatures', $staff->fullName());
     }
 
+    /**
+     * The signature found in an uploaded photograph, shown before it is kept.
+     */
+    public function extract(Request $request, School $school): JsonResponse
+    {
+        return $this->extractSignatureFrom($request);
+    }
+
     public function destroy(Request $request, School $school): JsonResponse
     {
         $staff = $request->user('staff');

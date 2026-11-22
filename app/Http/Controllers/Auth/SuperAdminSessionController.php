@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\AuditLog;
+use App\Support\PortalIntendedUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -95,7 +96,7 @@ class SuperAdminSessionController extends Controller
 
         AuditLog::record('super-admin.login', "AkademicNest Team {$user->name} signed in.", $user);
 
-        return redirect()->intended(route('super-admin.dashboard', absolute: false));
+        return PortalIntendedUrl::redirect($request, PortalIntendedUrl::SUPER_ADMIN, route('super-admin.dashboard', absolute: false));
     }
 
     /**

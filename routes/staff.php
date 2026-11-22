@@ -64,6 +64,14 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
                 // stay open and report back without a page load.
                 Route::post('signature/register', [StaffSignatureController::class, 'store'])->name('signature.store');
                 Route::delete('signature/register', [StaffSignatureController::class, 'destroy'])->name('signature.destroy');
+
+                // A photograph or scan of a signature on paper: the paper is
+                // removed and the signature sent back to preview, nothing is
+                // kept until it is saved through signature.store above.
+                // Throttled, because each one is image processing.
+                Route::post('signature/extract', [StaffSignatureController::class, 'extract'])
+                    ->middleware('throttle:20,1,signature-extract')
+                    ->name('signature.extract');
             });
 
             Route::post('profile-change-requests', [StaffProfileChangeRequestController::class, 'store'])->name('profile-change-requests.store');

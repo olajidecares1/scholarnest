@@ -196,6 +196,83 @@ final class UploadFixtures
         return self::file(Pdf::loadHTML($html)->output(), $name, 'application/pdf');
     }
 
+    /**
+     * A phone photograph of a signature on paper, as it really arrives: the
+     * paper off-white and lit unevenly, a shadow across one corner, grain,
+     * a strip of brown desk down the left edge, and blue ink signed across
+     * it, with a separate dot and an underline that runs into the shadow.
+     */
+    public static function signaturePhoto(int $width = 800, int $height = 600, string $name = 'signature-photo.jpg'): UploadedFile
+    {
+        mt_srand(11);
+        $image = imagecreatetruecolor($width, $height);
+        $desk = (int) ($width * 0.07);
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                if ($x < $desk) {
+                    imagesetpixel($image, $x, $y, imagecolorallocate($image, 70, 50, 35));
+
+                    continue;
+                }
+
+                $light = 235 - ($x / $width) * 45 - ($y / $height) * 25;
+
+                if ($x > $width * 0.56 && $y > $height * 0.58) {
+                    $light -= 40;
+                }
+
+                $grain = mt_rand(-6, 6);
+                $tone = (int) max(0, min(255, $light + $grain));
+                imagesetpixel($image, $x, $y, imagecolorallocate($image, $tone, max(0, $tone - 2), max(0, $tone - 8)));
+            }
+        }
+
+        imagesetthickness($image, max(2, (int) round($width / 230)));
+        $ink = imagecolorallocate($image, 25, 40, 120);
+        $previous = null;
+
+        for ($t = 0.0; $t <= 1.0; $t += 0.002) {
+            $x = $width * 0.25 + $t * $width * 0.5;
+            $y = $height * 0.54 + sin($t * 18) * $height * 0.075 * (1 - $t * 0.4) + cos($t * 7) * $height * 0.033;
+
+            if ($previous !== null) {
+                imageline($image, (int) $previous[0], (int) $previous[1], (int) $x, (int) $y, $ink);
+            }
+
+            $previous = [$x, $y];
+        }
+
+        imagefilledellipse($image, (int) ($width * 0.44), (int) ($height * 0.43), max(4, (int) ($width / 115)), max(4, (int) ($width / 115)), $ink);
+        imageline($image, (int) ($width * 0.28), (int) ($height * 0.68), (int) ($width * 0.72), (int) ($height * 0.66), $ink);
+
+        ob_start();
+        imagejpeg($image, null, 85);
+        imagedestroy($image);
+
+        return self::file((string) ob_get_clean(), $name, 'image/jpeg');
+    }
+
+    /** A sheet of blank, unevenly lit paper: a photo with no signature on it. */
+    public static function blankPaperPhoto(int $width = 600, int $height = 450): UploadedFile
+    {
+        mt_srand(5);
+        $image = imagecreatetruecolor($width, $height);
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $tone = (int) max(0, min(255, 232 - $x / 20 + mt_rand(-5, 5)));
+                imagesetpixel($image, $x, $y, imagecolorallocate($image, $tone, $tone, max(0, $tone - 6)));
+            }
+        }
+
+        ob_start();
+        imagejpeg($image, null, 85);
+        imagedestroy($image);
+
+        return self::file((string) ob_get_clean(), 'blank.jpg', 'image/jpeg');
+    }
+
     public static function file(string $bytes, string $name, string $mime): UploadedFile
     {
         $path = tempnam(sys_get_temp_dir(), 'upload_fixture_');

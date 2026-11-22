@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Staff\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\LoginRequest;
 use App\Models\School;
+use App\Support\PortalIntendedUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +30,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('staff.dashboard', $school, absolute: false));
+        return PortalIntendedUrl::redirect($request, PortalIntendedUrl::STAFF, route('staff.dashboard', $school, absolute: false));
     }
 
     /**

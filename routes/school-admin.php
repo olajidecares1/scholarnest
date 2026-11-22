@@ -580,6 +580,12 @@ Route::post(R::uri('settings.identifiers'), [IdentifierRegenerationController::c
 Route::post(R::uri('signature.store'), [SchoolAdminSignatureController::class, 'store'])->name('signature.store');
 Route::delete(R::uri('signature.store'), [SchoolAdminSignatureController::class, 'destroy'])->name('signature.destroy');
 
+// Or from a photograph or scan of it on paper: the paper is removed and the
+// signature sent back to preview; it is kept only through signature.store.
+Route::post(R::uri('signature.extract'), [SchoolAdminSignatureController::class, 'extract'])
+    ->middleware('throttle:20,1,signature-extract')
+    ->name('signature.extract');
+
 Route::get(R::uri('reports.summary'), [SchoolReportController::class, 'summary'])->name('reports.summary');
 Route::get(R::uri('overview.index'), [SchoolAdminDashboardController::class, 'overview'])->name('overview.index');
 

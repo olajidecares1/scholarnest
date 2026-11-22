@@ -347,9 +347,10 @@
                 <x-signature-pad
                     :action="route('signature.store')"
                     :destroy-action="route('signature.destroy')"
+                    :extract-action="route('signature.extract')"
                     :current="auth()->user()->signatureDataUri()"
                     title="Register Your Signature"
-                    description="Draw it once with your finger, a stylus or your mouse. It saves as soon as you press Save Signature, and appears on your documents in gold."
+                    description="Draw it once with your finger, a stylus or your mouse, or upload a photo of it signed on paper. It appears on your documents in gold."
                 />
             </div>
 

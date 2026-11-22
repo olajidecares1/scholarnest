@@ -10,8 +10,8 @@ use App\Services\GoldSignature;
 use App\Services\PublishedResultData;
 use App\Support\PrincipalSignature;
 use App\Support\ReportCardSample;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Tests\Support\UploadFixtures;
 
 /**
  * Every report card has a class teacher's line and a principal's line on it,
@@ -39,7 +39,7 @@ test('a teacher uploads their own signature, on every plan', function () {
 
         $this->actingAs($staff, 'staff')
             ->post(route('staff.settings.update-signature', $school), [
-                'signature' => UploadedFile::fake()->image('mine.png'),
+                'signature' => UploadFixtures::signaturePhoto(),
             ])
             ->assertRedirect();
 
@@ -71,7 +71,7 @@ test('a teacher cannot sign as a colleague', function () {
     $this->actingAs($this->staff, 'staff')
         ->post(route('staff.settings.update-signature', $this->school), [
             'staff_id' => $colleague->id,
-            'signature' => UploadedFile::fake()->image('mine.png'),
+            'signature' => UploadFixtures::signaturePhoto(),
         ])
         ->assertRedirect();
 
@@ -186,7 +186,9 @@ test('the staff settings page offers the signature form on every plan', function
             ->get(route('staff.settings.index', $school))
             ->assertOk()
             ->assertSee('Your Signature')
-            ->assertSee('name="signature"', false);
+            // Drawn on the pad, or a photo of it signed on paper.
+            ->assertSee('Register Your Signature')
+            ->assertSee('Upload a Photo');
 
         auth('staff')->logout();
     }

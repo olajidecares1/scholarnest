@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Guardian\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Guardian\LoginRequest;
 use App\Models\School;
+use App\Support\PortalIntendedUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +30,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('guardian.dashboard', $school, absolute: false));
+        return PortalIntendedUrl::redirect($request, PortalIntendedUrl::GUARDIAN, route('guardian.dashboard', $school, absolute: false));
     }
 
     /**

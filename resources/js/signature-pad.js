@@ -18,9 +18,27 @@
  * is not a special case that nobody tested.
  */
 import { keepSessionAlive, SIGNED_OUT_MESSAGE } from './session-keep-alive';
+import { prepareImageFile } from './image-upload-prep';
 
-export default function signaturePad({ action, destroyAction, current }) {
+/**
+ * Or a PHOTOGRAPH of a signature on paper, for anyone who would rather sign
+ * with a pen than a finger. The photo is sent to `extractAction`, which
+ * removes the paper and answers with the signature alone as a preview; it is
+ * kept only when the person presses "Use This Signature", through the same
+ * `action` a drawn signature is saved with. Nothing is stored before they
+ * have seen it.
+ */
+function csrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+}
+
+export default function signaturePad({ action, destroyAction, extractAction = null, current }) {
     return {
+        // The photo route.
+        uploadShowing: false,
+        extracting: false,
+        preview: null,
+        uploadError: '',
         /** Where to sign in again, when the session ended while drawing. */
         signInUrl: null,
 
@@ -55,6 +73,11 @@ export default function signaturePad({ action, destroyAction, current }) {
         close() {
             this.showing = false;
             this.drawing = false;
+        },
+
+        closeAll() {
+            this.close();
+            this.closeUpload();
         },
 
         mount() {
@@ -185,8 +208,24 @@ export default function signaturePad({ action, destroyAction, current }) {
                 return;
             }
 
-            this.saving = true;
             this.modalError = '';
+
+            const error = await this.submit(this.$refs.canvas.toDataURL('image/png'));
+
+            if (error === null) {
+                this.close();
+            } else {
+                this.modalError = error;
+            }
+        },
+
+        /**
+         * Save a signature image (a PNG data URL) against the signed-in
+         * person. Answers null when it was saved, otherwise the message to
+         * show.
+         */
+        async submit(dataUrl) {
+            this.saving = true;
             this.signInUrl = null;
 
             try {
@@ -195,14 +234,14 @@ export default function signaturePad({ action, destroyAction, current }) {
                     headers: {
                         'Content-Type': 'application/json',
                         Accept: 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                        'X-CSRF-TOKEN': csrfToken(),
                         'X-Requested-With': 'XMLHttpRequest',
                     },
                     credentials: 'same-origin',
                     body: JSON.stringify({
                         // No signer id, here or anywhere: whose signature this
                         // is, is decided by the session on the server.
-                        signature: this.$refs.canvas.toDataURL('image/png'),
+                        signature: dataUrl,
                     }),
                 });
 
@@ -213,31 +252,128 @@ export default function signaturePad({ action, destroyAction, current }) {
                 // another tab and come back to save it.
                 if (response.status === 401) {
                     this.signInUrl = payload.redirect || window.location.href;
-                    this.modalError = SIGNED_OUT_MESSAGE;
 
-                    return;
+                    return SIGNED_OUT_MESSAGE;
                 }
 
                 if (response.status === 419) {
-                    this.modalError = 'This page was open too long and has expired. Reload the page, then draw your signature again.';
-
-                    return;
+                    return 'This page was open too long and has expired. Reload the page, then try again.';
                 }
 
                 if (! response.ok) {
-                    this.modalError = payload.message ?? 'Your signature could not be saved. Please try again.';
-
-                    return;
+                    return payload.message ?? 'Your signature could not be saved. Please try again.';
                 }
 
                 this.current = payload.signature_url;
                 this.failed = false;
                 this.message = payload.message ?? 'Your signature was registered.';
-                this.close();
+
+                return null;
             } catch (error) {
-                this.modalError = 'Your signature could not be saved. Please check your connection and try again.';
+                return 'Your signature could not be saved. Please check your connection and try again.';
             } finally {
                 this.saving = false;
+            }
+        },
+
+        // ------------------------------------------------------------------
+        // A photo of a signature on paper
+        // ------------------------------------------------------------------
+
+        choosePhoto() {
+            keepSessionAlive();
+            this.$refs.photo?.click();
+        },
+
+        closeUpload() {
+            this.uploadShowing = false;
+            this.preview = null;
+            this.uploadError = '';
+        },
+
+        async photoChosen(event) {
+            const input = event.target;
+            const file = input.files?.[0];
+
+            // Cleared at once, so choosing the same photo again after a
+            // failure still fires a change.
+            input.value = '';
+
+            if (! file || ! extractAction) {
+                return;
+            }
+
+            this.uploadShowing = true;
+            this.extracting = true;
+            this.preview = null;
+            this.uploadError = '';
+            this.signInUrl = null;
+
+            try {
+                // Scaled down in the browser first: a phone photo is many
+                // megabytes, and the server only examines it at a fraction of
+                // that size anyway.
+                const prepared = await prepareImageFile(file, { maxEdge: 1600 }).catch(() => file);
+                const body = new FormData();
+                body.append('photo', prepared, prepared.name || 'signature.jpg');
+
+                const response = await fetch(extractAction, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': csrfToken(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin',
+                    body,
+                });
+
+                const payload = await response.json().catch(() => ({}));
+
+                if (response.status === 401) {
+                    this.signInUrl = payload.redirect || window.location.href;
+                    this.uploadError = SIGNED_OUT_MESSAGE;
+
+                    return;
+                }
+
+                if (response.status === 419) {
+                    this.uploadError = 'This page was open too long and has expired. Reload the page, then try again.';
+
+                    return;
+                }
+
+                if (response.status === 429) {
+                    this.uploadError = 'Too many photos in a short time. Please wait a minute, then try again.';
+
+                    return;
+                }
+
+                if (! response.ok || ! payload.preview) {
+                    this.uploadError = payload.errors?.photo?.[0] ?? payload.message ?? 'That photo could not be used. Please try another.';
+
+                    return;
+                }
+
+                this.preview = payload.preview;
+            } catch (error) {
+                this.uploadError = 'The photo could not be sent. Please check your connection and try again.';
+            } finally {
+                this.extracting = false;
+            }
+        },
+
+        async usePreview() {
+            if (! this.preview || this.saving) {
+                return;
+            }
+
+            const error = await this.submit(this.preview);
+
+            if (error === null) {
+                this.closeUpload();
+            } else {
+                this.uploadError = error;
             }
         },
 
@@ -251,7 +387,7 @@ export default function signaturePad({ action, destroyAction, current }) {
                     method: 'DELETE',
                     headers: {
                         Accept: 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                        'X-CSRF-TOKEN': csrfToken(),
                         'X-Requested-With': 'XMLHttpRequest',
                     },
                     credentials: 'same-origin',

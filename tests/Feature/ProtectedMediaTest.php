@@ -10,6 +10,7 @@ use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Tests\Support\UploadFixtures;
 
 /**
  * Photographs of people, and signatures, are not public files.
@@ -239,7 +240,7 @@ describe('every write path lands in private storage, not just the ones that move
 
         $this->actingAs($staff, 'staff')
             ->post(route('staff.settings.update-signature', $this->school), [
-                'signature' => UploadedFile::fake()->image('signature.png', 300, 120),
+                'signature' => UploadFixtures::signaturePhoto(),
             ])
             ->assertSessionHasNoErrors();
 
