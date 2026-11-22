@@ -35,14 +35,15 @@ const NURSERY_1_SUBJECTS = [
 ];
 
 const NURSERY_2_SUBJECTS = [
-    'Number Work', 'Letter Work', 'BST', 'Social Habits', 'Health Habits', 'CRS',
+    'Number Work', 'Letter Work', 'Basic Science', 'Basic Technology', 'Social Habits', 'Health Habits', 'CRS',
     'Food and Nutrition', 'Quantitative Reasoning', 'Verbal Reasoning', 'Civic Education',
     'Agricultural Science', 'Writing',
 ];
 
 const PRIMARY_SUBJECTS = [
     'Mathematics', 'English', 'History', 'CCA', 'French', 'Quantitative Reasoning',
-    'Verbal Reasoning', 'RNV', 'BST', 'Phonics', 'Yoruba / Igbo', 'Handwriting', 'Computer', 'Music',
+    'Verbal Reasoning', 'Social Studies', 'CRS', 'Civic Education', 'Basic Science', 'Basic Technology',
+    'Phonics', 'Yoruba / Igbo', 'Handwriting', 'Computer', 'Music',
 ];
 
 const JSS_1_SUBJECTS = [
@@ -52,9 +53,9 @@ const JSS_1_SUBJECTS = [
 ];
 
 const JSS_2_3_SUBJECTS = [
-    'English Language', 'Mathematics', 'BST 1 (PHE & ICT)', 'BST 2 (Basic Science & Technology)',
-    'Business Studies', 'RNV (Social Studies, CRS & Civic Education)', 'Music', 'French', 'Yoruba',
-    'PVS (Agriculture & Home Economics)', 'Phonics',
+    'English Language', 'Mathematics', 'PHE', 'ICT', 'Basic Science', 'Basic Technology',
+    'Business Studies', 'Social Studies', 'CRS', 'Civic Education', 'Music', 'French', 'Yoruba',
+    'Agricultural Science', 'Home Economics', 'Phonics',
 ];
 
 const SSS_GENERAL_SUBJECTS = [

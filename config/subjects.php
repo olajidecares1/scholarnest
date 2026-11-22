@@ -87,7 +87,8 @@ return [
             'subjects' => [
                 'Number Work',
                 'Letter Work',
-                'BST',
+                'Basic Science',
+                'Basic Technology',
                 'Social Habits',
                 'Health Habits',
                 'CRS',
@@ -110,8 +111,11 @@ return [
                 'French',
                 'Quantitative Reasoning',
                 'Verbal Reasoning',
-                'RNV',
-                'BST',
+                'Social Studies',
+                'CRS',
+                'Civic Education',
+                'Basic Science',
+                'Basic Technology',
                 'Phonics',
                 'Yoruba / Igbo',
                 'Handwriting',
@@ -145,14 +149,19 @@ return [
             'subjects' => [
                 'English Language',
                 'Mathematics',
-                'BST 1 (PHE & ICT)',
-                'BST 2 (Basic Science & Technology)',
+                'PHE',
+                'ICT',
+                'Basic Science',
+                'Basic Technology',
                 'Business Studies',
-                'RNV (Social Studies, CRS & Civic Education)',
+                'Social Studies',
+                'CRS',
+                'Civic Education',
                 'Music',
                 'French',
                 'Yoruba',
-                'PVS (Agriculture & Home Economics)',
+                'Agricultural Science',
+                'Home Economics',
                 'Phonics',
             ],
         ],
@@ -228,7 +237,9 @@ return [
         'English' => ['category' => 'general', 'aliases' => ['English Language', 'English Studies']],
         'English Language' => ['category' => 'general', 'aliases' => ['English', 'English Studies']],
         'CRS' => ['category' => 'arts', 'aliases' => ['Christian Religious Studies', 'Christian Religious Knowledge', 'CRK']],
-        'BST' => ['category' => 'science', 'aliases' => ['Basic Science and Technology', 'Basic Science & Technology']],
+        'Basic Science' => ['category' => 'science', 'aliases' => []],
+        'Basic Technology' => ['category' => 'science', 'aliases' => []],
+        'Social Studies' => ['category' => 'general', 'aliases' => ['Social Study']],
         'Quantitative Reasoning' => ['category' => 'general', 'aliases' => ['Quantitative Aptitude']],
         'Verbal Reasoning' => ['category' => 'general', 'aliases' => ['Verbal Aptitude']],
         'Civic Education' => ['category' => 'general', 'aliases' => ['Civics']],
@@ -242,7 +253,6 @@ return [
         // Primary
         'History' => ['category' => 'arts', 'aliases' => []],
         'CCA' => ['category' => 'arts', 'aliases' => ['Cultural and Creative Arts', 'Cultural & Creative Arts', 'Cultural and Creative Art', 'Cultural & Creative Art']],
-        'RNV' => ['category' => 'general', 'aliases' => ['Religion and National Values', 'Religion & National Values']],
         'Yoruba / Igbo' => ['category' => 'arts', 'aliases' => ['Yoruba/Igbo', 'Yoruba', 'Igbo', 'Nigerian Language']],
         'Computer' => ['category' => 'science', 'aliases' => ['Computer Studies', 'Computer Science', 'ICT', 'Information Technology']],
 
@@ -254,10 +264,8 @@ return [
         'PHE' => ['category' => 'science', 'aliases' => ['Physical and Health Education', 'Physical & Health Education']],
         'Fashion Design' => ['category' => 'general', 'aliases' => ['Fashion Design and Garment Making']],
         'Yoruba' => ['category' => 'arts', 'aliases' => ['Yoruba Language']],
-        'BST 1 (PHE & ICT)' => ['category' => 'science', 'aliases' => ['BST 1', 'BST I']],
-        'BST 2 (Basic Science & Technology)' => ['category' => 'science', 'aliases' => ['BST 2', 'BST II']],
-        'RNV (Social Studies, CRS & Civic Education)' => ['category' => 'general', 'aliases' => ['RNV']],
-        'PVS (Agriculture & Home Economics)' => ['category' => 'general', 'aliases' => ['PVS', 'Pre-Vocational Studies', 'Prevocational Studies']],
+        'ICT' => ['category' => 'science', 'aliases' => ['Information and Communication Technology', 'Information & Communication Technology']],
+        'Home Economics' => ['category' => 'general', 'aliases' => ['Home Econs']],
 
         // SS 1 – SS 3
         'Biology' => ['category' => 'science', 'aliases' => []],
@@ -286,12 +294,29 @@ return [
     */
     'retired_defaults' => [
         'CRS/IRS',
-        'Basic Science',
-        'Basic Technology',
-        'Home Economics',
-        'Social Studies',
         'Security Education',
         'Islamic Religious Studies',
+
+        // Combined subjects, now listed as the separate subjects they are
+        // (22 November 2026): BST 1 is PHE and ICT, BST 2 is Basic Science
+        // and Basic Technology, RNV is Social Studies, CRS and Civic
+        // Education, and PVS is Agricultural Science and Home Economics.
+        // A score already entered under one of these stays where it is.
+        'BST 1 (PHE & ICT)',
+        'BST 1',
+        'BST I',
+        'BST 2 (Basic Science & Technology)',
+        'BST 2',
+        'BST II',
+        'BST',
+        'Basic Science and Technology',
+        'RNV (Social Studies, CRS & Civic Education)',
+        'RNV',
+        'Religion and National Values',
+        'PVS (Agriculture & Home Economics)',
+        'PVS',
+        'Pre-Vocational Studies',
+        'Prevocational Studies',
     ],
 
 ];

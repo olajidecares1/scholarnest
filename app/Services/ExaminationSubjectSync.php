@@ -113,14 +113,19 @@ class ExaminationSubjectSync
      * is never shown as having nothing to score.
      *
      * Nothing is created for a class that offers no subjects.
+     *
+     * A teacher who picks another term of the current session (second-term
+     * scores entered before the school has set the term's dates) gets that
+     * term's examination the same way; $term names it.
      */
-    public static function prepareForScoring(School $school, string $className): void
+    public static function prepareForScoring(School $school, string $className, ?ExamTerm $term = null): void
     {
         if ($school->subjectOfferings()->where('class_name', $className)->doesntExist()) {
             return;
         }
 
-        [$session, $term] = self::currentTerm($school);
+        [$session, $currentTerm] = self::currentTerm($school);
+        $term ??= $currentTerm;
 
         $exists = $school->examinations()
             ->where('class_name', $className)

@@ -145,7 +145,8 @@ test('an old default the class no longer takes comes off this session\'s sheet, 
         'term' => ExamTerm::First,
     ]);
     $unscored = $examination->subjects()->create(['name' => 'Security Education', 'max_score' => 100]);
-    $scored = $examination->subjects()->create(['name' => 'Basic Science', 'max_score' => 100]);
+    $scored = $examination->subjects()->create(['name' => 'BST 2 (Basic Science & Technology)', 'max_score' => 100]);
+    $combined = $examination->subjects()->create(['name' => 'RNV (Social Studies, CRS & Civic Education)', 'max_score' => 100]);
     $own = $examination->subjects()->create(['name' => 'Robotics', 'max_score' => 100]);
 
     $student = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 2']);
@@ -162,8 +163,10 @@ test('an old default the class no longer takes comes off this session\'s sheet, 
     $names = $examination->subjects()->pluck('name');
 
     expect($names)->not->toContain('Security Education')
+        // An old combined subject with nothing scored: replaced by its parts.
+        ->not->toContain('RNV (Social Studies, CRS & Civic Education)')
         // A score was entered: kept.
-        ->toContain('Basic Science')
+        ->toContain('BST 2 (Basic Science & Technology)')
         // Added by hand for this paper and not a platform subject: kept.
         ->toContain('Robotics')
         ->toContain(...DefaultClassSubjects::namesForGroup('jss_2_3'));
@@ -180,11 +183,11 @@ test('a past session\'s examination is left as it was', function () {
         'session' => '2025/2026',
         'term' => ExamTerm::Third,
     ]);
-    $old->subjects()->create(['name' => 'Social Studies', 'max_score' => 100]);
+    $old->subjects()->create(['name' => 'RNV', 'max_score' => 100]);
 
     $this->actingAs($this->teacher, 'staff')->get(route('staff.exams.index', $this->school))->assertOk();
 
-    expect($old->subjects()->pluck('name')->all())->toBe(['Social Studies']);
+    expect($old->subjects()->pluck('name')->all())->toBe(['RNV']);
 });
 
 test('a teacher of another school\'s class gets nothing created', function () {
@@ -202,25 +205,72 @@ test('a teacher of another school\'s class gets nothing created', function () {
 // The whole-class sheet: every subject, a Test and an Exam box per student
 // ---------------------------------------------------------------------------
 
-test('picking a class shows every subject with a Test and an Exam box for each student', function () {
+test('the page looks like the School Admin\'s: filters, subject chips and a Test and an Exam box for each student', function () {
     assignClassTeacher($this->teacher, 'Primary 4');
     $students = Student::factory()->count(2)->create(['school_id' => $this->school->id, 'class_name' => 'Primary 4', 'is_active' => true]);
 
     $html = $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.exams.index', [$this->school, 'class_name' => 'Primary 4']))
         ->assertOk()
-        ->assertSee('Save all scores')
+        ->assertSee('Scoring structure')
+        ->assertSeeInOrder(['Class', 'Academic Year', 'Term', 'Subject'])
+        ->assertSee('Save Scores')
         ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary'), false)
+        ->assertSeeInOrder(['Test / 40', 'Exam / 60', 'Total / 100', '%', 'Grade', 'Remark'])
         ->getContent();
 
-    $examination = Examination::where('school_id', $this->school->id)->where('class_name', 'Primary 4')->sole();
-
-    foreach ($examination->subjects as $subject) {
-        foreach ($students as $student) {
-            expect($html)->toContain('name="scores['.$subject->id.']['.$student->id.'][test]"')
-                ->toContain('name="scores['.$subject->id.']['.$student->id.'][exam]"');
-        }
+    // The first subject is open: a Test and an Exam box for every student.
+    foreach ($students as $student) {
+        expect($html)->toContain('name="test_scores['.$student->id.']"')
+            ->toContain('name="exam_scores['.$student->id.']"');
     }
+});
+
+test('saving a subject returns to the same class, term and subject', function () {
+    assignClassTeacher($this->teacher, 'Primary 4');
+    $student = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'Primary 4', 'is_active' => true]);
+
+    $this->actingAs($this->teacher, 'staff')->get(route('staff.exams.index', $this->school))->assertOk();
+    $examination = Examination::where('school_id', $this->school->id)->where('class_name', 'Primary 4')->sole();
+    $subject = $examination->subjects()->where('name', 'History')->sole();
+
+    $this->actingAs($this->teacher, 'staff')
+        ->put(route('staff.exams.scores.update', [$this->school, $examination, $subject]), [
+            'test_scores' => [$student->id => '30'],
+            'exam_scores' => [$student->id => '50'],
+        ])
+        ->assertRedirect(route('staff.exams.index', [
+            $this->school,
+            'class_name' => 'Primary 4',
+            'session' => '2026/2027',
+            'term' => 'first',
+            'subject' => 'History',
+        ]));
+
+    expect((float) ExaminationScore::where('student_id', $student->id)->value('score'))->toBe(80.0);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', [$this->school, 'class_name' => 'Primary 4', 'session' => '2026/2027', 'term' => 'first', 'subject' => 'History']))
+        ->assertOk()
+        ->assertSee('value="History" selected', false);
+});
+
+test('picking another term of this year opens that term\'s sheet', function () {
+    assignClassTeacher($this->teacher, 'Primary 4');
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', [$this->school, 'class_name' => 'Primary 4', 'session' => '2026/2027', 'term' => 'second']))
+        ->assertOk()
+        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary'), false);
+
+    expect(Examination::where('school_id', $this->school->id)->where('class_name', 'Primary 4')->where('term', ExamTerm::Second)->exists())->toBeTrue();
+
+    // A past year is only read, never given a new paper.
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', [$this->school, 'class_name' => 'Primary 4', 'session' => '2020/2021', 'term' => 'first']))
+        ->assertOk();
+
+    expect(Examination::where('school_id', $this->school->id)->where('session', '2020/2021')->exists())->toBeFalse();
 });
 
 test('a class teacher saves Test and Exam scores for several subjects at once', function () {
@@ -365,16 +415,15 @@ test('another school\'s examination cannot be saved through this school\'s porta
         ->assertNotFound();
 });
 
-test('the sheet opens on the class the admin assigned, with no class to pick', function () {
+test('a teacher with one assigned class sees it selected, with no class dropdown', function () {
     assignClassTeacher($this->teacher, 'Primary 4');
 
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.exams.index', $this->school))
         ->assertOk()
-        ->assertSee('Your class')
         ->assertSee('Primary 4')
         ->assertSee('Assigned to you by the school administrator.')
-        ->assertDontSee('<select id="filter_class"', false)
+        ->assertDontSee('<select id="entry_class"', false)
         // Only the assigned class, not the school's other classes.
         ->assertDontSee('Primary 5');
 
@@ -401,14 +450,99 @@ test('a teacher assigned two classes picks between only those two from a dropdow
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.exams.index', $this->school))
         ->assertOk()
-        ->assertSee('<select id="filter_class" name="class_name"', false)
-        ->assertSeeInOrder(['Your assigned classes', 'Primary 6 (class teacher)', 'JSS 1'], false)
+        ->assertSee('<select id="entry_class" name="class_name"', false)
+        ->assertSeeInOrder(['Primary 6 (class teacher)', 'JSS 1'], false)
         ->assertDontSee('JSS 2');
 
-    // Picking the other one opens its sheet.
+    // In JSS 1 they teach only French, so French is the only subject offered.
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.exams.index', [$this->school, 'class_name' => 'JSS 1']))
         ->assertOk()
         ->assertSee('<option value="JSS 1" selected', false)
-        ->assertSee('French');
+        ->assertSee('<option value="French" selected', false)
+        ->assertDontSee('Mathematics');
+});
+
+// ---------------------------------------------------------------------------
+// Every school: every plan, schools that were already on the platform, and
+// schools that named their classes their own way.
+// ---------------------------------------------------------------------------
+
+test('the page works the same for a school on every plan', function (PlanKey $plan) {
+    $school = activateSchool(School::factory()->create(['current_session' => '2026/2027']), $plan);
+    DefaultAcademicStructure::seedFor($school);
+    $teacher = Staff::factory()->create(['school_id' => $school->id, 'role' => StaffRole::Teacher, 'is_active' => true]);
+    assignClassTeacher($teacher, 'JSS 1');
+    $student = Student::factory()->create(['school_id' => $school->id, 'class_name' => 'JSS 1', 'is_active' => true]);
+
+    $this->actingAs($teacher, 'staff')
+        ->get(route('staff.exams.index', $school))
+        ->assertOk()
+        ->assertSee('Scoring structure')
+        ->assertSee('JSS 1')
+        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('jss_1'), false)
+        ->assertSee('name="test_scores['.$student->id.']"', false)
+        ->assertSee('Save Scores');
+})->with([PlanKey::Basic, PlanKey::Standard, PlanKey::Exclusive]);
+
+test('a school already on the platform before the defaults gets the page once the deploy backfill has run', function () {
+    // Set up the old way: classes, but not one subject.
+    $old = activateSchool(School::factory()->create(['current_session' => '2026/2027']), PlanKey::Standard);
+    $level = $old->academicLevels()->create(['name' => 'Upper Primary', 'sort_order' => 0]);
+    $level->classes()->create(['school_id' => $old->id, 'name' => 'Primary 5', 'sort_order' => 0]);
+    $teacher = Staff::factory()->create(['school_id' => $old->id, 'role' => StaffRole::Teacher, 'is_active' => true]);
+    assignClassTeacher($teacher, 'Primary 5');
+    Student::factory()->create(['school_id' => $old->id, 'class_name' => 'Primary 5', 'is_active' => true]);
+
+    // What `php artisan migrate --force` runs on deploy for every school.
+    $this->artisan('subjects:backfill-defaults')->assertSuccessful();
+
+    $this->actingAs($teacher, 'staff')
+        ->get(route('staff.exams.index', $old))
+        ->assertOk()
+        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary'), false)
+        ->assertSee('Save Scores');
+});
+
+test('a school that named its classes its own way gets the same page', function () {
+    $school = activateSchool(School::factory()->create(['current_session' => '2026/2027']), PlanKey::Exclusive);
+    $level = $school->academicLevels()->create(['name' => 'Junior Secondary', 'sort_order' => 0]);
+    $level->classes()->create(['school_id' => $school->id, 'name' => 'Year 7', 'sort_order' => 0]);
+    $this->artisan('subjects:backfill-defaults')->assertSuccessful();
+
+    $teacher = Staff::factory()->create(['school_id' => $school->id, 'role' => StaffRole::Teacher, 'is_active' => true]);
+    assignClassTeacher($teacher, 'Year 7');
+
+    $this->actingAs($teacher, 'staff')
+        ->get(route('staff.exams.index', $school))
+        ->assertOk()
+        ->assertSee('Year 7')
+        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('jss_1'), false);
+});
+
+test('two schools each see only their own class, students and scores', function () {
+    assignClassTeacher($this->teacher, 'JSS 1');
+    $mine = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => true, 'first_name' => 'Adaeze']);
+
+    $other = activateSchool(School::factory()->create(['current_session' => '2026/2027']), PlanKey::Standard);
+    DefaultAcademicStructure::seedFor($other);
+    $otherTeacher = Staff::factory()->create(['school_id' => $other->id, 'role' => StaffRole::Teacher, 'is_active' => true]);
+    assignClassTeacher($otherTeacher, 'JSS 1');
+    $theirs = Student::factory()->create(['school_id' => $other->id, 'class_name' => 'JSS 1', 'is_active' => true, 'first_name' => 'Zebulon']);
+
+    $this->actingAs($otherTeacher, 'staff')
+        ->get(route('staff.exams.index', $other))
+        ->assertOk()
+        ->assertSee('Zebulon')
+        ->assertDontSee('Adaeze');
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', $this->school))
+        ->assertOk()
+        ->assertSee('Adaeze')
+        ->assertDontSee('Zebulon');
+
+    // Each school's JSS 1 has its own examination.
+    expect(Examination::where('class_name', 'JSS 1')->distinct()->pluck('school_id')->sort()->values()->all())
+        ->toBe(collect([$this->school->id, $other->id])->sort()->values()->all());
 });

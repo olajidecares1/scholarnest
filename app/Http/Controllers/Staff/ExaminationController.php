@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Staff;
 
+use App\Enums\ExamTerm;
 use App\Http\Controllers\Controller;
 use App\Models\Examination;
 use App\Models\ExaminationScore;
 use App\Models\ExaminationSubject;
 use App\Models\School;
+use App\Models\Staff;
 use App\Models\Student;
 use App\Services\ExaminationSubjectSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
@@ -18,14 +21,15 @@ use Illuminate\View\View;
 class ExaminationController extends Controller
 {
     /**
-     * The class teacher's score sheet: pick a class, and every subject the
-     * class takes is on the page, each with a Test and an Examination box
-     * for every student, saved together with one button.
+     * The teacher's Test/Exam Score page, laid out like the School Admin's:
+     * Class, Academic Year, Term and Subject, then one subject's sheet with a
+     * Test and an Examination box for every student, and the subject chips
+     * to move from one subject to the next.
      *
      * Only the classes and subjects this teacher is assigned to are ever
      * offered: a class teacher gets every subject of their class, a subject
-     * teacher only the subjects they teach. The class and examination asked
-     * for in the query string are checked against that list, never trusted.
+     * teacher only the subjects they teach. Whatever the query string asks
+     * for is checked against that list, never trusted.
      */
     public function index(Request $request, School $school): View
     {
@@ -40,15 +44,115 @@ class ExaminationController extends Controller
             ->values();
 
         // Every class this teacher scores has this term's examination, with
-        // all of the class's subjects on it, before anything is shown. A
-        // class teacher used to find nothing here until an administrator
-        // had created the examination and added each subject to it by hand.
+        // all of the class's subjects on it, before anything is shown.
         foreach ($classNames as $className) {
             ExaminationSubjectSync::prepareForScoring($school, (string) $className);
         }
 
+        $examinationsByClass = $this->examinationsByClass($school, $staff, $classNames);
+
         // Only classes that have something to score can be picked.
-        $examinationsByClass = $school->examinations()
+        $classOptions = $classNames->filter(fn ($name) => $examinationsByClass->has($name))->values();
+
+        $requestedClass = $request->string('class_name')->toString();
+        $selectedClass = $classOptions->contains($requestedClass) ? $requestedClass : (string) $classOptions->first();
+
+        [$currentSession, $currentTerm] = ExaminationSubjectSync::currentTerm($school);
+        $classExaminations = $examinationsByClass->get($selectedClass) ?? collect();
+
+        // A link to one examination (e.g. from a saved message) picks its
+        // year and term. With nothing picked yet, the page opens on this
+        // term's paper, or failing that the class's most recent one.
+        $linked = $classExaminations->firstWhere('uuid', $request->string('examination')->toString());
+
+        if (! $linked && ! $request->filled('session') && ! $request->filled('term')) {
+            $linked = $classExaminations->first(fn (Examination $option) => $option->session === $currentSession && $option->term === $currentTerm)
+                ?? $classExaminations->sortByDesc(fn (Examination $option) => [(string) $option->session, $option->term->value, (int) $option->id])->first();
+        }
+
+        // The years this class has papers in, newest first, always including
+        // the current one.
+        $sessionOptions = $classExaminations->pluck('session')
+            ->push($currentSession)
+            ->unique()
+            ->sortDesc()
+            ->values();
+
+        $requestedSession = $linked?->session ?? $request->string('session')->toString();
+        $selectedSession = $sessionOptions->contains($requestedSession) ? $requestedSession : $currentSession;
+
+        $selectedTerm = $linked?->term
+            ?? ExamTerm::tryFrom($request->string('term')->toString())
+            ?? ($selectedSession === $currentSession
+                ? $currentTerm
+                : $classExaminations->where('session', $selectedSession)->sortByDesc(fn ($e) => $e->term->value)->first()?->term)
+            ?? ExamTerm::First;
+
+        $findExamination = fn (Collection $examinations) => $examinations->first(
+            fn (Examination $option) => $option->session === $selectedSession && $option->term === $selectedTerm,
+        );
+
+        $examination = $findExamination($classExaminations);
+
+        // Another term of the current year, picked before an examination
+        // exists for it, gets one, with the class's subjects, as the current
+        // term does. Past years are only ever read as they are.
+        if (! $examination && $selectedClass !== '' && $selectedSession === $currentSession) {
+            ExaminationSubjectSync::prepareForScoring($school, $selectedClass, $selectedTerm);
+            $examination = $findExamination($this->examinationsByClass($school, $staff, collect([$selectedClass]))->get($selectedClass) ?? collect());
+        }
+
+        $subject = null;
+        $students = collect();
+        $existing = collect();
+
+        if ($examination) {
+            $subject = $examination->subjects->firstWhere('name', $request->string('subject')->toString())
+                ?? $examination->subjects->first();
+
+            $students = Student::where('school_id', $school->id)
+                ->where('class_name', $examination->class_name)
+                ->where('is_active', true)
+                ->alphabetical()
+                ->get();
+
+            $existing = $subject
+                ? $subject->scores()->whereIn('student_id', $students->pluck('id'))->get()->keyBy('student_id')
+                : collect();
+        }
+
+        return view('staff.exams.index', [
+            'school' => $school,
+            'examination' => $examination,
+            'subject' => $subject,
+            'students' => $students,
+            'existing' => $existing,
+            'classOptions' => $classOptions,
+            'classTeacherOf' => $classTeacherOf,
+            'sessionOptions' => $sessionOptions,
+            'termOptions' => ExamTerm::cases(),
+            'selectedClass' => $selectedClass,
+            'selectedSession' => $selectedSession,
+            'selectedTerm' => $selectedTerm,
+
+            // Whether anything exists at all, so the empty state can say
+            // which of the reasons it is.
+            'hasRows' => $classOptions->isNotEmpty(),
+            'hasAssignments' => $classNames->isNotEmpty(),
+        ]);
+    }
+
+    /**
+     * This teacher's classes' examinations, each carrying only the subjects
+     * this teacher may score, in result-sheet order; examinations with none
+     * of those are left out.
+     *
+     * @param  Collection<int, string>  $classNames
+     * @return Collection<string, Collection<int, Examination>>
+     */
+    private function examinationsByClass(School $school, Staff $staff, Collection $classNames): Collection
+    {
+        return $school->examinations()
             ->whereIn('class_name', $classNames)
             ->with('subjects')
             ->get()
@@ -61,75 +165,6 @@ class ExaminationController extends Controller
             })
             ->filter(fn (Examination $examination) => $examination->subjects->isNotEmpty())
             ->groupBy('class_name');
-
-        $classOptions = $classNames->filter(fn ($name) => $examinationsByClass->has($name))->values();
-
-        $requestedClass = $request->string('class_name')->toString();
-        $selectedClass = $classOptions->contains($requestedClass) ? $requestedClass : (string) $classOptions->first();
-
-        [$currentSession, $currentTerm] = ExaminationSubjectSync::currentTerm($school);
-        $termOrder = ['first' => 1, 'second' => 2, 'third' => 3];
-
-        // The class's examinations, newest first: this session's terms, then
-        // earlier sessions.
-        $examinationOptions = ($examinationsByClass->get($selectedClass) ?? collect())
-            ->sortByDesc(fn (Examination $examination) => [
-                (string) $examination->session,
-                $termOrder[$examination->term->value] ?? 0,
-                (int) $examination->id,
-            ])
-            ->values();
-
-        $requestedExamination = $request->string('examination')->toString();
-        $examination = $examinationOptions->firstWhere('uuid', $requestedExamination)
-            ?? $examinationOptions->first(fn (Examination $option) => $option->session === $currentSession && $option->term === $currentTerm)
-            ?? $examinationOptions->first();
-
-        $subjects = $examination?->subjects ?? collect();
-        $subjectOptions = $subjects->pluck('name')->values();
-        $selectedSubject = $request->string('subject')->toString();
-
-        if ($selectedSubject !== '' && $subjectOptions->contains($selectedSubject)) {
-            $subjects = $subjects->where('name', $selectedSubject)->values();
-        } else {
-            $selectedSubject = '';
-        }
-
-        $students = $examination
-            ? Student::where('school_id', $school->id)
-                ->where('class_name', $examination->class_name)
-                ->where('is_active', true)
-                ->alphabetical()
-                ->get()
-            : collect();
-
-        // subject id => student id => score
-        $existing = $subjects->isEmpty() || $students->isEmpty()
-            ? collect()
-            : ExaminationScore::whereIn('examination_subject_id', $subjects->pluck('id'))
-                ->whereIn('student_id', $students->pluck('id'))
-                ->get()
-                ->groupBy('examination_subject_id')
-                ->map(fn ($scores) => $scores->keyBy('student_id'));
-
-        return view('staff.exams.index', [
-            'school' => $school,
-            'examination' => $examination,
-            'examinationOptions' => $examinationOptions,
-            'subjects' => $subjects,
-            'students' => $students,
-            'existing' => $existing,
-            'classOptions' => $classOptions,
-            'classTeacherOf' => $classTeacherOf,
-            'subjectOptions' => $subjectOptions,
-            'selectedClass' => $selectedClass,
-            'selectedSubject' => $selectedSubject,
-
-            // Whether anything exists at all, so the empty state can say
-            // which of the reasons it is.
-            'hasRows' => $classOptions->isNotEmpty(),
-            'hasAssignments' => $classNames->isNotEmpty(),
-        ]);
     }
 
     /**
@@ -297,7 +332,16 @@ class ExaminationController extends Controller
             $saved++;
         }
 
-        return redirect()->route('staff.exams.index', $examination->school)->with('status', "Saved scores for {$saved} student(s) in {$subject->name}.");
+        // Back to the same class, year, term and subject, ready for the next.
+        return redirect()
+            ->route('staff.exams.index', [
+                $examination->school,
+                'class_name' => $examination->class_name,
+                'session' => $examination->session,
+                'term' => $examination->term->value,
+                'subject' => $subject->name,
+            ])
+            ->with('status', "Saved scores for {$saved} student(s) in {$subject->name}.");
     }
 
     private function authorizeSubject(Request $request, Examination $examination, ExaminationSubject $subject): void
