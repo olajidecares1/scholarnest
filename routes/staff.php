@@ -119,6 +119,9 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
             Route::middleware('staff_is_teacher')->name('exams.')->prefix('exams')->group(function () {
                 Route::get('/', [StaffExaminationController::class, 'index'])->name('index');
 
+                // The whole class sheet, every subject at once.
+                Route::put('/{examination}/scores', [StaffExaminationController::class, 'updateClass'])->name('class-scores.update');
+
                 Route::name('scores.')->prefix('/{examination}/subjects/{subject}')->group(function () {
                     Route::get('/', [StaffExaminationController::class, 'edit'])->name('edit');
                     Route::put('/', [StaffExaminationController::class, 'update'])->name('update');

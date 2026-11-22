@@ -197,3 +197,170 @@ test('a teacher of another school\'s class gets nothing created', function () {
 
     expect(Examination::where('school_id', $other->id)->exists())->toBeFalse();
 });
+
+// ---------------------------------------------------------------------------
+// The whole-class sheet: every subject, a Test and an Exam box per student
+// ---------------------------------------------------------------------------
+
+test('picking a class shows every subject with a Test and an Exam box for each student', function () {
+    assignClassTeacher($this->teacher, 'Primary 4');
+    $students = Student::factory()->count(2)->create(['school_id' => $this->school->id, 'class_name' => 'Primary 4', 'is_active' => true]);
+
+    $html = $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', [$this->school, 'class_name' => 'Primary 4']))
+        ->assertOk()
+        ->assertSee('Save all scores')
+        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary'), false)
+        ->getContent();
+
+    $examination = Examination::where('school_id', $this->school->id)->where('class_name', 'Primary 4')->sole();
+
+    foreach ($examination->subjects as $subject) {
+        foreach ($students as $student) {
+            expect($html)->toContain('name="scores['.$subject->id.']['.$student->id.'][test]"')
+                ->toContain('name="scores['.$subject->id.']['.$student->id.'][exam]"');
+        }
+    }
+});
+
+test('a class teacher saves Test and Exam scores for several subjects at once', function () {
+    assignClassTeacher($this->teacher, 'JSS 1');
+    $ada = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => true]);
+    $bola = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => true]);
+
+    $this->actingAs($this->teacher, 'staff')->get(route('staff.exams.index', $this->school))->assertOk();
+    $examination = Examination::where('school_id', $this->school->id)->where('class_name', 'JSS 1')->sole();
+    $maths = $examination->subjects()->where('name', 'Mathematics')->sole();
+    $french = $examination->subjects()->where('name', 'French')->sole();
+
+    $this->actingAs($this->teacher, 'staff')
+        ->put(route('staff.exams.class-scores.update', [$this->school, $examination]), [
+            'scores' => [
+                $maths->id => [
+                    $ada->id => ['test' => '35', 'exam' => '50'],
+                    $bola->id => ['test' => '', 'exam' => ''],
+                ],
+                $french->id => [
+                    $ada->id => ['test' => '20', 'exam' => ''],
+                    $bola->id => ['test' => '0', 'exam' => '0'],
+                ],
+            ],
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('status', fn ($status) => str_contains($status, 'Saved 3 score(s) across 2 subject(s)'));
+
+    expect((float) ExaminationScore::where('examination_subject_id', $maths->id)->where('student_id', $ada->id)->value('score'))->toBe(85.0)
+        ->and(ExaminationScore::where('examination_subject_id', $maths->id)->where('student_id', $bola->id)->exists())->toBeFalse()
+        ->and((float) ExaminationScore::where('examination_subject_id', $french->id)->where('student_id', $ada->id)->value('score'))->toBe(20.0)
+        ->and((float) ExaminationScore::where('examination_subject_id', $french->id)->where('student_id', $bola->id)->value('score'))->toBe(0.0);
+
+    // The saved scores are in the boxes when the sheet opens again.
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.index', [$this->school, 'class_name' => 'JSS 1']))
+        ->assertOk()
+        ->assertSee('Saved 3 score(s)');
+});
+
+test('a full class sheet sent as one field is saved in full', function () {
+    // 12 subjects x 45 students x 2 boxes = 1,080 boxes: more than PHP
+    // accepts as separate form fields by default.
+    assignClassTeacher($this->teacher, 'Nursery 2');
+    $students = Student::factory()->count(45)->create(['school_id' => $this->school->id, 'class_name' => 'Nursery 2', 'is_active' => true]);
+
+    $this->actingAs($this->teacher, 'staff')->get(route('staff.exams.index', $this->school))->assertOk();
+    $examination = Examination::where('school_id', $this->school->id)->where('class_name', 'Nursery 2')->sole();
+
+    $scores = [];
+    foreach ($examination->subjects as $subject) {
+        foreach ($students as $student) {
+            $scores[$subject->id][$student->id] = ['test' => 30, 'exam' => 45];
+        }
+    }
+
+    $this->actingAs($this->teacher, 'staff')
+        ->put(route('staff.exams.class-scores.update', [$this->school, $examination]), ['scores_json' => json_encode($scores)])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect(ExaminationScore::whereIn('examination_subject_id', $examination->subjects->pluck('id'))->count())
+        ->toBe(count(DefaultClassSubjects::namesForGroup('nursery_2')) * 45);
+});
+
+test('a score over the maximum is refused and nothing is saved', function () {
+    assignClassTeacher($this->teacher, 'Primary 1');
+    $student = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'Primary 1', 'is_active' => true]);
+
+    $this->actingAs($this->teacher, 'staff')->get(route('staff.exams.index', $this->school));
+    $examination = Examination::where('school_id', $this->school->id)->where('class_name', 'Primary 1')->sole();
+    [$first, $second] = $examination->subjects()->take(2)->get()->all();
+
+    $this->actingAs($this->teacher, 'staff')
+        ->put(route('staff.exams.class-scores.update', [$this->school, $examination]), [
+            'scores' => [
+                $first->id => [$student->id => ['test' => '30', 'exam' => '40']],
+                $second->id => [$student->id => ['test' => '41', 'exam' => '10']],
+            ],
+        ])
+        ->assertSessionHasErrors();
+
+    expect(ExaminationScore::where('student_id', $student->id)->exists())->toBeFalse();
+});
+
+test('a subject teacher cannot save scores for a subject they do not teach', function () {
+    TeacherAssignment::factory()->create([
+        'school_id' => $this->school->id,
+        'staff_id' => $this->teacher->id,
+        'class_name' => 'JSS 1',
+        'subject' => 'Mathematics',
+        'type' => TeacherAssignmentType::SubjectTeacher,
+    ]);
+    $student = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => true]);
+
+    $this->actingAs($this->teacher, 'staff')->get(route('staff.exams.index', $this->school))->assertOk();
+    $examination = Examination::where('school_id', $this->school->id)->where('class_name', 'JSS 1')->sole();
+    $maths = $examination->subjects()->where('name', 'Mathematics')->sole();
+    $french = $examination->subjects()->where('name', 'French')->sole();
+
+    $this->actingAs($this->teacher, 'staff')->put(route('staff.exams.class-scores.update', [$this->school, $examination]), [
+        'scores' => [
+            $maths->id => [$student->id => ['test' => '30', 'exam' => '40']],
+            $french->id => [$student->id => ['test' => '30', 'exam' => '40']],
+        ],
+    ])->assertRedirect();
+
+    expect(ExaminationScore::where('examination_subject_id', $maths->id)->exists())->toBeTrue()
+        ->and(ExaminationScore::where('examination_subject_id', $french->id)->exists())->toBeFalse();
+});
+
+test('a student from another class cannot be given a score through the sheet', function () {
+    assignClassTeacher($this->teacher, 'Primary 2');
+    $outsider = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'Primary 3', 'is_active' => true]);
+
+    $this->actingAs($this->teacher, 'staff')->get(route('staff.exams.index', $this->school));
+    $examination = Examination::where('school_id', $this->school->id)->where('class_name', 'Primary 2')->sole();
+    $subject = $examination->subjects()->first();
+
+    $this->actingAs($this->teacher, 'staff')->put(route('staff.exams.class-scores.update', [$this->school, $examination]), [
+        'scores' => [$subject->id => [$outsider->id => ['test' => '30', 'exam' => '40']]],
+    ])->assertRedirect();
+
+    expect(ExaminationScore::where('student_id', $outsider->id)->exists())->toBeFalse();
+});
+
+test('another school\'s examination cannot be saved through this school\'s portal', function () {
+    assignClassTeacher($this->teacher, 'Primary 2');
+
+    $other = activateSchool(School::factory()->create(), PlanKey::Standard);
+    $foreign = Examination::factory()->create(['school_id' => $other->id, 'class_name' => 'Primary 2']);
+    $subject = $foreign->subjects()->create(['name' => 'Mathematics', 'max_score' => 100]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->put(route('staff.exams.class-scores.update', [$this->school, $foreign]), [
+            'scores' => [$subject->id => []],
+        ])
+        ->assertNotFound();
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.exams.scores.edit', [$this->school, $foreign, $subject]))
+        ->assertNotFound();
+});
