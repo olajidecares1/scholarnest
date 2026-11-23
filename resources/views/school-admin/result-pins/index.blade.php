@@ -516,36 +516,224 @@
             @endif
         </div>
 
-        {{-- Issued tokens --}}
-        <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+        {{-- Issued tokens.
+
+             Delete in three ways: the bin on one row, the ticked rows
+             together, or every token in a category (class, result, session,
+             term, status or student) across all pages. The bulk actions share
+             one confirmation box that says exactly what will go. --}}
+        <div
+            class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]"
+            x-data="{
+                selected: [],
+                names: @js($tokens->getCollection()->mapWithKeys(fn ($t) => [
+                    $t->uuid => trim(($t->boundStudent?->fullName() ?? 'Unbound token').($t->examination ? ' · '.$t->examination->name.', '.$t->examination->term->label().' '.$t->examination->session : '')),
+                ])),
+                confirming: null,
+                get pageIds() { return Object.keys(this.names) },
+                get allSelected() { return this.pageIds.length > 0 && this.selected.length === this.pageIds.length },
+                get someSelected() { return this.selected.length > 0 && ! this.allSelected },
+                toggleAll(on) { this.selected = on ? [...this.pageIds] : [] },
+            }"
+            @keydown.escape.window="confirming = null"
+        >
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-6 dark:border-gray-700">
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Issued tokens</h2>
                     <small class="field-hint mt-0.5">
                         Each row is one student and one result. A token never opens anything else.
+                        Tick tokens to delete them together, or filter by a category to delete every matching token.
                     </small>
                 </div>
+                <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                    {{ number_format($tokens->total()) }} {{ $tokens->total() === 1 ? 'token' : 'tokens' }}{{ $hasTokenFilter ? ' match' : '' }}
+                </span>
+            </div>
 
-                <form method="GET" class="flex flex-wrap items-center gap-2">
-                    <select name="examination_id" onchange="this.form.submit()" >
-                        <option value="">All results</option>
-                        @foreach ($examinationOptions as $id => $label)
-                            <option value="{{ $id }}" @selected(request('examination_id') == $id)>{{ $label }}</option>
+            {{-- Filters. Each one is a category the admin can delete in one go. --}}
+            <form method="GET" action="{{ route('result-pins.index') }}" class="grid gap-3 border-b border-gray-100 p-6 dark:border-gray-700 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                <div class="xl:col-span-2">
+                    <label for="token_search" class="field-label mb-1">Student</label>
+                    <input id="token_search" type="search" name="search" value="{{ $tokenFilters['search'] }}" maxlength="100" placeholder="Name or admission number" class="w-full">
+                </div>
+                <div>
+                    <label for="token_class" class="field-label mb-1">Class</label>
+                    <select id="token_class" name="class_name" onchange="this.form.submit()" class="w-full">
+                        <option value="">All classes</option>
+                        @foreach ($classNames as $className)
+                            <option value="{{ $className }}" @selected($tokenFilters['class_name'] === $className)>{{ $className }}</option>
                         @endforeach
                     </select>
-                    <select name="status" onchange="this.form.submit()" >
+                </div>
+                <div>
+                    <label for="token_session" class="field-label mb-1">Session</label>
+                    <select id="token_session" name="session" onchange="this.form.submit()" class="w-full">
+                        <option value="">All sessions</option>
+                        @foreach ($sessions as $session)
+                            <option value="{{ $session }}" @selected($tokenFilters['session'] === $session)>{{ $session }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="token_term" class="field-label mb-1">Term</label>
+                    <select id="token_term" name="term" onchange="this.form.submit()" class="w-full">
+                        <option value="">All terms</option>
+                        @foreach ($terms as $term)
+                            <option value="{{ $term->value }}" @selected($tokenFilters['term'] === $term->value)>{{ $term->label() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="token_status" class="field-label mb-1">Status</label>
+                    <select id="token_status" name="status" onchange="this.form.submit()" class="w-full">
                         <option value="">All statuses</option>
                         @foreach ($statuses as $status)
-                            <option value="{{ $status->value }}" @selected(request('status') === $status->value)>{{ $status->label() }}</option>
+                            <option value="{{ $status->value }}" @selected($tokenFilters['status'] === $status->value)>{{ $status->label() }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="sm:col-span-2 lg:col-span-3 xl:col-span-4">
+                    <label for="token_examination" class="field-label mb-1">Result</label>
+                    <select id="token_examination" name="examination_id" onchange="this.form.submit()" class="w-full">
+                        <option value="">All results</option>
+                        @foreach ($examinationOptions as $id => $label)
+                            <option value="{{ $id }}" @selected($tokenFilters['examination_id'] === $id)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex flex-wrap items-end gap-2 sm:col-span-2 lg:col-span-3 xl:col-span-2 xl:justify-end">
+                    <button type="submit" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                        <i class="fa-solid fa-filter btn-icon" aria-hidden="true"></i> Filter
+                    </button>
+                    @if ($hasTokenFilter)
+                        <a href="{{ route('result-pins.index') }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                            <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Clear
+                        </a>
+                        @if ($tokens->total() > 0)
+                            <button type="button" @click="confirming = 'matching'" class="btn rounded-[8px] border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-900/40">
+                                <i class="fa-solid fa-trash-can btn-icon" aria-hidden="true"></i> Delete all {{ number_format($tokens->total()) }} matching
+                            </button>
+                        @endif
+                    @endif
+                </div>
+            </form>
+
+            {{-- Shown while anything is ticked. --}}
+            <div
+                x-show="selected.length"
+                x-cloak
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 -translate-y-1"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-red-200 bg-red-50 px-6 py-3 dark:border-red-900/50 dark:bg-red-900/20"
+                role="region"
+                aria-label="Selected tokens"
+            >
+                <p class="text-sm font-semibold text-red-800 dark:text-red-300">
+                    <i class="fa-solid fa-square-check mr-1" aria-hidden="true"></i>
+                    <span x-text="selected.length"></span>
+                    <span x-text="selected.length === 1 ? 'token selected' : 'tokens selected'"></span>
+                </p>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" @click="selected = []" class="btn rounded-[8px] border border-gray-300 bg-white font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
+                        <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Clear selection
+                    </button>
+                    <button type="button" @click="confirming = 'selected'" class="btn rounded-[8px] bg-red-600 font-semibold text-white hover:bg-red-700">
+                        <i class="fa-solid fa-trash-can btn-icon" aria-hidden="true"></i> <span x-text="'Delete selected (' + selected.length + ')'">Delete selected</span>
+                    </button>
+                </div>
+            </div>
+
+            {{-- The two bulk forms. Both carry the current filters back, so the
+                 admin lands on the same view afterwards. --}}
+            <form x-ref="deleteSelected" method="POST" action="{{ route('result-pins.bulk-destroy') }}" class="hidden">
+                @csrf
+                @method('DELETE')
+                @foreach (array_merge($tokenFilterQuery, request()->only('page')) as $key => $value)
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endforeach
+                <template x-for="id in selected" :key="id">
+                    <input type="hidden" name="tokens[]" :value="id">
+                </template>
+            </form>
+
+            @if ($hasTokenFilter && $tokens->total() > 0)
+                <form x-ref="deleteMatching" method="POST" action="{{ route('result-pins.destroy-matching') }}" class="hidden">
+                    @csrf
+                    @method('DELETE')
+                    @foreach ($tokenFilterQuery as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+                    <input type="hidden" name="expected_count" value="{{ $tokens->total() }}">
                 </form>
+            @endif
+
+            {{-- One confirmation box for both bulk deletes. --}}
+            <div x-show="confirming" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4" role="dialog" aria-modal="true" aria-labelledby="token-delete-title">
+                <div @click.outside="confirming = null" x-show="confirming" x-transition class="w-full max-w-md rounded-[10px] bg-white p-6 shadow-xl dark:bg-gray-800">
+                    <div class="flex items-start gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">
+                            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <h3 id="token-delete-title" class="text-base font-bold text-gray-900 dark:text-white">
+                                <template x-if="confirming === 'selected'">
+                                    <span>Delete <span x-text="selected.length"></span> <span x-text="selected.length === 1 ? 'token' : 'tokens'"></span>?</span>
+                                </template>
+                                <template x-if="confirming === 'matching'">
+                                    <span>Delete all {{ number_format($tokens->total()) }} matching {{ $tokens->total() === 1 ? 'token' : 'tokens' }}?</span>
+                                </template>
+                            </h3>
+                            <small class="mt-1 block text-sm text-gray-600 dark:text-gray-300">
+                                This cannot be undone. Parents holding these tokens will no longer be able to open the results, so issue new ones to anyone who still needs them.
+                            </small>
+                        </div>
+                    </div>
+
+                    <ul x-show="confirming === 'selected'" class="mt-4 max-h-48 space-y-1 overflow-y-auto rounded-[8px] bg-gray-50 p-3 text-sm text-gray-800 dark:bg-gray-900/50 dark:text-gray-200">
+                        <template x-for="id in selected" :key="id">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-key text-xs text-gray-400" aria-hidden="true"></i><span x-text="names[id]"></span></li>
+                        </template>
+                    </ul>
+
+                    @if ($hasTokenFilter)
+                        <div x-show="confirming === 'matching'" class="mt-4 rounded-[8px] bg-gray-50 p-3 text-sm text-gray-800 dark:bg-gray-900/50 dark:text-gray-200">
+                            <p class="font-semibold">Every token on every page matching:</p>
+                            <ul class="mt-1 list-inside list-disc">
+                                @foreach ($tokenFilterSummary as $part)
+                                    <li>{{ ucfirst($part) }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <div class="mt-5 flex justify-end gap-2">
+                        <button type="button" @click="confirming = null" class="btn rounded-[8px] border border-gray-300 font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                            <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel
+                        </button>
+                        <button type="button" @click="confirming === 'matching' ? $refs.deleteMatching.submit() : $refs.deleteSelected.submit()" class="btn rounded-[8px] bg-red-600 font-semibold text-white hover:bg-red-700">
+                            <i class="fa-solid fa-trash-can btn-icon" aria-hidden="true"></i> Delete
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
+                            <th class="w-10 py-3 pl-5 pr-0">
+                                <input
+                                    type="checkbox"
+                                    class="h-4 w-4 cursor-pointer rounded border-gray-300 text-red-600 focus:ring-red-500"
+                                    :checked="allSelected"
+                                    :indeterminate="someSelected"
+                                    @change="toggleAll($event.target.checked)"
+                                    :disabled="pageIds.length === 0"
+                                    aria-label="Select every token on this page"
+                                    data-tooltip="Select all on this page"
+                                >
+                            </th>
                             <th class="px-5 py-3 font-semibold">Student</th>
                             <th class="px-5 py-3 font-semibold">Result</th>
                             <th class="px-5 py-3 font-semibold">Views</th>
@@ -555,14 +743,23 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                         @forelse ($tokens as $token)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50" :class="selected.includes(@js($token->uuid)) && '!bg-red-50/70 dark:!bg-red-900/15'">
+                                <td class="w-10 py-3 pl-5 pr-0">
+                                    <input
+                                        type="checkbox"
+                                        class="h-4 w-4 cursor-pointer rounded border-gray-300 text-red-600 focus:ring-red-500"
+                                        value="{{ $token->uuid }}"
+                                        x-model="selected"
+                                        aria-label="Select the token for {{ $token->boundStudent?->fullName() ?? 'this row' }}"
+                                    >
+                                </td>
                                 <td class="px-5 py-3">
                                     <p class="font-semibold text-gray-900 dark:text-white">{{ $token->boundStudent?->fullName() ?? 'N/A' }}</p>
                                     <small class="field-hint">{{ $token->boundStudent?->admission_number }}</small>
                                 </td>
                                 <td class="px-5 py-3 text-xs text-gray-600 dark:text-gray-300">
                                     @if ($token->examination)
-                                        {{ $token->examination->name }}<br>
+                                        {{ $token->examination->name }}, {{ $token->examination->class_name }}<br>
                                         {{ $token->examination->term->label() }} &middot; {{ $token->examination->session }}
                                     @else
                                         &mdash;
@@ -605,15 +802,25 @@
 
                                         <form method="POST" action="{{ route('result-pins.revoke', $token) }}">
                                             @csrf
-                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Revoke token" aria-label="Revoke token"><i class="fa-solid fa-ban" aria-hidden="true"></i></button>
+                                            <button type="submit" class="icon-btn icon-btn--warn" data-tooltip="Revoke token" aria-label="Revoke token"><i class="fa-solid fa-ban" aria-hidden="true"></i></button>
+                                        </form>
+
+                                        <form method="POST" action="{{ route('result-pins.destroy', $token) }}" onsubmit="return confirm(@js('Delete the token for '.($token->boundStudent?->fullName() ?? 'this student').'? This cannot be undone.'));">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="icon-btn icon-btn--delete" data-tooltip="Delete token" aria-label="Delete token"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    No tokens issued yet. Choose a result above to issue them.
+                                <td colspan="6" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                                    @if ($hasTokenFilter)
+                                        No tokens match these filters.
+                                    @else
+                                        No tokens issued yet. Choose a result above to issue them.
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse

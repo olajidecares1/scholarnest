@@ -17,9 +17,11 @@ use App\Notifications\ResultTokenIssuedNotification;
 use App\Services\ExaminationResolver;
 use App\Services\ResultAccessPolicy;
 use App\Services\ResultTokenIssuer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use LogicException;
@@ -46,10 +48,10 @@ class ResultCheckingPinController extends Controller
     {
         $school = $request->user()->school;
 
-        $tokens = $school->resultCheckingPins()
+        $filters = $this->issuedTokenFilters($request);
+
+        $tokens = $this->issuedTokensQuery($school, $filters)
             ->with(['examination', 'boundStudent'])
-            ->when($request->filled('examination_id'), fn ($query) => $query->where('examination_id', $request->integer('examination_id')))
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
             ->latest()
             ->paginate(20)
             ->withQueryString();
@@ -61,6 +63,14 @@ class ResultCheckingPinController extends Controller
             // other half, so it belongs on the same screen as the tokens.
             'resultLinkUrl' => $school->resultLinkUrl(),
             'tokens' => $tokens,
+
+            // The Issued tokens filters, and a plain description of them for
+            // the "delete every matching token" confirmation, so the admin
+            // reads back exactly which category is about to go.
+            'tokenFilters' => $filters,
+            'tokenFilterQuery' => $activeFilters = array_filter($filters, fn ($value) => $value !== null && $value !== ''),
+            'hasTokenFilter' => $activeFilters !== [],
+            'tokenFilterSummary' => $this->describeFilters($filters, $school),
             'examinations' => $examinations = $school->examinations()->orderByDesc('exam_date')->get(),
             'statuses' => ResultCheckingPinStatus::cases(),
 
@@ -522,6 +532,276 @@ class ResultCheckingPinController extends Controller
         $pin->delete();
 
         return back()->with('status', "That token was deleted. Issue a new one if {$student} still needs it.");
+    }
+
+    /**
+     * Delete the tokens the School Admin ticked in the Issued tokens list.
+     *
+     * Tokens arrive by UUID and are looked up WITHIN THIS SCHOOL ONLY, so a
+     * UUID from another school is simply not found: it can never be deleted
+     * from here, and it does not even reveal that it exists.
+     */
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $school = $request->user()->school;
+
+        $validated = $request->validate([
+            'tokens' => ['required', 'array', 'min:1', 'max:500'],
+            'tokens.*' => ['required', 'string', 'uuid'],
+        ], [
+            'tokens.required' => 'Tick at least one token to delete.',
+            'tokens.max' => 'You can delete up to 500 ticked tokens at a time. To clear a whole class or result, use "Delete all matching" instead.',
+            'tokens.*.uuid' => 'One of the ticked tokens was not recognised. Reload the page and try again.',
+        ]);
+
+        $pins = ResultCheckingPin::query()
+            ->forSchool($school)
+            ->whereIn('uuid', array_unique($validated['tokens']))
+            ->with(['boundStudent', 'examination'])
+            ->get();
+
+        if ($pins->isEmpty()) {
+            return $this->backToTokens($request)
+                ->withErrors(['tokens' => 'None of the ticked tokens could be found. They may already have been deleted.']);
+        }
+
+        $this->deleteTokens($pins, $school, 'the ticked tokens');
+
+        $count = $pins->count();
+
+        return $this->backToTokens($request)->with('status', sprintf(
+            '%s %s deleted. Issue new ones for any student who still needs a token.',
+            number_format($count),
+            $count === 1 ? 'token was' : 'tokens were',
+        ));
+    }
+
+    /**
+     * Delete EVERY token in a category: a class, a result, a session, a term,
+     * a status, a student, or any combination of them, across every page.
+     *
+     * Two guards, because this is the one action on the screen that can remove
+     * hundreds of rows with one click:
+     *
+     *  - At least one category must be chosen. "Delete all matching" with no
+     *    filter would be "delete every token this school has ever issued",
+     *    and nobody should be one mis-click away from that.
+     *  - The count the admin confirmed must still be the count now. If a
+     *    colleague issued tokens into the same class in between, the set has
+     *    changed under them, and nothing is deleted until they look again.
+     */
+    public function destroyMatching(Request $request): RedirectResponse
+    {
+        $school = $request->user()->school;
+        $filters = $this->issuedTokenFilters($request);
+
+        $request->validate([
+            'expected_count' => ['required', 'integer', 'min:1'],
+        ]);
+
+        if (! $this->hasAnyFilter($filters)) {
+            return $this->backToTokens($request)->withErrors([
+                'tokens' => 'Choose a category first (a result, class, session, term, status or student) to delete every matching token. To delete a few, tick them instead.',
+            ]);
+        }
+
+        $query = $this->issuedTokensQuery($school, $filters);
+        $count = (clone $query)->count();
+
+        if ($count === 0) {
+            return $this->backToTokens($request)->withErrors(['tokens' => 'No tokens match that category, so nothing was deleted.']);
+        }
+
+        if ($count !== $request->integer('expected_count')) {
+            return $this->backToTokens($request)->withErrors([
+                'tokens' => sprintf(
+                    'The number of matching tokens changed from %s to %s since the page was loaded, so nothing was deleted. Check the list and try again.',
+                    number_format($request->integer('expected_count')),
+                    number_format($count),
+                ),
+            ]);
+        }
+
+        $pins = $query->with(['boundStudent', 'examination'])->get();
+
+        $this->deleteTokens($pins, $school, implode(', ', $this->describeFilters($filters, $school)));
+
+        return redirect()
+            ->route('result-pins.index')
+            ->with('status', sprintf(
+                '%s %s deleted (%s). Issue new ones for any student who still needs a token.',
+                number_format($count),
+                $count === 1 ? 'token was' : 'tokens were',
+                implode(', ', $this->describeFilters($filters, $school)),
+            ));
+    }
+
+    /**
+     * Delete a set of tokens in one transaction and leave one audit entry.
+     *
+     * The audit entry is written FIRST and names every student and result,
+     * exactly as the single delete does, so a bulk delete is not a quieter way
+     * to erase that tokens existed. A token's usage rows go with it (cascade);
+     * the access log keeps its entries with the token reference cleared, so
+     * the history of who tried to open a result survives.
+     *
+     * @param  Collection<int, ResultCheckingPin>  $pins
+     */
+    private function deleteTokens(Collection $pins, School $school, string $scope): void
+    {
+        $lines = $pins->map(function (ResultCheckingPin $pin): string {
+            $student = $pin->boundStudent
+                ? "{$pin->boundStudent->fullName()} ({$pin->boundStudent->admission_number})"
+                : 'an unbound pupil';
+
+            return $pin->examination
+                ? "{$student}, {$pin->examination->name} {$pin->examination->term->label()} {$pin->examination->session}"
+                : $student;
+        });
+
+        // Kept readable in the audit screen: the first hundred are named, the
+        // rest are counted.
+        $named = $lines->take(100)->implode('; ');
+        $more = $lines->count() > 100 ? sprintf('; and %s more', number_format($lines->count() - 100)) : '';
+
+        DB::transaction(function () use ($pins, $school, $scope, $named, $more): void {
+            AuditLog::record(
+                'result-token.bulk-deleted',
+                sprintf('Deleted %s result token(s) [%s]: %s%s.', number_format($pins->count()), $scope, $named, $more),
+                $school,
+            );
+
+            $pins->pluck('id')->chunk(500)->each(
+                fn ($ids) => ResultCheckingPin::query()->forSchool($school)->whereIn('id', $ids->all())->delete()
+            );
+        });
+    }
+
+    /**
+     * The Issued tokens filters, cleaned.
+     *
+     * Read from the query string on the page and from the form body on the
+     * "delete all matching" POST, so the list the admin looked at and the set
+     * that gets deleted are built from exactly the same values by exactly the
+     * same query. Anything unrecognised is dropped rather than trusted.
+     *
+     * @return array{search: string, examination_id: ?int, class_name: string, session: string, term: string, status: string}
+     */
+    private function issuedTokenFilters(Request $request): array
+    {
+        $status = (string) $request->input('status', '');
+        $term = (string) $request->input('term', '');
+        $examinationId = (int) $request->input('examination_id', 0);
+
+        return [
+            'search' => mb_substr(trim((string) $request->input('search', '')), 0, 100),
+            'examination_id' => $examinationId > 0 ? $examinationId : null,
+            'class_name' => mb_substr(trim((string) $request->input('class_name', '')), 0, 100),
+            'session' => mb_substr(trim((string) $request->input('session', '')), 0, 20),
+            'term' => ExamTerm::tryFrom($term)?->value ?? '',
+            'status' => ResultCheckingPinStatus::tryFrom($status)?->value ?? '',
+        ];
+    }
+
+    /**
+     * @param  array{search: string, examination_id: ?int, class_name: string, session: string, term: string, status: string}  $filters
+     */
+    private function hasAnyFilter(array $filters): bool
+    {
+        return collect($filters)->filter(fn ($value) => $value !== null && $value !== '')->isNotEmpty();
+    }
+
+    /**
+     * Every token of this school matching the filters. Always scoped to the
+     * school first, so no filter value can reach another school's tokens.
+     *
+     * @param  array{search: string, examination_id: ?int, class_name: string, session: string, term: string, status: string}  $filters
+     */
+    private function issuedTokensQuery(School $school, array $filters): Builder
+    {
+        return ResultCheckingPin::query()
+            ->forSchool($school)
+            ->when($filters['examination_id'], fn (Builder $query, int $id) => $query->where('examination_id', $id))
+            ->when($filters['status'], fn (Builder $query, string $status) => $query->where('status', $status))
+            // Class, session and term belong to the RESULT the token opens, so
+            // "JSS 1" means tokens for JSS 1's results, even for a student who
+            // has since moved up to JSS 2.
+            ->when(
+                $filters['class_name'] !== '' || $filters['session'] !== '' || $filters['term'] !== '',
+                fn (Builder $query) => $query->whereHas('examination', function (Builder $examination) use ($filters): void {
+                    $examination
+                        ->when($filters['class_name'], fn (Builder $q, string $class) => $q->where('class_name', $class))
+                        ->when($filters['session'], fn (Builder $q, string $session) => $q->where('session', $session))
+                        ->when($filters['term'], fn (Builder $q, string $term) => $q->where('term', $term));
+                }),
+            )
+            // Every word must match the first name, last name or admission
+            // number, so "John Doe" finds John Doe without a database-specific
+            // CONCAT.
+            ->when($filters['search'], function (Builder $query, string $search): void {
+                foreach (preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $word) {
+                    $like = '%'.addcslashes($word, '%_\\').'%';
+
+                    $query->whereHas('boundStudent', fn (Builder $student) => $student->where(
+                        fn (Builder $w) => $w->where('first_name', 'like', $like)
+                            ->orWhere('last_name', 'like', $like)
+                            ->orWhere('admission_number', 'like', $like)
+                    ));
+                }
+            });
+    }
+
+    /**
+     * The filters in words, for the confirmation box and the audit log.
+     *
+     * @param  array{search: string, examination_id: ?int, class_name: string, session: string, term: string, status: string}  $filters
+     * @return list<string>
+     */
+    private function describeFilters(array $filters, School $school): array
+    {
+        $parts = [];
+
+        if ($filters['examination_id']) {
+            $examination = $school->examinations()->find($filters['examination_id']);
+            $parts[] = $examination
+                ? "result: {$examination->name}, {$examination->class_name} ({$examination->term->label()}, {$examination->session})"
+                : 'result: unknown';
+        }
+
+        if ($filters['class_name'] !== '') {
+            $parts[] = "class: {$filters['class_name']}";
+        }
+
+        if ($filters['session'] !== '') {
+            $parts[] = "session: {$filters['session']}";
+        }
+
+        if ($filters['term'] !== '') {
+            $parts[] = 'term: '.ExamTerm::from($filters['term'])->label();
+        }
+
+        if ($filters['status'] !== '') {
+            $parts[] = 'status: '.ResultCheckingPinStatus::from($filters['status'])->label();
+        }
+
+        if ($filters['search'] !== '') {
+            $parts[] = "student: \"{$filters['search']}\"";
+        }
+
+        return $parts;
+    }
+
+    /**
+     * Back to the token list with the admin's filters still applied, so after
+     * deleting from page 3 of JSS 1 they are not dropped on page 1 of
+     * everything.
+     */
+    private function backToTokens(Request $request): RedirectResponse
+    {
+        return redirect()->route('result-pins.index', array_filter(
+            $request->only('search', 'examination_id', 'class_name', 'session', 'term', 'status', 'page'),
+            fn ($value) => $value !== null && $value !== '',
+        ));
     }
 
     public function revoke(Request $request, ResultCheckingPin $pin): RedirectResponse

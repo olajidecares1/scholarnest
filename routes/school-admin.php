@@ -358,6 +358,17 @@ Route::middleware('result_pin_access')->name('result-pins.')->group(function () 
     Route::post(R::uri('result-pins.revoke').'/{pin}', [ResultCheckingPinController::class, 'revoke'])->name('revoke');
     Route::post(R::uri('result-pins.suspend').'/{pin}', [ResultCheckingPinController::class, 'toggleSuspension'])->name('suspend');
 
+    // Deleting issued tokens: one at a time from its row, the ticked ones
+    // together, or every token in a category (class, result, session, term,
+    // status, student). Each is audited before anything is removed.
+    Route::delete(R::uri('result-pins.destroy').'/{pin}', [ResultCheckingPinController::class, 'destroy'])->name('destroy');
+    Route::delete(R::uri('result-pins.bulk-destroy'), [ResultCheckingPinController::class, 'bulkDestroy'])
+        ->middleware('throttle:30,1')
+        ->name('bulk-destroy');
+    Route::delete(R::uri('result-pins.destroy-matching'), [ResultCheckingPinController::class, 'destroyMatching'])
+        ->middleware('throttle:30,1')
+        ->name('destroy-matching');
+
     // The school's own result-checking address, which the School Admin
     // hands to parents. Regenerating retires the old one for good.
     Route::post(R::uri('result-pins.link-regenerate'), [ResultCheckingPinController::class, 'regenerateLink'])->name('link.regenerate');
