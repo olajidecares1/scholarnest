@@ -55,6 +55,11 @@ class ResultController extends Controller
             ? app(ResultRepository::class)->stateFor($examination)
             : ['published' => collect(), 'staleStudentIds' => []];
 
+        // Each pupil's Class Teacher's Remark, for the comment box on their row.
+        $remarks = $examination
+            ? ExaminationReport::query()->where('examination_id', $examination->id)->pluck('teacher_remark', 'student_id')
+            : collect();
+
         return view('staff.results.index', [
             'school' => $school,
             'classes' => $classes,
@@ -67,6 +72,7 @@ class ResultController extends Controller
             'students' => $students,
             'publishedResults' => $repository['published'],
             'staleStudentIds' => $repository['staleStudentIds'],
+            'remarks' => $remarks,
         ]);
     }
 
@@ -103,12 +109,23 @@ class ResultController extends Controller
 
         $validated = $request->validate([
             'teacher_remark' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'teacher_remark.max' => 'A comment can be at most 1,000 characters.',
         ]);
 
-        $report = ExaminationReport::firstOrCreateFor($examination, $student);
-        $report->update($validated);
+        $remark = trim((string) ($validated['teacher_remark'] ?? ''));
 
-        return response()->json(['status' => 'Remarks saved.']);
+        $report = ExaminationReport::firstOrCreateFor($examination, $student);
+        $report->update(['teacher_remark' => $remark === '' ? null : $remark]);
+
+        return response()->json([
+            'status' => 'Remarks saved.',
+            'teacher_remark' => $report->teacher_remark,
+
+            // A card already pushed to the Repository keeps the old comment
+            // until it is pushed again; the teacher is told so.
+            'needs_repush' => in_array($student->id, app(ResultRepository::class)->stateFor($examination)['staleStudentIds'], true),
+        ]);
     }
 
     /**

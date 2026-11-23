@@ -14,7 +14,7 @@
 
      The routes behind print and pdf are gone from routes/staff.php, so this
      is not a page with its buttons taken off. --}}
-<x-staff-layout page-title="Report Cards" page-subtitle="View and preview your class's report cards, and write your remarks.">
+<x-staff-layout page-title="Report Cards" page-subtitle="View and preview your class's report cards, and write each pupil's comment.">
     <div class="space-y-6">
         @if (session('status'))
             <div class="rounded-[5px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400 lg:rounded-[10px]">
@@ -89,7 +89,7 @@
                             <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
                                     <th class="w-12 whitespace-nowrap px-4 py-3 font-semibold">S/N</th>
-                                    <th class="px-4 py-3 font-semibold">Student</th>
+                                    <th class="px-4 py-3 font-semibold">Student &amp; Comment</th>
                                     <th class="px-4 py-3 font-semibold">Avg. Score</th>
                                     <th class="px-4 py-3 font-semibold">Percentage</th>
                                     <th class="px-4 py-3 font-semibold">Status</th>
@@ -104,7 +104,7 @@
                                         $showUrl = route('staff.results.show', [$school, $examination, $student]);
                                         $remarksUrl = route('staff.results.remarks', [$school, $examination, $student]);
                                     @endphp
-                                    <tr class="transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                                    <tr class="align-top transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-gray-700/40">
                                         <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                                         <td class="px-4 py-3">
                                             <div class="flex items-center gap-2.5">
@@ -116,6 +116,40 @@
                                                     </span>
                                                 @endif
                                                 <span class="truncate font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
+                                            </div>
+
+                                            {{-- The Class Teacher's comment for this pupil's report card:
+                                                 the "Class Teacher's Remark" the card prints. Saves itself
+                                                 as the teacher types; see resources/js/teacher-remark-box.js. --}}
+                                            <div
+                                                class="mt-2 w-64 sm:w-80"
+                                                x-data="teacherRemarkBox({ url: @js($remarksUrl), initial: @js($remarks->get($student->id) ?? ''), published: @js($publishedResults->has($student->id)) })"
+                                                x-on:teacher-remark-saved.window="syncFrom($event)"
+                                            >
+                                                <label for="remark-{{ $student->uuid }}" class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Class Teacher's Comment</label>
+                                                <textarea
+                                                    id="remark-{{ $student->uuid }}"
+                                                    x-model="text"
+                                                    x-on:input="queue()"
+                                                    x-on:blur="save()"
+                                                    rows="2"
+                                                    maxlength="1000"
+                                                    placeholder="Write a comment for {{ $student->first_name }}'s report card…"
+                                                    class="mt-0.5 w-full resize-y text-sm"
+                                                >{{ $remarks->get($student->id) }}</textarea>
+                                                <div class="mt-0.5 flex items-center justify-between gap-2 text-[11px]" aria-live="polite">
+                                                    <span>
+                                                        <span x-show="state === 'saving'" x-cloak class="text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-0.5" aria-hidden="true"></i> Saving…</span>
+                                                        <span x-show="state === 'saved'" x-cloak class="text-green-600 dark:text-green-400"><i class="fa-solid fa-check mr-0.5" aria-hidden="true"></i> Saved</span>
+                                                        <span x-show="state === 'error'" x-cloak class="text-red-600 dark:text-red-400">
+                                                            Not saved. <button type="button" class="font-semibold underline" x-on:click="save()">Try again</button>
+                                                        </span>
+                                                    </span>
+                                                    <span class="tabular-nums text-gray-400" x-text="text.length + '/1000'"></span>
+                                                </div>
+                                                <p x-show="needsRepush" x-cloak class="mt-0.5 text-[11px] text-amber-700 dark:text-amber-400">
+                                                    This card is already in the Repository. Push it again so the published card shows this comment.
+                                                </p>
                                             </div>
                                         </td>
                                         <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ $row['averageScore'] ?? 'N/A' }}</td>

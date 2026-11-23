@@ -13,6 +13,7 @@ use App\Models\Staff;
 use App\Models\Student;
 use App\Models\Subscription;
 use App\Models\TeacherAssignment;
+use App\Services\ResultRepository;
 use Illuminate\Support\Facades\Route;
 
 beforeEach(function () {
@@ -114,4 +115,79 @@ test('the class teacher can write the class teacher\'s remark but not the princi
 
 test('the send tab has no route on the teacher portal', function () {
     expect(Route::has('staff.results.send'))->toBeFalse();
+});
+
+// ---------------------------------------------------------------------------
+// The comment box on each pupil's row
+// ---------------------------------------------------------------------------
+
+function reportCardsPage($test)
+{
+    return $test->actingAs($test->teacher, 'staff')->get(route('staff.results.index', [
+        $test->school,
+        'class' => 'JSS 1',
+        'session' => $test->examination->session,
+        'term' => $test->examination->term->value,
+    ]));
+}
+
+test('each pupil on the Report Cards list has a comment box holding their current comment', function () {
+    ExaminationReport::firstOrCreateFor($this->examination, $this->student)->update(['teacher_remark' => 'A steady, careful worker.']);
+
+    reportCardsPage($this)
+        ->assertOk()
+        ->assertSee("Class Teacher's Comment", false)
+        ->assertSee('id="remark-'.$this->student->uuid.'"', false)
+        ->assertSee('A steady, careful worker.')
+        ->assertSee(route('staff.results.remarks', [$this->school, $this->examination, $this->student]), false);
+});
+
+test('the comment saves to the Class Teacher\'s Remark the report card prints', function () {
+    $this->actingAs($this->teacher, 'staff')
+        ->putJson(route('staff.results.remarks', [$this->school, $this->examination, $this->student]), ['teacher_remark' => '  Amaka reads well beyond her age.  '])
+        ->assertOk()
+        ->assertJson(['teacher_remark' => 'Amaka reads well beyond her age.', 'needs_repush' => false]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->getJson(route('staff.results.show', [$this->school, $this->examination, $this->student]))
+        ->assertOk()
+        ->assertSee('Amaka reads well beyond her age.');
+});
+
+test('clearing the comment box removes the comment', function () {
+    ExaminationReport::firstOrCreateFor($this->examination, $this->student)->update(['teacher_remark' => 'Old comment']);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->putJson(route('staff.results.remarks', [$this->school, $this->examination, $this->student]), ['teacher_remark' => '   '])
+        ->assertOk();
+
+    expect(ExaminationReport::where('student_id', $this->student->id)->value('teacher_remark'))->toBeNull();
+});
+
+test('a comment longer than 1,000 characters is refused', function () {
+    $this->actingAs($this->teacher, 'staff')
+        ->putJson(route('staff.results.remarks', [$this->school, $this->examination, $this->student]), ['teacher_remark' => str_repeat('a', 1001)])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('teacher_remark');
+});
+
+test('changing the comment on a card already in the Repository says it needs pushing again', function () {
+    ExaminationScore::where('student_id', $this->student->id)->update(['test_score' => 30, 'exam_score' => 55, 'score' => 85]);
+    app(ResultRepository::class)->publish($this->examination, $this->student, $this->teacher, 'Class Teacher');
+
+    $this->actingAs($this->teacher, 'staff')
+        ->putJson(route('staff.results.remarks', [$this->school, $this->examination, $this->student]), ['teacher_remark' => 'A new comment.'])
+        ->assertOk()
+        ->assertJson(['needs_repush' => true]);
+});
+
+test('a teacher who is not the Class Teacher cannot write a pupil\'s comment', function () {
+    $other = Staff::factory()->create(['school_id' => $this->school->id, 'role' => StaffRole::Teacher]);
+    TeacherAssignment::factory()->create(['school_id' => $this->school->id, 'staff_id' => $other->id, 'class_name' => 'JSS 2']);
+
+    $this->actingAs($other, 'staff')
+        ->putJson(route('staff.results.remarks', [$this->school, $this->examination, $this->student]), ['teacher_remark' => 'Not mine to write.'])
+        ->assertForbidden();
+
+    expect(ExaminationReport::where('student_id', $this->student->id)->value('teacher_remark'))->toBeNull();
 });

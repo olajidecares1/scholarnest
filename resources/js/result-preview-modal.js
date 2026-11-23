@@ -114,6 +114,11 @@ export function registerResultPreviewStore(Alpine) {
                 if (!response.ok) {
                     throw new Error('Failed to save remarks.');
                 }
+
+                // Keep the comment box on the Class Teacher's list in step.
+                window.dispatchEvent(new CustomEvent('teacher-remark-saved', {
+                    detail: { url: this.remarksUrl, remark: teacherRemark },
+                }));
             } catch (e) {
                 this.error = 'Could not save remarks. Please try again.';
             }

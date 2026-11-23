@@ -21,6 +21,7 @@ import { registerResultPreviewStore } from './result-preview-modal';
 import initScrollAnimations from './scroll-reveal';
 import installPageMotion from './page-motion';
 import signaturePad from './signature-pad';
+import teacherRemarkBox from './teacher-remark-box';
 import uploadProgressForm from './upload-progress-form';
 
 window.Alpine = Alpine;
@@ -37,6 +38,7 @@ Alpine.data('galleryViewer', galleryViewer);
 Alpine.data('reportEvidence', reportEvidence);
 Alpine.data('uploadProgressForm', uploadProgressForm);
 Alpine.data('signaturePad', signaturePad);
+Alpine.data('teacherRemarkBox', teacherRemarkBox);
 registerIdCardPreviewStore(Alpine);
 registerResultPreviewStore(Alpine);
 
