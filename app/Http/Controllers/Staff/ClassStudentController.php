@@ -37,9 +37,10 @@ use Illuminate\View\View;
  * WHAT STAYS WITH THE SCHOOL ADMIN:
  *   - DELETING a student. There is no delete here, no route and no button:
  *     removing a record removes the pupil's results with it.
- *   - The ADMISSION NUMBER once it is set. It is how results, tokens and
- *     cumulative results find the pupil; a teacher enters it only when adding
- *     a pupil in a school that does not generate them.
+ *   - The ADMISSION NUMBER. A teacher never types one: a pupil they add is
+ *     numbered automatically by the School Admin's own generator, and it
+ *     cannot be edited from here afterwards. It is how results, tokens and
+ *     cumulative results find the pupil.
  *   - LOGIN DETAILS and ACTIVE STATUS. Who can sign in is the School Admin's
  *     call, as everywhere else in this application.
  *   - Other classes. A teacher can move a pupil only between classes they are
@@ -96,7 +97,9 @@ class ClassStudentController extends Controller
                     default => $student->{$field},
                 }])->all(),
             ]]),
-            'autoAdmissionNumbers' => (bool) $school->auto_generate_admission_numbers,
+            // Admission numbers are always generated for a Class Teacher; the
+            // one thing that can stop it is a school with no school code yet.
+            'canNumber' => filled($school->school_code),
             'genders' => Gender::cases(),
         ]);
     }
@@ -106,21 +109,27 @@ class ClassStudentController extends Controller
         $staff = $request->user('staff');
         $school = $staff->school;
         $classes = $this->classesOf($staff, $school);
-        $auto = (bool) $school->auto_generate_admission_numbers;
 
-        // A taken admission number is checked below, not here: when it belongs
-        // to this same pupil, the teacher is offered the existing record
-        // rather than told the number is taken.
+        // A Class Teacher never types an admission number: it is generated
+        // by the School Admin's own generator, when the pupil is saved. One
+        // sent anyway is refused rather than quietly used.
         $validated = $request->validate([
             ...$this->rules($classes),
-            'admission_number' => [$auto ? 'prohibited' : 'required', 'nullable', 'string', 'max:50'],
+            'admission_number' => ['prohibited'],
         ], $this->messages() + [
-            'admission_number.prohibited' => 'Admission numbers are given automatically in your school.',
+            'admission_number.prohibited' => 'Admission numbers are given automatically. Leave it to the system.',
         ]);
 
         Gate::forUser($staff)->authorize('create', [Student::class, $validated['class_name']]);
 
         $back = redirect()->route('staff.students.index', ['school' => $school, 'class' => $validated['class_name']]);
+
+        if (blank($school->school_code)) {
+            return $back->withInput()->withErrors([
+                'admission_number' => 'Admission numbers cannot be generated yet because your school has no school code. '
+                    .'Ask your School Admin to set one under Settings, then add the student/pupil again.',
+            ]);
+        }
 
         // MAYBE ALREADY REGISTERED. Nothing is saved yet: the teacher is shown
         // the existing record(s) and confirms whether this is the same pupil
@@ -128,21 +137,14 @@ class ClassStudentController extends Controller
         // different child with the same name. A teacher can update only a
         // pupil already in one of their own classes; see
         // ClassStudentExistingMatchController.
-        $finder = StudentMatchCandidates::forSchool($school);
-        $typedNumber = $auto ? null : ($validated['admission_number'] ?? null);
-        $candidates = $finder->find($validated, $typedNumber);
-        $holder = $finder->holderOfAdmissionNumber($typedNumber);
-
-        if ($holder !== null && ! collect($candidates)->contains('student_id', $holder)) {
-            return $back->withErrors(['admission_number' => 'The admission number has already been taken.'])->withInput();
-        }
+        $candidates = StudentMatchCandidates::forSchool($school)->find($validated, null);
 
         if ($candidates !== []) {
             $token = Str::random(40);
 
             Cache::put(ClassStudentExistingMatchController::cacheKey($staff, $token), [
                 'school_id' => $school->id,
-                'data' => Arr::only($validated, [...self::EDITABLE, 'admission_number']),
+                'data' => Arr::only($validated, self::EDITABLE),
                 'photo_path' => $this->storePhoto($request),
                 'candidates' => $candidates,
             ], now()->addMinutes(ClassStudentExistingMatchController::TTL_MINUTES));
@@ -150,7 +152,7 @@ class ClassStudentController extends Controller
             return redirect()->route('staff.students.existing.show', ['school' => $school, 'token' => $token]);
         }
 
-        $student = $this->licences->withCapacity($school, function () use ($school, $request, $validated, $auto) {
+        $student = $this->licences->withCapacity($school, function () use ($school, $request, $validated) {
             School::whereKey($school->id)->lockForUpdate()->first();
 
             $duplicate = ExistingStudentMatcher::forSchool($school, $validated['class_name'])->find($validated);
@@ -159,9 +161,14 @@ class ClassStudentController extends Controller
                 return DuplicateStudentNotice::for(Student::findOrFail($duplicate['student_id']), $duplicate['reason']);
             }
 
-            if ($auto) {
-                $validated['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $validated['class_name']);
-            }
+            // THE SAME GENERATOR AS THE SCHOOL ADMIN'S Add Student form and
+            // bulk import (IdentifierGenerator::nextAdmissionNumber): the
+            // school's format ({school code}-{session}-{level code}-{number}),
+            // the one sequence shared with every other registration, numbers
+            // freed by a deletion reused first, and never a number someone
+            // already holds. It locks the school while it picks, so two
+            // registrations at once cannot be given the same number.
+            $validated['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $validated['class_name']);
 
             return $school->students()->create([
                 ...Arr::except($validated, 'photo'),

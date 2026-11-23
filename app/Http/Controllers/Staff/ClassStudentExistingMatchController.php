@@ -70,7 +70,8 @@ class ClassStudentExistingMatchController extends Controller
             'data' => $pending['data'],
             'hasPhoto' => filled($pending['photo_path'] ?? null),
             'candidates' => $this->candidates($staff, $school, $pending),
-            'autoGenerate' => (bool) $school->auto_generate_admission_numbers,
+            // A Class Teacher's new pupils are always numbered automatically.
+            'autoGenerate' => true,
         ]);
     }
 
@@ -155,25 +156,24 @@ class ClassStudentExistingMatchController extends Controller
      */
     private function createNew(Staff $staff, string $token, School $school, array $pending): RedirectResponse
     {
-        $data = Arr::only($pending['data'], [...ClassStudentController::EDITABLE, 'admission_number']);
-        $auto = (bool) $school->auto_generate_admission_numbers;
+        // Never a typed admission number: a Class Teacher's new pupil is
+        // numbered by the School Admin's own generator, as in
+        // ClassStudentController::store.
+        $data = Arr::only($pending['data'], ClassStudentController::EDITABLE);
 
-        $student = $this->licences->withCapacity($school, function () use ($school, $data, $auto, $pending) {
+        if (blank($school->school_code)) {
+            return back()->withErrors(['choice' => 'Admission numbers cannot be generated yet because your school has no school code. Ask your School Admin to set one under Settings.']);
+        }
+
+        $student = $this->licences->withCapacity($school, function () use ($school, $data, $pending) {
             School::whereKey($school->id)->lockForUpdate()->first();
 
             $matcher = ExistingStudentMatcher::forSchool($school);
+            $attempts = 0;
 
-            if (! $auto && filled($data['admission_number'] ?? null) && $matcher->admissionNumberTaken((string) $data['admission_number'])) {
-                return 'taken';
-            }
-
-            if ($auto) {
-                $attempts = 0;
-
-                do {
-                    $data['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $data['class_name'] ?? null);
-                } while ($matcher->admissionNumberTaken($data['admission_number']) && ++$attempts < 1000);
-            }
+            do {
+                $data['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $data['class_name'] ?? null);
+            } while ($matcher->admissionNumberTaken($data['admission_number']) && ++$attempts < 1000);
 
             return $school->students()->create([
                 ...$data,
@@ -184,10 +184,6 @@ class ClassStudentExistingMatchController extends Controller
 
         if ($student === null) {
             return back()->withErrors(['choice' => $this->licences->limitReachedMessage($school)]);
-        }
-
-        if ($student === 'taken') {
-            return back()->withErrors(['choice' => "Admission number {$data['admission_number']} already belongs to another student/pupil. Cancel, and add this pupil again with a different admission number."]);
         }
 
         Cache::forget(self::cacheKey($staff, $token));

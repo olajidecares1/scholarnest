@@ -23,8 +23,14 @@ use Tests\Support\UploadFixtures;
  * request.
  */
 beforeEach(function () {
-    $this->school = activateSchool(School::factory()->create(['auto_generate_admission_numbers' => false]), PlanKey::Basic);
-    $level = AcademicLevel::factory()->create(['school_id' => $this->school->id]);
+    // A school that numbers by hand on the School Admin's side: a Class
+    // Teacher's pupils are numbered automatically all the same.
+    $this->school = activateSchool(School::factory()->create([
+        'auto_generate_admission_numbers' => false,
+        'school_code' => 'BFA',
+        'current_session' => '2026/2027',
+    ]), PlanKey::Basic);
+    $level = AcademicLevel::factory()->create(['school_id' => $this->school->id, 'code' => 'PRY']);
 
     foreach (['Basic 5', 'Basic 6', 'JSS 1'] as $order => $name) {
         SchoolClass::factory()->create(['school_id' => $this->school->id, 'academic_level_id' => $level->id, 'name' => $name, 'sort_order' => $order]);
@@ -54,7 +60,6 @@ function newPupil(array $overrides = []): array
         'first_name' => 'Tola',
         'last_name' => 'Adewale',
         'gender' => 'female',
-        'admission_number' => 'B5/2026/101',
         ...$overrides,
     ];
 }
@@ -95,7 +100,7 @@ test('a Class Teacher adds a pupil to their own class', function () {
         ->assertRedirect(route('staff.students.index', ['school' => $this->school, 'class' => 'Basic 5']))
         ->assertSessionHasNoErrors();
 
-    $added = Student::where('admission_number', 'B5/2026/101')->sole();
+    $added = Student::where('first_name', 'Tola')->sole();
 
     expect($added->school_id)->toBe($this->school->id)
         ->and($added->class_name)->toBe('Basic 5')
@@ -103,14 +108,77 @@ test('a Class Teacher adds a pupil to their own class', function () {
         ->and(AuditLog::where('action', 'students.added_by_class_teacher')->exists())->toBeTrue();
 });
 
-test('the admission number is given automatically where the school does that', function () {
+test('the admission number is generated automatically, in the school\'s format', function () {
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil())
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('status', fn ($status) => str_contains($status, 'BFA-2026/2027-PRY-001'));
+
+    expect(Student::where('first_name', 'Tola')->sole()->admission_number)->toBe('BFA-2026/2027-PRY-001');
+});
+
+test('the Class Teacher and the School Admin share one sequence and one format', function () {
     $this->school->update(['auto_generate_admission_numbers' => true]);
 
-    $this->actingAs($this->teacher, 'staff')
-        ->post(route('staff.students.store', $this->school), newPupil(['admission_number' => null]))
-        ->assertSessionHasNoErrors();
+    // Teacher, then School Admin, then teacher again.
+    $this->actingAs($this->teacher, 'staff')->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'One']));
 
-    expect(Student::where('first_name', 'Tola')->sole()->admission_number)->not->toBeEmpty();
+    $this->actingAs($this->admin)->post(route('students.store'), [
+        'first_name' => 'Two', 'last_name' => 'Admin', 'gender' => 'male', 'class_name' => 'Basic 6',
+    ])->assertSessionHasNoErrors();
+
+    $this->actingAs($this->teacher, 'staff')->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Three']));
+
+    expect(Student::whereIn('first_name', ['One', 'Two', 'Three'])->orderBy('id')->pluck('admission_number')->all())
+        ->toBe(['BFA-2026/2027-PRY-001', 'BFA-2026/2027-PRY-002', 'BFA-2026/2027-PRY-003']);
+});
+
+test('a generated number never repeats one somebody already holds', function () {
+    Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'Basic 5', 'admission_number' => 'BFA-2026/2027-PRY-001']);
+
+    $this->actingAs($this->teacher, 'staff')->post(route('staff.students.store', $this->school), newPupil())->assertSessionHasNoErrors();
+
+    expect(Student::where('first_name', 'Tola')->sole()->admission_number)->toBe('BFA-2026/2027-PRY-002')
+        ->and(Student::where('school_id', $this->school->id)->pluck('admission_number')->duplicates())->toBeEmpty();
+});
+
+test('a number freed by a deletion is reused, exactly as for the School Admin', function () {
+    $this->actingAs($this->teacher, 'staff')->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Gone']));
+    $gone = Student::where('first_name', 'Gone')->sole();
+    expect($gone->admission_number)->toBe('BFA-2026/2027-PRY-001');
+
+    $this->actingAs($this->admin)->delete(route('students.destroy', $gone))->assertSessionHasNoErrors();
+
+    $this->actingAs($this->teacher, 'staff')->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Next']));
+
+    expect(Student::where('first_name', 'Next')->sole()->admission_number)->toBe('BFA-2026/2027-PRY-001');
+});
+
+test('a Class Teacher cannot choose an admission number', function () {
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['admission_number' => 'MY-OWN-001']))
+        ->assertSessionHasErrors('admission_number');
+
+    expect(Student::where('first_name', 'Tola')->exists())->toBeFalse();
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.students.index', $this->school))
+        ->assertSee('The admission number is generated automatically')
+        ->assertDontSee('name="admission_number"', false);
+});
+
+test('without a school code nothing is added, and the teacher is told why', function () {
+    $this->school->update(['school_code' => null]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil())
+        ->assertSessionHasErrors(['admission_number' => 'Admission numbers cannot be generated yet because your school has no school code. Ask your School Admin to set one under Settings, then add the student/pupil again.']);
+
+    expect(Student::where('first_name', 'Tola')->exists())->toBeFalse();
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.students.index', $this->school))
+        ->assertSee('does not have one. Ask your School Admin to set it under Settings.');
 });
 
 test('a Class Teacher cannot add a pupil to another class', function () {
@@ -136,12 +204,6 @@ test('a teacher who is not a Class Teacher cannot add anyone', function () {
     expect(Student::where('first_name', 'Tola')->exists())->toBeFalse();
 });
 
-test('a duplicate admission number is refused', function () {
-    $this->actingAs($this->teacher, 'staff')
-        ->post(route('staff.students.store', $this->school), newPupil(['admission_number' => $this->mine->admission_number]))
-        ->assertSessionHasErrors('admission_number');
-});
-
 test('a Class Teacher adds a pupil with all their details, photo included', function () {
     $this->actingAs($this->teacher, 'staff')
         ->post(route('staff.students.store', $this->school), newPupil([
@@ -157,9 +219,10 @@ test('a Class Teacher adds a pupil with all their details, photo included', func
         ]))
         ->assertSessionHasNoErrors();
 
-    $added = Student::where('admission_number', 'B5/2026/101')->sole();
+    $added = Student::where('first_name', 'Tola')->sole();
 
-    expect($added->house)->toBe('Blue House')
+    expect($added->admission_number)->toBe('BFA-2026/2027-PRY-001')
+        ->and($added->house)->toBe('Blue House')
         ->and($added->guardian_name)->toBe('Mrs Adewale')
         ->and($added->guardian_phone)->toBe('08031234567')
         ->and($added->address)->toBe('12 Allen Avenue, Ikeja')
@@ -293,7 +356,7 @@ function staffConfirmToken($response): string
 
 test('adding a pupil with a name already registered asks the teacher first and saves nothing', function () {
     $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
-        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello', 'admission_number' => 'NEW-1'])));
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello'])));
 
     expect(Student::where('first_name', 'Ade')->count())->toBe(1);
 
@@ -311,7 +374,7 @@ test('a teacher can update a matching pupil in their own class, keeping the admi
     $number = $this->mine->admission_number;
 
     $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
-        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello', 'admission_number' => 'NEW-1', 'guardian_phone' => '08033334444'])));
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello', 'guardian_phone' => '08033334444'])));
 
     $this->actingAs($this->teacher, 'staff')
         ->post(route('staff.students.existing.confirm', [$this->school, $token]), ['choice' => 'update:'.$this->mine->id])
@@ -326,7 +389,7 @@ test('a teacher can update a matching pupil in their own class, keeping the admi
 
 test('a matching pupil in another class is shown but cannot be updated by the teacher', function () {
     $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
-        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Kemi', 'last_name' => 'Ojo', 'admission_number' => 'NEW-2'])));
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Kemi', 'last_name' => 'Ojo'])));
 
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.students.existing.show', [$this->school, $token]))
@@ -344,20 +407,23 @@ test('a matching pupil in another class is shown but cannot be updated by the te
 
 test('the teacher can say it is a different child and add them as new', function () {
     $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
-        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Kemi', 'last_name' => 'Ojo', 'admission_number' => 'NEW-3'])));
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Kemi', 'last_name' => 'Ojo'])));
 
     $this->actingAs($this->teacher, 'staff')
         ->post(route('staff.students.existing.confirm', [$this->school, $token]), ['choice' => 'new'])
         ->assertRedirect();
 
-    expect(Student::where('first_name', 'Kemi')->count())->toBe(2)
-        ->and(Student::where('admission_number', 'NEW-3')->value('class_name'))->toBe('Basic 5')
+    // The new pupil is numbered by the School Admin's generator.
+    $added = Student::where('first_name', 'Kemi')->whereKeyNot($this->notMine->id)->sole();
+
+    expect($added->class_name)->toBe('Basic 5')
+        ->and($added->admission_number)->toBe('BFA-2026/2027-PRY-001')
         ->and($this->notMine->fresh()->class_name)->toBe('Basic 6');
 });
 
 test('a teacher\'s pending question belongs to that teacher only', function () {
     $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
-        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello', 'admission_number' => 'NEW-4'])));
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello'])));
 
     $colleague = Staff::factory()->create(['school_id' => $this->school->id, 'role' => StaffRole::Teacher, 'is_active' => true]);
     TeacherAssignment::factory()->create(['school_id' => $this->school->id, 'staff_id' => $colleague->id, 'type' => TeacherAssignmentType::ClassTeacher, 'class_name' => 'Basic 5']);
@@ -371,12 +437,12 @@ test('a teacher\'s pending question belongs to that teacher only', function () {
 
 test('cancelling on the teacher\'s side saves nothing', function () {
     $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
-        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello', 'admission_number' => 'NEW-5'])));
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello'])));
 
     $this->actingAs($this->teacher, 'staff')
         ->post(route('staff.students.existing.cancel', [$this->school, $token]))
         ->assertRedirect();
 
     expect(Student::where('first_name', 'Ade')->count())->toBe(1)
-        ->and(Student::where('admission_number', 'NEW-5')->exists())->toBeFalse();
+        ->and(Student::where('admission_number', 'like', 'BFA-%')->exists())->toBeFalse();
 });

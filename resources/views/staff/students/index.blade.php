@@ -1,6 +1,6 @@
 @php
     // Typed back in after a refused add or edit, so nothing is lost.
-    $fields = ['class_name', 'first_name', 'last_name', 'gender', 'date_of_birth', 'admission_number', 'house',
+    $fields = ['class_name', 'first_name', 'last_name', 'gender', 'date_of_birth', 'house',
         'guardian_name', 'guardian_phone', 'guardian_email', 'address', 'phone', 'email', 'admission_date', 'notes'];
     $oldInput = collect($fields)->mapWithKeys(fn ($field) => [$field => old($field)])->filter(fn ($value) => $value !== null);
     $blank = collect($fields)->mapWithKeys(fn ($field) => [$field => ''])->merge(['class_name' => $selectedClass])->all();
@@ -84,10 +84,17 @@
                     </div>
                 @endif
 
-                <button type="button" x-on:click="openAdd()" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">
+                <button type="button" x-on:click="openAdd()" @disabled(! $canNumber) class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50">
                     <i class="fa-solid fa-user-plus btn-icon" aria-hidden="true"></i> Add Student/Pupil
                 </button>
             </div>
+
+            @unless ($canNumber)
+                <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
+                    New students/pupils cannot be added yet: admission numbers are generated from your school code, and your
+                    school does not have one. Ask your School Admin to set it under Settings.
+                </div>
+            @endunless
 
             {{-- The class list. --}}
             <div class="overflow-hidden rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -177,7 +184,8 @@
                             <h2 class="text-sm font-bold text-gray-900 dark:text-white" x-text="mode === 'add' ? 'Add a Student/Pupil' : 'Edit ' + form.name"></h2>
                             <small class="field-hint mt-0.5" x-show="mode === 'edit'">Admission number <span class="font-mono font-semibold" x-text="form.admission_number"></span></small>
                             <small class="field-hint mt-0.5" x-show="mode === 'add'">
-                                {{ $autoAdmissionNumbers ? 'An admission number is given automatically.' : 'Enter the admission number the school has given this student/pupil.' }}
+                                <i class="fa-solid fa-wand-magic-sparkles mr-0.5" aria-hidden="true"></i>
+                                The admission number is generated automatically when you add the student/pupil.
                             </small>
                         </div>
                         <button type="button" x-on:click="close()" class="icon-btn icon-btn--neutral shrink-0" data-tooltip="Close" aria-label="Close">
@@ -218,14 +226,6 @@
                                     <label for="f_dob" class="field-label mb-1">Date of Birth</label>
                                     <input id="f_dob" type="date" name="date_of_birth" x-model="form.date_of_birth" max="{{ now()->subDay()->toDateString() }}" class="w-full">
                                 </div>
-                                @unless ($autoAdmissionNumbers)
-                                    <template x-if="mode === 'add'">
-                                        <div>
-                                            <label for="f_admission" class="field-label mb-1">Admission Number</label>
-                                            <input id="f_admission" type="text" name="admission_number" x-model="form.admission_number" required maxlength="50" class="w-full font-mono">
-                                        </div>
-                                    </template>
-                                @endunless
                                 <div>
                                     <label for="f_admission_date" class="field-label mb-1">Admission Date</label>
                                     <input id="f_admission_date" type="date" name="admission_date" x-model="form.admission_date" class="w-full">
