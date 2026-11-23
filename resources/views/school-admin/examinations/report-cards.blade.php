@@ -8,7 +8,7 @@
         <div class="rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="border-b border-gray-100 p-6 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Class Ranking</h2>
-                <small class="field-hint mt-0.5">Ranked by average score across {{ $subjectCount }} subject(s).</small>
+                <small class="field-hint mt-0.5">Ranked by average score across the subjects each student/pupil has a score in.</small>
             </div>
 
             <div class="overflow-x-auto">
@@ -31,7 +31,7 @@
                                         {{ $summary['student']->fullName() }}
                                     </a>
                                 </td>
-                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['subjectsGraded'] }} / {{ $subjectCount }}</td>
+                                <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['subjectsGraded'] }} / {{ $summary['subjectsGraded'] + ($summary['subjectsMissing'] ?? 0) }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['average'] !== null ? $summary['average'].'%' : 'N/A' }}</td>
                                 <td class="px-6 py-3">
                                     <a href="{{ route('examinations.report-cards.show', [$examination, $summary['student']]) }}" class="icon-btn icon-btn--view" data-tooltip="View report card" aria-label="View report card for {{ $summary['student']->fullName() }}"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></a>

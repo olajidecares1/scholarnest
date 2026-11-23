@@ -99,7 +99,8 @@ class DefaultClassSubjects
 
     /**
      * A subject name reduced to what matters when comparing two of them:
-     * lower case, "&" read as "and", dots dropped, runs of spaces made one.
+     * lower case, "&" read as "and", dots dropped, runs of spaces made one,
+     * and spacing around brackets evened out.
      * "Cultural & Creative Art", "cultural and  creative art" and
      * "CULTURAL AND CREATIVE ART" all come out the same.
      */
@@ -110,6 +111,10 @@ class DefaultClassSubjects
         $name = str_replace('.', '', $name);
         $name = preg_replace('/\s*\/\s*/u', '/', $name) ?? $name;
         $name = preg_replace('/\s*,\s*/u', ', ', $name) ?? $name;
+        // "BST 1(PHE & ICT)" and "RNV ( Social Studies )" read as
+        // "bst 1 (phe and ict)" and "rnv (social studies)".
+        $name = preg_replace('/\s*\(\s*/u', ' (', $name) ?? $name;
+        $name = preg_replace('/\s*\)/u', ')', $name) ?? $name;
         $name = preg_replace('/\s+/u', ' ', $name) ?? $name;
 
         return trim($name);

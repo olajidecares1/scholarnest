@@ -58,7 +58,7 @@ class ExaminationResultCalculator
      * count, raw average score, average percentage, and tie-aware rank
      * position (nulls last).
      *
-     * @return Collection<int, array{student: Student, subjectsGraded: int, averageScore: ?float, average: ?float, position: ?int}>
+     * @return Collection<int, array{student: Student, subjectsGraded: int, subjectsMissing: int, averageScore: ?float, average: ?float, position: ?int}>
      */
     public static function summariesFor(Examination $examination): Collection
     {
@@ -90,7 +90,7 @@ class ExaminationResultCalculator
      * who fall outside that list, e.g. transferred or since-deactivated.
      *
      * @param  Collection<int, ExaminationSubject>  $subjects
-     * @return array{student: Student, subjectsGraded: int, averageScore: ?float, average: ?float, position: ?int}
+     * @return array{student: Student, subjectsGraded: int, subjectsMissing: int, averageScore: ?float, average: ?float, position: ?int}
      */
     public static function summaryForStudent(Student $student, Collection $subjects): array
     {
@@ -100,6 +100,13 @@ class ExaminationResultCalculator
         return [
             'student' => $student,
             'subjectsGraded' => $scores->count(),
+
+            // Subjects still to be scored, counting a combined subject and
+            // its separate subjects as alternatives (CombinedSubjects).
+            'subjectsMissing' => count(CombinedSubjects::missing(
+                $subjects->pluck('name'),
+                $subjects->filter(fn ($subject) => $subject->scores->firstWhere('student_id', $student->id) !== null)->pluck('name'),
+            )),
             'averageScore' => $scores->isNotEmpty() ? round($scores->avg(fn ($score) => (float) $score->score), 1) : null,
             'average' => $percentages->isNotEmpty() ? round($percentages->avg(), 1) : null,
             'position' => null,
@@ -110,13 +117,14 @@ class ExaminationResultCalculator
      * A student's computed result status for the given examination, based
      * on how many of its subjects they have a recorded score for.
      */
-    public static function statusFor(Examination $examination, int $subjectsGraded): string
+    public static function statusFor(Examination $examination, int $subjectsGraded, ?int $subjectsMissing = null): string
     {
         $subjectCount = $examination->subjects->count();
+        $subjectsMissing ??= max(0, $subjectCount - $subjectsGraded);
 
         return match (true) {
             $subjectCount === 0 || $subjectsGraded === 0 => 'Not Started',
-            $subjectsGraded < $subjectCount => 'In Progress',
+            $subjectsMissing > 0 => 'In Progress',
             default => 'Complete',
         };
     }

@@ -52,10 +52,17 @@ const JSS_1_SUBJECTS = [
     'Fashion Design', 'Digital Technology', 'Yoruba',
 ];
 
+// JSS 2 & 3 (23 November 2026): each combined subject, then the separate
+// subjects it is made of.
 const JSS_2_3_SUBJECTS = [
-    'English Language', 'Mathematics', 'PHE', 'ICT', 'Basic Science', 'Basic Technology',
-    'Business Studies', 'Social Studies', 'CRS', 'Civic Education', 'Music', 'French', 'Yoruba',
-    'Agricultural Science', 'Home Economics', 'Phonics',
+    'English Language', 'Mathematics',
+    'BST 1 (PHE & ICT)', 'PHE', 'ICT',
+    'BST 2 (Basic Science & Technology)', 'Basic Science', 'Basic Technology',
+    'Business Studies',
+    'RNV (Social Studies, CRS & Civic Education)', 'Social Studies', 'CRS', 'Civic Education',
+    'Music', 'French', 'Yoruba',
+    'PVS (Agric & Home Economics)', 'Agricultural Science', 'Home Economics',
+    'Phonics',
 ];
 
 const SSS_GENERAL_SUBJECTS = [

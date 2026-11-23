@@ -57,7 +57,7 @@ class ResultController extends Controller
             ? Student::sortAlphabetically(
                 ExaminationResultCalculator::summariesFor($examination)->map(fn ($summary) => [
                     ...$summary,
-                    'status' => ExaminationResultCalculator::statusFor($examination, $summary['subjectsGraded']),
+                    'status' => ExaminationResultCalculator::statusFor($examination, $summary['subjectsGraded'], $summary['subjectsMissing']),
                 ]),
                 fn ($row) => $row['student'],
             )

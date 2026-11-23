@@ -170,22 +170,33 @@ return [
             ],
         ],
 
+        // JSS 2 and JSS 3 (23 November 2026): BST 1, BST 2, RNV and PVS
+        // both as one combined subject AND as the separate subjects they are
+        // made of, each right after its combined subject, because some
+        // schools score them one way and some the other. A school scores
+        // whichever it uses; the other is an alternative (see `combined`
+        // below), may stay blank, and does not print on the report card.
+        // In the order of the result sheet.
         'jss_2_3' => [
             'label' => 'JSS 2 & JSS 3',
             'subjects' => [
                 'English Language',
                 'Mathematics',
+                'BST 1 (PHE & ICT)',
                 'PHE',
                 'ICT',
+                'BST 2 (Basic Science & Technology)',
                 'Basic Science',
                 'Basic Technology',
                 'Business Studies',
+                'RNV (Social Studies, CRS & Civic Education)',
                 'Social Studies',
                 'CRS',
                 'Civic Education',
                 'Music',
                 'French',
                 'Yoruba',
+                'PVS (Agric & Home Economics)',
                 'Agricultural Science',
                 'Home Economics',
                 'Phonics',
@@ -296,6 +307,11 @@ return [
         'Yoruba' => ['category' => 'arts', 'aliases' => ['Yoruba Language']],
         'ICT' => ['category' => 'science', 'aliases' => ['Information and Communication Technology', 'Information & Communication Technology']],
         'Home Economics' => ['category' => 'general', 'aliases' => ['Home Econs']],
+        // JSS 2 & 3 also take these as single subjects.
+        'BST 1 (PHE & ICT)' => ['category' => 'science', 'aliases' => ['BST 1', 'BST I', 'BST1']],
+        'BST 2 (Basic Science & Technology)' => ['category' => 'science', 'aliases' => ['BST 2', 'BST II', 'BST2']],
+        'RNV (Social Studies, CRS & Civic Education)' => ['category' => 'general', 'aliases' => []],
+        'PVS (Agric & Home Economics)' => ['category' => 'general', 'aliases' => ['PVS (Agriculture & Home Economics)', 'PVS', 'Pre-Vocational Studies', 'Prevocational Studies']],
 
         // SS 1 – SS 3
         'Biology' => ['category' => 'science', 'aliases' => []],
@@ -326,25 +342,25 @@ return [
         'CRS/IRS',
         'Security Education',
         'Islamic Religious Studies',
+    ],
 
-        // Combined subjects, now listed as the separate subjects they are
-        // (22 November 2026): BST 1 is PHE and ICT, BST 2 is Basic Science
-        // and Basic Technology, RNV is Social Studies, CRS and Civic
-        // Education, and PVS is Agricultural Science and Home Economics.
-        // A score already entered under one of these stays where it is.
-        // BST and RNV themselves are not here: Primary 4 & 5 take them, as
-        // single subjects, again (23 November 2026).
-        'BST 1 (PHE & ICT)',
-        'BST 1',
-        'BST I',
-        'BST 2 (Basic Science & Technology)',
-        'BST 2',
-        'BST II',
-        'RNV (Social Studies, CRS & Civic Education)',
-        'PVS (Agriculture & Home Economics)',
-        'PVS',
-        'Pre-Vocational Studies',
-        'Prevocational Studies',
+    /*
+    | Combined subjects and the separate subjects they are made of.
+    |
+    | Where a score sheet has both, they are alternatives: a school scores
+    | the combined subject OR its separate subjects. Whichever is not used
+    | may stay blank without holding the result back (it is not "missing"
+    | for App\Services\ResultCompleteness or the Complete status), and, like
+    | every subject with no score, it is not printed on the report card.
+    | A score sheet with only one of the two needs that one scored as usual.
+    */
+    'combined' => [
+        'BST 1 (PHE & ICT)' => ['PHE', 'ICT'],
+        'BST 2 (Basic Science & Technology)' => ['Basic Science', 'Basic Technology'],
+        'RNV (Social Studies, CRS & Civic Education)' => ['Social Studies', 'CRS', 'Civic Education'],
+        'PVS (Agric & Home Economics)' => ['Agricultural Science', 'Home Economics'],
+        'BST' => ['Basic Science', 'Basic Technology'],
+        'RNV' => ['Social Studies', 'CRS', 'Civic Education'],
     ],
 
 ];

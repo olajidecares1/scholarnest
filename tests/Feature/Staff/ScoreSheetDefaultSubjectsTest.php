@@ -145,8 +145,7 @@ test('an old default the class no longer takes comes off this session\'s sheet, 
         'term' => ExamTerm::First,
     ]);
     $unscored = $examination->subjects()->create(['name' => 'Security Education', 'max_score' => 100]);
-    $scored = $examination->subjects()->create(['name' => 'BST 2 (Basic Science & Technology)', 'max_score' => 100]);
-    $combined = $examination->subjects()->create(['name' => 'RNV (Social Studies, CRS & Civic Education)', 'max_score' => 100]);
+    $scored = $examination->subjects()->create(['name' => 'Islamic Religious Studies', 'max_score' => 100]);
     $own = $examination->subjects()->create(['name' => 'Robotics', 'max_score' => 100]);
 
     $student = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 2']);
@@ -163,10 +162,8 @@ test('an old default the class no longer takes comes off this session\'s sheet, 
     $names = $examination->subjects()->pluck('name');
 
     expect($names)->not->toContain('Security Education')
-        // An old combined subject with nothing scored: replaced by its parts.
-        ->not->toContain('RNV (Social Studies, CRS & Civic Education)')
-        // A score was entered: kept.
-        ->toContain('BST 2 (Basic Science & Technology)')
+        // An old default with a score entered: kept.
+        ->toContain('Islamic Religious Studies')
         // Added by hand for this paper and not a platform subject: kept.
         ->toContain('Robotics')
         ->toContain(...DefaultClassSubjects::namesForGroup('jss_2_3'));

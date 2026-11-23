@@ -42,10 +42,16 @@ class ResultCompleteness
 
         $blockers = [];
 
-        $ungraded = $subjects->filter(fn (ExaminationSubject $subject) => $subject->scores->isEmpty());
+        // A combined subject and its separate subjects on one sheet are
+        // alternatives: whichever the school does not use may stay blank
+        // (CombinedSubjects). Everything else still needs a score.
+        $missing = CombinedSubjects::missing(
+            $subjects->pluck('name'),
+            $subjects->filter(fn (ExaminationSubject $subject) => $subject->scores->isNotEmpty())->pluck('name'),
+        );
 
-        if ($ungraded->isNotEmpty()) {
-            $blockers[] = 'No score has been recorded for '.$this->listOf($ungraded->pluck('name')).'.';
+        if ($missing !== []) {
+            $blockers[] = 'No score has been recorded for '.$this->listOf(collect(array_values($missing))).'.';
         }
 
         // A total with no test or exam mark behind it is a figure nobody can
