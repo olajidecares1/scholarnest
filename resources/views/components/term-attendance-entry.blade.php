@@ -131,7 +131,9 @@
             </div>
         @endif
 
-        <div class="@container divide-y divide-gray-100 dark:divide-gray-700">
+        {{-- One card per student/pupil, with a gap between cards, so each
+             pupil's figures are easy to tell apart, above all on a phone. --}}
+        <div class="@container space-y-3 bg-gray-50 p-3 @md:p-4 dark:bg-gray-900/40">
             @forelse ($rows as $row)
                 @php
                     $student = $row['student'];
@@ -146,7 +148,7 @@
                 @endphp
 
                 <div
-                    class="grid grid-cols-1 gap-3 p-4 @md:px-6 @5xl:grid-cols-[minmax(0,13rem)_minmax(0,1fr)_minmax(0,12rem)] @5xl:items-center @5xl:gap-5"
+                    class="grid grid-cols-1 gap-3 rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm @md:px-5 @5xl:grid-cols-[minmax(0,13rem)_minmax(0,1fr)_minmax(0,12rem)] @5xl:items-center @5xl:gap-5 dark:border-gray-700 dark:bg-gray-800"
                     x-data="{
                         c: @js($values->map(fn ($v) => $v === null ? '' : (string) $v)->all()),
                         sd: @js($schoolDaysValue === null ? '' : (string) $schoolDaysValue),
@@ -338,7 +340,7 @@
                     @endif
                 </div>
             @empty
-                <small class="block px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in this class yet.</small>
+                <small class="block rounded-[10px] bg-white px-6 py-10 text-center text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">No active students in this class yet.</small>
             @endforelse
         </div>
 
