@@ -415,7 +415,10 @@
                     <i class="fa-solid fa-sun hidden dark:block" aria-hidden="true"></i>
                 </button>
 
-                <div class="relative" x-data="{ open: false }">
+                {{-- On a phone the panel hangs from the header (the nearest positioned
+                         box, since this wrapper is only positioned from sm up)
+                         and spans the screen; from sm up it hangs from the bell. --}}
+                    <div class="sm:relative" x-data="{ open: false }">
                     <button type="button" @click="open = !open" @click.outside="open = false" class="icon-btn icon-btn--neutral" data-tooltip="Notifications" aria-label="Notifications">
                         <i class="fa-solid fa-bell" aria-hidden="true"></i>
                         @if($unreadCount > 0)
@@ -432,7 +435,7 @@
                         x-transition:leave-start="opacity-100"
                         x-transition:leave-end="opacity-0"
                         style="display: none;"
-                        class="absolute right-0 z-30 mt-2 w-80 rounded-[8px] border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                        class="absolute inset-x-3 top-full z-30 mt-2 rounded-[8px] border border-gray-200 bg-white shadow-lg sm:inset-x-auto sm:right-0 sm:w-96 dark:border-gray-700 dark:bg-gray-800"
                     >
                         <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
                             <p class="text-sm font-bold text-gray-900 dark:text-white">Notifications</p>
@@ -444,7 +447,7 @@
                             @endif
                         </div>
 
-                        <div class="max-h-80 overflow-y-auto">
+                        <div class="max-h-[65vh] overflow-y-auto sm:max-h-96">
                             @forelse ($notifications as $notification)
                                 <a
                                     href="{{ route('notifications.read', $notification) }}"
