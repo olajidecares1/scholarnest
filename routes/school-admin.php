@@ -34,6 +34,7 @@ use App\Http\Controllers\SchoolAdmin\ProfileChangeRequestController;
 use App\Http\Controllers\SchoolAdmin\ResultCheckingPinController;
 use App\Http\Controllers\SchoolAdmin\ResultController;
 use App\Http\Controllers\SchoolAdmin\ResultRepositoryController;
+use App\Http\Controllers\SchoolAdmin\ResultTokenBulkController;
 use App\Http\Controllers\SchoolAdmin\SchoolReportController;
 use App\Http\Controllers\SchoolAdmin\SearchController as SchoolSearchController;
 use App\Http\Controllers\SchoolAdmin\SettingsController as SchoolSettingsController;
@@ -334,6 +335,17 @@ Route::middleware('result_pin_access')->name('result-pins.')->group(function () 
     // exists in the first place.
     Route::post(R::uri('result-pins.store'), [ResultCheckingPinController::class, 'store'])->name('store');
     Route::post(R::uri('result-pins.store-bulk'), [ResultCheckingPinController::class, 'storeBulk'])->name('store-bulk');
+
+    // Bulk exam tokens for hand-picked students across several classes:
+    // choose, review, generate as one batch, then print it on A4. Printing
+    // is a POST because it puts tokens on paper, which is audited.
+    Route::get(R::uri('result-pins.bulk.create'), [ResultTokenBulkController::class, 'create'])->name('bulk.create');
+    Route::post(R::uri('result-pins.bulk.review'), [ResultTokenBulkController::class, 'review'])->name('bulk.review');
+    Route::post(R::uri('result-pins.bulk.store'), [ResultTokenBulkController::class, 'store'])->name('bulk.store');
+    Route::get(R::uri('result-pins.batches.show').'/{batch}', [ResultTokenBulkController::class, 'show'])->name('batches.show');
+    Route::post(R::uri('result-pins.print'), [ResultTokenBulkController::class, 'print'])
+        ->middleware('throttle:30,1')
+        ->name('print');
 
     Route::post(R::uri('result-pins.reissue').'/{pin}', [ResultCheckingPinController::class, 'reissue'])->name('reissue');
     Route::post(R::uri('result-pins.reveal').'/{pin}', [ResultCheckingPinController::class, 'reveal'])->name('reveal');

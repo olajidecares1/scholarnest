@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ResultCheckingPinStatus;
 use App\Models\Examination;
 use App\Models\ResultCheckingPin;
+use App\Models\ResultTokenBatch;
 use App\Models\School;
 use App\Models\Setting;
 use App\Models\Student;
@@ -59,6 +60,7 @@ class ResultTokenIssuer
         Examination $examination,
         User $issuedBy,
         ?int $maxUses = null,
+        ?ResultTokenBatch $batch = null,
     ): array {
         $this->assertBindingIsValid($school, $student, $examination);
 
@@ -67,7 +69,7 @@ class ResultTokenIssuer
         // that, and always was.
         $plain = ResultCheckingPin::generatePlainToken();
 
-        $token = DB::transaction(function () use ($school, $student, $examination, $issuedBy, $maxUses, &$plain) {
+        $token = DB::transaction(function () use ($school, $student, $examination, $issuedBy, $maxUses, $batch, &$plain) {
             // A collision is vanishingly unlikely at 69 bits, but "unlikely"
             // is not "impossible" and the column is unique, so retry rather
             // than fail the school's whole batch on a freak clash.
@@ -79,6 +81,7 @@ class ResultTokenIssuer
                 'school_id' => $school->id,
                 'bound_student_id' => $student->id,
                 'examination_id' => $examination->id,
+                'batch_id' => $batch?->id,
                 'token_hash' => ResultCheckingPin::hashToken($plain),
                 'token_encrypted' => ResultCheckingPin::normaliseToken($plain),
                 'status' => ResultCheckingPinStatus::Active,
@@ -150,12 +153,16 @@ class ResultTokenIssuer
         return DB::transaction(function () use ($token, $issuedBy): array {
             $token->update(['status' => ResultCheckingPinStatus::Revoked]);
 
+            // Kept in the same bulk batch, if it came from one, so printing
+            // that batch again prints the replacement rather than dropping
+            // the student because their old token was revoked.
             return $this->issue(
                 $token->school,
                 $token->boundStudent,
                 $token->examination,
                 $issuedBy,
                 $token->max_uses,
+                $token->batch,
             );
         });
     }

@@ -10,6 +10,7 @@ use App\Models\AuditLog;
 use App\Models\Examination;
 use App\Models\ResultCheckingPin;
 use App\Models\ResultTokenAccessLog;
+use App\Models\ResultTokenBatch;
 use App\Models\School;
 use App\Models\Student;
 use App\Notifications\ResultTokenIssuedNotification;
@@ -117,6 +118,14 @@ class ResultCheckingPinController extends Controller
             // Shown once, immediately after generation. This is the only moment
             // the plain tokens appear on screen in bulk.
             'issuedTokens' => session('issued_tokens'),
+
+            // Bulk runs, newest first, each one printable again from its page.
+            'recentBatches' => ResultTokenBatch::query()
+                ->forSchool($school)
+                ->with('generatedBy')
+                ->latest()
+                ->limit(8)
+                ->get(),
 
             // The school's own view of who has been trying to read results.
             'recentAccess' => ResultTokenAccessLog::query()

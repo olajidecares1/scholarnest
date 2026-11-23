@@ -69,6 +69,7 @@ class ResultCheckingPin extends Model
     protected $fillable = [
         'school_id',
         'examination_id',
+        'batch_id',
         'token_hash',
         'token_encrypted',
         'status',
@@ -129,6 +130,16 @@ class ResultCheckingPin extends Model
     public function examination(): BelongsTo
     {
         return $this->belongsTo(Examination::class);
+    }
+
+    /**
+     * The bulk run that created this token, if it came from one.
+     *
+     * @return BelongsTo<ResultTokenBatch, $this>
+     */
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(ResultTokenBatch::class, 'batch_id');
     }
 
     /**

@@ -37,15 +37,7 @@ class ExaminationResolver
      */
     public function forTokens(School $school, string $session, ExamTerm $term, string $className): Examination
     {
-        $existing = Examination::query()
-            ->where('school_id', $school->id)
-            ->where('session', $session)
-            ->where('term', $term)
-            ->where('class_name', $className)
-            ->orderByRaw('exam_date IS NULL')
-            ->orderByDesc('exam_date')
-            ->orderByDesc('id')
-            ->first();
+        $existing = $this->existing($school, $session, $term, $className);
 
         if ($existing) {
             return $existing;
@@ -73,5 +65,25 @@ class ExaminationResolver
         ExaminationSubjectSync::sync($examination);
 
         return $examination;
+    }
+
+    /**
+     * The examination forTokens() would bind to, WITHOUT creating one.
+     *
+     * For looking, not issuing: the bulk generator uses it to mark the
+     * students who already hold a token while the School Admin is still
+     * choosing, and merely opening that screen must not file examinations.
+     */
+    public function existing(School $school, string $session, ExamTerm $term, string $className): ?Examination
+    {
+        return Examination::query()
+            ->where('school_id', $school->id)
+            ->where('session', $session)
+            ->where('term', $term)
+            ->where('class_name', $className)
+            ->orderByRaw('exam_date IS NULL')
+            ->orderByDesc('exam_date')
+            ->orderByDesc('id')
+            ->first();
     }
 }

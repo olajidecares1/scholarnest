@@ -324,6 +324,95 @@
             </form>
         </div>
 
+        {{-- Bulk: hand-picked students across several classes, reviewed,
+             generated as a batch and printed on A4. --}}
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div class="rounded-[5px] border-2 border-primary-200 bg-white p-6 shadow-sm dark:border-primary-900 dark:bg-gray-800 lg:rounded-[10px]">
+                <div class="flex items-start gap-3">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300">
+                        <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                    </span>
+                    <div class="min-w-0">
+                        <h2 class="text-sm font-bold text-gray-900 dark:text-white">Bulk exam tokens</h2>
+                        <small class="field-hint mt-0.5">
+                            Pick students from several classes at once (for example 10 from Basic 5, 15 from Basic 6 and
+                            20 from JSS 1), review them, generate their tokens and print them on A4.
+                        </small>
+                    </div>
+                </div>
+                <a href="{{ route('result-pins.bulk.create') }}" class="btn mt-4 inline-flex w-full items-center justify-center rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">
+                    <i class="fa-solid fa-users-rectangle btn-icon" aria-hidden="true"></i> Choose Students
+                </a>
+
+                @if ($recentBatches->isNotEmpty())
+                    <div class="mt-5 border-t border-gray-100 pt-4 dark:border-gray-700">
+                        <small class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Recent batches</small></small>
+                        <ul class="mt-2 divide-y divide-gray-100 dark:divide-gray-700">
+                            @foreach ($recentBatches as $batch)
+                                <li class="flex items-center justify-between gap-3 py-2 text-sm">
+                                    <span class="min-w-0">
+                                        <span class="font-semibold text-gray-900 dark:text-white">{{ $batch->token_count }} token{{ $batch->token_count === 1 ? '' : 's' }}</span>
+                                        <span class="text-xs text-gray-500">&middot; {{ $batch->term->label() }}, {{ $batch->session }} &middot; {{ $batch->created_at->format('j M Y') }}</span>
+                                    </span>
+                                    <a href="{{ route('result-pins.batches.show', $batch) }}" class="shrink-0 text-xs font-semibold text-primary-600 hover:underline dark:text-primary-400">
+                                        <i class="fa-solid fa-print text-[10px]" aria-hidden="true"></i> Open &amp; print
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Every valid token for a term, however it was issued: one at a
+                 time, by whole class, or in a batch. --}}
+            <form method="POST" action="{{ route('result-pins.print') }}" target="_blank" x-data="{ download: 0 }" class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
+                @csrf
+                <input type="hidden" name="download" :value="download">
+                <h2 class="text-sm font-bold text-gray-900 dark:text-white">Print tokens for a term</h2>
+                <small class="field-hint mt-0.5">
+                    Every valid token for the term, however it was issued, on A4 with each student's name, admission number and class.
+                </small>
+
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="print_session" class="field-label mb-1">Academic Year</label>
+                        <select id="print_session" name="session" required class="w-full">
+                            @foreach ($sessions as $session)
+                                <option value="{{ $session }}" @selected($session === $currentSession)>{{ $session }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="print_term" class="field-label mb-1">Term</label>
+                        <select id="print_term" name="term" required class="w-full">
+                            @foreach ($terms as $term)
+                                <option value="{{ $term->value }}">{{ $term->label() }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label for="print_class_name" class="field-label mb-1">Class</label>
+                    <select id="print_class_name" name="class_name" class="w-full">
+                        <option value="">All classes</option>
+                        @foreach ($classNames as $className)
+                            <option value="{{ $className }}">{{ $className }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <button type="submit" x-on:click="download = 0" class="btn flex-1 rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                        <i class="fa-solid fa-print btn-icon" aria-hidden="true"></i> Print
+                    </button>
+                    <button type="submit" x-on:click="download = 1" class="btn flex-1 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
+                        <i class="fa-solid fa-file-arrow-down btn-icon" aria-hidden="true"></i> Download PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+
         {{-- Tracking, one class at a time.
 
              Built from the STUDENTS in the class rather than from the tokens,
