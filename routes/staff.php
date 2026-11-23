@@ -6,6 +6,7 @@ use App\Http\Controllers\Staff\Cbt\DocumentUploadController as StaffCbtDocumentU
 use App\Http\Controllers\Staff\Cbt\QuestionController as StaffCbtQuestionController;
 use App\Http\Controllers\Staff\Cbt\TestController as StaffCbtTestController;
 use App\Http\Controllers\Staff\ClassNoteController as StaffClassNoteController;
+use App\Http\Controllers\Staff\ClassStudentController as StaffClassStudentController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DiaryController as StaffDiaryController;
 use App\Http\Controllers\Staff\ExaminationController as StaffExaminationController;
@@ -81,6 +82,16 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
             Route::middleware('plan_feature:id-cards')->name('id-card.')->prefix('id-card')->group(function () {
                 Route::get('/', [StaffIdCardController::class, 'show'])->name('show');
                 Route::get('/preview', [StaffIdCardController::class, 'preview'])->name('preview');
+            });
+
+            // A Class Teacher's own class list: add a pupil, correct a name.
+            // No delete route, on purpose: deleting a student is for the
+            // School Admin only. Every action is checked against the
+            // teacher's Class Teacher assignments in StudentPolicy.
+            Route::middleware('staff_is_teacher')->name('students.')->prefix('my-class')->group(function () {
+                Route::get('/', [StaffClassStudentController::class, 'index'])->name('index');
+                Route::post('/', [StaffClassStudentController::class, 'store'])->middleware('throttle:60,1')->name('store');
+                Route::put('/{student}/name', [StaffClassStudentController::class, 'updateName'])->name('update-name');
             });
 
             Route::name('help.')->prefix('help')->group(function () {

@@ -50,8 +50,12 @@ final class PortalNavigation
         // routes say so with a 403.
         $premium = $school->hasPlanAccess(PlanKey::Standard, PlanKey::Exclusive);
 
+        // Only a Class Teacher has a class list to manage.
+        $isClassTeacher = $isTeacher && $staff->classTeacherClassNames()->isNotEmpty();
+
         $categories = [
             'Academic' => self::items($school, [
+                ['staff.students.index', 'My Class', $isClassTeacher],
                 ['staff.attendance.index', 'Attendance', $isTeacher],
                 ['staff.exams.index', 'Test/Exam Score', $isTeacher],
                 ['staff.results.index', 'Report Cards', $isTeacher],

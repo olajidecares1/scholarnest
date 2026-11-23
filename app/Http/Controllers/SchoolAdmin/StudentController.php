@@ -25,6 +25,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -185,6 +186,10 @@ class StudentController extends Controller
     {
         $this->authorizeStudent($student);
 
+        // Deleting is a School Admin's decision alone. See StudentPolicy:
+        // a Class Teacher may add and rename, never delete.
+        Gate::authorize('delete', $student);
+
         if ($student->photo_path) {
             Storage::disk('local')->delete($student->photo_path);
         }
@@ -228,6 +233,8 @@ class StudentController extends Controller
         if ($students->isEmpty()) {
             return back()->withErrors(['students' => 'None of the selected students/pupils could be found. They may already have been deleted.']);
         }
+
+        $students->each(fn (Student $student) => Gate::authorize('delete', $student));
 
         $photos = $students->pluck('photo_path')->filter()->all();
 
