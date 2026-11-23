@@ -14,12 +14,7 @@
 
         @include('staff.attendance._tabs', ['current' => 'term'])
 
-        @if (! $school->usesManualAttendance())
-            <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Term attendance entry isn't turned on at your school</p>
-                <small class="mt-1 block text-sm text-gray-500 dark:text-gray-400">Keep using the daily register. Your School Admin can switch the attendance method to manual term entry under Attendance &rarr; Term Totals.</small>
-            </div>
-        @elseif ($classes->isEmpty())
+        @if ($classes->isEmpty())
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">You haven't been assigned as a Class Teacher yet</p>
                 <small class="mt-1 block text-sm text-gray-500 dark:text-gray-400">Ask your School Admin to assign you as the Class Teacher of a class to enter its attendance.</small>

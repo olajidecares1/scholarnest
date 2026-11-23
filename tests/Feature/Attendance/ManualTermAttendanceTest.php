@@ -87,45 +87,48 @@ function counts(int $present, int $absent = 0, int $late = 0, int $excused = 0):
 }
 
 // -----------------------------------------------------------------------------
-// Optional, per school, every plan
+// At every school, on every plan
 // -----------------------------------------------------------------------------
 
-test('it is off by default, and a teacher keeps the daily register', function () {
-    [$school, , $teacher, $student] = manualAttendanceSchool(enabled: false);
+test('Term Totals are on at every school, on every plan, even one that never turned the old setting on', function (PlanKey $plan) {
+    [$school, $admin, $teacher, $student] = manualAttendanceSchool($plan, enabled: false);
 
-    expect($school->usesManualAttendance())->toBeFalse();
+    expect($school->usesManualAttendance())->toBeTrue();
 
+    // The teacher's attendance pages show the Term Totals tab.
     $this->actingAs($teacher, 'staff')
-        ->get(route('staff.attendance.term.index', $school))
+        ->get(route('staff.attendance.history', [$school, 'period' => 'term']))
         ->assertOk()
-        ->assertSee("Term attendance entry isn't turned on at your school", false);
+        ->assertSee('Term Totals');
 
     $this->actingAs($teacher, 'staff')
         ->post(route('staff.attendance.term.store', $school), termPayload([$student->id => counts(50)]))
-        ->assertForbidden();
-
-    expect(AttendanceSummary::count())->toBe(0);
-});
-
-test('each school turns it on or off for itself, on every plan', function (PlanKey $plan) {
-    [$school, $admin] = manualAttendanceSchool($plan, enabled: false);
-
-    $this->actingAs($admin)
-        ->put(route('attendance.term.settings'), ['manual_attendance_enabled' => '1', 'manual_attendance_teacher_edits' => '1'])
         ->assertSessionHasNoErrors();
 
-    expect($school->fresh()->usesManualAttendance())->toBeTrue();
+    expect(AttendanceSummary::count())->toBe(1);
 
-    $this->actingAs($admin)->get(route('attendance.term.index'))->assertOk()->assertSee('Save First Term', false);
-
-    $this->actingAs($admin)->put(route('attendance.term.settings'), []);
-
-    expect($school->fresh()->usesManualAttendance())->toBeFalse();
+    // The School Admin enters totals too, with no method to choose first.
+    $this->actingAs($admin)->get(route('attendance.term.index'))
+        ->assertOk()
+        ->assertSee('Save First Term', false)
+        ->assertDontSee('Attendance Method')
+        ->assertDontSee('Manual term entry');
 })->with([
     'basic' => PlanKey::Basic,
     'standard' => PlanKey::Standard,
     'exclusive' => PlanKey::Exclusive,
 ]);
+
+test('with no term dates set, the Termly tab points the teacher to Term Totals', function () {
+    [$school, , $teacher] = manualAttendanceSchool(enabled: false);
+
+    $this->actingAs($teacher, 'staff')
+        ->get(route('staff.attendance.history', [$school, 'period' => 'term']))
+        ->assertOk()
+        ->assertSee("Term dates haven't been set by your School Admin yet", false)
+        ->assertSee('Enter Term Totals instead')
+        ->assertSee(route('staff.attendance.term.index', [$school, 'class' => 'Primary 6']), false);
+});
 
 test('a class teacher can enter totals on every plan', function (PlanKey $plan) {
     [$school, , $teacher, $student] = manualAttendanceSchool($plan);
@@ -357,7 +360,7 @@ test('the entry page offers the daily register\'s own tallies to start from', fu
 // Report cards
 // -----------------------------------------------------------------------------
 
-test('report cards use the manual totals when the school uses them', function () {
+test('report cards use the term totals once they are entered', function () {
     [$school, , , $student] = manualAttendanceSchool();
     firstTermDates($school, 60);
 
@@ -370,12 +373,6 @@ test('report cards use the manual totals when the school uses them', function ()
         'present' => 54, 'absent' => 3, 'late' => 2, 'excused' => 1, 'total' => 60, 'percent' => 93, 'school_days' => 60, 'source' => 'manual',
     ]);
 
-    // Turned off: the card counts the register again, and the totals are kept.
-    $school->update(['manual_attendance_enabled' => false]);
-
-    expect(ReportCardData::for($exam->fresh(), $student->fresh())['attendance'])->toMatchArray([
-        'present' => 0, 'absent' => 1, 'total' => 1, 'source' => 'register',
-    ])->and(AttendanceSummary::count())->toBe(1);
 });
 
 test('a pupil without manual totals falls back to the register on the card', function () {
@@ -512,20 +509,22 @@ test('the percentage never goes above 100', function () {
 });
 
 // -----------------------------------------------------------------------------
-// Switching method, reports and summaries
+// The one setting, reports and summaries
 // -----------------------------------------------------------------------------
 
-test('the School Admin switches between the daily register and manual entry', function () {
+test('the School Admin\'s one setting is whether teachers may correct saved totals', function () {
     [$school, $admin] = manualAttendanceSchool(enabled: false);
 
-    $this->actingAs($admin)->get(route('attendance.term.index'))->assertOk()->assertSee('Attendance Method')->assertSee('Manual term entry');
+    $this->actingAs($admin)->put(route('attendance.term.settings'), [])->assertSessionHasNoErrors();
+    expect($school->fresh()->allowsTeacherAttendanceCorrections())->toBeFalse()
+        ->and($school->fresh()->usesManualAttendance())->toBeTrue();
 
-    $this->actingAs($admin)->put(route('attendance.term.settings'), ['manual_attendance_enabled' => '1', 'manual_attendance_teacher_edits' => '1']);
-    expect($school->fresh()->usesManualAttendance())->toBeTrue();
+    $this->actingAs($admin)->put(route('attendance.term.settings'), ['manual_attendance_teacher_edits' => '1']);
+    expect($school->fresh()->allowsTeacherAttendanceCorrections())->toBeTrue();
 
+    // Sending the old on/off choice changes nothing: it is on everywhere.
     $this->actingAs($admin)->put(route('attendance.term.settings'), ['manual_attendance_enabled' => '0', 'manual_attendance_teacher_edits' => '1']);
-    expect($school->fresh()->usesManualAttendance())->toBeFalse()
-        ->and($school->fresh()->allowsTeacherAttendanceCorrections())->toBeTrue();
+    expect($school->fresh()->usesManualAttendance())->toBeTrue();
 });
 
 test('a class\'s term attendance downloads as a CSV report', function () {
@@ -560,12 +559,12 @@ test('a class\'s term attendance downloads as a CSV report', function () {
         ->assertSessionHasErrors('class');
 });
 
-test('the CSV report is refused while the school keeps the daily register', function () {
+test('the CSV report works at every school', function () {
     [, $admin] = manualAttendanceSchool(enabled: false);
 
     $this->actingAs($admin)
         ->get(route('attendance.term.export', ['class' => 'Primary 6', 'session' => MANUAL_SESSION, 'term' => 'first']))
-        ->assertForbidden();
+        ->assertOk();
 });
 
 test('manual totals appear on the School Admin\'s student profile and in the school summary', function () {

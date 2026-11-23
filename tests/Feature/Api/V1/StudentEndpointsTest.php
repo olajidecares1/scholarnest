@@ -274,14 +274,8 @@ test('term attendance totals come back where the school enters them', function (
         'days_excused' => 0,
     ]);
 
-    // Off at the school: nothing, and the meta says why.
-    $this->withToken($this->token)->getJson('/api/v1/student/attendance/terms')
-        ->assertOk()
-        ->assertJsonCount(0, 'data')
-        ->assertJsonPath('meta.manual_attendance_enabled', false);
-
-    $this->school->update(['manual_attendance_enabled' => true]);
-    app('auth')->forgetGuards();
+    // Term totals are on at every school, whatever the old setting says.
+    $this->school->update(['manual_attendance_enabled' => false]);
 
     $this->withToken($this->token)->getJson('/api/v1/student/attendance/terms')
         ->assertOk()

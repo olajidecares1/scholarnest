@@ -25,6 +25,10 @@
             <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Term dates haven't been set by your School Admin yet</p>
                 <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">Termly attendance will show here once term dates are configured.</small>
+                <a href="{{ route('staff.attendance.term.index', [$school, 'class' => $className]) }}" class="btn mt-4 inline-flex rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                    <i class="fa-solid fa-pen-to-square btn-icon" aria-hidden="true"></i> Enter Term Totals instead
+                </a>
+                <small class="mt-2 block text-xs text-gray-500 dark:text-gray-400">Type each student's school days, days present and absent for the term. Term dates aren't needed.</small>
             </div>
         @else
             <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">

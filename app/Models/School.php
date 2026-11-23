@@ -338,15 +338,21 @@ class School extends Model
     }
 
     /**
-     * Does this school let teachers enter term attendance as day counts?
+     * Can teachers enter term attendance as day counts (Term Totals)?
      *
-     * A school setting, not a plan feature: Basic, Standard and Exclusive can
-     * all turn it on. Off by default. It sits beside the daily register and
-     * QR check-in rather than replacing either, see AttendanceMode.
+     * Yes, at every school, on every plan (23 November 2026): it was a
+     * setting a School Admin turned on, and is now always there. It sits
+     * beside the daily register and QR check-in rather than replacing
+     * either, see AttendanceMode. A pupil's report card uses their term
+     * totals once some are entered for that term, and the daily register
+     * until then (TermAttendance::forReportCard), so a school that never
+     * enters totals sees its cards exactly as before.
+     *
+     * The old manual_attendance_enabled column is no longer read.
      */
     public function usesManualAttendance(): bool
     {
-        return (bool) $this->manual_attendance_enabled;
+        return true;
     }
 
     /**

@@ -121,26 +121,26 @@ class TermAttendanceController extends Controller
     {
         $school = $request->user()->school;
 
+        // Term Totals are on at every school (School::usesManualAttendance);
+        // whether teachers may correct saved totals is the one setting left.
         $request->validate([
-            'manual_attendance_enabled' => ['nullable', 'boolean'],
             'manual_attendance_teacher_edits' => ['nullable', 'boolean'],
         ]);
 
         $school->update([
-            'manual_attendance_enabled' => $request->boolean('manual_attendance_enabled'),
             'manual_attendance_teacher_edits' => $request->boolean('manual_attendance_teacher_edits'),
         ]);
 
         AuditLog::record(
             'attendance.manual-settings',
-            $school->usesManualAttendance()
-                ? 'Manual term attendance turned on'.($school->allowsTeacherAttendanceCorrections() ? ', teachers may correct saved totals.' : ', only the School Admin corrects saved totals.')
-                : 'Manual term attendance turned off.',
+            $school->allowsTeacherAttendanceCorrections()
+                ? 'Term totals: teachers may correct saved totals.'
+                : 'Term totals: only the School Admin corrects saved totals.',
             $school,
         );
 
-        return back()->with('status', $school->usesManualAttendance()
-            ? 'Manual term attendance is on. Class teachers can now enter each student\'s days for the term, and report cards use those totals.'
-            : 'Manual term attendance is off. Report cards count the daily register, as before. Saved totals are kept.');
+        return back()->with('status', $school->allowsTeacherAttendanceCorrections()
+            ? 'Saved. Class teachers may correct term totals they have already saved.'
+            : 'Saved. Once a class teacher saves a student\'s term totals, only you can change them.');
     }
 }

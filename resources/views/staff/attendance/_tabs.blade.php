@@ -1,7 +1,7 @@
 {{--
     The teacher's ways into the register: the daily register, its weekly,
-    monthly and termly roll-ups, and, at a school that uses it, term totals
-    entered by hand.
+    monthly and termly roll-ups, and term totals entered by hand (at every
+    school).
 
     @param string $current One of: daily, week, month, term-history, term.
 --}}
