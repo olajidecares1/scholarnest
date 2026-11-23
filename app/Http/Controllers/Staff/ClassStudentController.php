@@ -97,16 +97,20 @@ class ClassStudentController extends Controller
                     default => $student->{$field},
                 }])->all(),
             ]]),
-            // Admission numbers are always generated for a Class Teacher; the
-            // one thing that can stop it is a school with no school code yet.
-            'canNumber' => filled($school->school_code),
+            // The school's "auto-generate admission numbers" setting decides,
+            // exactly as for the School Admin: on, the number is generated;
+            // off, the teacher types it.
+            'autoNumber' => $auto = (bool) $school->auto_generate_admission_numbers,
+
+            // Generating needs the school code; typing a number does not.
+            'canNumber' => ! $auto || filled($school->school_code),
 
             // The number each of the teacher's classes would give a new pupil
             // right now, from the School Admin's own generator, shown on the
             // Add form before saving. It depends on the class (its level code).
-            'admissionPreviews' => collect($classes)->mapWithKeys(fn (string $name) => [
+            'admissionPreviews' => $auto ? collect($classes)->mapWithKeys(fn (string $name) => [
                 $name => $this->identifiers->previewAdmissionNumber($school, $name),
-            ])->all(),
+            ])->all() : [],
             'genders' => Gender::cases(),
         ]);
     }
@@ -117,21 +121,33 @@ class ClassStudentController extends Controller
         $school = $staff->school;
         $classes = $this->classesOf($staff, $school);
 
-        // A Class Teacher never types an admission number: it is generated
-        // by the School Admin's own generator, when the pupil is saved. One
-        // sent anyway is refused rather than quietly used.
+        // The school's "auto-generate admission numbers" setting decides how
+        // the pupil is numbered, the same as on the School Admin's form.
+        // On: generated when the pupil is saved, and a number sent anyway is
+        // refused rather than quietly used. Off: the teacher types it, and it
+        // must not be one the school already uses.
+        $auto = (bool) $school->auto_generate_admission_numbers;
+
         $validated = $request->validate([
             ...$this->rules($classes),
-            'admission_number' => ['prohibited'],
+            'admission_number' => $auto
+                ? ['prohibited']
+                : ['required', 'string', 'max:50', Rule::unique('students', 'admission_number')->where('school_id', $school->id)],
         ], $this->messages() + [
             'admission_number.prohibited' => 'Admission numbers are given automatically. Leave it to the system.',
+            'admission_number.required' => 'Enter the admission number. Your school gives admission numbers by hand, not automatically.',
+            'admission_number.unique' => 'That admission number is already used by another student/pupil in your school.',
         ]);
+
+        if (! $auto) {
+            $validated['admission_number'] = trim($validated['admission_number']);
+        }
 
         Gate::forUser($staff)->authorize('create', [Student::class, $validated['class_name']]);
 
         $back = redirect()->route('staff.students.index', ['school' => $school, 'class' => $validated['class_name']]);
 
-        if (blank($school->school_code)) {
+        if ($auto && blank($school->school_code)) {
             return $back->withInput()->withErrors([
                 'admission_number' => 'Admission numbers cannot be generated yet because your school has no school code. '
                     .'Ask your School Admin to set one under Settings, then add the student/pupil again.',
@@ -152,6 +168,8 @@ class ClassStudentController extends Controller
             Cache::put(ClassStudentExistingMatchController::cacheKey($staff, $token), [
                 'school_id' => $school->id,
                 'data' => Arr::only($validated, self::EDITABLE),
+                // Only when the school numbers by hand: the number the teacher typed.
+                'admission_number' => $auto ? null : $validated['admission_number'],
                 'photo_path' => $this->storePhoto($request),
                 'candidates' => $candidates,
             ], now()->addMinutes(ClassStudentExistingMatchController::TTL_MINUTES));
@@ -159,10 +177,18 @@ class ClassStudentController extends Controller
             return redirect()->route('staff.students.existing.show', ['school' => $school, 'token' => $token]);
         }
 
-        $student = $this->licences->withCapacity($school, function () use ($school, $request, $validated) {
+        $student = $this->licences->withCapacity($school, function () use ($school, $request, $validated, $auto) {
             School::whereKey($school->id)->lockForUpdate()->first();
 
-            $duplicate = ExistingStudentMatcher::forSchool($school, $validated['class_name'])->find($validated);
+            $matcher = ExistingStudentMatcher::forSchool($school, $validated['class_name']);
+
+            // A typed number, checked again inside the lock (and ignoring
+            // capital letters), in case someone took it since the form was checked.
+            if (! $auto && $matcher->admissionNumberTaken($validated['admission_number'])) {
+                return 'taken';
+            }
+
+            $duplicate = $matcher->find($validated);
 
             if ($duplicate !== null) {
                 return DuplicateStudentNotice::for(Student::findOrFail($duplicate['student_id']), $duplicate['reason']);
@@ -175,7 +201,9 @@ class ClassStudentController extends Controller
             // freed by a deletion reused first, and never a number someone
             // already holds. It locks the school while it picks, so two
             // registrations at once cannot be given the same number.
-            $validated['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $validated['class_name']);
+            if ($auto) {
+                $validated['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $validated['class_name']);
+            }
 
             return $school->students()->create([
                 ...Arr::except($validated, 'photo'),
@@ -186,6 +214,10 @@ class ClassStudentController extends Controller
 
         if ($student === null) {
             return $back->withErrors(['first_name' => $this->licences->limitReachedMessage($school)])->withInput();
+        }
+
+        if ($student === 'taken') {
+            return $back->withInput()->withErrors(['admission_number' => 'That admission number is already used by another student/pupil in your school.']);
         }
 
         if (is_array($student)) {

@@ -1,6 +1,6 @@
 @php
     // Typed back in after a refused add or edit, so nothing is lost.
-    $fields = ['class_name', 'first_name', 'last_name', 'gender', 'date_of_birth', 'house',
+    $fields = ['admission_number', 'class_name', 'first_name', 'last_name', 'gender', 'date_of_birth', 'house',
         'guardian_name', 'guardian_phone', 'guardian_email', 'address', 'phone', 'email', 'admission_date', 'notes'];
     $oldInput = collect($fields)->mapWithKeys(fn ($field) => [$field => old($field)])->filter(fn ($value) => $value !== null);
     $blank = collect($fields)->mapWithKeys(fn ($field) => [$field => ''])->merge(['class_name' => $selectedClass])->all();
@@ -210,10 +210,12 @@
                         <div>
                             <h2 class="text-sm font-bold text-gray-900 dark:text-white" x-text="mode === 'add' ? 'Add a Student/Pupil' : 'Edit ' + form.name"></h2>
                             <small class="field-hint mt-0.5" x-show="mode === 'edit'">Admission number <span class="font-mono font-semibold" x-text="form.admission_number"></span></small>
-                            <small class="field-hint mt-0.5" x-show="mode === 'add'">
-                                <i class="fa-solid fa-wand-magic-sparkles mr-0.5" aria-hidden="true"></i>
-                                The admission number is generated automatically when you add the student/pupil.
-                            </small>
+                            @if ($autoNumber)
+                                <small class="field-hint mt-0.5" x-show="mode === 'add'">
+                                    <i class="fa-solid fa-wand-magic-sparkles mr-0.5" aria-hidden="true"></i>
+                                    The admission number is generated automatically when you add the student/pupil.
+                                </small>
+                            @endif
                         </div>
                         <button type="button" x-on:click="close()" class="icon-btn icon-btn--neutral shrink-0" data-tooltip="Close" aria-label="Close">
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -224,9 +226,22 @@
                         <fieldset>
                             <legend class="text-xs font-bold uppercase tracking-wide text-gray-500">Student/Pupil</legend>
                             <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                {{-- The number this pupil will get, from the School Admin's
-                                     generator, for the class chosen below. Read only. --}}
-                                <template x-if="mode === 'add'">
+                                {{-- Follows the school's "auto-generate admission numbers"
+                                     setting. On: the number this pupil will get, from the
+                                     School Admin's generator, for the class chosen below
+                                     (read only). Off: the teacher types it. --}}
+                                @unless ($autoNumber)
+                                    <template x-if="mode === 'add'">
+                                        <div class="sm:col-span-2 lg:col-span-3">
+                                            <label for="f_admission_number" class="field-label mb-1">Admission Number</label>
+                                            <input id="f_admission_number" type="text" name="admission_number" x-model="form.admission_number" required maxlength="50" autocomplete="off" aria-describedby="f_admission_number_hint" class="w-full font-mono">
+                                            <small id="f_admission_number_hint" class="field-hint mt-1">
+                                                Your school gives admission numbers by hand. Enter this student/pupil's number; it must not already be used in your school.
+                                            </small>
+                                        </div>
+                                    </template>
+                                @endunless
+                                <template x-if="mode === 'add' && @js($autoNumber)">
                                     <div class="sm:col-span-2 lg:col-span-3">
                                         <label for="f_admission_preview" class="field-label mb-1">Admission Number</label>
                                         <input

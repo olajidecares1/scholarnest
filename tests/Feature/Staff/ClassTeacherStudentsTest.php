@@ -25,10 +25,11 @@ use Tests\Support\UploadFixtures;
  * request.
  */
 beforeEach(function () {
-    // A school that numbers by hand on the School Admin's side: a Class
-    // Teacher's pupils are numbered automatically all the same.
+    // A school with "auto-generate admission numbers" on, so a Class
+    // Teacher's pupils are numbered automatically. The tests under "A school
+    // that numbers by hand" turn it off.
     $this->school = activateSchool(School::factory()->create([
-        'auto_generate_admission_numbers' => false,
+        'auto_generate_admission_numbers' => true,
         'school_code' => 'BFA',
         'current_session' => '2026/2027',
     ]), PlanKey::Basic);
@@ -156,7 +157,7 @@ test('a number freed by a deletion is reused, exactly as for the School Admin', 
     expect(Student::where('first_name', 'Next')->sole()->admission_number)->toBe('BFA-2026/2027-PRY-001');
 });
 
-test('a Class Teacher cannot choose an admission number', function () {
+test('with auto-generate on, a Class Teacher cannot choose an admission number', function () {
     $this->actingAs($this->teacher, 'staff')
         ->post(route('staff.students.store', $this->school), newPupil(['admission_number' => 'MY-OWN-001']))
         ->assertSessionHasErrors('admission_number');
@@ -488,4 +489,86 @@ test('S/N and admission numbers stay on one line', function () {
         ->get(route('staff.students.index', $this->school))
         ->assertSee('<th class="w-14 whitespace-nowrap px-4 py-2.5 font-semibold">S/N</th>', false)
         ->assertSee('whitespace-nowrap px-3 py-2.5 font-mono text-xs', false);
+});
+
+// ---------------------------------------------------------------------------
+// A school that numbers by hand ("auto-generate admission numbers" off)
+// ---------------------------------------------------------------------------
+
+test('with auto-generate off, the teacher types the admission number and it is used', function () {
+    $this->school->update(['auto_generate_admission_numbers' => false]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.students.index', $this->school))
+        ->assertOk()
+        ->assertSee('name="admission_number"', false)
+        ->assertSee('Your school gives admission numbers by hand')
+        ->assertDontSee('The admission number is generated automatically')
+        ->assertViewHas('admissionPreviews', []);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['admission_number' => ' GA/2026/045 ']))
+        ->assertSessionHasNoErrors();
+
+    expect(Student::where('first_name', 'Tola')->sole()->admission_number)->toBe('GA/2026/045');
+});
+
+test('with auto-generate off, an admission number is required', function () {
+    $this->school->update(['auto_generate_admission_numbers' => false]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil())
+        ->assertSessionHasErrors('admission_number');
+
+    expect(Student::where('first_name', 'Tola')->exists())->toBeFalse();
+});
+
+test('with auto-generate off, a number already used in the school is refused, whatever its capitals', function () {
+    $this->school->update(['auto_generate_admission_numbers' => false]);
+    Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'admission_number' => 'GA-045']);
+
+    foreach (['GA-045', 'ga-045'] as $number) {
+        $this->actingAs($this->teacher, 'staff')
+            ->post(route('staff.students.store', $this->school), newPupil(['admission_number' => $number]))
+            ->assertSessionHasErrors('admission_number');
+    }
+
+    expect(Student::where('first_name', 'Tola')->exists())->toBeFalse();
+});
+
+test('with auto-generate off, a school with no school code can still add pupils', function () {
+    $this->school->update(['auto_generate_admission_numbers' => false, 'school_code' => null]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.students.index', $this->school))
+        ->assertViewHas('canNumber', true);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['admission_number' => 'GA-001']))
+        ->assertSessionHasNoErrors();
+
+    expect(Student::where('first_name', 'Tola')->sole()->admission_number)->toBe('GA-001');
+});
+
+test('with auto-generate off, a different child with the same name keeps the number the teacher typed', function () {
+    $this->school->update(['auto_generate_admission_numbers' => false]);
+    Student::factory()->create([
+        'school_id' => $this->school->id, 'class_name' => 'Basic 5', 'first_name' => 'Tola', 'last_name' => 'Adewale',
+        'admission_number' => 'GA-001', 'date_of_birth' => null, 'guardian_phone' => null,
+    ]);
+
+    $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['admission_number' => 'GA-002'])));
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.students.existing.show', [$this->school, $token]))
+        ->assertOk()
+        ->assertSee('the admission number you entered')
+        ->assertSee('GA-002');
+
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.existing.confirm', [$this->school, $token]), ['choice' => 'new'])
+        ->assertSessionHasNoErrors();
+
+    expect(Student::where('first_name', 'Tola')->pluck('admission_number')->sort()->values()->all())->toBe(['GA-001', 'GA-002']);
 });
