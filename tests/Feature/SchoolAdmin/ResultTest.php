@@ -81,7 +81,9 @@ test('a class/session/term with no examination shows the empty state', function 
 test('result status is computed from how many subjects are graded', function () {
     $admin = resultSchoolAdmin();
     $school = $admin->school;
-    $examination = Examination::factory()->create(['school_id' => $school->id, 'class_name' => 'JSS 1']);
+    // The term being worked on, where a pupil with no marks yet is listed as
+    // Not Started. A past term lists only the pupils who sat it.
+    $examination = Examination::factory()->create(['school_id' => $school->id, 'class_name' => 'JSS 1', 'session' => $school->currentSession()]);
     ExaminationSubject::factory()->create(['examination_id' => $examination->id, 'name' => 'Math', 'max_score' => 100]);
     ExaminationSubject::factory()->create(['examination_id' => $examination->id, 'name' => 'English', 'max_score' => 100]);
 

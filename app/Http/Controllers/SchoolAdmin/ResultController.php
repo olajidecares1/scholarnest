@@ -13,9 +13,9 @@ use App\Models\Student;
 use App\Notifications\ResultAvailableNotification;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ReportCardData;
+use App\Services\ResultArchive;
 use App\Services\ResultRepository;
 use App\Services\SessionResultCalculator;
-use App\Support\AcademicSession;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -31,14 +31,18 @@ class ResultController extends Controller
     {
         $school = $request->user()->school;
 
-        $academicLevels = $school->academicLevels()->with('classes')->get();
-        $classOptions = $academicLevels->flatMap->classes->pluck('name', 'name')->all();
+        $archive = app(ResultArchive::class);
+
+        // Every session the school has results in, and for the chosen one,
+        // every class its examinations were held under, so a term from years
+        // ago, or a class since renamed, can be opened again.
+        $session = $request->filled('session') ? $request->string('session')->toString() : $school->currentSession();
+        $classOptions = $archive->classes($school, $session);
         $defaultClass = array_key_exists('Primary 1', $classOptions) ? 'Primary 1' : array_key_first($classOptions);
 
         $termOptions = ExamTerm::cases();
 
         $class = $request->filled('class') ? $request->string('class')->toString() : $defaultClass;
-        $session = $request->filled('session') ? $request->string('session')->toString() : $school->currentSession();
         $term = $request->filled('term')
             ? (ExamTerm::tryFrom($request->string('term')->toString()) ?? $termOptions[0])
             : $termOptions[0];
@@ -68,7 +72,7 @@ class ResultController extends Controller
 
         return view('school-admin.results.index', [
             'classOptions' => $classOptions,
-            'sessionOptions' => AcademicSession::options(),
+            'sessionOptions' => $archive->sessions($school),
             'termOptions' => $termOptions,
             'selectedClass' => $class,
             'selectedSession' => $session,
@@ -91,26 +95,34 @@ class ResultController extends Controller
     {
         $school = $request->user()->school;
 
-        $classOptions = $school->academicLevels()->with('classes')->get()->flatMap->classes->pluck('name', 'name')->all();
+        $archive = app(ResultArchive::class);
+        $sessionOptions = $archive->sessions($school);
+        $session = $request->filled('session') && in_array($request->string('session')->toString(), $sessionOptions, true)
+            ? $request->string('session')->toString()
+            : $school->currentSession();
+        $classOptions = $archive->classes($school, $session);
         $class = $request->filled('class') && array_key_exists($request->string('class')->toString(), $classOptions)
             ? $request->string('class')->toString()
             : array_key_first($classOptions);
-        $session = $request->filled('session') && in_array($request->string('session')->toString(), AcademicSession::options(), true)
-            ? $request->string('session')->toString()
-            : $school->currentSession();
+
+        // First Term alone, First + Second, or the whole session. Every
+        // earlier term's saved results are pulled in automatically.
+        $upTo = ExamTerm::tryFrom($request->string('up_to')->toString()) ?? ExamTerm::Third;
 
         return view('school-admin.results.session', [
             'enabled' => $school->usesCumulativeResults(),
             'basis' => $school->cumulative_average_basis,
             'classOptions' => $classOptions,
-            'sessionOptions' => AcademicSession::options(),
+            'sessionOptions' => $sessionOptions,
             'selectedClass' => $class,
             'selectedSession' => $session,
-            'termOptions' => ExamTerm::cases(),
+            'termOptions' => array_values(array_filter(ExamTerm::cases(), fn (ExamTerm $term) => array_search($term, ExamTerm::cases(), true) <= array_search($upTo, ExamTerm::cases(), true))),
+            'allTerms' => ExamTerm::cases(),
+            'upTo' => $upTo,
             // A to Z by name, like every other list of students; each row
             // still carries its session position.
             'rows' => $school->usesCumulativeResults() && $class
-                ? Student::sortAlphabetically($calculator->forClass($school, $class, $session), fn ($row) => $row['student'])
+                ? Student::sortAlphabetically($calculator->forClass($school, $class, $session, $upTo), fn ($row) => $row['student'])
                 : collect(),
         ]);
     }

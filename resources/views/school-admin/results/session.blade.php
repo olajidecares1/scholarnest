@@ -9,7 +9,7 @@
     $percent = fn (?float $value) => $value !== null ? \App\Support\Mark::format($value, 1, true).'%' : 'N/A';
 @endphp
 
-<x-dashboard-layout page-title="Session Results" page-subtitle="First, Second and Third Term added into one result for the whole session.">
+<x-dashboard-layout page-title="Session Results" page-subtitle="Each student's saved term results added into one cumulative result, matched by admission number.">
     <div class="space-y-6">
         <div class="flex flex-wrap justify-end gap-2">
             <a
@@ -32,7 +32,7 @@
             </div>
         @else
             <div class="rounded-[5px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
-                <form method="GET" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <form method="GET" class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <div>
                         <label class="field-label" for="session-class">Class</label>
                         <select id="session-class" name="class" onchange="this.form.submit()" class="mt-1 w-full">
@@ -49,29 +49,42 @@
                             @endforeach
                         </select>
                     </div>
+                    <div>
+                        <label class="field-label" for="session-up-to">Cumulative up to</label>
+                        <select id="session-up-to" name="up_to" onchange="this.form.submit()" class="mt-1 w-full">
+                            @foreach ($allTerms as $index => $term)
+                                <option value="{{ $term->value }}" @selected($upTo === $term)>
+                                    {{ collect($allTerms)->take($index + 1)->map->label()->join(' + ') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </form>
                 <small class="field-hint mt-3">
-                    Each term column is that term's average, as printed on its report card. The session average is
-                    {{ $basis === \App\Enums\CumulativeAverageBasis::AllTerms ? 'always divided by three terms' : 'the average of the terms each student has results for' }},
+                    Each student's saved results for every term in the cumulative are fetched automatically by their admission
+                    number, whichever class they sat them in, so nothing is chosen or typed in by hand. Each term column is that
+                    term's average, as printed on its report card. The cumulative average is
+                    {{ $basis === \App\Enums\CumulativeAverageBasis::AllTerms ? 'always divided by the number of terms it covers' : 'the average of the terms each student has results for' }},
                     and graded on your school's grading scale.
                 </small>
             </div>
 
             @if ($rows->isEmpty())
                 <div class="rounded-[10px] border border-dashed border-gray-300 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-800">
-                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">No students in {{ $selectedClass ?? 'this class' }}</p>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">No saved results for {{ $selectedClass ?? 'this class' }} in {{ $selectedSession }}</p>
                 </div>
             @else
                 <div class="overflow-x-auto rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
                     <table class="w-full min-w-[46rem] text-left text-sm">
                         <thead class="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
+                                <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                                 <th class="px-4 py-3 font-semibold">Student</th>
                                 @foreach ($termOptions as $term)
                                     <th class="px-3 py-3 text-center font-semibold">{{ $term->label() }}</th>
                                 @endforeach
-                                <th class="px-3 py-3 text-center font-semibold">Session Total</th>
-                                <th class="px-3 py-3 text-center font-semibold">Session Average</th>
+                                <th class="px-3 py-3 text-center font-semibold">Cumulative Total</th>
+                                <th class="px-3 py-3 text-center font-semibold">Cumulative Average</th>
                                 <th class="px-3 py-3 text-center font-semibold">Grade</th>
                                 <th class="px-3 py-3 text-center font-semibold">Position</th>
                             </tr>
@@ -79,8 +92,9 @@
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach ($rows as $row)
                                 <tr>
+                                    <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                                     <td class="px-4 py-3">
-                                        <span class="font-semibold text-gray-900 dark:text-white">{{ $row['student']->fullName() }}</span>
+                                        <a href="{{ route('results.student', ['admission_number' => $row['student']->admission_number]) }}" class="font-semibold text-gray-900 hover:text-primary-600 hover:underline dark:text-white" data-tooltip="All results for this student">{{ $row['student']->fullName() }}</a>
                                         <small class="block text-xs text-gray-500 dark:text-gray-400">{{ $row['student']->admission_number }}</small>
                                     </td>
                                     @foreach ($termOptions as $term)

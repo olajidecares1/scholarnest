@@ -48,10 +48,10 @@ class ReportCardData
                 ->first(),
             'attendance' => self::attendanceSummaryFor($student, $examination, $currentTerm),
 
-            'numberInClass' => Student::where('school_id', $examination->school_id)
-                ->where('class_name', $examination->class_name)
-                ->where('is_active', true)
-                ->count(),
+            // The class as it sat this examination: today's class for the
+            // current session, the pupils who sat it for a past one. See
+            // ExaminationResultCalculator::rosterFor().
+            'numberInClass' => ExaminationResultCalculator::rosterFor($examination)->count(),
             'nextTermBegins' => $currentTerm
                 ? AcademicTerm::where('school_id', $school->id)
                     ->where('starts_on', '>', $currentTerm->ends_on)

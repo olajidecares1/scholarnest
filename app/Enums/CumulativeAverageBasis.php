@@ -25,11 +25,16 @@ enum CumulativeAverageBasis: string
         };
     }
 
-    public function divisor(int $termsWithResults): int
+    /**
+     * @param  int|null  $termsInScope  How many terms the cumulative covers:
+     *                                  two for First + Second, three (the
+     *                                  default) for the whole session.
+     */
+    public function divisor(int $termsWithResults, ?int $termsInScope = null): int
     {
         return match ($this) {
             self::TermsTaken => $termsWithResults,
-            self::AllTerms => count(ExamTerm::cases()),
+            self::AllTerms => $termsInScope ?? count(ExamTerm::cases()),
         };
     }
 }

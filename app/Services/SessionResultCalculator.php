@@ -39,15 +39,118 @@ class SessionResultCalculator
      *
      * @return Collection<int, array<string, mixed>> each row is a session result plus 'student'
      */
-    public function forClass(School $school, string $className, string $session): Collection
+    public function forClass(School $school, string $className, string $session, ?ExamTerm $upTo = null): Collection
     {
-        $students = Student::where('school_id', $school->id)
-            ->where('class_name', $className)
-            ->where('is_active', true)
+        return $this->build($school, $this->classRoster($school, $className, $session), $className, $session, $upTo);
+    }
+
+    /**
+     * One student's cumulative result, found by ADMISSION NUMBER.
+     *
+     * The admission number is the identifier a school knows its pupils by,
+     * and it is unique within a school, so it is what the cumulative is
+     * matched on: no picking the student, the class or the terms by hand.
+     * Matching ignores case and surrounding spaces ("bfa/2026/0101 " is
+     * BFA/2026/0101).
+     *
+     * The class is the one the student SAT that session in, read from their
+     * saved results (the latest term they have marks in), not the class they
+     * are in today, so last session's cumulative is still found after they
+     * have been moved up. Every earlier term's marks in the session are then
+     * pulled in automatically, whichever class or arm they were recorded
+     * under.
+     *
+     * Null when no student has that admission number, or they have no
+     * result in the session.
+     *
+     * @return array<string, mixed>|null the session result, with 'student'
+     */
+    public function forAdmissionNumber(School $school, string $admissionNumber, string $session, ?ExamTerm $upTo = null): ?array
+    {
+        $student = $this->studentByAdmissionNumber($school, $admissionNumber);
+
+        if ($student === null) {
+            return null;
+        }
+
+        $className = $this->classSatIn($school, $student, $session, $upTo);
+
+        if ($className === null) {
+            return null;
+        }
+
+        $row = $this->forStudent($school, $student, $className, $session, $upTo);
+
+        return $row === null ? null : ['student' => $student, ...$row];
+    }
+
+    /**
+     * The student with this admission number in this school, if any.
+     */
+    public function studentByAdmissionNumber(School $school, string $admissionNumber): ?Student
+    {
+        $normalised = mb_strtolower(trim($admissionNumber));
+
+        if ($normalised === '') {
+            return null;
+        }
+
+        return Student::query()
+            ->where('school_id', $school->id)
+            ->whereRaw('LOWER(TRIM(admission_number)) = ?', [$normalised])
+            ->first();
+    }
+
+    /**
+     * The class a student sat their exams in during a session: the class of
+     * the latest term (up to $upTo) holding a recorded score of theirs.
+     */
+    public function classSatIn(School $school, Student $student, string $session, ?ExamTerm $upTo = null): ?string
+    {
+        $order = array_flip(array_map(fn (ExamTerm $term) => $term->value, ExamTerm::cases()));
+
+        return Examination::query()
+            ->where('school_id', $school->id)
+            ->where('session', $session)
+            ->whereHas('subjects.scores', fn ($query) => $query->where('student_id', $student->id)->whereNotNull('score'))
+            ->get(['id', 'class_name', 'term', 'exam_date'])
+            ->filter(fn (Examination $examination) => $upTo === null || $order[$examination->term->value] <= $order[$upTo->value])
+            ->sortByDesc(fn (Examination $examination) => [$order[$examination->term->value], $examination->id])
+            ->first()
+            ?->class_name;
+    }
+
+    /**
+     * The students a class's cumulative is worked out for.
+     *
+     * The current session: today's active class, as always. A past session:
+     * everyone with a saved score in that class's examinations that session,
+     * whatever class they are in now, so promoting a class does not empty
+     * last session's cumulative. See ExaminationResultCalculator::rosterFor().
+     *
+     * @return Collection<int, Student>
+     */
+    private function classRoster(School $school, string $className, string $session): Collection
+    {
+        // Current or newer: still being taught. See
+        // ExaminationResultCalculator::rosterFor().
+        if (strcmp($session, $school->currentSession()) >= 0) {
+            return Student::where('school_id', $school->id)
+                ->where('class_name', $className)
+                ->where('is_active', true)
+                ->alphabetical()
+                ->get();
+        }
+
+        return Student::where('school_id', $school->id)
+            ->whereHas('examinationScores', fn ($query) => $query
+                ->whereNotNull('score')
+                ->whereHas('subject.examination', fn ($exam) => $exam
+                    ->where('school_id', $school->id)
+                    ->where('session', $session)
+                    ->where('class_name', $className)))
             ->alphabetical()
             ->get();
-
-        return $this->build($school, $students, $className, $session);
     }
 
     /**
@@ -57,13 +160,9 @@ class SessionResultCalculator
      *
      * @return array<string, mixed>|null
      */
-    public function forStudent(School $school, Student $student, string $className, string $session): ?array
+    public function forStudent(School $school, Student $student, string $className, string $session, ?ExamTerm $upTo = null): ?array
     {
-        $students = Student::where('school_id', $school->id)
-            ->where('class_name', $className)
-            ->where('is_active', true)
-            ->alphabetical()
-            ->get();
+        $students = $this->classRoster($school, $className, $session);
 
         // A student who has since left the class, or been deactivated, still
         // gets their own figures, just as the term card falls back for them.
@@ -71,7 +170,7 @@ class SessionResultCalculator
             $students->push($student);
         }
 
-        $row = $this->build($school, $students, $className, $session)->firstWhere('student.id', $student->id);
+        $row = $this->build($school, $students, $className, $session, $upTo)->firstWhere('student.id', $student->id);
 
         if (! $row || $row['termsCounted'] === 0) {
             return null;
@@ -86,7 +185,7 @@ class SessionResultCalculator
      * @param  Collection<int, Student>  $students
      * @return Collection<int, array<string, mixed>>
      */
-    private function build(School $school, Collection $students, string $className, string $session): Collection
+    private function build(School $school, Collection $students, string $className, string $session, ?ExamTerm $upTo = null): Collection
     {
         $school->loadMissing('gradeBands');
         $basis = $school->cumulative_average_basis ?? CumulativeAverageBasis::TermsTaken;
@@ -108,7 +207,7 @@ class SessionResultCalculator
 
         $rows = $students->map(fn (Student $student) => [
             'student' => $student,
-            ...$this->forOne($school, $basis, $student, $className, $session, $byTerm),
+            ...$this->forOne($school, $basis, $student, $className, $session, $byTerm, $this->termsUpTo($upTo)),
         ]);
 
         return $this->rank($rows)->values();
@@ -118,12 +217,20 @@ class SessionResultCalculator
      * @param  Collection<string, Collection<int, Examination>>  $byTerm
      * @return array<string, mixed>
      */
-    private function forOne(School $school, CumulativeAverageBasis $basis, Student $student, string $className, string $session, Collection $byTerm): array
+    private function forOne(School $school, CumulativeAverageBasis $basis, Student $student, string $className, string $session, Collection $byTerm, array $inScope): array
     {
         $terms = [];
         $subjects = [];
 
         foreach (ExamTerm::cases() as $term) {
+            // A cumulative "up to Second Term" is First + Second; Third Term
+            // is not part of it even if marks exist.
+            if (! in_array($term, $inScope, true)) {
+                $terms[$term->value] = null;
+
+                continue;
+            }
+
             $examination = $this->examinationFor($byTerm->get($term->value, collect()), $student, $className);
 
             if (! $examination) {
@@ -155,7 +262,7 @@ class SessionResultCalculator
         }
 
         $taken = collect($terms)->filter(fn ($term) => $term !== null && $term['average'] !== null);
-        $divisor = $basis->divisor($taken->count());
+        $divisor = $basis->divisor($taken->count(), count($inScope));
         $average = $taken->isNotEmpty() && $divisor > 0 ? round($taken->sum('average') / $divisor, 1) : null;
 
         return [
@@ -163,7 +270,8 @@ class SessionResultCalculator
             'className' => $className,
             'basis' => $basis->value,
             'terms' => $terms,
-            'subjects' => collect($subjects)->map(fn (array $row) => $this->subjectRow($school, $basis, $row))->values()->all(),
+            'subjects' => collect($subjects)->map(fn (array $row) => $this->subjectRow($school, $basis, $row, $inScope))->values()->all(),
+            'upTo' => end($inScope)->value,
             'total' => round(collect($terms)->filter()->sum('total'), 2),
             'max' => (int) collect($terms)->filter()->sum('max'),
             'termsCounted' => $taken->count(),
@@ -179,11 +287,11 @@ class SessionResultCalculator
      * @param  array{name: string, terms: array<string, ?float>}  $row
      * @return array<string, mixed>
      */
-    private function subjectRow(School $school, CumulativeAverageBasis $basis, array $row): array
+    private function subjectRow(School $school, CumulativeAverageBasis $basis, array $row, array $inScope): array
     {
         $marks = collect(ExamTerm::cases())->mapWithKeys(fn (ExamTerm $term) => [$term->value => $row['terms'][$term->value] ?? null]);
         $present = $marks->filter(fn ($mark) => $mark !== null);
-        $divisor = $basis->divisor($present->count());
+        $divisor = $basis->divisor($present->count(), count($inScope));
         $average = $present->isNotEmpty() && $divisor > 0 ? round($present->sum() / $divisor, 1) : null;
 
         return [
@@ -237,5 +345,26 @@ class SessionResultCalculator
 
             return $row;
         });
+    }
+
+    /**
+     * The terms a cumulative covers: every term up to and including $upTo,
+     * or the whole session.
+     *
+     * @return list<ExamTerm>
+     */
+    private function termsUpTo(?ExamTerm $upTo): array
+    {
+        $terms = [];
+
+        foreach (ExamTerm::cases() as $term) {
+            $terms[] = $term;
+
+            if ($term === $upTo) {
+                break;
+            }
+        }
+
+        return $terms;
     }
 }

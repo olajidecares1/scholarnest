@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Examination;
+use App\Models\ExaminationScore;
 use App\Models\ExaminationSubject;
 use App\Models\Student;
 use Illuminate\Support\Collection;
@@ -10,7 +11,50 @@ use Illuminate\Support\Collection;
 class ExaminationResultCalculator
 {
     /**
-     * Every active student in the examination's class, with subjects-graded
+     * Who sat an examination, the class list its results are drawn from.
+     *
+     * THE CURRENT SESSION: every active student in the class now, exactly as
+     * it always was, because this is the class being taught and scored, and a
+     * pupil with no marks yet still belongs on the score sheet.
+     *
+     * A PAST SESSION: the students who have a recorded score in it, whatever
+     * class they are in today and whether or not they are still active. The
+     * class list used to be today's class list for every examination, so the
+     * moment pupils were moved up a class their old results fell out of the
+     * old class: last year's JSS 1 First Term showed this year's JSS 1 pupils,
+     * all blank, and the pupils who actually sat it could not be found there.
+     * Their scores were never lost; they were being looked for in the wrong
+     * place. Now a past term is shown as it was saved, with nothing to
+     * re-enter.
+     *
+     * @return Collection<int, Student>
+     */
+    public static function rosterFor(Examination $examination): Collection
+    {
+        $school = $examination->relationLoaded('school') ? $examination->school : $examination->school()->first();
+
+        // "Past" means OLDER than the school's current session. A session
+        // that is current or newer is still being taught, including for a
+        // school that has not yet moved its current session on in Settings.
+        if ($school === null || strcmp((string) $examination->session, $school->currentSession()) >= 0) {
+            return Student::where('school_id', $examination->school_id)
+                ->where('class_name', $examination->class_name)
+                ->where('is_active', true)
+                ->alphabetical()
+                ->get();
+        }
+
+        return Student::where('school_id', $examination->school_id)
+            ->whereIn('id', ExaminationScore::query()
+                ->whereNotNull('score')
+                ->whereIn('examination_subject_id', $examination->subjects()->select('id'))
+                ->select('student_id'))
+            ->alphabetical()
+            ->get();
+    }
+
+    /**
+     * Every student who sat the examination (see rosterFor), with subjects-graded
      * count, raw average score, average percentage, and tie-aware rank
      * position (nulls last).
      *
@@ -18,11 +62,7 @@ class ExaminationResultCalculator
      */
     public static function summariesFor(Examination $examination): Collection
     {
-        $students = Student::where('school_id', $examination->school_id)
-            ->where('class_name', $examination->class_name)
-            ->where('is_active', true)
-            ->alphabetical()
-            ->get();
+        $students = self::rosterFor($examination);
 
         $subjects = $examination->subjects;
 

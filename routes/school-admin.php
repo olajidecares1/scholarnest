@@ -31,6 +31,7 @@ use App\Http\Controllers\SchoolAdmin\NewsController;
 use App\Http\Controllers\SchoolAdmin\NoticeController;
 use App\Http\Controllers\SchoolAdmin\PrincipalRemarkController;
 use App\Http\Controllers\SchoolAdmin\ProfileChangeRequestController;
+use App\Http\Controllers\SchoolAdmin\ResultArchiveController;
 use App\Http\Controllers\SchoolAdmin\ResultCheckingPinController;
 use App\Http\Controllers\SchoolAdmin\ResultController;
 use App\Http\Controllers\SchoolAdmin\ResultRepositoryController;
@@ -288,6 +289,11 @@ Route::name('results.')->group(function () {
     // Cumulative session results for a class. Every plan; the page itself
     // says when the school has the setting off.
     Route::get(R::uri('results.session'), [ResultController::class, 'session'])->name('session');
+
+    // Every saved result, by session, term and class; and one student's
+    // whole record, found by admission number. Read only.
+    Route::get(R::uri('results.archive'), [ResultArchiveController::class, 'index'])->name('archive');
+    Route::get(R::uri('results.student'), [ResultArchiveController::class, 'student'])->name('student');
     Route::get(R::uri('results.show').'/{examination}/{student}', [ResultController::class, 'show'])->name('show');
     Route::put(R::uri('results.remarks').'/{examination}/{student}', [ResultController::class, 'updateRemarks'])->name('remarks');
 

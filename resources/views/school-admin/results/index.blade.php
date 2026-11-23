@@ -20,6 +20,16 @@
                 Principal&rsquo;s Remark Library
             </a>
 
+            {{-- Every saved result, by session, term and class, and any one
+                 student's whole record by admission number. --}}
+            <a
+                href="{{ route('results.archive') }}"
+                class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
+            >
+                <i class="fa-solid fa-box-archive text-[13px]"></i>
+                All Saved Results
+            </a>
+
             {{-- Only for a school that has turned cumulative results on, in
                  Academics. Every plan. --}}
             @if (auth()->user()->school->usesCumulativeResults())
@@ -139,7 +149,7 @@
                                                     {{ Str::of($student->first_name)->substr(0, 1)->upper() }}{{ Str::of($student->last_name)->substr(0, 1)->upper() }}
                                                 </span>
                                             @endif
-                                            <span class="truncate font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
+                                            <a href="{{ route('results.student', ['admission_number' => $student->admission_number]) }}" class="truncate font-semibold text-gray-900 hover:text-primary-600 hover:underline dark:text-white" data-tooltip="All results for this student">{{ $student->fullName() }}</a>
                                         </div>
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ $student->admission_number }}</td>
