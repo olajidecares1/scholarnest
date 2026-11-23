@@ -102,7 +102,11 @@
         @endif
 
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[46rem] text-left text-sm">
+            {{-- On a phone, one card per student/pupil with a gap between
+                 (stack-cards, score-cards in resources/css/app.css): the
+                 Test and Exam boxes side by side, Total / % / Grade as tiles,
+                 the remark under them. --}}
+            <table class="stack-cards score-cards w-full min-w-[46rem] text-left text-sm">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                     <tr>
                         <th class="w-12 whitespace-nowrap px-4 py-3 font-semibold">S/N</th>
@@ -128,7 +132,7 @@
                                 <small class="field-hint">{{ $student->admission_number }}</small>
                             </td>
 
-                            <td class="px-4 py-3">
+                            <td class="score-input px-4 py-3">
                                 <input
                                     type="number"
                                     name="test_scores[{{ $student->id }}]"
@@ -141,7 +145,7 @@
                                 >
                             </td>
 
-                            <td class="px-4 py-3">
+                            <td class="score-input px-4 py-3">
                                 <input
                                     type="number"
                                     name="exam_scores[{{ $student->id }}]"
@@ -155,10 +159,10 @@
                             </td>
 
                             {{-- Not an input. Nothing below is. --}}
-                            <td class="px-4 py-3 font-bold text-gray-900 dark:text-white" x-text="test === null && exam === null ? 'N/A' : (Number(test) || 0) + (Number(exam) || 0)"></td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="percentage(test, exam) === null ? 'N/A' : percentage(test, exam).toFixed(1) + '%'"></td>
-                            <td class="px-4 py-3 font-bold text-gray-900 dark:text-white" x-text="band(test, exam)?.letter ?? 'N/A'"></td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="band(test, exam)?.description || 'N/A'"></td>
+                            <td class="score-stat px-4 py-3 font-bold text-gray-900 dark:text-white" x-text="test === null && exam === null ? 'N/A' : (Number(test) || 0) + (Number(exam) || 0)"></td>
+                            <td class="score-stat px-4 py-3 text-gray-600 dark:text-gray-300" x-text="percentage(test, exam) === null ? 'N/A' : percentage(test, exam).toFixed(1) + '%'"></td>
+                            <td class="score-stat px-4 py-3 font-bold text-gray-900 dark:text-white" x-text="band(test, exam)?.letter ?? 'N/A'"></td>
+                            <td class="score-remark px-4 py-3 text-gray-600 dark:text-gray-300" x-text="band(test, exam)?.description || 'N/A'"></td>
                         </tr>
                     @empty
                         <tr>

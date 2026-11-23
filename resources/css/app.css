@@ -2302,6 +2302,52 @@ a.pwa-install-banner__install {
         padding: 24px 8px !important;
     }
 
+    /* The score sheet's cards: Test and Exam side by side with the label
+     * over the box, then Total / % / Grade as three small tiles, then the
+     * remark. */
+    /* The name keeps its own line, beside only the S/N. */
+    table.stack-cards.score-cards tbody > tr > td[data-stack='title'] {
+        flex: 1 1 calc(100% - 3rem);
+    }
+
+    table.stack-cards.score-cards tbody > tr > td.score-input[data-stack] {
+        flex: 1 1 calc(50% - 5px);
+        text-align: left;
+    }
+
+    table.stack-cards.score-cards tbody > tr > td.score-input::before,
+    table.stack-cards.score-cards tbody > tr > td.score-stat::before {
+        display: block;
+        float: none;
+        max-width: none;
+        margin: 0 0 4px;
+        padding: 0;
+    }
+
+    table.stack-cards.score-cards tbody > tr > td.score-input input {
+        width: 100%;
+    }
+
+    table.stack-cards.score-cards tbody > tr > td.score-stat[data-stack] {
+        flex: 1 1 calc(33.333% - 7px);
+        padding: 6px 4px !important;
+        border-radius: 8px;
+        background: #f3f4f6;
+        text-align: center;
+    }
+
+    table.stack-cards.score-cards tbody > tr > td.score-stat::before {
+        text-align: center;
+    }
+
+    .dark table.stack-cards.score-cards tbody > tr > td.score-stat[data-stack] {
+        background: rgb(17 24 39 / 0.5);
+    }
+
+    table.stack-cards.score-cards tbody > tr > td.score-remark[data-stack] {
+        flex-basis: 100%;
+    }
+
     /* A cell's own min-width or no-wrap would push the card past the screen. */
     table.stack-cards tbody > tr > td [class*='min-w-'] {
         min-width: 0;
