@@ -13,13 +13,18 @@ use App\Models\User;
  *
  *   ADD         a School Admin, in any class of their school; a Class Teacher,
  *               in a class they are the Class Teacher of.
- *   EDIT NAMES  the same: a School Admin for any student of their school, a
- *               Class Teacher for students in their own class(es).
+ *   EDIT        the same: a School Admin for any student of their school, a
+ *               Class Teacher for students in their own class(es). A Class
+ *               Teacher edits the pupil's details (names, gender, date of
+ *               birth, contact and guardian details, house, notes, photo,
+ *               and the class, between their own classes only); the
+ *               admission number once set, login details and active status
+ *               stay with the School Admin.
  *   DELETE      a School Admin of the student's school, and NOBODY ELSE. No
  *               member of staff, whatever their role or assignments.
  *
  * Written once, here, and asked by both portals: the School Admin's student
- * pages and the Class Teacher's "My Class" pages. The screens hide what a user
+ * pages and the Class Teacher's "My Class" page. The screens hide what a user
  * cannot do; these rules are what actually refuses it.
  *
  * The actor is a User (the School Admin, on the web guard) or a Staff member
@@ -40,9 +45,9 @@ class StudentPolicy
     }
 
     /**
-     * Correct a student's first name and surname.
+     * Edit a student's details.
      */
-    public function updateName(User|Staff $actor, Student $student): bool
+    public function update(User|Staff $actor, Student $student): bool
     {
         if ($actor instanceof User) {
             return $this->isSchoolAdmin($actor) && $actor->school_id === $student->school_id;

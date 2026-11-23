@@ -1,10 +1,47 @@
-<x-staff-layout page-title="My Class" page-subtitle="Add new students/pupils to your class and correct their names.">
-    {{-- A Class Teacher's own class list.
+@php
+    // Typed back in after a refused add or edit, so nothing is lost.
+    $fields = ['class_name', 'first_name', 'last_name', 'gender', 'date_of_birth', 'admission_number', 'house',
+        'guardian_name', 'guardian_phone', 'guardian_email', 'address', 'phone', 'email', 'admission_date', 'notes'];
+    $oldInput = collect($fields)->mapWithKeys(fn ($field) => [$field => old($field)])->filter(fn ($value) => $value !== null);
+    $blank = collect($fields)->mapWithKeys(fn ($field) => [$field => ''])->merge(['class_name' => $selectedClass])->all();
+@endphp
 
-         Add and rename only. There is no delete button because there is no
-         delete: removing a student's record removes their results with it,
-         and that is for the School Admin alone (StudentPolicy). --}}
-    <div class="space-y-6" x-data="{ adding: @js($errors->any() && old('class_name') !== null), editing: null }">
+<x-staff-layout page-title="My Class" page-subtitle="Add students/pupils to your class and keep their details up to date.">
+    {{-- A Class Teacher's own class list: add pupils, edit their details.
+
+         No delete button, because there is no delete: removing a student's
+         record removes their results with it, and that is for the School
+         Admin alone. The admission number once set, login details and
+         active status also stay with the School Admin. All enforced on the
+         server by StudentPolicy and ClassStudentController. --}}
+    <div
+        class="space-y-6"
+        x-data="{
+            mode: null,
+            form: {},
+            blank: @js($blank),
+            students: @js($editable),
+            storeUrl: @js(route('staff.students.store', $school)),
+
+            openAdd() { this.form = { ...this.blank }; this.mode = 'add' },
+            openEdit(id) { this.form = { ...this.students[id], _student: id }; this.mode = 'edit' },
+            close() { this.mode = null },
+
+            init() {
+                const mode = @js(old('_mode'));
+                const typed = @js($oldInput);
+
+                if (mode === 'add') {
+                    this.form = { ...this.blank, ...typed };
+                    this.mode = 'add';
+                } else if (mode === 'edit' && this.students[@js(old('_student'))]) {
+                    this.form = { ...this.students[@js(old('_student'))], ...typed, _student: @js(old('_student')) };
+                    this.mode = 'edit';
+                }
+            },
+        }"
+        x-on:keydown.escape.window="close()"
+    >
         @if (session('status'))
             <div class="rounded-[10px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 {{ session('status') }}
@@ -47,73 +84,10 @@
                     </div>
                 @endif
 
-                <button type="button" x-on:click="adding = ! adding" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">
+                <button type="button" x-on:click="openAdd()" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">
                     <i class="fa-solid fa-user-plus btn-icon" aria-hidden="true"></i> Add Student/Pupil
                 </button>
             </div>
-
-            {{-- Add a pupil to one of this teacher's classes. --}}
-            <form
-                method="POST"
-                action="{{ route('staff.students.store', $school) }}"
-                x-show="adding"
-                x-cloak
-                class="rounded-[10px] border border-primary-200 bg-white p-5 shadow-sm dark:border-primary-900 dark:bg-gray-800"
-            >
-                @csrf
-                <h2 class="text-sm font-bold text-gray-900 dark:text-white">Add a student/pupil</h2>
-                <small class="field-hint mt-0.5">
-                    {{ $autoAdmissionNumbers ? 'An admission number is given automatically.' : 'Enter the admission number the school has given this student/pupil.' }}
-                    Your School Admin can add the rest of their details.
-                </small>
-
-                <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    <div>
-                        <label for="add_class" class="field-label mb-1">Class</label>
-                        <select id="add_class" name="class_name" required class="w-full">
-                            @foreach ($classes as $class)
-                                <option value="{{ $class }}" @selected(old('class_name', $selectedClass) === $class)>{{ $class }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label for="add_first_name" class="field-label mb-1">First Name</label>
-                        <input id="add_first_name" type="text" name="first_name" value="{{ old('first_name') }}" required maxlength="100" class="w-full">
-                    </div>
-                    <div>
-                        <label for="add_last_name" class="field-label mb-1">Surname</label>
-                        <input id="add_last_name" type="text" name="last_name" value="{{ old('last_name') }}" required maxlength="100" class="w-full">
-                    </div>
-                    <div>
-                        <label for="add_gender" class="field-label mb-1">Gender</label>
-                        <select id="add_gender" name="gender" required class="w-full">
-                            <option value="">Choose…</option>
-                            @foreach ($genders as $gender)
-                                <option value="{{ $gender->value }}" @selected(old('gender') === $gender->value)>{{ $gender->label() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label for="add_dob" class="field-label mb-1">Date of Birth <span class="font-normal text-gray-400">(optional)</span></label>
-                        <input id="add_dob" type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" max="{{ now()->subDay()->toDateString() }}" class="w-full">
-                    </div>
-                    @unless ($autoAdmissionNumbers)
-                        <div>
-                            <label for="add_admission" class="field-label mb-1">Admission Number</label>
-                            <input id="add_admission" type="text" name="admission_number" value="{{ old('admission_number') }}" required maxlength="50" class="w-full font-mono">
-                        </div>
-                    @endunless
-                </div>
-
-                <div class="mt-4 flex justify-end gap-2">
-                    <button type="button" x-on:click="adding = false" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">
-                        <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel
-                    </button>
-                    <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">
-                        <i class="fa-solid fa-check btn-icon" aria-hidden="true"></i> Add to Class
-                    </button>
-                </div>
-            </form>
 
             {{-- The class list. --}}
             <div class="overflow-hidden rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -126,13 +100,14 @@
                     <small class="block p-8 text-center text-sm text-gray-500 dark:text-gray-400">No students/pupils in {{ $selectedClass }} yet.</small>
                 @else
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[36rem] text-left text-sm">
+                        <table class="w-full min-w-[40rem] text-left text-sm">
                             <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
                                     <th class="w-12 px-5 py-2.5 font-semibold">S/N</th>
                                     <th class="px-3 py-2.5 font-semibold">Name</th>
                                     <th class="px-3 py-2.5 font-semibold">Admission No.</th>
                                     <th class="px-3 py-2.5 font-semibold">Gender</th>
+                                    <th class="px-3 py-2.5 font-semibold">Parent/Guardian</th>
                                     <th class="px-5 py-2.5 text-right font-semibold"><span class="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
@@ -141,41 +116,26 @@
                                     <tr>
                                         <td class="px-5 py-2.5 tabular-nums text-gray-500">{{ $loop->iteration }}</td>
                                         <td class="px-3 py-2.5">
-                                            <div x-show="editing !== @js($student->uuid)">
-                                                <span class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
-                                                @unless ($student->is_active)
-                                                    <span class="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-500 dark:bg-gray-700 dark:text-gray-300">Inactive</span>
-                                                @endunless
-                                            </div>
-
-                                            {{-- Names only: first name and surname. --}}
-                                            <form
-                                                method="POST"
-                                                action="{{ route('staff.students.update-name', [$school, $student]) }}"
-                                                x-show="editing === @js($student->uuid)"
-                                                x-cloak
-                                                class="flex flex-wrap items-center gap-2"
-                                            >
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="text" name="first_name" value="{{ $student->first_name }}" required maxlength="100" class="w-36 py-1.5 text-sm" aria-label="First name of {{ $student->fullName() }}">
-                                                <input type="text" name="last_name" value="{{ $student->last_name }}" required maxlength="100" class="w-36 py-1.5 text-sm" aria-label="Surname of {{ $student->fullName() }}">
-                                                <button type="submit" class="btn rounded-[6px] bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-700">
-                                                    <i class="fa-solid fa-check btn-icon" aria-hidden="true"></i> Save
-                                                </button>
-                                                <button type="button" x-on:click="editing = null" class="btn rounded-[6px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:border-gray-600 dark:text-gray-300">Cancel</button>
-                                            </form>
+                                            <span class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
+                                            @unless ($student->is_active)
+                                                <span class="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-500 dark:bg-gray-700 dark:text-gray-300">Inactive</span>
+                                            @endunless
                                         </td>
                                         <td class="px-3 py-2.5 font-mono text-xs text-gray-600 dark:text-gray-300">{{ $student->admission_number }}</td>
                                         <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300">{{ $student->gender?->label() ?? 'N/A' }}</td>
+                                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300">
+                                            {{ $student->guardian_name ?: '—' }}
+                                            @if ($student->guardian_phone)
+                                                <small class="block text-xs text-gray-500">{{ $student->guardian_phone }}</small>
+                                            @endif
+                                        </td>
                                         <td class="px-5 py-2.5 text-right">
                                             <button
                                                 type="button"
-                                                x-show="editing !== @js($student->uuid)"
-                                                x-on:click="editing = @js($student->uuid)"
+                                                x-on:click="openEdit(@js($student->uuid))"
                                                 class="icon-btn icon-btn--neutral"
-                                                data-tooltip="Edit name"
-                                                aria-label="Edit the name of {{ $student->fullName() }}"
+                                                data-tooltip="Edit details"
+                                                aria-label="Edit the details of {{ $student->fullName() }}"
                                             >
                                                 <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                             </button>
@@ -190,8 +150,149 @@
 
             <small class="block text-xs text-gray-500 dark:text-gray-400">
                 <i class="fa-solid fa-circle-info mr-1" aria-hidden="true"></i>
-                To remove a student/pupil or change any other detail, ask your School Admin.
+                To remove a student/pupil, change an admission number, set up login details, or deactivate a record, ask your School Admin.
             </small>
+
+            {{-- One form for adding and editing: the same details either way. --}}
+            <div x-show="mode !== null" x-cloak class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center" role="dialog" aria-modal="true">
+                <div class="fixed inset-0 bg-gray-900/60" x-on:click="close()"></div>
+
+                <form
+                    method="POST"
+                    :action="mode === 'add' ? storeUrl : form.action"
+                    enctype="multipart/form-data"
+                    class="relative z-10 my-8 w-full max-w-3xl rounded-[12px] bg-white shadow-xl dark:bg-gray-800"
+                >
+                    @csrf
+                    <input type="hidden" name="_mode" :value="mode">
+                    <template x-if="mode === 'edit'">
+                        <span>
+                            <input type="hidden" name="_method" value="PUT">
+                            <input type="hidden" name="_student" :value="form._student">
+                        </span>
+                    </template>
+
+                    <div class="flex items-start justify-between gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                        <div>
+                            <h2 class="text-sm font-bold text-gray-900 dark:text-white" x-text="mode === 'add' ? 'Add a Student/Pupil' : 'Edit ' + form.name"></h2>
+                            <small class="field-hint mt-0.5" x-show="mode === 'edit'">Admission number <span class="font-mono font-semibold" x-text="form.admission_number"></span></small>
+                            <small class="field-hint mt-0.5" x-show="mode === 'add'">
+                                {{ $autoAdmissionNumbers ? 'An admission number is given automatically.' : 'Enter the admission number the school has given this student/pupil.' }}
+                            </small>
+                        </div>
+                        <button type="button" x-on:click="close()" class="icon-btn icon-btn--neutral shrink-0" data-tooltip="Close" aria-label="Close">
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    <div class="max-h-[70vh] space-y-5 overflow-y-auto px-5 py-4">
+                        <fieldset>
+                            <legend class="text-xs font-bold uppercase tracking-wide text-gray-500">Student/Pupil</legend>
+                            <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                <div>
+                                    <label for="f_first_name" class="field-label mb-1">First Name</label>
+                                    <input id="f_first_name" type="text" name="first_name" x-model="form.first_name" required maxlength="100" class="w-full">
+                                </div>
+                                <div>
+                                    <label for="f_last_name" class="field-label mb-1">Surname</label>
+                                    <input id="f_last_name" type="text" name="last_name" x-model="form.last_name" required maxlength="100" class="w-full">
+                                </div>
+                                <div>
+                                    <label for="f_gender" class="field-label mb-1">Gender</label>
+                                    <select id="f_gender" name="gender" x-model="form.gender" required class="w-full">
+                                        <option value="">Choose…</option>
+                                        @foreach ($genders as $gender)
+                                            <option value="{{ $gender->value }}">{{ $gender->label() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="f_class" class="field-label mb-1">Class</label>
+                                    <select id="f_class" name="class_name" x-model="form.class_name" required class="w-full">
+                                        @foreach ($classes as $class)
+                                            <option value="{{ $class }}">{{ $class }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="f_dob" class="field-label mb-1">Date of Birth</label>
+                                    <input id="f_dob" type="date" name="date_of_birth" x-model="form.date_of_birth" max="{{ now()->subDay()->toDateString() }}" class="w-full">
+                                </div>
+                                @unless ($autoAdmissionNumbers)
+                                    <template x-if="mode === 'add'">
+                                        <div>
+                                            <label for="f_admission" class="field-label mb-1">Admission Number</label>
+                                            <input id="f_admission" type="text" name="admission_number" x-model="form.admission_number" required maxlength="50" class="w-full font-mono">
+                                        </div>
+                                    </template>
+                                @endunless
+                                <div>
+                                    <label for="f_admission_date" class="field-label mb-1">Admission Date</label>
+                                    <input id="f_admission_date" type="date" name="admission_date" x-model="form.admission_date" class="w-full">
+                                </div>
+                                <div>
+                                    <label for="f_house" class="field-label mb-1">House</label>
+                                    <input id="f_house" type="text" name="house" x-model="form.house" maxlength="100" placeholder="e.g. Blue House" class="w-full">
+                                </div>
+                                <div>
+                                    <label for="f_photo" class="field-label mb-1">Photo</label>
+                                    <input id="f_photo" type="file" name="photo" accept="image/*" class="w-full text-sm">
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend class="text-xs font-bold uppercase tracking-wide text-gray-500">Parent/Guardian</legend>
+                            <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                <div>
+                                    <label for="f_guardian_name" class="field-label mb-1">Name</label>
+                                    <input id="f_guardian_name" type="text" name="guardian_name" x-model="form.guardian_name" maxlength="150" class="w-full">
+                                </div>
+                                <div>
+                                    <label for="f_guardian_phone" class="field-label mb-1">Phone</label>
+                                    <input id="f_guardian_phone" type="tel" name="guardian_phone" x-model="form.guardian_phone" maxlength="30" class="w-full">
+                                </div>
+                                <div>
+                                    <label for="f_guardian_email" class="field-label mb-1">Email</label>
+                                    <input id="f_guardian_email" type="email" name="guardian_email" x-model="form.guardian_email" maxlength="255" class="w-full">
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend class="text-xs font-bold uppercase tracking-wide text-gray-500">Contact &amp; Notes</legend>
+                            <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label for="f_phone" class="field-label mb-1">Student/Pupil Phone</label>
+                                    <input id="f_phone" type="tel" name="phone" x-model="form.phone" maxlength="30" class="w-full">
+                                </div>
+                                <div>
+                                    <label for="f_email" class="field-label mb-1">Student/Pupil Email</label>
+                                    <input id="f_email" type="email" name="email" x-model="form.email" maxlength="255" class="w-full">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label for="f_address" class="field-label mb-1">Address</label>
+                                    <textarea id="f_address" name="address" x-model="form.address" rows="2" maxlength="2000" class="w-full"></textarea>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label for="f_notes" class="field-label mb-1">Notes</label>
+                                    <textarea id="f_notes" name="notes" x-model="form.notes" rows="2" maxlength="2000" class="w-full"></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="flex justify-end gap-2 border-t border-gray-100 px-5 py-3 dark:border-gray-700">
+                        <button type="button" x-on:click="close()" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200">
+                            <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">
+                            <i class="fa-solid fa-check btn-icon" aria-hidden="true"></i>
+                            <span x-text="mode === 'add' ? 'Add to Class' : 'Save Changes'">Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         @endif
     </div>
 </x-staff-layout>

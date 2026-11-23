@@ -9,35 +9,57 @@ use App\Models\AuditLog;
 use App\Models\School;
 use App\Models\Staff;
 use App\Models\Student;
+use App\Rules\UploadedImage;
 use App\Services\IdentifierGenerator;
 use App\Services\StudentImport\ExistingStudentMatcher;
 use App\Services\StudentLicenceAllocation;
+use App\Services\Uploads\UploadStorage;
 use App\Support\DuplicateStudentNotice;
+use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
- * A Class Teacher's own class list: add a pupil, correct a pupil's name.
+ * A Class Teacher's own class list: add pupils and keep their details up to
+ * date.
  *
- * DELIBERATELY NOTHING ELSE. There is no delete here, no route for one and no
- * button: removing a student's record removes their results with it, and that
- * is the School Admin's decision alone (StudentPolicy::delete). Nor can a
- * teacher reach any other class: every action is checked against the classes
- * the School Admin made them Class Teacher of, on the server, through
- * StudentPolicy, whatever the form sends.
+ * A Class Teacher fills in and edits the same details the School Admin does,
+ * names, gender, date of birth, class, house, guardian and contact details,
+ * admission date, notes and photograph, for pupils in their own class(es).
  *
- * A pupil added here is registered exactly as one added by the School Admin:
- * the same duplicate check, the same admission number sequence, the same
- * limit on how many students the school's plan allows.
+ * WHAT STAYS WITH THE SCHOOL ADMIN:
+ *   - DELETING a student. There is no delete here, no route and no button:
+ *     removing a record removes the pupil's results with it.
+ *   - The ADMISSION NUMBER once it is set. It is how results, tokens and
+ *     cumulative results find the pupil; a teacher enters it only when adding
+ *     a pupil in a school that does not generate them.
+ *   - LOGIN DETAILS and ACTIVE STATUS. Who can sign in is the School Admin's
+ *     call, as everywhere else in this application.
+ *   - Other classes. A teacher can move a pupil only between classes they are
+ *     Class Teacher of.
+ *
+ * Every action is checked on the server through StudentPolicy, whatever the
+ * form sends; fields outside the list below are simply never read.
  */
 class ClassStudentController extends Controller
 {
+    /**
+     * The details a Class Teacher may set, on adding or editing.
+     */
+    private const EDITABLE = [
+        'first_name', 'last_name', 'gender', 'date_of_birth', 'class_name', 'house',
+        'guardian_name', 'guardian_phone', 'guardian_email', 'address', 'phone', 'email',
+        'admission_date', 'notes',
+    ];
+
     public function __construct(
         private readonly IdentifierGenerator $identifiers,
         private readonly StudentLicenceAllocation $licences,
+        private readonly UploadStorage $uploads,
     ) {}
 
     public function index(Request $request, School $school): View
@@ -51,11 +73,26 @@ class ClassStudentController extends Controller
 
         $class = in_array($request->query('class'), $classes, true) ? $request->query('class') : ($classes[0] ?? null);
 
+        $students = $class === null ? collect() : $school->students()->where('class_name', $class)->alphabetical()->get();
+
         return view('staff.students.index', [
             'school' => $school,
             'classes' => $classes,
             'selectedClass' => $class,
-            'students' => $class === null ? collect() : $school->students()->where('class_name', $class)->alphabetical()->get(),
+            'students' => $students,
+
+            // What the edit form opens with, per pupil.
+            'editable' => $students->mapWithKeys(fn (Student $student) => [$student->uuid => [
+                'action' => route('staff.students.update', [$school, $student]),
+                'name' => $student->fullName(),
+                'admission_number' => $student->admission_number,
+                'photo' => $student->photoUrl(),
+                ...collect(self::EDITABLE)->mapWithKeys(fn (string $field) => [$field => match (true) {
+                    $student->{$field} instanceof \BackedEnum => $student->{$field}->value,
+                    $student->{$field} instanceof \DateTimeInterface => $student->{$field}->format('Y-m-d'),
+                    default => $student->{$field},
+                }])->all(),
+            ]]),
             'autoAdmissionNumbers' => (bool) $school->auto_generate_admission_numbers,
             'genders' => Gender::cases(),
         ]);
@@ -69,23 +106,18 @@ class ClassStudentController extends Controller
         $auto = (bool) $school->auto_generate_admission_numbers;
 
         $validated = $request->validate([
-            'class_name' => ['required', 'string', Rule::in($classes)],
-            'first_name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-            'gender' => ['required', Rule::enum(Gender::class)],
-            'date_of_birth' => ['nullable', 'date', 'before:today'],
+            ...$this->rules($classes),
             'admission_number' => [
                 $auto ? 'prohibited' : 'required', 'nullable', 'string', 'max:50',
                 Rule::unique('students', 'admission_number')->where('school_id', $school->id),
             ],
-        ], [
-            'class_name.in' => 'You can only add students/pupils to a class you are the Class Teacher of.',
+        ], $this->messages() + [
             'admission_number.prohibited' => 'Admission numbers are given automatically in your school.',
         ]);
 
         Gate::forUser($staff)->authorize('create', [Student::class, $validated['class_name']]);
 
-        $student = $this->licences->withCapacity($school, function () use ($school, $validated, $auto) {
+        $student = $this->licences->withCapacity($school, function () use ($school, $request, $validated, $auto) {
             School::whereKey($school->id)->lockForUpdate()->first();
 
             $duplicate = ExistingStudentMatcher::forSchool($school, $validated['class_name'])->find($validated);
@@ -99,7 +131,8 @@ class ClassStudentController extends Controller
             }
 
             return $school->students()->create([
-                ...$validated,
+                ...Arr::except($validated, 'photo'),
+                'photo_path' => $this->storePhoto($request),
                 'registration_source' => RegistrationSource::Single,
             ]);
         });
@@ -125,28 +158,40 @@ class ClassStudentController extends Controller
     }
 
     /**
-     * Correct a pupil's first name and surname. Nothing else on the record
-     * can be changed from here.
+     * Edit a pupil's details. Only the fields in EDITABLE (and a new photo)
+     * are ever read from the request.
      */
-    public function updateName(Request $request, School $school, Student $student): RedirectResponse
+    public function update(Request $request, School $school, Student $student): RedirectResponse
     {
         $staff = $request->user('staff');
         $school = $staff->school;
 
-        Gate::forUser($staff)->authorize('updateName', $student);
+        Gate::forUser($staff)->authorize('update', $student);
 
-        $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-        ]);
+        $validated = $request->validate($this->rules($this->classesOf($staff, $school)), $this->messages());
 
-        $before = $student->fullName();
-        $student->update($validated);
+        $student->fill(Arr::only($validated, self::EDITABLE));
+        $changed = array_keys($student->getDirty());
 
-        if ($before !== $student->fullName()) {
+        $previousPhoto = $student->photo_path;
+        $newPhoto = $this->storePhoto($request);
+
+        if ($newPhoto !== null) {
+            $student->photo_path = $newPhoto;
+            $changed[] = 'photo';
+        }
+
+        $student->save();
+
+        if ($newPhoto && $previousPhoto && $previousPhoto !== $newPhoto) {
+            $this->uploads->delete('local', $previousPhoto);
+        }
+
+        if ($changed !== []) {
             AuditLog::record(
-                'students.renamed_by_class_teacher',
-                "{$staff->fullName()} (Class Teacher) changed the name of {$before} ({$student->admission_number}) to {$student->fullName()}.",
+                'students.updated_by_class_teacher',
+                "{$staff->fullName()} (Class Teacher) updated {$student->fullName()} ({$student->admission_number}): "
+                    .collect($changed)->map(fn (string $field) => str_replace('_', ' ', $field))->join(', ').'.',
                 $student,
                 $staff->fullName(),
             );
@@ -154,13 +199,60 @@ class ClassStudentController extends Controller
 
         return redirect()
             ->route('staff.students.index', ['school' => $school, 'class' => $student->class_name])
-            ->with('status', $before === $student->fullName() ? 'No change was made to the name.' : "{$before} is now {$student->fullName()}.");
+            ->with('status', $changed === [] ? "No changes were made to {$student->fullName()}." : "{$student->fullName()}'s details were updated.");
+    }
+
+    /**
+     * The same rules the School Admin's form uses for these fields, with the
+     * class limited to this teacher's own classes.
+     *
+     * @param  list<string>  $classes
+     * @return array<string, mixed>
+     */
+    private function rules(array $classes): array
+    {
+        return [
+            'class_name' => ['required', 'string', Rule::in($classes)],
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
+            'gender' => ['required', Rule::enum(Gender::class)],
+            'date_of_birth' => ['nullable', 'date', 'before:today'],
+            'house' => ['nullable', 'string', 'max:100'],
+            'guardian_name' => ['nullable', 'string', 'max:150'],
+            'guardian_phone' => ['nullable', 'string', 'max:30'],
+            'guardian_email' => ['nullable', 'email', 'max:255'],
+            'address' => ['nullable', 'string', 'max:2000'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'admission_date' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+            'photo' => UploadedImage::rules(ImageProfile::Portrait),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function messages(): array
+    {
+        return [
+            'class_name.in' => 'You can only place students/pupils in a class you are the Class Teacher of.',
+        ];
+    }
+
+    private function storePhoto(Request $request): ?string
+    {
+        if (! $request->hasFile('photo')) {
+            return null;
+        }
+
+        return $this->uploads->storeImage($request->file('photo'), 'local', 'students', ImageProfile::Portrait, 'photo')->path;
     }
 
     /**
      * The classes this teacher is Class Teacher of, in the school's own class
-     * order. Adding is refused outright for anyone who is not a Class
-     * Teacher; the list page just says so.
+     * order. Adding and editing are refused outright for anyone who is not a
+     * Class Teacher; the list page just says so.
      *
      * @return list<string>
      */
@@ -168,7 +260,7 @@ class ClassStudentController extends Controller
     {
         $mine = $staff->classTeacherClassNames();
 
-        abort_if($refuse && $mine->isEmpty(), 403, 'Only a Class Teacher can add students/pupils.');
+        abort_if($refuse && $mine->isEmpty(), 403, 'Only a Class Teacher can add or edit students/pupils.');
 
         $order = array_flip($school->configuredClassNames());
 

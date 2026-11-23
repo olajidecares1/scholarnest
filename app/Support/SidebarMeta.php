@@ -48,7 +48,7 @@ class SidebarMeta
         'academics.index' => ['fa-solid fa-layer-group', 'Levels, classes and terms'],
         'class-subjects.index' => ['fa-solid fa-book-open', 'Subjects offered per class'],
         'attendance.index' => ['fa-solid fa-calendar-check', 'Daily registers'],
-        'staff.students.index' => ['fa-solid fa-users', 'Add pupils and correct names'],
+        'staff.students.index' => ['fa-solid fa-users', 'Add pupils and edit their details'],
         'staff.attendance.index' => ['fa-solid fa-calendar-check', 'Mark your class register'],
         'student.attendance.index' => ['fa-solid fa-calendar-check', 'Your attendance record'],
         'guardian.children.attendance' => ['fa-solid fa-calendar-check', "Your child's attendance"],

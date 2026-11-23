@@ -14,10 +14,12 @@ use App\Models\TeacherAssignment;
 use App\Models\User;
 use App\Support\PortalNavigation;
 use Illuminate\Support\Facades\Gate;
+use Tests\Support\UploadFixtures;
 
 /**
- * Class Teachers may add pupils to their own class and correct their names.
- * Nobody but a School Admin may delete a student, from any screen or by any
+ * Class Teachers may add pupils to their own class and edit their details.
+ * Nobody but a School Admin may delete a student, change an admission number,
+ * set login details or change active status, from any screen or by any
  * request.
  */
 beforeEach(function () {
@@ -57,6 +59,23 @@ function newPupil(array $overrides = []): array
     ];
 }
 
+/**
+ * What the edit form posts for a pupil: every editable detail, as it stands,
+ * with the given changes.
+ *
+ * @return array<string, mixed>
+ */
+function editForm(Student $student, array $changes = []): array
+{
+    return [
+        'first_name' => $student->first_name,
+        'last_name' => $student->last_name,
+        'gender' => $student->gender?->value,
+        'class_name' => $student->class_name,
+        ...$changes,
+    ];
+}
+
 test('a Class Teacher sees their own class, with no delete anywhere on the page', function () {
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.students.index', $this->school))
@@ -64,7 +83,8 @@ test('a Class Teacher sees their own class, with no delete anywhere on the page'
         ->assertSee('Ade Bello')
         ->assertDontSee('Kemi Ojo')
         ->assertSee('Add Student/Pupil')
-        ->assertSee('Edit name')
+        ->assertSee('Edit details')
+        ->assertSee('Parent/Guardian')
         ->assertDontSee('Delete')
         ->assertDontSee('fa-trash', false);
 });
@@ -122,31 +142,95 @@ test('a duplicate admission number is refused', function () {
         ->assertSessionHasErrors('admission_number');
 });
 
-test('a Class Teacher corrects the name of a pupil in their class, and nothing else changes', function () {
-    $before = $this->mine->only(['admission_number', 'class_name', 'gender', 'school_id']);
-
+test('a Class Teacher adds a pupil with all their details, photo included', function () {
     $this->actingAs($this->teacher, 'staff')
-        ->put(route('staff.students.update-name', [$this->school, $this->mine]), [
+        ->post(route('staff.students.store', $this->school), newPupil([
+            'date_of_birth' => '2015-04-02',
+            'house' => 'Blue House',
+            'guardian_name' => 'Mrs Adewale',
+            'guardian_phone' => '08031234567',
+            'guardian_email' => 'parent@example.com',
+            'address' => '12 Allen Avenue, Ikeja',
+            'admission_date' => '2026-09-14',
+            'notes' => 'Allergic to peanuts',
+            'photo' => UploadFixtures::cameraJpeg(),
+        ]))
+        ->assertSessionHasNoErrors();
+
+    $added = Student::where('admission_number', 'B5/2026/101')->sole();
+
+    expect($added->house)->toBe('Blue House')
+        ->and($added->guardian_name)->toBe('Mrs Adewale')
+        ->and($added->guardian_phone)->toBe('08031234567')
+        ->and($added->address)->toBe('12 Allen Avenue, Ikeja')
+        ->and($added->date_of_birth->format('Y-m-d'))->toBe('2015-04-02')
+        ->and($added->photo_path)->not->toBeNull();
+});
+
+test('a Class Teacher edits a pupil\'s details in their class', function () {
+    $this->actingAs($this->teacher, 'staff')
+        ->put(route('staff.students.update', [$this->school, $this->mine]), editForm($this->mine, [
             'first_name' => 'Adebayo',
             'last_name' => 'Bello-Smith',
-            'class_name' => 'JSS 1',
-            'admission_number' => 'HACKED',
-        ])
+            'gender' => 'male',
+            'guardian_name' => 'Mr Bello',
+            'guardian_phone' => '08099998888',
+            'house' => 'Green House',
+            'notes' => 'Moved from another school',
+        ]))
         ->assertSessionHasNoErrors();
 
     $fresh = $this->mine->fresh();
 
     expect($fresh->fullName())->toBe('Adebayo Bello-Smith')
-        ->and($fresh->only(['admission_number', 'class_name', 'gender', 'school_id']))->toBe($before)
-        ->and(AuditLog::where('action', 'students.renamed_by_class_teacher')->exists())->toBeTrue();
+        ->and($fresh->guardian_name)->toBe('Mr Bello')
+        ->and($fresh->guardian_phone)->toBe('08099998888')
+        ->and($fresh->house)->toBe('Green House')
+        ->and(AuditLog::where('action', 'students.updated_by_class_teacher')->latest('id')->first()->description)
+        ->toContain('first name')->toContain('guardian name');
 });
 
-test('a Class Teacher cannot rename a pupil outside their class or school', function () {
+test('editing cannot touch the admission number, login, active status or school', function () {
+    $before = $this->mine->only(['admission_number', 'is_active', 'school_id', 'password', 'registration_source']);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->put(route('staff.students.update', [$this->school, $this->mine]), editForm($this->mine, [
+            'admission_number' => 'HACKED/1',
+            'is_active' => false,
+            'school_id' => 999,
+            'password' => 'NewPassword123!',
+            'registration_source' => 'bulk',
+        ]))
+        ->assertSessionHasNoErrors();
+
+    expect($this->mine->fresh()->only(['admission_number', 'is_active', 'school_id', 'password', 'registration_source']))->toBe($before);
+});
+
+test('a pupil can be moved only between the teacher\'s own classes', function () {
+    TeacherAssignment::factory()->create([
+        'school_id' => $this->school->id,
+        'staff_id' => $this->teacher->id,
+        'type' => TeacherAssignmentType::ClassTeacher,
+        'class_name' => 'JSS 1',
+    ]);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->put(route('staff.students.update', [$this->school, $this->mine]), editForm($this->mine, ['class_name' => 'Basic 6']))
+        ->assertSessionHasErrors('class_name');
+    expect($this->mine->fresh()->class_name)->toBe('Basic 5');
+
+    $this->actingAs($this->teacher, 'staff')
+        ->put(route('staff.students.update', [$this->school, $this->mine]), editForm($this->mine, ['class_name' => 'JSS 1']))
+        ->assertSessionHasNoErrors();
+    expect($this->mine->fresh()->class_name)->toBe('JSS 1');
+});
+
+test('a Class Teacher cannot edit a pupil outside their class or school', function () {
     $elsewhere = Student::factory()->create(['class_name' => 'Basic 5']);
 
     foreach ([$this->notMine, $elsewhere] as $student) {
         $this->actingAs($this->teacher, 'staff')
-            ->put(route('staff.students.update-name', [$this->school, $student]), ['first_name' => 'X', 'last_name' => 'Y'])
+            ->put(route('staff.students.update', [$this->school, $student]), editForm($student, ['first_name' => 'X', 'class_name' => 'Basic 5']))
             ->assertForbidden();
 
         expect($student->fresh()->first_name)->not->toBe('X');

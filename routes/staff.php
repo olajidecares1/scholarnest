@@ -84,14 +84,14 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
                 Route::get('/preview', [StaffIdCardController::class, 'preview'])->name('preview');
             });
 
-            // A Class Teacher's own class list: add a pupil, correct a name.
-            // No delete route, on purpose: deleting a student is for the
-            // School Admin only. Every action is checked against the
+            // A Class Teacher's own class list: add pupils and edit their
+            // details. No delete route, on purpose: deleting a student is for
+            // the School Admin only. Every action is checked against the
             // teacher's Class Teacher assignments in StudentPolicy.
             Route::middleware('staff_is_teacher')->name('students.')->prefix('my-class')->group(function () {
                 Route::get('/', [StaffClassStudentController::class, 'index'])->name('index');
                 Route::post('/', [StaffClassStudentController::class, 'store'])->middleware('throttle:60,1')->name('store');
-                Route::put('/{student}/name', [StaffClassStudentController::class, 'updateName'])->name('update-name');
+                Route::put('/{student}', [StaffClassStudentController::class, 'update'])->middleware('throttle:60,1')->name('update');
             });
 
             Route::name('help.')->prefix('help')->group(function () {
