@@ -7,6 +7,7 @@ use App\Http\Controllers\Staff\Cbt\QuestionController as StaffCbtQuestionControl
 use App\Http\Controllers\Staff\Cbt\TestController as StaffCbtTestController;
 use App\Http\Controllers\Staff\ClassNoteController as StaffClassNoteController;
 use App\Http\Controllers\Staff\ClassStudentController as StaffClassStudentController;
+use App\Http\Controllers\Staff\ClassStudentExistingMatchController as StaffClassStudentExistingMatchController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DiaryController as StaffDiaryController;
 use App\Http\Controllers\Staff\ExaminationController as StaffExaminationController;
@@ -92,6 +93,13 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
                 Route::get('/', [StaffClassStudentController::class, 'index'])->name('index');
                 Route::post('/', [StaffClassStudentController::class, 'store'])->middleware('throttle:60,1')->name('store');
                 Route::put('/{student}', [StaffClassStudentController::class, 'update'])->middleware('throttle:60,1')->name('update');
+
+                // "This pupil may already be registered": the add form's
+                // confirmation step. See ClassStudentExistingMatchController.
+                Route::get('/existing/{token}', [StaffClassStudentExistingMatchController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->name('existing.show');
+                Route::post('/existing/{token}', [StaffClassStudentExistingMatchController::class, 'confirm'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('existing.confirm');
+                // A POST, not a DELETE: nothing in My Class deletes anything.
+                Route::post('/existing/{token}/cancel', [StaffClassStudentExistingMatchController::class, 'cancel'])->where('token', '[A-Za-z0-9]{40}')->name('existing.cancel');
             });
 
             Route::name('help.')->prefix('help')->group(function () {

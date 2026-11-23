@@ -12,6 +12,7 @@ use App\Models\Student;
 use App\Rules\UploadedImage;
 use App\Services\IdentifierGenerator;
 use App\Services\StudentImport\ExistingStudentMatcher;
+use App\Services\StudentImport\StudentMatchCandidates;
 use App\Services\StudentLicenceAllocation;
 use App\Services\Uploads\UploadStorage;
 use App\Support\DuplicateStudentNotice;
@@ -19,7 +20,9 @@ use App\Support\Uploads\ImageProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -50,7 +53,7 @@ class ClassStudentController extends Controller
     /**
      * The details a Class Teacher may set, on adding or editing.
      */
-    private const EDITABLE = [
+    public const EDITABLE = [
         'first_name', 'last_name', 'gender', 'date_of_birth', 'class_name', 'house',
         'guardian_name', 'guardian_phone', 'guardian_email', 'address', 'phone', 'email',
         'admission_date', 'notes',
@@ -105,17 +108,47 @@ class ClassStudentController extends Controller
         $classes = $this->classesOf($staff, $school);
         $auto = (bool) $school->auto_generate_admission_numbers;
 
+        // A taken admission number is checked below, not here: when it belongs
+        // to this same pupil, the teacher is offered the existing record
+        // rather than told the number is taken.
         $validated = $request->validate([
             ...$this->rules($classes),
-            'admission_number' => [
-                $auto ? 'prohibited' : 'required', 'nullable', 'string', 'max:50',
-                Rule::unique('students', 'admission_number')->where('school_id', $school->id),
-            ],
+            'admission_number' => [$auto ? 'prohibited' : 'required', 'nullable', 'string', 'max:50'],
         ], $this->messages() + [
             'admission_number.prohibited' => 'Admission numbers are given automatically in your school.',
         ]);
 
         Gate::forUser($staff)->authorize('create', [Student::class, $validated['class_name']]);
+
+        $back = redirect()->route('staff.students.index', ['school' => $school, 'class' => $validated['class_name']]);
+
+        // MAYBE ALREADY REGISTERED. Nothing is saved yet: the teacher is shown
+        // the existing record(s) and confirms whether this is the same pupil
+        // (whose record is then updated, admission number kept) or a
+        // different child with the same name. A teacher can update only a
+        // pupil already in one of their own classes; see
+        // ClassStudentExistingMatchController.
+        $finder = StudentMatchCandidates::forSchool($school);
+        $typedNumber = $auto ? null : ($validated['admission_number'] ?? null);
+        $candidates = $finder->find($validated, $typedNumber);
+        $holder = $finder->holderOfAdmissionNumber($typedNumber);
+
+        if ($holder !== null && ! collect($candidates)->contains('student_id', $holder)) {
+            return $back->withErrors(['admission_number' => 'The admission number has already been taken.'])->withInput();
+        }
+
+        if ($candidates !== []) {
+            $token = Str::random(40);
+
+            Cache::put(ClassStudentExistingMatchController::cacheKey($staff, $token), [
+                'school_id' => $school->id,
+                'data' => Arr::only($validated, [...self::EDITABLE, 'admission_number']),
+                'photo_path' => $this->storePhoto($request),
+                'candidates' => $candidates,
+            ], now()->addMinutes(ClassStudentExistingMatchController::TTL_MINUTES));
+
+            return redirect()->route('staff.students.existing.show', ['school' => $school, 'token' => $token]);
+        }
 
         $student = $this->licences->withCapacity($school, function () use ($school, $request, $validated, $auto) {
             School::whereKey($school->id)->lockForUpdate()->first();
@@ -136,8 +169,6 @@ class ClassStudentController extends Controller
                 'registration_source' => RegistrationSource::Single,
             ]);
         });
-
-        $back = redirect()->route('staff.students.index', ['school' => $school, 'class' => $validated['class_name']]);
 
         if ($student === null) {
             return $back->withErrors(['first_name' => $this->licences->limitReachedMessage($school)])->withInput();

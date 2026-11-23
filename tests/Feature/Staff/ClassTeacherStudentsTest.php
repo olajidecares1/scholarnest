@@ -277,3 +277,106 @@ test('My Class appears in the staff menu only for Class Teachers', function () {
     $subjectOnly = Staff::factory()->create(['school_id' => $this->school->id, 'role' => StaffRole::Teacher, 'is_active' => true]);
     expect($menu($subjectOnly))->not->toContain('staff.students.index');
 });
+
+// ---------------------------------------------------------------------------
+// Adding a pupil who may already be registered
+// ---------------------------------------------------------------------------
+
+function staffConfirmToken($response): string
+{
+    $response->assertRedirect();
+    preg_match('#/existing/([A-Za-z0-9]{40})$#', (string) $response->headers->get('Location'), $m);
+    expect($m[1] ?? null)->not->toBeNull();
+
+    return $m[1];
+}
+
+test('adding a pupil with a name already registered asks the teacher first and saves nothing', function () {
+    $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello', 'admission_number' => 'NEW-1'])));
+
+    expect(Student::where('first_name', 'Ade')->count())->toBe(1);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.students.existing.show', [$this->school, $token]))
+        ->assertOk()
+        ->assertSee('Is this the same pupil?')
+        ->assertSee('Yes, this is Ade Bello. Update their existing record.')
+        ->assertSee($this->mine->admission_number)
+        // The School Admin's student page is not offered to a teacher.
+        ->assertDontSee(route('students.show', $this->mine), false);
+});
+
+test('a teacher can update a matching pupil in their own class, keeping the admission number', function () {
+    $number = $this->mine->admission_number;
+
+    $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello', 'admission_number' => 'NEW-1', 'guardian_phone' => '08033334444'])));
+
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.existing.confirm', [$this->school, $token]), ['choice' => 'update:'.$this->mine->id])
+        ->assertRedirect()
+        ->assertSessionHas('status', fn ($status) => str_contains($status, "Admission number {$number} is unchanged"));
+
+    expect(Student::where('first_name', 'Ade')->count())->toBe(1)
+        ->and($this->mine->fresh()->admission_number)->toBe($number)
+        ->and($this->mine->fresh()->guardian_phone)->toBe('08033334444')
+        ->and(AuditLog::where('action', 'students.re-registered')->exists())->toBeTrue();
+});
+
+test('a matching pupil in another class is shown but cannot be updated by the teacher', function () {
+    $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Kemi', 'last_name' => 'Ojo', 'admission_number' => 'NEW-2'])));
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.students.existing.show', [$this->school, $token]))
+        ->assertOk()
+        ->assertSee('Kemi Ojo is already registered.')
+        ->assertSee('This pupil is in Basic 6, which is not one of your classes. Only the School Admin can move them.');
+
+    // Even a hand-made request cannot move the pupil into the teacher's class.
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.existing.confirm', [$this->school, $token]), ['choice' => 'update:'.$this->notMine->id])
+        ->assertSessionHasErrors('choice');
+
+    expect($this->notMine->fresh()->class_name)->toBe('Basic 6');
+});
+
+test('the teacher can say it is a different child and add them as new', function () {
+    $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Kemi', 'last_name' => 'Ojo', 'admission_number' => 'NEW-3'])));
+
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.existing.confirm', [$this->school, $token]), ['choice' => 'new'])
+        ->assertRedirect();
+
+    expect(Student::where('first_name', 'Kemi')->count())->toBe(2)
+        ->and(Student::where('admission_number', 'NEW-3')->value('class_name'))->toBe('Basic 5')
+        ->and($this->notMine->fresh()->class_name)->toBe('Basic 6');
+});
+
+test('a teacher\'s pending question belongs to that teacher only', function () {
+    $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello', 'admission_number' => 'NEW-4'])));
+
+    $colleague = Staff::factory()->create(['school_id' => $this->school->id, 'role' => StaffRole::Teacher, 'is_active' => true]);
+    TeacherAssignment::factory()->create(['school_id' => $this->school->id, 'staff_id' => $colleague->id, 'type' => TeacherAssignmentType::ClassTeacher, 'class_name' => 'Basic 5']);
+
+    $this->actingAs($colleague, 'staff')
+        ->post(route('staff.students.existing.confirm', [$this->school, $token]), ['choice' => 'new'])
+        ->assertRedirect(route('staff.students.index', ['school' => $this->school]));
+
+    expect(Student::where('first_name', 'Ade')->count())->toBe(1);
+});
+
+test('cancelling on the teacher\'s side saves nothing', function () {
+    $token = staffConfirmToken($this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.store', $this->school), newPupil(['first_name' => 'Ade', 'last_name' => 'Bello', 'admission_number' => 'NEW-5'])));
+
+    $this->actingAs($this->teacher, 'staff')
+        ->post(route('staff.students.existing.cancel', [$this->school, $token]))
+        ->assertRedirect();
+
+    expect(Student::where('first_name', 'Ade')->count())->toBe(1)
+        ->and(Student::where('admission_number', 'NEW-5')->exists())->toBeFalse();
+});
