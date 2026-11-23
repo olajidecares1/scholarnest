@@ -67,7 +67,7 @@ test('a class teacher sees every default subject of their class, with nothing se
     ['KG 1', 'reception'],
     ['Nursery 1', 'nursery_1'],
     ['Nursery 2', 'nursery_2'],
-    ['Primary 4', 'primary'],
+    ['Primary 4', 'primary_4_5'],
     ['JSS 1', 'jss_1'],
     ['JSS 3', 'jss_2_3'],
     ['SS 2 Art', 'sss_art'],
@@ -215,7 +215,7 @@ test('the page looks like the School Admin\'s: filters, subject chips and a Test
         ->assertSee('Scoring structure')
         ->assertSeeInOrder(['Class', 'Academic Year', 'Term', 'Subject'])
         ->assertSee('Save Scores')
-        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary'), false)
+        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary_4_5'), false)
         ->assertSeeInOrder(['Test / 40', 'Exam / 60', 'Total / 100', '%', 'Grade', 'Remark'])
         ->getContent();
 
@@ -261,7 +261,7 @@ test('picking another term of this year opens that term\'s sheet', function () {
     $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.exams.index', [$this->school, 'class_name' => 'Primary 4', 'session' => '2026/2027', 'term' => 'second']))
         ->assertOk()
-        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary'), false);
+        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary_4_5'), false);
 
     expect(Examination::where('school_id', $this->school->id)->where('class_name', 'Primary 4')->where('term', ExamTerm::Second)->exists())->toBeTrue();
 
@@ -500,7 +500,7 @@ test('a school already on the platform before the defaults gets the page once th
     $this->actingAs($teacher, 'staff')
         ->get(route('staff.exams.index', $old))
         ->assertOk()
-        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary'), false)
+        ->assertSeeInOrder(DefaultClassSubjects::namesForGroup('primary_4_5'), false)
         ->assertSee('Save Scores');
 });
 

@@ -132,7 +132,8 @@ test('a class added later starts with its default subjects', function (string $l
     expect($this->school->offeredSubjectsFor($class)->all())->toBe($subjects);
 })->with([
     ['Nursery', 'Nursery 2 Gold', NURSERY_2_SUBJECTS],
-    ['Primary', 'Primary 4B', PRIMARY_SUBJECTS],
+    ['Primary', 'Primary 3B', PRIMARY_SUBJECTS],
+    ['Primary', 'Primary 4B', ['Mathematics', 'English', 'BST', 'RNV', 'CCA', 'History', 'Phonics', 'Music', 'French', 'Computer', 'Yoruba', 'Igbo', 'Quantitative Reasoning', 'Verbal Reasoning', 'Handwriting']],
     ['JSS', 'JSS 1 Gold', JSS_1_SUBJECTS],
     ['Junior Secondary', 'Year 8', JSS_2_3_SUBJECTS],
     ['SSS', 'SS 2 Science', [...SSS_GENERAL_SUBJECTS, 'Physics', 'Chemistry', 'Further Mathematics']],
@@ -166,7 +167,7 @@ test('class names are recognised however they are written', function (string $na
     ['Reception', null, 'reception'], ['KG 2', null, 'reception'], ['Kindergarten', null, 'reception'],
     ['Creche', null, 'reception'], ['Pre-Nursery', null, 'reception'],
     ['Nursery 1', null, 'nursery_1'], ['Nursery 2', null, 'nursery_2'], ['Nursery 3', null, 'nursery_2'],
-    ['Primary 1', null, 'primary'], ['Pry 5', null, 'primary'], ['Basic 3', null, 'primary'],
+    ['Primary 1', null, 'primary'], ['Pry 5', null, 'primary_4_5'], ['Basic 4', null, 'primary_4_5'], ['Primary 6', null, 'primary'], ['Basic 3', null, 'primary'],
     ['JSS 1', null, 'jss_1'], ['jss2', null, 'jss_2_3'], ['J.S.S. 3', null, 'jss_2_3'], ['JS 1', null, 'jss_1'],
     ['Basic 7', null, 'jss_1'], ['Basic 9', null, 'jss_2_3'], ['Year 7', 'JSS', 'jss_1'], ['Year 9', 'Junior Secondary', 'jss_2_3'],
     ['SS 1 Science', null, 'sss_science'], ['SSS 2 Art', null, 'sss_art'], ['S.S. 3 Commercial', null, 'sss_commercial'],

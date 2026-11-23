@@ -311,8 +311,12 @@ class DefaultClassSubjects
         }
 
         // Primary 1–6: "Primary 4", "Pry 2", "Basic 3", "Grade 1", "Year 5".
+        // Primary 4 and 5 have a list of their own; the class number comes
+        // from the class's own name ("Year 4" under a "Primary" level).
         if (preg_match('/(primary|^pry|^basic ?[1-6](?!\d)|^grade ?\d|^year ?[1-6](?!\d)|^class ?\d)/u', $text)) {
-            return 'primary';
+            preg_match('/(\d+)/', $className, $digits);
+
+            return in_array((int) ($digits[1] ?? 0), [4, 5], true) ? 'primary_4_5' : 'primary';
         }
 
         return null;

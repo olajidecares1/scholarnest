@@ -25,7 +25,8 @@
 |   reception        Reception, KG, Kindergarten, Creche, Playgroup, Pre-Nursery
 |   nursery_1        Nursery 1 (and a plain "Nursery" class)
 |   nursery_2        Nursery 2 and Nursery 3
-|   primary          Primary 1 to 6
+|   primary          Primary 1, 2, 3 and 6
+|   primary_4_5      Primary (Basic) 4 and 5
 |   jss_1            JSS 1
 |   jss_2_3          JSS 2 and JSS 3
 |   sss              SS 1 to 3 with no department: the general subjects
@@ -121,6 +122,31 @@ return [
                 'Handwriting',
                 'Computer',
                 'Music',
+            ],
+        ],
+
+        // Basic 4 and Basic 5 (Primary 4 and 5), as the school's own list
+        // has it (23 November 2026): BST and RNV are taught and scored as one
+        // subject each here, and Yoruba and Igbo are two separate subjects.
+        // In the order of the result sheet.
+        'primary_4_5' => [
+            'label' => 'Primary 4 & 5',
+            'subjects' => [
+                'Mathematics',
+                'English',
+                'BST',
+                'RNV',
+                'CCA',
+                'History',
+                'Phonics',
+                'Music',
+                'French',
+                'Computer',
+                'Yoruba',
+                'Igbo',
+                'Quantitative Reasoning',
+                'Verbal Reasoning',
+                'Handwriting',
             ],
         ],
 
@@ -255,6 +281,10 @@ return [
         'CCA' => ['category' => 'arts', 'aliases' => ['Cultural and Creative Arts', 'Cultural & Creative Arts', 'Cultural and Creative Art', 'Cultural & Creative Art']],
         'Yoruba / Igbo' => ['category' => 'arts', 'aliases' => ['Yoruba/Igbo', 'Yoruba', 'Igbo', 'Nigerian Language']],
         'Computer' => ['category' => 'science', 'aliases' => ['Computer Studies', 'Computer Science', 'ICT', 'Information Technology']],
+        // Primary 4 & 5 take these as single subjects.
+        'BST' => ['category' => 'science', 'aliases' => ['Basic Science and Technology', 'Basic Science & Technology']],
+        'RNV' => ['category' => 'general', 'aliases' => ['Religion and National Values', 'Religion & National Values']],
+        'Igbo' => ['category' => 'arts', 'aliases' => ['Igbo Language']],
 
         // JSS
         'Intermediate Science' => ['category' => 'science', 'aliases' => []],
@@ -302,17 +332,15 @@ return [
         // and Basic Technology, RNV is Social Studies, CRS and Civic
         // Education, and PVS is Agricultural Science and Home Economics.
         // A score already entered under one of these stays where it is.
+        // BST and RNV themselves are not here: Primary 4 & 5 take them, as
+        // single subjects, again (23 November 2026).
         'BST 1 (PHE & ICT)',
         'BST 1',
         'BST I',
         'BST 2 (Basic Science & Technology)',
         'BST 2',
         'BST II',
-        'BST',
-        'Basic Science and Technology',
         'RNV (Social Studies, CRS & Civic Education)',
-        'RNV',
-        'Religion and National Values',
         'PVS (Agriculture & Home Economics)',
         'PVS',
         'Pre-Vocational Studies',
