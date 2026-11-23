@@ -84,6 +84,49 @@ class IdentifierGenerator
     }
 
     /**
+     * The exact admission number nextAdmissionNumber() would give a student
+     * in this class right now, WITHOUT reserving it: the same format, the
+     * same reuse of a freed number, the same skipping of numbers already
+     * held. Null for a school with no school code, which cannot be numbered.
+     *
+     * It is a preview. If somebody else registers a student first, the
+     * number actually given moves on by one; the number is only ever fixed
+     * by nextAdmissionNumber(), inside its lock.
+     */
+    public function previewAdmissionNumber(School $school, ?string $className): ?string
+    {
+        if (! $school->school_code) {
+            return null;
+        }
+
+        $levelCode = $this->levelCodeFor($school, $className);
+        $session = $school->current_session ?: 'NOSESSION';
+        $format = fn (int $sequence) => sprintf('%s-%s-%s-%03d', $school->school_code, $session, $levelCode, $sequence);
+
+        $taken = $this->admissionNumbersInUse($school);
+        $inUse = $this->admissionSequencesInUse($school, $taken);
+
+        $released = ReleasedIdentifier::query()
+            ->where('school_id', $school->id)
+            ->where('type', self::ADMISSION)
+            ->orderBy('sequence')
+            ->pluck('sequence')
+            ->first(fn ($sequence) => ! isset($inUse[(int) $sequence]) && ! isset($taken[mb_strtolower($format((int) $sequence))]));
+
+        if ($released !== null) {
+            return $format((int) $released);
+        }
+
+        $sequence = (int) $school->next_admission_sequence;
+
+        while (isset($inUse[$sequence]) || isset($taken[mb_strtolower($format($sequence))])) {
+            $sequence++;
+        }
+
+        return $format($sequence);
+    }
+
+    /**
      * The sequence the next admission number will use, without reserving it,
      * for the preview on the Add Student form.
      */

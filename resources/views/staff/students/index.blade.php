@@ -22,6 +22,7 @@
             blank: @js($blank),
             students: @js($editable),
             storeUrl: @js(route('staff.students.store', $school)),
+            previews: @js($admissionPreviews ?? []),
 
             openAdd() { this.form = { ...this.blank }; this.mode = 'add' },
             openEdit(id) { this.form = { ...this.students[id], _student: id }; this.mode = 'edit' },
@@ -42,7 +43,32 @@
         }"
         x-on:keydown.escape.window="close()"
     >
-        @if (session('status'))
+        @if (session('added_student'))
+            {{-- A pupil was just added: the admission number they were given,
+                 large enough to read off and write down. --}}
+            @php $added = session('added_student'); @endphp
+            <div class="rounded-[10px] border border-green-200 bg-green-50 p-4 dark:border-green-900/50 dark:bg-green-900/20" role="status">
+                <p class="text-sm font-semibold text-green-800 dark:text-green-300">
+                    <i class="fa-solid fa-circle-check mr-1" aria-hidden="true"></i>
+                    {{ $added['name'] }} was added to {{ $added['class'] }}.
+                </p>
+                <div class="mt-3 flex flex-wrap items-center gap-3">
+                    <div>
+                        <small class="block text-[11px] font-semibold uppercase tracking-wide text-green-700 dark:text-green-400">Admission Number</small>
+                        <span class="font-mono text-xl font-bold tracking-wide text-gray-900 dark:text-white">{{ $added['admission_number'] }}</span>
+                    </div>
+                    <button
+                        type="button"
+                        x-data="{ copied: false }"
+                        x-on:click="navigator.clipboard?.writeText(@js($added['admission_number'])).then(() => { copied = true; setTimeout(() => copied = false, 2000) })"
+                        class="btn rounded-[8px] border border-green-300 bg-white px-3 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-100 dark:border-green-800 dark:bg-gray-800 dark:text-green-300"
+                    >
+                        <i class="fa-solid btn-icon" :class="copied ? 'fa-check' : 'fa-copy'" aria-hidden="true"></i>
+                        <span x-text="copied ? 'Copied' : 'Copy'">Copy</span>
+                    </button>
+                </div>
+            </div>
+        @elseif (session('status'))
             <div class="rounded-[10px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 {{ session('status') }}
             </div>
@@ -110,9 +136,10 @@
                         <table class="w-full min-w-[40rem] text-left text-sm">
                             <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
-                                    <th class="w-12 px-5 py-2.5 font-semibold">S/N</th>
+                                    {{-- Kept on one line: "S/N" used to break into S, / and N on a phone. --}}
+                                    <th class="w-14 whitespace-nowrap px-4 py-2.5 font-semibold">S/N</th>
                                     <th class="px-3 py-2.5 font-semibold">Name</th>
-                                    <th class="px-3 py-2.5 font-semibold">Admission No.</th>
+                                    <th class="whitespace-nowrap px-3 py-2.5 font-semibold">Admission No.</th>
                                     <th class="px-3 py-2.5 font-semibold">Gender</th>
                                     <th class="px-3 py-2.5 font-semibold">Parent/Guardian</th>
                                     <th class="px-5 py-2.5 text-right font-semibold"><span class="sr-only">Actions</span></th>
@@ -120,15 +147,15 @@
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                                 @foreach ($students as $student)
-                                    <tr>
-                                        <td class="px-5 py-2.5 tabular-nums text-gray-500">{{ $loop->iteration }}</td>
+                                    <tr @class(['bg-green-50 dark:bg-green-900/20' => session('added_student.uuid') === $student->uuid])>
+                                        <td class="w-14 whitespace-nowrap px-4 py-2.5 align-middle tabular-nums text-gray-500">{{ $loop->iteration }}</td>
                                         <td class="px-3 py-2.5">
                                             <span class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
                                             @unless ($student->is_active)
                                                 <span class="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-500 dark:bg-gray-700 dark:text-gray-300">Inactive</span>
                                             @endunless
                                         </td>
-                                        <td class="px-3 py-2.5 font-mono text-xs text-gray-600 dark:text-gray-300">{{ $student->admission_number }}</td>
+                                        <td class="whitespace-nowrap px-3 py-2.5 font-mono text-xs text-gray-600 dark:text-gray-300">{{ $student->admission_number }}</td>
                                         <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300">{{ $student->gender?->label() ?? 'N/A' }}</td>
                                         <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300">
                                             {{ $student->guardian_name ?: '—' }}
@@ -197,6 +224,32 @@
                         <fieldset>
                             <legend class="text-xs font-bold uppercase tracking-wide text-gray-500">Student/Pupil</legend>
                             <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                {{-- The number this pupil will get, from the School Admin's
+                                     generator, for the class chosen below. Read only. --}}
+                                <template x-if="mode === 'add'">
+                                    <div class="sm:col-span-2 lg:col-span-3">
+                                        <label for="f_admission_preview" class="field-label mb-1">Admission Number</label>
+                                        <input
+                                            id="f_admission_preview"
+                                            type="text"
+                                            :value="previews[form.class_name] ?? ''"
+                                            readonly
+                                            tabindex="-1"
+                                            aria-describedby="f_admission_preview_hint"
+                                            class="w-full cursor-default bg-gray-50 font-mono font-semibold text-gray-900 dark:bg-gray-900/40 dark:text-white"
+                                        >
+                                        <small id="f_admission_preview_hint" class="field-hint mt-1">
+                                            Generated automatically for the class you choose. If someone else adds a pupil first, the next number is used; the number given is shown after you save.
+                                        </small>
+                                    </div>
+                                </template>
+                                <template x-if="mode === 'edit'">
+                                    <div class="sm:col-span-2 lg:col-span-3">
+                                        <label for="f_admission_existing" class="field-label mb-1">Admission Number</label>
+                                        <input id="f_admission_existing" type="text" :value="form.admission_number" readonly tabindex="-1" class="w-full cursor-default bg-gray-50 font-mono font-semibold text-gray-900 dark:bg-gray-900/40 dark:text-white">
+                                        <small class="field-hint mt-1">Only the School Admin can change an admission number.</small>
+                                    </div>
+                                </template>
                                 <div>
                                     <label for="f_first_name" class="field-label mb-1">First Name</label>
                                     <input id="f_first_name" type="text" name="first_name" x-model="form.first_name" required maxlength="100" class="w-full">

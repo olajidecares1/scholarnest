@@ -6,12 +6,14 @@ use App\Enums\TeacherAssignmentType;
 use App\Enums\UserRole;
 use App\Models\AcademicLevel;
 use App\Models\AuditLog;
+use App\Models\ReleasedIdentifier;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Staff;
 use App\Models\Student;
 use App\Models\TeacherAssignment;
 use App\Models\User;
+use App\Services\IdentifierGenerator;
 use App\Support\PortalNavigation;
 use Illuminate\Support\Facades\Gate;
 use Tests\Support\UploadFixtures;
@@ -445,4 +447,45 @@ test('cancelling on the teacher\'s side saves nothing', function () {
 
     expect(Student::where('first_name', 'Ade')->count())->toBe(1)
         ->and(Student::where('admission_number', 'like', 'BFA-%')->exists())->toBeFalse();
+});
+
+// ---------------------------------------------------------------------------
+// Seeing the admission number
+// ---------------------------------------------------------------------------
+
+test('the Add form shows the exact admission number the pupil will get', function () {
+    // PRY-001 is held, and 002 was freed by a deletion: the generator reuses 002.
+    Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'Basic 5', 'admission_number' => 'BFA-2026/2027-PRY-001']);
+    ReleasedIdentifier::create(['school_id' => $this->school->id, 'type' => 'admission', 'sequence' => 2]);
+
+    $preview = app(IdentifierGenerator::class)->previewAdmissionNumber($this->school->fresh(), 'Basic 5');
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.students.index', $this->school))
+        ->assertOk()
+        ->assertViewHas('admissionPreviews', ['Basic 5' => 'BFA-2026/2027-PRY-002']);
+
+    // Previewing reserves nothing, and the pupil then gets exactly that number.
+    $this->actingAs($this->teacher, 'staff')->post(route('staff.students.store', $this->school), newPupil());
+
+    expect($preview)->toBe('BFA-2026/2027-PRY-002')
+        ->and(Student::where('first_name', 'Tola')->sole()->admission_number)->toBe($preview);
+});
+
+test('after adding, the teacher sees the generated admission number and the new row', function () {
+    $this->actingAs($this->teacher, 'staff')
+        ->followingRedirects()
+        ->post(route('staff.students.store', $this->school), newPupil())
+        ->assertOk()
+        ->assertSee('Tola Adewale was added to Basic 5.')
+        ->assertSee('Admission Number')
+        ->assertSee('BFA-2026/2027-PRY-001')
+        ->assertSee('bg-green-50 dark:bg-green-900/20', false);
+});
+
+test('S/N and admission numbers stay on one line', function () {
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.students.index', $this->school))
+        ->assertSee('<th class="w-14 whitespace-nowrap px-4 py-2.5 font-semibold">S/N</th>', false)
+        ->assertSee('whitespace-nowrap px-3 py-2.5 font-mono text-xs', false);
 });

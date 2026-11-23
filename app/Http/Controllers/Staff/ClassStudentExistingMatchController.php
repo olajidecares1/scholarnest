@@ -197,7 +197,13 @@ class ClassStudentExistingMatchController extends Controller
 
         return redirect()
             ->route('staff.students.index', ['school' => $school, 'class' => $student->class_name])
-            ->with('status', "{$student->fullName()} was added to {$student->class_name} with admission number {$student->admission_number}.");
+            ->with('status', "{$student->fullName()} was added to {$student->class_name} with admission number {$student->admission_number}.")
+            ->with('added_student', [
+                'uuid' => $student->uuid,
+                'name' => $student->fullName(),
+                'class' => $student->class_name,
+                'admission_number' => $student->admission_number,
+            ]);
     }
 
     /**

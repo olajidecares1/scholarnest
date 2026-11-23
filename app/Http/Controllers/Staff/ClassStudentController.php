@@ -100,6 +100,13 @@ class ClassStudentController extends Controller
             // Admission numbers are always generated for a Class Teacher; the
             // one thing that can stop it is a school with no school code yet.
             'canNumber' => filled($school->school_code),
+
+            // The number each of the teacher's classes would give a new pupil
+            // right now, from the School Admin's own generator, shown on the
+            // Add form before saving. It depends on the class (its level code).
+            'admissionPreviews' => collect($classes)->mapWithKeys(fn (string $name) => [
+                $name => $this->identifiers->previewAdmissionNumber($school, $name),
+            ])->all(),
             'genders' => Gender::cases(),
         ]);
     }
@@ -192,7 +199,14 @@ class ClassStudentController extends Controller
             $staff->fullName(),
         );
 
-        return $back->with('status', "{$student->fullName()} was added to {$student->class_name} with admission number {$student->admission_number}.");
+        return $back
+            ->with('status', "{$student->fullName()} was added to {$student->class_name} with admission number {$student->admission_number}.")
+            ->with('added_student', [
+                'uuid' => $student->uuid,
+                'name' => $student->fullName(),
+                'class' => $student->class_name,
+                'admission_number' => $student->admission_number,
+            ]);
     }
 
     /**
