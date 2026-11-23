@@ -33,7 +33,7 @@
                     @endif
                 </h2>
                 <small class="mt-0.5 block text-sm text-amber-800 dark:text-amber-300">
-                    A student/pupil with the same name is already on your school's records, so no second record {{ $preview ? 'will be' : 'was' }} created. Review the existing {{ count($notices) === 1 ? 'record' : 'records' }} below.
+                    This student/pupil, or the admission number given, is already on your school's records, so no second record {{ $preview ? 'will be' : 'was' }} created. Review the existing {{ count($notices) === 1 ? 'record' : 'records' }} below.
                 </small>
             </div>
         </header>

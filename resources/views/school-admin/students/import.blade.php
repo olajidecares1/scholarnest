@@ -4,8 +4,24 @@
     // counted apart from rows with mistakes so the school can tell them apart.
     $existingCount = collect($rows)->filter(fn ($row) => ($row['existing'] ?? null) !== null)->count();
     $existingNotices = collect($rows)->pluck('existing_student')->filter()->values()->all();
-    $validCount = collect($rows)->filter(fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null)->count();
-    $invalidCount = count($rows) - $validCount - $existingCount;
+    // Rows that may be a student already registered: the School Admin
+    // chooses for each whether to update that record, add a different child
+    // or skip it.
+    $isMatched = fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null && ($row['candidates'] ?? []) !== [];
+    $matchedCount = collect($rows)->filter($isMatched)->count();
+    $validCount = collect($rows)->filter(fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null && ($row['candidates'] ?? []) === [])->count();
+    $invalidCount = count($rows) - $validCount - $existingCount - $matchedCount;
+    // Preselected only when exactly one record is offered and more than the
+    // name agrees (date of birth, guardian phone, class or admission
+    // number), with nothing contradicting it. Otherwise the admin chooses.
+    $defaultDecision = function ($row) {
+        $candidates = $row['candidates'] ?? [];
+        $old = old('decisions.'.$row['line']);
+        if ($old !== null) {
+            return $old;
+        }
+        return count($candidates) === 1 && $candidates[0]['strong'] ? 'update:'.$candidates[0]['student_id'] : '';
+    };
     // Capped plans import in file order until the allocation is full.
     $importCount = ($capacity ?? null) ? min($validCount, (int) $capacity['remaining']) : $validCount;
     $overLimit = $validCount - $importCount;
@@ -13,7 +29,7 @@
     $shownFields = collect($fields)->filter(fn ($label, $field) => collect($rows)->contains(fn ($row) => filled($row['data'][$field] ?? null)))->all();
     // How many students/pupils each class is getting, in the school's order.
     $classCounts = collect($rows)
-        ->filter(fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null)
+        ->filter(fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null && ($row['candidates'] ?? []) === [])
         ->countBy(fn ($row) => $row['class_name'] ?? ($preview['class_name'] ?? ''))
         ->all();
     $cardClass = 'rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]';
@@ -251,6 +267,12 @@
                             <p class="text-2xl font-extrabold text-green-700 dark:text-green-400">{{ number_format($validCount) }}</p>
                             <small class="block text-xs font-medium text-green-700 dark:text-green-400">ready to import</small>
                         </div>
+                        @if ($matchedCount)
+                            <div class="rounded-[8px] bg-amber-50 px-4 py-2 dark:bg-amber-900/30">
+                                <p class="text-2xl font-extrabold text-amber-700 dark:text-amber-400">{{ number_format($matchedCount) }}</p>
+                                <small class="block text-xs font-medium text-amber-700 dark:text-amber-400">may already be registered</small>
+                            </div>
+                        @endif
                         @if ($existingCount)
                             <div class="rounded-[8px] bg-blue-50 px-4 py-2 dark:bg-blue-900/30">
                                 <p class="text-2xl font-extrabold text-blue-700 dark:text-blue-400">{{ number_format($existingCount) }}</p>
@@ -264,10 +286,30 @@
                     </div>
                 </div>
 
+                @if ($matchedCount)
+                    <div class="mt-4 rounded-[8px] border border-amber-300 bg-amber-50 p-4 text-amber-900 dark:border-amber-500/40 dark:bg-amber-900/20 dark:text-amber-200">
+                        <p class="text-sm font-bold">{{ number_format($matchedCount) }} {{ $matchedCount === 1 ? 'row looks like a student/pupil' : 'rows look like students/pupils' }} already registered at your school.</p>
+                        <small class="mt-1 block text-xs leading-relaxed">
+                            For each one, in the table below, choose: <strong>update the existing record</strong> with this file's details (for example, to move a child registered in the wrong class), <strong>add as a different child</strong> who happens to have the same name, or <strong>skip</strong>.
+                            Updating never changes the admission number, and the student's results, attendance and payments stay with them. Two children can share a name, so please check the details shown before choosing.
+                        </small>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button type="button" class="btn rounded-[8px] border border-amber-400 bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 dark:bg-gray-800 dark:text-amber-200"
+                                onclick="document.querySelectorAll('select[data-decision]').forEach(function (s) { if (s.dataset.single) { s.value = s.dataset.single; } })">
+                                Update every row with a single match
+                            </button>
+                            <button type="button" class="btn rounded-[8px] border border-amber-400 bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 dark:bg-gray-800 dark:text-amber-200"
+                                onclick="document.querySelectorAll('select[data-decision]').forEach(function (s) { s.value = 'skip'; })">
+                                Skip them all
+                            </button>
+                        </div>
+                    </div>
+                @endif
+
                 @if ($existingCount)
                     <p class="mt-4 rounded-[8px] bg-blue-50 p-3 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                         <small class="block text-xs leading-relaxed">
-                            {{ number_format($existingCount) }} {{ Str::plural('student/pupil', $existingCount) }} in this file {{ $existingCount === 1 ? 'is' : 'are' }} already registered at your school and will be skipped. Existing records and admission numbers are never changed by a bulk upload.
+                            {{ number_format($existingCount) }} {{ Str::plural('row', $existingCount) }} will be skipped: {{ $existingCount === 1 ? 'it repeats' : 'they repeat' }} a child listed earlier in this file, or {{ $existingCount === 1 ? 'uses' : 'use' }} an admission number that belongs to another student/pupil. Those existing records are not changed.
                         </small>
                     </p>
 
@@ -300,13 +342,13 @@
                         @csrf @method('DELETE')
                         <button type="submit" class="btn rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200"><i class="fa-solid fa-arrow-right-arrow-left btn-icon" aria-hidden="true"></i> Upload a Different File</button>
                     </form>
-                    @if ($importCount)
-                        <form method="POST" action="{{ route('students.import.store', ['token' => $token]) }}" x-data="{ busy: false }" @submit="busy = true">
+                    @if ($importCount || $matchedCount)
+                        <form id="import-form" method="POST" action="{{ route('students.import.store', ['token' => $token]) }}" x-data="{ busy: false }" @submit="busy = true">
                             @csrf
                             <button type="submit" :disabled="busy" class="btn rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
                                 <i x-show="!busy" class="fa-solid fa-file-import btn-icon" aria-hidden="true"></i>
                                 <i x-show="busy" style="display: none;" class="fa-solid fa-spinner fa-spin btn-icon" aria-hidden="true"></i>
-                                <span x-show="!busy">Import {{ number_format($importCount) }} {{ Str::plural('Student', $importCount) }}</span>
+                                <span x-show="!busy">{{ $matchedCount ? 'Confirm and Import' : 'Import '.number_format($importCount).' '.Str::plural('Student', $importCount) }}</span>
                                 <span x-show="busy" style="display: none;">Importing&hellip;</span>
                             </button>
                         </form>
@@ -329,10 +371,43 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach ($rows as $row)
-                                <tr class="{{ ($row['existing'] ?? null) ? 'bg-blue-50/50 dark:bg-blue-900/10' : ($row['errors'] ? 'bg-red-50/60 dark:bg-red-900/10' : '') }} align-top">
+                                <tr class="{{ $isMatched($row) ? 'bg-amber-50/60 dark:bg-amber-900/10' : (($row['existing'] ?? null) ? 'bg-blue-50/50 dark:bg-blue-900/10' : ($row['errors'] ? 'bg-red-50/60 dark:bg-red-900/10' : '')) }} align-top">
                                     <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ $row['line'] }}</td>
-                                    <td class="min-w-[14rem] px-4 py-3">
-                                        @if ($row['existing'] ?? null)
+                                    <td class="min-w-[18rem] px-4 py-3">
+                                        @if ($isMatched($row))
+                                            @php $single = count($row['candidates']) === 1 ? 'update:'.$row['candidates'][0]['student_id'] : ''; @endphp
+                                            <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">May already be registered</span>
+                                            <ul class="mt-1 space-y-1.5 text-gray-700 dark:text-gray-300">
+                                                @foreach ($row['candidates'] as $candidate)
+                                                    @php $notice = $candidate['notice']; @endphp
+                                                    <li>
+                                                        <small class="block text-xs font-semibold leading-relaxed">
+                                                            <a href="{{ $notice['show_url'] }}" target="_blank" rel="noopener" class="text-blue-700 hover:underline dark:text-blue-400">{{ $notice['full_name'] }}</a>
+                                                            · <span class="font-mono">{{ $notice['admission_number'] }}</span>
+                                                            · {{ $notice['details']['Class'] ?? 'No class' }}
+                                                            @if ($notice['details']['Date of birth'] ?? null) · born {{ $notice['details']['Date of birth'] }} @endif
+                                                        </small>
+                                                        <small class="block text-xs leading-relaxed text-green-700 dark:text-green-400">{{ ucfirst(implode(', ', $candidate['signals'])) }}</small>
+                                                        @if ($candidate['warnings'])
+                                                            <small class="block text-xs font-semibold leading-relaxed text-amber-700 dark:text-amber-400">{{ ucfirst(implode(', ', $candidate['warnings'])) }}</small>
+                                                        @endif
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                            <label class="mt-2 block">
+                                                <span class="sr-only">What to do with row {{ $row['line'] }}</span>
+                                                <select name="decisions[{{ $row['line'] }}]" form="import-form" data-decision @if ($single) data-single="{{ $single }}" @endif class="w-full text-xs" required>
+                                                    <option value="" @selected($defaultDecision($row) === '')>Choose what to do…</option>
+                                                    @foreach ($row['candidates'] as $candidate)
+                                                        <option value="update:{{ $candidate['student_id'] }}" @selected($defaultDecision($row) === 'update:'.$candidate['student_id'])>
+                                                            Same child: update {{ $candidate['notice']['admission_number'] }}
+                                                        </option>
+                                                    @endforeach
+                                                    <option value="new" @selected($defaultDecision($row) === 'new')>Different child: add as a new student</option>
+                                                    <option value="skip" @selected($defaultDecision($row) === 'skip')>Skip this row</option>
+                                                </select>
+                                            </label>
+                                        @elseif ($row['existing'] ?? null)
                                             <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Already registered</span>
                                             <ul class="mt-1 space-y-0.5 text-blue-700 dark:text-blue-400">
                                                 <li><small class="block text-xs leading-relaxed">{{ Str::after($row['existing'], 'Already registered: ') }}</small></li>

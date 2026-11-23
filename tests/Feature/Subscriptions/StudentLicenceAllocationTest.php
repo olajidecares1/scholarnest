@@ -52,9 +52,11 @@ function basicSchoolWithLicences(int $allocated): array
 
 function newStudentPayload(): array
 {
+    // A different child each time: a name already registered is taken to
+    // the "is this the same student?" step instead of being added.
     return [
         'first_name' => 'Test',
-        'last_name' => 'Student',
+        'last_name' => 'Student '.Str::random(6),
         'admission_number' => 'ADM-'.Str::random(8),
         'gender' => 'male',
         'class_name' => 'JSS 1',

@@ -48,6 +48,17 @@
             </div>
         @endif
 
+        @if (session('moved_students'))
+            <div class="rounded-[5px] bg-blue-50 p-4 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 lg:rounded-[10px]">
+                <p class="font-semibold">Moved to the class given in the file (admission numbers unchanged):</p>
+                <ul class="mt-1 list-inside list-disc space-y-0.5">
+                    @foreach (session('moved_students') as $line)
+                        <li>{{ $line }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         @if (session('capacity_notice'))
             <div class="rounded-[5px] bg-amber-50 p-4 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 lg:rounded-[10px]" role="alert">
                 <small class="block text-sm font-medium">{{ session('capacity_notice') }}</small>

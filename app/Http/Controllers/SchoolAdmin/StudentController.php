@@ -16,6 +16,7 @@ use App\Rules\UploadedImage;
 use App\Services\Attendance\TermAttendance;
 use App\Services\IdentifierGenerator;
 use App\Services\StudentImport\ExistingStudentMatcher;
+use App\Services\StudentImport\StudentMatchCandidates;
 use App\Services\StudentLicenceAllocation;
 use App\Services\Uploads\UploadStorage;
 use App\Support\DuplicateStudentNotice;
@@ -24,10 +25,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
@@ -82,7 +85,46 @@ class StudentController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $school = $request->user()->school;
-        $validated = $request->validate($this->rules($school->id, null, $school->auto_generate_admission_numbers));
+        $auto = (bool) $school->auto_generate_admission_numbers;
+        $rules = $this->rules($school->id, null, $auto);
+
+        // An admission number that is already taken is checked below, not
+        // here: when it belongs to this same child, the admin is offered the
+        // existing record rather than told the number is taken.
+        $rules['admission_number'] = [$auto ? 'nullable' : 'required', 'string', 'max:50'];
+
+        $validated = $request->validate($rules);
+
+        // MAYBE ALREADY REGISTERED. A child with this name (or this name and
+        // the same date of birth, guardian phone or class) is already on the
+        // school's records. Nothing is saved yet: the School Admin is shown
+        // the existing record(s) and confirms whether this is the same child,
+        // whose record is then updated (e.g. moved to the right class,
+        // admission number kept), or a different child with the same name.
+        $finder = StudentMatchCandidates::forSchool($school);
+        $typedNumber = $auto ? null : ($validated['admission_number'] ?? null);
+        $candidates = $finder->find($validated, $typedNumber);
+
+        // An admission number held by a child with a different name is a
+        // mistake, never a reason to touch that child's record.
+        $holder = $finder->holderOfAdmissionNumber($typedNumber);
+
+        if ($holder !== null && ! collect($candidates)->contains('student_id', $holder)) {
+            return back()->withErrors(['admission_number' => 'The admission number has already been taken.'])->withInput();
+        }
+
+        if ($candidates !== []) {
+            $token = Str::random(40);
+
+            Cache::put(StudentExistingMatchController::cacheKey($request, $token), [
+                'school_id' => $school->id,
+                'data' => Arr::except($validated, 'photo'),
+                'photo_path' => $this->storePhoto($request),
+                'candidates' => $candidates,
+            ], now()->addMinutes(StudentExistingMatchController::TTL_MINUTES));
+
+            return redirect()->route('students.existing.show', ['token' => $token]);
+        }
 
         // The capacity check and the insert happen together, under a lock. A
         // check followed by a separate create would let two simultaneous

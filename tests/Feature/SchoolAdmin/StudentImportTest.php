@@ -578,11 +578,19 @@ test('with generated admission numbers, a re-uploaded register does not create a
 
     $token = uploadList($this, importCsv($csv), 'Primary 3');
 
-    $this->actingAs($this->admin)
+    $review = $this->actingAs($this->admin)
         ->get(route('students.import.review', ['token' => $token]))
-        ->assertSee('already registered');
+        ->assertSee('May already be registered')
+        ->getContent();
 
-    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]));
+    // Each match is offered, not assumed: the School Admin answers every one.
+    // Here they choose to leave the existing records as they are.
+    preg_match_all('/name="decisions\[(\d+)\]"/', $review, $lines);
+    expect($lines[1])->toHaveCount(4);
+
+    $this->actingAs($this->admin)->post(route('students.import.store', ['token' => $token]), [
+        'decisions' => collect($lines[1])->mapWithKeys(fn ($line) => [$line => 'skip'])->all(),
+    ]);
 
     expect(Student::where('school_id', $this->school->id)->count())->toBe(5)
         ->and(Student::where('first_name', 'Kelechi')->exists())->toBeTrue()
@@ -767,7 +775,8 @@ test('the same child is recognised as already registered in the class the file g
 
     $this->actingAs($this->admin)
         ->get(route('students.import.review', ['token' => $token]))
-        ->assertSee('Already registered');
+        ->assertSee('May already be registered')
+        ->assertSee('already in this class');
 });
 
 test('generated admission numbers follow each student\'s own class', function () {

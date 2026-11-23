@@ -15,10 +15,13 @@ use App\Services\StudentImport\StudentImportException;
 use App\Services\StudentImport\StudentImportParser;
 use App\Services\StudentImport\StudentImportReader;
 use App\Services\StudentImport\StudentImportTemplate;
+use App\Services\StudentImport\StudentMatchCandidates;
+use App\Services\StudentImport\StudentReRegistration;
 use App\Services\StudentLicenceAllocation;
 use App\Support\DuplicateStudentNotice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -43,6 +46,14 @@ use Symfony\Component\HttpFoundation\Response;
  * be one of the school's own classes (read loosely: "Pry 3" is "Primary 3");
  * a row whose class is missing or unknown is shown for correcting and not
  * imported, so a typo can never invent a class.
+ *
+ * ALREADY REGISTERED. A row that may be a student/pupil the school already
+ * has (same name, or same first name and surname plus date of birth,
+ * guardian phone or class) is not added again. The review page shows the
+ * existing record(s) beside the row, and the School Admin chooses: update
+ * that record (admission number and history kept; this is how a child put
+ * in the wrong class is moved), add a different child with the same name,
+ * or skip the row.
  *
  * Imported students are ordinary Student records. Everything the school can
  * do to a student added by hand (edit details, change the photograph, set or
@@ -118,32 +129,62 @@ class StudentImportController extends Controller
 
         $result = $this->assignClasses($result, $chosenClass, $this->classNames($school));
 
-        // STRICT RULE: a student/pupil who is already registered is never
-        // overridden, replaced or modified, and neither is their admission
-        // number. Such rows are marked and skipped; the rest carry on.
-        // Two checks: against the school's records, then against earlier rows
-        // of this file (the same child listed twice). A repeated admission
-        // number within the file is already reported by the parser.
-        // Each row is checked against the class it is going into.
-        $registered = ExistingStudentMatcher::forSchool($school);
+        // A student/pupil who may ALREADY be registered is not imported as a
+        // new record. The row is shown with the existing record(s) it may be,
+        // and the School Admin chooses, row by row: update that record (for
+        // example, move the child to the class this file puts them in; the
+        // admission number and everything attached to the student are kept),
+        // add a different child with the same name, or skip the row.
+        //
+        // An admission number in the file that belongs to a child with a
+        // DIFFERENT name is never a reason to touch that child: such a row is
+        // skipped. The same child listed twice in this file is skipped the
+        // second time. A repeated admission number within the file is already
+        // reported by the parser.
+        $finder = StudentMatchCandidates::forSchool($school);
         $earlierInFile = new ExistingStudentMatcher;
 
         foreach ($result['rows'] as $i => $row) {
             $identity = $row['data'] + ['class_name' => $row['class_name']];
-            $found = $registered->find($identity, $row['file_admission_number']);
+            $candidates = $finder->find($identity, $row['file_admission_number']);
+            $conflict = null;
 
+            foreach (array_unique(array_filter([$row['data']['admission_number'] ?? null, $row['file_admission_number']])) as $number) {
+                $holder = $finder->holderOfAdmissionNumber($number);
+
+                if ($holder !== null && ! collect($candidates)->contains('student_id', $holder)) {
+                    $holderStudent = Student::findOrFail($holder);
+                    $conflict = ['reason' => "Already registered: admission number {$number} is assigned to {$holderStudent->first_name} {$holderStudent->last_name} ({$holderStudent->admission_number}), a different name.", 'student_id' => $holder];
+
+                    break;
+                }
+            }
+
+            $found = $conflict;
+
+            // The same child listed twice in this file: the second listing is
+            // skipped, whether or not they are already registered.
             if ($found === null && $row['errors'] === []) {
                 $found = $earlierInFile->find($identity);
+            }
+
+            if ($found === null && $row['errors'] === []) {
                 $earlierInFile->remember($identity);
             }
 
             $result['rows'][$i]['existing'] = $found['reason'] ?? null;
-
-            // The existing record itself, so the review can show its admission
-            // number, full details and how it was registered.
             $result['rows'][$i]['existing_student'] = ($found['student_id'] ?? null) !== null
                 ? DuplicateStudentNotice::for(Student::findOrFail($found['student_id']), $found['reason'])
                 : null;
+
+            // The records this row may be, for the School Admin to choose
+            // from on the review page.
+            $result['rows'][$i]['candidates'] = $found === null
+                ? collect($candidates)->map(fn ($candidate) => [
+                    ...$candidate,
+                    'notice' => DuplicateStudentNotice::for(Student::findOrFail($candidate['student_id']), 'Possible match: '.implode(', ', $candidate['signals']).'.'),
+                ])->all()
+                : [];
         }
 
         // Listed, and imported, class by class in the school's class order,
@@ -204,11 +245,39 @@ class StudentImportController extends Controller
         // class for the whole file.
         foreach ($preview['rows'] as $i => $row) {
             $preview['rows'][$i]['class_name'] ??= $preview['class_name'] ?? null;
+            $preview['rows'][$i]['candidates'] ??= [];
+        }
+
+        $usable = fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null;
+
+        // What the School Admin chose for each row that may be a student
+        // already registered. Every such row needs an answer, and only the
+        // records offered for that row can be chosen.
+        $decisions = (array) $request->input('decisions', []);
+        $unanswered = [];
+
+        foreach ($preview['rows'] as $row) {
+            if (! $usable($row) || $row['candidates'] === []) {
+                continue;
+            }
+
+            $allowed = ['new', 'skip', ...collect($row['candidates'])->map(fn ($c) => 'update:'.$c['student_id'])->all()];
+
+            if (! in_array($decisions[$row['line']] ?? null, $allowed, true)) {
+                $unanswered[] = $row['line'];
+            }
+        }
+
+        if ($unanswered !== []) {
+            return redirect()->route('students.import.review', ['token' => $token])
+                ->withInput()
+                ->withErrors(['decisions' => 'Please choose what to do for '.(count($unanswered) === 1 ? 'row '.$unanswered[0] : 'rows '.implode(', ', $unanswered)).': update the existing student/pupil, add a different child, or skip.']);
         }
 
         // A class could have been renamed or removed since the upload.
         $missing = collect($preview['rows'])
-            ->filter(fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null)
+            ->filter($usable)
+            ->reject(fn ($row) => $row['candidates'] !== [] && ($decisions[$row['line']] ?? null) === 'skip')
             ->pluck('class_name')
             ->unique()
             ->reject(fn ($class) => in_array($class, $classNames, true))
@@ -219,91 +288,151 @@ class StudentImportController extends Controller
                 ->withErrors(['class_name' => 'The '.Str::plural('class', $missing->count()).' "'.$missing->implode('", "').'" no longer '.($missing->count() === 1 ? 'exists' : 'exist').'. Please upload the file again.']);
         }
 
-        $rows = self::alphabetical(array_filter($preview['rows'], fn ($row) => $row['errors'] === [] && ($row['existing'] ?? null) === null), $classNames);
+        $rows = self::alphabetical(array_filter($preview['rows'], $usable), $classNames);
         $alreadyRegistered = count(array_filter($preview['rows'], fn ($row) => ($row['existing'] ?? null) !== null));
 
-        if ($rows === []) {
-            return back()->withErrors(['file' => $alreadyRegistered > 0
-                ? 'Every student/pupil in this file is already registered at your school, so there is nothing new to import. Existing records have not been changed.'
-                : 'There are no valid rows to import. Please correct the file and upload it again.']);
+        $toUpdate = array_values(array_filter($rows, fn ($row) => str_starts_with((string) ($decisions[$row['line']] ?? ''), 'update:')));
+        $toCreate = array_values(array_filter($rows, fn ($row) => $row['candidates'] === [] || ($decisions[$row['line']] ?? null) === 'new'));
+        $chosenSkips = count(array_filter($rows, fn ($row) => $row['candidates'] !== [] && ($decisions[$row['line']] ?? null) === 'skip'));
+
+        if ($toUpdate === [] && $toCreate === []) {
+            return back()->withErrors(['file' => match (true) {
+                $chosenSkips > 0 => 'Nothing to import: every student/pupil in this file is already registered or was set to be skipped. Existing records have not been changed.',
+                $alreadyRegistered > 0 => 'Every student/pupil in this file is already registered at your school, so there is nothing new to import. Existing records have not been changed.',
+                default => 'There are no valid rows to import. Please correct the file and upload it again.',
+            }]);
         }
 
         $autoGenerate = (bool) $school->auto_generate_admission_numbers;
         $skipped = [];
         $duplicates = [];
-
         $notAdded = 0;
-
-        // Imports rows in alphabetical order until the school's allocation is full:
-        // the current students plus this batch can never pass the limit, so
-        // splitting a list across several uploads gets no further than one.
         $importedInto = [];
+        $moved = [];
 
-        $created = $this->licences->withRoomFor($school, function (?int $room) use ($school, $rows, $autoGenerate, &$skipped, &$duplicates, &$notAdded, &$importedInto) {
-            // Re-checked inside the lock against the students as they are
-            // now: someone may have registered one of these children, or used
-            // one of these admission numbers, while the preview was open.
-            $matcher = ExistingStudentMatcher::forSchool($school);
+        // 1. UPDATES. The School Admin confirmed these rows are students
+        // already registered: their records are updated with the file's
+        // details, in the class the file gives. The admission number and the
+        // record itself are kept, so results, attendance, payments and the
+        // rest stay with the student. No licence space is used.
+        $updated = 0;
+        $updatedFrom = [];
 
-            $count = 0;
+        foreach ($toUpdate as $row) {
+            $studentId = (int) Str::after($decisions[$row['line']], 'update:');
 
-            foreach ($rows as $index => $row) {
-                if ($room !== null && $count >= $room) {
-                    $notAdded = count($rows) - $index;
+            if (isset($updatedFrom[$studentId])) {
+                $skipped[] = "Row {$row['line']} skipped. The same student/pupil was already updated from row {$updatedFrom[$studentId]}.";
 
-                    break;
-                }
-
-                $data = $row['data'];
-                $className = $row['class_name'];
-                $identity = $data + ['class_name' => $className];
-
-                // Already registered: skip entirely, never touch the record.
-                if (($found = $matcher->find($identity, $row['file_admission_number'] ?? null)) !== null) {
-                    $skipped[] = "Row {$row['line']} skipped. {$found['reason']} The existing record was left unchanged.";
-
-                    if ($found['student_id'] !== null) {
-                        $duplicates[] = DuplicateStudentNotice::for(Student::findOrFail($found['student_id']), $found['reason']);
-                    }
-
-                    continue;
-                }
-
-                if ($autoGenerate) {
-                    // Never hand out a number someone already holds, even if
-                    // the school's sequence was reset or numbers were typed in.
-                    $attempts = 0;
-
-                    do {
-                        $data['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $className);
-                    } while ($matcher->admissionNumberTaken($data['admission_number']) && ++$attempts < 1000);
-                }
-
-                // create() only: a bulk upload never updates an existing row.
-                $student = $school->students()->create([
-                    ...array_filter($data, fn ($value) => $value !== null),
-                    'class_name' => $className,
-                    'is_active' => true,
-                    'registration_source' => RegistrationSource::Bulk,
-                ]);
-
-                $matcher->remember($data + ['class_name' => $className], $student->fullName()." ({$student->admission_number})", $student->id);
-                $importedInto[$className] = ($importedInto[$className] ?? 0) + 1;
-                $count++;
+                continue;
             }
 
-            return $count;
-        });
+            $student = $school->students()->whereKey($studentId)->first();
 
-        if ($created === null) {
-            return back()->withErrors([
-                'file' => $this->licences->limitReachedMessage($school),
-            ]);
+            if ($student === null) {
+                $skipped[] = "Row {$row['line']} skipped. The student/pupil chosen for it is no longer on your records.";
+
+                continue;
+            }
+
+            $data = Arr::except($row['data'], ['admission_number']) + ['class_name' => $row['class_name']];
+            $data['class_name'] = $row['class_name'];
+
+            $changes = StudentReRegistration::apply($student, $data, null, 'bulk upload');
+
+            if (isset($changes['class_name'])) {
+                $moved[] = "{$student->fullName()} ({$student->admission_number}): {$changes['class_name'][0]} → {$changes['class_name'][1]}";
+            }
+
+            $updatedFrom[$studentId] = $row['line'];
+            $updated++;
+        }
+
+        // 2. NEW STUDENTS, in alphabetical order until the school's allocation
+        // is full: the current students plus this batch can never pass the
+        // limit, so splitting a list across several uploads gets no further
+        // than one.
+        $created = 0;
+
+        if ($toCreate !== []) {
+            $created = $this->licences->withRoomFor($school, function (?int $room) use ($school, $toCreate, $decisions, $autoGenerate, &$skipped, &$duplicates, &$notAdded, &$importedInto) {
+                // Re-checked inside the lock against the students as they are
+                // now: someone may have registered one of these children, or
+                // used one of these admission numbers, while the preview was open.
+                $matcher = ExistingStudentMatcher::forSchool($school);
+
+                $count = 0;
+
+                foreach ($toCreate as $index => $row) {
+                    if ($room !== null && $count >= $room) {
+                        $notAdded = count($toCreate) - $index;
+
+                        break;
+                    }
+
+                    $data = $row['data'];
+                    $className = $row['class_name'];
+                    $identity = $data + ['class_name' => $className];
+                    $confirmedDifferent = ($decisions[$row['line']] ?? null) === 'new';
+
+                    if ($confirmedDifferent) {
+                        // The admin said this is a different child with the
+                        // same name; an admission number someone else holds
+                        // still cannot be reused.
+                        if (! $autoGenerate && filled($data['admission_number'] ?? null) && $matcher->admissionNumberTaken((string) $data['admission_number'])) {
+                            $skipped[] = "Row {$row['line']} skipped. Admission number {$data['admission_number']} already belongs to another student/pupil.";
+
+                            continue;
+                        }
+                    } elseif (($found = $matcher->find($identity, $row['file_admission_number'] ?? null)) !== null) {
+                        // Registered by someone else since the preview: never touched.
+                        $skipped[] = "Row {$row['line']} skipped. {$found['reason']} The existing record was left unchanged.";
+
+                        if ($found['student_id'] !== null) {
+                            $duplicates[] = DuplicateStudentNotice::for(Student::findOrFail($found['student_id']), $found['reason']);
+                        }
+
+                        continue;
+                    }
+
+                    if ($autoGenerate) {
+                        // Never hand out a number someone already holds, even if
+                        // the school's sequence was reset or numbers were typed in.
+                        $attempts = 0;
+
+                        do {
+                            $data['admission_number'] = $this->identifiers->nextAdmissionNumber($school, $className);
+                        } while ($matcher->admissionNumberTaken($data['admission_number']) && ++$attempts < 1000);
+                    }
+
+                    $student = $school->students()->create([
+                        ...array_filter($data, fn ($value) => $value !== null),
+                        'class_name' => $className,
+                        'is_active' => true,
+                        'registration_source' => RegistrationSource::Bulk,
+                    ]);
+
+                    $matcher->remember($data + ['class_name' => $className], $student->fullName()." ({$student->admission_number})", $student->id);
+                    $importedInto[$className] = ($importedInto[$className] ?? 0) + 1;
+                    $count++;
+                }
+
+                return $count;
+            });
+
+            if ($created === null) {
+                if ($updated === 0) {
+                    return back()->withErrors(['file' => $this->licences->limitReachedMessage($school)]);
+                }
+
+                $notAdded = count($toCreate);
+                $created = 0;
+            }
         }
 
         Cache::forget($this->cacheKey($request, $token));
 
-        $alreadyRegistered += count($skipped);
+        $alreadyRegistered += count($skipped) + $chosenSkips;
 
         $classes = array_keys($importedInto);
         $into = match (count($classes)) {
@@ -315,16 +444,22 @@ class StudentImportController extends Controller
         AuditLog::record(
             'students.imported',
             "Imported {$created} student(s)/pupil(s) into {$into} from {$preview['file_name']}."
-                .($alreadyRegistered > 0 ? " {$alreadyRegistered} skipped: already registered, left unchanged." : '')
+                .($updated > 0 ? " {$updated} already registered updated (admission numbers kept)." : '')
+                .($alreadyRegistered > 0 ? " {$alreadyRegistered} skipped and left unchanged." : '')
                 .($notAdded > 0 ? " {$notAdded} not added: subscription limit reached." : ''),
             $school,
         );
 
         $message = number_format($created).' '.Str::plural('student/pupil', $created)." imported into {$into}."
+            .($updated > 0 ? ' '.number_format($updated).' already registered '.($updated === 1 ? 'was' : 'were').' updated instead of being added again; their admission numbers did not change.' : '')
             .($alreadyRegistered > 0 ? ' '.number_format($alreadyRegistered).' already registered '.($alreadyRegistered === 1 ? 'was' : 'were').' skipped and left unchanged.' : '')
             .' You can edit any of them, add photographs and set their login details from the Students list.';
 
-        $redirect = redirect()->route('students.index', count($classes) === 1 ? ['class' => $classes[0]] : [])->with('status', $message);
+        $redirect = redirect()->route('students.index', count($classes) === 1 && $updated === 0 ? ['class' => $classes[0]] : [])->with('status', $message);
+
+        if ($moved !== []) {
+            $redirect->with('moved_students', $moved);
+        }
 
         if ($notAdded > 0) {
             $redirect->with('capacity_notice', $this->licences->importTruncatedMessage($school, $created));

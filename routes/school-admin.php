@@ -44,6 +44,7 @@ use App\Http\Controllers\SchoolAdmin\SignatureController as SchoolAdminSignature
 use App\Http\Controllers\SchoolAdmin\StaffController;
 use App\Http\Controllers\SchoolAdmin\StaffImportController;
 use App\Http\Controllers\SchoolAdmin\StudentController;
+use App\Http\Controllers\SchoolAdmin\StudentExistingMatchController;
 use App\Http\Controllers\SchoolAdmin\StudentImportController;
 use App\Http\Controllers\SchoolAdmin\SubscriptionTopUpController;
 use App\Http\Controllers\SchoolAdmin\TeacherAssignmentController;
@@ -86,6 +87,12 @@ Route::name('students.')->group(function () {
     Route::get(R::uri('students.import.review').'/{token}', [StudentImportController::class, 'review'])->where('token', '[A-Za-z0-9]{40}')->name('import.review');
     Route::post(R::uri('students.import.review').'/{token}', [StudentImportController::class, 'store'])->where('token', '[A-Za-z0-9]{40}')->name('import.store');
     Route::delete(R::uri('students.import.review').'/{token}', [StudentImportController::class, 'cancel'])->where('token', '[A-Za-z0-9]{40}')->name('import.cancel');
+
+    // "This child may already be registered": the Add Student form's
+    // confirmation step. See StudentExistingMatchController.
+    Route::get(R::uri('students.existing').'/{token}', [StudentExistingMatchController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->name('existing.show');
+    Route::post(R::uri('students.existing').'/{token}', [StudentExistingMatchController::class, 'confirm'])->where('token', '[A-Za-z0-9]{40}')->name('existing.confirm');
+    Route::delete(R::uri('students.existing').'/{token}', [StudentExistingMatchController::class, 'cancel'])->where('token', '[A-Za-z0-9]{40}')->name('existing.cancel');
 
     Route::get(R::uri('students.show').'/{student}', [StudentController::class, 'show'])->name('show');
     Route::put(R::uri('students.update').'/{student}', [StudentController::class, 'update'])->name('update');
