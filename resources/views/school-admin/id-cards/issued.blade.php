@@ -34,7 +34,7 @@
 
         <div class="overflow-x-auto rounded-[5px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
+                <table class="stack-cards w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
                             <th class="px-5 py-3 font-semibold">Card Number</th>

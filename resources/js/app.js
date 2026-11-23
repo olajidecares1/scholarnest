@@ -22,6 +22,7 @@ import initScrollAnimations from './scroll-reveal';
 import installPageMotion from './page-motion';
 import signaturePad from './signature-pad';
 import teacherRemarkBox from './teacher-remark-box';
+import './stack-tables';
 import uploadProgressForm from './upload-progress-form';
 
 window.Alpine = Alpine;

@@ -84,7 +84,7 @@
                 <div class="border-b border-gray-100 px-5 py-3 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Student Attempts</h2>
                 </div>
-                <table class="w-full text-left text-sm">
+                <table class="stack-cards w-full text-left text-sm">
                     <thead class="border-b border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                         <tr>
                             <th class="px-4 py-3">Student</th>

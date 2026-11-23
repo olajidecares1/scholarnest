@@ -102,7 +102,7 @@
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $staffMember->fullName() }}</h3>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
+                        <table class="stack-cards w-full text-left text-sm">
                             <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
                                     <th class="px-6 py-2 font-semibold">Type</th>

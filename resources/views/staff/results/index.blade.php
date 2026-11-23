@@ -85,7 +85,7 @@
 
                 <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[900px] text-left text-sm">
+                        <table class="stack-cards w-full min-w-[900px] text-left text-sm">
                             <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
                                     <th class="w-12 whitespace-nowrap px-4 py-3 font-semibold">S/N</th>
@@ -122,7 +122,7 @@
                                                  the "Class Teacher's Remark" the card prints. Saves itself
                                                  as the teacher types; see resources/js/teacher-remark-box.js. --}}
                                             <div
-                                                class="mt-2 w-64 sm:w-80"
+                                                class="mt-2 w-full sm:w-80"
                                                 x-data="teacherRemarkBox({ url: @js($remarksUrl), initial: @js($remarks->get($student->id) ?? ''), published: @js($publishedResults->has($student->id)) })"
                                                 x-on:teacher-remark-saved.window="syncFrom($event)"
                                             >

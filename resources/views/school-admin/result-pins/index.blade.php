@@ -110,7 +110,7 @@
                 </div>
 
                 <div class="mt-4 overflow-x-auto">
-                    <table class="min-w-full text-left text-sm">
+                    <table class="stack-cards min-w-full text-left text-sm">
                         <thead class="text-xs uppercase text-green-900/70 dark:text-green-400/70">
                             <tr>
                                 <th class="py-2 pr-4 font-semibold">Student</th>
@@ -457,7 +457,7 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full min-w-[46rem] text-left text-sm">
+                    <table class="stack-cards w-full min-w-[46rem] text-left text-sm">
                         <thead class="border-y border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
                                 <th class="w-12 px-4 py-3 font-semibold">S/N</th>
@@ -744,7 +744,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="min-w-full text-left text-sm">
+                <table class="stack-cards min-w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
                             <th class="w-10 py-3 pl-5 pr-0">
@@ -874,7 +874,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="min-w-full text-left text-sm">
+                <table class="stack-cards min-w-full text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
                             <th class="px-5 py-3 font-semibold">When</th>

@@ -72,7 +72,7 @@
 
             @if ($terms->isNotEmpty())
                 <div class="mt-4 overflow-x-auto rounded-[8px] border border-gray-200 dark:border-gray-700">
-                    <table class="w-full text-left text-sm">
+                    <table class="stack-cards w-full text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
                                 <th class="px-3 py-2 font-semibold">Session</th>
@@ -144,7 +144,7 @@
 
             @if ($gradeBands->isNotEmpty())
                 <div class="mt-4 overflow-x-auto rounded-[8px] border border-gray-200 dark:border-gray-700">
-                    <table class="w-full text-left text-sm">
+                    <table class="stack-cards w-full text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
                                 <th class="px-3 py-2 font-semibold">Min %</th>

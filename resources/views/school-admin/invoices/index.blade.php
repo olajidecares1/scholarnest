@@ -9,7 +9,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[42rem] text-left text-sm">
+                <table class="stack-cards w-full min-w-[42rem] text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                         <tr>
                             <th class="px-5 py-3 font-semibold">Invoice</th>

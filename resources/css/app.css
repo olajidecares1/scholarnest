@@ -2157,6 +2157,158 @@ a.pwa-install-banner__install {
 }
 
 /* ==========================================================================
+   STACKED TABLE CARDS
+
+   A list table marked `stack-cards` (students, parents, staff, results and
+   the rest) is one card per row on a phone, with a gap between cards: the
+   S/N, tick box and name on the first line, every other column as a
+   labelled line ("Class  JSS 3"), and the row's actions along the foot.
+   From 640px up it is the ordinary table. resources/js/stack-tables.js
+   labels the cells from the column headings and gives each its part
+   (data-stack: lead, title, field, actions, full).
+   ========================================================================== */
+@media (max-width: 639.98px) {
+    table.stack-cards,
+    .edn-portal-main table.stack-cards {
+        display: block;
+        width: 100%;
+        min-width: 0 !important;
+        overflow: visible;
+    }
+
+    table.stack-cards thead {
+        display: none;
+    }
+
+    table.stack-cards tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+        background: #f9fafb;
+    }
+
+    .dark table.stack-cards tbody {
+        background: rgb(17 24 39 / 0.4);
+    }
+
+    table.stack-cards tbody > tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        column-gap: 10px;
+        row-gap: 8px;
+        padding: 14px 16px;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+    }
+
+    .dark table.stack-cards tbody > tr {
+        border-color: #374151 !important;
+        background: #1f2937;
+    }
+
+    /* A labelled line: the label floats left, the value sits on the right,
+     * and a value of two lines (a name over a phone number) stacks there. */
+    table.stack-cards tbody > tr > td:not(.hidden) {
+        display: block;
+        flex: 1 1 100%;
+        min-width: 0;
+        width: auto;
+        padding: 0 !important;
+        border: 0;
+        text-align: right;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    table.stack-cards tbody > tr > td::after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+
+    table.stack-cards tbody > tr > td::before {
+        content: attr(data-label);
+        float: left;
+        max-width: 45%;
+        margin-right: 12px;
+        padding-top: 2px;
+        text-align: left;
+        font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #6b7280;
+    }
+
+    /* Flex and grid groups inside a value line up on the right too. */
+    table.stack-cards tbody > tr > td[data-stack='field'] > .flex,
+    table.stack-cards tbody > tr > td[data-stack='field'] > .inline-flex {
+        justify-content: flex-end;
+    }
+
+    .dark table.stack-cards tbody > tr > td::before {
+        color: #9ca3af;
+    }
+
+    table.stack-cards tbody > tr > td[data-label='']::before,
+    table.stack-cards tbody > tr > td[data-stack='lead']::before,
+    table.stack-cards tbody > tr > td[data-stack='title']::before,
+    table.stack-cards tbody > tr > td[data-stack='actions']::before,
+    table.stack-cards tbody > tr > td[data-stack='full']::before {
+        display: none;
+    }
+
+    /* S/N and tick box sit on the name's line, even when the name cell
+     * goes on below it (a comment box under the name). */
+    table.stack-cards tbody > tr > td[data-stack='lead'] {
+        flex: 0 0 auto;
+        align-self: flex-start;
+        width: auto;
+        min-height: 28px;
+        display: flex;
+        align-items: center;
+    }
+
+    table.stack-cards tbody > tr > td[data-stack='title'] {
+        flex: 1 1 0;
+        text-align: left;
+    }
+
+    /* The first labelled line starts on its own row, under the name. */
+    table.stack-cards tbody > tr > td[data-stack='title'] ~ td[data-stack='field'] {
+        flex-basis: 100%;
+    }
+
+    table.stack-cards tbody > tr > td[data-stack='actions'] {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 2px;
+        padding-top: 10px !important;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .dark table.stack-cards tbody > tr > td[data-stack='actions'] {
+        border-top-color: #374151;
+    }
+
+    table.stack-cards tbody > tr > td[data-stack='full'] {
+        text-align: center;
+        padding: 24px 8px !important;
+    }
+
+    /* A cell's own min-width or no-wrap would push the card past the screen. */
+    table.stack-cards tbody > tr > td [class*='min-w-'] {
+        min-width: 0;
+    }
+}
+
+/* ==========================================================================
    ICON ACTION BUTTONS
 
    Every compact action in the School Admin, Staff, Student, Guardian and

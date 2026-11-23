@@ -56,7 +56,7 @@
                     </div>
 
                     <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                        <table class="w-full text-left text-sm">
+                        <table class="stack-cards w-full text-left text-sm">
                             <thead class="border-b border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
                                     <th class="w-10 px-4 py-3">
@@ -126,7 +126,7 @@
                     </div>
 
                     <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                        <table class="w-full text-left text-sm">
+                        <table class="stack-cards w-full text-left text-sm">
                             <thead class="border-b border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
                                     <th class="w-10 px-4 py-3">
@@ -196,7 +196,7 @@
                     </div>
 
                     <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                        <table class="w-full text-left text-sm">
+                        <table class="stack-cards w-full text-left text-sm">
                             <thead class="border-b border-gray-100 bg-gray-50 text-xs uppercase text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
                                     <th class="w-10 px-4 py-3">

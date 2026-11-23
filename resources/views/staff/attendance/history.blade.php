@@ -61,7 +61,7 @@
                         </dl>
                     </div>
                 @empty
-                    <p class="rounded-[10px] border border-gray-200 bg-white px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">No active students yet.</p>
+                    <small class="block rounded-[10px] border border-gray-200 bg-white px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">No active students yet.</small>
                 @endforelse
             </div>
 

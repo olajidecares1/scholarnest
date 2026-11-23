@@ -105,7 +105,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[60rem] text-left text-sm">
+                <table class="stack-cards w-full min-w-[60rem] text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                         <tr>
                             <th class="w-10 px-5 py-2.5"><span class="sr-only">Select</span></th>

@@ -109,7 +109,7 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full min-w-[1000px] text-left text-sm">
+                    <table class="stack-cards w-full min-w-[1000px] text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
                                 <th class="px-4 py-3 font-semibold">Student</th>

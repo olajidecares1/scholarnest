@@ -133,7 +133,7 @@
                     <small class="block p-8 text-center text-sm text-gray-500 dark:text-gray-400">No students/pupils in {{ $selectedClass }} yet.</small>
                 @else
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[40rem] text-left text-sm">
+                        <table class="stack-cards w-full min-w-[40rem] text-left text-sm">
                             <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                                 <tr>
                                     {{-- Kept on one line: "S/N" used to break into S, / and N on a phone. --}}

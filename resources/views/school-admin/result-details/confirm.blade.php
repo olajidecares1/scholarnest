@@ -67,7 +67,7 @@
         {{-- Who gets what. --}}
         <div class="overflow-hidden rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[44rem] text-left text-sm">
+                <table class="stack-cards w-full min-w-[44rem] text-left text-sm">
                     <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                         <tr>
                             <th class="w-12 px-5 py-2.5 font-semibold">S/N</th>
