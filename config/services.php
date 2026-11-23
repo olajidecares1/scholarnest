@@ -57,6 +57,29 @@ return [
         'template' => env('WHATSAPP_TEMPLATE'),
         'template_language' => env('WHATSAPP_TEMPLATE_LANGUAGE', 'en'),
         'timeout' => (int) env('WHATSAPP_TIMEOUT', 10),
+
+        /*
+         * Result details sent to parents/guardians (result link, token and
+         * admission number). A separate approved "Utility" template, because
+         * its values differ from the staff one. Its body takes seven values:
+         *   {{1}} the parent's name      {{2}} the school's name
+         *   {{3}} the student's name     {{4}} the term and session
+         *   {{5}} the admission number   {{6}} the result token
+         *   {{7}} the result link
+         * Without it, plain text is sent, which WhatsApp only delivers to a
+         * parent who has messaged the school's number in the last 24 hours;
+         * the delivery receipts below then mark the rest as failed.
+         */
+        'result_template' => env('WHATSAPP_RESULT_TEMPLATE'),
+
+        /*
+         * Delivery receipts. Point the WhatsApp app's webhook at
+         * https://your-domain/api/webhooks/whatsapp, with this verify token,
+         * and subscribe to "messages". The app secret proves each receipt
+         * came from Meta; without it receipts are refused.
+         */
+        'webhook_verify_token' => env('WHATSAPP_WEBHOOK_VERIFY_TOKEN'),
+        'app_secret' => env('WHATSAPP_APP_SECRET'),
     ],
 
 ];

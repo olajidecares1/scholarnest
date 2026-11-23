@@ -59,6 +59,12 @@
 
         {{-- Why a result was refused, in the words of what is missing. See
              App\Services\ResultCompleteness. --}}
+        @error('send')
+            <div class="rounded-[5px] bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
+                {{ $message }}
+            </div>
+        @enderror
+
         @error('repository')
             <div class="rounded-[5px] bg-amber-50 p-4 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 lg:rounded-[10px]">
                 {{ $message }}
@@ -110,11 +116,50 @@
                 :stale-count="count($staleStudentIds)"
             />
 
-            <div class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            {{-- Result details (result link, token and admission number) to
+                 parents and guardians: the whole class, the ticked students,
+                 or one student from their row. A student with no token for
+                 this result is issued one at sending. --}}
+            <div
+                class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                x-data="{
+                    picked: [],
+                    all: @js($students->map(fn ($row) => $row['student']->uuid)->values()),
+                    get allPicked() { return this.all.length > 0 && this.picked.length === this.all.length },
+                }"
+            >
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                    <small class="text-xs text-gray-500 dark:text-gray-400">
+                        <span x-show="picked.length === 0">Tick students to send their result details to their parents/guardians, or send for the whole class.</span>
+                        <span x-show="picked.length > 0" x-cloak class="font-semibold text-gray-800 dark:text-gray-100"><span x-text="picked.length"></span> selected</span>
+                    </small>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a href="{{ route('result-pins.details.history') }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Sending history
+                        </a>
+                        <div x-show="picked.length > 0" x-cloak>
+                            <x-send-result-details :action="route('result-pins.details.preview')" label="Send Selected">
+                                <input type="hidden" name="examination" value="{{ $examination->uuid }}">
+                                <template x-for="id in picked" :key="id">
+                                    <input type="hidden" name="students[]" :value="id">
+                                </template>
+                            </x-send-result-details>
+                        </div>
+                        <div x-show="picked.length === 0">
+                            <x-send-result-details :action="route('result-pins.details.preview')" label="Send for {{ $selectedClass }}">
+                                <input type="hidden" name="examination" value="{{ $examination->uuid }}">
+                                <input type="hidden" name="all" value="1">
+                            </x-send-result-details>
+                        </div>
+                    </div>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[1020px] text-left text-sm">
                         <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
+                                <th class="w-10 py-3 pl-4 pr-0">
+                                    <input type="checkbox" :checked="allPicked" x-on:change="picked = $event.target.checked ? [...all] : []" :disabled="all.length === 0" aria-label="Select every student">
+                                </th>
                                 <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                                 <th class="px-4 py-3 font-semibold">Student</th>
                                 <th class="px-4 py-3 font-semibold">Student ID</th>
@@ -139,6 +184,9 @@
                                     $pdfUrl = route('results.pdf', [$examination, $student]);
                                 @endphp
                                 <tr class="transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                                    <td class="w-10 py-3 pl-4 pr-0">
+                                        <input type="checkbox" value="{{ $student->uuid }}" x-model="picked" aria-label="Select {{ $student->fullName() }}">
+                                    </td>
                                     <td class="w-12 px-4 py-3 tabular-nums text-gray-500 dark:text-gray-400">{{ $loop->iteration }}</td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-2.5">
@@ -217,12 +265,16 @@
                                             >
                                                 <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
                                             </button>
+                                            <x-send-result-details :action="route('result-pins.details.send')" :compact="true" icon="fa-share-from-square" label="Send result link, token and admission no. to parents">
+                                                <input type="hidden" name="examination" value="{{ $examination->uuid }}">
+                                                <input type="hidden" name="students[]" value="{{ $student->uuid }}">
+                                            </x-send-result-details>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="11" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $selectedClass }} yet.</td>
+                                    <td colspan="12" class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No active students in {{ $selectedClass }} yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>

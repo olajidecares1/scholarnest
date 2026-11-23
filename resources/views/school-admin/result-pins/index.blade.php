@@ -542,12 +542,29 @@
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Issued tokens</h2>
                     <small class="field-hint mt-0.5">
                         Each row is one student and one result. A token never opens anything else.
-                        Tick tokens to delete them together, or filter by a category to delete every matching token.
+                        Tick tokens to send their result details to parents, or to delete them together. Filter by a category to act on every matching token.
                     </small>
                 </div>
-                <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                    {{ number_format($tokens->total()) }} {{ $tokens->total() === 1 ? 'token' : 'tokens' }}{{ $hasTokenFilter ? ' match' : '' }}
-                </span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                        {{ number_format($tokens->total()) }} {{ $tokens->total() === 1 ? 'token' : 'tokens' }}{{ $hasTokenFilter ? ' match' : '' }}
+                    </span>
+                    <a href="{{ route('result-pins.details.history') }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                        <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Sending history
+                    </a>
+
+                    {{-- Every valid token for the filtered term (and class),
+                         to their parents and guardians. --}}
+                    @if (filled($tokenFilters['session']) && filled($tokenFilters['term']) && $tokens->total() > 0)
+                        <x-send-result-details :action="route('result-pins.details.preview')" label="Send for all matching">
+                            <input type="hidden" name="session" value="{{ $tokenFilters['session'] }}">
+                            <input type="hidden" name="term" value="{{ $tokenFilters['term'] }}">
+                            @if (filled($tokenFilters['class_name']))
+                                <input type="hidden" name="class_name" value="{{ $tokenFilters['class_name'] }}">
+                            @endif
+                        </x-send-result-details>
+                    @endif
+                </div>
             </div>
 
             {{-- Filters. Each one is a category the admin can delete in one go. --}}
@@ -635,6 +652,14 @@
                     <span x-text="selected.length === 1 ? 'token selected' : 'tokens selected'"></span>
                 </p>
                 <div class="flex flex-wrap items-center gap-2">
+                    {{-- Send the ticked students' result details to their
+                         parents and guardians, after a confirmation. --}}
+                    <x-send-result-details :action="route('result-pins.details.preview')" label="Send Result Details">
+                        <template x-for="id in selected" :key="id">
+                            <input type="hidden" name="tokens[]" :value="id">
+                        </template>
+                    </x-send-result-details>
+
                     <button type="button" @click="selected = []" class="btn rounded-[8px] border border-gray-300 bg-white font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
                         <i class="fa-solid fa-xmark btn-icon" aria-hidden="true"></i> Clear selection
                     </button>
@@ -780,6 +805,12 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="icon-btn-group">
+                                        @if ($token->boundStudent && $token->accessRefusalReason() === null)
+                                            <x-send-result-details :action="route('result-pins.details.send')" :compact="true" label="Send result details to parents">
+                                                <input type="hidden" name="tokens[]" value="{{ $token->uuid }}">
+                                            </x-send-result-details>
+                                        @endif
+
                                         <form method="POST" action="{{ route('result-pins.reveal', $token) }}">
                                             @csrf
                                             <button type="submit" class="icon-btn icon-btn--view" data-tooltip="Show token" aria-label="Show token"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>

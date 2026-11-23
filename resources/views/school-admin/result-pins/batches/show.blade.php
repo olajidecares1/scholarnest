@@ -148,6 +148,45 @@
             </div>
         </div>
 
+        {{-- Send to parents and guardians: the whole batch, one class, or the
+             ticked students, by email, WhatsApp or both, after a
+             confirmation that says who has no contact details. --}}
+        <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">Send to parents/guardians</h2>
+                    <small class="field-hint mt-0.5">Each parent gets their own child&rsquo;s result link, token and admission number, by email, WhatsApp or both.</small>
+                </div>
+                <a href="{{ route('result-pins.details.history') }}" class="text-xs font-semibold text-primary-600 hover:underline dark:text-primary-400">
+                    <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Sending history
+                </a>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+                <x-send-result-details :action="route('result-pins.details.preview')" label="Send All">
+                    <input type="hidden" name="batch" value="{{ $batch->uuid }}">
+                </x-send-result-details>
+
+                <div class="flex items-center gap-2" x-data="{ sendClass: @js($groups->keys()->first()) }">
+                    <select x-model="sendClass" class="w-44" aria-label="Class to send">
+                        @foreach ($groups as $className => $classTokens)
+                            <option value="{{ $className }}">{{ $className }} ({{ $classTokens->count() }})</option>
+                        @endforeach
+                    </select>
+                    <x-send-result-details :action="route('result-pins.details.preview')" label="Send Class">
+                        <input type="hidden" name="batch" value="{{ $batch->uuid }}">
+                        <input type="hidden" name="class_name" :value="sendClass">
+                    </x-send-result-details>
+                </div>
+
+                <x-send-result-details :action="route('result-pins.details.preview')" label="Send Selected" disabled-when="chosenIds.length === 0">
+                    <template x-for="id in chosenIds" :key="id">
+                        <input type="hidden" name="tokens[]" :value="id">
+                    </template>
+                </x-send-result-details>
+            </div>
+        </div>
+
         {{-- The tokens themselves, exactly as they print. --}}
         <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-3 dark:border-gray-700">

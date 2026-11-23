@@ -34,6 +34,7 @@ use App\Http\Controllers\SchoolAdmin\ProfileChangeRequestController;
 use App\Http\Controllers\SchoolAdmin\ResultArchiveController;
 use App\Http\Controllers\SchoolAdmin\ResultCheckingPinController;
 use App\Http\Controllers\SchoolAdmin\ResultController;
+use App\Http\Controllers\SchoolAdmin\ResultDetailsController;
 use App\Http\Controllers\SchoolAdmin\ResultRepositoryController;
 use App\Http\Controllers\SchoolAdmin\ResultTokenBulkController;
 use App\Http\Controllers\SchoolAdmin\SchoolReportController;
@@ -341,6 +342,14 @@ Route::middleware('result_pin_access')->name('result-pins.')->group(function () 
     // exists in the first place.
     Route::post(R::uri('result-pins.store'), [ResultCheckingPinController::class, 'store'])->name('store');
     Route::post(R::uri('result-pins.store-bulk'), [ResultCheckingPinController::class, 'storeBulk'])->name('store-bulk');
+
+    // Result details (result link, token, admission number) to parents and
+    // guardians by email, WhatsApp or both: a confirmation for more than one
+    // student, the send itself, the sending history and retrying failures.
+    Route::post(R::uri('result-pins.details.preview'), [ResultDetailsController::class, 'preview'])->name('details.preview');
+    Route::post(R::uri('result-pins.details.send'), [ResultDetailsController::class, 'send'])->middleware('throttle:30,1')->name('details.send');
+    Route::get(R::uri('result-pins.details.history'), [ResultDetailsController::class, 'history'])->name('details.history');
+    Route::post(R::uri('result-pins.details.retry'), [ResultDetailsController::class, 'retry'])->middleware('throttle:30,1')->name('details.retry');
 
     // Bulk exam tokens for hand-picked students across several classes:
     // choose, review, generate as one batch, then print it on A4. Printing

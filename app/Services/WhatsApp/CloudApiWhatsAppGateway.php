@@ -20,7 +20,7 @@ class CloudApiWhatsAppGateway implements WhatsAppGateway
         return filled(config('services.whatsapp.token')) && filled(config('services.whatsapp.phone_number_id'));
     }
 
-    public function send(string $phone, string $message, array $templateValues = []): WhatsAppDelivery
+    public function send(string $phone, string $message, array $templateValues = [], ?string $template = self::DEFAULT_TEMPLATE): WhatsAppDelivery
     {
         if (! $this->isConfigured()) {
             return WhatsAppDelivery::failed('WhatsApp sending is not set up yet.');
@@ -32,7 +32,9 @@ class CloudApiWhatsAppGateway implements WhatsAppGateway
             return WhatsAppDelivery::failed('No phone number.');
         }
 
-        $template = config('services.whatsapp.template');
+        if ($template === self::DEFAULT_TEMPLATE) {
+            $template = config('services.whatsapp.template');
+        }
 
         $payload = filled($template) ? [
             'messaging_product' => 'whatsapp',
