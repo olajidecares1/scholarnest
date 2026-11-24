@@ -21,7 +21,7 @@ import { registerResultPreviewStore } from './result-preview-modal';
 import initScrollAnimations from './scroll-reveal';
 import installPageMotion from './page-motion';
 import signaturePad from './signature-pad';
-import teacherRemarkBox from './teacher-remark-box';
+import teacherRemarkBox, { registerSavedRemarksStore } from './teacher-remark-box';
 import './stack-tables';
 import './glass-nav';
 import './sheet-drag';
@@ -42,6 +42,7 @@ Alpine.data('reportEvidence', reportEvidence);
 Alpine.data('uploadProgressForm', uploadProgressForm);
 Alpine.data('signaturePad', signaturePad);
 Alpine.data('teacherRemarkBox', teacherRemarkBox);
+registerSavedRemarksStore(Alpine);
 registerIdCardPreviewStore(Alpine);
 registerResultPreviewStore(Alpine);
 

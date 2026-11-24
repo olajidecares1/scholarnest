@@ -172,6 +172,10 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
                 Route::get('/{examination}/students/{student}', [StaffResultController::class, 'show'])->name('show');
                 Route::put('/{examination}/students/{student}/remarks', [StaffResultController::class, 'updateRemarks'])->name('remarks');
 
+                // The teacher's own list of earlier comments: filled as they
+                // write, so the only thing to do by hand is take one off.
+                Route::delete('/saved-remarks/{teacherRemark}', [StaffResultController::class, 'forgetRemark'])->name('saved-remarks.destroy');
+
                 // Push to Repository. A Class Teacher publishes for their own
                 // class; the Repository itself is the School Admin's, and
                 // there is no route to it from here.

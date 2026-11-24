@@ -9,6 +9,7 @@ use App\Models\Examination;
 use App\Models\ExaminationReport;
 use App\Models\School;
 use App\Models\Student;
+use App\Models\TeacherRemark;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ReportCardData;
 use App\Services\ResultRepository;
@@ -60,7 +61,11 @@ class ResultController extends Controller
             ? ExaminationReport::query()->where('examination_id', $examination->id)->pluck('teacher_remark', 'student_id')
             : collect();
 
+        // The teacher's earlier comments, offered under every comment box.
+        TeacherRemark::learnFromClasses($staff, $classes);
+
         return view('staff.results.index', [
+            'savedRemarks' => TeacherRemark::listFor($staff),
             'school' => $school,
             'classes' => $classes,
             'className' => $className,
@@ -109,16 +114,38 @@ class ResultController extends Controller
         $remark = trim((string) ($validated['teacher_remark'] ?? ''));
 
         $report = ExaminationReport::firstOrCreateFor($examination, $student);
+        $previous = $report->teacher_remark;
         $report->update(['teacher_remark' => $remark === '' ? null : $remark]);
+
+        // The teacher's list of comments to pick from next time keeps itself:
+        // this one is remembered, the draft it replaced forgotten.
+        $staff = $request->user('staff');
+        TeacherRemark::replace($staff, $previous, $remark);
 
         return response()->json([
             'status' => 'Remarks saved.',
             'teacher_remark' => $report->teacher_remark,
+            'saved_remarks' => TeacherRemark::listFor($staff),
 
             // A card already pushed to the Repository keeps the old comment
             // until it is pushed again; the teacher is told so.
             'needs_repush' => in_array($student->id, app(ResultRepository::class)->stateFor($examination)['staleStudentIds'], true),
         ]);
+    }
+
+    /**
+     * Take a comment off the teacher's own list. Report cards already
+     * carrying it keep it: this tidies the list, it does not unsay anything.
+     */
+    public function forgetRemark(Request $request, School $school, TeacherRemark $teacherRemark): JsonResponse
+    {
+        $staff = $request->user('staff');
+
+        abort_unless($teacherRemark->staff_id === $staff->id, 404);
+
+        $teacherRemark->delete();
+
+        return response()->json(['saved_remarks' => TeacherRemark::listFor($staff)]);
     }
 
     /**

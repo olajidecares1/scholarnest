@@ -1,10 +1,66 @@
+import Alpine from 'alpinejs';
+
 // The Class Teacher's comment box on each pupil's row of the teacher portal's
 // Report Cards list. Saves itself shortly after the teacher stops typing (and
 // at once when they leave the box) to the same Class Teacher's Remark the
 // report card prints, so there is no Save button to forget.
+//
+// Every comment the teacher settles on is also remembered in their own list
+// of saved comments (App\Models\TeacherRemark). Under each box, "Saved
+// comments" opens that list: tap one and it is this pupil's comment, saved.
+// The list is one Alpine store for the whole page, so a comment written for
+// one pupil is offered at once under every other pupil's box.
+export function registerSavedRemarksStore(Alpine) {
+    Alpine.store('savedRemarks', {
+        items: [],
+        forgetUrl: '',
+
+        init() {
+            const data = document.getElementById('saved-remarks-data');
+
+            if (data) {
+                const parsed = JSON.parse(data.textContent || '{}');
+                this.items = parsed.items ?? [];
+                this.forgetUrl = parsed.forgetUrl ?? '';
+            }
+        },
+
+        replace(items) {
+            if (Array.isArray(items)) {
+                this.items = items;
+            }
+        },
+
+        async forget(remark) {
+            const before = this.items;
+            this.items = this.items.filter((item) => item.uuid !== remark.uuid);
+
+            try {
+                const response = await fetch(this.forgetUrl.replace('__REMARK__', remark.uuid), {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        Accept: 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('forget failed');
+                }
+
+                this.replace((await response.json()).saved_remarks);
+            } catch (e) {
+                this.items = before;
+            }
+        },
+    });
+}
+
 export default function teacherRemarkBox({ url, initial = '', published = false }) {
     return {
         url,
+        pickerOpen: false,
+        search: '',
         text: initial ?? '',
         saved: initial ?? '',
         published,
@@ -12,6 +68,31 @@ export default function teacherRemarkBox({ url, initial = '', published = false 
         needsRepush: false,
         timer: null,
         sequence: 0,
+
+        // The saved comments matching what is typed in the picker's search,
+        // leaving out the one already in this box.
+        get choices() {
+            const term = this.search.trim().toLowerCase();
+            const current = this.text.trim().toLowerCase();
+
+            return Alpine.store('savedRemarks').items.filter((item) => {
+                const body = item.body.toLowerCase();
+
+                return body !== current && (term === '' || body.includes(term));
+            });
+        },
+
+        togglePicker() {
+            this.pickerOpen = !this.pickerOpen;
+            this.search = '';
+        },
+
+        pick(remark) {
+            this.text = remark.body;
+            this.pickerOpen = false;
+            this.search = '';
+            this.save();
+        },
 
         get dirty() {
             return this.text.trim() !== this.saved.trim();
@@ -50,6 +131,8 @@ export default function teacherRemarkBox({ url, initial = '', published = false 
                 }
 
                 const body = await response.json();
+
+                Alpine.store('savedRemarks').replace(body.saved_remarks);
 
                 // A later save has started since: let that one report.
                 if (mine !== this.sequence) {

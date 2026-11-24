@@ -115,6 +115,13 @@ export function registerResultPreviewStore(Alpine) {
                     throw new Error('Failed to save remarks.');
                 }
 
+                // The Class Teacher's own list of saved comments, when this
+                // is the teacher portal: the comment just saved joins it.
+                const saved = await response.json().catch(() => ({}));
+                if (Array.isArray(saved.saved_remarks)) {
+                    window.Alpine?.store('savedRemarks')?.replace(saved.saved_remarks);
+                }
+
                 // Keep the comment box on the Class Teacher's list in step.
                 window.dispatchEvent(new CustomEvent('teacher-remark-saved', {
                     detail: { url: this.remarksUrl, remark: teacherRemark },
