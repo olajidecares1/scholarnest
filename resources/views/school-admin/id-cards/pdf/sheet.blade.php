@@ -22,22 +22,19 @@
     </head>
     <body>
         <p class="pdf-section-title">Front Side</p>
+        {{-- A card with no template prints in the standard design. --}}
         @foreach ($cards as $card)
-            @if ($card->template)
-                <div class="pdf-card-wrap">
-                    @include('school-admin.id-cards.pdf._front', ['card' => $card])
-                </div>
-            @endif
+            <div class="pdf-card-wrap">
+                @include('school-admin.id-cards.pdf._front', ['card' => $card])
+            </div>
         @endforeach
 
         <div class="pdf-page-break">
             <p class="pdf-section-title">Back Side</p>
             @foreach ($cards as $card)
-                @if ($card->template)
-                    <div class="pdf-card-wrap">
-                        @include('school-admin.id-cards.pdf._back', ['card' => $card])
-                    </div>
-                @endif
+                <div class="pdf-card-wrap">
+                    @include('school-admin.id-cards.pdf._back', ['card' => $card])
+                </div>
             @endforeach
         </div>
     </body>

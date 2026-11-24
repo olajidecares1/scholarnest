@@ -32,18 +32,14 @@
             </div>
         </div>
 
+        {{-- A card with no template draws in the standard design, in the
+             school's colours (App\Support\IdCardDesign). --}}
         <div class="flex flex-wrap gap-6">
             @foreach ($cards as $card)
-                @if ($card->template)
-                    @include('school-admin.id-cards._card', ['card' => $card])
-                    @include('school-admin.id-cards._card_back', ['card' => $card])
-                @endif
+                @include('school-admin.id-cards._card', ['card' => $card])
+                @include('school-admin.id-cards._card_back', ['card' => $card])
             @endforeach
         </div>
-
-        @if ($cards->every(fn ($card) => ! $card->template))
-            <p class="text-sm text-amber-700">No template available for this card type.</p>
-        @endif
 
         @if ($autoprint ?? false)
             <script>

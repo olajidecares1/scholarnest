@@ -380,3 +380,43 @@ test('a person with two cards from before is left with one by the migration', fu
 
     expect(IssuedIdCard::where('holder_uuid', $member->uuid)->pluck('card_number')->all())->toBe(['A-2']);
 });
+
+// ---------------------------------------------------------------------------
+// A school with no card template yet
+// ---------------------------------------------------------------------------
+
+test('with no template yet, choosing a class still lists every student, to tick all or some', function () {
+    IdCardTemplate::where('school_id', $this->school->id)->delete();
+
+    $this->actingAs($this->admin)
+        ->get(route('id-cards.index', ['class' => 'JSS 1']))
+        ->assertOk()
+        ->assertSee('Ada Obi')->assertSee('Bola Ade')->assertSee('Chidi Eze')
+        ->assertSee('name="records[]"', false)
+        ->assertSee('Generate all')
+        ->assertSee('Generate ticked')
+        ->assertSee('Standard design (school colours)')
+        ->assertDontSee('There is no card template');
+});
+
+test('with no template yet, cards are generated, previewed and printed in the standard design', function () {
+    IdCardTemplate::where('school_id', $this->school->id)->delete();
+
+    $this->actingAs($this->admin)
+        ->post(route('id-cards.generate'), ['type' => 'student', 'records' => [$this->jss1[0]->uuid, $this->jss1[2]->uuid], 'template' => ''])
+        ->assertSessionHas('status', fn ($status) => str_contains($status, '2 ID cards ready (2 new)'));
+
+    expect(idCardsFor($this->school)->pluck('holder_uuid')->sort()->values()->all())
+        ->toBe(collect([$this->jss1[0]->uuid, $this->jss1[2]->uuid])->sort()->values()->all());
+
+    $this->actingAs($this->admin)
+        ->post(route('id-cards.print'), ['type' => 'student', 'records' => [$this->jss1[0]->uuid, $this->jss1[2]->uuid], 'template' => ''])
+        ->assertOk()
+        ->assertSee('Preview: 2 ID cards')
+        ->assertSee('GLA-JUR-001')->assertSee('GLA-JUR-003');
+
+    $this->actingAs($this->admin)
+        ->post(route('id-cards.pdf'), ['type' => 'student', 'records' => [$this->jss1[0]->uuid], 'template' => ''])
+        ->assertOk()
+        ->assertHeader('content-type', 'application/pdf');
+});

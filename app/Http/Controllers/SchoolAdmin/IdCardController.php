@@ -214,9 +214,13 @@ class IdCardController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'card_number' => $card->card_number,
-                'has_template' => (bool) $card->template,
-                'front' => $card->template ? view('school-admin.id-cards._card', ['card' => $card])->render() : null,
-                'back' => $card->template ? view('school-admin.id-cards._card_back', ['card' => $card])->render() : null,
+                // A card without a template draws in the standard design, in
+                // the school's colours (App\Support\IdCardDesign), so it can
+                // always be previewed, printed and downloaded.
+                'has_template' => true,
+                'standard_design' => ! $card->template,
+                'front' => view('school-admin.id-cards._card', ['card' => $card])->render(),
+                'back' => view('school-admin.id-cards._card_back', ['card' => $card])->render(),
                 'holder_type' => $card->holder_type->value,
                 'holder_uuid' => $card->holder_uuid,
                 'template_uuid' => $card->template?->uuid,

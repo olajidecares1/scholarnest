@@ -67,12 +67,7 @@
         </div>
     </div>
 
-    @if ($templates->isEmpty())
-        <div class="m-5 rounded-[10px] border border-amber-200 bg-amber-50 p-5 text-center text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400">
-            There is no card template for {{ $isStudent ? 'students' : ($type === 'teaching_staff' ? 'teaching staff' : 'non-teaching staff') }} yet.
-            <a href="{{ route('id-cards.templates.index') }}" class="font-semibold underline">Create one</a> first.
-        </div>
-    @elseif ($people->isEmpty())
+    @if ($people->isEmpty())
         <small class="block px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">{{ $emptyText }}</small>
     @else
         <form method="POST" action="{{ route('id-cards.generate') }}" x-ref="form">
@@ -82,14 +77,24 @@
 
             <div class="space-y-3 border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                 <div class="flex flex-wrap items-end gap-3">
+                    {{-- A template is optional: without one, cards use the
+                         standard design in the school's colours. --}}
                     <label class="min-w-[12rem] flex-1 sm:flex-none">
-                        <span class="field-label mb-1">Card template</span>
+                        <span class="field-label mb-1">Card design</span>
                         <select name="template" class="w-full">
-                            @foreach ($templates as $template)
+                            @forelse ($templates as $template)
                                 <option value="{{ $template->uuid }}" @selected($template->is_default)>{{ $template->name }}</option>
-                            @endforeach
+                            @empty
+                                <option value="">Standard design (school colours)</option>
+                            @endforelse
                         </select>
                     </label>
+                    @if ($templates->isEmpty())
+                        <small class="pb-2 text-xs text-gray-500 dark:text-gray-400">
+                            Want your own colours, photo shape or back-side wording?
+                            <a href="{{ route('id-cards.templates.index') }}" class="font-semibold text-blue-600 underline dark:text-blue-400">Create a template</a>.
+                        </small>
+                    @endif
                 </div>
 
                 {{-- Everyone in the list (that the filter shows). --}}

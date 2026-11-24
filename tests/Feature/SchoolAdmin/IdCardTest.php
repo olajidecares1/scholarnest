@@ -570,15 +570,16 @@ test('the JSON preview branch does not double-issue a card already issued by the
     expect(IssuedIdCard::where('school_id', $admin->school_id)->where('holder_uuid', $student->uuid)->count())->toBe(1);
 });
 
-test('the preview JSON branch reports no template when none exists', function () {
+test('with no template yet, the preview shows the card in the standard design', function () {
     $admin = idCardSchoolAdmin();
     $student = Student::factory()->create(['school_id' => $admin->school_id]);
 
     $response = $this->actingAs($admin)->getJson(route('id-cards.preview', ['student', $student]));
 
     $response->assertOk();
-    expect($response->json('has_template'))->toBeFalse();
-    expect($response->json('front'))->toBeNull();
+    expect($response->json('has_template'))->toBeTrue()
+        ->and($response->json('standard_design'))->toBeTrue()
+        ->and($response->json('front'))->toContain($student->admission_number);
 });
 
 test('a school admin can download a bulk sheet of ID cards as a PDF', function () {
