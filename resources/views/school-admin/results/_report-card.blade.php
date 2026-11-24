@@ -16,6 +16,21 @@
     $totalTest = $subjects->sum(fn ($subject) => (float) ($subject->scores->first()?->test_score ?? 0));
     $totalExam = $subjects->sum(fn ($subject) => (float) ($subject->scores->first()?->exam_score ?? 0));
     $totalMax = $subjects->sum('max_score');
+
+    // The card is one A4 page, so the marks table tightens as subjects are
+    // added rather than pushing the remarks and signatures off the bottom:
+    // up to 10 subjects at full size, then shorter rows in smaller type.
+    // Every tier was checked at its largest count against a card with a full
+    // letterhead (crest, address, phone and website).
+    $subjectCount = $subjects->count();
+    $density = match (true) {
+        $subjectCount <= 10 => ['row' => 'py-[5px]', 'text' => 'text-[9px]', 'grade' => 'text-[11px]', 'head' => 'py-1.5', 'leading' => ''],
+        $subjectCount <= 14 => ['row' => 'py-[3.5px]', 'text' => 'text-[8.5px]', 'grade' => 'text-[10.5px]', 'head' => 'py-1', 'leading' => 'leading-[1.35]'],
+        $subjectCount <= 18 => ['row' => 'py-[1.5px]', 'text' => 'text-[8px]', 'grade' => 'text-[10px]', 'head' => 'py-1', 'leading' => 'leading-[1.3]'],
+        $subjectCount <= 22 => ['row' => 'py-px', 'text' => 'text-[8px]', 'grade' => 'text-[9.5px]', 'head' => 'py-1', 'leading' => 'leading-[1.2]'],
+        $subjectCount <= 26 => ['row' => 'py-px', 'text' => 'text-[7.5px]', 'grade' => 'text-[8.5px]', 'head' => 'py-0.5', 'leading' => 'leading-[1.1]'],
+        default => ['row' => 'py-0', 'text' => 'text-[7px]', 'grade' => 'text-[8px]', 'head' => 'py-0.5', 'leading' => 'leading-[1.05]'],
+    };
     $testMaxLabel = $subjects->first()?->testMaxScore() ?? 40;
     $examMaxLabel = $subjects->first()?->examMaxScore() ?? 60;
     $subjectMaxLabel = $subjects->first()?->max_score ?? 100;
@@ -295,7 +310,7 @@
             <div class="overflow-hidden rounded-[6px]" style="border: 1.5px solid {{ $brandSecondary }};">
                 <div class="py-1.5 text-center text-[11px] font-extrabold uppercase tracking-wide text-white" style="background-color: {{ $brandSecondary }};">Academic Performance</div>
 
-                <table class="w-full border-collapse text-left text-[9px]">
+                <table class="w-full border-collapse text-left {{ $density['text'] }} {{ $density['leading'] }}">
                     <thead>
                         <tr class="text-white" style="background-color: {{ $brandSecondary }};">
                             @foreach ([
@@ -308,7 +323,7 @@
                                 ['Grade', 'w-[52px] text-center'],
                                 ['Remark', 'w-[92px] text-center'],
                             ] as $heading)
-                                <th class="{{ $heading[1] }} px-1.5 py-1.5 align-middle text-[8.5px] font-extrabold uppercase leading-tight" style="border: 0.5px solid rgba(255,255,255,0.25);">
+                                <th class="{{ $heading[1] }} px-1.5 {{ $density['head'] }} align-middle text-[8.5px] font-extrabold uppercase leading-tight" style="border: 0.5px solid rgba(255,255,255,0.25);">
                                     {{ $heading[0] }}
                                     @isset($heading[2])
                                         <span class="block text-[7px] font-semibold normal-case opacity-80">({{ $heading[2] }})</span>
@@ -326,14 +341,14 @@
                                 $rowColor = $colorForPercentage($percentage);
                             @endphp
                             <tr style="background-color: {{ $loop->even ? $rowStriped : $rowPlain }};">
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $loop->iteration }}</td>
-                                <td class="border border-gray-200 px-2 py-[5px] font-semibold text-gray-900">{{ $subject->name }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->test_score !== null ? \App\Support\Mark::format($score->test_score) : 'N/A' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $score?->exam_score !== null ? \App\Support\Mark::format($score->exam_score) : 'N/A' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-extrabold text-gray-900">{{ $score ? \App\Support\Mark::format($score->score) : 'N/A' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $percentage !== null ? $percentage.'%' : 'N/A' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center text-[11px] font-extrabold" style="color: {{ $rowColor }};">{{ $score ? $score->grade() : 'N/A' }}</td>
-                                <td class="border border-gray-200 px-1.5 py-[5px] text-center font-semibold text-gray-900">{{ $percentage !== null ? \App\Models\GradeBand::describe($school, $percentage) : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 {{ $density['row'] }} text-center font-semibold text-gray-900">{{ $loop->iteration }}</td>
+                                <td class="border border-gray-200 px-2 {{ $density['row'] }} font-semibold text-gray-900">{{ $subject->name }}</td>
+                                <td class="border border-gray-200 px-1.5 {{ $density['row'] }} text-center font-semibold text-gray-900">{{ $score?->test_score !== null ? \App\Support\Mark::format($score->test_score) : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 {{ $density['row'] }} text-center font-semibold text-gray-900">{{ $score?->exam_score !== null ? \App\Support\Mark::format($score->exam_score) : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 {{ $density['row'] }} text-center font-extrabold text-gray-900">{{ $score ? \App\Support\Mark::format($score->score) : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 {{ $density['row'] }} text-center font-semibold text-gray-900">{{ $percentage !== null ? $percentage.'%' : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 {{ $density['row'] }} text-center {{ $density['grade'] }} font-extrabold" style="color: {{ $rowColor }};">{{ $score ? $score->grade() : 'N/A' }}</td>
+                                <td class="border border-gray-200 px-1.5 {{ $density['row'] }} text-center font-semibold text-gray-900">{{ $percentage !== null ? \App\Models\GradeBand::describe($school, $percentage) : 'N/A' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

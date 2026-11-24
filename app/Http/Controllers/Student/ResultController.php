@@ -10,6 +10,7 @@ use App\Models\School;
 use App\Models\Student;
 use App\Services\ReportCardData;
 use App\Services\ResultAccessPolicy;
+use App\Support\DownloadName;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -91,7 +92,7 @@ class ResultController extends Controller
         $pdf = Pdf::loadView('school-admin.results.pdf.report-card', ReportCardData::for($examination, $student))
             ->setPaper('a4');
 
-        return $pdf->download("report-card-{$student->admission_number}.pdf");
+        return $pdf->download(DownloadName::pdf('report-card', $student->admission_number));
     }
 
     private function authorizeExamination(Request $request, Examination $examination)

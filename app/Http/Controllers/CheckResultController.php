@@ -15,6 +15,7 @@ use App\Services\ResultAccessPolicy;
 use App\Services\ResultCheckIdentity;
 use App\Services\ResultRepository;
 use App\Services\ResultTokenVerifier;
+use App\Support\DownloadName;
 use App\Support\PreviousIdentifier;
 use App\Support\ResultCheckRoutes;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -328,7 +329,7 @@ class CheckResultController extends Controller
             $this->cardFor($school, $usage),
         )->setPaper('a4');
 
-        return $pdf->download("result-{$usage->student->admission_number}.pdf");
+        return $pdf->download(DownloadName::pdf('result', $usage->student->admission_number));
     }
 
     /**

@@ -14,6 +14,7 @@ use App\Models\School;
 use App\Models\Staff;
 use App\Models\Student;
 use App\Services\IdentifierGenerator;
+use App\Support\DownloadName;
 use App\Support\PreviousIdentifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -264,7 +265,7 @@ class IdCardController extends Controller
             $pdf = Pdf::loadView('school-admin.id-cards.pdf.single', ['card' => $card])
                 ->setPaper([0, 0, $width, $height]);
 
-            return $pdf->download("id-card-{$card->card_number}.pdf");
+            return $pdf->download(DownloadName::pdf('id-card', $card->card_number));
         }
 
         $pdf = Pdf::loadView('school-admin.id-cards.pdf.sheet', ['cards' => $cards])->setPaper('a4');

@@ -52,6 +52,18 @@
     $totalTest = $subjects->sum(fn ($subject) => (float) ($subject->scores->first()?->test_score ?? 0));
     $totalExam = $subjects->sum(fn ($subject) => (float) ($subject->scores->first()?->exam_score ?? 0));
     $totalMax = $subjects->sum('max_score');
+
+    // One A4 page whatever the subject count: the marks table tightens as
+    // subjects are added, in the same steps as the on-screen card.
+    $subjectCount = $subjects->count();
+    [$rowPad, $rowFont, $gradeFont, $headPad, $rowLeading] = match (true) {
+        $subjectCount <= 10 => ['4px', '9.5px', '11px', '5px 4px', 'normal'],
+        $subjectCount <= 14 => ['2.5px', '8.5px', '10.5px', '4px', '1.25'],
+        $subjectCount <= 18 => ['1.5px', '8px', '10px', '3px 4px', '1.2'],
+        $subjectCount <= 22 => ['0.5px', '7.5px', '9px', '3px 4px', '1.15'],
+        $subjectCount <= 26 => ['0', '7px', '8.5px', '2px 4px', '1.1'],
+        default => ['0', '6px', '7.5px', '2px 4px', '1.1'],
+    };
     $testMaxLabel = $subjects->first()?->testMaxScore() ?? 40;
     $examMaxLabel = $subjects->first()?->examMaxScore() ?? 60;
     $subjectMaxLabel = $subjects->first()?->max_score ?? 100;
@@ -306,7 +318,7 @@
                         </tr>
                         <tr>
                             <td style="padding: 0;">
-                                <table>
+                                <table style="font-size: {{ $rowFont }}; line-height: {{ $rowLeading }};">
                                     <thead>
                                         <tr style="background-color: {{ $brandSecondary }};">
                                             @foreach ([
@@ -319,7 +331,7 @@
                                                 ['Grade', '52px'],
                                                 ['Remark', '92px'],
                                             ] as $heading)
-                                                <th style="{{ $heading[1] ? 'width: '.$heading[1].';' : '' }} border: 0.5px solid #ffffff40; padding: 5px 4px; font-size: 8.5px; font-weight: bold; text-transform: uppercase; color: #ffffff; text-align: {{ $loop->index === 1 ? 'left' : 'center' }};">
+                                                <th style="{{ $heading[1] ? 'width: '.$heading[1].';' : '' }} border: 0.5px solid #ffffff40; padding: {{ $headPad }}; font-size: 8.5px; font-weight: bold; text-transform: uppercase; color: #ffffff; text-align: {{ $loop->index === 1 ? 'left' : 'center' }};">
                                                     {{ $heading[0] }}
                                                     @isset($heading[2])
                                                         <div style="font-size: 7px; font-weight: normal; text-transform: none;">({{ $heading[2] }})</div>
@@ -335,14 +347,14 @@
                                                 $percentage = $score?->percentage();
                                             @endphp
                                             <tr style="background-color: {{ $loop->even ? $rowStriped : $rowPlain }};">
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $loop->iteration }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px 6px; font-weight: bold; color: #111827;">{{ $subject->name }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $score?->test_score !== null ? \App\Support\Mark::format($score->test_score) : 'N/A' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $score?->exam_score !== null ? \App\Support\Mark::format($score->exam_score) : 'N/A' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; font-weight: bold; color: #111827;">{{ $score ? \App\Support\Mark::format($score->score) : 'N/A' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $percentage !== null ? $percentage.'%' : 'N/A' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; font-size: 11px; font-weight: bold; color: {{ $colorForPercentage($percentage) }};">{{ $score ? $score->grade() : 'N/A' }}</td>
-                                                <td style="border: 1px solid #e5e7eb; padding: 4px; text-align: center; color: #111827;">{{ $percentage !== null ? \App\Models\GradeBand::describe($school, $percentage) : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: {{ $rowPad }} 4px; text-align: center; color: #111827;">{{ $loop->iteration }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: {{ $rowPad }} 6px; font-weight: bold; color: #111827;">{{ $subject->name }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: {{ $rowPad }} 4px; text-align: center; color: #111827;">{{ $score?->test_score !== null ? \App\Support\Mark::format($score->test_score) : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: {{ $rowPad }} 4px; text-align: center; color: #111827;">{{ $score?->exam_score !== null ? \App\Support\Mark::format($score->exam_score) : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: {{ $rowPad }} 4px; text-align: center; font-weight: bold; color: #111827;">{{ $score ? \App\Support\Mark::format($score->score) : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: {{ $rowPad }} 4px; text-align: center; color: #111827;">{{ $percentage !== null ? $percentage.'%' : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: {{ $rowPad }} 4px; text-align: center; font-size: {{ $gradeFont }}; font-weight: bold; color: {{ $colorForPercentage($percentage) }};">{{ $score ? $score->grade() : 'N/A' }}</td>
+                                                <td style="border: 1px solid #e5e7eb; padding: {{ $rowPad }} 4px; text-align: center; color: #111827;">{{ $percentage !== null ? \App\Models\GradeBand::describe($school, $percentage) : 'N/A' }}</td>
                                             </tr>
                                         @endforeach
                                         <tr style="background-color: {{ $brandSecondary }}12;">
