@@ -11,7 +11,7 @@
                 <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">Notice History</h2>
                 </div>
-                <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                <div class="gap-list divide-y divide-gray-100 dark:divide-gray-700">
                     @forelse ($notices as $notice)
                         <div class="px-5 py-4">
                             <div class="flex items-center justify-between gap-2">

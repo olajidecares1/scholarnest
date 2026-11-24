@@ -109,7 +109,7 @@
             <div class="border-b border-gray-100 px-5 py-3 dark:border-gray-700">
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white">Questions</h2>
             </div>
-            <div class="divide-y divide-gray-100 p-5 dark:divide-gray-700">
+            <div class="gap-list divide-y divide-gray-100 p-5 dark:divide-gray-700">
                 @foreach ($test->questions as $question)
                     <div class="py-4 first:pt-0 last:pb-0">
                         <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $loop->iteration }}. {{ $question->question_text }}</p>

@@ -154,7 +154,7 @@
                     <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">Existing staff made class teachers ({{ number_format(count($assigned)) }})</h3>
                     <small class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">Already on your staff list, so no new account or password: they sign in as before and now see their class.</small>
                 </div>
-                <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+                <ul class="gap-list divide-y divide-gray-100 dark:divide-gray-700">
                     @foreach ($assigned as $person)
                         <li class="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3">
                             <span class="w-14 shrink-0 font-mono text-xs text-gray-500">Row {{ $person['line'] }}</span>
@@ -173,7 +173,7 @@
                     <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">Not registered ({{ number_format($failedCount) }})</h3>
                     <small class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">Correct these in your file and upload just these rows again, or add them with Add Staff.</small>
                 </div>
-                <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+                <ul class="gap-list divide-y divide-gray-100 dark:divide-gray-700">
                     @foreach ($summary['failed'] as $failure)
                         <li class="flex gap-4 px-5 py-3">
                             <span class="w-14 shrink-0 font-mono text-xs text-gray-500">Row {{ $failure['line'] }}</span>

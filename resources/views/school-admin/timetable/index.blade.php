@@ -40,7 +40,7 @@
                         <div class="border-b border-gray-100 px-5 py-3 dark:border-gray-700">
                             <h2 class="text-sm font-bold text-gray-900 dark:text-white">{{ ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'][$day] }}</h2>
                         </div>
-                        <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <div class="gap-list divide-y divide-gray-100 dark:divide-gray-700">
                             @forelse ($entries->get($day, collect()) as $entry)
                                 <div class="flex items-center justify-between gap-3 px-5 py-3">
                                     <div class="min-w-0">

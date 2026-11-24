@@ -56,7 +56,7 @@
                     <small class="block mt-1 text-sm text-gray-500 dark:text-gray-400">Create your first vacancy, publish it, and share its link to start receiving applications.</small>
                 </div>
             @else
-                <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+                <ul class="gap-list divide-y divide-gray-100 dark:divide-gray-700">
                     @foreach ($jobs as $job)
                         <li class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                             <div class="min-w-0">

@@ -347,7 +347,7 @@
                 @if ($recentBatches->isNotEmpty())
                     <div class="mt-5 border-t border-gray-100 pt-4 dark:border-gray-700">
                         <small class="block text-xs font-semibold uppercase tracking-wide text-gray-500">Recent batches</small></small>
-                        <ul class="mt-2 divide-y divide-gray-100 dark:divide-gray-700">
+                        <ul class="gap-list mt-2 divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach ($recentBatches as $batch)
                                 <li class="flex items-center justify-between gap-3 py-2 text-sm">
                                     <span class="min-w-0">

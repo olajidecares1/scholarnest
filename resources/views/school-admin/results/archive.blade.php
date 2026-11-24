@@ -68,7 +68,7 @@
                                 <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ $term->label() }}</h3>
                                 <small class="text-xs text-gray-500">{{ $classes->sum('students') }} result{{ $classes->sum('students') === 1 ? '' : 's' }}</small>
                             </div>
-                            <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <ul class="gap-list divide-y divide-gray-100 dark:divide-gray-700">
                                 @foreach ($classes as $class)
                                     <li>
                                         <a

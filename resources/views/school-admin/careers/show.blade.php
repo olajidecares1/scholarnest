@@ -123,7 +123,7 @@
                             {{ $job->applications_count ? 'No applicants with this status.' : ($shareable ? 'No applications yet. Share the link to reach applicants.' : 'No applications yet.') }}
                         </small>
                     @else
-                        <ul class="mt-4 divide-y divide-gray-100 dark:divide-gray-700">
+                        <ul class="gap-list mt-4 divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach ($applications as $application)
                                 <li>
                                     <a href="{{ route('careers.applications.show', $application) }}" class="flex items-center gap-3 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/40">

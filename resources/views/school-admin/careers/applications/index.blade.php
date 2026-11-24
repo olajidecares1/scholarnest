@@ -28,7 +28,7 @@
                 </div>
             @else
                 {{-- A list, not a wide table: it fits a phone without scrolling sideways. --}}
-                <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+                <ul class="gap-list divide-y divide-gray-100 dark:divide-gray-700">
                     @foreach ($applications as $application)
                         <li>
                             <a href="{{ route('careers.applications.show', $application) }}" class="flex flex-col gap-2 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/40 sm:flex-row sm:items-center">

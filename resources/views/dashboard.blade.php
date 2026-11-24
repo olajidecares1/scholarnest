@@ -220,7 +220,7 @@
                 <i class="fa-solid fa-clock-rotate-left text-primary-600 dark:text-primary-300"></i>
             </div>
 
-            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+            <div class="gap-list divide-y divide-gray-100 dark:divide-gray-700">
                 @forelse ($recentActivity as $entry)
                     <div class="flex items-start justify-between gap-4 px-5 py-3">
                         <div class="min-w-0">
