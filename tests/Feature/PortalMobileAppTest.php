@@ -288,9 +288,16 @@ test('the menu takes the school colour and reads in both modes', function () {
         ->and($html)->toContain('dark:bg-primary-900/40')
         ->and($html)->toContain('dark:text-primary-300')
 
-        // The bottom bar included, it is fixed over the page, so losing its
-        // background would leave the page scrolling underneath the labels.
-        ->and($html)->toContain('dark:bg-gray-900/95');
+        // The bottom bar included: it floats over the page, so it needs its
+        // own glass background in both modes, and a near-solid one where the
+        // browser cannot blur, or the page would scroll under the labels.
+        ->and($html)->toContain('edn-glass-nav');
+
+    $css = file_get_contents(resource_path('css/app.css'));
+    expect($css)->toContain('.edn-glass-nav {')
+        ->toContain('.dark .edn-glass-nav {')
+        ->toContain('backdrop-filter: blur(22px) saturate(180%);')
+        ->toContain('@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)))');
 });
 
 // ---------------------------------------------------------------------------

@@ -528,17 +528,20 @@
             @endphp
             <x-mobile-page-nav :prev="$pageNav['prev']" :next="$pageNav['next']" :current-label="$pageNav['current']" />
 
-            <main class="p-4 pb-24 sm:p-6 lg:p-8 lg:pb-8 dark:bg-gray-900">
+            {{-- Room at the foot for the floating bottom bar and the handset's home indicator. --}}
+            <main class="p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:p-8 lg:pb-8 dark:bg-gray-900">
                 {{ $slot }}
             </main>
         </div>
 
         {{-- Mobile/tablet bottom navigation --}}
         <div x-data="{ moreOpen: false }">
-            <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur print:hidden lg:hidden dark:border-gray-800 dark:bg-gray-900/95">
-                <div class="mx-auto grid max-w-2xl grid-cols-4">
+            {{-- A floating glass bar (.edn-glass-nav in resources/css/app.css),
+                 shared with the teacher, parent and pupil portals. --}}
+            <nav class="edn-glass-nav z-40 print:hidden lg:hidden">
+                <div class="grid grid-cols-4">
                     @php
-                        $bottomNavItemClasses = fn (bool $isActive) => 'group flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-all duration-300 ease-out active:scale-90 '
+                        $bottomNavItemClasses = fn (bool $isActive) => 'group flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-semibold transition-all duration-300 ease-out active:scale-90 '
                             .($isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400');
                         $bottomNavIconClasses = fn (bool $isActive) => 'flex h-6 w-6 shrink-0 items-center justify-center transition-all duration-300 ease-out group-active:scale-90 '.($isActive ? '-translate-y-0.5' : '');
                         $isDashboardActive = request()->routeIs('dashboard');
@@ -546,17 +549,17 @@
                         $isAttendanceActive = request()->routeIs('attendance.*');
                     @endphp
 
-                    <a href="{{ route('dashboard') }}" class="{{ $bottomNavItemClasses($isDashboardActive) }}">
+                    <a href="{{ route('dashboard') }}" class="{{ $bottomNavItemClasses($isDashboardActive) }}" @if ($isDashboardActive) aria-current="page" @endif>
                         <i class="{{ \App\Support\SidebarMeta::icon('dashboard') }} fa-fw {{ $bottomNavIconClasses($isDashboardActive) }} text-[20px] leading-none" aria-hidden="true"></i>
                         Home
                     </a>
 
-                    <a href="{{ route('students.index') }}" class="{{ $bottomNavItemClasses($isStudentsActive) }}">
+                    <a href="{{ route('students.index') }}" class="{{ $bottomNavItemClasses($isStudentsActive) }}" @if ($isStudentsActive) aria-current="page" @endif>
                         <i class="{{ \App\Support\SidebarMeta::icon('students.index') }} fa-fw {{ $bottomNavIconClasses($isStudentsActive) }} text-[20px] leading-none" aria-hidden="true"></i>
                         Students
                     </a>
 
-                    <a href="{{ route('attendance.index') }}" class="{{ $bottomNavItemClasses($isAttendanceActive) }}">
+                    <a href="{{ route('attendance.index') }}" class="{{ $bottomNavItemClasses($isAttendanceActive) }}" @if ($isAttendanceActive) aria-current="page" @endif>
                         <i class="{{ \App\Support\SidebarMeta::icon('attendance.index') }} fa-fw {{ $bottomNavIconClasses($isAttendanceActive) }} text-[20px] leading-none" aria-hidden="true"></i>
                         Attendance
                     </a>

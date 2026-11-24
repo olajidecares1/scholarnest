@@ -28,7 +28,67 @@
      * home indicator. Set here rather than as a utility class so the two
      * measurements that must agree, the bar's height and the space left for
      * it, are declared next to each other and cannot drift apart. */
-    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
+/* ==========================================================================
+   FLOATING GLASS BOTTOM BAR
+
+   The phone/tablet bottom menu of every portal (School Admin, teacher,
+   parent, pupil): it floats clear of the screen's edges as a rounded pane
+   of frosted glass, the page showing through, blurred, as it scrolls
+   underneath. The tab you are on sits on a tinted pill. A browser that
+   cannot blur gets a near-solid bar, so the labels stay readable.
+   ========================================================================== */
+.edn-glass-nav {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    max-width: 30rem;
+    margin: 0 auto;
+    padding: 5px;
+    border: 1px solid rgb(255 255 255 / 0.7);
+    border-radius: 24px;
+    background: rgb(255 255 255 / 0.62);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
+    box-shadow:
+        0 12px 32px -8px rgb(15 23 42 / 0.28),
+        0 2px 8px rgb(15 23 42 / 0.08),
+        inset 0 1px 0 rgb(255 255 255 / 0.65);
+}
+
+.dark .edn-glass-nav {
+    border-color: rgb(255 255 255 / 0.1);
+    background: rgb(17 24 39 / 0.58);
+    box-shadow:
+        0 12px 32px -8px rgb(0 0 0 / 0.65),
+        0 2px 8px rgb(0 0 0 / 0.3),
+        inset 0 1px 0 rgb(255 255 255 / 0.07);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .edn-glass-nav {
+        background: rgb(255 255 255 / 0.97);
+    }
+
+    .dark .edn-glass-nav {
+        background: rgb(17 24 39 / 0.97);
+    }
+}
+
+.edn-glass-nav a,
+.edn-glass-nav button {
+    border-radius: 18px;
+}
+
+.edn-glass-nav [aria-current='page'] {
+    background: rgb(37 99 235 / 0.12);
+}
+
+.dark .edn-glass-nav [aria-current='page'] {
+    background: rgb(96 165 250 / 0.16);
 }
 
 .edn-portal-main img,
@@ -74,7 +134,11 @@
     }
 
     .edn-portal-main {
-        padding-bottom: 4.25rem;
+        padding-bottom: 5rem;
+    }
+
+    .edn-glass-nav {
+        bottom: calc(6px + env(safe-area-inset-bottom));
     }
 
     .edn-more-sheet {

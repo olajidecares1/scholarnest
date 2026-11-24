@@ -18,13 +18,15 @@
     {{-- Shown at every width. These portals have no desktop layout to fall
          through to, so the bottom bar is the navigation, not a small-screen
          substitute for a sidebar. --}}
-    <nav class="edn-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
-        <div class="mx-auto grid max-w-2xl" style="grid-template-columns: repeat({{ min(count($primary) + 1, 5) }}, minmax(0, 1fr));">
+    {{-- A floating glass bar (.edn-glass-nav in resources/css/app.css),
+         shared with the School Admin's. --}}
+    <nav class="edn-bottom-nav edn-glass-nav z-40">
+        <div class="grid" style="grid-template-columns: repeat({{ min(count($primary) + 1, 5) }}, minmax(0, 1fr));">
             @foreach ($primary as $item)
                 <a
                     href="{{ $item['url'] }}"
                     @class([
-                        'group flex flex-col items-center gap-1 py-2 transition-colors duration-200 active:scale-95',
+                        'group flex flex-col items-center justify-center gap-1 py-2 transition-all duration-200 active:scale-95',
                         'text-primary-600 dark:text-primary-300' => $item['active'],
                         'text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-300' => ! $item['active'],
                     ])
@@ -39,25 +41,20 @@
                     </span>
                     <small class="text-[10px] font-semibold leading-none">{{ $item['label'] }}</small>
 
-                    {{-- A coloured label alone is not enough of a signal in dark
-                         mode, so the active tab also carries a bar. --}}
-                    <span @class([
-                        'h-0.5 w-6 rounded-full transition-colors duration-200',
-                        'bg-primary-600 dark:bg-primary-300' => $item['active'],
-                        'bg-transparent' => ! $item['active'],
-                    ])></span>
+                    {{-- The active tab sits on a tinted pill (aria-current, in
+                         .edn-glass-nav), not just a coloured label. --}}
                 </a>
             @endforeach
 
             <button
                 type="button"
                 @click="moreOpen = true"
-                class="group flex flex-col items-center gap-1 py-2 text-gray-500 transition-colors duration-200 hover:text-primary-600 active:scale-95 dark:text-gray-400 dark:hover:text-primary-300"
+                class="group flex flex-col items-center justify-center gap-1 py-2 text-gray-500 transition-colors duration-200 hover:text-primary-600 active:scale-95 dark:text-gray-400 dark:hover:text-primary-300"
                 :aria-expanded="moreOpen.toString()"
             >
-                <i class="fa-solid fa-ellipsis fa-fw text-[18px] leading-none"></i>
+                {{-- Same wrapper as the other tabs' icons, so the labels line up. --}}
+                <span class="relative"><i class="fa-solid fa-ellipsis fa-fw text-[18px] leading-none"></i></span>
                 <small class="text-[10px] font-semibold leading-none">More</small>
-                <span class="h-0.5 w-6 rounded-full bg-transparent"></span>
             </button>
         </div>
     </nav>

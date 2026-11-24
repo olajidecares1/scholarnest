@@ -173,7 +173,7 @@ function describeForm(form, submitter) {
 
 const STYLE = `
 .an-off{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:2147483000;font-family:inherit;font-size:13px}
-@media (max-width:1023px){.an-off{bottom:calc(78px + env(safe-area-inset-bottom))}}
+@media (max-width:1023px){.an-off{bottom:calc(92px + env(safe-area-inset-bottom))}}
 .an-off__pill{display:flex;align-items:center;gap:8px;max-width:calc(100vw - 24px);border:0;border-radius:999px;padding:8px 14px;font-weight:600;color:#fff;background:#334155;box-shadow:0 6px 20px rgba(15,23,42,.25);cursor:pointer;line-height:1.3;text-align:left}
 .an-off__pill[data-tone=offline]{background:#b45309}.an-off__pill[data-tone=sync]{background:#2563eb}.an-off__pill[data-tone=ok]{background:#15803d}.an-off__pill[data-tone=bad]{background:#b91c1c}
 .an-off__dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none;opacity:.9}
