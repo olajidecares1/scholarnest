@@ -2399,6 +2399,13 @@ a.pwa-install-banner__install {
     background: #4b5563;
 }
 
+/* The subjects on a result's Details tab: shown as this table only from a
+ * tablet up, where four columns fit, so it stays a real table that fills
+ * its box. Phones get a list instead. */
+.edn-portal-main table.result-subjects {
+    display: table;
+}
+
 /* The staff portal turns every table into a scrolling block; the roll has
  * its own wrapper for that, so it stays a real table there. */
 .edn-portal-main table.attendance-roll {
