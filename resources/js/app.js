@@ -24,6 +24,7 @@ import signaturePad from './signature-pad';
 import teacherRemarkBox from './teacher-remark-box';
 import './stack-tables';
 import './glass-nav';
+import './sheet-drag';
 import uploadProgressForm from './upload-progress-form';
 
 window.Alpine = Alpine;

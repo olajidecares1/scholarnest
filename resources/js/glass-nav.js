@@ -144,6 +144,28 @@ function init(nav) {
 
     // Turning the phone changes every tab's width.
     window.addEventListener('resize', () => place(pill, current, false));
+
+    // The More sheet opening and closing (its x-effect dispatches this): the
+    // pill slides onto More while the sheet is up, and back again after.
+    const moreTab = tabs.find((tab) => tab.hasAttribute('data-more-tab'));
+
+    window.addEventListener('edn-more-toggle', (event) => {
+        if (!moreTab || !nav.isConnected || nav.getClientRects().length === 0) {
+            return;
+        }
+
+        const open = Boolean(event.detail?.open);
+
+        if (!open && !moreTab.classList.contains('edn-more-was-open')) {
+            return;
+        }
+
+        moreTab.classList.toggle('edn-more-was-open', open);
+        place(pill, open ? moreTab : current, !reduceMotion());
+
+        // The page's own tab steps back while More holds the pill.
+        current?.classList.toggle('edn-glass-tab--dim', open);
+    });
 }
 
 function initAll() {

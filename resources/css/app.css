@@ -170,6 +170,166 @@
     animation: edn-glass-arrive 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* The More sheet (x-app-more-sheet): the bottom bar's glass, as a sheet. */
+.edn-glass-sheet {
+    border: 1px solid rgb(255 255 255 / 0.7);
+    border-bottom: 0;
+    border-radius: 28px 28px 0 0;
+    background: rgb(255 255 255 / 0.82);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(180%);
+    box-shadow:
+        0 -18px 48px -12px rgb(15 23 42 / 0.35),
+        inset 0 1px 0 rgb(255 255 255 / 0.8);
+}
+
+.dark .edn-glass-sheet {
+    border-color: rgb(255 255 255 / 0.1);
+    background: rgb(17 24 39 / 0.8);
+    box-shadow:
+        0 -18px 48px -12px rgb(0 0 0 / 0.7),
+        inset 0 1px 0 rgb(255 255 255 / 0.07);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .edn-glass-sheet {
+        background: rgb(255 255 255 / 0.98);
+    }
+
+    .dark .edn-glass-sheet {
+        background: rgb(17 24 39 / 0.98);
+    }
+}
+
+/* App tiles (x-portal-app-menu) ripple in, one after another, whenever
+ * they appear: each opening of the More sheet, and a home screen's load. */
+@keyframes edn-tile-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.92);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.edn-menu-tile {
+    animation: edn-tile-in 420ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+    animation-delay: calc(min(var(--i, 0), 24) * 16ms + 60ms);
+}
+
+.edn-menu-tile:hover {
+    background: rgb(15 23 42 / 0.04);
+}
+
+.dark .edn-menu-tile:hover {
+    background: rgb(255 255 255 / 0.05);
+}
+
+.edn-menu-search::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .edn-menu-tile {
+        animation: none;
+    }
+}
+
+/* Menu motion: the More tab's dots turn into a cross while the sheet is up
+ * (and the pill slides onto it, glass-nav.js); the sheet's title, search,
+ * section rules and tiles arrive in that order; Log Out last. */
+.edn-more-icon {
+    display: grid;
+    place-items: center;
+}
+
+.edn-more-icon > i {
+    grid-area: 1 / 1;
+    transition:
+        transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 200ms ease;
+}
+
+.edn-more-icon > i:last-child {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+}
+
+.edn-more-open .edn-more-icon > i:first-child {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+}
+
+.edn-more-open .edn-more-icon > i:last-child {
+    opacity: 1;
+    transform: none;
+}
+
+.edn-glass-nav .edn-more-open {
+    color: var(--color-primary-600, #2563eb);
+}
+
+.dark .edn-glass-nav .edn-more-open {
+    color: var(--color-primary-300, #93c5fd);
+}
+
+.edn-glass-nav .edn-glass-tab--dim {
+    color: #9ca3af;
+}
+
+.dark .edn-glass-nav .edn-glass-tab--dim {
+    color: #6b7280;
+}
+
+@keyframes edn-sheet-rise {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.edn-sheet-rise {
+    animation: edn-sheet-rise 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--d, 0ms);
+}
+
+@keyframes edn-rule-in {
+    from {
+        transform: scaleX(0);
+    }
+
+    to {
+        transform: scaleX(1);
+    }
+}
+
+.edn-menu-rule {
+    transform-origin: left center;
+    animation: edn-rule-in 700ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
+}
+
+/* In the sheet, the tiles wait for the title and search to land. */
+.edn-more-sheet .edn-menu-tile {
+    animation-delay: calc(min(var(--i, 0), 24) * 16ms + 180ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .edn-more-icon > i,
+    .edn-sheet-rise,
+    .edn-menu-rule {
+        transition: none;
+        animation: none;
+    }
+}
+
 /* Page to page: a short cross-fade instead of a flash, the bar held still. */
 @view-transition {
     navigation: auto;

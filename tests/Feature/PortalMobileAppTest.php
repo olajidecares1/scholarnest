@@ -280,12 +280,14 @@ test('the menu takes the school colour and reads in both modes', function () {
         ->assertOk()
         ->getContent();
 
-    expect($html)->toContain('bg-primary-50')
+    // The main section's app tiles, the active tab and the ring on the
+    // current page are the school's colour.
+    expect($html)->toContain('from-primary-500 to-primary-700')
         ->and($html)->toContain('text-primary-600')
 
-        // Every one of those has a dark counterpart, so nothing goes invisible
-        // when the panel turns near-black.
-        ->and($html)->toContain('dark:bg-primary-900/40')
+        // Each has a dark counterpart, so nothing goes invisible when the
+        // panel turns near-black.
+        ->and(file_get_contents(resource_path('views/components/portal-app-menu.blade.php')))->toContain('ring-primary-500', 'dark:ring-primary-300')
         ->and($html)->toContain('dark:text-primary-300')
 
         // The bottom bar included: it floats over the page, so it needs its

@@ -14,13 +14,14 @@
 
      Everything else lives behind More, in the same categorised grid the home
      screen uses, so a feature is in the same place whichever way you reach it. --}}
-<div x-data="{ moreOpen: false }" class="print:hidden">
+<div x-data="{ moreOpen: false }" x-effect="$dispatch('edn-more-toggle', { open: moreOpen })" class="print:hidden">
     {{-- Shown at every width. These portals have no desktop layout to fall
          through to, so the bottom bar is the navigation, not a small-screen
          substitute for a sidebar. --}}
     {{-- A floating glass bar (.edn-glass-nav in resources/css/app.css),
          shared with the School Admin's. --}}
-    <nav class="edn-bottom-nav edn-glass-nav z-40">
+    {{-- Above the open More sheet (z-60), so its Close stays in reach. --}}
+    <nav class="edn-bottom-nav edn-glass-nav z-40" :class="moreOpen && 'z-[60]'">
         <div class="grid" style="grid-template-columns: repeat({{ min(count($primary) + 1, 5) }}, minmax(0, 1fr));">
             @foreach ($primary as $item)
                 <a
@@ -48,54 +49,19 @@
 
             <button
                 type="button"
-                @click="moreOpen = true"
+                @click="moreOpen = ! moreOpen"
+                :class="moreOpen && 'edn-more-open'"
+                data-more-tab
                 class="group flex flex-col items-center justify-center gap-1 py-2 text-gray-500 transition-colors duration-200 hover:text-primary-600 active:scale-95 dark:text-gray-400 dark:hover:text-primary-300"
                 :aria-expanded="moreOpen.toString()"
             >
-                {{-- Same wrapper as the other tabs' icons, so the labels line up. --}}
-                <span class="relative"><i class="fa-solid fa-ellipsis fa-fw text-[18px] leading-none"></i></span>
-                <small class="text-[10px] font-semibold leading-none">More</small>
+                {{-- Same wrapper as the other tabs' icons, so the labels line up.
+                     While the menu is open, the dots turn into a cross. --}}
+                <span class="edn-more-icon relative"><i class="fa-solid fa-ellipsis fa-fw text-[18px] leading-none"></i><i class="fa-solid fa-xmark fa-fw text-[18px] leading-none"></i></span>
+                <small class="text-[10px] font-semibold leading-none" x-text="moreOpen ? 'Close' : 'More'">More</small>
             </button>
         </div>
     </nav>
 
-    {{-- The More sheet --}}
-    <div
-        x-show="moreOpen"
-        x-transition.opacity
-        @click="moreOpen = false"
-        class="fixed inset-0 z-50 bg-gray-900/60"
-        style="display: none;"
-    ></div>
-
-    <div
-        x-show="moreOpen"
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="translate-y-full"
-        x-transition:enter-end="translate-y-0"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="translate-y-0"
-        x-transition:leave-end="translate-y-full"
-        @keydown.escape.window="moreOpen = false"
-        class="edn-more-sheet fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[85dvh] w-full max-w-3xl overflow-y-auto rounded-t-[20px] border-t border-gray-200 bg-white pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-2xl dark:border-gray-700 dark:bg-gray-800"
-        style="display: none;"
-        role="dialog"
-        aria-label="More"
-    >
-        <div class="sticky top-0 z-10 bg-white pb-2 pt-2.5 dark:bg-gray-800">
-            <div class="mx-auto h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-600"></div>
-        </div>
-
-        <div class="px-3 pb-2">
-            <x-portal-app-menu :categories="$categories" :badges="$badges" />
-        </div>
-
-        <form method="POST" action="{{ $logoutUrl }}" class="mt-2 border-t border-gray-100 px-3 pt-3 dark:border-gray-700">
-            @csrf
-            <button type="submit" class="btn flex w-full items-center justify-center gap-2 rounded-[10px] bg-red-50 px-4 py-3 text-sm font-bold text-red-600 transition-colors duration-200 hover:bg-red-100 active:bg-red-200 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-900/40">
-                <i class="fa-solid fa-right-from-bracket fa-fw"></i>
-                Log Out
-            </button>
-        </form>
-    </div>
+    <x-app-more-sheet :categories="$categories" :badges="$badges" :logout-url="$logoutUrl" />
 </div>

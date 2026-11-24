@@ -535,10 +535,10 @@
         </div>
 
         {{-- Mobile/tablet bottom navigation --}}
-        <div x-data="{ moreOpen: false }">
+        <div x-data="{ moreOpen: false }" x-effect="$dispatch('edn-more-toggle', { open: moreOpen })">
             {{-- A floating glass bar (.edn-glass-nav in resources/css/app.css),
                  shared with the teacher, parent and pupil portals. --}}
-            <nav class="edn-glass-nav z-40 print:hidden lg:hidden">
+            <nav class="edn-glass-nav z-40 print:hidden lg:hidden" :class="moreOpen && 'z-[60]'">
                 <div class="grid grid-cols-4">
                     @php
                         $bottomNavItemClasses = fn (bool $isActive) => 'group flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-semibold transition-all duration-300 ease-out active:scale-90 '
@@ -564,94 +564,77 @@
                         Attendance
                     </a>
 
-                    <button type="button" @click="moreOpen = true" class="{{ $bottomNavItemClasses(false) }}">
-                        <i class="fa-solid fa-ellipsis fa-fw {{ $bottomNavIconClasses(false) }} text-[20px] leading-none" aria-hidden="true"></i>
-                        More
+                    <button type="button" @click="moreOpen = ! moreOpen" :class="moreOpen && 'edn-more-open'" :aria-expanded="moreOpen.toString()" data-more-tab class="{{ $bottomNavItemClasses(false) }}">
+                        {{-- While the menu is open, the dots turn into a cross. --}}
+                        <span class="edn-more-icon relative flex h-6 w-6 items-center justify-center"><i class="fa-solid fa-ellipsis fa-fw text-[20px] leading-none" aria-hidden="true"></i><i class="fa-solid fa-xmark fa-fw text-[20px] leading-none" aria-hidden="true"></i></span>
+                        <span x-text="moreOpen ? 'Close' : 'More'">More</span>
                     </button>
                 </div>
             </nav>
 
-            {{-- "More" bottom sheet --}}
-            <div
-                x-show="moreOpen"
-                x-transition.opacity
-                @click="moreOpen = false"
-                class="fixed inset-0 z-50 bg-gray-900/50 lg:hidden"
-                style="display: none;"
-            ></div>
+            {{-- "More": the same premium sheet as the other portals, the
+                 School Admin's features grouped into sections. --}}
+            @php
+                $adminMenu = [
+                    'Academics & Results' => [
+                        ['academics.index', 'Academics'],
+                        ['class-subjects.index', 'Class Subjects'],
+                        ['timetable.index', 'Timetable'],
+                        ['examinations.index', 'Examinations'],
+                        ['examinations.score-entry', 'Test/Exam Score'],
+                        ['results.index', 'Results'],
+                        ['result-repository.index', 'Result Repository'],
+                        ['result-pins.index', 'Generate Exam Token'],
+                    ],
+                    'Learning' => [
+                        ['assignments.index', 'Assignments'],
+                        ['cbt-practice.index', 'CBT Practice'],
+                        ['cbt-tests.index', 'CBT Tests'],
+                        ['diary.index', 'Teacher Diary'],
+                        ['library.index', 'Library'],
+                    ],
+                    'Communication' => [
+                        ['communications.index', 'Communication'],
+                        ['notices.index', 'Memorandums'],
+                        ['events.index', 'Events'],
+                    ],
+                    'School Life' => [
+                        ['co-curricular.index', 'Co-curricular'],
+                        ['transport.index', 'Transport'],
+                        ['hostels.index', 'Hostel'],
+                        ['id-cards.index', 'ID Cards'],
+                    ],
+                    'Finance' => [
+                        ['finance.index', 'Finance'],
+                    ],
+                    'Website' => [
+                        ['website.index', 'Website'],
+                        ['news.index', 'News'],
+                        ['careers.index', 'Recruitment'],
+                        ['testimonials.index', 'Testimonials'],
+                        ['facilities.index', 'Facilities'],
+                    ],
+                    'People & Settings' => [
+                        ['guardians.index', 'Parents & Guardians'],
+                        ['staff.index', 'Teachers & Staff'],
+                        ['teacher-assignments.index', 'Teacher Assignments'],
+                        ['profile-change-requests.index', 'Change Requests'],
+                        ['settings.index', 'Settings'],
+                    ],
+                ];
 
-            <div
-                x-show="moreOpen"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="translate-y-full"
-                x-transition:enter-end="translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="translate-y-0"
-                x-transition:leave-end="translate-y-full"
-                class="fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-y-auto rounded-t-[16px] bg-white pb-[calc(env(safe-area-inset-bottom)+0.5rem)] shadow-2xl print:hidden lg:hidden dark:bg-gray-800"
-                style="display: none;"
-                @click.outside="moreOpen = false"
-            >
-                <div class="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+                $adminCategories = collect($adminMenu)->map(fn (array $items) => collect($items)
+                    ->filter(fn (array $item) => \Illuminate\Support\Facades\Route::has($item[0]) && $school->canAccessRoute($item[0]))
+                    ->map(fn (array $item) => [
+                        'route' => $item[0],
+                        'label' => $item[1],
+                        'url' => route($item[0]),
+                        'icon' => \App\Support\SidebarMeta::icon($item[0]),
+                        'active' => request()->routeIs(str($item[0])->beforeLast('.').'.*'),
+                    ])->values()->all())->filter()->all();
+            @endphp
 
-                <div class="grid grid-cols-4 gap-1 px-3 pb-3 pt-4">
-                    @foreach ([
-                        ['route' => 'academics.index', 'label' => 'Academics'],
-                        ['route' => 'timetable.index', 'label' => 'Timetable'],
-                        ['route' => 'examinations.index', 'label' => 'Examinations'],
-                    ['route' => 'examinations.score-entry', 'label' => 'Test/Exam Score'],
-                        ['route' => 'results.index', 'label' => 'Results'],
-                        ['route' => 'result-repository.index', 'label' => 'Result Repository'],
-                    ['route' => 'result-pins.index', 'label' => 'Generate Exam Token'],
-                        ['route' => 'assignments.index', 'label' => 'Assignments'],
-                        ['route' => 'cbt-practice.index', 'label' => 'CBT Practice'],
-                        ['route' => 'cbt-tests.index', 'label' => 'CBT Tests'],
-                        ['route' => 'events.index', 'label' => 'Events'],
-                        ['route' => 'communications.index', 'label' => 'Communication'],
-                        ['route' => 'diary.index', 'label' => 'Teacher Diary'],
-                    ['route' => 'notices.index', 'label' => 'Memorandums'],
-                        ['route' => 'co-curricular.index', 'label' => 'Co-curricular'],
-                        ['route' => 'library.index', 'label' => 'Library'],
-                        ['route' => 'transport.index', 'label' => 'Transport'],
-                        ['route' => 'hostels.index', 'label' => 'Hostel'],
-                        ['route' => 'finance.index', 'label' => 'Finance'],
-                        ['route' => 'website.index', 'label' => 'Website'],
-                        ['route' => 'news.index', 'label' => 'News'],
-                        ['route' => 'careers.index', 'label' => 'Recruitment'],
-                        ['route' => 'testimonials.index', 'label' => 'Testimonials'],
-                        ['route' => 'facilities.index', 'label' => 'Facilities'],
-                        ['route' => 'id-cards.index', 'label' => 'ID Cards'],
-                        ['route' => 'profile-change-requests.index', 'label' => 'Change Requests'],
-                        ['route' => 'guardians.index', 'label' => 'Parents & Guardians'],
-                        ['route' => 'staff.index', 'label' => 'Teachers & Staff'],
-                        ['route' => 'teacher-assignments.index', 'label' => 'Assignments'],
-                        ['route' => 'class-subjects.index', 'label' => 'Class Subjects'],
-                        ['route' => 'settings.index', 'label' => 'Settings'],
-                    ] as $item)
-                        @continue(! \Illuminate\Support\Facades\Route::has($item['route']))
-                        @continue(! $school->canAccessRoute($item['route']))
-                            @php $isActive = request()->routeIs(str($item['route'])->beforeLast('.').'.*'); @endphp
-                        <a
-                            href="{{ route($item['route']) }}"
-                            @click="moreOpen = false"
-                            class="group flex flex-col items-center gap-1.5 rounded-[10px] px-2 py-3 text-center text-[11px] font-semibold transition-all duration-300 ease-out active:scale-95 {{ $isActive ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50' }}"
-                        >
-                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] transition-transform duration-300 ease-out group-active:scale-90 {{ $isActive ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-primary-50 dark:bg-primary-900/30' }}">
-                                <i class="{{ \App\Support\SidebarMeta::icon($item['route']) }} fa-fw text-[19px] leading-none {{ $isActive ? 'text-blue-600 dark:text-blue-300' : 'text-primary-600 dark:text-primary-300' }}" aria-hidden="true"></i>
-                            </span>
-                            <span class="leading-tight">{{ $item['label'] }}</span>
-                        </a>
-                    @endforeach
-                </div>
-
-                <form method="POST" action="{{ route('portal.admin.logout', $school) }}" class="border-t border-gray-100 px-3 py-3 dark:border-gray-700">
-                    @csrf
-                    <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold text-red-600 transition-colors duration-200 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
-                        <i class="fa-solid fa-right-from-bracket text-[14px] leading-none" aria-hidden="true"></i>
-                        Log Out
-                    </button>
-                </form>
-            </div>
+            <x-app-more-sheet :categories="$adminCategories" :logout-url="route('portal.admin.logout', $school)" class="lg:hidden" />
         </div>
 
         <x-idle-session-guard :logout-url="route('portal.admin.logout', $school)" />
