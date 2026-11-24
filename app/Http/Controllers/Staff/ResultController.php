@@ -84,13 +84,6 @@ class ResultController extends Controller
             ...ReportCardData::for($examination, $student),
             'canEditTeacherRemark' => true,
             'canEditPrincipalRemark' => false,
-
-            // The pupil's admission number is their Student ID, and it is not
-            // this portal's to show. Withheld in the DATA rather than hidden
-            // in the markup: a value the response never carries cannot be read
-            // out of the page source, off the network tab, or by replaying the
-            // request by hand.
-            'showStudentId' => false,
         ];
 
         return response()->json([

@@ -1,4 +1,4 @@
-<x-guardian-layout page-title="Exams & Results" :page-subtitle="$student->fullName().'\'s examination scores'" :active-child="$activeChild">
+<x-guardian-layout page-title="Exams & Results" :page-subtitle="$student->fullName().'\'s examination scores'.(filled($student->admission_number) ? ' · Admission No. '.$student->admission_number : '')" :active-child="$activeChild">
     <div class="space-y-6" x-data="{}">
         @if (($classSubjects ?? collect())->isNotEmpty())
             <div class="rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">

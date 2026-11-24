@@ -529,7 +529,9 @@
             <x-mobile-page-nav :prev="$pageNav['prev']" :next="$pageNav['next']" :current-label="$pageNav['current']" />
 
             {{-- Room at the foot for the floating bottom bar and the handset's home indicator. --}}
-            <main class="p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:p-8 lg:pb-8 dark:bg-gray-900">
+            {{-- x-data: the page is one Alpine scope, so a button anywhere on it can
+                 use @click (opening a preview, $store...) without its own x-data. --}}
+            <main x-data class="p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:p-8 lg:pb-8 dark:bg-gray-900">
                 {{ $slot }}
             </main>
         </div>

@@ -7,12 +7,9 @@
 <div class="space-y-5 text-left">
     <div class="grid grid-cols-2 gap-3 rounded-[8px] bg-gray-50 p-3 text-sm dark:bg-gray-900/40 sm:grid-cols-3">
         <div><small class="field-hint">Student</small><p class="font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</p></div>
-        {{-- Withheld from the Class Teacher portal, which passes false. A
-             pupil's admission number is their Student ID and the teacher's
-             report card page is not where it belongs. --}}
-        @if ($showStudentId ?? true)
-            <div><small class="field-hint">Student ID</small><p class="font-semibold text-gray-900 dark:text-white">{{ $student->admission_number }}</p></div>
-        @endif
+        {{-- On every result, in every portal: the admission number is how a
+             school tells two pupils of the same name apart. --}}
+        <div><small class="field-hint">Admission No.</small><p class="font-semibold text-gray-900 dark:text-white">{{ $student->admission_number ?: 'N/A' }}</p></div>
         <div><small class="field-hint">Class</small><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->class_name }}</p></div>
         <div><small class="field-hint">Session</small><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->session }}</p></div>
         <div><small class="field-hint">Term</small><p class="font-semibold text-gray-900 dark:text-white">{{ $examination->term->label() }}</p></div>

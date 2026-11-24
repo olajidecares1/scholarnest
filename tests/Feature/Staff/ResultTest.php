@@ -71,7 +71,7 @@ test('a class teacher cannot print or download a report card, by any URL', funct
         ->toThrow(InvalidArgumentException::class);
 });
 
-test('the report card page offers no print, download or Student ID control', function () {
+test('the report card page offers no print or download control', function () {
     $response = $this->actingAs($this->teacher, 'staff')
         ->get(route('staff.results.index', $this->school));
 
@@ -79,25 +79,22 @@ test('the report card page offers no print, download or Student ID control', fun
         ->assertDontSee('Download PDF')
         ->assertDontSee('title="Print"', false)
         ->assertDontSee('title="Download PDF"', false)
-        ->assertDontSee('result-print-frame')
-        ->assertDontSee('Student ID')
-        // The pupil's admission number is their Student ID; it is not printed
-        // on this page at all.
-        ->assertDontSee($this->student->admission_number);
+        ->assertDontSee('result-print-frame');
 });
 
-test('the pupil\'s Student ID is withheld from the data, not just the markup', function () {
-    // A value the response never carries cannot be read out of the page
-    // source, off the network tab, or by replaying the request by hand.
+test('the class teacher sees each pupil\'s admission number on the report card list and in the result', function () {
+    reportCardsPage($this)
+        ->assertOk()
+        ->assertSee($this->student->admission_number);
+
     $response = $this->actingAs($this->teacher, 'staff')
         ->getJson(route('staff.results.show', [$this->school, $this->examination, $this->student]));
 
-    $response->assertOk()
-        ->assertJsonMissing(['card_number' => $this->student->admission_number]);
+    $response->assertOk();
 
-    expect($response->json())->not->toHaveKey('card_number')
-        ->and($response->json('details_html'))->not->toContain($this->student->admission_number)
-        ->and($response->json('details_html'))->not->toContain('Student ID');
+    expect($response->json('details_html'))->toContain('Admission No.')
+        ->toContain($this->student->admission_number)
+        ->and($response->json('report_card_html'))->toContain($this->student->admission_number);
 });
 
 test('the class teacher can write the class teacher\'s remark but not the principal\'s remark', function () {

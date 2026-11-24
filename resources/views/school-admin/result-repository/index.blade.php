@@ -113,7 +113,7 @@
                         <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                             <tr>
                                 <th class="px-4 py-3 font-semibold">Student</th>
-                                <th class="px-4 py-3 font-semibold">Student ID</th>
+                                <th class="px-4 py-3 font-semibold">Admission No.</th>
                                 <th class="px-4 py-3 font-semibold">Subjects</th>
                                 <th class="px-4 py-3 font-semibold">Average</th>
                                 <th class="px-4 py-3 font-semibold">Position</th>

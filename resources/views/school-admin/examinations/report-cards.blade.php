@@ -30,6 +30,7 @@
                                     <a href="{{ route('examinations.report-cards.show', [$examination, $summary['student']]) }}" class="font-semibold text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
                                         {{ $summary['student']->fullName() }}
                                     </a>
+                                    <span class="block font-mono text-xs text-gray-500 dark:text-gray-400">{{ $summary['student']->admission_number ?: 'No admission no.' }}</span>
                                 </td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['subjectsGraded'] }} / {{ $summary['subjectsGraded'] + ($summary['subjectsMissing'] ?? 0) }}</td>
                                 <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $summary['average'] !== null ? $summary['average'].'%' : 'N/A' }}</td>

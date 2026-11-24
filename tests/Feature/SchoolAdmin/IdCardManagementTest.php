@@ -17,6 +17,7 @@ use App\Models\Staff;
 use App\Models\Student;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Support\IdCardFields;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -419,4 +420,33 @@ test('with no template yet, cards are generated, previewed and printed in the st
         ->post(route('id-cards.pdf'), ['type' => 'student', 'records' => [$this->jss1[0]->uuid], 'template' => ''])
         ->assertOk()
         ->assertHeader('content-type', 'application/pdf');
+});
+
+test('the Issued ID Cards page can open a card: its preview button sits inside an Alpine scope', function () {
+    IssuedIdCard::issueFor($this->school, IdCardHolderType::Student, $this->jss1[0], null, $this->admin);
+
+    $html = $this->actingAs($this->admin)->get(route('id-cards.issued.index'))->assertOk()->getContent();
+
+    // Every portal's <main> is one Alpine scope, so @click="$store..." works
+    // on any page without a wrapper of its own.
+    expect($html)->toContain('<main x-data')
+        ->and(strpos($html, '<main x-data'))->toBeLessThan(strpos($html, 'aria-label="Preview card"'));
+});
+
+test('every ID card carries the admission number, and the Issued list shows it', function () {
+    $card = IssuedIdCard::issueFor($this->school, IdCardHolderType::Student, $this->jss1[0], null, $this->admin);
+
+    expect(IdCardFields::rows($card)[0])->toMatchArray(['label' => 'Admission No.', 'value' => 'GLA-JUR-001']);
+
+    $this->actingAs($this->admin)->get(route('id-cards.issued.index'))
+        ->assertOk()
+        ->assertSee('Admission No. / Staff ID')
+        ->assertSee('GLA-JUR-001');
+});
+
+test('a pupil with no admission number still gets the Admission No. row on the card', function () {
+    DB::table('students')->where('id', $this->jss1[1]->id)->update(['admission_number' => '']);
+    $card = IssuedIdCard::issueFor($this->school, IdCardHolderType::Student, $this->jss1[1]->fresh(), null, $this->admin);
+
+    expect(IdCardFields::rows($card)[0])->toMatchArray(['label' => 'Admission No.', 'value' => 'N/A']);
 });

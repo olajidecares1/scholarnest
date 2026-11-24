@@ -4,7 +4,7 @@
     $school = $card->school;
     $template = $card->template;
     $isStudent = $holderType === \App\Enums\IdCardHolderType::Student;
-    $identifier = $isStudent ? $holder->admission_number : $holder->staff_number;
+    $identifier = ($isStudent ? $holder->admission_number : $holder->staff_number) ?: 'N/A';
     $idLabel = $isStudent ? 'Admission No.' : 'Staff ID';
     $secondaryLine = $isStudent ? $holder->class_name : ($holder->department ?? $holder->role->label());
     $fieldLabel = $isStudent ? 'Class' : 'Department';

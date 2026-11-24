@@ -517,7 +517,9 @@
             @endphp
             <x-mobile-page-nav :prev="$pageNav['prev']" :next="$pageNav['next']" :current-label="$pageNav['current']" />
 
-            <main class="p-4 sm:p-6 lg:p-8 dark:bg-gray-900">
+            {{-- x-data: the page is one Alpine scope, so a button anywhere on it can
+                 use @click (opening a preview, $store...) without its own x-data. --}}
+            <main x-data class="p-4 sm:p-6 lg:p-8 dark:bg-gray-900">
                 {{ $slot }}
             </main>
         </div>

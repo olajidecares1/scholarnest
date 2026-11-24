@@ -115,7 +115,10 @@
                                                         {{ Str::of($student->first_name)->substr(0, 1)->upper() }}{{ Str::of($student->last_name)->substr(0, 1)->upper() }}
                                                     </span>
                                                 @endif
-                                                <span class="truncate font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
+                                                <span class="min-w-0">
+                                                    <span class="block truncate font-semibold text-gray-900 dark:text-white">{{ $student->fullName() }}</span>
+                                                    <span class="block truncate font-mono text-xs text-gray-500 dark:text-gray-400">{{ $student->admission_number ?: 'No admission no.' }}</span>
+                                                </span>
                                             </div>
 
                                             {{-- The Class Teacher's comment for this pupil's report card:

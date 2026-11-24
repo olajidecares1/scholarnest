@@ -105,7 +105,9 @@
             @endphp
             <x-mobile-page-nav :prev="$pageNav['prev']" :next="$pageNav['next']" :current-label="$pageNav['current']" always-visible />
 
-            <main class="edn-portal-main p-3 sm:p-5 dark:bg-gray-900">
+            {{-- x-data: the page is one Alpine scope, so a button anywhere on it can
+                 use @click (opening a preview, $store...) without its own x-data. --}}
+            <main x-data class="edn-portal-main p-3 sm:p-5 dark:bg-gray-900">
                 {{ $slot }}
 
                 <x-app-version class="mt-6 text-center" />

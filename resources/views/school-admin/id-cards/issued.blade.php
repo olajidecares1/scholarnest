@@ -39,6 +39,7 @@
                         <tr>
                             <th class="px-5 py-3 font-semibold">Card Number</th>
                             <th class="px-5 py-3 font-semibold">Holder</th>
+                            <th class="px-5 py-3 font-semibold">Admission No. / Staff ID</th>
                             <th class="px-5 py-3 font-semibold">Type</th>
                             <th class="px-5 py-3 font-semibold">Issued</th>
                             <th class="px-5 py-3 font-semibold">Status</th>
@@ -51,6 +52,7 @@
                             <tr class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-5 py-3 font-mono font-semibold text-gray-900 dark:text-white">{{ $card->card_number }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $holder?->fullName() ?? 'N/A' }}</td>
+                                <td class="whitespace-nowrap px-5 py-3 font-mono text-gray-600 dark:text-gray-300">{{ ($card->holder_type === \App\Enums\IdCardHolderType::Student ? $holder?->admission_number : $holder?->staff_number) ?: 'N/A' }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $card->holder_type->label() }}</td>
                                 <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $card->issued_at->format('M j, Y') }}</td>
                                 <td class="px-5 py-3">
@@ -76,7 +78,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No ID cards have been generated yet.</td>
+                                <td colspan="7" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No ID cards have been generated yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

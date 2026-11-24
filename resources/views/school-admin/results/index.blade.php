@@ -162,7 +162,7 @@
                                 </th>
                                 <th class="w-12 px-4 py-3 font-semibold">S/N</th>
                                 <th class="px-4 py-3 font-semibold">Student</th>
-                                <th class="px-4 py-3 font-semibold">Student ID</th>
+                                <th class="px-4 py-3 font-semibold">Admission No.</th>
                                 <th class="px-4 py-3 font-semibold">Class</th>
                                 <th class="px-4 py-3 font-semibold">Session</th>
                                 <th class="px-4 py-3 font-semibold">Term</th>

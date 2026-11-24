@@ -1,4 +1,4 @@
-<x-student-layout page-title="Exams & Results" page-subtitle="Your examination scores">
+<x-student-layout page-title="Exams & Results" :page-subtitle="'Your examination scores'.(filled($student->admission_number) ? ' · Admission No. '.$student->admission_number : '')">
     <div class="space-y-6" x-data="{}">
         @forelse ($results as $examLabel => $scores)
             @php $examination = $scores->first()->subject->examination; @endphp

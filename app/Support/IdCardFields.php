@@ -60,7 +60,13 @@ final class IdCardFields
 
         $rows = [];
 
-        foreach ($candidates as [$label, $value]) {
+        foreach ($candidates as $index => [$label, $value]) {
+            // The first row, Admission No. or Staff ID, is always printed:
+            // it is what the card identifies its holder by.
+            if ($index === 0 && blank($value)) {
+                $value = 'N/A';
+            }
+
             if (blank($value)) {
                 continue;
             }
