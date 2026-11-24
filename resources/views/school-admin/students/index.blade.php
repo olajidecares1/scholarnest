@@ -360,7 +360,9 @@
                 </form>
 
                 @if ($students->hasPages())
-                    <div class="min-w-0 flex-1">{{ $students->links() }}</div>
+                    {{-- Its own full-width line on a phone, under "Show … per page";
+                         beside it from sm up. --}}
+                    <div class="w-full min-w-0 sm:w-auto sm:flex-1">{{ $students->links() }}</div>
                 @endif
             </div>
             </div>
