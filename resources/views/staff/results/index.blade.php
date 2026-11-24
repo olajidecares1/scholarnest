@@ -87,7 +87,12 @@
                      store (resources/js/teacher-remark-box.js) and offered
                      under every pupil's comment box. --}}
                 @php
-                    $savedRemarksData = ['items' => $savedRemarks, 'forgetUrl' => route('staff.results.saved-remarks.destroy', [$school, '__REMARK__'])];
+                    $savedRemarksData = [
+                        'items' => $savedRemarks,
+                        'suggested' => $suggestedRemarks,
+                        'forgetUrl' => route('staff.results.saved-remarks.destroy', [$school, '__REMARK__']),
+                        'keepUrl' => route('staff.results.saved-remarks.store', $school),
+                    ];
                 @endphp
                 <script type="application/json" id="saved-remarks-data">{!! json_encode($savedRemarksData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
 
@@ -162,33 +167,68 @@
                                                     This card is already in the Repository. Push it again so the published card shows this comment.
                                                 </p>
 
-                                                {{-- Saved comments: every comment this teacher has written
-                                                     before, newest first. Tap one and it becomes this pupil's
-                                                     comment, saved at once. In the flow of the row rather than
-                                                     floating, so the table's scroll box cannot clip it. --}}
-                                                <div x-show="$store.savedRemarks.items.length > 0" x-cloak class="mt-1">
+                                                {{-- Save keeps this pupil's comment on the teacher's list for
+                                                     good. Comments opens that list, the teacher's own comments
+                                                     first, then thirty ready-made ones: tap one and it is this
+                                                     pupil's comment, saved at once. The list sits in the flow of
+                                                     the row rather than floating, so the table's scroll box
+                                                     cannot clip it. --}}
+                                                <div class="mt-1 flex flex-wrap items-center gap-1.5">
+                                                    <button type="button" x-on:click="keepCurrent()" :disabled="text.trim() === '' || keepState === 'saving'" class="inline-flex items-center gap-1.5 rounded-full bg-primary-600 px-3 py-1 text-[11.5px] font-semibold text-white shadow-sm transition-colors duration-150 hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50" data-tooltip="Save this comment and keep it in your list">
+                                                        <i class="fa-solid text-[10px]" :class="keepState === 'saving' ? 'fa-spinner fa-spin' : 'fa-floppy-disk'" aria-hidden="true"></i>
+                                                        Save
+                                                    </button>
+
                                                     <button type="button" x-on:click="togglePicker()" :aria-expanded="pickerOpen" class="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-[11.5px] font-semibold text-primary-700 transition-colors duration-150 hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-300">
                                                         <i class="fa-solid fa-list-check text-[10px]" aria-hidden="true"></i>
-                                                        Saved comments
-                                                        <span class="rounded-full bg-white px-1.5 text-[10px] tabular-nums dark:bg-primary-900/60" x-text="$store.savedRemarks.items.length"></span>
+                                                        Comments
+                                                        <span class="rounded-full bg-white px-1.5 text-[10px] tabular-nums dark:bg-primary-900/60" x-text="$store.savedRemarks.total"></span>
                                                         <i class="fa-solid fa-chevron-down text-[9px] transition-transform duration-200" :class="pickerOpen && 'rotate-180'" aria-hidden="true"></i>
                                                     </button>
 
-                                                    <div x-show="pickerOpen" x-transition.opacity.duration.150ms x-cloak x-on:keydown.escape="pickerOpen = false" class="mt-1.5 overflow-hidden rounded-[8px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-                                                        <div class="border-b border-gray-100 p-1.5 dark:border-gray-700">
-                                                            <input type="search" x-model="search" placeholder="Search your saved comments" aria-label="Search your saved comments" class="w-full text-xs">
-                                                        </div>
-                                                        <ul class="max-h-56 divide-y divide-gray-100 overflow-y-auto overscroll-contain dark:divide-gray-800">
+                                                    <span x-show="keepState === 'kept'" x-transition.opacity x-cloak class="text-[11px] font-medium text-green-600 dark:text-green-400"><i class="fa-solid fa-check mr-0.5" aria-hidden="true"></i> Saved to your comments</span>
+                                                    <span x-show="keepState === 'error'" x-cloak class="text-[11px] font-medium text-red-600 dark:text-red-400">Not saved. Try again.</span>
+                                                </div>
+
+                                                <div x-show="pickerOpen" x-transition.opacity.duration.150ms x-cloak x-on:keydown.escape="pickerOpen = false" class="mt-1.5 overflow-hidden rounded-[8px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+                                                    <div class="border-b border-gray-100 p-1.5 dark:border-gray-700">
+                                                        <input type="search" x-model="search" placeholder="Search comments" aria-label="Search comments" class="w-full text-xs">
+                                                    </div>
+
+                                                    <div class="max-h-64 overflow-y-auto overscroll-contain">
+                                                        <p x-show="choices.length > 0" class="sticky top-0 z-10 bg-gray-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:bg-gray-800 dark:text-gray-400">Your comments</p>
+                                                        <ul class="divide-y divide-gray-100 dark:divide-gray-800">
                                                             <template x-for="choice in choices" :key="choice.uuid">
-                                                                <li class="group flex items-start gap-1">
+                                                                <li class="flex items-start gap-1">
                                                                     <button type="button" x-on:click="pick(choice)" class="min-w-0 flex-1 px-2.5 py-2 text-left text-[12.5px] leading-snug text-gray-700 transition-colors duration-150 hover:bg-primary-50 hover:text-primary-800 dark:text-gray-200 dark:hover:bg-primary-900/30" x-text="choice.body"></button>
-                                                                    <button type="button" x-on:click="if (confirm('Take this comment off your saved list? Report cards that already have it keep it.')) $store.savedRemarks.forget(choice)" class="shrink-0 px-2 py-2 text-gray-300 transition-colors duration-150 hover:text-red-600 dark:text-gray-600" data-tooltip="Remove from list" aria-label="Remove from saved comments">
+                                                                    <button type="button" x-on:click="if (confirm('Take this comment off your list? Report cards that already have it keep it.')) $store.savedRemarks.forget(choice)" class="shrink-0 px-2 py-2 text-gray-300 transition-colors duration-150 hover:text-red-600 dark:text-gray-600" data-tooltip="Remove from list" aria-label="Remove from your comments">
                                                                         <i class="fa-solid fa-xmark text-[11px]" aria-hidden="true"></i>
                                                                     </button>
                                                                 </li>
                                                             </template>
-                                                            <li x-show="choices.length === 0" class="px-2.5 py-2 text-[12px] text-gray-500 dark:text-gray-400">No saved comment matches.</li>
                                                         </ul>
+
+                                                        <p x-show="suggestions.length > 0" class="sticky top-0 z-10 bg-gray-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:bg-gray-800 dark:text-gray-400">Suggested comments</p>
+                                                        <ul class="divide-y divide-gray-100 dark:divide-gray-800">
+                                                            <template x-for="choice in suggestions" :key="choice.uuid">
+                                                                <li>
+                                                                    <button type="button" x-on:click="pick(choice)" class="w-full px-2.5 py-2 text-left text-[12.5px] leading-snug text-gray-700 transition-colors duration-150 hover:bg-primary-50 hover:text-primary-800 dark:text-gray-200 dark:hover:bg-primary-900/30" x-text="choice.body"></button>
+                                                                </li>
+                                                            </template>
+                                                        </ul>
+
+                                                        <p x-show="choices.length === 0 && suggestions.length === 0" class="px-2.5 py-2 text-[12px] text-gray-500 dark:text-gray-400">No comment matches.</p>
+                                                    </div>
+
+                                                    {{-- A new comment straight onto the list, for this pupil
+                                                         or anyone after: Save keeps it, it does not touch
+                                                         this pupil's card. --}}
+                                                    <div class="border-t border-gray-100 p-1.5 dark:border-gray-700">
+                                                        <label for="new-comment-{{ $student->uuid }}" class="px-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">Add a new comment</label>
+                                                        <div class="mt-0.5 flex items-start gap-1.5">
+                                                            <textarea id="new-comment-{{ $student->uuid }}" x-model="draft" rows="2" maxlength="1000" placeholder="Type a comment to keep in your list" class="min-w-0 flex-1 resize-y text-xs"></textarea>
+                                                            <button type="button" x-on:click="keepDraft()" :disabled="draft.trim() === '' || keepState === 'saving'" class="btn shrink-0 rounded-[6px] bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors duration-150 hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50">Save</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

@@ -174,6 +174,7 @@ Route::prefix('p/{school:portal_key}/staff-portal')->name('staff.')->group(funct
 
                 // The teacher's own list of earlier comments: filled as they
                 // write, so the only thing to do by hand is take one off.
+                Route::post('/saved-remarks', [StaffResultController::class, 'keepRemark'])->name('saved-remarks.store');
                 Route::delete('/saved-remarks/{teacherRemark}', [StaffResultController::class, 'forgetRemark'])->name('saved-remarks.destroy');
 
                 // Push to Repository. A Class Teacher publishes for their own

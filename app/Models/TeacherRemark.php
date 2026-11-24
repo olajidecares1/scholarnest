@@ -10,19 +10,20 @@ use Illuminate\Support\Collection;
 /**
  * One comment in a Class Teacher's list of comments they have written before.
  *
- * Nobody saves these by hand. Every comment a teacher settles on for a pupil
- * is remembered here; the half-typed drafts the comment box autosaves along
- * the way are forgotten again, see replace().
+ * Every comment a teacher settles on for a pupil is remembered here; the
+ * half-typed drafts the comment box autosaves along the way are forgotten
+ * again, see replace(). One saved with the Save button is kept for good,
+ * see keep().
  */
 class TeacherRemark extends Model
 {
     use HasUuidRouteKey;
 
-    protected $fillable = ['school_id', 'staff_id', 'body', 'body_hash', 'last_used_at'];
+    protected $fillable = ['school_id', 'staff_id', 'body', 'body_hash', 'kept', 'last_used_at'];
 
     protected function casts(): array
     {
-        return ['last_used_at' => 'datetime'];
+        return ['last_used_at' => 'datetime', 'kept' => 'boolean'];
     }
 
     public static function normalise(string $body): string
@@ -58,10 +59,29 @@ class TeacherRemark extends Model
         }
 
         if ($old !== '' && self::hashOf($old) !== self::hashOf($new) && ! self::stillOnACard($staff, $old)) {
-            static::query()->where('staff_id', $staff->id)->where('body_hash', self::hashOf($old))->delete();
+            // Never one the teacher saved on purpose.
+            static::query()->where('staff_id', $staff->id)->where('body_hash', self::hashOf($old))->where('kept', false)->delete();
         }
 
         return $kept;
+    }
+
+    /**
+     * The Save button: put a comment on the teacher's list for good. It stays
+     * until they take it off, whether or not any card carries it.
+     */
+    public static function keep(Staff $staff, string $body): ?self
+    {
+        $body = self::normalise($body);
+
+        if ($body === '') {
+            return null;
+        }
+
+        $remark = static::query()->firstOrNew(['staff_id' => $staff->id, 'body_hash' => self::hashOf($body)]);
+        $remark->fill(['school_id' => $staff->school_id, 'body' => $body, 'kept' => true, 'last_used_at' => now()])->save();
+
+        return $remark;
     }
 
     /**

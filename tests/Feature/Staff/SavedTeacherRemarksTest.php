@@ -14,6 +14,7 @@ use App\Models\Student;
 use App\Models\Subscription;
 use App\Models\TeacherAssignment;
 use App\Models\TeacherRemark;
+use App\Support\SuggestedTeacherRemarks;
 
 beforeEach(function () {
     $this->school = School::factory()->create();
@@ -79,7 +80,7 @@ test('the Report Cards page lists the saved comments, including ones written bef
         ->assertOk()
         ->assertSee('id="saved-remarks-data"', false)
         ->assertSee('A joy to teach.')
-        ->assertSee('Saved comments');
+        ->assertSee('Suggested comments');
 });
 
 test('a teacher can take a comment off their list, and the card keeps it', function () {
@@ -107,4 +108,40 @@ test('one teacher\'s saved comments are theirs alone', function () {
 
     expect(TeacherRemark::listFor($colleague))->toBeEmpty()
         ->and($remark->fresh())->not->toBeNull();
+});
+
+test('thirty different ready-made comments are offered on the Report Cards page', function () {
+    expect(SuggestedTeacherRemarks::ALL)->toHaveCount(30)
+        ->and(collect(SuggestedTeacherRemarks::ALL)->map(fn ($r) => mb_strtolower($r))->unique())->toHaveCount(30);
+
+    $this->actingAs($this->teacher, 'staff')
+        ->get(route('staff.results.index', [$this->school, 'class' => $this->student->class_name, 'session' => $this->examination->session, 'term' => $this->examination->term->value]))
+        ->assertOk()
+        ->assertSee(SuggestedTeacherRemarks::ALL[0])
+        ->assertSee(SuggestedTeacherRemarks::ALL[29]);
+});
+
+test('the Save button keeps a new comment on the teacher\'s list', function () {
+    $this->actingAs($this->teacher, 'staff')
+        ->postJson(route('staff.results.saved-remarks.store', $this->school), ['body' => 'A delight to have in class.'])
+        ->assertOk()
+        ->assertJsonPath('saved_remarks.0.body', 'A delight to have in class.');
+
+    expect(TeacherRemark::query()->where('staff_id', $this->teacher->id)->value('kept'))->toBeTrue();
+});
+
+test('a comment saved with the Save button stays on the list when no card carries it any longer', function () {
+    saveComment($this, $this->student, 'Reads beautifully.');
+    $this->actingAs($this->teacher, 'staff')->postJson(route('staff.results.saved-remarks.store', $this->school), ['body' => 'Reads beautifully.']);
+
+    saveComment($this, $this->student, 'Something else entirely.');
+
+    expect(TeacherRemark::query()->where('staff_id', $this->teacher->id)->pluck('body')->sort()->values()->all())
+        ->toBe(['Reads beautifully.', 'Something else entirely.']);
+});
+
+test('an empty comment cannot be saved to the list', function () {
+    $this->actingAs($this->teacher, 'staff')
+        ->postJson(route('staff.results.saved-remarks.store', $this->school), ['body' => '   '])
+        ->assertUnprocessable();
 });

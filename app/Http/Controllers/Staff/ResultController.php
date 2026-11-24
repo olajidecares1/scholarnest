@@ -14,6 +14,7 @@ use App\Services\ExaminationResultCalculator;
 use App\Services\ReportCardData;
 use App\Services\ResultRepository;
 use App\Support\AcademicSession;
+use App\Support\SuggestedTeacherRemarks;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -66,6 +67,7 @@ class ResultController extends Controller
 
         return view('staff.results.index', [
             'savedRemarks' => TeacherRemark::listFor($staff),
+            'suggestedRemarks' => SuggestedTeacherRemarks::forPicker(),
             'school' => $school,
             'classes' => $classes,
             'className' => $className,
@@ -131,6 +133,25 @@ class ResultController extends Controller
             // until it is pushed again; the teacher is told so.
             'needs_repush' => in_array($student->id, app(ResultRepository::class)->stateFor($examination)['staleStudentIds'], true),
         ]);
+    }
+
+    /**
+     * The Save button: a comment the teacher wants on their list for good,
+     * typed into the list itself or already in a pupil's box.
+     */
+    public function keepRemark(Request $request, School $school): JsonResponse
+    {
+        $validated = $request->validate([
+            'body' => ['required', 'string', 'max:1000'],
+        ], [
+            'body.required' => 'Write the comment first.',
+            'body.max' => 'A comment can be at most 1,000 characters.',
+        ]);
+
+        $staff = $request->user('staff');
+        TeacherRemark::keep($staff, $validated['body']);
+
+        return response()->json(['saved_remarks' => TeacherRemark::listFor($staff)]);
     }
 
     /**
