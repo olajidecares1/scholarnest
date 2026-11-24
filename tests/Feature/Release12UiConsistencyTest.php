@@ -44,14 +44,14 @@ function portalViews(): array
     return $files;
 }
 
-test('the app is version 1.2 and says so in the portals', function () {
-    expect(config('app.version'))->toBe('1.2');
+test('the app is version 2.0 and says so in the portals', function () {
+    expect(config('app.version'))->toBe('2.0');
 
     $school = School::factory()->create();
     activateSchool($school);
     $admin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $school->id]);
 
-    $this->actingAs($admin)->get(route('students.index'))->assertOk()->assertSee('Version 1.2');
+    $this->actingAs($admin)->get(route('students.index'))->assertOk()->assertSee('Version 2.0');
 
     foreach (['guardian', 'staff', 'student'] as $portal) {
         expect(file_get_contents(resource_path("views/components/{$portal}-layout.blade.php")))->toContain('<x-app-version');

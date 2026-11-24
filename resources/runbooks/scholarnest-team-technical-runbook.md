@@ -22,7 +22,7 @@ classification: Internal
 >   hover. Field icons are Font Awesome via `App\Support\FieldIcon`.
 >   `tests/Feature/Release12UiConsistencyTest.php` fails the build if a new page
 >   drifts.
-> - **Version.** `config('app.version')` (env `APP_VERSION`, default 1.2).
+> - **Version.** `config('app.version')` (env `APP_VERSION`, default 2.0).
 > - **Migration** `2026_09_26_120000_bump_legal_documents_to_version_1_2` moves
 >   legal documents still at 1.1 to 1.2. Needs `php artisan migrate --force`.
 
