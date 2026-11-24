@@ -2406,6 +2406,14 @@ a.pwa-install-banner__install {
     display: table;
 }
 
+/* The report card previewed in a portal: an A4 sheet drawn at its own width
+ * and scaled, so its tables are real tables, as on paper, not scrolling
+ * blocks that stop short of the card's edge. */
+.edn-portal-main #result-report-card-content table {
+    display: table;
+    overflow-x: visible;
+}
+
 /* The staff portal turns every table into a scrolling block; the roll has
  * its own wrapper for that, so it stays a real table there. */
 .edn-portal-main table.attendance-roll {

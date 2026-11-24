@@ -19,6 +19,10 @@ export function registerResultPreviewStore(Alpine) {
         downloadUrl: '',
         recipients: { student: true, guardians: false },
         zoom: 1,
+        // The report card's own width (max-w-3xl) and its height at that
+        // width, measured once it is drawn; see fitToScreen().
+        sheetWidth: 768,
+        sheetHeight: 1086,
 
         async openPreview(previewUrl, remarksUrl, sendUrl, printUrl, downloadUrl, initialTab = 'details') {
             this.open = true;
@@ -136,7 +140,7 @@ export function registerResultPreviewStore(Alpine) {
         },
 
         zoomOut() {
-            this.zoom = Math.max(0.5, Math.round((this.zoom - 0.1) * 10) / 10);
+            this.zoom = Math.max(0.3, Math.round((this.zoom - 0.1) * 10) / 10);
         },
 
         zoomReset() {
@@ -150,20 +154,28 @@ export function registerResultPreviewStore(Alpine) {
         fitToScreen() {
             const container = document.getElementById('result-report-card-container');
             const content = document.getElementById('result-report-card-content');
-            const page = content?.firstElementChild;
 
-            if (!container || !page) {
+            if (!container || !content?.firstElementChild) {
                 return;
             }
 
-            const naturalHeight = page.scrollHeight;
-            const naturalWidth = page.scrollWidth;
+            // The whole of it, a Third Term card's session sheet included.
+            const naturalHeight = content.scrollHeight;
+            const naturalWidth = this.sheetWidth;
+
+            if (naturalHeight) {
+                this.sheetHeight = naturalHeight;
+            }
 
             if (!naturalHeight || !naturalWidth) {
                 return;
             }
 
-            const availableHeight = container.clientHeight - 16;
+            // The box's ceiling (70vh), not its current height: the box now
+            // shrinks to the scaled card, so its height would shrink the fit
+            // again on every press.
+            const ceiling = parseFloat(getComputedStyle(container).maxHeight) || container.clientHeight;
+            const availableHeight = ceiling - 16;
             const availableWidth = container.clientWidth - 16;
             const fit = Math.min(availableHeight / naturalHeight, availableWidth / naturalWidth, 1);
 

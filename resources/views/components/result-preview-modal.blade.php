@@ -76,8 +76,16 @@
                         <span class="mx-0.5 h-4 w-px bg-gray-300 dark:bg-gray-600"></span>
                         <button type="button" @click="$store.resultPreview.fitToScreen()" class="icon-btn icon-btn--neutral icon-btn--sm" data-tooltip="Fit to screen" aria-label="Fit to screen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
                     </div>
-                    <div id="result-report-card-container" class="flex justify-center overflow-auto rounded-[8px] py-2" style="max-height: 70vh;">
-                        <div id="result-report-card-content" :style="'transform: scale(' + $store.resultPreview.zoom + '); transform-origin: top center; transition: transform 150ms ease-out;'" x-html="$store.resultPreview.reportCardHtml"></div>
+                    {{-- The card is laid out at its full A4 width, always, then
+                         scaled to fit. Laid out at the width of a phone's
+                         modal instead, everything on it squeezed: the school
+                         name ran down the page a letter a line. The sized box
+                         around it takes up the SCALED size, so the scroll area
+                         matches what is drawn and nothing is cut off. --}}
+                    <div id="result-report-card-container" class="overflow-auto rounded-[8px] py-2" style="max-height: 70vh;">
+                        <div class="relative mx-auto" :style="'width: ' + ($store.resultPreview.sheetWidth * $store.resultPreview.zoom) + 'px; height: ' + ($store.resultPreview.sheetHeight * $store.resultPreview.zoom) + 'px;'">
+                            <div id="result-report-card-content" class="absolute left-0 top-0" :style="'width: ' + $store.resultPreview.sheetWidth + 'px; transform: scale(' + $store.resultPreview.zoom + '); transform-origin: top left;'" x-html="$store.resultPreview.reportCardHtml"></div>
+                        </div>
                     </div>
                 </div>
 
