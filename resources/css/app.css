@@ -91,6 +91,123 @@
     background: rgb(96 165 250 / 0.16);
 }
 
+/* Motion (resources/js/glass-nav.js): one pill slides under the tab you
+ * tap and on to the next page's tab; the tapped icon bounces; labels fade
+ * between colours. Pages cross-fade where the browser can, with the bar
+ * held still over the change. */
+.edn-glass-nav--pill > div {
+    position: relative;
+}
+
+.edn-glass-pill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    border-radius: 18px;
+    background: rgb(37 99 235 / 0.12);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+    pointer-events: none;
+    opacity: 0;
+    transition-property: transform, width, height, opacity;
+    transition-duration: 450ms;
+    transition-timing-function: cubic-bezier(0.32, 1.25, 0.5, 1);
+}
+
+.dark .edn-glass-pill {
+    background: rgb(96 165 250 / 0.16);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+.edn-glass-pill--still {
+    transition: none;
+}
+
+.edn-glass-nav--pill a,
+.edn-glass-nav--pill button {
+    position: relative;
+    z-index: 1;
+    transition: color 300ms ease, transform 150ms ease;
+}
+
+/* The pill marks the tab now, so the tab's own tint steps aside. */
+.edn-glass-nav.edn-glass-nav--pill [aria-current='page'],
+.dark .edn-glass-nav.edn-glass-nav--pill [aria-current='page'] {
+    background: transparent;
+}
+
+.edn-glass-nav i {
+    transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.edn-glass-nav [aria-current='page'] i,
+.edn-glass-nav .edn-glass-tab--going i {
+    transform: translateY(-1px) scale(1.08);
+}
+
+.edn-glass-nav .edn-glass-tab--going[aria-current='page'] i {
+    transform: none;
+}
+
+@keyframes edn-glass-tap {
+    0% { transform: scale(1); }
+    35% { transform: scale(0.8); }
+    70% { transform: translateY(-2px) scale(1.14); }
+    100% { transform: translateY(-1px) scale(1.08); }
+}
+
+@keyframes edn-glass-arrive {
+    0% { transform: translateY(2px) scale(0.92); }
+    60% { transform: translateY(-2px) scale(1.12); }
+    100% { transform: translateY(-1px) scale(1.08); }
+}
+
+.edn-glass-nav .edn-glass-tab--tap i {
+    animation: edn-glass-tap 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.edn-glass-nav .edn-glass-tab--arrive i {
+    animation: edn-glass-arrive 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Page to page: a short cross-fade instead of a flash, the bar held still. */
+@view-transition {
+    navigation: auto;
+}
+
+.edn-glass-nav {
+    view-transition-name: edn-glass-nav;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 220ms;
+}
+
+::view-transition-group(edn-glass-nav) {
+    animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .edn-glass-pill,
+    .edn-glass-nav i,
+    .edn-glass-nav--pill a,
+    .edn-glass-nav--pill button {
+        transition: none;
+    }
+
+    .edn-glass-nav .edn-glass-tab--tap i,
+    .edn-glass-nav .edn-glass-tab--arrive i {
+        animation: none;
+    }
+
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}
+
 .edn-portal-main img,
 .edn-portal-main video,
 .edn-portal-main canvas,
