@@ -118,6 +118,7 @@
         <input type="hidden" id="id-card-print-type" name="type">
         <input type="hidden" id="id-card-print-record" name="records[]">
         <input type="hidden" id="id-card-print-template" name="template">
+        <input type="hidden" name="autoprint" value="1">
     </form>
     <iframe name="id-card-print-frame" style="position: absolute; width: 0; height: 0; border: 0;" title="ID card print frame"></iframe>
 @endunless

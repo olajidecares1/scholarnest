@@ -31,12 +31,57 @@ class Student extends Model implements AuthenticatableContract, CanResetPassword
     use HasProtectedPhoto;
 
     /**
-     * A deleted record's admission number / Staff ID goes back in the pool
-     * and is given to the next one registered.
+     * Set only while correctingAdmissionNumber() runs.
+     */
+    private static bool $admissionNumberCorrection = false;
+
+    /**
+     * A student's admission number is their permanent identity at the
+     * school: their ID card, results, fees and sign-in all go by it. Once
+     * given, nothing changes it by the way: not a change of class, a
+     * promotion, an edit, an import or a teacher's correction of their
+     * details. Any change to it made through the model is put back.
+     *
+     * The two deliberate exceptions: a School Admin correcting a number they
+     * typed by hand (correctingAdmissionNumber(), from the student's edit
+     * form, recorded in identifier_changes and the activity log), and the
+     * School Code renumbering (IdentifierRegenerator), which writes to the
+     * table directly and keeps the old numbers traceable.
+     *
+     * A deleted record's admission number goes back in the pool and is given
+     * to the next one registered; any ID card issued to them is revoked.
      */
     protected static function booted(): void
     {
-        static::deleted(fn (self $record) => app(IdentifierGenerator::class)->release($record));
+        static::updating(function (self $record) {
+            if ($record->isDirty('admission_number') && ! self::$admissionNumberCorrection) {
+                $record->admission_number = $record->getOriginal('admission_number');
+            }
+        });
+
+        static::deleted(function (self $record) {
+            app(IdentifierGenerator::class)->release($record);
+            IssuedIdCard::revokeFor($record->school_id, $record->uuid);
+        });
+    }
+
+    /**
+     * Run $callback with the admission number open to a deliberate change.
+     *
+     * @template T
+     *
+     * @param  callable(): T  $callback
+     * @return T
+     */
+    public static function correctingAdmissionNumber(callable $callback): mixed
+    {
+        self::$admissionNumberCorrection = true;
+
+        try {
+            return $callback();
+        } finally {
+            self::$admissionNumberCorrection = false;
+        }
     }
 
     /**

@@ -560,6 +560,7 @@ Route::middleware('plan_feature:id-cards')->name('id-cards.')->group(function ()
     // The ID card template as it will be generated.
     Route::get(R::uri('id-cards.index').'/template', [TemplatePreviewController::class, 'idCard'])->name('template-preview');
     Route::get(R::uri('id-cards.preview').'/{type}/{record}', [IdCardController::class, 'preview'])->name('preview');
+    Route::post(R::uri('id-cards.generate'), [IdCardController::class, 'generate'])->name('generate');
     Route::post(R::uri('id-cards.print'), [IdCardController::class, 'print'])->name('print');
     Route::post(R::uri('id-cards.pdf'), [IdCardController::class, 'pdf'])->name('pdf');
 

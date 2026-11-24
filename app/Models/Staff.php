@@ -46,12 +46,57 @@ class Staff extends Model implements AuthenticatableContract, CanResetPasswordCo
     protected $table = 'staff';
 
     /**
-     * A deleted record's admission number / Staff ID goes back in the pool
-     * and is given to the next one registered.
+     * A staff member's Staff ID is their permanent identity at the school:
+     * their ID card, attendance and sign-in all go by it. Once given, nothing
+     * changes it by the way: editing their name, role, department or any
+     * other detail leaves it as it is, and any change to it made through the
+     * model is put back.
+     *
+     * The deliberate exceptions: a School Admin approving the staff member's
+     * own request to correct it (correctingStaffId(), from
+     * ProfileChangeRequest::approve, recorded in identifier_changes), and the
+     * School Code renumbering (IdentifierRegenerator), which writes to the
+     * table directly and keeps the old IDs traceable.
+     *
+     * A deleted record's Staff ID goes back in the pool and is given to the
+     * next one registered; any ID card issued to them is revoked.
      */
+    /**
+     * Set only while correctingStaffId() runs.
+     */
+    private static bool $staffIdCorrection = false;
+
+    /**
+     * Run $callback with the Staff ID open to a deliberate change.
+     *
+     * @template T
+     *
+     * @param  callable(): T  $callback
+     * @return T
+     */
+    public static function correctingStaffId(callable $callback): mixed
+    {
+        self::$staffIdCorrection = true;
+
+        try {
+            return $callback();
+        } finally {
+            self::$staffIdCorrection = false;
+        }
+    }
+
     protected static function booted(): void
     {
-        static::deleted(fn (self $record) => app(IdentifierGenerator::class)->release($record));
+        static::updating(function (self $record) {
+            if ($record->isDirty('staff_number') && ! self::$staffIdCorrection) {
+                $record->staff_number = $record->getOriginal('staff_number');
+            }
+        });
+
+        static::deleted(function (self $record) {
+            app(IdentifierGenerator::class)->release($record);
+            IssuedIdCard::revokeFor($record->school_id, $record->uuid);
+        });
     }
 
     /**

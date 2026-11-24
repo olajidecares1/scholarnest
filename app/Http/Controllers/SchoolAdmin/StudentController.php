@@ -207,10 +207,48 @@ class StudentController extends Controller
         $previousPhoto = $student->photo_path;
         $newPhoto = $this->storePhoto($request);
 
-        $student->update([
+        // The admission number is the student's permanent identity and the
+        // model keeps it as it is through any ordinary edit, a change of
+        // class included. The one change it accepts is this: a School Admin,
+        // at a school that numbers by hand, correcting the number itself.
+        // The old number is kept on record, so receipts and report cards
+        // printed under it stay traceable (and it still signs them in).
+        $oldNumber = (string) $student->admission_number;
+        $newNumber = isset($validated['admission_number']) ? trim((string) $validated['admission_number']) : $oldNumber;
+        $correcting = ! $autoGenerate && $newNumber !== '' && $newNumber !== $oldNumber;
+
+        if ($correcting) {
+            $validated['admission_number'] = $newNumber;
+        } else {
+            unset($validated['admission_number']);
+        }
+
+        $save = fn () => $student->update([
             ...Arr::except($validated, 'photo'),
             'photo_path' => $newPhoto ?: $student->photo_path,
         ]);
+
+        if ($correcting) {
+            Student::correctingAdmissionNumber($save);
+
+            IdentifierChange::create([
+                'school_id' => $student->school_id,
+                'type' => IdentifierGenerator::ADMISSION,
+                'holder_id' => $student->id,
+                'old_value' => $oldNumber,
+                'new_value' => $newNumber,
+                'batch' => (string) Str::uuid(),
+                'changed_by' => $request->user()->id,
+            ]);
+
+            AuditLog::record(
+                'student.admission-number-corrected',
+                "Admission number of {$student->fullName()} corrected from {$oldNumber} to {$newNumber}.",
+                $student,
+            );
+        } else {
+            $save();
+        }
 
         // The replaced photograph is removed once nothing points at it.
         if ($newPhoto && $previousPhoto && $previousPhoto !== $newPhoto) {

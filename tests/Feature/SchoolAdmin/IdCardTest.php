@@ -208,13 +208,20 @@ test('the ID card index page separates teaching and non-teaching staff', functio
     Staff::factory()->create(['school_id' => $admin->school_id, 'first_name' => 'Tunde', 'last_name' => 'Bello', 'role' => StaffRole::Teacher]);
     Staff::factory()->create(['school_id' => $admin->school_id, 'first_name' => 'Ngozi', 'last_name' => 'Eze', 'role' => StaffRole::SupportStaff]);
 
-    $response = $this->actingAs($admin)->get(route('id-cards.index'));
-
-    $response->assertStatus(200)
-        ->assertSee('Tunde Bello')
-        ->assertSee('Ngozi Eze')
+    $this->actingAs($admin)->get(route('id-cards.index'))
+        ->assertOk()
         ->assertSee('Teaching Staff')
         ->assertSee('Non-Teaching Staff');
+
+    $this->actingAs($admin)->get(route('id-cards.index', ['tab' => 'teaching']))
+        ->assertOk()
+        ->assertSee('Tunde Bello')
+        ->assertDontSee('Ngozi Eze');
+
+    $this->actingAs($admin)->get(route('id-cards.index', ['tab' => 'non_teaching']))
+        ->assertOk()
+        ->assertSee('Ngozi Eze')
+        ->assertDontSee('Tunde Bello');
 });
 
 test('a school admin cannot preview another school\'s student card', function () {

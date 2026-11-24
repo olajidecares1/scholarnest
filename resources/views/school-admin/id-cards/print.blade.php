@@ -14,11 +14,15 @@
     </head>
     <body class="p-8">
         <div class="no-print mb-6 flex items-center justify-between">
-            <p class="text-sm text-gray-600">{{ $cards->count() }} card(s) ready &mdash; front and back shown below. Use your browser's print dialog to print or "Save as PDF", or download a print-ready PDF directly.</p>
+            <div>
+                <p class="text-base font-bold text-gray-900">Preview: {{ $cards->count() }} ID card{{ $cards->count() === 1 ? '' : 's' }}</p>
+                <small class="block text-sm text-gray-600">Front and back of each card below. Check them, then print, or download a print-ready PDF.</small>
+            </div>
             <div class="flex gap-2">
                 <form method="POST" action="{{ route('id-cards.pdf') }}">
                     @csrf
                     <input type="hidden" name="type" value="{{ $cards->first()->holder_type->value }}">
+                    <input type="hidden" name="template" value="{{ $template ?? '' }}">
                     @foreach ($cards as $card)
                         <input type="hidden" name="records[]" value="{{ $card->holder_uuid }}">
                     @endforeach
@@ -41,10 +45,12 @@
             <p class="text-sm text-amber-700">No template available for this card type.</p>
         @endif
 
-        <script>
-            window.addEventListener('load', function () {
-                window.print();
-            });
-        </script>
+        @if ($autoprint ?? false)
+            <script>
+                window.addEventListener('load', function () {
+                    window.print();
+                });
+            </script>
+        @endif
     </body>
 </html>

@@ -94,41 +94,70 @@ class IssuedIdCard extends Model
         return route('id-verify.show', $this);
     }
 
+    /**
+     * The one ID card record for this person, issued now if they have none.
+     *
+     * One record per person, ever (unique on school + holder in the database
+     * too): generating again returns the same card, its number unchanged.
+     * A staff member who moved between teaching and non-teaching keeps their
+     * card, which takes their current type. A card that was revoked (lost,
+     * or its owner deleted) is reissued: a new card number and a new QR
+     * code, so the revoked card can never verify again.
+     */
     public static function issueFor(School $school, IdCardHolderType $type, Student|Staff $holder, ?IdCardTemplate $template, User $issuedBy): self
     {
         return DB::transaction(function () use ($school, $type, $holder, $template, $issuedBy) {
             $existing = self::where('school_id', $school->id)
-                ->where('holder_type', $type)
                 ->where('holder_uuid', $holder->uuid)
                 ->lockForUpdate()
                 ->first();
 
+            if ($existing && $existing->status === IssuedIdCardStatus::Revoked) {
+                [$serial, $number] = self::nextNumber($school, $type);
+
+                // forceFill: the uuid (the QR code's link) is not fillable.
+                $existing->forceFill([
+                    'uuid' => (string) Str::uuid(),
+                    'holder_type' => $type,
+                    'id_card_template_id' => $template?->id ?? $existing->id_card_template_id,
+                    'card_number' => $number,
+                    'serial_number' => $serial,
+                    'status' => IssuedIdCardStatus::Active,
+                    'issued_by' => $issuedBy->id,
+                    'issued_at' => now(),
+                    'expiry_date' => self::expiryDateFor($school),
+                    'revoked_at' => null,
+                ])->save();
+
+                return $existing;
+            }
+
             if ($existing) {
+                $changes = [];
+
+                if ($existing->holder_type !== $type) {
+                    $changes['holder_type'] = $type;
+                }
+
                 if ($template && $existing->id_card_template_id !== $template->id) {
-                    $existing->update(['id_card_template_id' => $template->id]);
+                    $changes['id_card_template_id'] = $template->id;
+                }
+
+                if ($changes !== []) {
+                    $existing->update($changes);
                 }
 
                 return $existing;
             }
 
-            $serial = (int) self::where('school_id', $school->id)
-                ->where('holder_type', $type)
-                ->lockForUpdate()
-                ->max('serial_number') + 1;
-
-            $schoolPrefix = Str::of($school->slug)->replace('-', '')->upper()->substr(0, 4);
-            $typePrefix = match ($type) {
-                IdCardHolderType::Student => 'STU',
-                IdCardHolderType::TeachingStaff => 'TST',
-                IdCardHolderType::NonTeachingStaff => 'NTS',
-            };
+            [$serial, $number] = self::nextNumber($school, $type);
 
             return self::create([
                 'school_id' => $school->id,
                 'holder_type' => $type,
                 'holder_uuid' => $holder->uuid,
                 'id_card_template_id' => $template?->id,
-                'card_number' => sprintf('%s-%s-%06d', $schoolPrefix, $typePrefix, $serial),
+                'card_number' => $number,
                 'serial_number' => $serial,
                 'status' => IssuedIdCardStatus::Active,
                 'issued_by' => $issuedBy->id,
@@ -136,6 +165,51 @@ class IssuedIdCard extends Model
                 'expiry_date' => self::expiryDateFor($school),
             ]);
         });
+    }
+
+    /**
+     * Revoke the card of a person whose record is gone (Student and Staff
+     * call this when deleted). The record stays, for the register.
+     */
+    public static function revokeFor(int $schoolId, ?string $holderUuid): void
+    {
+        if (! $holderUuid) {
+            return;
+        }
+
+        self::where('school_id', $schoolId)
+            ->where('holder_uuid', $holderUuid)
+            ->where('status', IssuedIdCardStatus::Active)
+            ->update(['status' => IssuedIdCardStatus::Revoked, 'revoked_at' => now()]);
+    }
+
+    /**
+     * The next serial and card number for this school and card type, e.g.
+     * GLOR-STU-000042. Card numbers are unique across the platform.
+     *
+     * @return array{0: int, 1: string}
+     */
+    private static function nextNumber(School $school, IdCardHolderType $type): array
+    {
+        $serial = (int) self::where('school_id', $school->id)
+            ->where('holder_type', $type)
+            ->lockForUpdate()
+            ->max('serial_number') + 1;
+
+        $schoolPrefix = Str::of($school->slug)->replace('-', '')->upper()->substr(0, 4);
+        $typePrefix = match ($type) {
+            IdCardHolderType::Student => 'STU',
+            IdCardHolderType::TeachingStaff => 'TST',
+            IdCardHolderType::NonTeachingStaff => 'NTS',
+        };
+
+        do {
+            $number = sprintf('%s-%s-%06d', $schoolPrefix, $typePrefix, $serial);
+            $taken = self::where('card_number', $number)->exists();
+            $serial += $taken ? 1 : 0;
+        } while ($taken);
+
+        return [$serial, $number];
     }
 
     /**
