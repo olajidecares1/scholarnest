@@ -8,7 +8,10 @@ use App\Models\ExaminationSubject;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\ClassReportCards;
+use App\Services\ClassReportCardsFailed;
 use App\Services\DefaultAcademicStructure;
+use App\Support\PdfImage;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -128,4 +131,59 @@ test('the Results page has a Select all button that works on a phone', function 
         ->assertOk()
         ->assertSee('Select all (3)')
         ->assertSee('picked = allPicked ? [] : [...all]', false);
+});
+
+test('when the class cannot be laid out as one document, every card still comes, in a zip', function () {
+    [, $admin, $examination] = classDownloadFixture(3);
+
+    // Laying the whole class out as one PDF fails.
+    $this->mock(ClassReportCards::class, function ($mock) {
+        $mock->makePartial();
+        $mock->shouldReceive('pdf')->andThrow(new RuntimeException('Frame not found in cellmap'));
+    });
+
+    $response = $this->actingAs($admin)->get(route('results.class-pdf', $examination))->assertOk();
+
+    expect($response->headers->get('content-type'))->toBe('application/zip')
+        ->and($response->headers->get('content-disposition'))->toContain('report-cards-JSS-3-First-Term-2026-2027.zip');
+
+    $path = tempnam(sys_get_temp_dir(), 'test');
+    file_put_contents($path, $response->getContent());
+    $zip = new ZipArchive;
+    $zip->open($path);
+
+    expect($zip->numFiles)->toBe(3)
+        ->and($zip->getNameIndex(0))->toEndWith('.pdf');
+
+    $zip->close();
+    unlink($path);
+});
+
+test('a card that cannot be made is named on the page, with the reason', function () {
+    [, $admin, $examination, $students] = classDownloadFixture(2);
+
+    $this->mock(ClassReportCards::class, function ($mock) use ($students) {
+        $mock->makePartial();
+        $mock->shouldReceive('download')->andThrow(new ClassReportCardsFailed([
+            ['name' => $students[0]->fullName(), 'reason' => 'Image type unknown'],
+        ]));
+    });
+
+    $this->actingAs($admin)
+        ->from(route('results.index'))
+        ->get(route('results.class-pdf', $examination))
+        ->assertRedirect(route('results.index'))
+        ->assertSessionHasErrors(['download' => 'These report cards could not be made: '.$students[0]->fullName().' (Image type unknown). Untick them to download the rest, and open one on its own to see it.']);
+});
+
+test('pictures for a PDF are kept in a real folder, never on a storage disk', function () {
+    $image = imagecreatetruecolor(1200, 900);
+    $source = tempnam(sys_get_temp_dir(), 'pic').'.jpg';
+    imagejpeg($image, $source);
+
+    $fitted = PdfImage::fit($source, 400);
+
+    expect($fitted)->toStartWith(storage_path('framework/cache/pdf-images'))
+        ->and(is_file($fitted))->toBeTrue()
+        ->and(getimagesize($fitted)[0])->toBe(400);
 });

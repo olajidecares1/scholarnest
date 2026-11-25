@@ -4,8 +4,12 @@ namespace App\Services;
 
 use App\Models\Examination;
 use App\Models\Student;
+use App\Support\DownloadName;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Throwable;
+use ZipArchive;
 
 /**
  * A whole class's report cards as ONE PDF, a card to a page, in the order
@@ -33,6 +37,71 @@ class ClassReportCards
         return Student::sortAlphabetically(
             ExaminationResultCalculator::summariesFor($examination)->map(fn (array $summary) => $summary['student']),
         )->values();
+    }
+
+    /**
+     * The class's report cards, ready to download.
+     *
+     * One PDF, a card to a page, when that can be made. If laying the whole
+     * class out as one document fails, each card is made on its own, exactly
+     * as a single pupil's download is, and they come back together in a zip
+     * so the School Admin still gets every card. Any card that cannot be made
+     * even on its own is named, with the reason (ClassReportCardsFailed).
+     *
+     * @param  Collection<int, Student>  $students
+     * @return array{type: 'pdf'|'zip', bytes: string}
+     */
+    public function download(Examination $examination, Collection $students): array
+    {
+        try {
+            return ['type' => 'pdf', 'bytes' => $this->pdf($examination, $students)];
+        } catch (Throwable $combined) {
+            report($combined);
+        }
+
+        $files = [];
+        $failures = [];
+
+        ReportCardData::remembering(function () use ($examination, $students, &$files, &$failures) {
+            $examination->loadMissing('school');
+
+            foreach ($students->values() as $index => $student) {
+                try {
+                    $files[sprintf('%02d-', $index + 1).DownloadName::pdf('report-card', $student->admission_number)] = Pdf::loadView('school-admin.results.pdf.report-card', ReportCardData::for($examination, $student))
+                        ->setPaper('a4')
+                        ->output();
+                } catch (Throwable $e) {
+                    report($e);
+                    $failures[] = ['name' => $student->fullName(), 'reason' => Str::limit($e->getMessage(), 140)];
+                }
+            }
+        });
+
+        if ($failures !== []) {
+            throw new ClassReportCardsFailed($failures);
+        }
+
+        return ['type' => 'zip', 'bytes' => $this->zip($files)];
+    }
+
+    /**
+     * @param  array<string, string>  $files
+     */
+    private function zip(array $files): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'cards');
+        $zip = new ZipArchive;
+        $zip->open($path, ZipArchive::OVERWRITE);
+
+        foreach ($files as $name => $bytes) {
+            $zip->addFromString($name, $bytes);
+        }
+
+        $zip->close();
+        $bytes = (string) file_get_contents($path);
+        @unlink($path);
+
+        return $bytes;
     }
 
     /**

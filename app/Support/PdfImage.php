@@ -2,7 +2,7 @@
 
 namespace App\Support;
 
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 /**
  * A picture made the right size for a PDF before dompdf sees it.
@@ -16,13 +16,15 @@ use Illuminate\Support\Facades\Storage;
  *
  * So each picture is scaled down to what the card can use, once, and the
  * small copy is kept (keyed by the picture's own contents, so a replaced
- * photo is never served stale). PNGs stay PNG so a crest or stamp keeps its
+ * photo is never served stale).
+ *
+ * Kept in a folder on THIS server, never on a Storage disk: on Laravel Cloud
+ * the "local" disk is a bucket, and dompdf can only read real files. The same
+ * place UploadStorage::localPath() keeps its working copies. PNGs stay PNG so a crest or stamp keeps its
  * transparency; everything else becomes a JPEG.
  */
 final class PdfImage
 {
-    private const DIRECTORY = 'pdf-images';
-
     /**
      * @var array<string, string|null>
      */
@@ -47,24 +49,28 @@ final class PdfImage
 
         $hash = sha1_file($absolutePath);
         $isPng = ($size[2] ?? null) === IMAGETYPE_PNG;
-        $relative = self::DIRECTORY.'/'.$hash.'-'.$maxEdge.($isPng ? '.png' : '.jpg');
-        $disk = Storage::disk('local');
+        $directory = storage_path('framework/cache/pdf-images');
+        $target = $directory.'/'.$hash.'-'.$maxEdge.($isPng ? '.png' : '.jpg');
 
-        if (array_key_exists($relative, self::$memo)) {
-            return self::$memo[$relative] ?? $absolutePath;
+        if (array_key_exists($target, self::$memo)) {
+            return self::$memo[$target] ?? $absolutePath;
         }
 
-        if (! $disk->exists($relative)) {
+        if (! is_file($target)) {
             $scaled = self::scaled($absolutePath, $size[0], $size[1], $maxEdge, $isPng);
 
             if ($scaled === null) {
-                return self::$memo[$relative] = $absolutePath;
+                return self::$memo[$target] = $absolutePath;
             }
 
-            $disk->put($relative, $scaled);
+            File::ensureDirectoryExists($directory);
+
+            if (@file_put_contents($target, $scaled) === false) {
+                return self::$memo[$target] = $absolutePath;
+            }
         }
 
-        return self::$memo[$relative] = $disk->path($relative);
+        return self::$memo[$target] = $target;
     }
 
     private static function scaled(string $path, int $width, int $height, int $maxEdge, bool $png): ?string

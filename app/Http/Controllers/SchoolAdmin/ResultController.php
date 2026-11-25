@@ -12,6 +12,7 @@ use App\Models\PrincipalRemark;
 use App\Models\Student;
 use App\Notifications\ResultAvailableNotification;
 use App\Services\ClassReportCards;
+use App\Services\ClassReportCardsFailed;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ReportCardData;
 use App\Services\ResultArchive;
@@ -22,6 +23,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -287,16 +289,29 @@ class ResultController extends Controller
         $name = DownloadName::pdf('report-cards', trim("{$examination->class_name} {$term} {$examination->session}"));
 
         try {
-            $pdf = $cards->pdf($examination, $students);
-        } catch (\Throwable $e) {
-            // Reported, and explained on the page, rather than a bare 500.
+            $file = $cards->download($examination, $students);
+        } catch (ClassReportCardsFailed $e) {
+            // Whose card could not be made, and why, so it can be looked at.
             report($e);
 
-            return back()->withErrors(['download' => "The report cards for {$examination->class_name} could not be put together just now. Try again, or tick fewer pupils and download them in two goes."]);
+            return back()->withErrors(['download' => 'These report cards could not be made: '
+                .collect($e->failures)->map(fn ($f) => "{$f['name']} ({$f['reason']})")->join('; ')
+                .'. Untick them to download the rest, and open one on its own to see it.']);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->withErrors(['download' => "The report cards for {$examination->class_name} could not be put together just now ("
+                .Str::limit($e->getMessage(), 140).'). Try again, or tick fewer pupils and download them in two goes.']);
         }
 
-        return response($pdf, 200, [
-            'Content-Type' => 'application/pdf',
+        if ($file['type'] === 'zip') {
+            // The cards could not be joined into one file, so each is its own
+            // PDF, together in a zip. On a phone it opens in the Files app.
+            $name = substr($name, 0, -4).'.zip';
+        }
+
+        return response($file['bytes'], 200, [
+            'Content-Type' => $file['type'] === 'zip' ? 'application/zip' : 'application/pdf',
             'Content-Disposition' => 'attachment; filename="'.$name.'"',
         ]);
     }
