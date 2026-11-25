@@ -168,6 +168,9 @@
                         <a href="{{ route('result-pins.details.history') }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                             <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Sending history
                         </a>
+                        <a href="{{ route('result-pins.details.broadcast', $examination->uuid) }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-green-300 px-3 py-2 text-xs font-semibold text-green-800 hover:bg-green-50 dark:border-green-800 dark:text-green-300 dark:hover:bg-green-900/20" data-tooltip="One message to every {{ $selectedClass }} parent at once, from your phone">
+                            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i> WhatsApp broadcast
+                        </a>
                         <div x-show="picked.length > 0" x-cloak>
                             <x-send-result-details :action="route('result-pins.details.preview')" label="Send to selected parents">
                                 <input type="hidden" name="examination" value="{{ $examination->uuid }}">

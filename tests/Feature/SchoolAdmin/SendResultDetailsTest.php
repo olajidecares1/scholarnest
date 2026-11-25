@@ -26,6 +26,7 @@ use App\Services\WhatsApp\SchoolWhatsAppVerifier;
 use App\Services\WhatsApp\WhatsAppGateway;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -817,4 +818,68 @@ test('the sending history says why messages did not go, and what to do about eac
         ->assertSee('Send them from your phone with Send to all on WhatsApp.')
         ->assertSee('Add contact')
         ->assertSee(route('students.show', $this->noContact), false);
+});
+
+// ---------------------------------------------------------------------------
+// One WhatsApp broadcast for a class
+// ---------------------------------------------------------------------------
+
+test('the broadcast page gives one message for every parent, with no token in it', function () {
+    $this->actingAs($this->admin)->get(route('results.index', ['class' => 'JSS 1', 'session' => '2026/2027', 'term' => 'first']))
+        ->assertSee(route('result-pins.details.broadcast', $this->exam->uuid), false);
+
+    $page = $this->actingAs($this->admin)->get(route('result-pins.details.broadcast', $this->exam->uuid))
+        ->assertOk()
+        ->assertSee('Send this message to the broadcast list')
+        ->assertSee(str_replace('/', '\\/', $this->school->resultLinkUrl()), false)
+        ->getContent();
+
+    foreach (ResultCheckingPin::query()->where('school_id', $this->school->id)->get() as $pin) {
+        expect($page)->not->toContain((string) $pin->plainToken());
+    }
+});
+
+test('the parents\' numbers download as one contacts file, each number once', function () {
+    $this->ben->update(['guardian_phone' => '08031234567']); // Ada's parent's number too: one contact
+
+    $response = $this->actingAs($this->admin)->get(route('result-pins.details.broadcast.contacts', $this->exam->uuid))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'text/vcard; charset=utf-8');
+
+    $vcf = $response->getContent();
+
+    expect(substr_count($vcf, 'BEGIN:VCARD'))->toBe(1)
+        ->and($vcf)->toContain('TEL;TYPE=CELL:+2348031234567')
+        ->and($vcf)->toContain($this->ada->fullName())
+        ->and($vcf)->toContain($this->ben->fullName());
+});
+
+test('with parent accounts, each pupil\'s token goes to their own parents\' portal, never twice', function () {
+    // Real notifications: what lands in each portal is the point.
+    Notification::swap(new ChannelManager(app()));
+    config(['mail.default' => 'array']);
+
+    activateSchool($this->school, PlanKey::Standard);
+    $mum = Guardian::factory()->create(['school_id' => $this->school->id, 'name' => 'Mrs Obi']);
+    $mum->students()->attach($this->ada);
+    $benDad = Guardian::factory()->create(['school_id' => $this->school->id, 'name' => 'Mr Eze']);
+    $benDad->students()->attach($this->ben);
+
+    $this->actingAs($this->admin)->get(route('result-pins.details.broadcast', $this->exam->uuid))
+        ->assertSee('Post tokens to portals')
+        ->assertSee('Sign in to the parent portal');
+
+    $this->actingAs($this->admin)->post(route('result-pins.details.broadcast.portals', $this->exam->uuid))
+        ->assertRedirect(route('result-pins.details.broadcast', $this->exam->uuid));
+
+    $adaToken = ResultCheckingPin::where('bound_student_id', $this->ada->id)->latest('id')->first()->plainToken();
+    $benToken = ResultCheckingPin::where('bound_student_id', $this->ben->id)->latest('id')->first()->plainToken();
+
+    // Each parent has only their own child's token.
+    expect($mum->notifications()->pluck('data')->pluck('token')->all())->toBe([$adaToken])
+        ->and($benDad->notifications()->pluck('data')->pluck('token')->all())->toBe([$benToken]);
+
+    // Again: nothing is sent twice.
+    $this->actingAs($this->admin)->post(route('result-pins.details.broadcast.portals', $this->exam->uuid));
+    expect($mum->notifications()->count())->toBe(1)->and($benDad->notifications()->count())->toBe(1);
 });
