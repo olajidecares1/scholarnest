@@ -22,8 +22,11 @@ use App\Services\ResultDetails\GuardianContacts;
 use App\Services\ResultDetails\ResultDetailsSender;
 use App\Services\ResultRepository;
 use App\Services\ResultTokenIssuer;
+use App\Services\WhatsApp\SchoolWhatsAppVerifier;
+use App\Services\WhatsApp\WhatsAppGateway;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
@@ -503,4 +506,229 @@ test('another school\'s message cannot be opened for sending by hand', function 
     activateSchool($otherSchool);
 
     $this->actingAs($otherAdmin)->post(route('result-pins.details.whatsapp', $whatsApp))->assertForbidden();
+});
+
+// ---------------------------------------------------------------------------
+// The school's own registered WhatsApp Business number
+// ---------------------------------------------------------------------------
+
+function connectSchoolWhatsApp(object $test): void
+{
+    // Meta: a GET checks the number, a POST sends a message.
+    Http::fake(['graph.facebook.com/*' => fn ($request) => $request->method() === 'GET'
+        ? Http::response(['display_phone_number' => '+234 814 127 9663', 'verified_name' => 'Glory Academy', 'id' => '555000111'])
+        : Http::response(['messages' => [['id' => 'wamid.SCHOOL']]])]);
+
+    $test->actingAs($test->admin)->put(route('settings.whatsapp.update'), [
+        'phone_number_id' => '555000111',
+        'access_token' => 'EAAG-school-own-token-0123456789',
+        'result_template' => 'school_results',
+        'template_language' => 'en',
+    ])->assertRedirect(route('settings.whatsapp'));
+}
+
+test('a school connects its own WhatsApp number, checked with Meta first, the token kept encrypted', function () {
+    connectSchoolWhatsApp($this);
+
+    $account = $this->school->fresh()->whatsAppAccount;
+
+    expect($account->display_number)->toBe('+234 814 127 9663')
+        ->and($account->access_token)->toBe('EAAG-school-own-token-0123456789')
+        ->and(DB::table('school_whatsapp_accounts')->value('access_token'))->not->toContain('EAAG');
+
+    Http::assertSent(fn ($request) => $request->method() === 'GET'
+        && str_contains($request->url(), '/555000111')
+        && $request->hasHeader('Authorization', 'Bearer EAAG-school-own-token-0123456789'));
+
+    $this->actingAs($this->admin)->get(route('settings.whatsapp'))
+        ->assertOk()
+        ->assertSee('Result details go out from +234 814 127 9663 (Glory Academy)')
+        ->assertDontSee('EAAG-school-own-token-0123456789');
+});
+
+test('details Meta does not accept are not saved', function () {
+    Http::fake(['graph.facebook.com/*' => Http::response(['error' => ['message' => 'Invalid OAuth access token.']], 401)]);
+
+    $this->actingAs($this->admin)->put(route('settings.whatsapp.update'), [
+        'phone_number_id' => '555000111',
+        'access_token' => 'EAAG-wrong-token-0123456789-xyz',
+        'result_template' => 'school_results',
+        'template_language' => 'en',
+    ])->assertSessionHasErrors(['access_token']);
+
+    expect($this->school->fresh()->whatsAppAccount)->toBeNull();
+});
+
+test('result details go from the school\'s own number, with its own template, automatically', function () {
+    // No platform number at all: only the school's.
+    config(['services.whatsapp.token' => null, 'services.whatsapp.phone_number_id' => null]);
+    connectSchoolWhatsApp($this);
+
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'whatsapp', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
+    ]);
+
+    $row = ResultDetailDelivery::where('student_id', $this->ada->id)->sole();
+
+    expect($row->status)->toBe(ResultDeliveryStatus::Sent)
+        ->and($row->provider_message_id)->toBe('wamid.SCHOOL');
+
+    Http::assertSent(fn ($request) => str_contains($request->url(), '/555000111/messages')
+        && $request->hasHeader('Authorization', 'Bearer EAAG-school-own-token-0123456789')
+        && $request['to'] === '2348031234567'
+        && $request['template']['name'] === 'school_results'
+        && in_array('AKN/001', array_column($request['template']['components'][0]['parameters'], 'text'), true));
+});
+
+test('one school\'s WhatsApp number never sends for another school', function () {
+    config(['services.whatsapp.token' => null, 'services.whatsapp.phone_number_id' => null]);
+    connectSchoolWhatsApp($this);
+
+    $other = activateSchool(School::factory()->create(['result_link_enabled' => true]), PlanKey::Basic);
+
+    expect(app(WhatsAppGateway::class)->forSchool($other)->isConfigured())->toBeFalse()
+        ->and(app(WhatsAppGateway::class)->forSchool($this->school->fresh())->isConfigured())->toBeTrue();
+});
+
+test('the School Admin can send themselves a test message, and disconnect', function () {
+    connectSchoolWhatsApp($this);
+
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.test'), ['test_phone' => '0803 123 4567'])
+        ->assertSessionHas('status', 'Test message sent to +2348031234567. Check that phone.');
+
+    $this->actingAs($this->admin)->delete(route('settings.whatsapp.destroy'))->assertRedirect(route('settings.whatsapp'));
+
+    expect($this->school->fresh()->whatsAppAccount)->toBeNull();
+});
+
+// ---------------------------------------------------------------------------
+// The school's WhatsApp number, ordinary or Business, verified by a code
+// ---------------------------------------------------------------------------
+
+/** Fake Meta, keeping each code sent so the test can type it back. */
+function fakeCodeSending(object $test, int $status = 200): void
+{
+    config(['services.whatsapp.verify_template' => 'verify_code']);
+    $test->sentCodes = [];
+
+    Http::fake(['graph.facebook.com/*' => function ($request) use ($test, $status) {
+        if (($request['template']['name'] ?? null) === 'verify_code') {
+            $test->sentCodes[] = $request['template']['components'][0]['parameters'][0]['text'];
+        }
+
+        return $status === 200
+            ? Http::response(['messages' => [['id' => 'wamid.CODE'.count($test->sentCodes)]]])
+            : Http::response(['error' => ['message' => 'Invalid parameter']], $status);
+    }]);
+}
+
+test('a school verifies its WhatsApp number, ordinary or Business, by a code sent to it on WhatsApp', function () {
+    fakeCodeSending($this);
+
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.number.code'), ['whatsapp_number' => '0803 123 4567'])
+        ->assertRedirect(route('settings.whatsapp'))
+        ->assertSessionHas('status', 'We sent a 6-digit code to +234 803 123 4567 on WhatsApp. Type it below.');
+
+    expect($this->sentCodes)->toHaveCount(1)->and($this->sentCodes[0])->toMatch('/^\d{6}$/');
+
+    Http::assertSent(fn ($request) => $request['to'] === '2348031234567'
+        && $request['template']['name'] === 'verify_code'
+        && $request['template']['components'][1]['parameters'][0]['text'] === $this->sentCodes[0]);
+
+    $this->actingAs($this->admin)->get(route('settings.whatsapp'))
+        ->assertOk()
+        ->assertSee('Enter the 6-digit code sent to +234 803 123 4567 on WhatsApp')
+        ->assertDontSee($this->sentCodes[0]);
+
+    $wrong = $this->sentCodes[0] === '111111' ? '222222' : '111111';
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.number.verify'), ['code' => $wrong])
+        ->assertSessionHasErrors(['code' => 'That code is not right. 4 tries left.']);
+    expect($this->school->fresh()->verifiedWhatsApp())->toBeNull();
+
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.number.verify'), ['code' => $this->sentCodes[0]])
+        ->assertRedirect(route('settings.whatsapp'))
+        ->assertSessionHasNoErrors();
+
+    $school = $this->school->fresh();
+    expect($school->verifiedWhatsApp())->toBe('2348031234567')
+        ->and($school->whatsapp_number)->toBe('+234 803 123 4567');
+
+    $this->actingAs($this->admin)->get(route('settings.whatsapp'))->assertSee('Verified: +234 803 123 4567');
+
+    // Changing the number afterwards leaves it unverified until it is checked again.
+    $school->update(['whatsapp_number' => '0809 999 0000']);
+    expect($school->fresh()->verifiedWhatsApp())->toBeNull();
+});
+
+test('five wrong codes and a new one is needed', function () {
+    fakeCodeSending($this);
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.number.code'), ['whatsapp_number' => '08031234567']);
+    $wrong = $this->sentCodes[0] === '111111' ? '222222' : '111111';
+
+    foreach (range(1, 5) as $ignored) {
+        $this->actingAs($this->admin)->post(route('settings.whatsapp.number.verify'), ['code' => $wrong]);
+    }
+
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.number.verify'), ['code' => $this->sentCodes[0]])
+        ->assertSessionHasErrors(['code' => 'Too many wrong codes. Send a new one.']);
+
+    expect($this->school->fresh()->verifiedWhatsApp())->toBeNull();
+});
+
+test('a number that is not a whole number, or a code WhatsApp refuses, is reported', function () {
+    fakeCodeSending($this, 400);
+
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.number.code'), ['whatsapp_number' => '0803'])
+        ->assertSessionHasErrors('whatsapp_number');
+
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.number.code'), ['whatsapp_number' => '08031234567'])
+        ->assertSessionHasErrors(['whatsapp_number' => 'The code could not be sent to +234 803 123 4567: Invalid parameter']);
+});
+
+test('a code WhatsApp could not deliver says the number may not be on WhatsApp', function () {
+    fakeCodeSending($this);
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.number.code'), ['whatsapp_number' => '08031234567']);
+
+    app(SchoolWhatsAppVerifier::class)->receipt('wamid.CODE1', 'failed', 'Message undeliverable');
+
+    $this->actingAs($this->admin)->get(route('settings.whatsapp'))
+        ->assertSee('WhatsApp could not deliver the code (Message undeliverable). Check that this number is registered on WhatsApp', false);
+});
+
+test('without AkademicNest\'s verification template, the page says verification is not switched on', function () {
+    config(['services.whatsapp.verify_template' => null]);
+
+    $this->actingAs($this->admin)->get(route('settings.whatsapp'))
+        ->assertSee('WhatsApp verification is not switched on for AkademicNest yet');
+
+    $this->actingAs($this->admin)->post(route('settings.whatsapp.number.code'), ['whatsapp_number' => '08031234567'])
+        ->assertSessionHasErrors('whatsapp_number');
+});
+
+test('parents\' result messages carry the school\'s verified WhatsApp number', function () {
+    $this->school->forceFill([
+        'whatsapp_number' => '0814 127 9663',
+        'whatsapp_verified_number' => '2348141279663',
+        'whatsapp_verified_at' => now(),
+    ])->save();
+    fakeWhatsApp();
+
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'whatsapp', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
+    ]);
+
+    Http::assertSent(fn ($request) => $request['to'] === '2348031234567'
+        && in_array($this->school->name.' (WhatsApp +234 814 127 9663)', array_column($request['template']['components'][0]['parameters'], 'text'), true));
+});
+
+test('an unverified school number is never put on a parent\'s message', function () {
+    $this->school->forceFill(['whatsapp_number' => '0814 127 9663'])->save();
+    fakeWhatsApp();
+
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'whatsapp', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
+    ]);
+
+    Http::assertSent(fn ($request) => in_array((string) $this->school->name, array_column($request['template']['components'][0]['parameters'], 'text'), true));
+    Http::assertNotSent(fn ($request) => str_contains(json_encode($request->data()), '9663'));
 });

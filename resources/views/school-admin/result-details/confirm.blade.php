@@ -46,8 +46,9 @@
 
         @if (in_array(\App\Enums\ResultDeliveryChannel::WhatsApp, $channels, true) && ! $whatsAppReady)
             <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
-                WhatsApp is not connected for automatic sending on this server. Emails go automatically; for WhatsApp, the
-                sending history gives a <strong>Send on WhatsApp</strong> button for each parent that opens their chat with the message already typed.
+                Automatic WhatsApp sending is not switched on yet, so WhatsApp will not send by itself. Emails go automatically; for WhatsApp, the
+                sending history gives a <strong>Send on WhatsApp</strong> button for each parent, with the message already typed.
+                <a href="{{ route('settings.whatsapp') }}" class="font-semibold underline">WhatsApp settings</a>
             </div>
         @endif
 

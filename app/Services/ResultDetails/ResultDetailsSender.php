@@ -403,15 +403,23 @@ class ResultDetailsSender
             $student = $row->student;
             $school = $student->school;
 
+            // From the school's own WhatsApp Business number when it has
+            // connected one, else the platform's. Either way, the school's
+            // verified WhatsApp number goes in the message so parents can
+            // reach the school; not when the message already comes from it.
+            $gateway = $this->whatsApp->forSchool($school);
+            $isEmail = $row->channel === ResultDeliveryChannel::Email;
+
             $notification = new ResultDetailsNotification(
                 $student,
                 $token->examination,
                 (string) $token->plainToken(),
                 $school->resultLinkUrl(),
                 (string) ($row->recipient_name ?: 'Parent/Guardian'),
+                $isEmail || ! $gateway->fromSchoolNumber() ? $school->verifiedWhatsApp() : null,
             );
 
-            if ($row->channel === ResultDeliveryChannel::Email) {
+            if ($isEmail) {
                 $email = $this->mailer->send($row->recipient, $notification, 'result-details', $token, $school->id);
 
                 $email->status === EmailDelivery::SENT
@@ -422,11 +430,11 @@ class ResultDetailsSender
             }
 
             $message = $notification->forWhatsApp();
-            $whatsApp = $this->whatsApp->send(
+            $whatsApp = $gateway->send(
                 (string) $row->recipient,
                 $message['text'],
                 $message['values'],
-                config('services.whatsapp.result_template') ?: null,
+                $gateway->resultTemplate(),
             );
 
             $whatsApp->sent
@@ -538,7 +546,7 @@ class ResultDetailsSender
             return 'Your result-checking link is switched off. Switch it back on under Generate Exam Token, then retry.';
         }
 
-        if ($needsGateway && $row->channel === ResultDeliveryChannel::WhatsApp && ! $this->whatsApp->isConfigured()) {
+        if ($needsGateway && $row->channel === ResultDeliveryChannel::WhatsApp && ! $this->whatsApp->forSchool($student->school)->isConfigured()) {
             return 'WhatsApp sending is not set up on this server yet, so this message was not sent automatically. Use Send on WhatsApp to send it yourself.';
         }
 

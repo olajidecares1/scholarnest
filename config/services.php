@@ -73,6 +73,15 @@ return [
         'result_template' => env('WHATSAPP_RESULT_TEMPLATE'),
 
         /*
+         * Verifying a school's WhatsApp number (Settings > WhatsApp): a
+         * 6-digit code is sent to it from the platform's number and typed
+         * back. An approved "Authentication" template with a "Copy code"
+         * button; Meta writes its wording ("{{1}} is your verification code").
+         */
+        'verify_template' => env('WHATSAPP_VERIFY_TEMPLATE'),
+        'verify_template_language' => env('WHATSAPP_VERIFY_TEMPLATE_LANGUAGE', 'en'),
+
+        /*
          * Delivery receipts. Point the WhatsApp app's webhook at
          * https://your-domain/api/webhooks/whatsapp, with this verify token,
          * and subscribe to "messages". The app secret proves each receipt

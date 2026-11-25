@@ -54,6 +54,7 @@ use App\Http\Controllers\SchoolAdmin\TestimonialController;
 use App\Http\Controllers\SchoolAdmin\TimetableController;
 use App\Http\Controllers\SchoolAdmin\TransportController;
 use App\Http\Controllers\SchoolAdmin\WebsiteController;
+use App\Http\Controllers\SchoolAdmin\WhatsAppBusinessController;
 use App\Support\SecureRoute as R;
 use Illuminate\Support\Facades\Route;
 
@@ -617,6 +618,17 @@ Route::name('misconduct-reports.')->group(function () {
 });
 
 Route::get(R::uri('settings.index'), [SchoolSettingsController::class, 'edit'])->name('settings.index');
+
+// Settings > WhatsApp Business: the school's own registered WhatsApp number,
+// from which result details go to its parents automatically.
+Route::get(R::uri('settings.whatsapp'), [WhatsAppBusinessController::class, 'show'])->name('settings.whatsapp');
+Route::put(R::uri('settings.whatsapp'), [WhatsAppBusinessController::class, 'update'])->middleware('throttle:20,1')->name('settings.whatsapp.update');
+Route::post(R::uri('settings.whatsapp.test'), [WhatsAppBusinessController::class, 'test'])->middleware('throttle:10,1')->name('settings.whatsapp.test');
+Route::delete(R::uri('settings.whatsapp'), [WhatsAppBusinessController::class, 'destroy'])->name('settings.whatsapp.destroy');
+// The school's WhatsApp number, ordinary or Business, verified by a code.
+Route::post(R::uri('settings.whatsapp.number.code'), [WhatsAppBusinessController::class, 'sendNumberCode'])->middleware('throttle:6,1')->name('settings.whatsapp.number.code');
+Route::post(R::uri('settings.whatsapp.number.verify'), [WhatsAppBusinessController::class, 'verifyNumber'])->middleware('throttle:15,1')->name('settings.whatsapp.number.verify');
+Route::delete(R::uri('settings.whatsapp.number.code'), [WhatsAppBusinessController::class, 'cancelNumberCode'])->name('settings.whatsapp.number.cancel');
 Route::put(R::uri('settings.update'), [SchoolSettingsController::class, 'update'])->name('settings.update');
 
 // Regenerating admission numbers and Staff IDs after the School Code is set

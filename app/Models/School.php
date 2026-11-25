@@ -15,6 +15,7 @@ use App\Support\PrincipalSignature;
 use App\Support\SchoolAddress;
 use App\Support\TenantUrl;
 use App\Support\WebsiteBlockDefaults;
+use App\Support\WhatsAppNumber;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -290,6 +291,7 @@ class School extends Model
     {
         return [
             'is_active' => 'boolean',
+            'whatsapp_verified_at' => 'datetime',
             'deactivated_at' => 'datetime',
             'automatic_grading' => 'boolean',
             'cumulative_results_enabled' => 'boolean',
@@ -1133,6 +1135,30 @@ class School extends Model
     /**
      * @return HasOne<SchoolWebsite, $this>
      */
+    /**
+     * The school's WhatsApp number in international digits (2348031234567),
+     * but only once it has been verified: a code sent to it on WhatsApp was
+     * typed back. Null when there is no number, or it changed since.
+     */
+    public function verifiedWhatsApp(): ?string
+    {
+        $digits = WhatsAppNumber::digits($this->whatsapp_number);
+
+        return $digits !== null && $this->whatsapp_verified_at !== null && $digits === $this->whatsapp_verified_number
+            ? $digits
+            : null;
+    }
+
+    /**
+     * The school's own registered WhatsApp Business number, if connected.
+     *
+     * @return HasOne<SchoolWhatsAppAccount, $this>
+     */
+    public function whatsAppAccount(): HasOne
+    {
+        return $this->hasOne(SchoolWhatsAppAccount::class);
+    }
+
     public function website(): HasOne
     {
         return $this->hasOne(SchoolWebsite::class);

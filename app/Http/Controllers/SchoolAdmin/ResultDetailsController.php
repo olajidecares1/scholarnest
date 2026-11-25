@@ -81,7 +81,7 @@ class ResultDetailsController extends Controller
             'toIssue' => $selection['toIssue'],
             'unusable' => $selection['unusable'],
             'inputs' => $this->carried($request),
-            'whatsAppReady' => app(WhatsAppGateway::class)->isConfigured(),
+            'whatsAppReady' => app(WhatsAppGateway::class)->forSchool($request->user()->school)->isConfigured(),
             'back' => url()->previous(),
         ]);
     }
@@ -213,7 +213,7 @@ class ResultDetailsController extends Controller
             'filters' => $filters,
             'statuses' => ResultDeliveryStatus::cases(),
             'channels' => ResultDeliveryChannel::cases(),
-            'whatsAppReady' => app(WhatsAppGateway::class)->isConfigured(),
+            'whatsAppReady' => app(WhatsAppGateway::class)->forSchool($request->user()->school)->isConfigured(),
         ]);
     }
 

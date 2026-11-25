@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Examination;
 use App\Models\Student;
+use App\Support\WhatsAppNumber;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -33,6 +34,9 @@ class ResultDetailsNotification extends Notification
         public string $token,
         public string $resultLink,
         public string $recipientName,
+        // The school's verified WhatsApp number (international digits), so
+        // parents can reach the school there; null to leave it out.
+        public ?string $schoolWhatsApp = null,
     ) {}
 
     /**
@@ -58,6 +62,9 @@ class ResultDetailsNotification extends Notification
             ->action('Check the result', $this->resultLink)
             ->line('Open the link above and enter the result token to view the result.')
             ->line('This token opens this one result only. Please keep it private and do not share it.')
+            ->when($this->schoolWhatsApp !== null, fn (MailMessage $mail) => $mail->line(
+                'Questions? Chat with the school on WhatsApp: ['.WhatsAppNumber::display((string) $this->schoolWhatsApp).']('.WhatsAppNumber::link((string) $this->schoolWhatsApp).')'
+            ))
             ->salutation("Regards,\n{$school->name}");
     }
 
@@ -71,18 +78,25 @@ class ResultDetailsNotification extends Notification
         $school = $this->student->school;
         $period = "{$this->examination->term->label()} {$this->examination->session}";
 
+        // The template has no blank of its own for the school's WhatsApp, so
+        // it rides with the name: "Glory Academy (WhatsApp +234 803 123 4567)".
+        $schoolName = $this->schoolWhatsApp !== null
+            ? "{$school->name} (WhatsApp ".WhatsAppNumber::display($this->schoolWhatsApp).')'
+            : (string) $school->name;
+
         return [
             'text' => "Dear {$this->recipientName},\n\n"
-                ."{$school->name} has released {$this->student->fullName()}'s {$period} result.\n\n"
+                ."{$schoolName} has released {$this->student->fullName()}'s {$period} result.\n\n"
                 ."Admission number: {$this->student->admission_number}\n"
                 ."Result token: {$this->token}\n"
                 ."Check the result: {$this->resultLink}\n\n"
-                .'This token opens this one result only. Please keep it private.',
+                .'This token opens this one result only. Please keep it private.'
+                .($this->schoolWhatsApp !== null ? "\n\nChat with the school: ".WhatsAppNumber::link($this->schoolWhatsApp) : ''),
 
             // The order WHATSAPP_RESULT_TEMPLATE's {{1}}..{{7}} expect.
             'values' => [
                 $this->recipientName,
-                (string) $school->name,
+                $schoolName,
                 $this->student->fullName(),
                 $period,
                 (string) $this->student->admission_number,

@@ -6,6 +6,16 @@
             </div>
         @endif
 
+        {{-- The school's WhatsApp number, verified, its own page. --}}
+        <a href="{{ route('settings.whatsapp') }}" class="flex items-center gap-3 rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow dark:border-gray-700 dark:bg-gray-800">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white"><i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i></span>
+            <span class="min-w-0 flex-1">
+                <span class="block text-sm font-bold text-gray-900 dark:text-white">WhatsApp</span>
+                <span class="block text-xs text-gray-600 dark:text-gray-300">{{ ($verifiedWhatsApp = $school->verifiedWhatsApp()) ? 'Verified: '.\App\Support\WhatsAppNumber::display($verifiedWhatsApp) : 'Verify your school\'s WhatsApp number, so result details go to parents on WhatsApp automatically.' }}</span>
+            </span>
+            <i class="fa-solid fa-chevron-right text-xs text-gray-400" aria-hidden="true"></i>
+        </a>
+
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">School Profile</h2>
             <small class="field-hint mt-0.5">This information is used across your dashboard and public website.</small>
@@ -255,6 +265,11 @@
                     @if ($whatsappLink = \App\Support\SchoolSocialLinks::whatsappUrl($school->whatsapp_number))
                         <small class="field-hint mt-2">
                             Your WhatsApp number links to <span class="font-semibold">{{ $whatsappLink }}</span>.
+                            @if ($school->verifiedWhatsApp())
+                                <span class="font-semibold text-green-700 dark:text-green-400"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Verified</span>
+                            @else
+                                <a href="{{ route('settings.whatsapp') }}" class="font-semibold text-primary-700 underline dark:text-primary-300">Verify it</a>
+                            @endif
                         </small>
                     @endif
                 </div>

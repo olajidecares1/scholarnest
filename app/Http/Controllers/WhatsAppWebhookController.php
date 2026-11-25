@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ResultDetails\ResultDetailsSender;
+use App\Services\WhatsApp\SchoolWhatsAppVerifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -37,7 +38,7 @@ class WhatsAppWebhookController extends Controller
         return response((string) $request->query('hub_challenge'), 200, ['Content-Type' => 'text/plain']);
     }
 
-    public function receive(Request $request, ResultDetailsSender $sender): JsonResponse
+    public function receive(Request $request, ResultDetailsSender $sender, SchoolWhatsAppVerifier $verifier): JsonResponse
     {
         $secret = (string) config('services.whatsapp.app_secret');
         $signature = (string) $request->header('X-Hub-Signature-256');
@@ -57,6 +58,9 @@ class WhatsAppWebhookController extends Controller
                         : null;
 
                     $sender->receipt((string) $status['id'], (string) $status['status'], $reason ?: null);
+
+                    // Or a code sent to verify a school's WhatsApp number.
+                    $verifier->receipt((string) $status['id'], (string) $status['status'], $reason ?: null);
                 }
             }
         }

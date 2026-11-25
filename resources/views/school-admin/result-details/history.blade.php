@@ -33,7 +33,7 @@
         @unless ($whatsAppReady)
             <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
                 <i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i>
-                WhatsApp is not connected for automatic sending on this server, so WhatsApp messages are not sent by themselves.
+                Automatic WhatsApp sending is not switched on yet (<a href="{{ route('settings.whatsapp') }}" class="font-semibold underline">WhatsApp settings</a>), so WhatsApp messages are not sent by themselves.
                 Tap <strong>Send on WhatsApp</strong> beside each parent: WhatsApp opens at their chat with their child&rsquo;s admission number,
                 result token and link already typed; just press send. Emails go automatically.
             </div>
