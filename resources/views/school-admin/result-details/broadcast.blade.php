@@ -45,9 +45,21 @@
             </div>
             <ul class="mt-4 space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
                 <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>Each parent gets <strong>only their own child's</strong> name, admission number, exam token and result link.</li>
-                <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>Numbers come from each pupil's own record. Pupils with no token are given one first.</li>
+                <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>Numbers come from each pupil's own record. Only tokens you generated under Exam Tokens are sent.</li>
                 <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>The link opens the result straight away: no portal, nothing to type.</li>
             </ul>
+
+            @if ($noToken->isNotEmpty())
+                <div class="mt-3 rounded-[8px] border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-300">
+                    <p class="font-semibold">{{ $noToken->count() }} {{ Str::plural('pupil', $noToken->count()) }} left out: no exam token they can use</p>
+                    <ul class="mt-1 space-y-0.5 text-xs">
+                        @foreach ($noToken as $pupil)
+                            <li>{{ $pupil['name'] }} ({{ $pupil['reason'] }})</li>
+                        @endforeach
+                    </ul>
+                    <a href="{{ route('result-pins.index') }}" class="mt-2 inline-block text-xs font-semibold underline">Generate tokens under Exam Tokens</a>, then come back.
+                </div>
+            @endif
 
             @if ($missing->isNotEmpty())
                 <details class="mt-3 text-sm">

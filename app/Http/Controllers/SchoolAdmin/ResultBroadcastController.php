@@ -10,9 +10,9 @@ use App\Models\Student;
 use App\Notifications\ResultDetailsNotification;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ResultDetails\GuardianContacts;
+use App\Services\ResultDetails\ResultDetailsSender;
 use App\Services\WhatsApp\WhatsAppGateway;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
@@ -22,16 +22,20 @@ use Illuminate\View\View;
  * directly). No portal.
  *
  * This page is the summary before the one action. The send itself is
- * ResultDetailsController::send (channel WhatsApp), which issues any missing
- * token first, takes each parent's number from the pupil's own record, and
+ * ResultDetailsController::send (channel WhatsApp), which takes each
+ * parent's number from the pupil's own record, and
  * sends every message on its own: automatically when WhatsApp sending is
  * switched on, otherwise one tap per parent from the school's phone.
+ *
+ * Tokens are the School Admin's to generate, under Exam Tokens: a pupil
+ * without one they can use is listed here and left out, never given one.
  */
 class ResultBroadcastController extends Controller
 {
     public function __construct(
         private readonly GuardianContacts $contacts,
         private readonly WhatsAppGateway $whatsApp,
+        private readonly ResultDetailsSender $sender,
     ) {}
 
     public function show(Request $request, string $examination): View
@@ -49,11 +53,15 @@ class ResultBroadcastController extends Controller
             ? ExaminationResultCalculator::rosterFor($exam)
             : $school->students()->whereIn('uuid', $chosen)->orderBy('first_name')->get();
 
+        // Only tokens the School Admin generated: nothing is made here.
+        $tokens = $this->sender->tokensForResult($school, $exam, $students);
+        $withToken = $tokens['ready']->pluck('bound_student_id')->all();
+
         $numbers = $students->mapWithKeys(fn (Student $student) => [
             $student->id => collect($this->contacts->forChannel($student, ResultDeliveryChannel::WhatsApp)),
         ]);
 
-        $reachable = $students->filter(fn (Student $s) => $numbers[$s->id]->isNotEmpty());
+        $reachable = $students->filter(fn (Student $s) => $numbers[$s->id]->isNotEmpty() && in_array($s->id, $withToken, true));
 
         return view('school-admin.result-details.broadcast', [
             'school' => $school,
@@ -61,8 +69,9 @@ class ResultBroadcastController extends Controller
             'students' => $students,
             'chosen' => $chosen,
             'reachable' => $reachable->count(),
-            'messages' => $numbers->sum(fn (Collection $n) => $n->count()),
-            'missing' => $students->diff($reachable)->values(),
+            'messages' => $reachable->sum(fn (Student $s) => $numbers[$s->id]->count()),
+            'missing' => $students->filter(fn (Student $s) => $numbers[$s->id]->isEmpty())->values(),
+            'noToken' => $tokens['unusable'],
             'automatic' => $this->whatsApp->forSchool($school)->isConfigured(),
             'resultLinkLive' => $school->resultLinkIsLive(),
             'sample' => $this->sample($school, $exam, $reachable->first() ?? $students->first()),

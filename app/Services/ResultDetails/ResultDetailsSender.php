@@ -16,7 +16,6 @@ use App\Models\User;
 use App\Notifications\ResultDetailsNotification;
 use App\Services\Mail\TransactionalMailer;
 use App\Services\QueueWorkerHealth;
-use App\Services\ResultTokenIssuer;
 use App\Services\WhatsApp\WhatsAppGateway;
 use App\Support\DirectResultLink;
 use Illuminate\Support\Collection;
@@ -54,7 +53,6 @@ class ResultDetailsSender
         private readonly GuardianContacts $contacts,
         private readonly TransactionalMailer $mailer,
         private readonly WhatsAppGateway $whatsApp,
-        private readonly ResultTokenIssuer $issuer,
         private readonly QueueWorkerHealth $queue,
     ) {}
 
@@ -100,19 +98,16 @@ class ResultDetailsSender
     /**
      * Each student's usable token for an examination, from the Results page.
      *
-     * A student with no token at all for it is listed in 'toIssue'; when
-     * $issue is true one is issued for them through the existing token
-     * system, so the School Admin does not have to go and issue it first.
-     * A student whose token has run out (used up, or past its expiry date) is
-     * given a fresh one the same way, before anything is sent. One whose token
-     * was revoked or suspended is NOT: that is usually the School Admin's own
-     * decision, so they are reported instead, to reissue deliberately if they
-     * mean to.
+     * TOKENS ARE NEVER MADE HERE. Generating a token is the School Admin's own
+     * act, under Exam Tokens: sending only ever uses a token they generated.
+     * A student with no token, or whose token is used up, expired, revoked
+     * or suspended, is reported by name with what to do, and left out; the
+     * rest are sent as usual.
      *
      * @param  Collection<int, Student>  $students
      * @return array{ready: Collection<int, ResultCheckingPin>, unusable: Collection<int, array{name: string, reason: string}>, toIssue: Collection<int, Student>}
      */
-    public function tokensForResult(School $school, Examination $examination, Collection $students, ?User $issuer = null): array
+    public function tokensForResult(School $school, Examination $examination, Collection $students): array
     {
         $tokens = ResultCheckingPin::query()
             ->forSchool($school)
@@ -125,43 +120,24 @@ class ResultDetailsSender
 
         $ready = collect();
         $unusable = collect();
-        $toIssue = collect();
 
         foreach ($students as $student) {
             $held = $tokens->get($student->id, collect());
             $usable = $held->first(fn (ResultCheckingPin $pin) => $pin->accessRefusalReason() === null);
 
-            // Used up or past its date: nobody decided this token should stop
-            // working, it simply ran out. Sending it would point a parent at a
-            // result that will not open, so a fresh one is made first and that
-            // is what goes out. A REVOKED or SUSPENDED token is different, it
-            // was stopped on purpose, so it is reported below instead.
-            //
-            // Judged by the LATEST token only. Renewing revokes the one it
-            // replaces, so older revoked tokens in a pupil's history say
-            // nothing about whether the current one was stopped on purpose.
-            $latest = $held->first();
-            $ranOut = $latest !== null
-                && in_array($latest->accessRefusalReason(), [ResultTokenAccessOutcome::Exhausted, ResultTokenAccessOutcome::Expired], true);
-
             if ($usable) {
                 $ready->push($usable);
-            } elseif ($ranOut && $issuer !== null) {
-                $fresh = $this->issuer->reissue($latest, $issuer)['token'];
-                $ready->push($fresh->load(['boundStudent', 'examination']));
-            } elseif ($ranOut) {
-                $toIssue->push($student);
-            } elseif ($held->isNotEmpty()) {
-                $unusable->push(['name' => $student->fullName(), 'reason' => 'token '.$this->describe($held->first()->accessRefusalReason()).', reissue it first']);
-            } elseif ($issuer !== null) {
-                $issued = $this->issuer->issue($school, $student, $examination, $issuer)['token'];
-                $ready->push($issued->load(['boundStudent', 'examination']));
+            } elseif ($held->isEmpty()) {
+                $unusable->push(['name' => $student->fullName(), 'reason' => 'no exam token yet: generate it under Exam Tokens first']);
             } else {
-                $toIssue->push($student);
+                // Judged by the latest token: reissuing revokes the one it
+                // replaces, so older ones say nothing about the current one.
+                $unusable->push(['name' => $student->fullName(), 'reason' => 'token '.$this->describe($held->first()->accessRefusalReason()).': reissue it under Exam Tokens first']);
             }
         }
 
-        return ['ready' => $ready, 'unusable' => $unusable, 'toIssue' => $toIssue];
+        // 'toIssue' stays empty: nothing is ever issued by sending.
+        return ['ready' => $ready, 'unusable' => $unusable, 'toIssue' => collect()];
     }
 
     // -------------------------------------------------------------------------

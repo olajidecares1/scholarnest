@@ -131,7 +131,7 @@ test('one student is sent by email straight away, carrying only their own detail
             && str_contains($text, plain($this, 'AKN/001'))
             && str_contains($text, 'AKN/001')
             && ! str_contains($text, plain($this, 'AKN/002'))
-            && $mail->actionUrl === \App\Support\DirectResultLink::for($this->school, $this->ada, plain($this, 'AKN/001'));
+            && $mail->actionUrl === DirectResultLink::for($this->school, $this->ada, plain($this, 'AKN/001'));
     });
 
     // The token is never stored in the history.
@@ -154,7 +154,7 @@ test('WhatsApp goes through the approved result template with that student\'s de
 
         return $request['to'] === '2348055551234'
             && $request['template']['name'] === 'result_details'
-            && $values === ['Mr Eze', $this->school->name, 'Ben Eze', 'First Term 2026/2027', 'AKN/002', plain($this, 'AKN/002'), \App\Support\DirectResultLink::for($this->school, $this->ben, plain($this, 'AKN/002'))];
+            && $values === ['Mr Eze', $this->school->name, 'Ben Eze', 'First Term 2026/2027', 'AKN/002', plain($this, 'AKN/002'), DirectResultLink::for($this->school, $this->ben, plain($this, 'AKN/002'))];
     });
 });
 
@@ -248,22 +248,26 @@ test('retrying sends only the failed and missing ones, never what already went',
     Notification::assertSentOnDemand(ResultDetailsNotification::class, fn ($n, $c, $to) => $to->routes['mail'] === 'none@example.com');
 });
 
-test('from the Results page a student without a token is issued one, and a revoked one is reported', function () {
-    $fresh = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => true, 'guardian_email' => 'fresh@example.com']);
+test('sending never makes a token: a pupil without one the School Admin generated is reported and left out', function () {
+    $fresh = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => true, 'guardian_email' => 'fresh@example.com', 'first_name' => 'Fresh', 'last_name' => 'Pupil']);
     $this->tokens['AKN/002']['token']->update(['status' => ResultCheckingPinStatus::Revoked]);
-    $revokedOnly = $this->ben;
+
+    // The confirmation names them, and why.
+    $this->actingAs($this->admin)->post(route('result-pins.details.preview'), [
+        'channel' => 'both', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid, $fresh->uuid, $this->ben->uuid],
+    ])->assertOk()
+        ->assertSee('Fresh Pupil (no exam token yet: generate it under Exam Tokens first)')
+        ->assertSee('Ben Eze (token revoked: reissue it under Exam Tokens first)');
 
     $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
-        'channel' => 'email',
-        'examination' => $this->exam->uuid,
-        'students' => [$fresh->uuid, $revokedOnly->uuid],
-    ])->assertSessionHas('status', fn ($status) => str_contains($status, 'Ben Eze'));
+        'channel' => 'email', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid, $fresh->uuid, $this->ben->uuid],
+    ])->assertSessionHas('status', fn ($status) => str_contains($status, 'Fresh Pupil') && str_contains($status, 'Ben Eze'));
 
-    $issued = ResultCheckingPin::where('bound_student_id', $fresh->id)->sole();
-    expect($issued->examination_id)->toBe($this->exam->id)
-        ->and(ResultDetailDelivery::where('student_id', $fresh->id)->sole()->status)->toBe(ResultDeliveryStatus::Sent)
-        ->and(ResultDetailDelivery::where('student_id', $revokedOnly->id)->exists())->toBeFalse()
-        ->and(ResultCheckingPin::where('bound_student_id', $revokedOnly->id)->count())->toBe(1);
+    expect(ResultCheckingPin::where('bound_student_id', $fresh->id)->exists())->toBeFalse()
+        ->and(ResultCheckingPin::where('bound_student_id', $this->ben->id)->count())->toBe(1)
+        ->and(ResultDetailDelivery::where('student_id', $fresh->id)->exists())->toBeFalse()
+        ->and(ResultDetailDelivery::where('student_id', $this->ben->id)->exists())->toBeFalse()
+        ->and(ResultDetailDelivery::where('student_id', $this->ada->id)->sole()->status)->toBe(ResultDeliveryStatus::Sent);
 });
 
 test('a message is not sent if the address was removed from the record after queueing', function () {
@@ -375,31 +379,25 @@ test('WhatsApp receipts are not held to the API\'s 60-a-minute limit', function 
     expect($statuses->unique()->values()->all())->toBe([403]);
 });
 
-test('a used-up token is replaced with a fresh one before the message goes out, every time', function () {
+test('a used-up token is not renewed by sending: the School Admin reissues it', function () {
     $old = $this->tokens['AKN/001']['token'];
     $old->update(['status' => ResultCheckingPinStatus::Exhausted]);
 
-    $sendForAda = fn () => $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'email', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
+    ])->assertSessionHasErrors(['send' => 'There is nothing to send: Ada Obi (token used up: reissue it under Exam Tokens first).']);
+
+    expect(ResultCheckingPin::where('bound_student_id', $this->ada->id)->count())->toBe(1)
+        ->and(ResultDetailDelivery::where('student_id', $this->ada->id)->exists())->toBeFalse();
+
+    // Once the School Admin reissues it, that new token is the one sent.
+    $fresh = app(ResultTokenIssuer::class)->reissue($old->fresh(), $this->admin)['token'];
+
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
         'channel' => 'email', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
     ]);
 
-    $sendForAda();
-
-    $current = ResultCheckingPin::where('bound_student_id', $this->ada->id)->latest('id')->first();
-    expect($current->id)->not->toBe($old->id)
-        ->and($current->accessRefusalReason())->toBeNull()
-        ->and(ResultDetailDelivery::where('student_id', $this->ada->id)->sole()->result_checking_pin_id)->toBe($current->id);
-
-    // The message carries the NEW token.
-    Notification::assertSentOnDemand(ResultDetailsNotification::class, fn ($n) => $n->token === $current->plainToken());
-
-    // Used up again later: renewed again, even though an older token in the
-    // history is revoked by the first renewal.
-    $current->update(['status' => ResultCheckingPinStatus::Exhausted]);
-    $sendForAda();
-
-    expect(ResultCheckingPin::where('bound_student_id', $this->ada->id)->latest('id')->first()->accessRefusalReason())->toBeNull()
-        ->and(ResultCheckingPin::where('bound_student_id', $this->ada->id)->count())->toBe(3);
+    Notification::assertSentOnDemand(ResultDetailsNotification::class, fn ($n) => $n->token === $fresh->plainToken());
 });
 
 test('the admission number and token a parent receives open that child\'s result', function () {
@@ -413,7 +411,8 @@ test('the admission number and token a parent receives open that child\'s result
     ExaminationScore::factory()->create(['examination_subject_id' => $subject->id, 'student_id' => $fresh->id, 'test_score' => 30, 'exam_score' => 50, 'score' => 80]);
     app(ResultRepository::class)->publish($this->exam, $fresh, $this->admin, $this->admin->name);
 
-    // No token yet: one is made, then sent, to the parent on Tobi's record.
+    // The School Admin generates Tobi's token; then it is sent to the parent on Tobi's record.
+    app(ResultTokenIssuer::class)->issue($this->school, $fresh, $this->exam, $this->admin);
     $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
         'channel' => 'email', 'examination' => $this->exam->uuid, 'students' => [$fresh->uuid],
     ]);
@@ -833,6 +832,7 @@ test('the broadcast page sums up the class and sends with one action, each paren
         ->assertSee('The whole of JSS 1')
         ->assertSee('What each parent receives (example)')
         ->assertSee($this->noContact->fullName())   // listed: no parent number
+        ->assertSee('Only tokens you generated under Exam Tokens are sent.')
         ->assertDontSee('parent portal')
         ->getContent();
 
@@ -879,4 +879,16 @@ test('the result link a parent is sent opens that child\'s result directly, the 
 
     // The page fills both in from the part after "#".
     $this->get($this->school->resultLinkUrl())->assertOk()->assertSee('data-direct-result-form', false)->assertSee("sessionStorage.setItem('akn-result-token'", false);
+});
+
+test('the broadcast page lists pupils with no token they can use, and makes none', function () {
+    $fresh = Student::factory()->create(['school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => true, 'guardian_phone' => '08061112222', 'first_name' => 'Fresh', 'last_name' => 'Pupil']);
+
+    $this->actingAs($this->admin)->get(route('result-pins.details.broadcast', $this->exam->uuid))
+        ->assertOk()
+        ->assertSee('left out: no exam token they can use')
+        ->assertSee('Fresh Pupil (no exam token yet: generate it under Exam Tokens first)')
+        ->assertSee('Send to 2 parents on WhatsApp');
+
+    expect(ResultCheckingPin::where('bound_student_id', $fresh->id)->exists())->toBeFalse();
 });

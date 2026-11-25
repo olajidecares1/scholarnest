@@ -63,16 +63,11 @@
             </div>
         @endif
 
-        @if ($toIssue->isNotEmpty())
-            <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
-                {{ $toIssue->count() }} student(s) have no working token for this result (none issued yet, or theirs is used up or expired). A new one is made for each when you press Send, before their message goes out.
-            </div>
-        @endif
-
         @if ($unusable->isNotEmpty())
             <div class="rounded-[10px] border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-300">
-                <p class="font-semibold">Not included ({{ $unusable->count() }}): their token cannot be used.</p>
+                <p class="font-semibold">Not included ({{ $unusable->count() }}): no exam token they can use.</p>
                 <small class="mt-1 block text-xs">{{ $unusable->map(fn ($u) => $u['name'].' ('.$u['reason'].')')->join(', ') }}</small>
+                <a href="{{ route('result-pins.index') }}" class="mt-2 inline-block text-xs font-semibold underline">Generate tokens under Exam Tokens</a>
             </div>
         @endif
 

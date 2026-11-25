@@ -15,7 +15,6 @@ use App\Models\ResultDetailDelivery;
 use App\Models\ResultTokenBatch;
 use App\Models\School;
 use App\Models\Student;
-use App\Models\User;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ResultDetails\ResultDetailsSender;
 use App\Services\ResultRepository;
@@ -37,8 +36,8 @@ use Illuminate\View\View;
  *   - batch [+ class_name]        a whole bulk-token batch, or one class of it
  *   - session + term [+ class]    every valid token for a term, or a class's
  *   - examination + students[]    students on the Results page, or all=1 for
- *                                 the whole class; a student with no token
- *                                 for that result is issued one at sending
+ *                                 the whole class; a student with no usable
+ *                                 token is reported, never issued one
  *
  * One student is sent straight away. More than one goes through a
  * confirmation page first, which says how many students, on which channels,
@@ -62,7 +61,7 @@ class ResultDetailsController extends Controller
     {
         $school = $request->user()->school;
         $channels = $this->channels($request);
-        $selection = $this->select($request, $school, issueAs: null);
+        $selection = $this->select($request, $school);
 
         if ($selection['ready']->isEmpty() && $selection['toIssue']->isEmpty()) {
             return back()->withErrors(['send' => $this->nothingToSend($selection)]);
@@ -70,8 +69,6 @@ class ResultDetailsController extends Controller
 
         $summary = $this->sender->summary($selection['ready'], $channels, $selection['toIssue']);
 
-        // Students who will be issued a token at sending are shown too, with
-        // their contacts, so the count on the page is the count that is sent.
         return view('school-admin.result-details.confirm', [
             'notReady' => $this->resultsNotReady($school, collect($summary['rows']), $request->filled('examination')
                 ? Examination::query()->where('school_id', $school->id)->where('uuid', $request->string('examination')->toString())->first()
@@ -152,7 +149,7 @@ class ResultDetailsController extends Controller
     {
         $school = $request->user()->school;
         $channels = $this->channels($request);
-        $selection = $this->select($request, $school, issueAs: $request->user());
+        $selection = $this->select($request, $school);
 
         if ($selection['ready']->isEmpty()) {
             return back()->withErrors(['send' => $this->nothingToSend($selection)]);
@@ -385,7 +382,7 @@ class ResultDetailsController extends Controller
      *
      * @return array{ready: Collection<int, ResultCheckingPin>, unusable: Collection<int, array{name: string, reason: string}>, toIssue: Collection<int, Student>}
      */
-    private function select(Request $request, School $school, ?User $issueAs): array
+    private function select(Request $request, School $school): array
     {
         $validated = $request->validate([
             'tokens' => ['nullable', 'array', 'max:'.self::MAX],
@@ -414,7 +411,7 @@ class ResultDetailsController extends Controller
                 throw ValidationException::withMessages(['send' => 'Select at least one student.']);
             }
 
-            return $this->sender->tokensForResult($school, $examination, $students, $issueAs);
+            return $this->sender->tokensForResult($school, $examination, $students);
         }
 
         if (filled($validated['tokens'] ?? null)) {

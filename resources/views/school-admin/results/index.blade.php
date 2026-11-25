@@ -124,8 +124,8 @@
 
             {{-- Result details (result link, token and admission number) to
                  parents and guardians: the whole class, the ticked students,
-                 or one student from their row. A student with no token for
-                 this result is issued one at sending. --}}
+                 or one student from their row. Only tokens the School Admin
+                 generated are sent; nothing is issued at sending. --}}
             <div
                 class="overflow-x-auto rounded-[10px] border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
                 x-data="{
