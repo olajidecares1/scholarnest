@@ -291,7 +291,7 @@ class ResultDetailsController extends Controller
                             ? 'No parent/guardian email address (or not a valid one) on the pupil\'s record.'
                             : 'No parent/guardian WhatsApp number (or not a valid one) on the pupil\'s record.')
                         : (str_starts_with($error, 'Not sent automatically')
-                            ? 'Waiting to be sent from your phone (automatic WhatsApp is not switched on).'
+                            ? 'Waiting to be sent from your phone.'
                             : ($error !== '' ? $error : 'The message could not be sent.')),
                     'fix' => match (true) {
                         $missing => 'Tap Add contact on the pupil below, enter the parent\'s '.($channel === ResultDeliveryChannel::Email ? 'email address' : 'phone number').', save, then Retry.',

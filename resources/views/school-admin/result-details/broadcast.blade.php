@@ -112,12 +112,31 @@
                 Send to {{ $messages }} {{ Str::plural('parent', $messages) }} on WhatsApp
             </button>
 
-            @if ($automatic)
+            @if ($messages === 0)
+                {{-- Say why there is nobody to send to, and what to do. --}}
+                <div class="mt-3 rounded-[8px] border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-300">
+                    <p class="font-semibold">No parent can be sent to yet.</p>
+                    <ul class="mt-1 list-disc space-y-0.5 pl-5 text-xs">
+                        @if ($noToken->isNotEmpty())
+                            <li>
+                                {{ $noToken->count() }} of {{ $count }} {{ Str::plural('pupil', $count) }} {{ $noToken->count() === 1 ? 'has' : 'have' }} no exam token for this result.
+                                <a href="{{ route('result-pins.index') }}" class="font-semibold underline">Generate tokens under Exam Tokens</a>, then come back.
+                            </li>
+                        @endif
+                        @if ($missing->isNotEmpty())
+                            <li>{{ $missing->count() }} {{ Str::plural('pupil', $missing->count()) }} {{ $missing->count() === 1 ? 'has' : 'have' }} no parent WhatsApp number on record: add it with <strong>Add contact</strong> above.</li>
+                        @endif
+                        @if ($count === 0)
+                            <li>There are no pupils in this class.</li>
+                        @endif
+                    </ul>
+                </div>
+            @elseif ($automatic)
                 <p class="mt-3 text-sm text-gray-700 dark:text-gray-200">Every message goes out automatically, at once. The sending history then shows each one as Pending, Sent, Delivered or Failed.</p>
             @else
-                <p class="mt-3 rounded-[8px] border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
-                    Automatic WhatsApp sending is not switched on for AkademicNest yet. Until it is, this opens
-                    <strong>Send on WhatsApp</strong>: each parent's message is ready, already typed, and you press send for each one from your phone.
+                <p class="mt-3 text-sm text-gray-700 dark:text-gray-200">
+                    From your school's WhatsApp: each parent's message opens already typed with their own child's details.
+                    Press send, come back, and the next parent is ready. The sending history shows who has been sent.
                 </p>
             @endif
         </form>

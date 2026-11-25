@@ -133,7 +133,7 @@ class StaffImportRegistrar
 
             if (! $whatsAppReady) {
                 $created[$i]['whatsapp'] = 'not_configured';
-                $created[$i]['whatsapp_error'] = 'Automatic WhatsApp sending is not set up yet.';
+                $created[$i]['whatsapp_error'] = 'To send from your phone: tap Send on WhatsApp.';
 
                 continue;
             }

@@ -56,10 +56,10 @@
 
         {{-- WhatsApp --}}
         @if (! $whatsApp['configured'])
-            <div class="flex gap-2 rounded-[8px] bg-amber-50 p-4 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
-                <i class="fa-brands fa-whatsapp mt-0.5 text-[15px]" aria-hidden="true"></i>
+            <div class="flex gap-2 rounded-[8px] bg-green-50 p-4 text-gray-800 dark:bg-green-900/20 dark:text-gray-100">
+                <i class="fa-brands fa-whatsapp mt-0.5 text-[15px] text-[#1ebe5b]" aria-hidden="true"></i>
                 <small class="block text-xs leading-relaxed">
-                    Automatic WhatsApp sending is not set up yet, so no messages were sent.
+                    WhatsApp messages go from your own phone.
                     @if ($hasShares)
                         Use the <span class="font-semibold">Send on WhatsApp</span> button beside each person below; it opens WhatsApp with their login details written out.
                     @endif

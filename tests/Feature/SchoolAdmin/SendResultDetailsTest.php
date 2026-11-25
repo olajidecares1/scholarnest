@@ -920,3 +920,28 @@ test('the sending history shows delivery status: pending, sent, delivered and fa
     $this->actingAs($this->admin)->get(route('result-pins.details.history'))
         ->assertSee('Pending')->assertSee('Sent')->assertSee('Delivered')->assertSee('Failed')->assertSee('Pending (phone)');
 });
+
+test('with nobody to send to, the broadcast page says why next to the button, and nothing waits on AkademicNest', function () {
+    config(['services.whatsapp.token' => null]);
+    ResultCheckingPin::where('school_id', $this->school->id)->delete();
+
+    $this->actingAs($this->admin)->get(route('result-pins.details.broadcast', $this->exam->uuid))
+        ->assertOk()
+        ->assertSee('Send to 0 parents on WhatsApp')
+        ->assertSee('No parent can be sent to yet.')
+        ->assertSee('3 of 3 pupils have no exam token for this result.')
+        ->assertSee('Generate tokens under Exam Tokens')
+        ->assertDontSee('not switched on');
+
+    // With tokens generated, it goes from the school's own WhatsApp by default.
+    $issuer = app(ResultTokenIssuer::class);
+    foreach ([$this->ada, $this->ben] as $s) {
+        $issuer->issue($this->school, $s, $this->exam, $this->admin);
+    }
+
+    $this->actingAs($this->admin)->get(route('result-pins.details.broadcast', $this->exam->uuid))
+        ->assertSee('Send to 2 parents on WhatsApp')
+        ->assertSee("From your school's WhatsApp", false)
+        ->assertDontSee('No parent can be sent to yet.')
+        ->assertDontSee('not switched on');
+});

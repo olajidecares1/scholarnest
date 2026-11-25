@@ -58,10 +58,10 @@
         @endif
 
         @if (! $whatsAppReady)
-            <div class="flex gap-2 rounded-[8px] bg-amber-50 px-4 py-3 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
-                <i class="fa-brands fa-whatsapp mt-0.5 text-[14px]" aria-hidden="true"></i>
+            <div class="flex gap-2 rounded-[8px] bg-green-50 px-4 py-3 text-gray-800 dark:bg-green-900/20 dark:text-gray-100">
+                <i class="fa-brands fa-whatsapp mt-0.5 text-[14px] text-[#1ebe5b]" aria-hidden="true"></i>
                 <small class="block text-xs leading-relaxed">
-                    Automatic WhatsApp sending is not set up yet, so login details will not be sent by themselves. After registering, you will get a one-tap WhatsApp button for each staff member instead.
+                    Login details go on WhatsApp from your own phone: after registering, tap the WhatsApp button beside each staff member and their details open already typed.
                 </small>
             </div>
         @endif
