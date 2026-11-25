@@ -31,6 +31,67 @@ final class PdfImage
     private static array $memo = [];
 
     /**
+     * fit(), and laid onto a solid background so the PDF holds no
+     * see-through picture at all.
+     *
+     * dompdf hands a PNG with an alpha channel to ImageMagick when the server
+     * has it, and on Laravel Cloud ImageMagick refuses the file ("unable to
+     * open image 'file:///...'"): every report card in a class failed on the
+     * school's crest. A picture with nothing see-through never goes near
+     * ImageMagick. The background is the colour the picture sits on, white
+     * on a report card, so on paper it looks exactly the same.
+     */
+    public static function flat(?string $absolutePath, int $maxEdge, string $background = '#ffffff'): ?string
+    {
+        $path = self::fit($absolutePath, $maxEdge);
+
+        if ($path === null || $path === '' || ! is_file($path)) {
+            return $path;
+        }
+
+        $size = @getimagesize($path);
+
+        if ($size === false || ($size[2] ?? null) !== IMAGETYPE_PNG) {
+            return $path; // JPEG and the like are never see-through.
+        }
+
+        $hex = ltrim($background, '#');
+        $directory = storage_path('framework/cache/pdf-images');
+        $target = $directory.'/'.sha1_file($path).'-flat-'.$hex.'.png';
+
+        if (isset(self::$memo[$target]) && is_file(self::$memo[$target])) {
+            return self::$memo[$target];
+        }
+
+        if (! is_file($target)) {
+            $source = @imagecreatefromstring((string) file_get_contents($path));
+
+            if ($source === false) {
+                return $path;
+            }
+
+            $width = imagesx($source);
+            $height = imagesy($source);
+            $canvas = imagecreatetruecolor($width, $height);
+            imagefill($canvas, 0, 0, imagecolorallocate($canvas, hexdec(substr($hex, 0, 2)), hexdec(substr($hex, 2, 2)), hexdec(substr($hex, 4, 2))));
+            imagealphablending($canvas, true);
+            imagecopy($canvas, $source, 0, 0, 0, 0, $width, $height);
+            imagesavealpha($canvas, false);
+            imagedestroy($source);
+
+            File::ensureDirectoryExists($directory);
+            $written = @imagepng($canvas, $target, 9);
+            imagedestroy($canvas);
+
+            if (! $written) {
+                return $path;
+            }
+        }
+
+        return self::$memo[$target] = $target;
+    }
+
+    /**
      * A local path to a copy no larger than $maxEdge on its longer side, or
      * the original when it is already small enough or cannot be read as an
      * image (dompdf then does what it always did).

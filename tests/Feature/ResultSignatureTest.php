@@ -163,9 +163,10 @@ test('both signatures print on the card, each from its own owner', function () {
     // the filenames survive.
     $print = view('school-admin.results.pdf.report-card', $data)->render();
 
+    // Each laid on white first, so nothing see-through reaches dompdf.
     expect($print)
-        ->toContain(basename(app(GoldSignature::class)->pathFor('admin-signatures/principal.png')))
-        ->toContain(basename(app(GoldSignature::class)->pathFor('staff-signatures/teacher.png', ownInk: true)));
+        ->toContain(basename(\App\Support\PdfImage::flat(app(GoldSignature::class)->absolutePathFor('admin-signatures/principal.png'), 900)))
+        ->toContain(basename(\App\Support\PdfImage::flat(app(GoldSignature::class)->ownInkAbsolutePathFor('staff-signatures/teacher.png'), 900)));
 });
 
 test('an unsigned card prints an empty line rather than somebody else\'s mark', function () {

@@ -187,3 +187,36 @@ test('pictures for a PDF are kept in a real folder, never on a storage disk', fu
         ->and(is_file($fitted))->toBeTrue()
         ->and(getimagesize($fitted)[0])->toBe(400);
 });
+
+test('no see-through picture reaches the PDF, so the live server never needs ImageMagick', function () {
+    // On Laravel Cloud dompdf sends any PNG with an alpha channel to
+    // ImageMagick, which refuses it: every card failed with "unable to open
+    // image". A picture embedded with transparency carries an /SMask; a card
+    // made only of solid pictures has none.
+    [$school, $admin, $examination, $students] = classDownloadFixture(2);
+
+    $png = function () {
+        $image = imagecreatetruecolor(400, 300);
+        imagesavealpha($image, true);
+        imagealphablending($image, false);
+        imagefill($image, 0, 0, imagecolorallocatealpha($image, 0, 0, 0, 127));
+        imagefilledellipse($image, 200, 150, 220, 160, imagecolorallocatealpha($image, 180, 30, 40, 20));
+        ob_start();
+        imagepng($image);
+
+        return (string) ob_get_clean();
+    };
+
+    Storage::disk('public')->put('logos/crest.png', $png());
+    Storage::disk('public')->put('stamps/stamp.png', $png());
+    $school->forceFill(['logo_path' => 'logos/crest.png', 'stamp_path' => 'stamps/stamp.png'])->save();
+    Storage::disk('local')->put('signatures/admin.png', $png());
+    $admin->registerSignature('signatures/admin.png');
+
+    $single = $this->actingAs($admin)->get(route('results.pdf', [$examination, $students[0]]))->assertOk()->getContent();
+    $class = $this->actingAs($admin)->get(route('results.class-pdf', $examination))->assertOk()->getContent();
+
+    expect($single)->not->toContain('/SMask')
+        ->and($class)->not->toContain('/SMask')
+        ->and($single)->toContain('/Subtype /Image');
+});

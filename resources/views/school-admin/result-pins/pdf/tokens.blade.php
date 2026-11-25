@@ -9,7 +9,7 @@
      * off without squinting. Rows alternate in shade so a finger running
      * along a row stays on it.
      */
-    $logoPath = \App\Support\PdfImage::fit($school->logoAbsolutePath(), 360);
+    $logoPath = \App\Support\PdfImage::flat($school->logoAbsolutePath(), 360);
     $pageCount = $pages->count();
     $serial = 0;
 @endphp

@@ -228,8 +228,9 @@ describe('where it prints', function () {
         expect(view('school-admin.results._report-card', $data)->render())
             ->toContain($this->goldUri);
 
+        // In print, the gold signature laid on white (App\Support\PdfImage::flat).
         expect(view('school-admin.results.pdf.report-card', $data)->render())
-            ->toContain(basename($this->goldPath));
+            ->toContain(basename(\App\Support\PdfImage::flat(\App\Support\PrincipalSignature::for($this->school)->absolutePath(), 900)));
     });
 
     test('the ID card prints it, on screen and in print alike', function () {
