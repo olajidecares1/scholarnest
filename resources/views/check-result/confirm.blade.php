@@ -59,7 +59,7 @@
             Not the right pupil? <a href="{{ $backUrl }}" class="font-semibold text-primary-600 hover:text-primary-700">Start again</a>.
         </p>
 
-        <form method="POST" action="{{ $verifyUrl }}" class="mt-5 space-y-2">
+        <form method="POST" action="{{ $verifyUrl }}" class="mt-5 space-y-2" data-direct-result-form>
             @csrf
             <x-honeypot />
 
@@ -89,4 +89,20 @@
             </button>
         </form>
     </x-auth-card>
+
+    {{-- The token from the parent's link (see check-result.show): filled in,
+         so they only confirm this is their child and tap Check Result. --}}
+    <script>
+        (function () {
+            var token = null;
+            try { token = sessionStorage.getItem('akn-result-token'); sessionStorage.removeItem('akn-result-token'); } catch (e) {}
+            if (! token) return;
+            var form = document.querySelector('[data-direct-result-form]');
+            var input = form && form.querySelector('[name="code"]');
+            if (! input) return;
+            input.value = token;
+            var button = form.querySelector('[type="submit"]');
+            if (button) button.focus();
+        })();
+    </script>
 </x-auth-layout>

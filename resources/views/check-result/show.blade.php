@@ -30,7 +30,7 @@
             $identifyUrl = \App\Support\ResultCheckRoutes::url('identify', $school);
         @endphp
 
-        <form method="POST" action="{{ $identifyUrl }}" class="mt-6 space-y-2">
+        <form method="POST" action="{{ $identifyUrl }}" class="mt-6 space-y-2" data-direct-result-form>
             @csrf
             <x-honeypot />
 
@@ -61,4 +61,23 @@
             You will need the exam token your school gave you on the next screen.
         </p>
     </x-auth-card>
+
+    {{-- A link sent to a parent carries the admission number and token after
+         "#" (App\Support\DirectResultLink), which never reaches the server.
+         Fill the admission number in and go on; keep the token for the next
+         step, in this tab only, and take both out of the address bar. --}}
+    <script>
+        (function () {
+            var params = new URLSearchParams(window.location.hash.slice(1));
+            var admission = params.get('a');
+            if (! admission) return;
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+            try { if (params.get('t')) sessionStorage.setItem('akn-result-token', params.get('t')); } catch (e) {}
+            var form = document.querySelector('[data-direct-result-form]');
+            var input = form && form.querySelector('[name="admission_number"]');
+            if (! input) return;
+            input.value = admission;
+            form.submit();
+        })();
+    </script>
 </x-auth-layout>

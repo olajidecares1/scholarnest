@@ -18,6 +18,7 @@ use App\Services\Mail\TransactionalMailer;
 use App\Services\QueueWorkerHealth;
 use App\Services\ResultTokenIssuer;
 use App\Services\WhatsApp\WhatsAppGateway;
+use App\Support\DirectResultLink;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Str;
@@ -414,7 +415,7 @@ class ResultDetailsSender
                 $student,
                 $token->examination,
                 (string) $token->plainToken(),
-                $school->resultLinkUrl(),
+                DirectResultLink::for($school, $student, (string) $token->plainToken()),
                 (string) ($row->recipient_name ?: 'Parent/Guardian'),
                 $isEmail || ! $gateway->fromSchoolNumber() ? $school->verifiedWhatsApp() : null,
             );
@@ -502,7 +503,7 @@ class ResultDetailsSender
             $student,
             $token->examination,
             (string) $token->plainToken(),
-            $student->school->resultLinkUrl(),
+            DirectResultLink::for($student->school, $student, (string) $token->plainToken()),
             (string) ($row->recipient_name ?: 'Parent/Guardian'),
         );
 

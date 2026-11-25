@@ -168,9 +168,17 @@
                         <a href="{{ route('result-pins.details.history') }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                             <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Sending history
                         </a>
-                        <a href="{{ route('result-pins.details.broadcast', $examination->uuid) }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-green-300 px-3 py-2 text-xs font-semibold text-green-800 hover:bg-green-50 dark:border-green-800 dark:text-green-300 dark:hover:bg-green-900/20" data-tooltip="One message to every {{ $selectedClass }} parent at once, from your phone">
-                            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i> WhatsApp broadcast
-                        </a>
+<form method="GET" action="{{ route('result-pins.details.broadcast', $examination->uuid) }}" class="inline-block">
+                            {{-- The ticked pupils, or the whole class when none is ticked. --}}
+                            <template x-for="id in picked" :key="id">
+                                <input type="hidden" name="students[]" :value="id">
+                            </template>
+                            <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-[#25D366] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1ebe5b]" data-tooltip="Each parent gets their own child's name, admission number, token and result link on WhatsApp">
+                                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                                <span x-show="picked.length === 0">WhatsApp broadcast</span>
+                                <span x-show="picked.length > 0" x-cloak>WhatsApp broadcast (<span x-text="picked.length"></span>)</span>
+                            </button>
+                        </form>
                         <div x-show="picked.length > 0" x-cloak>
                             <x-send-result-details :action="route('result-pins.details.preview')" label="Send to selected parents">
                                 <input type="hidden" name="examination" value="{{ $examination->uuid }}">

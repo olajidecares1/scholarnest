@@ -362,11 +362,9 @@ Route::middleware('result_pin_access')->name('result-pins.')->group(function () 
     Route::post(R::uri('result-pins.details.send'), [ResultDetailsController::class, 'send'])->middleware('throttle:30,1')->name('details.send');
     Route::get(R::uri('result-pins.details.history'), [ResultDetailsController::class, 'history'])->name('details.history');
     Route::post(R::uri('result-pins.details.retry'), [ResultDetailsController::class, 'retry'])->middleware('throttle:30,1')->name('details.retry');
-    // One WhatsApp broadcast for a class: tokens to the parent portals, the
-    // parents' numbers as a contacts file, and the message to send once.
+    // WhatsApp broadcast: the summary before the one action (details.send),
+    // each parent sent their own child's details.
     Route::get(R::uri('result-pins.details.broadcast').'/{examination}', [ResultBroadcastController::class, 'show'])->name('details.broadcast');
-    Route::post(R::uri('result-pins.details.broadcast.portals').'/{examination}', [ResultBroadcastController::class, 'postToPortals'])->middleware('throttle:10,1')->name('details.broadcast.portals');
-    Route::get(R::uri('result-pins.details.broadcast.contacts').'/{examination}', [ResultBroadcastController::class, 'contacts'])->name('details.broadcast.contacts');
     Route::get(R::uri('result-pins.details.whatsapp-queue'), [ResultDetailsController::class, 'whatsAppQueue'])->name('details.whatsapp-queue');
     Route::post(R::uri('result-pins.details.whatsapp').'/{delivery}', [ResultDetailsController::class, 'sendOnWhatsApp'])->middleware('throttle:120,1')->name('details.whatsapp');
 

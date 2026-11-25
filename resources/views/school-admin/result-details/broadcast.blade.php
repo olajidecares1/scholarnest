@@ -1,8 +1,7 @@
-{{-- One WhatsApp broadcast for a class's result. See ResultBroadcastController. --}}
+{{-- WhatsApp broadcast of result details. See ResultBroadcastController. --}}
 @php
-    $step = 'flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-sm font-bold text-white';
     $card = 'rounded-[10px] border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800';
-    $n = 1;
+    $count = $students->count();
 @endphp
 
 <x-dashboard-layout page-title="WhatsApp broadcast" page-subtitle="{{ $examination->class_name }} · {{ $examination->term->label() }} {{ $examination->session }}">
@@ -13,119 +12,97 @@
             </a>
         </div>
 
-        @if (session('status'))
-            <div class="rounded-[10px] bg-green-50 p-4 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">{{ session('status') }}</div>
+        @if ($errors->any())
+            <div class="rounded-[10px] bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+            </div>
         @endif
-
-        <div class="rounded-[10px] border border-green-200 bg-green-50 p-4 text-sm text-gray-800 dark:border-green-900/50 dark:bg-green-900/20 dark:text-gray-100">
-            <i class="fa-brands fa-whatsapp mr-1 text-[#1ebe5b]" aria-hidden="true"></i>
-            One message, sent once from your phone, reaches every {{ $examination->class_name }} parent at the same time. Free.
-            The message is the same for everyone, so it carries no tokens: each parent finds their own child's token
-            {{ $portals ? 'in their parent portal' : 'in the email sent to them' }}.
-        </div>
 
         @unless ($resultLinkLive)
             <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
-                Your result-checking link is switched off, so parents cannot check results yet. Switch it on under Exam Tokens first.
+                Your result-checking link is switched off, so the links would not open. Switch it on under Exam Tokens first.
             </div>
         @endunless
 
-        {{-- 1. Tokens where only each child's parents can see them. --}}
-        @if ($portals)
-            <div class="{{ $card }}">
-                <div class="flex items-start gap-3">
-                    <span class="{{ $step }}">{{ $n++ }}</span>
-                    <div class="min-w-0 flex-1">
-                        <h2 class="font-bold text-gray-900 dark:text-white">Put each pupil's token in their parents' portal</h2>
-                        <p class="mt-1 text-sm text-gray-700 dark:text-gray-200">
-                            {{ $pupils }} {{ Str::plural('pupil', $pupils) }}; {{ $withAccount }} {{ $withAccount === 1 ? 'has' : 'have' }} a parent with a portal account.
-                            A pupil with no token is given one. Parents are never sent the same token twice, so tapping again is safe.
-                        </p>
-                        <form method="POST" action="{{ route('result-pins.details.broadcast.portals', $examination->uuid) }}" class="mt-3">
-                            @csrf
-                            <button type="submit" class="btn inline-flex items-center gap-2 rounded-[8px] bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">
-                                <i class="fa-solid fa-key" aria-hidden="true"></i> Post tokens to portals
-                            </button>
-                        </form>
-                        @if ($withoutAccount->isNotEmpty())
-                            <details class="mt-3 text-sm">
-                                <summary class="cursor-pointer font-semibold text-amber-800 dark:text-amber-300">
-                                    {{ $withoutAccount->count() }} {{ Str::plural('pupil', $withoutAccount->count()) }} with no parent portal account
-                                </summary>
-                                <p class="mt-1 text-gray-700 dark:text-gray-200">
-                                    Their parents cannot see a token in a portal. Add a parent account on the pupil's record, or send them their own details with <strong>Send to parents</strong> on Results:
-                                    {{ $withoutAccount->join(', ') }}.
-                                </p>
-                            </details>
-                        @endif
-                    </div>
+        {{-- Who gets what. --}}
+        <div class="{{ $card }}">
+            <h2 class="font-bold text-gray-900 dark:text-white">
+                {{ $chosen === [] ? 'The whole of '.$examination->class_name : $count.' selected '.Str::plural('pupil', $count) }}
+            </h2>
+            <div class="mt-3 grid grid-cols-3 gap-3 text-center">
+                <div class="rounded-[8px] bg-gray-50 p-3 dark:bg-gray-900/40">
+                    <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ $count }}</span>
+                    <span class="text-xs text-gray-700 dark:text-gray-300">{{ Str::plural('pupil', $count) }}</span>
                 </div>
+                <div class="rounded-[8px] bg-green-50 p-3 dark:bg-green-900/20">
+                    <span class="block text-2xl font-bold text-green-700 dark:text-green-400">{{ $messages }}</span>
+                    <span class="text-xs text-gray-700 dark:text-gray-300">WhatsApp {{ Str::plural('message', $messages) }}</span>
+                </div>
+                <div class="rounded-[8px] p-3 {{ $missing->isNotEmpty() ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-gray-50 dark:bg-gray-900/40' }}">
+                    <span class="block text-2xl font-bold {{ $missing->isNotEmpty() ? 'text-amber-700 dark:text-amber-300' : 'text-gray-900 dark:text-white' }}">{{ $missing->count() }}</span>
+                    <span class="text-xs text-gray-700 dark:text-gray-300">no parent number</span>
+                </div>
+            </div>
+            <ul class="mt-4 space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
+                <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>Each parent gets <strong>only their own child's</strong> name, admission number, exam token and result link.</li>
+                <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>Numbers come from each pupil's own record. Pupils with no token are given one first.</li>
+                <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>The link opens the result straight away: no portal, nothing to type.</li>
+            </ul>
+
+            @if ($missing->isNotEmpty())
+                <details class="mt-3 text-sm">
+                    <summary class="cursor-pointer font-semibold text-amber-800 dark:text-amber-300">
+                        {{ $missing->count() }} {{ Str::plural('pupil', $missing->count()) }} with no parent WhatsApp number on record
+                    </summary>
+                    <ul class="mt-2 space-y-1">
+                        @foreach ($missing as $pupil)
+                            <li class="flex items-center justify-between gap-3">
+                                <span class="text-gray-800 dark:text-gray-100">{{ $pupil->fullName() }}</span>
+                                <a href="{{ route('students.show', $pupil) }}" class="text-xs font-semibold text-primary-700 hover:underline dark:text-primary-300">Add contact</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </details>
+            @endif
+        </div>
+
+        {{-- What one parent receives. --}}
+        @if ($sample)
+            <div class="{{ $card }}">
+                <h2 class="text-sm font-bold text-gray-900 dark:text-white">What each parent receives (example)</h2>
+                <div class="mt-3 rounded-[10px] rounded-tl-none bg-[#d9fdd3] p-3 text-sm leading-relaxed text-gray-900 shadow-sm dark:bg-[#005c4b] dark:text-white">
+                    <p class="whitespace-pre-line break-words">{{ $sample }}</p>
+                </div>
+                <p class="mt-2 text-xs text-gray-700 dark:text-gray-300">The token is hidden here; each parent sees their own child's.</p>
             </div>
         @endif
 
-        {{-- 2. The parents' numbers, all saved at once. --}}
-        <div class="{{ $card }}">
-            <div class="flex items-start gap-3">
-                <span class="{{ $step }}">{{ $n++ }}</span>
-                <div class="min-w-0 flex-1">
-                    <h2 class="font-bold text-gray-900 dark:text-white">Save the parents' numbers on your phone</h2>
-                    <p class="mt-1 text-sm text-gray-700 dark:text-gray-200">
-                        {{ $parentNumbers }} parent WhatsApp {{ Str::plural('number', $parentNumbers) }} from the pupils' records, in one contacts file.
-                        Open it on the phone that has your school's WhatsApp and choose to add them all.
-                    </p>
-                    <a href="{{ route('result-pins.details.broadcast.contacts', $examination->uuid) }}" class="btn mt-3 inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700 {{ $parentNumbers === 0 ? 'pointer-events-none opacity-50' : '' }}">
-                        <i class="fa-solid fa-address-book" aria-hidden="true"></i> Download {{ $parentNumbers }} {{ Str::plural('contact', $parentNumbers) }}
-                    </a>
-                    @if ($pupilsWithoutNumber > 0)
-                        <p class="mt-2 text-xs text-amber-800 dark:text-amber-300">
-                            {{ $pupilsWithoutNumber }} {{ Str::plural('pupil', $pupilsWithoutNumber) }} {{ $pupilsWithoutNumber === 1 ? 'has' : 'have' }} no parent WhatsApp number on record, so they are not in the file.
-                        </p>
-                    @endif
-                </div>
-            </div>
-        </div>
+        {{-- The one action. --}}
+        <form method="POST" action="{{ route('result-pins.details.send') }}" class="{{ $card }}">
+            @csrf
+            <input type="hidden" name="channel" value="whatsapp">
+            <input type="hidden" name="examination" value="{{ $examination->uuid }}">
+            @if ($chosen === [])
+                <input type="hidden" name="all" value="1">
+            @else
+                @foreach ($chosen as $uuid)
+                    <input type="hidden" name="students[]" value="{{ $uuid }}">
+                @endforeach
+            @endif
 
-        {{-- 3. The broadcast list, in WhatsApp. --}}
-        <div class="{{ $card }}">
-            <div class="flex items-start gap-3">
-                <span class="{{ $step }}">{{ $n++ }}</span>
-                <div class="min-w-0 flex-1">
-                    <h2 class="font-bold text-gray-900 dark:text-white">Make a broadcast list in WhatsApp (once per class)</h2>
-                    <ul class="mt-2 space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
-                        <li><strong>Android:</strong> Chats &rarr; &#8942; (top right) &rarr; New broadcast.</li>
-                        <li><strong>iPhone:</strong> Chats &rarr; Broadcast Lists (or &hellip; &rarr; New broadcast) &rarr; New List.</li>
-                        <li>Tick the parents, then Create. Name it, e.g. &ldquo;{{ $examination->class_name }} parents&rdquo;, and reuse it every term.</li>
-                    </ul>
-                    <p class="mt-2 text-xs text-gray-700 dark:text-gray-300">
-                        WhatsApp delivers a broadcast only to parents who have saved your school's number too.
-                        Ask them to save it (or add it to the message) so nobody misses it.
-                    </p>
-                </div>
-            </div>
-        </div>
+            <button type="submit" @disabled($messages === 0) class="btn flex w-full items-center justify-center gap-2 rounded-[10px] bg-[#25D366] px-4 py-3 text-base font-bold text-white hover:bg-[#1ebe5b] disabled:cursor-not-allowed disabled:opacity-50">
+                <i class="fa-brands fa-whatsapp text-xl" aria-hidden="true"></i>
+                Send to {{ $messages }} {{ Str::plural('parent', $messages) }} on WhatsApp
+            </button>
 
-        {{-- 4. The message: copy, paste into the broadcast list, send once. --}}
-        <div class="{{ $card }}" x-data="{ text: @js($message), copied: false }">
-            <div class="flex items-start gap-3">
-                <span class="{{ $step }}">{{ $n++ }}</span>
-                <div class="min-w-0 flex-1">
-                    <h2 class="font-bold text-gray-900 dark:text-white">Send this message to the broadcast list</h2>
-                    <p class="mt-1 text-sm text-gray-700 dark:text-gray-200">Change it if you like. Copy it, open your broadcast list in WhatsApp, paste and send.</p>
-                    <label for="broadcast-message" class="sr-only">Message</label>
-                    <textarea id="broadcast-message" x-model="text" rows="11" class="mt-3 w-full text-sm leading-relaxed"></textarea>
-                    <div class="mt-3 flex flex-wrap gap-2">
-                        <button type="button" class="btn inline-flex items-center gap-2 rounded-[8px] bg-[#25D366] px-4 py-2 text-sm font-bold text-white hover:bg-[#1ebe5b]"
-                                x-on:click="navigator.clipboard.writeText(text).then(() => { copied = true; setTimeout(() => copied = false, 2500) })">
-                            <i class="fa-solid" :class="copied ? 'fa-check' : 'fa-copy'" aria-hidden="true"></i>
-                            <span x-text="copied ? 'Copied' : 'Copy message'"></span>
-                        </button>
-                        <a :href="'https://wa.me/?text=' + encodeURIComponent(text)" target="_blank" rel="noopener" class="btn inline-flex items-center gap-2 rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">
-                            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Open in WhatsApp
-                        </a>
-                    </div>
-                    <small class="field-hint mt-2">&ldquo;Open in WhatsApp&rdquo; opens WhatsApp with the message typed: choose your broadcast list there, if it is offered, or paste it into the list.</small>
-                </div>
-            </div>
-        </div>
+            @if ($automatic)
+                <p class="mt-3 text-sm text-gray-700 dark:text-gray-200">Every message goes out automatically, at once. Follow each one in the sending history.</p>
+            @else
+                <p class="mt-3 rounded-[8px] border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
+                    Automatic WhatsApp sending is not switched on for AkademicNest yet. Until it is, this opens
+                    <strong>Send on WhatsApp</strong>: each parent's message is ready, already typed, and you press send for each one from your phone.
+                </p>
+            @endif
+        </form>
     </div>
 </x-dashboard-layout>

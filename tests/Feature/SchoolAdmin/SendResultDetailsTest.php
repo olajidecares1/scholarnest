@@ -24,9 +24,9 @@ use App\Services\ResultRepository;
 use App\Services\ResultTokenIssuer;
 use App\Services\WhatsApp\SchoolWhatsAppVerifier;
 use App\Services\WhatsApp\WhatsAppGateway;
+use App\Support\DirectResultLink;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Notifications\AnonymousNotifiable;
-use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -131,7 +131,7 @@ test('one student is sent by email straight away, carrying only their own detail
             && str_contains($text, plain($this, 'AKN/001'))
             && str_contains($text, 'AKN/001')
             && ! str_contains($text, plain($this, 'AKN/002'))
-            && $mail->actionUrl === $this->school->resultLinkUrl();
+            && $mail->actionUrl === \App\Support\DirectResultLink::for($this->school, $this->ada, plain($this, 'AKN/001'));
     });
 
     // The token is never stored in the history.
@@ -154,7 +154,7 @@ test('WhatsApp goes through the approved result template with that student\'s de
 
         return $request['to'] === '2348055551234'
             && $request['template']['name'] === 'result_details'
-            && $values === ['Mr Eze', $this->school->name, 'Ben Eze', 'First Term 2026/2027', 'AKN/002', plain($this, 'AKN/002'), $this->school->resultLinkUrl()];
+            && $values === ['Mr Eze', $this->school->name, 'Ben Eze', 'First Term 2026/2027', 'AKN/002', plain($this, 'AKN/002'), \App\Support\DirectResultLink::for($this->school, $this->ben, plain($this, 'AKN/002'))];
     });
 });
 
@@ -821,65 +821,62 @@ test('the sending history says why messages did not go, and what to do about eac
 });
 
 // ---------------------------------------------------------------------------
-// One WhatsApp broadcast for a class
+// WhatsApp broadcast: each parent their own child's details, one action
 // ---------------------------------------------------------------------------
 
-test('the broadcast page gives one message for every parent, with no token in it', function () {
+test('the broadcast page sums up the class and sends with one action, each parent their own child\'s details', function () {
     $this->actingAs($this->admin)->get(route('results.index', ['class' => 'JSS 1', 'session' => '2026/2027', 'term' => 'first']))
         ->assertSee(route('result-pins.details.broadcast', $this->exam->uuid), false);
 
     $page = $this->actingAs($this->admin)->get(route('result-pins.details.broadcast', $this->exam->uuid))
         ->assertOk()
-        ->assertSee('Send this message to the broadcast list')
-        ->assertSee(str_replace('/', '\\/', $this->school->resultLinkUrl()), false)
+        ->assertSee('The whole of JSS 1')
+        ->assertSee('What each parent receives (example)')
+        ->assertSee($this->noContact->fullName())   // listed: no parent number
+        ->assertDontSee('parent portal')
         ->getContent();
 
     foreach (ResultCheckingPin::query()->where('school_id', $this->school->id)->get() as $pin) {
         expect($page)->not->toContain((string) $pin->plainToken());
     }
+
+    // The one action: every pupil, by WhatsApp, each message on its own.
+    fakeWhatsApp();
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'whatsapp', 'examination' => $this->exam->uuid, 'all' => '1',
+    ]);
+
+    foreach ([$this->ada, $this->ben] as $student) {
+        $token = ResultCheckingPin::where('bound_student_id', $student->id)->latest('id')->first()->plainToken();
+        $phone = ResultDetailDelivery::where('student_id', $student->id)->value('recipient');
+
+        Http::assertSent(function ($request) use ($student, $token, $phone) {
+            $values = array_column($request['template']['components'][0]['parameters'], 'text');
+
+            return $request['to'] === $phone
+                && in_array($student->fullName(), $values, true)
+                && in_array($student->admission_number, $values, true)
+                && in_array($token, $values, true)
+                && collect($values)->contains(fn ($v) => str_starts_with($v, $this->school->resultLinkUrl().'#'));
+        });
+    }
 });
 
-test('the parents\' numbers download as one contacts file, each number once', function () {
-    $this->ben->update(['guardian_phone' => '08031234567']); // Ada's parent's number too: one contact
-
-    $response = $this->actingAs($this->admin)->get(route('result-pins.details.broadcast.contacts', $this->exam->uuid))
+test('the broadcast page can be for the ticked pupils only', function () {
+    $this->actingAs($this->admin)->get(route('result-pins.details.broadcast', [$this->exam->uuid, 'students' => [$this->ada->uuid]]))
         ->assertOk()
-        ->assertHeader('Content-Type', 'text/vcard; charset=utf-8');
-
-    $vcf = $response->getContent();
-
-    expect(substr_count($vcf, 'BEGIN:VCARD'))->toBe(1)
-        ->and($vcf)->toContain('TEL;TYPE=CELL:+2348031234567')
-        ->and($vcf)->toContain($this->ada->fullName())
-        ->and($vcf)->toContain($this->ben->fullName());
+        ->assertSee('1 selected pupil')
+        ->assertSee('name="students[]" value="'.$this->ada->uuid.'"', false)
+        ->assertDontSee('name="all"', false);
 });
 
-test('with parent accounts, each pupil\'s token goes to their own parents\' portal, never twice', function () {
-    // Real notifications: what lands in each portal is the point.
-    Notification::swap(new ChannelManager(app()));
-    config(['mail.default' => 'array']);
+test('the result link a parent is sent opens that child\'s result directly, the token never in the address sent to the server', function () {
+    $token = ResultCheckingPin::where('bound_student_id', $this->ada->id)->latest('id')->first()->plainToken();
+    $link = DirectResultLink::for($this->school, $this->ada, $token);
 
-    activateSchool($this->school, PlanKey::Standard);
-    $mum = Guardian::factory()->create(['school_id' => $this->school->id, 'name' => 'Mrs Obi']);
-    $mum->students()->attach($this->ada);
-    $benDad = Guardian::factory()->create(['school_id' => $this->school->id, 'name' => 'Mr Eze']);
-    $benDad->students()->attach($this->ben);
+    expect($link)->toStartWith($this->school->resultLinkUrl().'#')
+        ->and(rawurldecode(Str::after($link, '#')))->toBe('a='.$this->ada->admission_number.'&t='.$token);
 
-    $this->actingAs($this->admin)->get(route('result-pins.details.broadcast', $this->exam->uuid))
-        ->assertSee('Post tokens to portals')
-        ->assertSee('Sign in to the parent portal');
-
-    $this->actingAs($this->admin)->post(route('result-pins.details.broadcast.portals', $this->exam->uuid))
-        ->assertRedirect(route('result-pins.details.broadcast', $this->exam->uuid));
-
-    $adaToken = ResultCheckingPin::where('bound_student_id', $this->ada->id)->latest('id')->first()->plainToken();
-    $benToken = ResultCheckingPin::where('bound_student_id', $this->ben->id)->latest('id')->first()->plainToken();
-
-    // Each parent has only their own child's token.
-    expect($mum->notifications()->pluck('data')->pluck('token')->all())->toBe([$adaToken])
-        ->and($benDad->notifications()->pluck('data')->pluck('token')->all())->toBe([$benToken]);
-
-    // Again: nothing is sent twice.
-    $this->actingAs($this->admin)->post(route('result-pins.details.broadcast.portals', $this->exam->uuid));
-    expect($mum->notifications()->count())->toBe(1)->and($benDad->notifications()->count())->toBe(1);
+    // The page fills both in from the part after "#".
+    $this->get($this->school->resultLinkUrl())->assertOk()->assertSee('data-direct-result-form', false)->assertSee("sessionStorage.setItem('akn-result-token'", false);
 });
