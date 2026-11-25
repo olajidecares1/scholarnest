@@ -25,6 +25,7 @@
         ->concat([
             ['route' => 'super-admin.payments.index', 'label' => 'Payments'],
             ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings'],
+            ['route' => 'super-admin.settings.whatsapp', 'label' => 'WhatsApp'],
             ['route' => 'super-admin.document-templates.index', 'label' => 'Templates'],
             ['route' => 'super-admin.users.index', 'label' => 'Users'],
             ['route' => 'super-admin.roles.index', 'label' => 'Roles & Permissions'],
@@ -226,6 +227,8 @@
                     ['route' => 'super-admin.media.index', 'label' => 'Media'],
                     ['route' => 'super-admin.themes.index', 'label' => 'Themes'],
                     ['route' => 'super-admin.payment-settings.index', 'label' => 'Payment Settings'],
+                    ['route' => 'super-admin.settings.whatsapp', 'label' => 'WhatsApp'],
+            ['route' => 'super-admin.settings.whatsapp', 'label' => 'WhatsApp'],
                     ['route' => 'super-admin.settings.index', 'label' => 'System Settings'],
                     ['route' => 'super-admin.audit-logs.index', 'label' => 'Audit Logs'],
                 ] as $item)

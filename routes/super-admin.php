@@ -27,6 +27,7 @@ use App\Http\Controllers\SuperAdmin\SubscriptionApprovalController;
 use App\Http\Controllers\SuperAdmin\SupportTicketController as SuperAdminSupportTicketController;
 use App\Http\Controllers\SuperAdmin\ThemeController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
+use App\Http\Controllers\SuperAdmin\WhatsAppSettingsController;
 use App\Support\SecureRoute as R;
 use Illuminate\Support\Facades\Route;
 
@@ -252,6 +253,14 @@ Route::name('media.')->middleware('permission:manage_media')->group(function () 
 Route::get(R::uri('super-admin.settings.index'), [SettingsController::class, 'edit'])->name('settings.index')->middleware('permission:manage_settings');
 Route::put(R::uri('super-admin.settings.index'), [SettingsController::class, 'update'])->name('settings.update')->middleware('permission:manage_settings');
 Route::post(R::uri('super-admin.settings.test-email'), [SettingsController::class, 'sendTestEmail'])->name('settings.test-email')->middleware(['permission:manage_settings', 'throttle:6,1']);
+
+// AkademicNest's WhatsApp number: automatic result details for every school.
+Route::middleware('permission:manage_settings')->name('settings.whatsapp')->group(function () {
+    Route::get(R::uri('super-admin.settings.whatsapp'), [WhatsAppSettingsController::class, 'show']);
+    Route::put(R::uri('super-admin.settings.whatsapp'), [WhatsAppSettingsController::class, 'update'])->middleware('throttle:20,1')->name('.update');
+    Route::post(R::uri('super-admin.settings.whatsapp.test'), [WhatsAppSettingsController::class, 'test'])->middleware('throttle:10,1')->name('.test');
+    Route::delete(R::uri('super-admin.settings.whatsapp'), [WhatsAppSettingsController::class, 'destroy'])->name('.destroy');
+});
 
 /*
  * Payment settings: how schools may pay, and what they pay into.

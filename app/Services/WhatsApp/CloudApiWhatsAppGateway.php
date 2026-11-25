@@ -3,13 +3,14 @@
 namespace App\Services\WhatsApp;
 
 use App\Models\School;
+use App\Support\PlatformWhatsApp;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
 /**
  * WhatsApp through Meta's WhatsApp Business Cloud API.
  *
- * Uses the approved template named in config('services.whatsapp.template')
+ * Uses the approved template named in PlatformWhatsApp::get('template')
  * when there is one, because WhatsApp only delivers a business-initiated
  * message as a template. Without one it sends plain text, which arrives only
  * for someone who has messaged the school's number within the last 24 hours.
@@ -48,7 +49,7 @@ class CloudApiWhatsAppGateway implements WhatsAppGateway
     {
         return $this->account !== null
             ? ($this->account['result_template'] ?: null)
-            : (config('services.whatsapp.result_template') ?: null);
+            : (PlatformWhatsApp::get('result_template') ?: null);
     }
 
     public function fromSchoolNumber(): bool
@@ -60,7 +61,7 @@ class CloudApiWhatsAppGateway implements WhatsAppGateway
     {
         return $this->account === null
             && $this->isConfigured()
-            && filled(config('services.whatsapp.verify_template'));
+            && filled(PlatformWhatsApp::get('verify_template'));
     }
 
     public function sendCode(string $phone, string $code): WhatsAppDelivery
@@ -78,8 +79,8 @@ class CloudApiWhatsAppGateway implements WhatsAppGateway
             'to' => $phone,
             'type' => 'template',
             'template' => [
-                'name' => (string) config('services.whatsapp.verify_template'),
-                'language' => ['code' => (string) config('services.whatsapp.verify_template_language', 'en')],
+                'name' => (string) PlatformWhatsApp::get('verify_template'),
+                'language' => ['code' => (string) PlatformWhatsApp::get('verify_template_language', 'en')],
                 'components' => [
                     ['type' => 'body', 'parameters' => [['type' => 'text', 'text' => $code]]],
                     ['type' => 'button', 'sub_type' => 'url', 'index' => '0', 'parameters' => [['type' => 'text', 'text' => $code]]],
@@ -90,17 +91,17 @@ class CloudApiWhatsAppGateway implements WhatsAppGateway
 
     private function token(): ?string
     {
-        return $this->account['token'] ?? config('services.whatsapp.token');
+        return $this->account['token'] ?? PlatformWhatsApp::get('token');
     }
 
     private function phoneNumberId(): ?string
     {
-        return $this->account['phone_number_id'] ?? config('services.whatsapp.phone_number_id');
+        return $this->account['phone_number_id'] ?? PlatformWhatsApp::get('phone_number_id');
     }
 
     private function templateLanguage(): string
     {
-        return $this->account['template_language'] ?? config('services.whatsapp.template_language', 'en');
+        return $this->account['template_language'] ?? PlatformWhatsApp::get('template_language', 'en');
     }
 
     public function send(string $phone, string $message, array $templateValues = [], ?string $template = self::DEFAULT_TEMPLATE): WhatsAppDelivery
@@ -116,7 +117,7 @@ class CloudApiWhatsAppGateway implements WhatsAppGateway
         }
 
         if ($template === self::DEFAULT_TEMPLATE) {
-            $template = config('services.whatsapp.template');
+            $template = PlatformWhatsApp::get('template');
         }
 
         $payload = filled($template) ? [

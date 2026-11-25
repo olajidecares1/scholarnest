@@ -115,6 +115,7 @@ class SidebarMeta
         'guardian.children.fees' => ['fa-solid fa-receipt', 'Fees and payments'],
         'super-admin.payments.index' => ['fa-solid fa-credit-card', 'Payments received'],
         'super-admin.payment-settings.index' => ['fa-solid fa-money-check-dollar', 'How schools may pay'],
+        'super-admin.settings.whatsapp' => ['fa-brands fa-whatsapp', 'Automatic result details to parents'],
         'super-admin.subscriptions.index' => ['fa-solid fa-file-invoice-dollar', 'Plans awaiting approval'],
 
         // --- Identity --------------------------------------------------

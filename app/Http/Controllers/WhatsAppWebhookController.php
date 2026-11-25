@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ResultDetails\ResultDetailsSender;
 use App\Services\WhatsApp\SchoolWhatsAppVerifier;
+use App\Support\PlatformWhatsApp;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -26,7 +27,7 @@ class WhatsAppWebhookController extends Controller
 {
     public function verify(Request $request): Response
     {
-        $expected = (string) config('services.whatsapp.webhook_verify_token');
+        $expected = (string) PlatformWhatsApp::get('webhook_verify_token');
 
         abort_unless(
             $expected !== ''
@@ -40,7 +41,7 @@ class WhatsAppWebhookController extends Controller
 
     public function receive(Request $request, ResultDetailsSender $sender, SchoolWhatsAppVerifier $verifier): JsonResponse
     {
-        $secret = (string) config('services.whatsapp.app_secret');
+        $secret = (string) PlatformWhatsApp::get('app_secret');
         $signature = (string) $request->header('X-Hub-Signature-256');
 
         abort_if($secret === '' || ! hash_equals('sha256='.hash_hmac('sha256', $request->getContent(), $secret), $signature), 403);

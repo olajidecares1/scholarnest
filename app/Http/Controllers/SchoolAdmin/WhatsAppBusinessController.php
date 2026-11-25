@@ -4,15 +4,14 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SchoolWhatsAppAccount;
+use App\Services\WhatsApp\MetaNumberCheck;
 use App\Services\WhatsApp\SchoolWhatsAppVerifier;
 use App\Services\WhatsApp\WhatsAppGateway;
 use App\Support\WhatsAppNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Throwable;
 
 /**
  * Settings > WhatsApp Business: the school connects its own registered
@@ -118,7 +117,7 @@ class WhatsAppBusinessController extends Controller
         ]);
 
         $token = filled($validated['access_token'] ?? null) ? trim($validated['access_token']) : (string) $existing?->access_token;
-        $phone = $this->checkWithMeta($validated['phone_number_id'], $token);
+        $phone = MetaNumberCheck::check($validated['phone_number_id'], $token);
 
         SchoolWhatsAppAccount::updateOrCreate(['school_id' => $school->id], [
             'phone_number_id' => $validated['phone_number_id'],
@@ -169,36 +168,6 @@ class WhatsAppBusinessController extends Controller
         SchoolWhatsAppAccount::query()->where('school_id', $request->user()->school_id)->delete();
 
         return redirect()->route('settings.whatsapp')->with('status', 'WhatsApp disconnected. Result details will be sent by email, with Send on WhatsApp buttons for WhatsApp.');
-    }
-
-    /**
-     * Asks Meta about this phone number with this token: proves both are
-     * right, and gives the number as Meta shows it.
-     *
-     * @return array<string, mixed>
-     */
-    private function checkWithMeta(string $phoneNumberId, string $token): array
-    {
-        try {
-            $response = Http::withToken($token)
-                ->acceptJson()
-                ->connectTimeout(5)
-                ->timeout(10)
-                ->get(sprintf('https://graph.facebook.com/%s/%s', config('services.whatsapp.api_version', 'v21.0'), $phoneNumberId), [
-                    'fields' => 'display_phone_number,verified_name',
-                ]);
-        } catch (Throwable $e) {
-            report($e);
-
-            throw ValidationException::withMessages(['phone_number_id' => 'Meta could not be reached to check these details. Please try again in a moment.']);
-        }
-
-        if (! $response->successful()) {
-            throw ValidationException::withMessages(['access_token' => 'Meta did not accept these details: '
-                .($response->json('error.message') ?? "HTTP {$response->status()}").' Check the Phone number ID and the access token.']);
-        }
-
-        return (array) $response->json();
     }
 
     /**

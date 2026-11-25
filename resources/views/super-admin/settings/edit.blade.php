@@ -6,6 +6,15 @@
             </div>
         @endif
 
+        <a href="{{ route('super-admin.settings.whatsapp') }}" class="flex items-center gap-3 rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow dark:border-gray-700 dark:bg-gray-800">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white"><i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i></span>
+            <span class="min-w-0 flex-1">
+                <span class="block text-sm font-bold text-gray-900 dark:text-white">WhatsApp</span>
+                <span class="block text-xs text-gray-600 dark:text-gray-300">{{ app(\App\Services\WhatsApp\WhatsAppGateway::class)->isConfigured() ? 'Automatic result details to parents: on' : 'Switch on automatic result details to parents for every school.' }}</span>
+            </span>
+            <i class="fa-solid fa-chevron-right text-xs text-gray-400" aria-hidden="true"></i>
+        </a>
+
         <form method="POST" action="{{ route('super-admin.settings.update') }}" class="space-y-2">
             @csrf
             @method('PUT')
