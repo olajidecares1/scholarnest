@@ -265,6 +265,49 @@ class ResultDetailsController extends Controller
 
         $counts = (clone $query)->toBase()->reorder()->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
 
+        // Why the ones that did not go did not: grouped, largest first, each
+        // with what to do about it. Missing contacts group by channel (their
+        // wording names each pupil's own bad number); failures by reason.
+        $notSent = ResultDetailDelivery::query()
+            ->forSchool($school)
+            ->when($filters['batch'], fn ($q, $batch) => $q->where('batch', $batch))
+            ->when($filters['channel'], fn ($q, $channel) => $q->where('channel', $channel))
+            ->whereIn('status', [ResultDeliveryStatus::Failed, ResultDeliveryStatus::MissingContact])
+            ->toBase()
+            ->selectRaw('status, channel, error, COUNT(*) as total')
+            ->groupBy('status', 'channel', 'error')
+            ->get();
+
+        $reasons = $notSent
+            ->groupBy(fn ($r) => $r->status === ResultDeliveryStatus::MissingContact->value ? "missing:{$r->channel}" : "failed:{$r->channel}:{$r->error}")
+            ->map(function ($group) {
+                $first = $group->first();
+                $channel = ResultDeliveryChannel::from($first->channel);
+                $missing = $first->status === ResultDeliveryStatus::MissingContact->value;
+                $error = (string) $first->error;
+
+                return [
+                    'count' => (int) $group->sum('total'),
+                    'channel' => $channel,
+                    'reason' => $missing
+                        ? ($channel === ResultDeliveryChannel::Email
+                            ? 'No parent/guardian email address (or not a valid one) on the pupil\'s record.'
+                            : 'No parent/guardian WhatsApp number (or not a valid one) on the pupil\'s record.')
+                        : (str_starts_with($error, 'Not sent automatically')
+                            ? 'Waiting to be sent from your phone (automatic WhatsApp is not switched on).'
+                            : ($error !== '' ? $error : 'The message could not be sent.')),
+                    'fix' => match (true) {
+                        $missing => 'Tap Add contact on the pupil below, enter the parent\'s '.($channel === ResultDeliveryChannel::Email ? 'email address' : 'phone number').', save, then Retry.',
+                        str_starts_with($error, 'Not sent automatically') => 'Send them from your phone with Send to all on WhatsApp.',
+                        str_contains($error, 'token') => 'Reissue the token under Exam Tokens, then Retry.',
+                        str_contains($error, 'result-checking link') => 'Switch the result link back on under Exam Tokens, then Retry.',
+                        default => 'Tap Retry to try again.',
+                    },
+                ];
+            })
+            ->sortByDesc('count')
+            ->values();
+
         // WhatsApp messages still to go, for "Send to all on WhatsApp".
         $whatsAppToSend = ResultDetailDelivery::query()
             ->forSchool($school)
@@ -282,6 +325,7 @@ class ResultDetailsController extends Controller
             'channels' => ResultDeliveryChannel::cases(),
             'whatsAppReady' => app(WhatsAppGateway::class)->forSchool($request->user()->school)->isConfigured(),
             'whatsAppToSend' => $whatsAppToSend,
+            'reasons' => $reasons,
         ]);
     }
 

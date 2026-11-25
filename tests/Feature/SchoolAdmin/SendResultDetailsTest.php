@@ -799,3 +799,22 @@ test('one school never sees another school\'s parents to send to', function () {
         ->assertSee('No WhatsApp messages are waiting to be sent.')
         ->assertDontSee($this->ada->fullName());
 });
+
+test('the sending history says why messages did not go, and what to do about each', function () {
+    config(['services.whatsapp.token' => null]);
+
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'both', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid, $this->noContact->uuid],
+    ]);
+    $batch = ResultDetailDelivery::where('student_id', $this->ada->id)->value('batch');
+
+    $this->actingAs($this->admin)->get(route('result-pins.details.history', ['batch' => $batch]))
+        ->assertOk()
+        ->assertSee('messages did not go')
+        ->assertSee('No parent/guardian WhatsApp number (or not a valid one) on the pupil&#039;s record.', false)
+        ->assertSee('No parent/guardian email address (or not a valid one) on the pupil&#039;s record.', false)
+        ->assertSee('Waiting to be sent from your phone (automatic WhatsApp is not switched on).')
+        ->assertSee('Send them from your phone with Send to all on WhatsApp.')
+        ->assertSee('Add contact')
+        ->assertSee(route('students.show', $this->noContact), false);
+});

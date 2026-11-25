@@ -99,6 +99,31 @@
                 </div>
             @endif
 
+            {{-- Why messages did not go, and what to do about each. --}}
+            @if ($reasons->isNotEmpty())
+                <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">
+                        Why {{ number_format($reasons->sum('count')) }} {{ $reasons->sum('count') === 1 ? 'message' : 'messages' }} did not go
+                    </h3>
+                    <ul class="mt-3 space-y-2.5">
+                        @foreach ($reasons->take(8) as $reason)
+                            <li class="flex items-start gap-3 rounded-[8px] bg-gray-50 p-3 dark:bg-gray-900/40">
+                                <span class="mt-0.5 inline-flex min-w-[2.25rem] shrink-0 items-center justify-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700 dark:bg-red-900/40 dark:text-red-300">{{ number_format($reason['count']) }}</span>
+                                <span class="min-w-0 text-sm">
+                                    <span class="block font-semibold text-gray-900 dark:text-white">
+                                        <i class="{{ $reason['channel']->icon() }} mr-1" aria-hidden="true"></i>{{ $reason['channel']->label() }}: {{ $reason['reason'] }}
+                                    </span>
+                                    <span class="mt-0.5 block text-gray-700 dark:text-gray-300">{{ $reason['fix'] }}</span>
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
+                    @if ($reasons->count() > 8)
+                        <p class="mt-2 text-xs text-gray-700 dark:text-gray-300">And {{ $reasons->count() - 8 }} other reasons: see each message below.</p>
+                    @endif
+                </div>
+            @endif
+
             {{-- Ticked rows: retry just those. Sent and delivered rows cannot
                  be ticked, so nothing already sent goes twice. --}}
             <div x-show="selected.length" x-cloak class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 bg-amber-50 px-5 py-3 dark:border-amber-900/50 dark:bg-amber-900/20">
@@ -167,7 +192,7 @@
                                         @if ($delivery->status === \App\Enums\ResultDeliveryStatus::Pending)<i class="fa-solid fa-spinner fa-spin mr-1" aria-hidden="true"></i>@endif{{ $delivery->status->label() }}
                                     </span>
                                     @if ($delivery->error)
-                                        <small class="mt-1 block max-w-xs text-[11px] text-gray-500 dark:text-gray-400">{{ $delivery->error }}</small>
+                                        <small class="mt-1 block max-w-xs text-xs text-gray-700 dark:text-gray-300">{{ $delivery->error }}</small>
                                     @endif
                                     @if ($delivery->attempts > 1)
                                         <small class="block text-[11px] text-gray-400">{{ $delivery->attempts }} attempts</small>
@@ -185,8 +210,14 @@
                                             </button>
                                         </form>
                                     @endif
+                                    {{-- No contact: add it on the pupil's record, then retry. --}}
+                                    @if ($delivery->status === \App\Enums\ResultDeliveryStatus::MissingContact && $delivery->student)
+                                        <a href="{{ route('students.show', $delivery->student) }}" class="btn mb-1 inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-800 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700">
+                                            <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Add contact
+                                        </a>
+                                    @endif
                                     @if ($delivery->status->isRetryable())
-                                        <form method="POST" action="{{ route('result-pins.details.retry') }}">
+                                        <form method="POST" action="{{ route('result-pins.details.retry') }}" class="inline-block">
                                             @csrf
                                             <input type="hidden" name="deliveries[]" value="{{ $delivery->uuid }}">
                                             <button type="submit" class="icon-btn icon-btn--warn" data-tooltip="Retry" aria-label="Retry this message"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></button>
