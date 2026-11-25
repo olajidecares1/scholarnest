@@ -20,6 +20,7 @@ use App\Services\ExaminationResultCalculator;
 use App\Services\ResultDetails\ResultDetailsSender;
 use App\Services\ResultRepository;
 use App\Services\WhatsApp\WhatsAppGateway;
+use App\Support\WhatsAppNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -175,7 +176,64 @@ class ResultDetailsController extends Controller
                 .$selection['unusable']->map(fn ($u) => "{$u['name']} ({$u['reason']})")->join('; ').'.';
         }
 
+        // WhatsApp that cannot go by itself goes from the School Admin's own
+        // phone, one parent after another: straight there when it is the
+        // only channel, else a button on the history (emails go anyway).
+        if (in_array(ResultDeliveryChannel::WhatsApp, $channels, true) && ! app(WhatsAppGateway::class)->forSchool($school)->isConfigured()) {
+            if (count($channels) === 1) {
+                return redirect()->route('result-pins.details.whatsapp-queue', ['batch' => $batch]);
+            }
+
+            $status .= ' Emails go automatically. For WhatsApp, tap Send to all on WhatsApp.';
+        }
+
         return redirect()->route('result-pins.details.history', ['batch' => $batch])->with('status', $status);
+    }
+
+    /**
+     * Send on WhatsApp, one parent after another, from the School Admin's
+     * own phone: free, from the school's own number, ordinary WhatsApp or
+     * Business. Each tap opens the next parent's chat with the message
+     * already typed (sendOnWhatsApp).
+     */
+    public function whatsAppQueue(Request $request): View
+    {
+        $school = $request->user()->school;
+        $batch = $request->string('batch')->toString() ?: null;
+
+        $deliveries = ResultDetailDelivery::query()
+            ->forSchool($school)
+            ->where('channel', ResultDeliveryChannel::WhatsApp)
+            ->whereNotNull('recipient')
+            ->where('status', '!=', ResultDeliveryStatus::MissingContact)
+            ->when($batch, fn ($q, $b) => $q->where('batch', $b), fn ($q) => $q->whereNotIn('status', [ResultDeliveryStatus::Sent, ResultDeliveryStatus::Delivered]))
+            ->with(['student.school', 'examination', 'token.examination'])
+            ->orderBy('id')
+            ->limit(500)
+            ->get();
+
+        $rows = $deliveries->map(function (ResultDetailDelivery $delivery) {
+            $done = $delivery->status->wentOut();
+
+            return [
+                'id' => $delivery->uuid,
+                'action' => route('result-pins.details.whatsapp', $delivery),
+                'parent' => (string) ($delivery->recipient_name ?: 'Parent/Guardian'),
+                'student' => (string) ($delivery->student?->fullName() ?? 'Removed student'),
+                'admission' => (string) ($delivery->student?->admission_number ?? ''),
+                'phone' => WhatsAppNumber::display((string) $delivery->recipient),
+                'done' => $done,
+                'problem' => $done ? null : $this->sender->whatsAppLink($delivery)['problem'],
+            ];
+        })->values();
+
+        $exam = $deliveries->first()?->examination;
+
+        return view('school-admin.result-details.whatsapp-queue', [
+            'rows' => $rows,
+            'batch' => $batch,
+            'title' => $exam ? "{$exam->class_name} · {$exam->term->label()} {$exam->session}" : null,
+        ]);
     }
 
     /**
@@ -207,6 +265,15 @@ class ResultDetailsController extends Controller
 
         $counts = (clone $query)->toBase()->reorder()->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
 
+        // WhatsApp messages still to go, for "Send to all on WhatsApp".
+        $whatsAppToSend = ResultDetailDelivery::query()
+            ->forSchool($school)
+            ->when($filters['batch'], fn ($q, $batch) => $q->where('batch', $batch))
+            ->where('channel', ResultDeliveryChannel::WhatsApp)
+            ->whereNotNull('recipient')
+            ->where('status', ResultDeliveryStatus::Failed)
+            ->count();
+
         return view('school-admin.result-details.history', [
             'deliveries' => $query->with(['student', 'examination', 'sender'])->latest('id')->paginate(30)->withQueryString(),
             'counts' => collect(ResultDeliveryStatus::cases())->mapWithKeys(fn ($s) => [$s->value => (int) ($counts[$s->value] ?? 0)]),
@@ -214,6 +281,7 @@ class ResultDetailsController extends Controller
             'statuses' => ResultDeliveryStatus::cases(),
             'channels' => ResultDeliveryChannel::cases(),
             'whatsAppReady' => app(WhatsAppGateway::class)->forSchool($request->user()->school)->isConfigured(),
+            'whatsAppToSend' => $whatsAppToSend,
         ]);
     }
 

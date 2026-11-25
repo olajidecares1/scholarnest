@@ -177,7 +177,7 @@ test('without WhatsApp credentials nothing is pretended', function () {
         ->post(route('result-pins.details.send'), ['channel' => 'whatsapp', 'tokens' => [tokenUuid($this, 'AKN/001')]]);
 
     expect(ResultDetailDelivery::sole()->status)->toBe(ResultDeliveryStatus::Failed)
-        ->and(ResultDetailDelivery::sole()->error)->toContain('not set up');
+        ->and(ResultDetailDelivery::sole()->error)->toContain('Not sent automatically');
     Http::assertNothingSent();
 });
 
@@ -695,11 +695,12 @@ test('a code WhatsApp could not deliver says the number may not be on WhatsApp',
         ->assertSee('WhatsApp could not deliver the code (Message undeliverable). Check that this number is registered on WhatsApp', false);
 });
 
-test('without AkademicNest\'s verification template, the page says verification is not switched on', function () {
+test('without AkademicNest\'s verification template, the page explains sending from the school\'s own phone', function () {
     config(['services.whatsapp.verify_template' => null]);
 
     $this->actingAs($this->admin)->get(route('settings.whatsapp'))
-        ->assertSee('WhatsApp verification is not switched on for AkademicNest yet');
+        ->assertSee('Result details go to parents from <strong>your own phone</strong>, free', false)
+        ->assertDontSee('Send code');
 
     $this->actingAs($this->admin)->post(route('settings.whatsapp.number.code'), ['whatsapp_number' => '08031234567'])
         ->assertSessionHasErrors('whatsapp_number');
@@ -731,4 +732,70 @@ test('an unverified school number is never put on a parent\'s message', function
 
     Http::assertSent(fn ($request) => in_array((string) $this->school->name, array_column($request['template']['components'][0]['parameters'], 'text'), true));
     Http::assertNotSent(fn ($request) => str_contains(json_encode($request->data()), '9663'));
+});
+
+// ---------------------------------------------------------------------------
+// Free: from the School Admin's own phone, one parent after another
+// ---------------------------------------------------------------------------
+
+test('sending by WhatsApp alone, without automatic sending, goes straight to one-after-another sending', function () {
+    config(['services.whatsapp.token' => null]);
+
+    $response = $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'whatsapp', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid, $this->ben->uuid],
+    ]);
+
+    $batch = ResultDetailDelivery::where('student_id', $this->ada->id)->value('batch');
+    $response->assertRedirect(route('result-pins.details.whatsapp-queue', ['batch' => $batch]));
+
+    $ada = ResultDetailDelivery::where('student_id', $this->ada->id)->sole();
+    $token = ResultCheckingPin::where('bound_student_id', $this->ada->id)->latest('id')->first();
+
+    $this->actingAs($this->admin)->get(route('result-pins.details.whatsapp-queue', ['batch' => $batch]))
+        ->assertOk()
+        ->assertSee('Open WhatsApp')
+        ->assertSee($this->ada->fullName())
+        ->assertSee(str_replace('/', '\\/', route('result-pins.details.whatsapp', $ada)), false)
+        // The tokens stay off the page; each goes only into its own WhatsApp message.
+        ->assertDontSee($token->plainToken());
+
+    // Each tap: marked sent, and WhatsApp opens with the message typed.
+    $this->actingAs($this->admin)->post(route('result-pins.details.whatsapp', $ada))
+        ->assertRedirect();
+    expect($ada->fresh()->status)->toBe(ResultDeliveryStatus::Sent);
+
+    $page = $this->actingAs($this->admin)->get(route('result-pins.details.whatsapp-queue', ['batch' => $batch]))->getContent();
+    preg_match('/rows: (\[.*?\]),\n/s', $page, $m);
+    $rows = collect(json_decode(html_entity_decode($m[1]), true));
+
+    expect($rows)->toHaveCount(ResultDetailDelivery::where('batch', $batch)->where('channel', 'whatsapp')->whereNotNull('recipient')->count())
+        ->and($rows->firstWhere('id', $ada->uuid)['done'])->toBeTrue()
+        ->and($rows->where('done', false)->every(fn ($r) => $r['problem'] === null))->toBeTrue();
+});
+
+test('the sending history offers Send to all on WhatsApp for what has not gone', function () {
+    config(['services.whatsapp.token' => null]);
+
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'both', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
+    ])->assertSessionHas('status', fn ($status) => str_contains($status, 'tap Send to all on WhatsApp'));
+
+    $this->actingAs($this->admin)->get(route('result-pins.details.history'))
+        ->assertSee('Send to all on WhatsApp')
+        ->assertSee(route('result-pins.details.whatsapp-queue'), false);
+});
+
+test('one school never sees another school\'s parents to send to', function () {
+    config(['services.whatsapp.token' => null]);
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'whatsapp', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
+    ]);
+
+    $otherSchool = activateSchool(School::factory()->create(), PlanKey::Basic);
+    $otherAdmin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $otherSchool->id]);
+
+    $this->actingAs($otherAdmin)->get(route('result-pins.details.whatsapp-queue'))
+        ->assertOk()
+        ->assertSee('No WhatsApp messages are waiting to be sent.')
+        ->assertDontSee($this->ada->fullName());
 });

@@ -30,14 +30,20 @@
             </div>
         @endif
 
-        @unless ($whatsAppReady)
-            <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
-                <i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i>
-                Automatic WhatsApp sending is not switched on yet (<a href="{{ route('settings.whatsapp') }}" class="font-semibold underline">WhatsApp settings</a>), so WhatsApp messages are not sent by themselves.
-                Tap <strong>Send on WhatsApp</strong> beside each parent: WhatsApp opens at their chat with their child&rsquo;s admission number,
-                result token and link already typed; just press send. Emails go automatically.
+        {{-- WhatsApp that could not go by itself: from the School Admin's own
+             phone, one parent after another. Free, from the school's number. --}}
+        @if ($whatsAppToSend > 0)
+            <div class="flex flex-col gap-3 rounded-[10px] border border-green-200 bg-green-50 p-4 sm:flex-row sm:items-center dark:border-green-900/50 dark:bg-green-900/20">
+                <p class="min-w-0 flex-1 text-sm text-gray-800 dark:text-gray-100">
+                    <i class="fa-brands fa-whatsapp mr-1 text-[#1ebe5b]" aria-hidden="true"></i>
+                    <strong>{{ $whatsAppToSend }} WhatsApp {{ $whatsAppToSend === 1 ? 'message' : 'messages' }}</strong> to send from your phone.
+                    WhatsApp opens at each parent's chat with their child's admission number, token and link already typed; press send, come back, and the next parent is ready.
+                </p>
+                <a href="{{ route('result-pins.details.whatsapp-queue', array_filter(['batch' => $filters['batch']])) }}" class="btn inline-flex shrink-0 items-center justify-center gap-2 rounded-[8px] bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1ebe5b]">
+                    <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Send to all on WhatsApp
+                </a>
             </div>
-        @endunless
+        @endif
 
         {{-- The counts, each one a filter. --}}
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">

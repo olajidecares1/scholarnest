@@ -45,10 +45,10 @@
         </div>
 
         @if (in_array(\App\Enums\ResultDeliveryChannel::WhatsApp, $channels, true) && ! $whatsAppReady)
-            <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
-                Automatic WhatsApp sending is not switched on yet, so WhatsApp will not send by itself. Emails go automatically; for WhatsApp, the
-                sending history gives a <strong>Send on WhatsApp</strong> button for each parent, with the message already typed.
-                <a href="{{ route('settings.whatsapp') }}" class="font-semibold underline">WhatsApp settings</a>
+            <div class="rounded-[10px] border border-green-200 bg-green-50 p-4 text-sm text-gray-800 dark:border-green-900/50 dark:bg-green-900/20 dark:text-gray-100">
+                <i class="fa-brands fa-whatsapp mr-1 text-[#1ebe5b]" aria-hidden="true"></i>
+                WhatsApp messages go from your own phone, free: after you press Send, tap <strong>Send to all on WhatsApp</strong>. WhatsApp opens at each
+                parent's chat with the message already typed; press send, come back, and the next parent is ready. Emails go automatically.
             </div>
         @endif
 

@@ -28,6 +28,8 @@
                             When you press <strong>Send to parents</strong> on Results, each parent gets their child's admission number, result token and link on WhatsApp automatically,
                             with this number on the message so they can chat with the school.
                         </p>
+                    @elseif (! $canVerify)
+                        <p class="font-semibold text-gray-900 dark:text-white">Sending result details on WhatsApp</p>
                     @else
                         <p class="font-semibold text-gray-900 dark:text-white">Your school's WhatsApp number</p>
                         <p class="mt-0.5 text-sm text-gray-700 dark:text-gray-200">
@@ -39,12 +41,17 @@
             </div>
 
             @if (! $canVerify)
-                <p class="mt-4 rounded-[8px] border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
-                    WhatsApp verification is not switched on for AkademicNest yet. Please contact AkademicNest support.
-                </p>
-            @endif
-
-            @if ($pending)
+                {{-- No AkademicNest number to send codes from: WhatsApp goes
+                     from the school's own phone, free. --}}
+                <div class="mt-4 space-y-2 text-sm text-gray-700 dark:text-gray-200">
+                    <p>
+                        Result details go to parents from <strong>your own phone</strong>, free, on ordinary WhatsApp or WhatsApp Business.
+                        On <strong>Results</strong>, tick the pupils (or Select all) and choose <strong>Send to parents</strong>, then tap <strong>Send to all on WhatsApp</strong>:
+                        WhatsApp opens at each parent's chat with the admission number, token and link already typed. Press send, come back, and the next parent is ready.
+                    </p>
+                    <p class="text-xs">Send from the phone that has your school's WhatsApp, so parents see the school's number.</p>
+                </div>
+            @elseif ($pending)
                 {{-- A code is on its way: type it back. --}}
                 <form method="POST" action="{{ route('settings.whatsapp.number.verify') }}" class="mt-4 space-y-2">
                     @csrf
@@ -92,7 +99,7 @@
                         <input id="whatsapp_number" name="whatsapp_number" type="tel" inputmode="tel" autocomplete="tel"
                                value="{{ old('whatsapp_number', $verified ? '' : $school->whatsapp_number) }}" placeholder="e.g. 08031234567"
                                class="min-w-0 flex-1 sm:max-w-xs" required>
-                        <button type="submit" class="btn inline-flex items-center gap-2 rounded-[8px] bg-[#25D366] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1ebe5b] disabled:opacity-60" @disabled(! $canVerify)>
+                        <button type="submit" class="btn inline-flex items-center gap-2 rounded-[8px] bg-[#25D366] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1ebe5b] disabled:opacity-60">
                             <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Send code
                         </button>
                     </div>
@@ -120,7 +127,7 @@
                         @if ($account)
                             Result details go out from {{ $account->display_number ?? 'your WhatsApp Business number' }}{{ $account->verified_name ? ' ('.$account->verified_name.')' : '' }}.
                         @else
-                            Messages normally come from AkademicNest's WhatsApp number. Schools on Meta's WhatsApp Business Platform can send from their own number instead.
+                            Paid option: schools on Meta's WhatsApp Business Platform can send automatically from their own number. Meta charges per message.
                         @endif
                     </span>
                 </span>

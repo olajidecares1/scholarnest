@@ -547,7 +547,7 @@ class ResultDetailsSender
         }
 
         if ($needsGateway && $row->channel === ResultDeliveryChannel::WhatsApp && ! $this->whatsApp->forSchool($student->school)->isConfigured()) {
-            return 'WhatsApp sending is not set up on this server yet, so this message was not sent automatically. Use Send on WhatsApp to send it yourself.';
+            return 'Not sent automatically. Send it from your phone: tap Send on WhatsApp.';
         }
 
         // The address must still be on this student's own record.

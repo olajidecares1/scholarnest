@@ -11,7 +11,7 @@
             <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white"><i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i></span>
             <span class="min-w-0 flex-1">
                 <span class="block text-sm font-bold text-gray-900 dark:text-white">WhatsApp</span>
-                <span class="block text-xs text-gray-600 dark:text-gray-300">{{ ($verifiedWhatsApp = $school->verifiedWhatsApp()) ? 'Verified: '.\App\Support\WhatsAppNumber::display($verifiedWhatsApp) : 'Verify your school\'s WhatsApp number, so result details go to parents on WhatsApp automatically.' }}</span>
+                <span class="block text-xs text-gray-600 dark:text-gray-300">{{ ($verifiedWhatsApp = $school->verifiedWhatsApp()) ? 'Verified: '.\App\Support\WhatsAppNumber::display($verifiedWhatsApp) : 'How result details reach parents on WhatsApp.' }}</span>
             </span>
             <i class="fa-solid fa-chevron-right text-xs text-gray-400" aria-hidden="true"></i>
         </a>
@@ -267,7 +267,7 @@
                             Your WhatsApp number links to <span class="font-semibold">{{ $whatsappLink }}</span>.
                             @if ($school->verifiedWhatsApp())
                                 <span class="font-semibold text-green-700 dark:text-green-400"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Verified</span>
-                            @else
+                            @elseif (app(\App\Services\WhatsApp\SchoolWhatsAppVerifier::class)->canVerify())
                                 <a href="{{ route('settings.whatsapp') }}" class="font-semibold text-primary-700 underline dark:text-primary-300">Verify it</a>
                             @endif
                         </small>
