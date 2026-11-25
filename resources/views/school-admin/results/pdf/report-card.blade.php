@@ -43,7 +43,10 @@
     // though the two have different margins.
     $pageWidth = 794;
     $printableHeight = 1047; // 297mm less the 10mm margin top and bottom.
-    $logoAbsolutePath = $school->logoAbsolutePath();
+    // Every picture is cut down to the size the card prints it at before
+    // dompdf sees it: a phone's 8 MB photo embedded whole made each PDF huge
+    // and a class's worth ran the server out of memory. See App\Support\PdfImage.
+    $logoAbsolutePath = \App\Support\PdfImage::fit($school->logoAbsolutePath(), 800);
     $watermark = $logoAbsolutePath
         ? app(\App\Services\CodeImageGenerator::class)->watermarkDataUri($logoAbsolutePath, (int) round($pageWidth * 0.76), 0.07)
         : null;
@@ -112,8 +115,8 @@
 
     // dompdf's `enable_remote` option is off, so it can only read images via
     // local filesystem path, never the http(s) URLs used everywhere else.
-    $logoPath = $school->logoAbsolutePath();
-    $photoPath = $student->photoAbsolutePath();
+    $logoPath = \App\Support\PdfImage::fit($school->logoAbsolutePath(), 360);
+    $photoPath = \App\Support\PdfImage::fit($student->photoAbsolutePath(), 420);
     // The Principal's signature: School Admin is the Principal, so this is
     // their own registered signature, in gold, resolved from THIS school's
     // admin account, see App\Support\PrincipalSignature. Gold is baked into
@@ -121,7 +124,7 @@
     // printed card cannot disagree about the colour.
     $principalSignature = \App\Support\PrincipalSignature::for($school);
     $signaturePath = $principalSignature?->absolutePath();
-    $stampPath = $school->stampAbsolutePath();
+    $stampPath = \App\Support\PdfImage::fit($school->stampAbsolutePath(), 420);
 
     // The class teacher's own signature, from their staff record, theirs to
     // upload, not the school's to supply on their behalf.

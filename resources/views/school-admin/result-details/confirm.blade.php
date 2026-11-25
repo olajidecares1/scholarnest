@@ -51,9 +51,20 @@
             </div>
         @endif
 
+        @if ($notReady->isNotEmpty())
+            <div class="rounded-[10px] border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
+                <p class="font-semibold">{{ $notReady->count() }} student(s) have no result for their parents to see yet.</p>
+                <small class="mt-1 block text-xs">
+                    No marks are recorded{{ auth()->user()->school->resultsComeFromRepository() ? ', or the result has not been pushed to the Result Repository,' : '' }}
+                    for: {{ $notReady->join(', ') }}. Their parents would get a token for a result that is empty or not ready.
+                    Enter the marks{{ auth()->user()->school->resultsComeFromRepository() ? ' and push them' : '' }} first, or go ahead if you mean to.
+                </small>
+            </div>
+        @endif
+
         @if ($toIssue->isNotEmpty())
             <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
-                {{ $toIssue->count() }} student(s) have no token for this result yet. One will be issued for each when you press Send.
+                {{ $toIssue->count() }} student(s) have no working token for this result (none issued yet, or theirs is used up or expired). A new one is made for each when you press Send, before their message goes out.
             </div>
         @endif
 

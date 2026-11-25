@@ -8,6 +8,8 @@ use App\Enums\ResultDeliveryStatus;
 use App\Enums\StaffRole;
 use App\Enums\UserRole;
 use App\Models\Examination;
+use App\Models\ExaminationScore;
+use App\Models\ExaminationSubject;
 use App\Models\Guardian;
 use App\Models\ResultCheckingPin;
 use App\Models\ResultDetailDelivery;
@@ -18,6 +20,7 @@ use App\Models\User;
 use App\Notifications\ResultDetailsNotification;
 use App\Services\ResultDetails\GuardianContacts;
 use App\Services\ResultDetails\ResultDetailsSender;
+use App\Services\ResultRepository;
 use App\Services\ResultTokenIssuer;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Notifications\AnonymousNotifiable;
@@ -366,4 +369,81 @@ test('WhatsApp receipts are not held to the API\'s 60-a-minute limit', function 
 
     // Unsigned, so each is refused, but none is rate limited.
     expect($statuses->unique()->values()->all())->toBe([403]);
+});
+
+test('a used-up token is replaced with a fresh one before the message goes out, every time', function () {
+    $old = $this->tokens['AKN/001']['token'];
+    $old->update(['status' => ResultCheckingPinStatus::Exhausted]);
+
+    $sendForAda = fn () => $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'email', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
+    ]);
+
+    $sendForAda();
+
+    $current = ResultCheckingPin::where('bound_student_id', $this->ada->id)->latest('id')->first();
+    expect($current->id)->not->toBe($old->id)
+        ->and($current->accessRefusalReason())->toBeNull()
+        ->and(ResultDetailDelivery::where('student_id', $this->ada->id)->sole()->result_checking_pin_id)->toBe($current->id);
+
+    // The message carries the NEW token.
+    Notification::assertSentOnDemand(ResultDetailsNotification::class, fn ($n) => $n->token === $current->plainToken());
+
+    // Used up again later: renewed again, even though an older token in the
+    // history is revoked by the first renewal.
+    $current->update(['status' => ResultCheckingPinStatus::Exhausted]);
+    $sendForAda();
+
+    expect(ResultCheckingPin::where('bound_student_id', $this->ada->id)->latest('id')->first()->accessRefusalReason())->toBeNull()
+        ->and(ResultCheckingPin::where('bound_student_id', $this->ada->id)->count())->toBe(3);
+});
+
+test('the admission number and token a parent receives open that child\'s result', function () {
+    $this->school->update(['result_link_enabled' => true]);
+    $fresh = Student::factory()->create([
+        'school_id' => $this->school->id, 'class_name' => 'JSS 1', 'is_active' => true,
+        'first_name' => 'Tobi', 'last_name' => 'Ade', 'admission_number' => 'TGA-2026/2027-JUR-009',
+        'guardian_name' => 'Mrs Ade', 'guardian_email' => 'ade@example.com', 'guardian_phone' => '08039876543',
+    ]);
+    $subject = ExaminationSubject::factory()->create(['examination_id' => $this->exam->id, 'name' => 'Mathematics', 'max_score' => 100]);
+    ExaminationScore::factory()->create(['examination_subject_id' => $subject->id, 'student_id' => $fresh->id, 'test_score' => 30, 'exam_score' => 50, 'score' => 80]);
+    app(ResultRepository::class)->publish($this->exam, $fresh, $this->admin, $this->admin->name);
+
+    // No token yet: one is made, then sent, to the parent on Tobi's record.
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'email', 'examination' => $this->exam->uuid, 'students' => [$fresh->uuid],
+    ]);
+
+    $sent = null;
+    Notification::assertSentOnDemand(ResultDetailsNotification::class, function ($n, $channels, $to) use (&$sent) {
+        $sent = ['n' => $n, 'to' => $to->routes['mail']];
+
+        return true;
+    });
+
+    $mail = $sent['n']->toMail(new AnonymousNotifiable)->render();
+
+    expect($sent['to'])->toBe('ade@example.com')
+        ->and((string) $mail)->toContain('TGA-2026/2027-JUR-009')
+        ->and((string) $mail)->toContain($sent['n']->token)
+        ->and($sent['n']->forWhatsApp()['text'])->toContain('TGA-2026/2027-JUR-009')->toContain($sent['n']->token);
+
+    // The parent, logged out, follows the link with what the message gave them.
+    auth()->logout();
+    $link = parse_url($sent['n']->resultLink, PHP_URL_PATH);
+
+    $this->post($link.'/identify', ['admission_number' => 'TGA-2026/2027-JUR-009'])->assertRedirect();
+    $result = $this->post($link, ['code' => $sent['n']->token]);
+    $result->assertRedirect();
+
+    $this->get($result->headers->get('Location'))->assertOk()->assertSee('Tobi')->assertSee('Mathematics');
+});
+
+test('the confirmation warns, by name, about pupils with no result to see yet', function () {
+    // The fixture's pupils have tokens but no marks.
+    $this->actingAs($this->admin)->post(route('result-pins.details.preview'), [
+        'channel' => 'email', 'examination' => $this->exam->uuid, 'all' => 1,
+    ])->assertOk()
+        ->assertSee('have no result for their parents to see yet')
+        ->assertSee('Ada Obi');
 });

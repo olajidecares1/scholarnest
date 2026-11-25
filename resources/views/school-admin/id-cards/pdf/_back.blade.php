@@ -21,7 +21,7 @@
     $images = app(\App\Services\CodeImageGenerator::class);
     $qr = $images->qrCodeDataUri($card->verificationUrl(), 120);
 
-    $logoAbsolutePath = $school->logoAbsolutePath();
+    $logoAbsolutePath = \App\Support\PdfImage::fit($school->logoAbsolutePath(), 600);
     // Contain (not crop-to-circle) so the logo keeps its true aspect ratio,
     // matching the front header's portrait logo treatment.
     $logoPath = $logoAbsolutePath ? $images->containedImageDataUri($logoAbsolutePath, 52, 52) : null;
@@ -33,7 +33,7 @@
     $signature = $signatureAbsolutePath ? $images->containedImageDataUri($signatureAbsolutePath, 62, 15) : null;
 
     // The school's official stamp, sized to fit beside the signature.
-    $stampAbsolutePath = $school->stampAbsolutePath();
+    $stampAbsolutePath = \App\Support\PdfImage::fit($school->stampAbsolutePath(), 420);
     $stamp = $stampAbsolutePath ? $images->containedImageDataUri($stampAbsolutePath, 60, 26) : null;
 
     // A red disc with a white glyph inside it, as the reference draws each

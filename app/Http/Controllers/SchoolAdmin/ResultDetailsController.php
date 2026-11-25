@@ -8,6 +8,7 @@ use App\Enums\ResultDeliveryStatus;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Examination;
+use App\Models\ExaminationScore;
 use App\Models\ResultCheckingPin;
 use App\Models\ResultDetailDelivery;
 use App\Models\ResultTokenBatch;
@@ -16,6 +17,7 @@ use App\Models\Student;
 use App\Models\User;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ResultDetails\ResultDetailsSender;
+use App\Services\ResultRepository;
 use App\Services\WhatsApp\WhatsAppGateway;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -62,18 +64,61 @@ class ResultDetailsController extends Controller
             return back()->withErrors(['send' => $this->nothingToSend($selection)]);
         }
 
+        $summary = $this->sender->summary($selection['ready'], $channels, $selection['toIssue']);
+
         // Students who will be issued a token at sending are shown too, with
         // their contacts, so the count on the page is the count that is sent.
         return view('school-admin.result-details.confirm', [
+            'notReady' => $this->resultsNotReady($school, collect($summary['rows']), $request->filled('examination')
+                ? Examination::query()->where('school_id', $school->id)->where('uuid', $request->string('examination')->toString())->first()
+                : null),
             'channelChoice' => $request->string('channel')->toString(),
             'channels' => $channels,
-            'summary' => $this->sender->summary($selection['ready'], $channels, $selection['toIssue']),
+            'summary' => $summary,
             'toIssue' => $selection['toIssue'],
             'unusable' => $selection['unusable'],
             'inputs' => $this->carried($request),
             'whatsAppReady' => app(WhatsAppGateway::class)->isConfigured(),
             'back' => url()->previous(),
         ]);
+    }
+
+    /**
+     * The pupils in this send whose result a parent could not see yet: no
+     * marks recorded, or, on a school whose parents are shown the published
+     * card, not pushed to the Result Repository yet. A parent sent a token
+     * for one of these finds an empty or "not ready" result, so the School
+     * Admin is told by name before sending, not after.
+     *
+     * @param  Collection<int, array<string, mixed>>  $rows  from ResultDetailsSender::summary()
+     * @return Collection<int, string>
+     */
+    private function resultsNotReady(School $school, Collection $rows, ?Examination $fromResultsPage): Collection
+    {
+        $repository = app(ResultRepository::class);
+
+        return $rows->filter(function (array $row) {
+            return $row['student'] !== null;
+        })->filter(function (array $row) use ($school, $repository, $fromResultsPage) {
+            $student = $row['student'];
+            $examination = $row['token']?->examination ?? $fromResultsPage;
+
+            if ($examination === null) {
+                return false;
+            }
+
+            $hasMarks = ExaminationScore::query()
+                ->where('student_id', $student->id)
+                ->whereNotNull('score')
+                ->whereIn('examination_subject_id', $examination->subjects()->select('id'))
+                ->exists();
+
+            if (! $hasMarks) {
+                return true;
+            }
+
+            return $school->resultsComeFromRepository() && $repository->find($school, $student, $examination) === null;
+        })->map(fn (array $row) => $row['student']->fullName())->values();
     }
 
     /**

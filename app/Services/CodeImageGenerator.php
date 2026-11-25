@@ -125,6 +125,26 @@ class CodeImageGenerator
      */
     public function watermarkDataUri(string $absolutePath, int $size, float $opacity = 0.06): ?array
     {
+        // Made once per crest: a class's report cards all carry the same one.
+        $key = (is_file($absolutePath) ? sha1_file($absolutePath) : $absolutePath).":{$size}:{$opacity}";
+
+        if (array_key_exists($key, self::$watermarks)) {
+            return self::$watermarks[$key];
+        }
+
+        return self::$watermarks[$key] = $this->makeWatermark($absolutePath, $size, $opacity);
+    }
+
+    /**
+     * @var array<string, array{uri: string, width: int, height: int}|null>
+     */
+    private static array $watermarks = [];
+
+    /**
+     * @return array{uri: string, width: int, height: int}|null
+     */
+    private function makeWatermark(string $absolutePath, int $size, float $opacity): ?array
+    {
         $logo = $this->containedImageDataUri($absolutePath, $size, $size);
 
         if (! $logo) {

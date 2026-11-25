@@ -19,8 +19,8 @@
 
     // dompdf's `enable_remote` option is off, so it can only read images via
     // local filesystem path/data-URI, never http(s) URLs.
-    $logoAbsolutePath = $school->logoAbsolutePath();
-    $photoAbsolutePath = $holder->photoAbsolutePath();
+    $logoAbsolutePath = \App\Support\PdfImage::fit($school->logoAbsolutePath(), 600);
+    $photoAbsolutePath = \App\Support\PdfImage::fit($holder->photoAbsolutePath(), 420);
     $initials = Str::of($holder->first_name)->substr(0, 1)->upper().Str::of($holder->last_name)->substr(0, 1)->upper();
 
     // Generated at the exact pixel size it will be displayed at (rather

@@ -263,7 +263,7 @@ class ResultController extends Controller
      * (students[] of uuids). Only pupils with results in this examination
      * are included either way.
      */
-    public function classPdf(Request $request, Examination $examination, ClassReportCards $cards): Response
+    public function classPdf(Request $request, Examination $examination, ClassReportCards $cards): Response|RedirectResponse
     {
         $this->authorizeSchoolOwnership($examination);
 
@@ -277,13 +277,25 @@ class ResultController extends Controller
 
         abort_if($students->isEmpty(), 404);
 
-        // A large class is a few seconds of work per card.
+        // A whole class is laid out as one document. Pictures are already cut
+        // down to card size (App\Support\PdfImage), which is what keeps this
+        // modest; the extra headroom is for a large class, on this request only.
         @set_time_limit(300);
+        @ini_set('memory_limit', '1024M');
 
         $term = $examination->term?->label() ?? '';
         $name = DownloadName::pdf('report-cards', trim("{$examination->class_name} {$term} {$examination->session}"));
 
-        return response($cards->pdf($examination, $students), 200, [
+        try {
+            $pdf = $cards->pdf($examination, $students);
+        } catch (\Throwable $e) {
+            // Reported, and explained on the page, rather than a bare 500.
+            report($e);
+
+            return back()->withErrors(['download' => "The report cards for {$examination->class_name} could not be put together just now. Try again, or tick fewer pupils and download them in two goes."]);
+        }
+
+        return response($pdf, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="'.$name.'"',
         ]);

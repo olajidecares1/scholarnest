@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\DefaultAcademicStructure;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * The School Admin downloading a whole class's report cards, or the ticked
@@ -92,4 +93,39 @@ test('a class with no results yet has nothing to download', function () {
     $empty->subjects()->delete();
 
     $this->actingAs($admin)->get(route('results.class-pdf', $empty))->assertNotFound();
+});
+
+test('passport photos are shrunk before they go into a PDF', function () {
+    [, $admin, $examination, $students] = classDownloadFixture(3);
+
+    // A phone photo: 3000 x 2250 of noise, which compresses badly, as a
+    // real photograph does.
+    $image = imagecreatetruecolor(3000, 2250);
+    for ($i = 0; $i < 60000; $i++) {
+        imagesetpixel($image, random_int(0, 2999), random_int(0, 2249), random_int(0, 0xFFFFFF));
+    }
+    ob_start();
+    imagejpeg($image, null, 95);
+    $photo = (string) ob_get_clean();
+
+    foreach ($students as $i => $student) {
+        Storage::disk(Student::PHOTO_DISK)->put("photos/big-{$i}.jpg", $photo);
+        $student->forceFill(['photo_path' => "photos/big-{$i}.jpg"])->save();
+    }
+
+    $pdf = $this->actingAs($admin)->get(route('results.class-pdf', $examination))->assertOk()->getContent();
+
+    // Three photos at full size would be several megabytes on their own.
+    expect(strlen($pdf))->toBeLessThan(strlen($photo))
+        ->and(pagesIn($pdf))->toBe(3);
+});
+
+test('the Results page has a Select all button that works on a phone', function () {
+    [, $admin] = classDownloadFixture(3);
+
+    $this->actingAs($admin)
+        ->get(route('results.index', ['class' => 'JSS 3', 'session' => '2026/2027', 'term' => 'first']))
+        ->assertOk()
+        ->assertSee('Select all (3)')
+        ->assertSee('picked = allPicked ? [] : [...all]', false);
 });

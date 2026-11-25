@@ -65,6 +65,12 @@
             </div>
         @enderror
 
+        @error('download')
+            <div class="rounded-[5px] bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400 lg:rounded-[10px]">
+                {{ $message }}
+            </div>
+        @enderror
+
         @error('repository')
             <div class="rounded-[5px] bg-amber-50 p-4 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 lg:rounded-[10px]">
                 {{ $message }}
@@ -134,6 +140,16 @@
                         <span x-show="picked.length > 0" x-cloak class="font-semibold text-gray-800 dark:text-gray-100"><span x-text="picked.length"></span> selected</span>
                     </small>
                     <div class="flex flex-wrap items-center gap-2">
+                        {{-- Every pupil in the class at once. The tick box in the
+                             table's heading does the same, but a phone shows the
+                             list as cards with no heading row, so this is the one
+                             that is always there. --}}
+                        <button type="button" x-on:click="picked = allPicked ? [] : [...all]" :disabled="all.length === 0" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" :aria-pressed="allPicked">
+                            <i class="fa-regular" :class="allPicked ? 'fa-square-check' : 'fa-square'" aria-hidden="true"></i>
+                            <span x-show="!allPicked">Select all ({{ $students->count() }})</span>
+                            <span x-show="allPicked" x-cloak>Clear selection</span>
+                        </button>
+
                         {{-- Report cards to keep: the whole class, or the ticked
                              pupils, as one PDF with a card to a page. A plain
                              download, so it saves the same way on a phone, a
