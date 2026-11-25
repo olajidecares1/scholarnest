@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\File;
 final class PdfImage
 {
     /**
-     * @var array<string, string|null>
+     * @var array<string, string>
      */
     private static array $memo = [];
 
@@ -52,21 +52,24 @@ final class PdfImage
         $directory = storage_path('framework/cache/pdf-images');
         $target = $directory.'/'.$hash.'-'.$maxEdge.($isPng ? '.png' : '.jpg');
 
-        if (array_key_exists($target, self::$memo)) {
-            return self::$memo[$target] ?? $absolutePath;
+        // Only ever a small copy this class made itself is remembered. The
+        // path it was given is a temporary copy (UploadStorage::localPath())
+        // that may be gone by the next request, so it is never kept.
+        if (isset(self::$memo[$target]) && is_file(self::$memo[$target])) {
+            return self::$memo[$target];
         }
 
         if (! is_file($target)) {
             $scaled = self::scaled($absolutePath, $size[0], $size[1], $maxEdge, $isPng);
 
             if ($scaled === null) {
-                return self::$memo[$target] = $absolutePath;
+                return $absolutePath;
             }
 
             File::ensureDirectoryExists($directory);
 
             if (@file_put_contents($target, $scaled) === false) {
-                return self::$memo[$target] = $absolutePath;
+                return $absolutePath;
             }
         }
 

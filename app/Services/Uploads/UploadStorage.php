@@ -187,6 +187,12 @@ class UploadStorage
         $key = $disk.'|'.$path;
 
         if (isset(self::$materialized[$key]) && is_file(self::$materialized[$key])) {
+            // Fresh again: a copy made over an hour ago in a long-running
+            // process would otherwise be pruned by the very next copy made,
+            // AFTER being handed out here. dompdf then found the file gone,
+            // and every report card in a class failed on the school's crest.
+            @touch(self::$materialized[$key]);
+
             return self::$materialized[$key];
         }
 
@@ -306,7 +312,15 @@ class UploadStorage
 
     private function pruneStaleCopies(string $directory): void
     {
+        // Never a copy this process has handed out and may still be using,
+        // however old: see localPath().
+        $inUse = array_flip(array_values(self::$materialized));
+
         foreach (glob($directory.'/*') ?: [] as $file) {
+            if (isset($inUse[$file])) {
+                continue;
+            }
+
             if (is_file($file) && filemtime($file) < time() - 3600) {
                 @unlink($file);
             }
