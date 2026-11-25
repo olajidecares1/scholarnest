@@ -40,6 +40,10 @@
                 icon="M4 6.5h16a1 1 0 011 1V17a1 1 0 01-1 1H4a1 1 0 01-1-1V7.5a1 1 0 011-1z"
                 placeholder="e.g. GRN-2026/2027-PRI-014"
                 maxlength="64"
+                autocomplete="off"
+                autocapitalize="characters"
+                autocorrect="off"
+                spellcheck="false"
                 required
                 autofocus
             />

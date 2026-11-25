@@ -307,8 +307,8 @@ describe('the Principal\'s block never moves', function () {
         foreach ([$unsigned, $signed] as $html) {
             // The block, the reserved signature box, the role label's two
             // lines and the name line are all fixed heights.
-            expect(substr_count($html, 'height: 76px;'))->toBe(4)
-                ->and(substr_count($html, 'height: 30px;'))->toBe(3)
+            expect(substr_count($html, 'height: 92px;'))->toBe(4)
+                ->and(substr_count($html, 'height: 46px;'))->toBe(3)
                 ->and(substr_count($html, 'height: 18px;'))->toBe(3)
                 ->and(substr_count($html, 'height: 11px;'))->toBe(3);
         }
@@ -321,8 +321,8 @@ describe('the Principal\'s block never moves', function () {
         // signature drifted up and down depending on how long a name was.
         $html = view('school-admin.results._report-card', ReportCardSample::for($this->school))->render();
 
-        expect($html)->toContain('grid grid-cols-4 items-start')
-            ->and($html)->not->toContain('grid grid-cols-4 items-end');
+        expect($html)->toContain('items-start gap-3')
+            ->and($html)->not->toContain('items-end gap-3');
     });
 
     test('a very long name does not push the Principal\'s line out of place', function () {
@@ -332,7 +332,7 @@ describe('the Principal\'s block never moves', function () {
 
         // Still exactly four fixed-height blocks: the name is clipped to its
         // line rather than growing the block and shifting the rule.
-        expect(substr_count($html, 'height: 76px;'))->toBe(4)
+        expect(substr_count($html, 'height: 92px;'))->toBe(4)
             ->and($html)->toContain('truncate');
     });
 

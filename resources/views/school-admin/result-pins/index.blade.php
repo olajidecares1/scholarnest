@@ -6,7 +6,7 @@
 
 <x-dashboard-layout
     page-title="Generate Exam Token"
-    page-subtitle="Each token is 15 characters and opens one student's result for one term. Issue them, then give each parent the token for their own child."
+    page-subtitle="Each token is 12 characters and opens one student's result for one term. Issue them, then give each parent the token for their own child."
 >
     <div class="space-y-6">
         @if (session('status'))

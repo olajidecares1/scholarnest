@@ -5,6 +5,7 @@ use App\Enums\UserRole;
 use App\Models\Examination;
 use App\Models\ExaminationScore;
 use App\Models\ExaminationSubject;
+use App\Models\RepositoryResult;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
@@ -69,4 +70,19 @@ test('a download name keeps only what a file name can hold', function () {
     expect(DownloadName::pdf('report-card', 'TGA-2026/2027-JUR-005'))->toBe('report-card-TGA-2026-2027-JUR-005.pdf')
         ->and(DownloadName::pdf('result', 'A\\B  C'))->toBe('result-A-B-C.pdf')
         ->and(DownloadName::pdf('id-card', ''))->toBe('id-card.pdf');
+});
+
+test('a card pushed to the Result Repository keeps every subject and fits the same way', function () {
+    [$admin, $examination, $student] = manySubjectsCard(20, 'TGA-2026/2027-JUR-005');
+
+    $this->actingAs($admin)->post(route('results.push', [$examination, $student]));
+    $stored = RepositoryResult::query()->where('student_id', $student->id)->firstOrFail();
+
+    $response = $this->actingAs($admin)->getJson(route('result-repository.show', $stored))->assertOk();
+
+    expect($response->json('report_card_html'))->toContain('Subject 1<')
+        ->toContain('Subject 20')
+        ->toContain('TGA-2026/2027-JUR-005')
+        ->not->toContain('py-[5px]')
+        ->and($response->json('details_html'))->toContain('Subject 20');
 });

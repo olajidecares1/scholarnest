@@ -112,6 +112,21 @@ class ResultTokenVerifier
                     ->first();
             }
 
+            // Dashes a parent typed to keep their place while copying the
+            // token off a slip ("aB7x-Q2mP-9kL4"). No token issued today
+            // contains one, so this is tried only once both checks above have
+            // missed, and leaves any older token that did have dashes matching
+            // exactly as it always has.
+            if ($token === null && str_contains($plainToken, '-')) {
+                $undashed = str_replace('-', '', $plainToken);
+
+                $token = ResultCheckingPin::query()
+                    ->forSchool($school)
+                    ->whereIn('token_hash', [ResultCheckingPin::hashToken($undashed), ResultCheckingPin::legacyHashToken($undashed)])
+                    ->lockForUpdate()
+                    ->first();
+            }
+
             if ($token === null) {
                 $this->log($school, null, ResultTokenAccessOutcome::NotFound, $request, $hash);
 

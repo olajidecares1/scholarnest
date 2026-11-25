@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
  * A signed-in parent or student proves they are entitled to an account. It
  * does not follow that the school is ready to hand over a particular result,
  * so a portal result stays shut until the exam token for it is entered. Same
- * token, same binding, same 15 characters as the one a Basic school hands out
+ * token, same binding, same 12 characters as the one a Basic school hands out
  * on a slip of paper, the difference is only where it gets typed.
  *
  * Shared by both portals deliberately. The student portal and the guardian

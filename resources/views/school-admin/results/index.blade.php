@@ -130,10 +130,25 @@
             >
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-700">
                     <small class="text-xs text-gray-500 dark:text-gray-400">
-                        <span x-show="picked.length === 0">Tick students to send their result details to their parents/guardians, or send for the whole class.</span>
+                        <span x-show="picked.length === 0">Tick students to download their report cards or send their result details to parents/guardians, or do it for the whole class.</span>
                         <span x-show="picked.length > 0" x-cloak class="font-semibold text-gray-800 dark:text-gray-100"><span x-text="picked.length"></span> selected</span>
                     </small>
                     <div class="flex flex-wrap items-center gap-2">
+                        {{-- Report cards to keep: the whole class, or the ticked
+                             pupils, as one PDF with a card to a page. A plain
+                             download, so it saves the same way on a phone, a
+                             tablet or a laptop. --}}
+                        <form method="GET" action="{{ route('results.class-pdf', $examination) }}" x-data="{ preparing: false }" x-on:submit="preparing = true; setTimeout(() => preparing = false, 8000)">
+                            <template x-for="id in picked" :key="id">
+                                <input type="hidden" name="students[]" :value="id">
+                            </template>
+                            <button type="submit" :disabled="all.length === 0" class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-primary-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50" data-tooltip="One PDF, a report card to a page">
+                                <i class="fa-solid" :class="preparing ? 'fa-spinner fa-spin' : 'fa-file-arrow-down'" aria-hidden="true"></i>
+                                <span x-show="preparing" x-cloak>Preparing PDF&hellip;</span>
+                                <span x-show="!preparing && picked.length === 0">Download {{ $selectedClass }} results</span>
+                                <span x-show="!preparing && picked.length > 0" x-cloak>Download selected (<span x-text="picked.length"></span>)</span>
+                            </button>
+                        </form>
                         <a href="{{ route('result-pins.details.history') }}" class="btn inline-flex items-center gap-1.5 rounded-[8px] border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                             <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Sending history
                         </a>

@@ -288,7 +288,11 @@
                                         </span>
                                     @else
                                         <span class="w-[108px] shrink-0 text-[8.5px] font-bold uppercase leading-tight" style="color: {{ $brandSecondary }};">{{ $label }}:</span>
-                                        <span class="min-w-0 truncate text-[9.5px] font-semibold text-gray-900">{{ filled($value) ? $value : 'N/A' }}</span>
+                                        {{-- The admission number wraps rather than being cut
+                                             short: one carrying the session,
+                                             TGA-2026/2027-JUR-005, is the one value here a
+                                             school needs whole. --}}
+                                        <span class="min-w-0 {{ $label === 'Admission Number' ? '[overflow-wrap:anywhere]' : 'truncate' }} text-[9.5px] font-semibold text-gray-900">{{ filled($value) ? $value : 'N/A' }}</span>
                                     @endif
                                 </div>
                             @endforeach
@@ -505,9 +509,11 @@
              and the Principal's signature drifted up and down the page
              depending on how long somebody's name was. --}}
         <div class="shrink-0 px-4 pb-1 pt-2">
-            <div class="grid grid-cols-4 items-start gap-4">
+            {{-- The two signers' columns are the widest, so their signatures
+                 print big and bold; the stamp needs only its ring. --}}
+            <div class="grid grid-cols-[1.3fr_1.3fr_0.75fr_1fr] items-start gap-3">
                 @foreach ([
-                    ["Class Teacher's Signature", $classTeacher?->staff?->fullName(), now()->format('jS F, Y'), $classTeacher?->staff?->signatureDataUri()],
+                    ["Class Teacher's Signature", $classTeacher?->staff?->fullName(), now()->format('jS F, Y'), $classTeacher?->staff?->boldSignatureDataUri()],
 
                     {{-- School Admin is the Principal, so this is their own
                          registered signature, resolved from THIS school's
@@ -520,7 +526,7 @@
                         {{-- The same overall height as a signer's block, so
                              the stamp sits between them rather than dragging
                              the row out of line. --}}
-                        <div class="flex h-[76px] items-center justify-center" style="height: 76px;">
+                        <div class="flex h-[92px] items-center justify-center" style="height: 92px;">
                             @if ($school->hasStamp())
                                 {{-- The school's REAL stamp, on transparency,
                                      so it sits over the card. Embedded rather
@@ -547,13 +553,13 @@
                             @endif
                         </div>
                     @else
-                        <div class="h-[76px] text-center" style="height: 76px;">
+                        <div class="h-[92px] text-center" style="height: 92px;">
                             {{-- Reserved whether or not anything is in it. An
                                  unsigned card is the same shape as a signed
                                  one, so the ruled line never moves. --}}
-                            <div class="flex h-[30px] items-end justify-center" style="height: 30px;">
+                            <div class="flex h-[46px] items-end justify-center" style="height: 46px;">
                                 @if ($signature)
-                                    <img src="{{ $signature }}" alt="" class="mx-auto max-h-[28px] object-contain" style="max-height: 28px; object-fit: contain;">
+                                    <img src="{{ $signature }}" alt="" class="mx-auto max-h-[44px] max-w-full object-contain" style="max-height: 44px; max-width: 100%; object-fit: contain;">
                                 @endif
                             </div>
 

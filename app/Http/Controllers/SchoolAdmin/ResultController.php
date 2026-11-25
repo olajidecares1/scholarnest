@@ -11,6 +11,7 @@ use App\Models\ExaminationReport;
 use App\Models\PrincipalRemark;
 use App\Models\Student;
 use App\Notifications\ResultAvailableNotification;
+use App\Services\ClassReportCards;
 use App\Services\ExaminationResultCalculator;
 use App\Services\ReportCardData;
 use App\Services\ResultArchive;
@@ -252,6 +253,40 @@ class ResultController extends Controller
             ->setPaper('a4');
 
         return $pdf->download(DownloadName::pdf('report-card', $student->admission_number));
+    }
+
+    /**
+     * Every report card in a class as one PDF, a card to a page, for the
+     * School Admin to save or print on whatever device they are on.
+     *
+     * The whole class, or just the pupils ticked on the Results page
+     * (students[] of uuids). Only pupils with results in this examination
+     * are included either way.
+     */
+    public function classPdf(Request $request, Examination $examination, ClassReportCards $cards): Response
+    {
+        $this->authorizeSchoolOwnership($examination);
+
+        $students = $cards->studentsFor($examination);
+
+        $picked = collect($request->input('students', []))->filter(fn ($uuid) => is_string($uuid))->values();
+
+        if ($picked->isNotEmpty()) {
+            $students = $students->filter(fn (Student $student) => $picked->contains($student->uuid))->values();
+        }
+
+        abort_if($students->isEmpty(), 404);
+
+        // A large class is a few seconds of work per card.
+        @set_time_limit(300);
+
+        $term = $examination->term?->label() ?? '';
+        $name = DownloadName::pdf('report-cards', trim("{$examination->class_name} {$term} {$examination->session}"));
+
+        return response($cards->pdf($examination, $students), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$name.'"',
+        ]);
     }
 
     /**

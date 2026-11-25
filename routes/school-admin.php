@@ -319,6 +319,9 @@ Route::name('results.')->group(function () {
     Route::get(R::uri('results.print').'/{examination}/{student}', [ResultController::class, 'print'])->name('print');
     Route::get(R::uri('results.pdf').'/{examination}/{student}', [ResultController::class, 'pdf'])->name('pdf');
 
+    // A whole class's report cards, or the ticked pupils', as one PDF.
+    Route::get(R::uri('results.class-pdf').'/{examination}', [ResultController::class, 'classPdf'])->name('class-pdf');
+
     // Push to Repository. The same action a Class Teacher has on their own
     // class, from the page where the School Admin is already looking at the
     // finished card.

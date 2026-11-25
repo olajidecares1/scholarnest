@@ -72,7 +72,9 @@ class CheckResultController extends Controller
 
         $student = Student::where('school_id', $school->id)
             ->where('is_active', true)
-            ->whereRaw('LOWER(admission_number) = ?', [mb_strtolower(trim($request->string('admission_number')->toString()))])
+            // Case and stray spaces do not matter: "tga - 2026/2027 - jur - 005"
+            // finds TGA-2026/2027-JUR-005. Admission numbers never hold a space.
+            ->whereRaw("LOWER(REPLACE(admission_number, ' ', '')) = ?", [mb_strtolower(preg_replace('/\s+/u', '', $request->string('admission_number')->toString()))])
             ->first();
 
         // A number the school has since regenerated still finds the pupil.

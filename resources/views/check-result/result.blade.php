@@ -34,18 +34,20 @@
             }
             body { background: #f3f4f6; }
 
-            /* Below the "sm" breakpoint the sheet keeps a readable width and
-               the container scrolls, instead of the sheet shrinking to the
-               phone. 640px is the width its 7-9px type was designed against. */
-            @media (max-width: 639px) {
-                .report-card-sheet { min-width: 640px; }
-            }
+            /* The card is laid out at its full A4 width (768px, the width its
+               7-9px type was designed against) and, on a screen narrower than
+               that, scaled down to fit it, by the script at the foot of the
+               page. Squeezed to a phone's width instead, it broke apart;
+               left wide, the parent had to scroll sideways to find the marks.
+               Pinch-zoom still works for a closer look. */
+            .report-card-fit { position: relative; margin: 0 auto; max-width: 768px; }
+            .report-card-sheet { width: 768px; transform-origin: top left; }
 
-            /* On paper there is no container to scroll, so drop the minimum
-               and let the sheet size itself to the page. */
+            /* On paper there is nothing to fit: the sheet sizes itself to the
+               page. */
             @media print {
-                .report-card-scroll { overflow: visible !important; margin: 0 !important; padding: 0 !important; }
-                .report-card-sheet { min-width: 0 !important; }
+                .report-card-fit { height: auto !important; max-width: none; }
+                .report-card-sheet { width: auto; transform: none !important; }
             }
         </style>
     </head>
@@ -101,21 +103,31 @@
             </div>
         </div>
 
-        {{-- The report card is a fixed A4-proportioned sheet whose type runs as
-             small as 7px. Squeezed into a 375px phone it is both unreadable and
-             clipped, and this is the one place a report card is routinely opened
-             on a phone, a parent following a link, with no dashboard and no
-             desktop involved anywhere in the flow.
-
-             So on small screens it is given a legible minimum width and allowed
-             to scroll sideways inside its own container, rather than being
-             scaled down to fit. The page body itself never scrolls
-             horizontally. Printing is unaffected: the wrapper releases the
-             minimum width and the sheet lays out at its natural A4 size. --}}
-        <div class="report-card-scroll -mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
-            <div class="report-card-sheet mx-auto">
+        {{-- The report card, laid out at A4 width and scaled to the screen.
+             See the styles above. --}}
+        <div class="report-card-fit" id="report-card-fit">
+            <div class="report-card-sheet" id="report-card-sheet">
                 @include('school-admin.results._report-card')
             </div>
         </div>
+
+        <script>
+            (function () {
+                var box = document.getElementById('report-card-fit');
+                var sheet = document.getElementById('report-card-sheet');
+
+                function fit() {
+                    var scale = Math.min(1, box.clientWidth / 768);
+                    sheet.style.transform = scale < 1 ? 'scale(' + scale + ')' : '';
+                    // A transform does not shrink the space a thing takes up,
+                    // so the box is given the scaled height itself.
+                    box.style.height = (sheet.offsetHeight * scale) + 'px';
+                }
+
+                fit();
+                window.addEventListener('resize', fit);
+                window.addEventListener('load', fit);
+            })();
+        </script>
     </body>
 </html>

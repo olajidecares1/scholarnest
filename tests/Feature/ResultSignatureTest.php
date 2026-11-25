@@ -157,7 +157,7 @@ test('both signatures print on the card, each from its own owner', function () {
 
     expect($screen)
         ->toContain(PrincipalSignature::for($this->school->fresh())->dataUri())
-        ->toContain($data['classTeacher']->staff->signatureDataUri());
+        ->toContain($data['classTeacher']->staff->boldSignatureDataUri());
 
     // In print dompdf is handed a local file path for each, which is where
     // the filenames survive.
@@ -165,7 +165,7 @@ test('both signatures print on the card, each from its own owner', function () {
 
     expect($print)
         ->toContain(basename(app(GoldSignature::class)->pathFor('admin-signatures/principal.png')))
-        ->toContain('teacher.png');
+        ->toContain(basename(app(GoldSignature::class)->pathFor('staff-signatures/teacher.png', ownInk: true)));
 });
 
 test('an unsigned card prints an empty line rather than somebody else\'s mark', function () {
@@ -294,6 +294,6 @@ test('a pupil\'s card never shows a different class teacher\'s signature', funct
     // Compared by the bytes that reach the page, not by a filename: the card
     // embeds the image now, so the name of the file it came from never
     // appears and a filename assertion would pass vacuously.
-    expect($html)->toContain($ourTeacher->fresh()->signatureDataUri())
-        ->and($html)->not->toContain($otherTeacher->fresh()->signatureDataUri());
+    expect($html)->toContain($ourTeacher->fresh()->boldSignatureDataUri())
+        ->and($html)->not->toContain($otherTeacher->fresh()->boldSignatureDataUri());
 });

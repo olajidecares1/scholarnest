@@ -67,11 +67,18 @@
                 name="code"
                 label="Exam Token"
                 icon="M15.5 8.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0zM13 11l-6.5 6.5"
-                placeholder="15-character exam token"
-                maxlength="20"
+                placeholder="12-character exam token"
+                maxlength="24"
+                autocomplete="off"
+                autocapitalize="none"
+                autocorrect="off"
+                spellcheck="false"
                 required
                 autofocus
             />
+            {{-- Tokens mix capital and small letters, and a phone keyboard
+                 capitalises the first letter unless told not to (above). --}}
+            <p class="text-xs text-gray-600">Type it exactly as printed: capital and small letters are different.</p>
 
             <button
                 type="submit"

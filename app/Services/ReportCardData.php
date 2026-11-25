@@ -23,16 +23,56 @@ class ReportCardData
      *
      * @return array<string, mixed>
      */
+    /**
+     * Within $callback, whatever is the same for every pupil of one class
+     * (the class's positions, its size, its class teacher, the term dates) is
+     * worked out once and reused for each card.
+     *
+     * For a whole class's report cards in one go (ClassReportCards). Worked
+     * out per card, the class's positions alone were recalculated for every
+     * pupil: forty cards took nearly two minutes, almost all of it that.
+     */
+    public static function remembering(callable $callback): mixed
+    {
+        $previous = self::$memo;
+        self::$memo = [];
+
+        try {
+            return $callback();
+        } finally {
+            self::$memo = $previous;
+        }
+    }
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    private static ?array $memo = null;
+
+    private static function once(string $key, callable $compute): mixed
+    {
+        if (self::$memo === null) {
+            return $compute();
+        }
+
+        if (! array_key_exists($key, self::$memo)) {
+            self::$memo[$key] = $compute();
+        }
+
+        return self::$memo[$key];
+    }
+
     public static function for(Examination $examination, Student $student): array
     {
         $school = $examination->school;
+        $key = 'exam:'.$examination->id.':';
         $subjects = self::recordedSubjects($examination->subjectsInResultSheetOrder(
             $examination->subjects()->with(['scores' => fn ($query) => $query->where('student_id', $student->id)])->get()
         ));
-        $summary = ExaminationResultCalculator::summariesFor($examination)->firstWhere('student.id', $student->id)
+        $summary = self::once($key.'summaries', fn () => ExaminationResultCalculator::summariesFor($examination))->firstWhere('student.id', $student->id)
             ?? ExaminationResultCalculator::summaryForStudent($student, $subjects);
         $report = ExaminationReport::firstOrCreateFor($examination, $student);
-        $currentTerm = AcademicTerm::rangeFor($school, $examination->session, $examination->term);
+        $currentTerm = self::once($key.'term', fn () => AcademicTerm::rangeFor($school, $examination->session, $examination->term));
 
         return [
             'school' => $school,
@@ -41,23 +81,23 @@ class ReportCardData
             'subjects' => $subjects,
             'summary' => $summary,
             'report' => $report,
-            'classTeacher' => TeacherAssignment::with('staff')
+            'classTeacher' => self::once($key.'class-teacher', fn () => TeacherAssignment::with('staff')
                 ->where('school_id', $school->id)
                 ->where('class_name', $examination->class_name)
                 ->where('type', TeacherAssignmentType::ClassTeacher)
-                ->first(),
+                ->first()),
             'attendance' => self::attendanceSummaryFor($student, $examination, $currentTerm),
 
             // The class as it sat this examination: today's class for the
             // current session, the pupils who sat it for a past one. See
             // ExaminationResultCalculator::rosterFor().
-            'numberInClass' => ExaminationResultCalculator::rosterFor($examination)->count(),
-            'nextTermBegins' => $currentTerm
+            'numberInClass' => self::once($key.'size', fn () => ExaminationResultCalculator::rosterFor($examination)->count()),
+            'nextTermBegins' => self::once($key.'next-term', fn () => $currentTerm
                 ? AcademicTerm::where('school_id', $school->id)
                     ->where('starts_on', '>', $currentTerm->ends_on)
                     ->orderBy('starts_on')
                     ->first()?->starts_on
-                : null,
+                : null),
 
             // First + Second + Third Term, on the Third Term card, for a
             // school that has turned cumulative results on. Null otherwise,

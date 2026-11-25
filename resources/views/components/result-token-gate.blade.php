@@ -88,10 +88,12 @@
                             name="token"
                             required
                             autocomplete="off"
+                            autocapitalize="none"
+                            autocorrect="off"
                             spellcheck="false"
-                            maxlength="20"
-                            placeholder="15-character exam token"
-                            class="mt-1 text-center uppercase tracking-[0.12em] {{ $failedHere && $errorBag->has('token') ? 'field-invalid' : '' }}"
+                            maxlength="24"
+                            placeholder="12-character exam token"
+                            class="mt-1 text-center font-mono tracking-[0.12em] {{ $failedHere && $errorBag->has('token') ? 'field-invalid' : '' }}"
                         >
 
                         @if ($failedHere && $errorBag->has('token'))

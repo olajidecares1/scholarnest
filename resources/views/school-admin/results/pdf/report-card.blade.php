@@ -125,7 +125,7 @@
 
     // The class teacher's own signature, from their staff record, theirs to
     // upload, not the school's to supply on their behalf.
-    $teacherSignaturePath = $classTeacher?->staff?->signatureAbsolutePath();
+    $teacherSignaturePath = $classTeacher?->staff?->boldSignatureAbsolutePath();
 
     // dompdf does not render raw inline <svg> tags mixed into the HTML flow,
     // but it does render an <img> whose src is an SVG data URI, so contact
@@ -486,7 +486,8 @@
                                 ['__stamp__', null, null, null],
                                 ["Parent / Guardian's Signature", $student->guardian_name, null, null],
                             ] as [$role, $name, $date, $signature])
-                                <td style="width: 25%; height: 76px; vertical-align: top; text-align: center; padding: 0 5px;">
+                                {{-- The two signers' columns widest, as on screen. --}}
+                                <td style="width: {{ $role === '__stamp__' ? '17%' : ($role === "Parent / Guardian's Signature" ? '23%' : '30%') }}; height: 92px; vertical-align: top; text-align: center; padding: 0 5px;">
                                     @if ($role === '__stamp__')
                                         @if ($stampPath)
                                             {{-- A local path, not a data URI:
@@ -499,13 +500,13 @@
                                                 @if ($logoPath)
                                                     <img src="{{ $logoPath }}" style="width: 22px; height: 22px; margin-top: 12px;">
                                                 @endif
-                                                <div style="font-size: 5.5px; font-weight: bold; text-transform: uppercase; color: {{ $brandSecondary }};">Approved</div>
+                                                <div style="font-size: 5.5px; font-weight: bold; text-transform: uppercase; color: {{ $brandSecondary }};{{ $logoPath ? '' : ' margin-top: 26px;' }}">Approved</div>
                                             </div>
                                         @endif
                                     @else
-                                        <div style="height: 30px;">
+                                        <div style="height: 46px;">
                                             @if ($signature)
-                                                <img src="{{ $signature }}" style="max-height: 28px;">
+                                                <img src="{{ $signature }}" style="max-height: 44px; max-width: 100%;">
                                             @endif
                                         </div>
                                         <div style="border-bottom: 1px solid {{ $brandSecondary }}66; font-size: 0; line-height: 0;">&nbsp;</div>

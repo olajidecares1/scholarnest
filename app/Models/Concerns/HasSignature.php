@@ -3,6 +3,7 @@
 namespace App\Models\Concerns;
 
 use App\Models\Signature;
+use App\Services\GoldSignature;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -41,6 +42,23 @@ trait HasSignature
     public function signatureAbsolutePath(): ?string
     {
         return $this->signature?->absolutePath();
+    }
+
+    /**
+     * The signature as a document prints it: strokes thickened and the blank
+     * margin trimmed, in the signer's own ink. See App\Services\GoldSignature.
+     */
+    public function boldSignatureDataUri(): ?string
+    {
+        return $this->signature?->path ? app(GoldSignature::class)->ownInkDataUriFor($this->signature->path) : null;
+    }
+
+    /**
+     * The same, as a local file path, for dompdf views only.
+     */
+    public function boldSignatureAbsolutePath(): ?string
+    {
+        return $this->signature?->path ? app(GoldSignature::class)->ownInkAbsolutePathFor($this->signature->path) : null;
     }
 
     /**

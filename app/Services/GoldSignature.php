@@ -26,9 +26,16 @@ use Illuminate\Support\Facades\Storage;
  * makes the rule enforceable rather than aspirational: a signature drawn in
  * blue, or scanned from blue ink, comes out gold like every other.
  *
- * "Bold" is a dilation of that alpha channel by one pixel before recolouring,
+ * "Bold" is a dilation of that alpha channel by two pixels before recolouring,
  * which thickens every stroke the way a heavier nib would. Done on the alpha
  * rather than the colour so the stroke grows without developing a halo.
+ *
+ * The empty margin around the strokes is trimmed off as well, so the ink
+ * fills the space a document gives a signature instead of floating small in
+ * the middle of an upload's blank border.
+ *
+ * The same treatment, bold and trimmed but in the signer's OWN ink, is what
+ * the Class Teacher's signature gets on a report card: see ownInkPathFor().
  *
  * Results are cached on the public disk. The cache key includes the source
  * path, and registering a signature always writes a new random filename, so a
@@ -46,7 +53,12 @@ class GoldSignature
      * Bumped when the rendering changes, so existing cached files are
      * regenerated rather than served forever.
      */
-    private const VERSION = 'v1';
+    private const VERSION = 'v2';
+
+    /**
+     * How far each stroke grows, in pixels, on every side.
+     */
+    private const BOLD_RADIUS = 2;
 
     private const CACHE_DIRECTORY = 'signatures/gold';
 
@@ -57,7 +69,7 @@ class GoldSignature
      * throwing: a document with an unsigned line is a document, and a report
      * card that 500s because a file went missing is not.
      */
-    public function pathFor(string $sourcePath): ?string
+    public function pathFor(string $sourcePath, bool $ownInk = false): ?string
     {
         $disk = Storage::disk('local');
 
@@ -65,13 +77,13 @@ class GoldSignature
             return null;
         }
 
-        $cachePath = self::CACHE_DIRECTORY.'/'.self::VERSION.'-'.hash('sha256', $sourcePath).'.png';
+        $cachePath = self::CACHE_DIRECTORY.'/'.self::VERSION.($ownInk ? '-ink' : '').'-'.hash('sha256', $sourcePath).'.png';
 
         if ($disk->exists($cachePath)) {
             return $cachePath;
         }
 
-        $png = $this->render($disk->get($sourcePath));
+        $png = $this->render($disk->get($sourcePath), $ownInk);
 
         if ($png === null) {
             return null;
@@ -80,6 +92,27 @@ class GoldSignature
         $disk->put($cachePath, $png);
 
         return $cachePath;
+    }
+
+    /**
+     * Bold and trimmed, like the gold one, but drawn in the signer's own ink:
+     * the average colour of their strokes. For the Class Teacher's signature,
+     * which is theirs, not the Principal's, so it is not turned gold.
+     */
+    public function ownInkDataUriFor(string $sourcePath): ?string
+    {
+        $path = $this->pathFor($sourcePath, ownInk: true);
+
+        return $path
+            ? 'data:image/png;base64,'.base64_encode(Storage::disk('local')->get($path))
+            : null;
+    }
+
+    public function ownInkAbsolutePathFor(string $sourcePath): ?string
+    {
+        $path = $this->pathFor($sourcePath, ownInk: true);
+
+        return $path ? app(UploadStorage::class)->localPath('local', $path) : null;
     }
 
     /**
@@ -113,9 +146,10 @@ class GoldSignature
     }
 
     /**
-     * Recolour every visible pixel gold, thickening the strokes on the way.
+     * Recolour every visible pixel, thickening the strokes and trimming the
+     * empty margin on the way.
      */
-    private function render(string $binary): ?string
+    private function render(string $binary, bool $ownInk = false): ?string
     {
         $source = @imagecreatefromstring($binary);
 
@@ -127,21 +161,30 @@ class GoldSignature
             $width = imagesx($source);
             $height = imagesy($source);
 
-            $target = imagecreatetruecolor($width, $height);
+            $opacity = $this->opacityMap($source, $width, $height);
+            [$red, $green, $blue] = $ownInk ? $this->inkOf($source, $opacity, $width, $height) : $this->gold();
+
+            $bold = $this->dilate($opacity, $width, $height, self::BOLD_RADIUS);
+
+            // The box the ink occupies, with a little air around it.
+            [$left, $top, $right, $bottom] = $this->inkBounds($bold, $width, $height);
+            $pad = self::BOLD_RADIUS + 2;
+            $left = max(0, $left - $pad);
+            $top = max(0, $top - $pad);
+            $right = min($width - 1, $right + $pad);
+            $bottom = min($height - 1, $bottom + $pad);
+
+            $outWidth = $right - $left + 1;
+            $outHeight = $bottom - $top + 1;
+
+            $target = imagecreatetruecolor($outWidth, $outHeight);
             imagealphablending($target, false);
             imagesavealpha($target, true);
             imagefill($target, 0, 0, imagecolorallocatealpha($target, 0, 0, 0, 127));
 
-            [$red, $green, $blue] = $this->gold();
-
-            // GD alpha runs 0 (opaque) to 127 (transparent), which is the
-            // opposite way round to everything else, so opacity is read as
-            // 127 minus it and the strongest neighbour wins.
-            $opacity = $this->opacityMap($source, $width, $height);
-
-            for ($y = 0; $y < $height; $y++) {
-                for ($x = 0; $x < $width; $x++) {
-                    $strongest = $this->dilatedOpacityAt($opacity, $x, $y, $width, $height);
+            for ($y = $top; $y <= $bottom; $y++) {
+                for ($x = $left; $x <= $right; $x++) {
+                    $strongest = $bold[$y][$x];
 
                     if ($strongest <= 0) {
                         continue;
@@ -149,8 +192,8 @@ class GoldSignature
 
                     imagesetpixel(
                         $target,
-                        $x,
-                        $y,
+                        $x - $left,
+                        $y - $top,
                         imagecolorallocatealpha($target, $red, $green, $blue, 127 - $strongest),
                     );
                 }
@@ -171,6 +214,9 @@ class GoldSignature
     /**
      * How opaque each pixel is, 0 (nothing) to 127 (solid).
      *
+     * GD alpha runs 0 (opaque) to 127 (transparent), the opposite way round
+     * to everything else, so opacity is read as 127 minus it.
+     *
      * @return array<int, array<int, int>>
      */
     private function opacityMap(\GdImage $source, int $width, int $height): array
@@ -187,32 +233,108 @@ class GoldSignature
     }
 
     /**
-     * The strongest opacity in this pixel's immediate neighbourhood.
+     * Each pixel takes the strongest opacity within $radius of it: a stroke
+     * grows outwards on every side, so a thin pen line reads as a confident
+     * one at the sizes a signature is printed.
      *
-     * This is the "bold": a stroke grows outwards by a pixel on every side,
-     * so a thin pen line reads as a confident one at the sizes a signature is
-     * printed, about 28px tall on a report card, 15px on an ID card.
+     * Rows then columns, which gives the same square neighbourhood as
+     * checking every pixel around each one at a fraction of the work.
      *
      * @param  array<int, array<int, int>>  $opacity
+     * @return array<int, array<int, int>>
      */
-    private function dilatedOpacityAt(array $opacity, int $x, int $y, int $width, int $height): int
+    private function dilate(array $opacity, int $width, int $height, int $radius): array
     {
-        $strongest = 0;
+        $rows = [];
 
-        for ($dy = -1; $dy <= 1; $dy++) {
-            for ($dx = -1; $dx <= 1; $dx++) {
-                $nx = $x + $dx;
-                $ny = $y + $dy;
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $strongest = 0;
 
-                if ($nx < 0 || $ny < 0 || $nx >= $width || $ny >= $height) {
-                    continue;
+                for ($nx = max(0, $x - $radius), $end = min($width - 1, $x + $radius); $nx <= $end; $nx++) {
+                    $strongest = max($strongest, $opacity[$y][$nx]);
                 }
 
-                $strongest = max($strongest, $opacity[$ny][$nx]);
+                $rows[$y][$x] = $strongest;
             }
         }
 
-        return $strongest;
+        $out = [];
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $strongest = 0;
+
+                for ($ny = max(0, $y - $radius), $end = min($height - 1, $y + $radius); $ny <= $end; $ny++) {
+                    $strongest = max($strongest, $rows[$ny][$x]);
+                }
+
+                $out[$y][$x] = $strongest;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * The smallest box holding every visible pixel. The whole image when
+     * nothing is visible, so an empty upload still renders as before.
+     *
+     * @param  array<int, array<int, int>>  $opacity
+     * @return array{0: int, 1: int, 2: int, 3: int}
+     */
+    private function inkBounds(array $opacity, int $width, int $height): array
+    {
+        $left = $width;
+        $top = $height;
+        $right = -1;
+        $bottom = -1;
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                if ($opacity[$y][$x] > 8) {
+                    $left = min($left, $x);
+                    $right = max($right, $x);
+                    $top = min($top, $y);
+                    $bottom = max($bottom, $y);
+                }
+            }
+        }
+
+        return $right < 0 ? [0, 0, $width - 1, $height - 1] : [$left, $top, $right, $bottom];
+    }
+
+    /**
+     * The signer's ink: the average colour of their solid strokes, darkened a
+     * little so a pale scan still reads as a signature.
+     *
+     * @param  array<int, array<int, int>>  $opacity
+     * @return array{0: int, 1: int, 2: int}
+     */
+    private function inkOf(\GdImage $source, array $opacity, int $width, int $height): array
+    {
+        $sum = [0, 0, 0];
+        $count = 0;
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                if ($opacity[$y][$x] < 100) {
+                    continue;
+                }
+
+                $rgb = imagecolorat($source, $x, $y);
+                $sum[0] += ($rgb >> 16) & 0xFF;
+                $sum[1] += ($rgb >> 8) & 0xFF;
+                $sum[2] += $rgb & 0xFF;
+                $count++;
+            }
+        }
+
+        if ($count === 0) {
+            return [17, 24, 39];
+        }
+
+        return array_map(fn (int $channel) => (int) round(($channel / $count) * 0.8), $sum);
     }
 
     /**
