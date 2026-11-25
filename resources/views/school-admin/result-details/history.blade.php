@@ -37,7 +37,7 @@
                 <p class="min-w-0 flex-1 text-sm text-gray-800 dark:text-gray-100">
                     <i class="fa-brands fa-whatsapp mr-1 text-[#1ebe5b]" aria-hidden="true"></i>
                     <strong>{{ $whatsAppToSend }} WhatsApp {{ $whatsAppToSend === 1 ? 'message' : 'messages' }}</strong> to send from your phone.
-                    WhatsApp opens at each parent's chat with their child's admission number, token and link already typed; press send, come back, and the next parent is ready.
+                    WhatsApp opens at each parent's chat with their child's name, class, admission number, token and link already typed; press send, come back, and the next parent is ready.
                 </p>
                 <a href="{{ route('result-pins.details.whatsapp-queue', array_filter(['batch' => $filters['batch']])) }}" class="btn inline-flex shrink-0 items-center justify-center gap-2 rounded-[8px] bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1ebe5b]">
                     <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Send to all on WhatsApp
@@ -46,7 +46,7 @@
         @endif
 
         {{-- The counts, each one a filter. --}}
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             @foreach ($statuses as $status)
                 <a
                     href="{{ request()->fullUrlWithQuery(['status' => $filters['status'] === $status ? null : $status->value, 'page' => null]) }}"

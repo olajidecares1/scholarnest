@@ -44,7 +44,7 @@
                 </div>
             </div>
             <ul class="mt-4 space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
-                <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>Each parent gets <strong>only their own child's</strong> name, admission number, exam token and result link.</li>
+                <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>Each parent gets <strong>only their own child's</strong> name, class, admission number, exam token and result link.</li>
                 <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>Numbers come from each pupil's own record. Only tokens you generated under Exam Tokens are sent.</li>
                 <li><i class="fa-solid fa-check mr-1.5 text-green-600" aria-hidden="true"></i>The link opens the result straight away: no portal, nothing to type.</li>
             </ul>
@@ -86,6 +86,11 @@
                     <p class="whitespace-pre-line break-words">{{ $sample }}</p>
                 </div>
                 <p class="mt-2 text-xs text-gray-700 dark:text-gray-300">The token is hidden here; each parent sees their own child's.</p>
+                <p class="mt-2 text-xs text-gray-700 dark:text-gray-300">
+                    Result link: your result-checking link from Settings,
+                    <span class="break-all font-mono">{{ $school->resultLinkUrl() }}</span>,
+                    which opens the child's result directly.
+                </p>
             </div>
         @endif
 
@@ -108,7 +113,7 @@
             </button>
 
             @if ($automatic)
-                <p class="mt-3 text-sm text-gray-700 dark:text-gray-200">Every message goes out automatically, at once. Follow each one in the sending history.</p>
+                <p class="mt-3 text-sm text-gray-700 dark:text-gray-200">Every message goes out automatically, at once. The sending history then shows each one as Pending, Sent, Delivered or Failed.</p>
             @else
                 <p class="mt-3 rounded-[8px] border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
                     Automatic WhatsApp sending is not switched on for AkademicNest yet. Until it is, this opens

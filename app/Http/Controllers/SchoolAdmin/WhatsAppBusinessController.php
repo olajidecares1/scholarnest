@@ -25,11 +25,11 @@ use Throwable;
 class WhatsAppBusinessController extends Controller
 {
     /**
-     * The template the school creates in Meta, word for word, so its seven
+     * The template the school creates in Meta, word for word, so its eight
      * blanks match the values sent (see ResultDetailsNotification::forWhatsApp).
      */
-    public const TEMPLATE_BODY = "Dear {{1}}, {{2}} has released {{3}}'s {{4}} result.\n\n"
-        ."Admission number: {{5}}\nResult token: {{6}}\nCheck the result: {{7}}\n\n"
+    public const TEMPLATE_BODY = "Dear {{1}}, {{2}} has released the {{3}} result for your child.\n\n"
+        ."Name: {{4}}\nClass: {{5}}\nAdmission number: {{6}}\nResult token: {{7}}\nCheck the result: {{8}}\n\n"
         .'This token opens this one result only. Please keep it private.';
 
     public function show(Request $request, SchoolWhatsAppVerifier $verifier): View
@@ -154,7 +154,7 @@ class WhatsAppBusinessController extends Controller
         }
 
         $gateway = $whatsApp->forSchool($school);
-        $values = ['Parent', (string) $school->name, 'Sample Pupil', 'First Term '.($school->current_session ?? ''), 'SAMPLE-001', 'TEST-TOKEN', (string) ($school->resultLinkUrl() ?? config('app.url'))];
+        $values = ['Parent', (string) $school->name, 'First Term '.($school->current_session ?? ''), 'Sample Pupil', 'JSS 1', 'SAMPLE-001', 'TEST-TOKEN', (string) ($school->resultLinkUrl() ?? config('app.url'))];
         $text = 'This is a test message from '.$school->name.' on AkademicNest. WhatsApp is connected.';
 
         $delivery = $gateway->send($digits, $text, $values, $gateway->resultTemplate());

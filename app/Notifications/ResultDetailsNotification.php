@@ -57,6 +57,7 @@ class ResultDetailsNotification extends Notification
             ->greeting("Dear {$this->recipientName},")
             ->line("{$school->name} has released {$this->student->fullName()}'s result for {$period} ({$this->examination->class_name}).")
             ->line("**Student:** {$this->student->fullName()}")
+            ->line('**Class:** '.($this->examination->class_name ?: $this->student->class_name))
             ->line("**Admission number:** {$this->student->admission_number}")
             ->line("**Result token:** `{$this->token}`")
             ->action('Check the result', $this->resultLink)
@@ -84,21 +85,27 @@ class ResultDetailsNotification extends Notification
             ? "{$school->name} (WhatsApp ".WhatsAppNumber::display($this->schoolWhatsApp).')'
             : (string) $school->name;
 
+        $class = (string) ($this->examination->class_name ?: $this->student->class_name);
+
         return [
             'text' => "Dear {$this->recipientName},\n\n"
-                ."{$schoolName} has released {$this->student->fullName()}'s {$period} result.\n\n"
+                ."{$schoolName} has released the {$period} result for your child.\n\n"
+                ."Name: {$this->student->fullName()}\n"
+                ."Class: {$class}\n"
                 ."Admission number: {$this->student->admission_number}\n"
                 ."Result token: {$this->token}\n"
                 ."Check the result: {$this->resultLink}\n\n"
                 .'This token opens this one result only. Please keep it private.'
                 .($this->schoolWhatsApp !== null ? "\n\nChat with the school: ".WhatsAppNumber::link($this->schoolWhatsApp) : ''),
 
-            // The order WHATSAPP_RESULT_TEMPLATE's {{1}}..{{7}} expect.
+            // The order WHATSAPP_RESULT_TEMPLATE's {{1}}..{{8}} expect
+            // (WhatsAppBusinessController::TEMPLATE_BODY).
             'values' => [
                 $this->recipientName,
                 $schoolName,
-                $this->student->fullName(),
                 $period,
+                $this->student->fullName(),
+                $class,
                 (string) $this->student->admission_number,
                 $this->token,
                 $this->resultLink,

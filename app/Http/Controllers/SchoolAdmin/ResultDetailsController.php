@@ -311,7 +311,7 @@ class ResultDetailsController extends Controller
             ->when($filters['batch'], fn ($q, $batch) => $q->where('batch', $batch))
             ->where('channel', ResultDeliveryChannel::WhatsApp)
             ->whereNotNull('recipient')
-            ->where('status', ResultDeliveryStatus::Failed)
+            ->whereIn('status', [ResultDeliveryStatus::ToSend, ResultDeliveryStatus::Failed])
             ->count();
 
         return view('school-admin.result-details.history', [
@@ -344,7 +344,7 @@ class ResultDetailsController extends Controller
 
         $rows = ResultDetailDelivery::query()
             ->forSchool($school)
-            ->whereIn('status', [ResultDeliveryStatus::Failed, ResultDeliveryStatus::MissingContact])
+            ->whereIn('status', [ResultDeliveryStatus::Failed, ResultDeliveryStatus::MissingContact, ResultDeliveryStatus::ToSend])
             ->when($validated['batch'] ?? null, fn ($q, $batch) => $q->where('batch', $batch))
             ->when($validated['deliveries'] ?? null, fn ($q, $ids) => $q->whereIn('uuid', $ids))
             ->get();

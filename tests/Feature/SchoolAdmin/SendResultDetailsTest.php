@@ -154,7 +154,7 @@ test('WhatsApp goes through the approved result template with that student\'s de
 
         return $request['to'] === '2348055551234'
             && $request['template']['name'] === 'result_details'
-            && $values === ['Mr Eze', $this->school->name, 'Ben Eze', 'First Term 2026/2027', 'AKN/002', plain($this, 'AKN/002'), DirectResultLink::for($this->school, $this->ben, plain($this, 'AKN/002'))];
+            && $values === ['Mr Eze', $this->school->name, 'First Term 2026/2027', 'Ben Eze', 'JSS 1', 'AKN/002', plain($this, 'AKN/002'), DirectResultLink::for($this->school, $this->ben, plain($this, 'AKN/002'))];
     });
 });
 
@@ -177,8 +177,9 @@ test('without WhatsApp credentials nothing is pretended', function () {
     $this->actingAs($this->admin)
         ->post(route('result-pins.details.send'), ['channel' => 'whatsapp', 'tokens' => [tokenUuid($this, 'AKN/001')]]);
 
-    expect(ResultDetailDelivery::sole()->status)->toBe(ResultDeliveryStatus::Failed)
-        ->and(ResultDetailDelivery::sole()->error)->toContain('Not sent automatically');
+    // Pending, to send from the phone: not "failed", nothing went wrong.
+    expect(ResultDetailDelivery::sole()->status)->toBe(ResultDeliveryStatus::ToSend)
+        ->and(ResultDetailDelivery::sole()->error)->toBe(ResultDetailsSender::SEND_FROM_PHONE);
     Http::assertNothingSent();
 });
 
@@ -475,7 +476,7 @@ test('without WhatsApp connected, each parent\'s message can be sent by hand, al
     ]);
 
     $whatsApp = ResultDetailDelivery::where('student_id', $this->ada->id)->where('channel', 'whatsapp')->sole();
-    expect($whatsApp->status)->toBe(ResultDeliveryStatus::Failed);
+    expect($whatsApp->status)->toBe(ResultDeliveryStatus::ToSend);
 
     $this->actingAs($this->admin)->get(route('result-pins.details.history'))
         ->assertOk()
@@ -813,8 +814,10 @@ test('the sending history says why messages did not go, and what to do about eac
         ->assertSee('messages did not go')
         ->assertSee('No parent/guardian WhatsApp number (or not a valid one) on the pupil&#039;s record.', false)
         ->assertSee('No parent/guardian email address (or not a valid one) on the pupil&#039;s record.', false)
-        ->assertSee('Waiting to be sent from your phone (automatic WhatsApp is not switched on).')
-        ->assertSee('Send them from your phone with Send to all on WhatsApp.')
+        // Waiting to be sent from the phone is pending, not a failure: the
+        // green Send to all on WhatsApp banner covers it.
+        ->assertSee('Pending (phone)')
+        ->assertSee('Send to all on WhatsApp')
         ->assertSee('Add contact')
         ->assertSee(route('students.show', $this->noContact), false);
 });
@@ -891,4 +894,29 @@ test('the broadcast page lists pupils with no token they can use, and makes none
         ->assertSee('Send to 2 parents on WhatsApp');
 
     expect(ResultCheckingPin::where('bound_student_id', $fresh->id)->exists())->toBeFalse();
+});
+
+test('each parent\'s WhatsApp message carries the five details, and the link is the school\'s own result-checking link', function () {
+    fakeWhatsApp();
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), ['channel' => 'whatsapp', 'tokens' => [tokenUuid($this, 'AKN/001')]]);
+
+    $text = (new ResultDetailsNotification($this->ada, $this->exam, plain($this, 'AKN/001'), DirectResultLink::for($this->school, $this->ada, plain($this, 'AKN/001')), 'Mrs Obi'))->forWhatsApp()['text'];
+
+    expect($text)->toContain('Name: Ada Obi')
+        ->toContain('Class: JSS 1')
+        ->toContain('Admission number: AKN/001')
+        ->toContain('Result token: '.plain($this, 'AKN/001'))
+        ->toContain('Check the result: '.$this->school->resultLinkUrl().'#')
+        ->not->toContain('parent-portal');
+
+    // The same link the School Admin sees in Settings and on Exam Tokens.
+    $this->actingAs($this->admin)->get(route('settings.index'))->assertSee('Result-checking link')->assertSee($this->school->resultLinkUrl());
+});
+
+test('the sending history shows delivery status: pending, sent, delivered and failed', function () {
+    fakeWhatsApp();
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), ['channel' => 'whatsapp', 'tokens' => [tokenUuid($this, 'AKN/001')]]);
+
+    $this->actingAs($this->admin)->get(route('result-pins.details.history'))
+        ->assertSee('Pending')->assertSee('Sent')->assertSee('Delivered')->assertSee('Failed')->assertSee('Pending (phone)');
 });

@@ -49,6 +49,9 @@ use Throwable;
  */
 class ResultDetailsSender
 {
+    /** Why a WhatsApp message is waiting (ToSend) rather than sent. */
+    public const SEND_FROM_PHONE = 'Waiting to be sent from your phone: tap Send on WhatsApp.';
+
     public function __construct(
         private readonly GuardianContacts $contacts,
         private readonly TransactionalMailer $mailer,
@@ -262,7 +265,7 @@ class ResultDetailsSender
                 continue;
             }
 
-            if ($row->status === ResultDeliveryStatus::Failed) {
+            if ($row->status === ResultDeliveryStatus::Failed || $row->status === ResultDeliveryStatus::ToSend) {
                 $row->update(['status' => ResultDeliveryStatus::Pending, 'error' => null]);
                 $waiting++;
                 $batches[$row->batch] = true;
@@ -369,6 +372,14 @@ class ResultDetailsSender
 
         try {
             $problem = $this->problemWith($row);
+
+            // Ready, but automatic WhatsApp is not switched on: pending, for
+            // the School Admin to send from their phone. Not a failure.
+            if ($problem === self::SEND_FROM_PHONE) {
+                $row->update(['status' => ResultDeliveryStatus::ToSend, 'error' => $problem]);
+
+                return;
+            }
 
             if ($problem !== null) {
                 $this->fail($row, $problem);
@@ -524,7 +535,7 @@ class ResultDetailsSender
         }
 
         if ($needsGateway && $row->channel === ResultDeliveryChannel::WhatsApp && ! $this->whatsApp->forSchool($student->school)->isConfigured()) {
-            return 'Not sent automatically. Send it from your phone: tap Send on WhatsApp.';
+            return self::SEND_FROM_PHONE;
         }
 
         // The address must still be on this student's own record.

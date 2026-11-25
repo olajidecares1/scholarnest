@@ -61,11 +61,12 @@ return [
         /*
          * Result details sent to parents/guardians (result link, token and
          * admission number). A separate approved "Utility" template, because
-         * its values differ from the staff one. Its body takes seven values:
+         * its values differ from the staff one. Its body takes eight values,
+         * worded as on Settings > WhatsApp:
          *   {{1}} the parent's name      {{2}} the school's name
-         *   {{3}} the student's name     {{4}} the term and session
-         *   {{5}} the admission number   {{6}} the result token
-         *   {{7}} the result link
+         *   {{3}} the term and session   {{4}} the student's name
+         *   {{5}} the class              {{6}} the admission number
+         *   {{7}} the result token       {{8}} the result-checking link
          * Without it, plain text is sent, which WhatsApp only delivers to a
          * parent who has messaged the school's number in the last 24 hours;
          * the delivery receipts below then mark the rest as failed.

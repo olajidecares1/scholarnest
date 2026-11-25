@@ -16,6 +16,25 @@
             <i class="fa-solid fa-chevron-right text-xs text-gray-400" aria-hidden="true"></i>
         </a>
 
+        {{-- The result-checking link: the exact address sent to parents with
+             each child's token, on WhatsApp and by email. Managed (switched
+             off, replaced) under Exam Tokens. --}}
+        <div class="rounded-[10px] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800" x-data="{ copied: false }">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-sm font-bold text-gray-900 dark:text-white">Result-checking link</span>
+                <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $school->resultLinkIsLive() ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' }}">{{ $school->resultLinkIsLive() ? 'On' : 'Switched off' }}</span>
+            </div>
+            <small class="field-hint mt-0.5">Sent to parents with each child's token, on WhatsApp and by email.</small>
+            <div class="mt-2 flex items-center gap-2">
+                <code x-ref="resultLink" class="min-w-0 flex-1 truncate rounded-[8px] border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-xs text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200">{{ $school->resultLinkUrl() }}</code>
+                <button type="button" class="icon-btn icon-btn--download" aria-label="Copy link" :data-tooltip="copied ? 'Copied' : 'Copy link'"
+                        x-on:click="navigator.clipboard.writeText($refs.resultLink.textContent.trim()).then(() => { copied = true; setTimeout(() => copied = false, 2000) })">
+                    <i class="fa-solid" :class="copied ? 'fa-check' : 'fa-copy'" aria-hidden="true"></i>
+                </button>
+                <a href="{{ route('result-pins.index') }}" class="shrink-0 text-xs font-semibold text-primary-700 hover:underline dark:text-primary-300">Manage</a>
+            </div>
+        </div>
+
         <div class="rounded-[5px] border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:rounded-[10px]">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white">School Profile</h2>
             <small class="field-hint mt-0.5">This information is used across your dashboard and public website.</small>
