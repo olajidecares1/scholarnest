@@ -169,7 +169,7 @@
                             <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Sending history
                         </a>
                         <div x-show="picked.length > 0" x-cloak>
-                            <x-send-result-details :action="route('result-pins.details.preview')" label="Send Selected">
+                            <x-send-result-details :action="route('result-pins.details.preview')" label="Send to selected parents">
                                 <input type="hidden" name="examination" value="{{ $examination->uuid }}">
                                 <template x-for="id in picked" :key="id">
                                     <input type="hidden" name="students[]" :value="id">
@@ -177,7 +177,7 @@
                             </x-send-result-details>
                         </div>
                         <div x-show="picked.length === 0">
-                            <x-send-result-details :action="route('result-pins.details.preview')" label="Send for {{ $selectedClass }}">
+                            <x-send-result-details :action="route('result-pins.details.preview')" label="Send to {{ $selectedClass }} parents">
                                 <input type="hidden" name="examination" value="{{ $examination->uuid }}">
                                 <input type="hidden" name="all" value="1">
                             </x-send-result-details>

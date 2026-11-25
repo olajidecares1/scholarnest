@@ -45,9 +45,9 @@
         </div>
 
         @if (in_array(\App\Enums\ResultDeliveryChannel::WhatsApp, $channels, true) && ! $whatsAppReady)
-            <div class="rounded-[10px] bg-red-50 p-4 text-sm font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                WhatsApp sending is not set up on this server yet, so the WhatsApp messages will be recorded as failed.
-                Ask your platform administrator to add the WhatsApp Business details, then retry them from the sending history.
+            <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
+                WhatsApp is not connected for automatic sending on this server. Emails go automatically; for WhatsApp, the
+                sending history gives a <strong>Send on WhatsApp</strong> button for each parent that opens their chat with the message already typed.
             </div>
         @endif
 
@@ -133,13 +133,17 @@
             <input type="hidden" name="channel" value="{{ $channelChoice }}">
             {!! $hidden($inputs) !!}
 
-            <a href="{{ $back }}" class="btn rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200">
+            {{-- On a phone the summary has the whole first line and the two
+                 buttons share the second; squeezed between them, it ran down
+                 the screen a word to a line. --}}
+            <p class="w-full text-xs text-gray-600 dark:text-gray-300 sm:order-2 sm:w-auto sm:min-w-0 sm:flex-1">
+                <span class="font-semibold text-gray-900 dark:text-white">{{ $summary['students'] }} student(s)</span> by {{ $channelNames }}.
+                Anyone without a contact is listed in the sending history, to send once it is added.
+            </p>
+            <a href="{{ $back }}" class="btn shrink-0 rounded-[8px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 sm:order-1">
                 <i class="fa-solid fa-arrow-left btn-icon" aria-hidden="true"></i> Back
             </a>
-            <small class="block min-w-0 flex-1 text-xs text-gray-500 dark:text-gray-400">
-                {{ $summary['students'] }} student(s) by {{ $channelNames }}. Students with a missing contact are recorded so you can retry once it is added.
-            </small>
-            <button type="submit" class="btn rounded-[8px] bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700">
+            <button type="submit" class="btn flex-1 justify-center rounded-[8px] bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700 sm:order-3 sm:flex-none">
                 <i class="fa-solid fa-paper-plane btn-icon" aria-hidden="true"></i> Confirm &amp; Send
             </button>
         </form>

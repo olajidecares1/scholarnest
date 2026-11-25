@@ -33,7 +33,9 @@
         @unless ($whatsAppReady)
             <div class="rounded-[10px] border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
                 <i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i>
-                WhatsApp sending is not set up on this server yet. WhatsApp messages are recorded as failed until it is; then retry them here.
+                WhatsApp is not connected for automatic sending on this server, so WhatsApp messages are not sent by themselves.
+                Tap <strong>Send on WhatsApp</strong> beside each parent: WhatsApp opens at their chat with their child&rsquo;s admission number,
+                result token and link already typed; just press send. Emails go automatically.
             </div>
         @endunless
 
@@ -166,6 +168,17 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-2.5 text-right">
+                                    {{-- WhatsApp by hand: opens this parent's chat with the
+                                         message already typed, for when it could not go
+                                         automatically (WhatsApp not set up on the server). --}}
+                                    @if ($delivery->channel === \App\Enums\ResultDeliveryChannel::WhatsApp && $delivery->recipient && ! in_array($delivery->status, [\App\Enums\ResultDeliveryStatus::Sent, \App\Enums\ResultDeliveryStatus::Delivered], true))
+                                        <form method="POST" action="{{ route('result-pins.details.whatsapp', $delivery) }}" target="_blank" class="mb-1 inline-block" x-on:submit="setTimeout(() => window.location.reload(), 1500)">
+                                            @csrf
+                                            <button type="submit" class="btn inline-flex items-center gap-1.5 rounded-[8px] bg-[#25D366] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#1ebe5b]">
+                                                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Send on WhatsApp
+                                            </button>
+                                        </form>
+                                    @endif
                                     @if ($delivery->status->isRetryable())
                                         <form method="POST" action="{{ route('result-pins.details.retry') }}">
                                             @csrf

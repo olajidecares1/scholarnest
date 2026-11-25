@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 use App\Enums\ExamTerm;
 use App\Enums\ResultDeliveryChannel;
 use App\Enums\ResultDeliveryStatus;
+use App\Http\Controllers\Concerns\AuthorizesSchoolOwnership;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Examination;
@@ -47,6 +48,8 @@ use Illuminate\View\View;
  */
 class ResultDetailsController extends Controller
 {
+    use AuthorizesSchoolOwnership;
+
     private const MAX = 3000;
 
     public function __construct(private readonly ResultDetailsSender $sender) {}
@@ -119,6 +122,26 @@ class ResultDetailsController extends Controller
 
             return $school->resultsComeFromRepository() && $repository->find($school, $student, $examination) === null;
         })->map(fn (array $row) => $row['student']->fullName())->values();
+    }
+
+    /**
+     * Send one parent's WhatsApp message by hand: marks it sent and opens
+     * WhatsApp at their chat with the message already typed (wa.me). For when
+     * WhatsApp sending is not set up on this server, or one did not go.
+     */
+    public function sendOnWhatsApp(Request $request, ResultDetailDelivery $delivery): RedirectResponse
+    {
+        $this->authorizeSchoolOwnership($delivery);
+
+        $whatsApp = $this->sender->whatsAppLink($delivery);
+
+        if ($whatsApp['link'] === null) {
+            return back()->withErrors(['whatsapp' => $whatsApp['problem']]);
+        }
+
+        $this->sender->markSentByHand($delivery);
+
+        return redirect()->away($whatsApp['link']);
     }
 
     /**

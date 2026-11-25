@@ -466,7 +466,57 @@ class ResultDetailsSender
     /**
      * Why this message must not go, or null if it may.
      */
-    private function problemWith(ResultDetailDelivery $row): ?string
+    /**
+     * The WhatsApp message for this parent, as a wa.me link that opens their
+     * chat with it already typed, for a School Admin to send by hand when
+     * WhatsApp sending is not set up on this server.
+     *
+     * The same checks as an automatic send (the token still works, the number
+     * is still on the child's record), so a link is only ever offered for a
+     * message that would be right to send. Null, with the reason, otherwise.
+     *
+     * @return array{link: ?string, problem: ?string}
+     */
+    public function whatsAppLink(ResultDetailDelivery $row): array
+    {
+        if ($row->channel !== ResultDeliveryChannel::WhatsApp || blank($row->recipient)) {
+            return ['link' => null, 'problem' => 'This is not a WhatsApp message to a parent.'];
+        }
+
+        if (($problem = $this->problemWith($row, needsGateway: false)) !== null) {
+            return ['link' => null, 'problem' => $problem];
+        }
+
+        $token = $row->token;
+        $student = $row->student;
+
+        $notification = new ResultDetailsNotification(
+            $student,
+            $token->examination,
+            (string) $token->plainToken(),
+            $student->school->resultLinkUrl(),
+            (string) ($row->recipient_name ?: 'Parent/Guardian'),
+        );
+
+        $digits = preg_replace('/\D/', '', (string) $row->recipient);
+
+        return ['link' => 'https://wa.me/'.$digits.'?text='.rawurlencode($notification->forWhatsApp()['text']), 'problem' => null];
+    }
+
+    /**
+     * A WhatsApp message the School Admin has sent by hand through wa.me.
+     */
+    public function markSentByHand(ResultDetailDelivery $row): void
+    {
+        $row->update([
+            'status' => ResultDeliveryStatus::Sent,
+            'error' => 'Sent by hand on WhatsApp.',
+            'attempts' => $row->attempts + 1,
+            'sent_at' => now(),
+        ]);
+    }
+
+    private function problemWith(ResultDetailDelivery $row, bool $needsGateway = true): ?string
     {
         $token = $row->token;
         $student = $row->student;
@@ -488,8 +538,8 @@ class ResultDetailsSender
             return 'Your result-checking link is switched off. Switch it back on under Generate Exam Token, then retry.';
         }
 
-        if ($row->channel === ResultDeliveryChannel::WhatsApp && ! $this->whatsApp->isConfigured()) {
-            return 'WhatsApp sending is not set up on this server yet (WHATSAPP_TOKEN and WHATSAPP_PHONE_NUMBER_ID).';
+        if ($needsGateway && $row->channel === ResultDeliveryChannel::WhatsApp && ! $this->whatsApp->isConfigured()) {
+            return 'WhatsApp sending is not set up on this server yet, so this message was not sent automatically. Use Send on WhatsApp to send it yourself.';
         }
 
         // The address must still be on this student's own record.

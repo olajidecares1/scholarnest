@@ -360,6 +360,7 @@ Route::middleware('result_pin_access')->name('result-pins.')->group(function () 
     Route::post(R::uri('result-pins.details.send'), [ResultDetailsController::class, 'send'])->middleware('throttle:30,1')->name('details.send');
     Route::get(R::uri('result-pins.details.history'), [ResultDetailsController::class, 'history'])->name('details.history');
     Route::post(R::uri('result-pins.details.retry'), [ResultDetailsController::class, 'retry'])->middleware('throttle:30,1')->name('details.retry');
+    Route::post(R::uri('result-pins.details.whatsapp').'/{delivery}', [ResultDetailsController::class, 'sendOnWhatsApp'])->middleware('throttle:120,1')->name('details.whatsapp');
 
     // Bulk exam tokens for hand-picked students across several classes:
     // choose, review, generate as one batch, then print it on A4. Printing

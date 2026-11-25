@@ -358,10 +358,10 @@ test('only this school\'s School Admins can send, and only this school\'s tokens
 
 test('the send buttons appear on Issued Tokens and on Results', function () {
     $this->actingAs($this->admin)->get(route('result-pins.index'))
-        ->assertOk()->assertSee('Send via Email')->assertSee('Send via WhatsApp')->assertSee('Send via Both')->assertSee('Sending history');
+        ->assertOk()->assertSee('Email and WhatsApp')->assertSee('Email only')->assertSee('WhatsApp only')->assertSee('Sending history');
 
     $this->actingAs($this->admin)->get(route('results.index', ['class' => 'JSS 1', 'session' => '2026/2027', 'term' => 'first']))
-        ->assertOk()->assertSee('Send for JSS 1');
+        ->assertOk()->assertSee('Send to JSS 1 parents');
 });
 
 test('WhatsApp receipts are not held to the API\'s 60-a-minute limit', function () {
@@ -446,4 +446,61 @@ test('the confirmation warns, by name, about pupils with no result to see yet', 
     ])->assertOk()
         ->assertSee('have no result for their parents to see yet')
         ->assertSee('Ada Obi');
+});
+
+test('the main send button sends by email and WhatsApp at once, to every parent found', function () {
+    $this->actingAs($this->admin)->get(route('results.index', ['class' => 'JSS 1', 'session' => '2026/2027', 'term' => 'first']))
+        ->assertOk()
+        ->assertSee('Send to JSS 1 parents')
+        ->assertSee('name="channel" value="both"', false);
+
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'both', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid, $this->ben->uuid],
+    ])->assertRedirect();
+
+    // Each child's own parent, on both channels.
+    expect(ResultDetailDelivery::where('student_id', $this->ada->id)->pluck('channel')->map->value->sort()->values()->all())->toBe(['email', 'whatsapp'])
+        ->and(ResultDetailDelivery::where('student_id', $this->ada->id)->where('channel', 'email')->value('recipient'))->toBe('obi@example.com')
+        ->and(ResultDetailDelivery::where('student_id', $this->ben->id)->where('channel', 'email')->value('recipient'))->toBe('eze@example.com');
+});
+
+test('without WhatsApp connected, each parent\'s message can be sent by hand, already typed', function () {
+    config(['services.whatsapp.token' => null]);
+
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'both', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
+    ]);
+
+    $whatsApp = ResultDetailDelivery::where('student_id', $this->ada->id)->where('channel', 'whatsapp')->sole();
+    expect($whatsApp->status)->toBe(ResultDeliveryStatus::Failed);
+
+    $this->actingAs($this->admin)->get(route('result-pins.details.history'))
+        ->assertOk()
+        ->assertSee('Send on WhatsApp')
+        ->assertSee(route('result-pins.details.whatsapp', $whatsApp), false);
+
+    $response = $this->actingAs($this->admin)->post(route('result-pins.details.whatsapp', $whatsApp));
+
+    $location = $response->headers->get('Location');
+    $text = rawurldecode(Str::after($location, '?text='));
+    $token = ResultCheckingPin::where('bound_student_id', $this->ada->id)->latest('id')->first();
+
+    expect($location)->toStartWith('https://wa.me/2348031234567?text=')
+        ->and($text)->toContain($this->ada->admission_number)
+        ->and($text)->toContain($token->plainToken())
+        ->and($whatsApp->fresh()->status)->toBe(ResultDeliveryStatus::Sent);
+});
+
+test('another school\'s message cannot be opened for sending by hand', function () {
+    config(['services.whatsapp.token' => null]);
+    $this->actingAs($this->admin)->post(route('result-pins.details.send'), [
+        'channel' => 'whatsapp', 'examination' => $this->exam->uuid, 'students' => [$this->ada->uuid],
+    ]);
+    $whatsApp = ResultDetailDelivery::where('student_id', $this->ada->id)->sole();
+
+    $otherSchool = School::factory()->create();
+    $otherAdmin = User::factory()->create(['role' => UserRole::SchoolAdmin, 'school_id' => $otherSchool->id]);
+    activateSchool($otherSchool);
+
+    $this->actingAs($otherAdmin)->post(route('result-pins.details.whatsapp', $whatsApp))->assertForbidden();
 });
