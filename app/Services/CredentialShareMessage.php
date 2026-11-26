@@ -32,6 +32,9 @@ class CredentialShareMessage
         string $loginUrl,
         ?string $phone = null,
         ?string $intro = null,
+        // Another way to sign in: a staff member's email address works
+        // in place of their Staff ID.
+        ?string $email = null,
     ): array {
         $lines = [
             "*{$school->name}*",
@@ -42,6 +45,10 @@ class CredentialShareMessage
             '',
             "*{$idLabel}:* {$identifier}",
         ];
+
+        if (filled($email)) {
+            $lines[] = "*Or sign in with your email:* {$email}";
+        }
 
         // Only when there is one to send. A password exists in readable form
         // for the single page view after it is set and never again, so a share

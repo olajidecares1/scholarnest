@@ -6,6 +6,7 @@ use App\Models\Plan;
 use App\Models\School;
 use App\Models\Staff;
 use App\Models\Subscription;
+use App\Services\CredentialShareMessage;
 
 function staffPortalSchool(PlanKey $planKey = PlanKey::Standard, SubscriptionStatus $status = SubscriptionStatus::Active): School
 {
@@ -145,4 +146,38 @@ test('a staff member can log out', function () {
         ->assertRedirect(route('staff.login', ['school' => $school, 'token' => $school->portal_staff_token]));
 
     $this->assertGuest('staff');
+});
+
+test('staff can sign in on the main portal with their email or their Staff ID, either one', function () {
+    $school = staffPortalSchool();
+    $staff = Staff::factory()->create(['school_id' => $school->id, 'staff_number' => 'STF-2001', 'email' => 'either@example.com']);
+
+    foreach (['either@example.com', 'STF-2001'] as $login) {
+        $this->post(route('portal.attempt'), ['role' => 'staff', 'login' => $login, 'password' => 'password'])
+            ->assertSessionHasNoErrors();
+        $this->assertAuthenticatedAs($staff, 'staff');
+        auth('staff')->logout();
+    }
+});
+
+test('the staff sign-in page says the email address works as well as the Staff ID', function () {
+    $school = staffPortalSchool();
+
+    $this->get(route('staff.login', ['school' => $school, 'token' => $school->portal_staff_token]))
+        ->assertOk()
+        ->assertSee('Staff ID or Email')
+        ->assertSee('Your Staff ID, or the email address on your staff record.');
+});
+
+test('a staff member\'s sign-in details name their email as another way in', function () {
+    $school = staffPortalSchool();
+
+    $message = app(CredentialShareMessage::class)->build($school, 'Mrs Ade', 'Staff ID', 'STF-3001', 'Pass123!', 'https://example.test/login', null, null, 'ade@example.com')['message'];
+
+    expect($message)->toContain('*Staff ID:* STF-3001')
+        ->toContain('*Or sign in with your email:* ade@example.com');
+
+    // Without an email on the record, no such line.
+    $plain = app(CredentialShareMessage::class)->build($school, 'Mr Bo', 'Staff ID', 'STF-3002', 'Pass123!', 'https://example.test/login')['message'];
+    expect($plain)->not->toContain('Or sign in with your email');
 });

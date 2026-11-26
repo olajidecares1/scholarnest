@@ -81,7 +81,7 @@
             :action="route('staff.credentials', $member)"
             :username="$member->staff_number"
             username-label="Staff ID"
-            username-hint="Generated automatically and cannot be edited. This is what a teacher types into the staff portal sign-in."
+            :username-hint="'Generated automatically and cannot be edited. Staff sign in with this Staff ID'.(filled($member->email) ? ' or their email address ('.$member->email.')' : ', or with their email address once one is on their record').'.'"
             :account-name="$member->fullName()"
             :has-signed-in="$member->last_login_at !== null"
             :last-sign-in="$member->last_login_at"

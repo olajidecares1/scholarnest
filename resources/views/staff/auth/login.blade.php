@@ -26,6 +26,7 @@
                 autocomplete="username"
                 error-bag="default"
             />
+            <small class="field-hint -mt-1 block">Your Staff ID, or the email address on your staff record.</small>
 
             <x-auth-password-input
                 id="password"

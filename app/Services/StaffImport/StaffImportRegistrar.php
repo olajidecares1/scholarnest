@@ -120,6 +120,7 @@ class StaffImportRegistrar
                 $person['login_url'],
                 $person['phone'],
                 $this->intro($school, $person),
+                $person['email'] ?? null,
             );
 
             $shares[$person['uuid']] = ['password' => $password, 'url' => $share['url']];
@@ -339,6 +340,6 @@ class StaffImportRegistrar
         }
 
         return "Hello {$person['name']}, your staff account at {$school->name} has been created. Your role: {$role}.\n\n"
-            .'To sign in, open the link below and enter your Staff ID and password. You will see your classes and tools as soon as you sign in.';
+            .'To sign in, open the link below and enter your Staff ID (or your email address) and password. You will see your classes and tools as soon as you sign in.';
     }
 }

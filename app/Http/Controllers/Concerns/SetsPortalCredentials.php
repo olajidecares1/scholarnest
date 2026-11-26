@@ -196,6 +196,8 @@ trait SetsPortalCredentials
             $password,
             $this->loginUrlFor($account, $school),
             $account->phone ?? null,
+            null,
+            $this->signInEmail($account),
         ) + ['person' => $personName, 'identifier' => $identifier, 'id_label' => $idLabel]);
     }
 
@@ -244,6 +246,17 @@ trait SetsPortalCredentials
             null,
             $this->loginUrlFor($account, $school),
             $account->phone ?? null,
+            null,
+            $this->signInEmail($account),
         );
+    }
+
+    /**
+     * Staff sign in with their Staff ID or their email address: the email is
+     * named in their sign-in details too, when there is one.
+     */
+    private function signInEmail(Model $account): ?string
+    {
+        return $account instanceof Staff && filled($account->email) ? (string) $account->email : null;
     }
 }
